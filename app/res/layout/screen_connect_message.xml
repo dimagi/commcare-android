@@ -30,5 +30,12 @@
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/content_start"
         android:paddingTop="@dimen/content_start" />
+    <Button
+        android:id="@+id/connect_message_button2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingTop="@dimen/content_start"
+        android:visibility="gone"/>
 
 </LinearLayout>

@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -114,6 +115,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
+    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -164,6 +167,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (checkForMultipleAppsViolation()) {
             return;
+        }
+
+        if(!fromManager) {
+            ConnectManager.init(this);
         }
 
         loadIntentAndInstanceState(savedInstanceState);
@@ -417,6 +424,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+            default:
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+                return;
 
         }
         if (result == null) {
@@ -475,6 +485,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
+        menu.add(0, MENU_CONNECT_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_CONNECT_FORGET, 3, getString(R.string.login_menu_connect_forget));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
+        if(item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+        }
+
+        item = menu.findItem(MENU_CONNECT_FORGET);
+        if(item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        }
+
         return true;
     }
 
@@ -595,6 +624,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 clearErrorMessage();
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
+                break;
+            case MENU_CONNECT_SIGN_IN:
+                //Setup ConnectID
+                ConnectManager.handleConnectButtonPress(this, success -> {
+                    //Nothing to do (yet)
+                });
+                break;
+            case MENU_CONNECT_FORGET:
+                ConnectManager.forgetUser();
                 break;
         }
         return true;

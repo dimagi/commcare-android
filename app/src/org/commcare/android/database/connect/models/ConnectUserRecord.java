@@ -7,6 +7,7 @@ import org.commcare.connect.ConnectTask;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
+import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,9 @@ public class ConnectUserRecord extends Persisted {
      * Name of database that stores Connect user records
      */
     public static final String STORAGE_KEY = "user_info";
+    public static final String META_PIN = "pin";
+    public static final String META_SECONDARY_PHONE_VERIFIED = "secondary_phone_verified";
+    public static final String META_VERIFY_SECONDARY_PHONE_DATE = "verify_secondary_phone_by_date";
 
     @Persisting(1)
     private String userId;
@@ -49,11 +53,23 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(value = 9, nullable = true)
     private Date connectTokenExpiration;
+    @Persisting(value=10, nullable = true)
+    @MetaField(META_PIN)
+    private String pin;
+    @Persisting(11)
+    @MetaField(META_SECONDARY_PHONE_VERIFIED)
+    private boolean secondaryPhoneVerified;
+
+    @Persisting(12)
+    @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
+    private Date verifySecondaryPhoneByDate;
 
     public ConnectUserRecord() {
         registrationPhase = ConnectTask.CONNECT_NO_ACTIVITY.getRequestCode();
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
+        secondaryPhoneVerified = true;
+        verifySecondaryPhoneByDate = new Date();
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
@@ -104,6 +120,8 @@ public class ConnectUserRecord extends Persisted {
     public void setAlternatePhone(String alternatePhone) {
         this.alternatePhone = alternatePhone;
     }
+    public void setPin(String pin) { this.pin = pin; }
+    public String getPin() { return pin; }
 
     public String getPassword() {
         return password;
@@ -129,25 +147,47 @@ public class ConnectUserRecord extends Persisted {
         registrationPhase = phase.getRequestCode();
     }
 
-    public Date getLastPasswordDate() {
+    public Date getLastPinDate() {
         return lastPasswordDate;
+    }
+    public void setLastPinDate(Date date) { lastPasswordDate = date; }
+
+    public boolean getSecondaryPhoneVerified() {
+        return secondaryPhoneVerified;
+    }
+    public void setSecondaryPhoneVerified(boolean verified) { secondaryPhoneVerified = verified; }
+    public Date getSecondaryPhoneVerifyByDate() {
+        return verifySecondaryPhoneByDate;
+    }
+    public void setSecondaryPhoneVerifyByDate(Date date) { verifySecondaryPhoneByDate = date; }
+
+    public boolean shouldForcePin() {
+        return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
     }
 
     public boolean shouldForcePassword() {
-        Date passwordDate = getLastPasswordDate();
-        boolean forcePassword = passwordDate == null;
-        if (!forcePassword) {
-            //See how much time has passed since last password login
-            long millis = (new Date()).getTime() - passwordDate.getTime();
-            long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-            forcePassword = days >= 7;
-        }
-
-        return forcePassword;
+        return shouldForceRecoveryLogin() && !shouldForcePin();
     }
 
-    public void setLastPasswordDate(Date date) {
-        lastPasswordDate = date;
+    private boolean shouldForceRecoveryLogin() {
+        Date pinDate = getLastPinDate();
+        boolean forcePin = pinDate == null;
+        if (!forcePin) {
+            //See how much time has passed since last PIN login
+            long millis = (new Date()).getTime() - pinDate.getTime();
+            long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+            forcePin = days >= 7;
+        }
+
+        return forcePin;
+    }
+
+    public boolean shouldRequireSecondaryPhoneVerification() {
+        if(secondaryPhoneVerified) {
+            return false;
+        }
+
+        return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
     public void updateConnectToken(String token, Date expirationDate) {
@@ -161,5 +201,22 @@ public class ConnectUserRecord extends Persisted {
 
     public Date getConnectTokenExpiration() {
         return connectTokenExpiration;
+    }
+
+    public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
+        ConnectUserRecord newRecord = new ConnectUserRecord();
+
+        newRecord.userId = oldRecord.getUserId();
+        newRecord.password = oldRecord.getPassword();
+        newRecord.name = oldRecord.getName();
+        newRecord.primaryPhone = oldRecord.getPrimaryPhone();
+        newRecord.alternatePhone = oldRecord.getAlternatePhone();
+        newRecord.registrationPhase = oldRecord.getRegistrationPhase().getRequestCode();
+        newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
+        newRecord.connectToken = oldRecord.getConnectToken();
+        newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
+        newRecord.secondaryPhoneVerified = true;
+
+        return newRecord;
     }
 }

@@ -75,6 +75,10 @@ public class ConnectIdPhoneVerificationActivityUiController implements CommCareA
         return codeInput.getText().toString();
     }
 
+    public void setCode(String code) {
+        codeInput.setText(code);
+    }
+
     public void setErrorMessage(String message) {
         if (message == null) {
             errorMessage.setVisibility(View.GONE);

@@ -1,6 +1,18 @@
 package org.commcare.utils;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
+
+import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.SignInClient;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.commcare.connect.ConnectConstants;
 
 import java.util.Locale;
 
@@ -68,5 +80,35 @@ public class PhoneNumberHelper {
         PhoneNumberUtil util = getUtil(context);
 
         return util.getCountryCodeForRegion(locale.getCountry());
+    }
+
+    public static void requestPhoneNumberHint(Activity activity) {
+        GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
+        Identity.getSignInClient(activity).getPhoneNumberHintIntent(hintRequest)
+                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
+                    @Override
+                    public void onSuccess(PendingIntent pendingIntent) {
+                        try {
+                            activity.startIntentSenderForResult(pendingIntent.getIntentSender(), ConnectConstants.CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0);
+                        } catch (IntentSender.SendIntentException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity){
+
+        if (requestCode == ConnectConstants.CREDENTIAL_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
+            SignInClient signInClient = Identity.getSignInClient(activity);
+            String phoneNumber;
+            try {
+                phoneNumber = signInClient.getPhoneNumberFromIntent(intent);
+                return phoneNumber;
+            } catch (ApiException ignored) {
+            }
+
+        }
+        return "";
     }
 }

@@ -3,8 +3,6 @@ package org.commcare.activities.connect;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.biometric.BiometricManager;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
@@ -13,15 +11,17 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
+import androidx.biometric.BiometricManager;
+
 /**
  * Shows the page for configuring biometrics (fingerprint and/or PIN)
  *
  * @author dviggiano
  */
-public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVerificationActivity>
+public class ConnectIdBiometricConfigActivity extends CommCareActivity<ConnectIdBiometricConfigActivity>
         implements WithUIController {
 
-    private ConnectIdVerificationActivityUiController uiController;
+    private ConnectIdBiometricConfigActivityUiController uiController;
     private BiometricManager biometricManager;
 
     @Override
@@ -39,7 +39,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         if (fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable &&
                 pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
             //Skip to password-only workflow
-            finish(true, true, false);
+            finish(true, true);
         } else {
             updateState(fingerprint, pin);
         }
@@ -67,7 +67,7 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
 
     @Override
     public void initUIController() {
-        uiController = new ConnectIdVerificationActivityUiController(this);
+        uiController = new ConnectIdBiometricConfigActivityUiController(this);
     }
 
     @Override
@@ -119,26 +119,22 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this,
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
-            finish(true, false, false);
+            finish(true, false);
         } else if (!BiometricsHelper.configureFingerprint(this)) {
-            finish(true, false, true);
+            finish(true, true);
         }
     }
 
     public void handlePinButton() {
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
-            finish(true, false, false);
+            finish(true, false);
         } else if (!BiometricsHelper.configurePin(this)) {
-            finish(true, false, true);
+            finish(true, true);
         }
     }
 
-    public void handlePasswordButton() {
-        finish(true, true, false);
-    }
-
-    public void finish(boolean success, boolean passwordOnly, boolean failedEnrollment) {
+    public void finish(boolean success, boolean failedEnrollment) {
         Intent intent = new Intent(getIntent());
 
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(this,
@@ -146,10 +142,8 @@ public class ConnectIdVerificationActivity extends CommCareActivity<ConnectIdVer
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(this, biometricManager);
         boolean configured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                 pin == BiometricsHelper.ConfigurationStatus.Configured;
-        intent.putExtra(ConnectConstants.CONFIGURED, configured);
 
-        intent.putExtra(ConnectConstants.PASSWORD, passwordOnly);
-        intent.putExtra(ConnectConstants.ENROLL_FAIL, failedEnrollment);
+        intent.putExtra(ConnectConstants.ENROLL_FAIL, failedEnrollment || !configured);
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
         finish();

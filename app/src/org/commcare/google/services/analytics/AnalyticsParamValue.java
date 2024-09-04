@@ -150,5 +150,5 @@ public class AnalyticsParamValue {
     public static final String CCC_RECOVERY_METHOD_PRIMARY_OTP = "primary_otp";
     public static final String CCC_RECOVERY_METHOD_ALTERNATE_OTP = "alternate_otp";
     public static final String CCC_RECOVERY_METHOD_PASSWORD = "password";
-
+    public static final String CCC_RECOVERY_METHOD_PIN = "pin";
 }

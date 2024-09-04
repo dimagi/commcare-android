@@ -35,13 +35,15 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
-import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectManager;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -256,7 +258,6 @@ public class CommCareApplication extends MultiDexApplication {
 
         FirebaseMessagingUtil.verifyToken();
 
-
         //Create standard provider
         setEncryptionKeyProvider(new EncryptionKeyProvider());
 
@@ -280,9 +281,8 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        LocalePreferences.saveDeviceLocale(newConfig.locale);
     }
 
     private void initNotifications() {
@@ -301,11 +301,11 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
-    public void setBackgroundSyncSafe(boolean backgroundSyncSafe){
+    public void setBackgroundSyncSafe(boolean backgroundSyncSafe) {
         this.backgroundSyncSafe = backgroundSyncSafe;
     }
 
-    public boolean isBackgroundSyncSafe(){
+    public boolean isBackgroundSyncSafe() {
         return this.backgroundSyncSafe;
     }
 
@@ -346,11 +346,11 @@ public class CommCareApplication extends MultiDexApplication {
         // md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
-        ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
-                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
+                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap((long) memoryClass * 1024 * 1024));
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
@@ -426,6 +426,12 @@ public class CommCareApplication extends MultiDexApplication {
             analyticsInstance = FirebaseAnalytics.getInstance(this);
         }
         analyticsInstance.setUserId(getUserIdOrNull());
+
+        ConnectUserRecord user = ConnectManager.getUser(this);
+        if (user != null) {
+            analyticsInstance.setUserProperty("user_cid", user.getUserId());
+        }
+
         return analyticsInstance;
     }
 
@@ -476,7 +482,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     @NonNull
     public String getPhoneId() {
-        /**
+        /*
          * https://source.android.com/devices/tech/config/device-identifiers
          * https://issuetracker.google.com/issues/129583175#comment10
          * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
@@ -520,7 +526,7 @@ public class CommCareApplication extends MultiDexApplication {
     private void initializeAnAppOnStartup() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)) {
+        if (!lastAppId.isEmpty()) {
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 AppUtils.initFirstUsableAppRecord();
@@ -551,7 +557,7 @@ public class CommCareApplication extends MultiDexApplication {
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
-            e.printStackTrace();
+//            e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
@@ -737,7 +743,7 @@ public class CommCareApplication extends MultiDexApplication {
                 synchronized (serviceLock) {
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-                    mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+                    mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
                     mBoundService.showLoggedInNotification(null);
 
                     // Don't let anyone touch this until it's logged in
@@ -1190,18 +1196,10 @@ public class CommCareApplication extends MultiDexApplication {
                                                   AuthInfo authInfo,
                                                   @Nullable HttpResponseProcessor responseProcessor, boolean retry) {
 
-        CommCareNetworkService networkService = null;
+        CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
             networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(params);
-        } else if (authInfo instanceof AuthInfo.CurrentAuth) {
-            //Try to get SSO token
-            AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.acquireSsoTokenSync(context);
-            if (tokenAuth != null) {
-                authInfo = tokenAuth;
-            }
-        }
-
-        if (networkService == null) {
+        } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
                     DeveloperPreferences.isEnforceSecureEndpointEnabled(), retry, params);
