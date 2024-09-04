@@ -5,17 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
@@ -40,6 +33,14 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean backButtonEnabled = true;
@@ -95,28 +96,13 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     .build();
             navController.navigate(fragmentId, bundle, options);
         } else if (redirectionAction != null) {
-            initializeAndUnlockConnection();
+            ConnectManager.init(this);
+            ConnectManager.launchConnect(this, ConnectConstants.UNLOCK_CONNECT, success -> {
+                if (success) {
+                    getJobDetails();
+                }
+            });
         }
-    }
-
-    /**
-     * Initializes the ConnectManager and attempts to unlock the connection.
-     * <p>
-     * This method performs the following steps:
-     * <ul>
-     *     <li>Initializes the ConnectManager with the current context.</li>
-     *     <li>Attempts to unlock the connection using the ConnectManager.</li>
-     *     <li>If the unlock operation is successful, retrieves job details by calling {@link #getJobDetails()}.</li>
-     * </ul>
-     * </p>
-     */
-    private void initializeAndUnlockConnection() {
-        ConnectManager.init(this);
-        ConnectManager.unlockConnect(this, success -> {
-            if (success) {
-                getJobDetails();
-            }
-        });
     }
 
     /**
@@ -302,15 +288,5 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                 ConnectNetworkHelper.showOutdatedApiError(ConnectActivity.this);
             }
         });
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        redirectionAction = intent.getStringExtra("action");
-        opportunityId = intent.getStringExtra("opportunity_id");
-        if(redirectionAction != null){
-            initializeAndUnlockConnection();
-        }
     }
 }

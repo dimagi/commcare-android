@@ -95,8 +95,7 @@
 
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-
-    <string name="remote_form_payload_url" />
+    <string name="remote_form_payload_url"/>
 
     <string name="url_prompt">Choose a URL</string>
     <string name="about_dialog" formatted="false" cc:translatable="true">%s\n\n_Copyright 2016, Dimagi inc, All rights reserved_ \n\n---------------- \n\n__Acknowledgements:__ \n\n%sSome images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n* “Door” symbol by Tak Imoto \n* “Pencil” symbol by Creologica \n* “Notebook” symbol by Carlo \n* “Antenna” symbol by Dima \n* “Map Marker” symbol by P.J. Onori \n* "List" by Landan Lloyd \n* broken screen by Sam Martin from the Noun Project \n\n
@@ -399,8 +398,7 @@
     <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
 
     <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
-    <string name="wait_for_location_fix" cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
-
+    <string name="wait_for_location_fix"  cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
     <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
     <string name="invalid_case_graph_error" cc:translatable="true">This form introduces an invalid case relationship</string>
     <string name="root_detected_title" cc:translatable="true">Rooted Device Detected</string>
@@ -576,13 +574,7 @@
     <string name="connect_verify_phone_change">Change phone number</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
-    <string name="connect_pictures_title">Account Recovery</string>
-    <string name="connect_pictures_label">To help with account recovery, you can optionally take some photos to help identify you.</string>
-    <string name="connect_pictures_face">Face</string>
 
-    <string name="connect_pictures_id">Official ID</string>
-    <string name="connect_pictures_skip">Skip</string>
-    <string name="connect_pictures_continue">Continue</string>
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
     <string name="connect_jobs_all">ALL JOBS</string>
@@ -718,6 +710,7 @@
 
     <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>
     <string name="login_menu_connect_forget">Forget ConnectID user</string>
+
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
 

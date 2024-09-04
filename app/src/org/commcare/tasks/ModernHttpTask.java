@@ -45,10 +45,10 @@ public class ModernHttpTask
     }
 
     public ModernHttpTask(Context context, String url, Multimap<String, String> params,
-            HashMap<String, String> headers,
-            @Nullable RequestBody requestBody,
-            HTTPMethod method,
-            AuthInfo authInfo) {
+                          HashMap<String, String> headers,
+                          @Nullable RequestBody requestBody,
+                          HTTPMethod method,
+                          AuthInfo authInfo) {
         taskId = SIMPLE_HTTP_TASK_ID;
         requester = CommCareApplication.instance().buildHttpRequester(
                 context,

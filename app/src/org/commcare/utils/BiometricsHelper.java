@@ -7,15 +7,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+
+import org.commcare.connect.ConnectConstants;
+import org.commcare.dalvik.R;
+
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
-import com.google.zxing.integration.android.IntentIntegrator;
-
-import org.commcare.connect.ConnectTask;
-import org.commcare.dalvik.R;
 
 /**
  * Helper class for biometric configuration and verification
@@ -120,13 +120,13 @@ public class BiometricsHelper {
                         manager.createConfirmDeviceCredentialIntent(
                                 activity.getString(R.string.connect_unlock_title),
                                 activity.getString(R.string.connect_unlock_message)),
-                        ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode());
+                        ConnectConstants.CONNECT_UNLOCK_PIN);
 //            }
         }
     }
 
     public static boolean handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == ConnectTask.CONNECT_UNLOCK_PIN.getRequestCode()) {
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             if (resultCode == Activity.RESULT_OK) {
                 biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
             } else {

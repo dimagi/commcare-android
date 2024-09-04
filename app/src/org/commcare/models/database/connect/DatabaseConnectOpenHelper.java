@@ -138,4 +138,3 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Connect", oldVersion, newVersion));
     }
 }
-
