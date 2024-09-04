@@ -116,6 +116,7 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -137,6 +138,8 @@ import javax.crypto.SecretKey;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -251,8 +254,9 @@ public class CommCareApplication extends MultiDexApplication {
         FirebaseMessagingUtil.verifyToken();
 
         customiseOkHttp();
-    }
 
+        setRxJavaGlobalHandler();
+    }
 
     protected void loadSqliteLibs() {
         SQLiteDatabase.loadLibs(this);
@@ -1174,7 +1178,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
-            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(params);
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
@@ -1205,5 +1209,19 @@ public class CommCareApplication extends MultiDexApplication {
 
     public void customiseOkHttp() {
         CommCareNetworkServiceGenerator.customizeRetrofitSetup(new OkHttpBuilderCustomConfig());
+    }
+
+    private void setRxJavaGlobalHandler() {
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            if (throwable instanceof UndeliverableException) {
+                throwable = throwable.getCause();
+            }
+            // Swallow RequestAbandonedException
+            if (throwable instanceof RequestAbandonedException) {
+                return;
+            }
+
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
+        });
     }
 }
