@@ -69,7 +69,11 @@ dependencies {
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
-    implementation 'com.simprints:LibSimprints:1.0.12'
+    implementation (name: 'LibSimprints-1.0.12', ext: 'aar')
+    implementation (name: 'mapbox-android-accounts-0.2.0', ext: 'aar')
+    implementation (name: 'realm-android-library-4.1.1', ext: 'aar')
+    implementation (name: 'volley-1.1.0', ext: 'aar')
+    implementation (name: 'storage-2.1.0', ext: 'aar')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -98,7 +102,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation 'com.duolingo.open:rtl-viewpager:2.0.0'
+    implementation (name: 'rtl-viewpager-2.0.0', ext: 'aar')
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
@@ -114,6 +118,10 @@ dependencies {
 
     implementation('io.ona.kujaku:library:0.9.0') {
         exclude module: 'xpp3'
+        exclude module: 'volley'
+        exclude module: 'storage'
+        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
+        exclude group: 'io.realm'
     }
     implementation 'androidx.work:work-runtime:2.7.1'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
@@ -277,8 +285,6 @@ android {
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_DEV', "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
 
-        buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
-        buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
 
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
@@ -558,6 +564,10 @@ tasks.whenTaskAdded { task ->
             task.name == 'processStandaloneReleaseResources')
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
+    }
+    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest') {
+        android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
+        android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }
 }
 

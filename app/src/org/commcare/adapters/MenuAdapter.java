@@ -250,7 +250,13 @@ public class MenuAdapter extends BaseAdapter {
         if (badgeText != null && !"".equals(badgeText) && !"0".equals(badgeText)) {
             if (badgeText.length() > 3) {
                 // A badge can only fit up to 3 characters
-                badgeText = badgeText.substring(0, 3);
+                try {
+                    Integer.parseInt(badgeText);
+                    badgeText = "999+";
+                } catch (NumberFormatException e) {
+                    // if not a integer then just show an overflow string
+                    badgeText = badgeText.substring(0, 3) + "..";
+                }
             }
             TextView badgeTextView = badgeView.findViewById(R.id.badge_text);
             badgeTextView.setText(badgeText);
