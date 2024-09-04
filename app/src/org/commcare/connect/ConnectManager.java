@@ -171,14 +171,6 @@ public class ConnectManager {
         return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
-    public static boolean shouldShowConnectButton() {
-        if (!AppManagerDeveloperPreferences.isConnectIdEnabled()) {
-            return false;
-        }
-
-        return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
-    }
-
     public static boolean isConnectTask(int code) {
         return ConnectTask.isConnectTaskCode(code);
     }
