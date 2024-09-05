@@ -66,8 +66,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_MAX_VISITS = "max_visits";
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
-    public static final String META_LAST_ACCESSED_DATE = "last_accessed";
-
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -140,10 +138,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_USER_SUSPENDED)
     private boolean isUserSuspended;
 
-    @Persisting(25)
-    @MetaField(META_LAST_ACCESSED_DATE)
-    private Date lastAccessedDate;
-
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
     private List<ConnectJobLearningRecord> learnings;
@@ -160,7 +154,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dateClaimed = new Date();
         lastDeliveryUpdate = new Date();
         lastWorkedDate = new Date();
-        lastAccessedDate = new Date();
     }
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
