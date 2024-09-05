@@ -820,6 +820,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
+        if (mFormController.isFormReadOnly()) {
+            return;
+        }
+
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
