@@ -933,7 +933,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean shouldSaveFormOnStop() {
         // if feature enabled and the form has loaded and another widget workflow is not in progress and we
         // ourselves have not called exit as part of user workflow
-        return MainConfigurablePreferences.isAutoSaveFormOnPause() && formHasLoaded() && !triggeredExit;
+        return MainConfigurablePreferences.isAutoSaveFormOnPause() && formHasLoaded() && !triggeredExit
+                && !instanceIsReadOnly;
     }
 
     private void saveInlineVideoState() {
