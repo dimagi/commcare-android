@@ -839,6 +839,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
+        if (complete) {
+            HiddenPreferences.clearInterruptedFormState();
+            HiddenPreferences.clearInterruptedSSD();
+        }
+
         mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1),
                 getIntent().getIntExtra(KEY_FORM_DEF_ID, -1),
                 FormEntryInstanceState.mFormRecordPath,
