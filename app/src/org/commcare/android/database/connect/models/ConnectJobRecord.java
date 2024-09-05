@@ -66,6 +66,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_MAX_VISITS = "max_visits";
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
+    public static final String META_LAST_ACCESSED_DATE = "last_accessed";
 
 
     @Persisting(1)
@@ -139,6 +140,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_USER_SUSPENDED)
     private boolean isUserSuspended;
 
+    @Persisting(25)
+    @MetaField(META_LAST_ACCESSED_DATE)
+    private Date lastAccessedDate;
 
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
@@ -151,15 +155,16 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private boolean claimed;
 
     public ConnectJobRecord() {
-
+        lastUpdate = new Date();
+        lastLearnUpdate = new Date();
+        dateClaimed = new Date();
+        lastDeliveryUpdate = new Date();
+        lastWorkedDate = new Date();
+        lastAccessedDate = new Date();
     }
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
         ConnectJobRecord job = new ConnectJobRecord();
-
-        job.lastUpdate = new Date();
-        job.lastLearnUpdate = new Date();
-        job.lastDeliveryUpdate = new Date();
 
         job.jobId = json.getInt(META_JOB_ID);
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
@@ -185,7 +190,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.completedVisits = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
 
         job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
-        job.dateClaimed = new Date();
 
         job.isActive = !json.has(META_IS_ACTIVE) || json.getBoolean(META_IS_ACTIVE);
 
@@ -245,9 +249,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         //job.? = json.has(META_DATE_CREATED) ? df.parse(json.getString(META_DATE_CREATED)) : null;
         //job.? = json.has(META_DATE_MODIFIED) ? df.parse(json.getString(META_DATE_MODIFIED)) : null;
 
-        //In model but not in JSON
-        job.lastWorkedDate = new Date();
-
         job.status = STATUS_AVAILABLE;
         if(job.getLearningCompletePercentage() > 0) {
             job.status = STATUS_LEARNING;
@@ -276,7 +277,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getMaxDailyVisits() { return maxDailyVisits; }
     public int getBudgetPerVisit() { return budgetPerVisit; }
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
-    public Date getDateCompleted() { return lastWorkedDate; }
     public Date getProjectStartDate() { return projectStartDate; }
     public Date getProjectEndDate() { return projectEndDate; }
     public void setProjectEndDate(Date date) { projectEndDate = date; }
@@ -456,83 +456,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return status == STATUS_LEARNING && passedAssessment();
     }
 
-    /**
-     * Used for app db migration only
-     */
-    public static ConnectJobRecord fromV2(ConnectJobRecordV2 oldRecord) {
-        ConnectJobRecord newRecord = new ConnectJobRecord();
-
-        newRecord.jobId = oldRecord.getJobId();
-        newRecord.title = oldRecord.getTitle();
-        newRecord.description = oldRecord.getDescription();
-        newRecord.status = oldRecord.getStatus();
-        newRecord.completedVisits = oldRecord.getCompletedVisits();
-        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
-        newRecord.maxVisits = oldRecord.getMaxVisits();
-        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
-        newRecord.totalBudget = oldRecord.getTotalBudget();
-        newRecord.projectEndDate = oldRecord.getProjectEndDate();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
-        newRecord.deliveries = new ArrayList<>();
-        newRecord.payments = new ArrayList<>();
-        newRecord.learnings = new ArrayList<>();
-        newRecord.assessments = new ArrayList<>();
-        newRecord.paymentUnits = new ArrayList<>();
-
-        newRecord.organization = oldRecord.getOrganization();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
-        newRecord.numLearningModules = oldRecord.getNumLearningModules();
-        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
-        newRecord.currency = oldRecord.getCurrency();
-        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
-        newRecord.shortDescription = oldRecord.getShortDescription();
-        newRecord.lastUpdate = oldRecord.getLastUpdate();
-        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
-        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
-        newRecord.dateClaimed = new Date();
-        newRecord.projectStartDate = new Date();
-        newRecord.isActive = true;
-
-        return newRecord;
-    }
-
-    public static ConnectJobRecord fromV4(ConnectJobRecordV4 oldRecord) {
-        ConnectJobRecord newRecord = new ConnectJobRecord();
-
-        newRecord.jobId = oldRecord.getJobId();
-        newRecord.title = oldRecord.getTitle();
-        newRecord.description = oldRecord.getDescription();
-        newRecord.status = oldRecord.getStatus();
-        newRecord.completedVisits = oldRecord.getCompletedVisits();
-        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
-        newRecord.maxVisits = oldRecord.getMaxVisits();
-        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
-        newRecord.totalBudget = oldRecord.getTotalBudget();
-        newRecord.projectEndDate = oldRecord.getProjectEndDate();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
-        newRecord.deliveries = new ArrayList<>();
-        newRecord.payments = new ArrayList<>();
-        newRecord.learnings = new ArrayList<>();
-        newRecord.assessments = new ArrayList<>();
-        newRecord.paymentUnits = new ArrayList<>();
-
-        newRecord.organization = oldRecord.getOrganization();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
-        newRecord.numLearningModules = oldRecord.getNumLearningModules();
-        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
-        newRecord.currency = oldRecord.getCurrency();
-        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
-        newRecord.shortDescription = oldRecord.getShortDescription();
-        newRecord.lastUpdate = oldRecord.getLastUpdate();
-        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
-        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
-        newRecord.dateClaimed = new Date();
-        newRecord.projectStartDate = new Date();
-        newRecord.isActive = true;
-
-        return newRecord;
-    }
-
     public static ConnectJobRecord fromV7(ConnectJobRecordV7 oldRecord) {
         ConnectJobRecord newRecord = new ConnectJobRecord();
 
@@ -554,7 +477,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.paymentUnits = new ArrayList<>();
 
         newRecord.organization = oldRecord.getOrganization();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
         newRecord.numLearningModules = oldRecord.getNumLearningModules();
         newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
         newRecord.currency = oldRecord.getCurrency();
@@ -566,7 +488,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.dateClaimed = oldRecord.getDateClaimed();
         newRecord.projectStartDate = oldRecord.getProjectStartDate();
         newRecord.isActive = oldRecord.getIsActive();
-        newRecord.isUserSuspended=false;
+        newRecord.isUserSuspended= false;
 
         return newRecord;
     }

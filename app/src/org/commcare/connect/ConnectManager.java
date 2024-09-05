@@ -3,7 +3,6 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -85,23 +85,19 @@ public class ConnectManager {
     private static final int APP_DOWNLOAD_TASK_ID = 4;
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
-    public static final int MethodRecoveryAlternate = 3;
-    public static final int MethodVerifyAlternate = 4;
+//    public static final int MethodRecoveryAlternate = 3;
+//    public static final int MethodVerifyAlternate = 4;
 
-    public static boolean allowPassword = false;
-    private static boolean attemptingFingerprint = false;
-
-    private static BiometricManager biometricManager;
-    private static BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
+    private BiometricManager biometricManager;
 
 
 
     public static int getFailureAttempt() {
-        return ConnectManager.getInstance().failedPinAttempts;
+        return getInstance().failedPinAttempts;
     }
 
     public static void setFailureAttempt(int failureAttempt) {
-        ConnectManager.getInstance().failedPinAttempts = failureAttempt;
+        getInstance().failedPinAttempts = failureAttempt;
     }
 
     /**
@@ -123,7 +119,6 @@ public class ConnectManager {
     private static ConnectManager manager = null;
     private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
     private CommCareActivity<?> parentActivity;
-    private ConnectActivityCompleteListener loginListener;
 
     private String primedAppIdForAutoLogin = null;
 
@@ -168,67 +163,13 @@ public class ConnectManager {
         }
     }
 
-    private static BiometricPrompt.AuthenticationCallback preparePromptCallbacks(CommCareActivity<?> parent) {
-        biometricManager = BiometricManager.from(parent);
-
-        return new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode,
-                                              @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-                if (attemptingFingerprint) {
-                    attemptingFingerprint = false;
-                    if (BiometricsHelper.isPinConfigured(parent, biometricManager) &&
-                            allowPassword) {
-                        //Automatically try password, it's the only option
-                        performPinUnlock(parent);
-                    }
-                }
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(
-                    @NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-                goToConnectJobsList();
-
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-                Toast.makeText(parent.getApplicationContext(), "Authentication failed",
-                                Toast.LENGTH_SHORT)
-                        .show();
-            }
-        };
-    }
-
-    public static void performPinUnlock(CommCareActivity<?> parent) {
-        BiometricsHelper.authenticatePin(parent, biometricManager, biometricPromptCallbacks);
-    }
-
-
-    public static void performFingerprintUnlock(CommCareActivity<?> parent) {
-        biometricManager = BiometricManager.from(parent);
-        biometricPromptCallbacks= preparePromptCallbacks(parent);
-        attemptingFingerprint = true;
-        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(parent, biometricManager) ||
-                allowPassword;
-        BiometricsHelper.authenticateFingerprint(parent, biometricManager, allowOtherOptions, biometricPromptCallbacks);
-    }
-
     public static BiometricManager getBiometricManager(CommCareActivity<?> parent){
-        if(biometricManager!=null){
-            return biometricManager;
-        }else{
-            biometricManager=BiometricManager.from(parent);;
-            return  biometricManager;
+        ConnectManager instance = getInstance();
+        if (instance.biometricManager == null) {
+            instance.biometricManager = BiometricManager.from(parent);
         }
-    }
 
-    public static void performPasswordUnlock() {
-
+        return instance.biometricManager;
     }
 
     private static void scheduleHearbeat() {
@@ -267,6 +208,36 @@ public class ConnectManager {
                 && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
+    public static void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
+        BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                callback.connectActivityComplete(false);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                callback.connectActivityComplete(true);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                callback.connectActivityComplete(false);
+            }
+        };
+
+        BiometricManager bioManager = getBiometricManager(activity);
+        if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
+            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, allowOtherOptions, callbacks);
+        } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
+            BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
+        } else {
+            callback.connectActivityComplete(false);
+            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+        }
+    }
+
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
 
     public static String formatDate(Date date) {
@@ -292,8 +263,8 @@ public class ConnectManager {
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
-            ConnectUserRecord user = ConnectManager.getUser(context);
-            String dateStr = ConnectManager.formatDate(user.getSecondaryPhoneVerifyByDate());
+            ConnectUserRecord user = getUser(context);
+            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 
             TextView view = tile.findViewById(R.id.connect_phone_label);
@@ -315,10 +286,6 @@ public class ConnectManager {
 
         scheduleHearbeat();
         CrashUtil.registerConnectUser();
-
-        if (instance.loginListener != null) {
-            instance.loginListener.connectActivityComplete(true);
-        }
     }
 
     public static boolean shouldShowSignInMenuOption() {
@@ -345,12 +312,14 @@ public class ConnectManager {
         return getInstance().connectStatus == ConnectIdStatus.LoggedIn;
     }
 
-    public static boolean isConnectTask(int code) {
-        return true;
-    }
-
     public static void handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
         getInstance().parentActivity = activity;
+
+        if (!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode)) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                goToConnectJobsList(activity);
+            }
+        }
     }
 
     public static ConnectUserRecord getUser(Context context) {
@@ -365,7 +334,6 @@ public class ConnectManager {
         ConnectIdActivity.reset();
 
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
-        manager.loginListener = null;
     }
 
     public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -385,40 +353,32 @@ public class ConnectManager {
     private int failedPinAttempts = 0;
 
     public static void setActiveJob(ConnectJobRecord job) {
-        ConnectManager.getInstance().activeJob = job;
+        getInstance().activeJob = job;
     }
 
     public static ConnectJobRecord getActiveJob() {
-        return ConnectManager.getInstance().activeJob;
+        return getInstance().activeJob;
     }
 
-    public static void launchConnect(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
+    private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
         Intent intent = new Intent(parent, ConnectIdActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("TASK", task);
-        parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE, bundle);
+        intent.putExtra("TASK", task);
+        parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
     }
 
-    public static void handleConnectButtonPress(CommCareActivity<?> parent, ConnectActivityCompleteListener listener) {
-        ConnectManager manager = getInstance();
+    public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
+        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, callback);
+    }
+
+    public static void beginSecondaryPhoneVerification(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
+        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, callback);
+    }
+
+    public static void goToConnectJobsList(CommCareActivity<?> parent) {
         manager.parentActivity = parent;
-        manager.loginListener = listener;
-
-        switch (manager.connectStatus) {
-            case NotIntroduced, Registering -> {
-                launchConnect(parent, ConnectConstants.BEGIN_REGISTRATION, success -> {
-                });
-            }
-            case LoggedIn -> {
-                goToConnectJobsList();
-            }
-        }
-    }
-
-    public static void goToConnectJobsList() {
         completeSignin();
-        Intent i = new Intent(manager.parentActivity, ConnectActivity.class);
-        manager.parentActivity.startActivity(i);
+        Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
     }
 
     public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
@@ -436,6 +396,14 @@ public class ConnectManager {
         }
     }
 
+    public static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
+        ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(activity, appId, username);
+        if(record != null) {
+            record.setLastAccessed(new Date());
+            ConnectDatabaseHelper.storeApp(activity, record);
+        }
+    }
+
     public static void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
         if (isLoginManagedByConnectId(appId, username)) {
             //ConnectID is configured
@@ -448,7 +416,7 @@ public class ConnectManager {
                 d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                     activity.dismissAlertDialog();
 
-                    launchConnect(activity, ConnectConstants.UNLOCK_CONNECT, success -> {
+                    unlockConnect(activity, success -> {
                         if (success) {
                             ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
                             if (linkedApp != null) {
@@ -515,7 +483,7 @@ public class ConnectManager {
                 d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                     activity.dismissAlertDialog();
 
-                    launchConnect(activity, ConnectConstants.UNLOCK_CONNECT, success -> {
+                    unlockConnect(activity, success -> {
                         if (success) {
                             appRecordFinal.linkToConnectId(password);
                             ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
