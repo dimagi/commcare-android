@@ -88,31 +88,22 @@ public class ConnectNetworkHelper {
 
     private static final SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
 
-    public static Date convertUTCToDate(String utcDateString) {
+    public static Date convertUTCToDate(String utcDateString) throws ParseException {
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        Date date = null;
-        try {
-            date = utcFormat.parse(utcDateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return date;
+        return utcFormat.parse(utcDateString);
     }
 
     public static Date convertDateToLocal(Date utcDate) {
         utcFormat.setTimeZone(TimeZone.getDefault());
 
-        Date date = null;
         try {
             String localDateString = utcFormat.format(utcDate);
-            date = utcFormat.parse(localDateString);
-        } catch (ParseException e) {
-            e.printStackTrace();
+            return utcFormat.parse(localDateString);
         }
-
-        return date;
+        catch (ParseException e) {
+            return utcDate;
+        }
     }
 
     public static String getCallInProgress() {
