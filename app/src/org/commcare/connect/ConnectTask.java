@@ -95,6 +95,13 @@ public enum ConnectTask {
             ConnectIdMessageActivity.class),
     CONNECT_REGISTRATION_WRONG_PIN(ConnectConstants.ConnectIdTaskIdOffset + 39,
             ConnectIdMessageActivity.class),
+
+    CONNECT_DEACTIVATE_USER_MESSAGE(ConnectConstants.ConnectIdTaskIdOffset + 40,
+            ConnectIdMessageActivity.class),
+    CONNECT_DEACTIVATE_USER_CONFIRMATION_MESSAGE(ConnectConstants.ConnectIdTaskIdOffset + 41,
+            ConnectIdMessageActivity.class),
+    CONNECT_DEACTIVATE_VERIFY_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 42,
+            ConnectIdPhoneVerificationActivity.class),
     ;
 
     private final int requestCode;

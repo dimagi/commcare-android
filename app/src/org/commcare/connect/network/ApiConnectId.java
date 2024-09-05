@@ -323,6 +323,18 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
+    public static boolean requestInitiateAccountDeactivation(Context context, String phone,String secretKey, IApiCallback callback) {
+        int urlId = R.string.ConnectInitiateUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("secret_key", secretKey);
+        params.put("phone_number", phone);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
     public static boolean requestRecoveryOtpSecondary(Context context, String phone, String secret,
                                                       IApiCallback callback) {
         int urlId = R.string.ConnectRecoverSecondaryURL;
@@ -393,6 +405,20 @@ public class ApiConnectId {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
         HashMap<String, String> params = new HashMap<>();
+        params.put("token", token);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static boolean confirmUserDeactivation(Context context, String phone, String secret,
+                                                          String token, IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone_number", phone);
+        params.put("secret_key", secret);
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),

@@ -31,6 +31,8 @@ public class ConnectIdPhoneVerificationActivityUiController implements CommCareA
     private TextView resendTextView;
     @UiElement(value = R.id.connect_phone_verify_button)
     private Button verifyButton;
+    @UiElement(value = R.id.connect_deactivate_button)
+    private Button button2;
 
     protected final ConnectIdPhoneVerificationActivity activity;
 
@@ -43,6 +45,7 @@ public class ConnectIdPhoneVerificationActivityUiController implements CommCareA
         resendTextView.setOnClickListener(arg0 -> activity.requestSmsCode());
         changeTextView.setOnClickListener(arg0 -> activity.changeNumber());
         verifyButton.setOnClickListener(arg0 -> activity.verifySmsCode());
+        button2.setOnClickListener(arg0 -> activity.deactivateUser());
     }
 
     @Override
@@ -84,6 +87,14 @@ public class ConnectIdPhoneVerificationActivityUiController implements CommCareA
         } else {
             errorMessage.setVisibility(View.VISIBLE);
             errorMessage.setText(message);
+        }
+    }
+
+    public void setButton2Text(String buttonText) {
+        boolean show = buttonText != null;
+        button2.setVisibility(show ? View.VISIBLE : View.GONE);
+        if(show) {
+            button2.setText(buttonText);
         }
     }
 }

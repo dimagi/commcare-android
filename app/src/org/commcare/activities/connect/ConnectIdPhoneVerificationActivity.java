@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 
@@ -38,8 +40,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import androidx.annotation.Nullable;
-
 /**
  * Shows the page that prompts the user to enter the OTP they received via SMS
  *
@@ -51,6 +51,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
     public static final int MethodVerifyAlternate = 4;
+    public static final int MethodDeactivateUser = 5;
     public static final int REQ_USER_CONSENT = 200;
 
     private int method;
@@ -58,6 +59,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
     private String username;
     private String password;
     private String recoveryPhone;
+    private String button2 = null;
     private boolean allowChange;
     private ConnectIdPhoneVerificationActivityUiController uiController;
     private SMSBroadcastReceiver smsBroadcastReceiver;
@@ -80,6 +82,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         password = getIntent().getStringExtra(ConnectConstants.PASSWORD);
         recoveryPhone = getIntent().getStringExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
 
+        if (getIntent().hasExtra(ConnectConstants.BUTTON2)) {
+            button2 = getString(getIntent().getIntExtra(ConnectConstants.BUTTON2, 0));
+        }
         uiController.setupUI();
 
         updateMessage();
@@ -101,7 +106,6 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         if(requestCode == REQ_USER_CONSENT && (resultCode== RESULT_OK) && data != null){
             String message= data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
             getOtpFromMessage(message);
-
         }
     }
 
@@ -109,7 +113,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
         Pattern otpPattern = Pattern.compile("(|^)\\d{6}");
         Matcher matcher = otpPattern.matcher(message);
-        if (matcher.find()){
+        if (matcher.find()) {
 
             uiController.setCode(matcher.group(0));
         }
@@ -117,7 +121,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
     }
 
-    public void registerBrodcastReciever(){
+    public void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
         smsBroadcastReceiver.smsListener = new SMSListener() {
@@ -129,7 +133,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         };
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        registerReceiver(smsBroadcastReceiver,intentFilter);
+        registerReceiver(smsBroadcastReceiver, intentFilter);
     }
 
     @Override
@@ -139,7 +143,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         if (allowChange) {
             uiController.showChangeOption();
         }
-
+        uiController.setButton2Text(button2);
         uiController.requestInputFocus();
     }
 
@@ -180,7 +184,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                 int resendLimitMinutes = 2;
                 double minutesRemaining = resendLimitMinutes - elapsedMinutes;
                 if (minutesRemaining > 0) {
-                    secondsToReset = (int)Math.ceil(minutesRemaining * 60);
+                    secondsToReset = (int) Math.ceil(minutesRemaining * 60);
                 }
             }
 
@@ -290,6 +294,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
             case MethodVerifyAlternate -> {
                 isBusy = !ApiConnectId.requestVerificationOtpSecondary(this, username, password, callback);
             }
+            case MethodDeactivateUser -> {
+                isBusy = false;
+            }
             default -> {
                 isBusy = !ApiConnectId.requestRegistrationOtpPrimary(this, username, password, callback);
             }
@@ -313,7 +320,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                 logRecoveryResult(true);
 
                 try {
-                    switch(method) {
+                    switch (method) {
                         case MethodRegistrationPrimary -> {
                             finish(true, false, null);
                         }
@@ -328,7 +335,7 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
                             String secondaryPhone = null;
                             String responseAsString = new String(
                                     StreamsUtil.inputStreamToByteArray(responseData));
-                            if(responseAsString.length() > 0) {
+                            if (responseAsString.length() > 0) {
                                 JSONObject json = new JSONObject(responseAsString);
                                 String key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
                                 secondaryPhone = json.has(key) ? json.getString(key) : null;
@@ -354,8 +361,19 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
 
                             resetPassword(context, phone, password, username, displayName);
                         }
+
+                        case MethodDeactivateUser -> {
+                            String responseAsString = new String(
+                                    StreamsUtil.inputStreamToByteArray(responseData));
+                            JSONObject json = new JSONObject(responseAsString);
+                            if (json.getBoolean("success")) {
+                                finish(true, false, null);
+                            } else {
+                                uiController.setErrorMessage("Error verifying SMS code");
+                            }
+                        }
                     }
-                } catch(Exception e) {
+                } catch (Exception e) {
                     Logger.exception("Parsing return from OTP verification", e);
                 }
             }
@@ -393,6 +411,9 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
             }
             case MethodVerifyAlternate -> {
                 isBusy = !ApiConnectId.confirmVerificationOtpSecondary(this, username, password, token, callback);
+            }
+            case MethodDeactivateUser -> {
+                isBusy = !ApiConnectId.confirmUserDeactivation(this, username, password, token, callback);
             }
             default -> {
                 isBusy = !ApiConnectId.confirmRegistrationOtpPrimary(this, username, password, token, callback);
@@ -450,6 +471,10 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         finish(true, true, null);
     }
 
+    public void deactivateUser() {
+        finish(true, true, null);
+    }
+
     public void finish(boolean success, boolean changeNumber, String secondaryPhone) {
         stopHandler();
 
@@ -457,11 +482,15 @@ public class ConnectIdPhoneVerificationActivity extends CommCareActivity<Connect
         if (method == MethodRecoveryPrimary) {
             intent.putExtra(ConnectConstants.SECRET, password);
             intent.putExtra(ConnectConstants.CHANGE, changeNumber);
-            if(secondaryPhone != null) {
+            if (secondaryPhone != null) {
                 intent.putExtra(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE, secondaryPhone);
             }
         } else if (method != MethodRecoveryAlternate) {
             intent.putExtra(ConnectConstants.CHANGE, changeNumber);
+        }
+
+        if (method == MethodRecoveryAlternate) {
+            intent.putExtra(ConnectConstants.DEACTIVATE_BUTTON, button2);
         }
 
         setResult(success ? RESULT_OK : RESULT_CANCELED, intent);
