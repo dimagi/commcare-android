@@ -8,6 +8,7 @@ import org.commcare.activities.GeoPointActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.models.database.InterruptedFormState;
 import org.commcare.services.FCMMessageData;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GeoUtils;
@@ -296,6 +297,7 @@ public class HiddenPreferences {
     }
 
     public static void setInterruptedSSD(int ssdId) {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Saving interrupted state");
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, ssdId).apply();
@@ -308,6 +310,7 @@ public class HiddenPreferences {
     }
 
     public static void clearInterruptedSSD() {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing interrupted state");
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
