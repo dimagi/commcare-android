@@ -847,7 +847,11 @@ public class ConnectManager {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject obj = (JSONObject)array.get(i);
-                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
+                                ConnectJobDeliveryRecord delivery = ConnectJobDeliveryRecord.fromJson(obj, job.getJobId());
+                                if(delivery != null) {
+                                    //Note: Ignoring faulty deliveries (non-fatal exception logged)
+                                    deliveries.add(delivery);
+                                }
                             }
 
                             //Store retrieved deliveries
