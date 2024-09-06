@@ -43,9 +43,9 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
     public static final String CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY = "secondary_phone_validate_by";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
-    public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset + 1;
-    public final static int CONNECT_REGISTER_OR_RECOVER_DECISION = ConnectConstants.ConnectIdTaskIdOffset + 2;
-    public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 3;
+    public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
+    public final static int CONNECT_REGISTER_OR_RECOVER_DECISION = ConnectConstants.ConnectIdTaskIdOffset + 1;
+    public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 2;
     public final static int CONNECT_REGISTRATION_MAIN = ConnectConstants.ConnectIdTaskIdOffset + 4;
     public final static int CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS = ConnectConstants.ConnectIdTaskIdOffset + 5;
     public final static int CONNECT_REGISTRATION_UNLOCK_BIOMETRIC = ConnectConstants.ConnectIdTaskIdOffset + 6;

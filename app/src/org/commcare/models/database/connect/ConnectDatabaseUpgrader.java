@@ -19,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRec
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
@@ -37,65 +38,63 @@ public class ConnectDatabaseUpgrader {
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
-            if (upgradeOneTwo(db)) {
-                oldVersion = 2;
-            }
+            upgradeOneTwo(db);
+            oldVersion = 2;
         }
 
         if (oldVersion == 2) {
-            if (upgradeTwoThree(db)) {
-                oldVersion = 3;
-            }
+            upgradeTwoThree(db);
+            oldVersion = 3;
         }
 
         if (oldVersion == 3) {
-            if (upgradeThreeFour(db)) {
-                oldVersion = 4;
-            }
+            upgradeThreeFour(db);
+            oldVersion = 4;
         }
 
         if (oldVersion == 4) {
-            if (upgradeFourFive(db)) {
-                oldVersion = 5;
-            }
+            upgradeFourFive(db);
+            oldVersion = 5;
         }
 
         if (oldVersion == 5) {
-            if (upgradeFiveSix(db)) {
-                oldVersion = 6;
-            }
+            upgradeFiveSix(db);
+            oldVersion = 6;
         }
 
         if (oldVersion == 6) {
-            if (upgradeSixSeven(db)) {
-                oldVersion = 7;
-            }
+            upgradeSixSeven(db);
+            oldVersion = 7;
         }
 
         if (oldVersion == 7) {
-            if (upgradeSevenEight(db)) {
-                oldVersion = 8;
-            }
+            upgradeSevenEight(db);
+            oldVersion = 8;
         }
 
         if (oldVersion == 8) {
-            if (upgradeEightNine(db)) {
-                oldVersion = 9;
-            }
+            upgradeEightNine(db);
+            oldVersion = 9;
+        }
+
+        if (oldVersion == 9) {
+            upgradeNineTen(db);
+            oldVersion = 10;
         }
     }
 
-    private boolean upgradeOneTwo(SQLiteDatabase db) {
-        return addTableForNewModel(db, ConnectJobRecord.STORAGE_KEY, new ConnectJobRecord()) &&
-                addTableForNewModel(db, ConnectAppRecord.STORAGE_KEY, new ConnectAppRecord()) &&
-                addTableForNewModel(db, ConnectLearnModuleSummaryRecord.STORAGE_KEY, new ConnectLearnModuleSummaryRecord()) &&
-                addTableForNewModel(db, ConnectJobDeliveryRecord.STORAGE_KEY, new ConnectJobDeliveryRecord()) &&
-                addTableForNewModel(db, ConnectJobLearningRecord.STORAGE_KEY, new ConnectJobLearningRecord()) &&
-                addTableForNewModel(db, ConnectJobAssessmentRecord.STORAGE_KEY, new ConnectJobAssessmentRecord()) &&
-                addTableForNewModel(db, ConnectJobPaymentRecord.STORAGE_KEY, new ConnectJobPaymentRecord());
+    private void upgradeOneTwo(SQLiteDatabase db) {
+        addTableForNewModel(db, ConnectJobRecord.STORAGE_KEY, new ConnectJobRecordV2());
+        addTableForNewModel(db, ConnectAppRecord.STORAGE_KEY, new ConnectAppRecord());
+        addTableForNewModel(db, ConnectLearnModuleSummaryRecord.STORAGE_KEY, new ConnectLearnModuleSummaryRecord());
+        addTableForNewModel(db, ConnectJobDeliveryRecord.STORAGE_KEY, new ConnectJobDeliveryRecordV2());
+        addTableForNewModel(db, ConnectJobLearningRecord.STORAGE_KEY, new ConnectJobLearningRecord());
+        addTableForNewModel(db, ConnectJobAssessmentRecord.STORAGE_KEY, new ConnectJobAssessmentRecord());
+        addTableForNewModel(db, ConnectJobPaymentRecord.STORAGE_KEY, new ConnectJobPaymentRecordV3());
+        addTableForNewModel(db, ConnectLinkedAppRecord.STORAGE_KEY, new ConnectLinkedAppRecordV3());
     }
 
-    private boolean upgradeTwoThree(SQLiteDatabase db) {
+    private void upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
@@ -121,7 +120,7 @@ public class ConnectDatabaseUpgrader {
 
             for (Persistable r : oldStorage) {
                 ConnectJobRecordV2 oldRecord = (ConnectJobRecordV2)r;
-                ConnectJobRecord newRecord = ConnectJobRecord.fromV2(oldRecord);
+                ConnectJobRecordV4 newRecord = ConnectJobRecordV4.fromV2(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -147,13 +146,12 @@ public class ConnectDatabaseUpgrader {
             }
 
             db.setTransactionSuccessful();
-            return true;
         } finally {
             db.endTransaction();
         }
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
+    private void upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
@@ -195,7 +193,7 @@ public class ConnectDatabaseUpgrader {
 
             for (Persistable r : oldStorage) {
                 ConnectLinkedAppRecordV3 oldRecord = (ConnectLinkedAppRecordV3)r;
-                ConnectLinkedAppRecord newRecord = ConnectLinkedAppRecord.fromV3(oldRecord);
+                ConnectLinkedAppRecordV8 newRecord = ConnectLinkedAppRecordV8.fromV3(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -236,13 +234,12 @@ public class ConnectDatabaseUpgrader {
             }
 
             db.setTransactionSuccessful();
-            return true;
         } finally {
             db.endTransaction();
         }
     }
 
-    private boolean upgradeFourFive(SQLiteDatabase db) {
+    private void upgradeFourFive(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
@@ -270,20 +267,19 @@ public class ConnectDatabaseUpgrader {
 
             for (Persistable r : oldStorage) {
                 ConnectJobRecordV4 oldRecord = (ConnectJobRecordV4)r;
-                ConnectJobRecord newRecord = ConnectJobRecord.fromV4(oldRecord);
+                ConnectJobRecordV7 newRecord = ConnectJobRecordV7.fromV4(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
 
             db.setTransactionSuccessful();
-            return true;
         } finally {
             db.endTransaction();
         }
     }
 
-    private boolean upgradeFiveSix(SQLiteDatabase db) {
+    private void upgradeFiveSix(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
@@ -322,17 +318,16 @@ public class ConnectDatabaseUpgrader {
             }
 
             db.setTransactionSuccessful();
-            return true;
         } finally {
             db.endTransaction();
         }
     }
 
-    private boolean upgradeSixSeven(SQLiteDatabase db) {
-        return addTableForNewModel(db, ConnectPaymentUnitRecord.STORAGE_KEY, new ConnectPaymentUnitRecord());
+    private void upgradeSixSeven(SQLiteDatabase db) {
+        addTableForNewModel(db, ConnectPaymentUnitRecord.STORAGE_KEY, new ConnectPaymentUnitRecord());
     }
 
-    private boolean upgradeSevenEight(SQLiteDatabase db) {
+    private void upgradeSevenEight(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
@@ -362,17 +357,16 @@ public class ConnectDatabaseUpgrader {
             }
 
             db.setTransactionSuccessful();
-            return true;
         } finally {
             db.endTransaction();
         }
     }
 
-    private boolean upgradeEightNine(SQLiteDatabase db) {
+    private void upgradeEightNine(SQLiteDatabase db) {
         db.beginTransaction();
 
         try {
-            //First, migrate the old ConnectJobRecord in storage to the new version
+            //Migrate the old ConnectLinkedAppRecord in storage to the new version
             db.execSQL(DbUtil.addColumnToTable(
                     ConnectLinkedAppRecord.STORAGE_KEY,
                     ConnectLinkedAppRecord.META_LOCAL_PASSPHRASE,
@@ -391,22 +385,54 @@ public class ConnectDatabaseUpgrader {
 
             for (Persistable r : oldStorage) {
                 ConnectLinkedAppRecordV8 oldRecord = (ConnectLinkedAppRecordV8)r;
-                ConnectLinkedAppRecord newRecord = ConnectLinkedAppRecord.fromV8(oldRecord);
+                ConnectLinkedAppRecordV9 newRecord = ConnectLinkedAppRecordV9.fromV8(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
 
             db.setTransactionSuccessful();
-            return true;
-        } catch(Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
     }
 
-    private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,
+    private void upgradeNineTen(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            //Migrate the old ConnectLinkedAppRecord in storage to the new version
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.META_LAST_ACCESSED,
+                    "TEXT"));
+
+
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecordV9.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectLinkedAppRecord.STORAGE_KEY,
+                    ConnectLinkedAppRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectLinkedAppRecordV9 oldRecord = (ConnectLinkedAppRecordV9)r;
+                ConnectLinkedAppRecord newRecord = ConnectLinkedAppRecord.fromV9(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
                                                Persistable modelToAdd) {
         db.beginTransaction();
         try {
@@ -415,7 +441,6 @@ public class ConnectDatabaseUpgrader {
             db.execSQL(builder.getTableCreateString());
 
             db.setTransactionSuccessful();
-            return true;
         } finally {
             db.endTransaction();
         }
