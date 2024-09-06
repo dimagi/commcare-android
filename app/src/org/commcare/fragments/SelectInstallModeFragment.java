@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
@@ -47,6 +49,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     private TextView mErrorMessageView;
     private RectangleButtonWithText mViewErrorButton;
     private View mViewErrorContainer;
+    private Button mConnectButton;
+    private TextView mOrText;
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
 
     @Override
@@ -70,6 +74,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         TextView setupMsg = view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.barcode.top"));
+
+        mConnectButton = view.findViewById(R.id.connect_login_button);
+        mOrText = view.findViewById(R.id.login_or);
 
         TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
@@ -188,6 +195,19 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 mErrorMessageView.setVisibility(View.GONE);
                 mViewErrorContainer.setVisibility(View.GONE);
             }
+        }
+    }
+
+    public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
+        if(mConnectButton != null) {
+            boolean enabled = connectEnabled && ConnectManager.shouldShowConnectButton();
+
+            if (enabled) {
+                mConnectButton.setOnClickListener(listener);
+            }
+
+            mConnectButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            mOrText.setVisibility(enabled ? View.VISIBLE : View.GONE);
         }
     }
 }

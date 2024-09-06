@@ -67,6 +67,12 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
 
+    @UiElement(value = R.id.connect_login_button)
+    private Button connectLoginButton;
+
+    @UiElement(value = R.id.login_or)
+    private TextView orLabel;
+
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
 
@@ -144,6 +150,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
+        connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
         loginButton.setOnClickListener(arg0 -> {
             FirebaseAnalyticsUtil.reportLoginClicks();
             activity.initiateLoginAttempt(isRestoreSessionChecked());
@@ -166,6 +173,11 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(view -> CommCareNoficationManager
                 .performIntentCalloutToNotificationsView(activity));
+    }
+
+    public void setConnectButtonVisible(Boolean visible) {
+        connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -255,6 +267,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     public void updateConnectLoginState() {
+        setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
+
         if (ConnectManager.isConnectIdIntroduced()) {
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectDatabaseHelper.getUser(activity).getName());
@@ -541,6 +555,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
          * included these lines because when a user changes the language from the system settings while in the app,
          * the strings should be translate correctly when they return to the app. That's why I added this code.
          */
+        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
         passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
         if (useConnectId) {
             passwordOrPin.setText(R.string.login_password_by_connect);

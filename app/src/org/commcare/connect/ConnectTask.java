@@ -1,5 +1,6 @@
 package org.commcare.connect;
 
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdConsentActivity;
 import org.commcare.activities.connect.ConnectIdBiometricUnlockActivity;
 import org.commcare.activities.connect.ConnectIdMessageActivity;
@@ -60,7 +61,7 @@ public enum ConnectTask {
     CONNECT_BIOMETRIC_ENROLL_FAIL(ConnectConstants.ConnectIdTaskIdOffset + 22,
             ConnectIdMessageActivity.class),
     CONNECT_MAIN(ConnectConstants.ConnectIdTaskIdOffset + 23,
-            null), //NOTE: Will be ConnectActivity.class when ready
+                 ConnectActivity.class),
     CONNECT_REGISTRATION_CONFIGURE_PIN(ConnectConstants.ConnectIdTaskIdOffset + 24,
             ConnectIdPinActivity.class),
     CONNECT_REGISTRATION_CONFIRM_PIN(ConnectConstants.ConnectIdTaskIdOffset + 25,
@@ -82,7 +83,7 @@ public enum ConnectTask {
     CONNECT_UNLOCK_VERIFY_ALT_PHONE(ConnectConstants.ConnectIdTaskIdOffset + 33,
             ConnectIdPhoneVerificationActivity.class),
     CONNECT_JOB_INFO(ConnectConstants.ConnectIdTaskIdOffset + 34,
-            null), //NOTE: Will be ConnectActivity.class when ready
+            ConnectActivity.class),
     CONNECT_REGISTRATION_CHANGE_PIN(ConnectConstants.ConnectIdTaskIdOffset + 35,
             ConnectIdPinActivity.class),
     CONNECT_UNLOCK_ALT_PHONE_CHANGE(ConnectConstants.ConnectIdTaskIdOffset + 36,

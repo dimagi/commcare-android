@@ -1,6 +1,7 @@
 package org.commcare.connect;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CommCareActivity;
@@ -40,7 +41,7 @@ public class ConnectIdWorkflows {
         forgotPassword = false;
         forgotPin = false;
     }
-
+    
     public static void beginRegistration(CommCareActivity<?> parent, ConnectManager.ConnectIdStatus status, ConnectManager.ConnectActivityCompleteListener callback) {
         parentActivity = parent;
         listener = callback;
@@ -371,7 +372,7 @@ public class ConnectIdWorkflows {
                 } else {
                     if (intent != null) {
                         forgotPin = intent.getBooleanExtra(ConnectConstants.WRONG_PIN, false);
-                        nextRequestCode = ConnectTask.CONNECT_REGISTRATION_WRONG_PIN;
+                            nextRequestCode = ConnectTask.CONNECT_REGISTRATION_WRONG_PIN;
                     } else {
                         nextRequestCode = ConnectTask.CONNECT_REGISTRATION_ALTERNATE_PHONE;
                     }
@@ -426,7 +427,7 @@ public class ConnectIdWorkflows {
                     }
                 } else {
                     if (intent != null) {
-                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_WRONG_PIN;
+                            nextRequestCode = ConnectTask.CONNECT_RECOVERY_WRONG_PIN;
                     }
                 }
             }

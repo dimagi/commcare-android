@@ -102,6 +102,19 @@ public class ApiConnectId {
         return null;
     }
 
+    public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
+        String url = context.getString(R.string.ConnectHeartbeatURL);
+        HashMap<String, String> params = new HashMap<>();
+        String token = FirebaseMessagingUtil.getFCMToken();
+        if(token != null) {
+            params.put("fcm_token", token);
+            boolean useFormEncoding = true;
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, retrieveConnectIdTokenSync(context), params, useFormEncoding, true);
+        }
+
+        return new ConnectNetworkHelper.PostResult(-1, null, null);
+    }
+
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
         AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
         if (connectToken != null) {
@@ -324,7 +337,7 @@ public class ApiConnectId {
     }
 
     public static boolean requestVerificationOtpSecondary(Context context, String username, String password,
-                                                          IApiCallback callback) {
+                                                      IApiCallback callback) {
         int urlId = R.string.ConnectVerifySecondaryURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
@@ -375,7 +388,7 @@ public class ApiConnectId {
     }
 
     public static boolean confirmVerificationOtpSecondary(Context context, String username, String password,
-                                                          String token, IApiCallback callback) {
+                                                      String token, IApiCallback callback) {
         int urlId = R.string.ConnectVerifyConfirmSecondaryOTPURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 

@@ -90,4 +90,10 @@ public class ConnectSsoHelper {
 
         return hqTokenAuth;
     }
+
+    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, null, false, callback);
+
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
 }

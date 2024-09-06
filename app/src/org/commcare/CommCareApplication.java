@@ -432,6 +432,10 @@ public class CommCareApplication extends MultiDexApplication {
             analyticsInstance.setUserProperty("user_cid", user.getUserId());
         }
 
+        ConnectJobRecord activeJob = ConnectManager.getActiveJob();
+        if (activeJob != null) {
+            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(activeJob.getJobId()));
+        }
         return analyticsInstance;
     }
 

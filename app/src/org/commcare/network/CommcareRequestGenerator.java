@@ -7,8 +7,8 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.connect.network.ConnectSsoHelper;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;

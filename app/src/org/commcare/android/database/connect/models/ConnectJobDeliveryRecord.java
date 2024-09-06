@@ -3,12 +3,14 @@ package org.commcare.android.database.connect.models;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Locale;
 
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.CrashUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,21 +73,32 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
-        delivery.jobId = jobId;
-        delivery.lastUpdate = new Date();
+        int deliveryId = -1;
+        String dateString = "(error)";
+        try {
+            ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
+            delivery.jobId = jobId;
+            delivery.lastUpdate = new Date();
 
-        delivery.deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
-        delivery.date = json.has(META_DATE) ? ConnectNetworkHelper.convertUTCToDate(json.getString(META_DATE)): new Date();
-        delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
-        delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
-        delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
-        delivery.entityId = json.has(META_ENTITY_ID) ? json.getString(META_ENTITY_ID) : "";
-        delivery.entityName = json.has(META_ENTITY_NAME) ? json.getString(META_ENTITY_NAME) : "";
+            deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
+            delivery.deliveryId = deliveryId;
+            dateString = json.getString(META_DATE);
+            delivery.date = ConnectNetworkHelper.convertUTCToDate(dateString);
+            delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
+            delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
+            delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
+            delivery.entityId = json.has(META_ENTITY_ID) ? json.getString(META_ENTITY_ID) : "";
+            delivery.entityName = json.has(META_ENTITY_NAME) ? json.getString(META_ENTITY_NAME) : "";
 
-        delivery.reason = json.has(META_REASON) && !json.isNull(META_REASON) ? json.getString(META_REASON) : "";
+            delivery.reason = json.has(META_REASON) && !json.isNull(META_REASON) ? json.getString(META_REASON) : "";
 
-        return delivery;
+            return delivery;
+        }
+        catch(Exception e) {
+            String message = String.format(Locale.getDefault(), "Error parsing delivery %d: date = '%s'", deliveryId, dateString);
+            CrashUtil.reportException(new Exception(message, e));
+            return null;
+        }
     }
 
     public int getDeliveryId() { return deliveryId; }

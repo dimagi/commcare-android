@@ -359,6 +359,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
+
+        updateConnectButton();
     }
 
     private Fragment restoreInstallSetupFragment() {
@@ -626,16 +628,30 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
             case MENU_CONNECT_SIGN_IN:
-                //Setup ConnectID
+                //Setup ConnectID and proceed to jobs page if successful
                 ConnectManager.handleConnectButtonPress(this, success -> {
-                    //Nothing to do (yet)
+                    updateConnectButton();
+                    if(success) {
+                        ConnectManager.goToConnectJobsList();
+                    }
                 });
                 break;
             case MENU_CONNECT_FORGET:
                 ConnectManager.forgetUser();
+                updateConnectButton();
                 break;
         }
         return true;
+    }
+
+    private void updateConnectButton() {
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdIntroduced(), v -> {
+            ConnectManager.unlockConnect(this, success -> {
+                if(success) {
+                    ConnectManager.goToConnectJobsList();
+                }
+            });
+        });
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
@@ -735,11 +751,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
-        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
-        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
-        startActivity(intent);
+        ResourceInstallUtils.showApkUpdatePrompt(this, versionRequired, versionAvailable);
     }
 
     @Override
@@ -775,8 +787,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failTargetMismatch() {
-        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
-        startActivity(intent);
+        ResourceInstallUtils.showTargetMismatchError(this);
     }
 
 

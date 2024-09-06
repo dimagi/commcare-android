@@ -88,6 +88,7 @@ public class AnalyticsParamValue {
     public static final String SYNC_BUTTON = "sync";
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
+    public static final String CONNECT_BUTTON = "connect_info";
 
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";

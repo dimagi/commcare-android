@@ -99,9 +99,8 @@ public class ConnectIdRecoveryDecisionActivityUiController implements CommCareAc
     public String getPhoneNumber() {
         return phoneInput.getText().toString();
     }
-
     public void setPhoneNumber(String num) {
-        phoneInput.setText(num);
+         phoneInput.setText(num);
     }
 
     public void setButton1Enabled(boolean enabled) {
