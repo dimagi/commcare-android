@@ -44,8 +44,8 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
                 when {
                     exception is CancellationException -> handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
                     exception != null -> {
-                        Logger.exception("Unknown error while app update", exception);
-                        handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
+                        Logger.exception("Unknown error while app update", exception)
+                        Result.failure()
                     }
                 }
             }
@@ -61,7 +61,6 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
         if (UpdateTask.getRunningInstance() == null &&
                 CommCareApplication.instance().currentApp != null &&
                 CommCareApplication.instance().session.isActive) {
-
             updateHelper.startPinnedNotification(CommCareApplication.instance())
             updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(),
                     ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
