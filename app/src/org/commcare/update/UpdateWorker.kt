@@ -55,17 +55,20 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
     }
 
     private fun doUpdateWork(): Result {
-        val updateResult: ResultAndError<AppInstallStatus>
-
-        // skip if - An update task is already running | no app is seated
-        if (UpdateTask.getRunningInstance() == null &&
-                CommCareApplication.instance().currentApp != null) {
-            updateHelper.startPinnedNotification(CommCareApplication.instance())
-            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(),
-                    ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
-        } else {
+        if (UpdateTask.getRunningInstance() != null) {
+            // there is already an update running, lets just skip this run
             return Result.success()
         }
+
+        if (CommCareApplication.instance().currentApp == null) {
+            // we need a seated app to update
+            return Result.failure()
+        }
+
+        updateHelper.startPinnedNotification(CommCareApplication.instance())
+        val updateResult: ResultAndError<AppInstallStatus> = updateHelper.update(
+            ResourceInstallUtils.getDefaultProfileRef(),
+            ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
         return handleUpdateResult(updateResult)
     }
 
