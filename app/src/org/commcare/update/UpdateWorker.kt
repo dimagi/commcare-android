@@ -52,7 +52,6 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
             job.await()
         }
-
     }
 
     private fun doUpdateWork(): Result {
@@ -82,6 +81,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
         return when {
             updateResult.data == AppInstallStatus.UpdateStaged -> Result.success()
+            updateResult.data == AppInstallStatus.UpToDate -> Result.success()
             updateResult.data.shouldRetryUpdate() -> Result.retry()
             else -> Result.failure()
         }
