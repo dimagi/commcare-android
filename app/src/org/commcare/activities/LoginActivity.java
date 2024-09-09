@@ -1,5 +1,10 @@
 package org.commcare.activities;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +32,7 @@ import com.scottyab.rootbeer.RootBeer;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -43,6 +49,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
@@ -71,9 +78,11 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -125,6 +134,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private String presetAppId;
     private boolean appLaunchedFromConnect;
     private boolean connectLaunchPerformed;
+    private List<ConnectLoginJobListModel> jobList;
+    private List<ConnectLoginJobListModel> traditionalJobList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -306,9 +317,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.updateConnectLoginState();
         checkForSavedCredentials();
+        initiateJobListAPI();
 
         ConnectManager.setParent(this);
-        initiateJobListAPI();
     }
 
     protected boolean checkForSeatedAppChange() {
@@ -976,7 +987,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void openJobListBottomSheet() {
-        ConnectLoginJobListBottomSheetFragment connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance();
+        ConnectLoginJobListBottomSheetFragment connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(jobList,traditionalJobList);
         connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");
     }
 
@@ -986,14 +997,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    Log.e("DEBUG_TESTING", "processSuccess: " + responseAsString);
                     if (responseAsString.length() > 0) {
-                        //Parse the JSON
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
+                        for (int i = 0; i < json.length(); i++) {
+                            JSONObject obj = (JSONObject) json.get(i);
+                            jobs.add(ConnectJobRecord.fromJson(obj));
+                        }
                         ConnectDatabaseHelper.storeJobs(LoginActivity.this, jobs, true);
+                        setJobListData(jobs);
                     }
-                } catch (IOException | JSONException e) {
+                } catch (IOException | JSONException | ParseException e) {
+                    setJobListData(ConnectDatabaseHelper.getJobs(LoginActivity.this, -1, null));
                     Toast.makeText(LoginActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                     Logger.exception("Parsing return from Opportunities request", e);
                 }
@@ -1001,21 +1016,116 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             @Override
             public void processFailure(int responseCode, IOException e) {
+                setJobListData(ConnectDatabaseHelper.getJobs(LoginActivity.this, -1, null));
                 Toast.makeText(LoginActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
             }
 
             @Override
             public void processNetworkFailure() {
+                setJobListData(ConnectDatabaseHelper.getJobs(LoginActivity.this, -1, null));
                 Toast.makeText(LoginActivity.this, R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
                 Logger.log("ERROR", "Failed (network)");
             }
 
             @Override
             public void processOldApiError() {
+                setJobListData(ConnectDatabaseHelper.getJobs(LoginActivity.this, -1, null));
                 Toast.makeText(LoginActivity.this, R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 ConnectNetworkHelper.showOutdatedApiError(LoginActivity.this);
             }
         });
+    }
+
+    private void setJobListData(List<ConnectJobRecord> jobs) {
+        jobList = new ArrayList<>();
+
+        for (ConnectJobRecord job : jobs) {
+            storeTraditionalApp(job);
+
+            int jobStatus = job.getStatus();
+            boolean isLearnAppInstalled = ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId());
+            boolean isDeliverAppInstalled = ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+
+            switch (jobStatus) {
+                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                    jobList.add(storeJobListData(
+                            job.getTitle(),
+                            job.getJobId(),
+                            job.getProjectStartDate(),
+                            job.getDescription(),
+                            job.getOrganization(),
+                            false,
+                            true,
+                            false,
+                            false
+                    ));
+                    break;
+
+                case STATUS_LEARNING:
+                    jobList.add(storeJobListData(
+                            job.getLearnAppInfo().getName(),
+                            job.getLearnAppInfo().getJobId(),
+                            job.getProjectStartDate(),
+                            job.getLearnAppInfo().getDescription(),
+                            job.getLearnAppInfo().getOrganization(),
+                            isLearnAppInstalled,
+                            false,
+                            true,
+                            false
+                    ));
+                    break;
+
+                case STATUS_DELIVERING:
+                    jobList.add(storeJobListData(
+                            job.getLearnAppInfo().getName(),
+                            job.getLearnAppInfo().getJobId(),
+                            job.getProjectStartDate(),
+                            job.getLearnAppInfo().getDescription(),
+                            job.getLearnAppInfo().getOrganization(),
+                            isLearnAppInstalled,
+                            false,
+                            true,
+                            false
+                    ));
+                    jobList.add(storeJobListData(
+                            job.getDeliveryAppInfo().getName(),
+                            job.getDeliveryAppInfo().getJobId(),
+                            job.getProjectStartDate(),
+                            job.getDeliveryAppInfo().getDescription(),
+                            job.getDeliveryAppInfo().getOrganization(),
+                            isDeliverAppInstalled,
+                            false,
+                            false,
+                            true
+                    ));
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void storeTraditionalApp(ConnectJobRecord job) {
+        traditionalJobList = new ArrayList<>();
+        ConnectAppRecord appRecord = ConnectDatabaseHelper.getAppRecord(LoginActivity.this, String.valueOf(job.getJobId()));
+        if (appRecord == null) {
+            traditionalJobList.add(storeJobListData(
+                    job.getDeliveryAppInfo().getName(),
+                    job.getDeliveryAppInfo().getJobId(),
+                    job.getProjectStartDate(),
+                    job.getDescription(),
+                    job.getOrganization(),
+                    true,
+                    false,
+                    false,
+                    false
+            ));
+        }
+    }
+
+    private ConnectLoginJobListModel storeJobListData(String name, int id, Date date, String description, String organization, boolean isAppInstalled, boolean isNew, boolean isLeaningApp, boolean isDeliveryApp) {
+        return new ConnectLoginJobListModel(name, id, date, description, organization, isAppInstalled, isNew, isLeaningApp, isDeliveryApp);
     }
 }

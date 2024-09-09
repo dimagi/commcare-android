@@ -8,14 +8,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.dalvik.databinding.ItemLoginCommcareAppsBinding;
-import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
+import org.commcare.models.connect.ConnectLoginJobListModel;
+
+import java.util.ArrayList;
 
 public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListCommCareAppsAdapter.ViewHolder> {
 
-    private Context mContext;
+    private final Context mContext;
+    private final ArrayList<ConnectLoginJobListModel> traditionalJobList;
 
-    public JobListCommCareAppsAdapter(Context context) {
+    public JobListCommCareAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> traditionalJobList) {
         this.mContext = context;
+        this.traditionalJobList = traditionalJobList;
     }
 
     @NonNull
@@ -29,13 +33,12 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Bind data to each item view
-//        String item = items.get(position);
+        holder.bind(mContext, traditionalJobList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return 15;
+        return traditionalJobList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -44,6 +47,10 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
         public ViewHolder(ItemLoginCommcareAppsBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+
+        public void bind(Context mContext, ConnectLoginJobListModel connectLoginJobListModel) {
+            binding.tvTitle.setText(connectLoginJobListModel.getName());
         }
     }
 }

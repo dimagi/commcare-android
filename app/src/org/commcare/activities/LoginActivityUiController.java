@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -221,7 +222,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-
+        /*Log.e("DEBUG_TESTING", "refreshView: "+readyApps.size());
+        for(int i = 0 ; i < readyApps.size() ; i++){
+            Log.e("DEBUG_TESTING", "refreshView: "+readyApps.get(i).getDisplayName());
+        }*/
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         setLoginInputsVisibility(!noApps);

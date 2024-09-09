@@ -49,11 +49,13 @@
             app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
             <ImageView
+                android:id="@+id/imgJobType"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_connect_new_opportunity" />
 
             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                android:id="@+id/tvJobType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
