@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.SettingsHelper;
-import org.commcare.activities.connect.ConnectIdPhoneVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;

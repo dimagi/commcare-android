@@ -1,16 +1,5 @@
 package org.commcare.connect;
 
-import org.commcare.activities.connect.ConnectIdConsentActivity;
-import org.commcare.activities.connect.ConnectIdBiometricUnlockActivity;
-import org.commcare.activities.connect.ConnectIdMessageActivity;
-import org.commcare.activities.connect.ConnectIdPasswordVerificationActivity;
-import org.commcare.activities.connect.ConnectIdPhoneActivity;
-import org.commcare.activities.connect.ConnectIdPhoneVerificationActivity;
-import org.commcare.activities.connect.ConnectIdPinActivity;
-import org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity;
-import org.commcare.activities.connect.ConnectIdRegistrationActivity;
-import org.commcare.activities.connect.ConnectIdBiometricConfigActivity;
-
 /**
  * Enum representing the tasks (and associated activities) involved in various ConnectId workflows
  *

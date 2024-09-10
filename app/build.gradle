@@ -14,6 +14,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'androidx.navigation.safeargs'
 apply from: 'jacoco.gradle'
 
 repositories {
@@ -142,6 +143,14 @@ dependencies {
 
     implementation 'io.michaelrocks:libphonenumber-android:8.13.11'
     implementation 'com.nulab-inc:zxcvbn:1.7.0'
+
+    def nav_version = '2.6.0'
+    implementation "androidx.navigation:navigation-fragment:$nav_version"
+    implementation "androidx.navigation:navigation-ui:$nav_version"
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
+    implementation "androidx.navigation:navigation-compose:$nav_version"
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 }
 
 ext {
@@ -248,6 +257,7 @@ android {
 
     buildFeatures {
         buildConfig true
+        dataBinding true
     }
 
     defaultConfig {

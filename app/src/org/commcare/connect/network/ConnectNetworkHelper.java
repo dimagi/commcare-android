@@ -33,6 +33,8 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -90,6 +92,7 @@ public class ConnectNetworkHelper {
 
     public static Date convertUTCToDate(String utcDateString) {
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
 
         Date date = null;
         try {
