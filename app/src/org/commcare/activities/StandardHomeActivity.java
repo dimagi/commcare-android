@@ -8,7 +8,6 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -291,7 +290,7 @@ public class StandardHomeActivity
     }
 
     public void performSecondaryPhoneVerification() {
-        ConnectManager.launchConnect(this, ConnectConstants.VERIFY_PHONE, success -> {
+        ConnectManager.beginSecondaryPhoneVerification(this, success -> {
             updateSecondaryPhoneConfirmationTile();
         });
     }

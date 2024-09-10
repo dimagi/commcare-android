@@ -15,8 +15,6 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectActivity;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -41,7 +39,6 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.ApkDependenciesUtils;
-import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
@@ -53,7 +50,6 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -63,15 +59,11 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import static org.commcare.connect.ConnectManager.allowPassword;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -412,10 +404,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         String result = null;
-        if(requestCode== ConnectConstants.CONNECT_UNLOCK_PIN){
-            ConnectManager.goToConnectJobsList();
-            return;
-        }
         switch (requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == AppCompatActivity.RESULT_OK) {
@@ -440,12 +428,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-            case ConnectConstants.CONNECTID_REQUEST_CODE :
-                if(resultCode==AppCompatActivity.RESULT_OK) {
-                    Intent i = new Intent(this, ConnectActivity.class);
-                    startActivity(i);
-                }
-                break;
             default:
                 ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
                 return;
@@ -649,10 +631,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectManager.handleConnectButtonPress(this, success -> {
+                ConnectManager.registerUser(this, success -> {
                     updateConnectButton();
                     if(success) {
-                        ConnectManager.goToConnectJobsList();
+                        ConnectManager.goToConnectJobsList(this);
                     }
                 });
                 break;
@@ -666,16 +648,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
-            if (BiometricsHelper.isFingerprintConfigured(this, ConnectManager.getBiometricManager(this))) {
-                ConnectManager.performFingerprintUnlock(this);
-            } else if (BiometricsHelper.isPinConfigured(this, ConnectManager.getBiometricManager(this))) {
-                ConnectManager.performPinUnlock(this);
-            } else if (allowPassword) {
-                ConnectManager.performPasswordUnlock();
-            } else {
-                ConnectManager.goToConnectJobsList();
-                Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
-            }
+            ConnectManager.unlockConnect(this, success -> {
+                ConnectManager.goToConnectJobsList(this);
+            });
         });
     }
 
