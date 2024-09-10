@@ -101,9 +101,8 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
      * Setup RecyclerView with combined job lists if apps are not separated.
      */
     private void setupCombinedRecyclerView() {
-        List<ConnectCombineJobListModel> combineAppsList = combineJobLists();
         JobListViewPagerAdapter viewPagerAdapter = new JobListViewPagerAdapter(requireActivity());
-        viewPagerAdapter.add(ConnectLoginCombineAppsFragment.newInstance(combineAppsList), "Connect Home");
+        viewPagerAdapter.add(ConnectLoginCombineAppsFragment.newInstance(combineJobLists()), "Connect Home");
 
         configureRecyclerViewScrolling();
 

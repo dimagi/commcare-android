@@ -160,4 +160,5 @@
     <color name="connect_orange_yellow">#FFEFD5</color>
     <color name="connect_green">#16A085</color>
     <color name="connect_light_green">#E6F5E5</color>
+    <color name="connect_background_color">#f2f5ff</color>
 </resources>
