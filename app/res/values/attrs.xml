@@ -52,6 +52,27 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string" />
     </declare-styleable>
+
+    <!-- New attributes -->
+    <attr name="editTextHintColor" format="color"/>
+    <attr name="editTextHintSize" format="dimension"/>
+
+    <declare-styleable name="PhoneInputView">
+        <attr name="borderVisible" format="boolean" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderRadius" format="dimension" />
+        <attr name="countryCodeTextColor" format="color" />
+        <attr name="countryCodeTextSize" format="dimension" />
+        <attr name="editTextHintColor" />
+        <attr name="editTextHintSize" />
+        <attr name="editTextColor" format="color" />
+        <attr name="editTextSize" format="dimension" />
+        <attr name="dividerVisible" format="boolean" />
+        <attr name="dividerColor" format="color" />
+        <attr name="dividerWidth" format="dimension" />
+        <attr name="dividerLeftPadding" format="dimension" />
+        <attr name="dividerRightPadding" format="dimension" />
+    </declare-styleable>
     <declare-styleable name="RoundedButton">
         <attr name="roundButtonHeight" format="dimension" />
         <attr name="roundButtonRadius" format="dimension" />
@@ -91,12 +112,11 @@
         <attr name="editTextDrawableEndPaddingRight" format="dimension"/>
         <attr name="editTextDrawablePadding" format="dimension"/>
 
-        <!-- New attributes -->
         <attr name="editTextText" format="string"/>
-        <attr name="editTextHintColor" format="color"/>
+        <attr name="editTextHintColor" />
         <attr name="editTextTextSize" format="dimension"/>
         <attr name="editTextHint" format="string"/>
-        <attr name="editTextHintSize" format="dimension"/>
+        <attr name="editTextHintSize" />
 
         <!-- New padding attributes -->
         <attr name="editTextPaddingTop" format="dimension" />

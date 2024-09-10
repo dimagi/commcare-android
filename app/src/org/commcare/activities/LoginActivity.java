@@ -21,12 +21,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
-
 import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
@@ -40,6 +34,9 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -87,6 +84,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
 
 /**
  * @author ctsims
@@ -154,7 +160,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         ConnectManager.init(this);
         uiController.updateConnectLoginState();
-
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
@@ -228,8 +233,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void initiateLoginAttempt(boolean restoreSession) {
         if (isConnectJobsSelected()) {
             ConnectManager.unlockConnect(this, success -> {
-                if (success) {
-                    ConnectManager.goToConnectJobsList();
+ 
+                if(success) {
+                    ConnectManager.goToConnectJobsList(this);
                 }
             });
         } else {
@@ -426,7 +432,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 blockRemoteKeyManagement, DataPullMode.NORMAL);
     }
 
-    private boolean tryLocalLogin(String username, String passwordOrPin,
+    private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession,
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
@@ -495,8 +501,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
         ConnectManager.unlockConnect(this, success -> {
-            if (success) {
-                ConnectManager.goToConnectJobsList();
+
+            if(success) {
+                ConnectManager.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
             }
@@ -504,10 +511,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if (ConnectManager.isConnectIdConfigured()) {
+
+        if(ConnectManager.isConnectIdConfigured()) {
+            ConnectManager.completeSignin();
+
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
-            if (job != null) {
+            if(job != null) {
+                ConnectManager.updateAppAccess(this, appId, getUniformUsername());
+
                 //Update job status
                 ConnectManager.updateJobProgress(this, job, success -> {
                     setResultAndFinish(job.getIsUserSuspended() || job.readyToTransitionToDelivery());
@@ -516,10 +528,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 //Possibly offer to link or de-link ConnectId-managed login
                 ConnectManager.checkConnectIdLink(this,
                         uiController.loginManagedByConnectId(), appId,
-                        uiController.getEnteredUsername(),
+                        getUniformUsername(),
                         uiController.getEnteredPasswordOrPin(), success -> {
+ 
+                            ConnectManager.updateAppAccess(this, appId, getUniformUsername());
                             setResultAndFinish(false);
-                        });
+                });
             }
 
             return false;

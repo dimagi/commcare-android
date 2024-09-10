@@ -290,7 +290,7 @@ public class StandardHomeActivity
     }
 
     public void performSecondaryPhoneVerification() {
-        ConnectManager.verifySecondaryPhone(this, success -> {
+        ConnectManager.beginSecondaryPhoneVerification(this, success -> {
             updateSecondaryPhoneConfirmationTile();
         });
     }

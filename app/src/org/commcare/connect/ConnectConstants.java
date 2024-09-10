@@ -7,8 +7,8 @@ package org.commcare.connect;
  */
 public class ConnectConstants {
     public static final int ConnectIdTaskIdOffset = 1000;
-
-    public static int CREDENTIAL_PICKER_REQUEST = 2000;
+    public final static int CREDENTIAL_PICKER_REQUEST = 2000;
+    public static final int CONNECTID_REQUEST_CODE = 1034;
     public static final String METHOD = "METHOD";
     public static final String CREATE = "CREATE";
     public static final String USERNAME = "USERNAME";
@@ -17,25 +17,24 @@ public class ConnectConstants {
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
     public static final String ALT_PHONE = "ALT_PHONE";
-
     public static final String TITLE = "TITLE";
     public static final String MESSAGE = "MESSAGE";
     public static final String BUTTON = "BUTTON";
     public static final String BUTTON2 = "BUTTON2";
     public static final String SECRET = "SECRET";
-
     public static final String RECOVER = "RECOVER";
+    public static final String BEGIN_REGISTRATION = "BEGIN_REGISTRATION";
+    public static final String UNLOCK_CONNECT = "UNLOCK_CONNECT";
+    public static final String VERIFY_PHONE = "VERIFY_PHONE";
     public static final String ENROLL_FAIL = "ENROLL_FAIL";
     public static final String CHANGE = "CHANGE";
     public static final String FORGOT = "FORGOT";
     public static final String WRONG_PIN = "WRONG_PIN";
     public static final String ALLOW_PASSWORD = "ALLOW_PASSWORD";
-
     public static final String METHOD_REGISTER_PRIMARY = "REGISTER_PRIMARY";
     public static final String METHOD_CHANGE_PRIMARY = "CHANGE_PRIMARY";
     public static final String METHOD_CHANGE_ALTERNATE = "CHANGE_ALTERNATE";
     public static final String METHOD_RECOVER_PRIMARY = "RECOVER_PRIMARY";
-
     public static final String CONNECT_KEY_TOKEN = "access_token";
     public static final String CONNECT_KEY_EXPIRES = "expires_in";
     public static final String CONNECT_KEY_USERNAME = "username";
@@ -44,4 +43,42 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
     public static final String CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY = "secondary_phone_validate_by";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
+    public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
+    public final static int CONNECT_REGISTER_OR_RECOVER_DECISION = ConnectConstants.ConnectIdTaskIdOffset + 1;
+    public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 2;
+    public final static int CONNECT_REGISTRATION_MAIN = ConnectConstants.ConnectIdTaskIdOffset + 4;
+    public final static int CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS = ConnectConstants.ConnectIdTaskIdOffset + 5;
+    public final static int CONNECT_REGISTRATION_UNLOCK_BIOMETRIC = ConnectConstants.ConnectIdTaskIdOffset + 6;
+    public final static int CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 7;
+    public final static int CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 8;
+    public final static int CONNECT_REGISTRATION_ALTERNATE_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 9;
+    public final static int CONNECT_REGISTRATION_SUCCESS = ConnectConstants.ConnectIdTaskIdOffset + 10;
+    public final static int CONNECT_RECOVERY_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 11;
+    public final static int CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 12;
+    public final static int CONNECT_RECOVERY_VERIFY_PASSWORD = ConnectConstants.ConnectIdTaskIdOffset + 13;
+    public final static int CONNECT_RECOVERY_ALT_PHONE_MESSAGE = ConnectConstants.ConnectIdTaskIdOffset + 14;
+    public final static int CONNECT_RECOVERY_VERIFY_ALT_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 15;
+    public final static int CONNECT_RECOVERY_SUCCESS = ConnectConstants.ConnectIdTaskIdOffset + 16;
+    public final static int CONNECT_UNLOCK_BIOMETRIC = ConnectConstants.ConnectIdTaskIdOffset + 17;
+    public final static int CONNECT_UNLOCK_PASSWORD = ConnectConstants.ConnectIdTaskIdOffset + 18;
+    public final static int CONNECT_UNLOCK_PIN = ConnectConstants.ConnectIdTaskIdOffset + 19;
+    public final static int CONNECT_BIOMETRIC_ENROLL_FAIL = ConnectConstants.ConnectIdTaskIdOffset + 20;
+    public final static int CONNECT_MAIN = ConnectConstants.ConnectIdTaskIdOffset + 21;
+    public final static int CONNECT_REGISTRATION_CONFIGURE_PIN = ConnectConstants.ConnectIdTaskIdOffset + 22;
+    public final static int CONNECT_REGISTRATION_CONFIRM_PIN = ConnectConstants.ConnectIdTaskIdOffset + 23;
+    public final static int CONNECT_RECOVERY_VERIFY_PIN = ConnectConstants.ConnectIdTaskIdOffset + 24;
+    public final static int CONNECT_RECOVERY_CHANGE_PIN = ConnectConstants.ConnectIdTaskIdOffset + 25;
+    public final static int CONNECT_RECOVERY_CONFIGURE_BIOMETRICS = ConnectConstants.ConnectIdTaskIdOffset + 26;
+    public final static int CONNECT_RECOVERY_UNLOCK_BIOMETRIC = ConnectConstants.ConnectIdTaskIdOffset + 27;
+    public final static int CONNECT_VERIFY_ALT_PHONE_MESSAGE = ConnectConstants.ConnectIdTaskIdOffset + 28;
+    public final static int CONNECT_VERIFY_ALT_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 29;
+    public final static int CONNECT_UNLOCK_ALT_PHONE_MESSAGE = ConnectConstants.ConnectIdTaskIdOffset + 30;
+    public final static int CONNECT_JOB_INFO = ConnectConstants.ConnectIdTaskIdOffset + 31;
+    public final static int CONNECT_REGISTRATION_CHANGE_PIN = ConnectConstants.ConnectIdTaskIdOffset + 32;
+    public final static int CONNECT_UNLOCK_ALT_PHONE_CHANGE = ConnectConstants.ConnectIdTaskIdOffset + 33;
+    public final static int CONNECT_VERIFY_ALT_PHONE_CHANGE = ConnectConstants.ConnectIdTaskIdOffset + 34;
+    public final static int CONNECT_RECOVERY_WRONG_PIN = ConnectConstants.ConnectIdTaskIdOffset + 35;
+    public final static int CONNECT_REGISTRATION_WRONG_PIN = ConnectConstants.ConnectIdTaskIdOffset + 36;
+    public final static int CONNECT_REGISTRATION_CONSENT = ConnectConstants.ConnectIdTaskIdOffset + 37;
+    public final static int CONNECT_UNLOCK_VERIFY_ALT_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 38;
 }

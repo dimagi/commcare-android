@@ -15,7 +15,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.preference.PreferenceManager;
-
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -43,6 +42,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
+
+import androidx.preference.PreferenceManager;
 
 /**
  * Handles login activity UI
@@ -585,6 +586,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 //        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
 //        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
+
         if (useConnectId) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();

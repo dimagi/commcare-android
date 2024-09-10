@@ -498,7 +498,6 @@
     <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using ConnectID.</string>
 
     <string name="login_input_auto">AUTO</string>
-
     <string name="choice_or">_____________    OR    _____________</string>
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
@@ -643,13 +642,6 @@
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change">Change phone number</string>
     <string name="connect_verify_phone_verify">Verify code</string>
-
-    <string name="connect_pictures_title">Account Recovery</string>
-    <string name="connect_pictures_label">To help with account recovery, you can optionally take some photos to help identify you.</string>
-    <string name="connect_pictures_face">Face</string>
-    <string name="connect_pictures_id">Official ID</string>
-    <string name="connect_pictures_skip">Skip</string>
-    <string name="connect_pictures_continue">Continue</string>
 
     <string name="connect_last_update">Updated: %s</string>
 

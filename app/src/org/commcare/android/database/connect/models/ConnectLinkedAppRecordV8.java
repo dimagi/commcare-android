@@ -92,4 +92,23 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
     public Date getLinkOfferDate2() {
         return linkOffered2 ? linkOfferDate2 : null;
     }
+
+    public static ConnectLinkedAppRecordV8 fromV3(ConnectLinkedAppRecordV3 oldRecord) {
+        ConnectLinkedAppRecordV8 newRecord = new ConnectLinkedAppRecordV8();
+
+        newRecord.appId = oldRecord.getAppId();
+        newRecord.userId = oldRecord.getUserId();
+        newRecord.password = oldRecord.getPassword();
+        newRecord.workerLinked = oldRecord.getWorkerLinked();
+        newRecord.hqToken = oldRecord.getHqToken();
+        newRecord.hqTokenExpiration = oldRecord.getHqTokenExpiration();
+
+        newRecord.connectIdLinked = true;
+        newRecord.linkOffered1 = true;
+        newRecord.linkOfferDate1 = new Date();
+        newRecord.linkOffered2 = false;
+        newRecord.linkOfferDate2 = new Date();
+
+        return newRecord;
+    }
 }

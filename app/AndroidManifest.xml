@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest package="org.commcare.dalvik"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.commcare.dalvik"
     android:versionCode="106"
     android:versionName="2.55">
 
@@ -130,7 +130,7 @@
             android:exported="true"
             android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
+                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
             </intent-filter>
         </receiver>
 
@@ -169,21 +169,12 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
 
-        <activity android:name="org.commcare.activities.connect.ConnectIdRecoveryDecisionActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdBiometricUnlockActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdConsentActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdRegistrationActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdPasswordVerificationActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdBiometricConfigActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdPicturesActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdPhoneVerificationActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdMessageActivity" />
-        <activity android:name="org.commcare.activities.connect.ConnectIdPinActivity" />
+        <activity
+            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:exported="true" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity android:name="org.commcare.activities.AppSelectActivity" />
 
         <provider
