@@ -169,6 +169,7 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
 
+        <activity android:name="org.commcare.activities.connect.ConnectIdActivity"/>
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
             android:exported="true"></activity>
