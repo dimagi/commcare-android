@@ -1,7 +1,7 @@
 package org.commcare.android.database.connect.models;
 
-import org.commcare.connect.ConnectTask;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 
@@ -47,7 +47,7 @@ public class ConnectUserRecordV5 extends Persisted {
     private Date connectTokenExpiration;
 
     public ConnectUserRecordV5() {
-        registrationPhase = ConnectTask.CONNECT_NO_ACTIVITY.getRequestCode();
+        registrationPhase = ConnectConstants.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
     }
@@ -71,7 +71,7 @@ public class ConnectUserRecordV5 extends Persisted {
     public void setName(String name) {
         this.name = name;
     }
-    public ConnectTask getRegistrationPhase() { return ConnectTask.fromRequestCode(registrationPhase); }
+    public int getRegistrationPhase() { return registrationPhase; }
     public Date getLastPasswordDate() {
         return lastPasswordDate;
     }

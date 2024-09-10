@@ -447,7 +447,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if(ConnectManager.isConnectIdIntroduced()) {
+        if(ConnectManager.isConnectIdConfigured()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             //Possibly offer to link or de-link ConnectId-managed login
             ConnectManager.checkConnectIdLink(this,
@@ -481,18 +481,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void checkForSavedCredentials() {
         boolean loginWithConnectIDVisible = false;
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             int selectorIndex = uiController.getSelectedAppIndex();
-            if (selectorIndex > 0) {
-                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                    loginWithConnectIDVisible = ConnectManager.isLoginManagedByConnectId(seatedAppId,
-                            uiController.getEnteredUsername());
-                }
-            } else {
-                //Connect jobs selected from dropdown
-                loginWithConnectIDVisible = true;
+            String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
+                loginWithConnectIDVisible = ConnectManager.isLoginManagedByConnectId(seatedAppId,
+                        uiController.getEnteredUsername());
             }
         }
 
@@ -657,12 +652,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ArrayList<String> appNames = new ArrayList<>();
 
         appIdDropdownList.clear();
-
-        boolean includeConnect = ConnectManager.isConnectIdIntroduced();
-        if (includeConnect) {
-            appNames.add(Localization.get("login.app.connect"));
-            appIdDropdownList.add("");
-        }
 
         for (ApplicationRecord r : readyApps) {
             appNames.add(r.getDisplayName());

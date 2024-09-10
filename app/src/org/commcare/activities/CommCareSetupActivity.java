@@ -627,7 +627,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID
-                ConnectManager.handleConnectButtonPress(this, success -> {
+                ConnectManager.registerUser(this, success -> {
                     //Nothing to do (yet)
                 });
                 break;

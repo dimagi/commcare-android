@@ -212,7 +212,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         setLoginInputsVisibility(!noApps);
-        if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
+        if (!ConnectManager.isConnectIdConfigured() && (readyApps.size() == 1 || presetAppRecord != null)) {
             setLoginInputsVisibility(true);
 
             // Set this app as the last selected app, for use in choosing what app to initialize
@@ -255,7 +255,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     public void updateConnectLoginState() {
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectDatabaseHelper.getUser(activity).getName());
 

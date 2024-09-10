@@ -3,7 +3,6 @@ package org.commcare.android.database.connect.models;
 import android.content.Intent;
 
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectTask;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -65,7 +64,7 @@ public class ConnectUserRecord extends Persisted {
     private Date verifySecondaryPhoneByDate;
 
     public ConnectUserRecord() {
-        registrationPhase = ConnectTask.CONNECT_NO_ACTIVITY.getRequestCode();
+        registrationPhase = ConnectConstants.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;
@@ -139,12 +138,12 @@ public class ConnectUserRecord extends Persisted {
         this.name = name;
     }
 
-    public ConnectTask getRegistrationPhase() {
-        return ConnectTask.fromRequestCode(registrationPhase);
+    public int getRegistrationPhase() {
+        return registrationPhase;
     }
 
-    public void setRegistrationPhase(ConnectTask phase) {
-        registrationPhase = phase.getRequestCode();
+    public void setRegistrationPhase(int phase) {
+        registrationPhase = phase;
     }
 
     public Date getLastPinDate() {
@@ -211,7 +210,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
         newRecord.alternatePhone = oldRecord.getAlternatePhone();
-        newRecord.registrationPhase = oldRecord.getRegistrationPhase().getRequestCode();
+        newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();

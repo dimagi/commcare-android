@@ -259,7 +259,7 @@ public class ConnectDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void setRegistrationPhase(Context context, ConnectTask phase) {
+    public static void setRegistrationPhase(Context context, int phase) {
         ConnectUserRecord user = getUser(context);
         if (user != null) {
             user.setRegistrationPhase(phase);
