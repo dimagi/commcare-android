@@ -1,7 +1,9 @@
 package org.commcare.fragments.connect.login_job_fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.dalvik.databinding.FragmentConnectLoginCommcareHomeBinding;
+import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -27,12 +31,18 @@ public class ConnectLoginConnectHomeAppsFragment extends Fragment {
     private static final String ARG_JOB_LIST = "job_list";
     private FragmentConnectLoginCommcareHomeBinding binding;
     private ArrayList<ConnectLoginJobListModel> jobList;
+    private JobListCallBack mCallback;
 
-    public static ConnectLoginConnectHomeAppsFragment newInstance(List<ConnectLoginJobListModel> jobList) {
+    public static ConnectLoginConnectHomeAppsFragment newInstance(List<ConnectLoginJobListModel> jobList,JobListCallBack mCallback) {
         ConnectLoginConnectHomeAppsFragment fragment = new ConnectLoginConnectHomeAppsFragment();
         Bundle args = new Bundle();
+        // Sort the jobList by lastAccess date before passing it to the fragment
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            jobList.sort(Comparator.comparing(ConnectLoginJobListModel::getLastAccessed));
+        }
         args.putParcelableArrayList(ARG_JOB_LIST, (ArrayList<? extends Parcelable>) jobList);
         fragment.setArguments(args);
+        fragment.setOnJobListClickedListener(mCallback);
         return fragment;
     }
 
@@ -51,7 +61,7 @@ public class ConnectLoginConnectHomeAppsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList);
+        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (appId,jobName) -> mCallback.onClick(appId,jobName));
         binding.rcConnectHomeApps.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rcConnectHomeApps.setNestedScrollingEnabled(true);
         binding.rcConnectHomeApps.setAdapter(adapter);
@@ -61,5 +71,9 @@ public class ConnectLoginConnectHomeAppsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void setOnJobListClickedListener(JobListCallBack mCallback) {
+        this.mCallback = mCallback;
     }
 }

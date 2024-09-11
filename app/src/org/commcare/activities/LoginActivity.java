@@ -21,6 +21,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
 import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
@@ -28,15 +34,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -80,19 +84,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import java.util.ArrayList;
-import java.util.Date;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
 
 /**
  * @author ctsims
@@ -126,6 +123,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECTID_MANAGED_LOGIN = "cid-managed-login";
     public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
 
+    public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
+    public static final String JOB_LEARNING = "job-learning";
+    public static final String JOB_DELIVERY = "job-delivery";
+    public static final String JOB_TRENDING = "job-trending";
+
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
 
@@ -142,6 +144,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean connectLaunchPerformed;
     private List<ConnectLoginJobListModel> jobList;
     private List<ConnectLoginJobListModel> traditionalJobList;
+    ConnectLoginJobListBottomSheetFragment connectLoginJobListBottomSheetFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,8 +236,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void initiateLoginAttempt(boolean restoreSession) {
         if (isConnectJobsSelected()) {
             ConnectManager.unlockConnect(this, success -> {
- 
-                if(success) {
+
+                if (success) {
                     ConnectManager.goToConnectJobsList(this);
                 }
             });
@@ -502,7 +505,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         ConnectManager.unlockConnect(this, success -> {
 
-            if(success) {
+            if (success) {
                 ConnectManager.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
@@ -512,12 +515,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public boolean handleConnectSignIn() {
 
-        if(ConnectManager.isConnectIdConfigured()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             ConnectManager.completeSignin();
 
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
-            if(job != null) {
+            if (job != null) {
                 ConnectManager.updateAppAccess(this, appId, getUniformUsername());
 
                 //Update job status
@@ -530,10 +533,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         uiController.loginManagedByConnectId(), appId,
                         getUniformUsername(),
                         uiController.getEnteredPasswordOrPin(), success -> {
- 
+
                             ConnectManager.updateAppAccess(this, appId, getUniformUsername());
                             setResultAndFinish(false);
-                });
+                        });
             }
 
             return false;
@@ -769,6 +772,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else if (appIdDropdownList.contains(currAppId)) {
             position = appIdDropdownList.indexOf(currAppId);
         }
+        uiController.cetAppSelector.setText(getDisplayNameByAppId(readyApps,currAppId));
         uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
     }
@@ -779,7 +783,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        boolean selectedConnect = isConnectJobsSelected();
+        /*boolean selectedConnect = isConnectJobsSelected();
         if (selectedConnect) {
             uiController.setLoginInputsVisibility(false);
         } else {
@@ -792,7 +796,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     checkForSavedCredentials();
                 }
             }
-        }
+        }*/
     }
 
     protected boolean seatAppIfNeeded(String appId) {
@@ -1001,8 +1005,32 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void openJobListBottomSheet() {
-        ConnectLoginJobListBottomSheetFragment connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(jobList,traditionalJobList);
+        connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(jobList, traditionalJobList, (appId, jobName) -> {
+            uiController.setAppNameOnSelector(jobName);
+            JobSelection(String.valueOf(appId));
+            dismissBottomSheet();
+        });
         connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");
+    }
+
+    public void JobSelection(String appId) {
+        boolean selectedConnect = isConnectJobsSelected();
+        if (selectedConnect) {
+            uiController.setLoginInputsVisibility(false);
+        } else {
+            if (appId.length() > 0) {
+                uiController.setLoginInputsVisibility(true);
+                if (!seatAppIfNeeded(appId)) {
+                    checkForSavedCredentials();
+                }
+            }
+        }
+    }
+
+    public void dismissBottomSheet() {
+        if (connectLoginJobListBottomSheetFragment != null) {
+            connectLoginJobListBottomSheetFragment.dismiss();
+        }
     }
 
     public void initiateJobListAPI() {
@@ -1052,6 +1080,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void setJobListData(List<ConnectJobRecord> jobs) {
+        uiController.isNewJobAvailable = false;
         jobList = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
@@ -1065,53 +1094,70 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
                     jobList.add(storeJobListData(
                             job.getTitle(),
-                            job.getJobId(),
+                            String.valueOf(job.getJobId()),
                             job.getProjectStartDate(),
                             job.getDescription(),
                             job.getOrganization(),
                             false,
                             true,
                             false,
-                            false
+                            false,
+                            processJobRecords(job, JOB_NEW_OPPORTUNITY),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_NEW_OPPORTUNITY
                     ));
+                    uiController.isNewJobAvailable = true;
                     break;
 
                 case STATUS_LEARNING:
                     jobList.add(storeJobListData(
                             job.getLearnAppInfo().getName(),
-                            job.getLearnAppInfo().getJobId(),
+                            job.getLearnAppInfo().getAppId(),
                             job.getProjectStartDate(),
                             job.getLearnAppInfo().getDescription(),
                             job.getLearnAppInfo().getOrganization(),
                             isLearnAppInstalled,
                             false,
                             true,
-                            false
+                            false,
+                            processJobRecords(job, JOB_LEARNING),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_LEARNING
                     ));
                     break;
 
                 case STATUS_DELIVERING:
                     jobList.add(storeJobListData(
                             job.getLearnAppInfo().getName(),
-                            job.getLearnAppInfo().getJobId(),
+                            job.getLearnAppInfo().getAppId(),
                             job.getProjectStartDate(),
                             job.getLearnAppInfo().getDescription(),
                             job.getLearnAppInfo().getOrganization(),
                             isLearnAppInstalled,
                             false,
                             true,
-                            false
+                            false,
+                            processJobRecords(job, JOB_LEARNING),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_LEARNING
                     ));
                     jobList.add(storeJobListData(
                             job.getDeliveryAppInfo().getName(),
-                            job.getDeliveryAppInfo().getJobId(),
+                            job.getDeliveryAppInfo().getAppId(),
                             job.getProjectStartDate(),
                             job.getDeliveryAppInfo().getDescription(),
                             job.getDeliveryAppInfo().getOrganization(),
                             isDeliverAppInstalled,
                             false,
                             false,
-                            true
+                            true,
+                            processJobRecords(job, JOB_DELIVERY),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_DELIVERY
                     ));
                     break;
 
@@ -1119,6 +1165,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     break;
             }
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            jobList.sort(Comparator.comparing(job -> job.getLastAccessed()));
+        }
+        uiController.visibleNewJobReminderUI();
     }
 
     private void storeTraditionalApp(ConnectJobRecord job) {
@@ -1127,19 +1177,82 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (appRecord == null) {
             traditionalJobList.add(storeJobListData(
                     job.getDeliveryAppInfo().getName(),
-                    job.getDeliveryAppInfo().getJobId(),
+                    job.getDeliveryAppInfo().getAppId(),
                     job.getProjectStartDate(),
                     job.getDescription(),
                     job.getOrganization(),
                     true,
                     false,
                     false,
-                    false
+                    false,
+                    processJobRecords(job, JOB_TRENDING),
+                    job.getLearningPercentComplete(),
+                    job.getCompletedLearningModules(),
+                    JOB_TRENDING
+
             ));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                traditionalJobList.sort(Comparator.comparing(ConnectLoginJobListModel::getLastAccessed));
+            }
         }
     }
 
-    private ConnectLoginJobListModel storeJobListData(String name, int id, Date date, String description, String organization, boolean isAppInstalled, boolean isNew, boolean isLeaningApp, boolean isDeliveryApp) {
-        return new ConnectLoginJobListModel(name, id, date, description, organization, isAppInstalled, isNew, isLeaningApp, isDeliveryApp);
+    private ConnectLoginJobListModel storeJobListData(
+            String name,
+            String id,
+            Date date,
+            String description,
+            String organization,
+            boolean isAppInstalled,
+            boolean isNew,
+            boolean isLeaningApp,
+            boolean isDeliveryApp,
+            Date lastAssessedDate,
+            int learningProgress,
+            int deliveryProgress,
+            String jobType
+    ) {
+        return new ConnectLoginJobListModel(name, id, date, description, organization, isAppInstalled, isNew, isLeaningApp, isDeliveryApp, lastAssessedDate, learningProgress, deliveryProgress, jobType);
+    }
+
+    public Date processJobRecords(ConnectJobRecord job, String jobType) {
+        Date lastAssessedDate = new Date();
+        try {
+            String learnAppId = job.getLearnAppInfo().getAppId();
+            String deliverAppId = job.getDeliveryAppInfo().getAppId();
+            if (jobType.equalsIgnoreCase(JOB_LEARNING)) {
+                ConnectLinkedAppRecord learnRecord = ConnectDatabaseHelper.getAppData(LoginActivity.this, learnAppId, "");
+                return learnRecord != null ? learnRecord.getLastAccessed() : lastAssessedDate;
+
+            } else if (jobType.equalsIgnoreCase(JOB_DELIVERY)) {
+                ConnectLinkedAppRecord deliverRecord = ConnectDatabaseHelper.getAppData(LoginActivity.this, deliverAppId, "");
+                return deliverRecord != null ? deliverRecord.getLastAccessed() : lastAssessedDate;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lastAssessedDate;
+    }
+
+    public static String formatDate(String dateStr) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+            Date date = inputFormat.parse(dateStr);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public String getDisplayNameByAppId(ArrayList<ApplicationRecord> appRecords, String appId) {
+        for (ApplicationRecord appRecord : appRecords) {
+            if (appRecord.getUniqueId().equals(appId)) {
+                return appRecord.getDisplayName();
+            }
+        }
+        // Return null or a default value if no record with the appId is found
+        return null;
     }
 }

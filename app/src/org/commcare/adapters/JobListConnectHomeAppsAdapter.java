@@ -1,15 +1,21 @@
 package org.commcare.adapters;
 
+import static org.commcare.activities.LoginActivity.JOB_DELIVERY;
+import static org.commcare.activities.LoginActivity.JOB_LEARNING;
+
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.activities.LoginActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
+import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.util.ArrayList;
@@ -18,10 +24,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
 
     private final Context mContext;
     private final ArrayList<ConnectLoginJobListModel> jobList;
+    private JobListCallBack mCallback;
 
-    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList) {
+    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,JobListCallBack mCallback) {
         this.mContext = context;
         this.jobList = jobList;
+        this.mCallback = mCallback;
     }
 
     @NonNull
@@ -35,7 +43,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(mContext, jobList.get(position));
+        holder.bind(mContext, jobList.get(position),mCallback);
     }
 
     @Override
@@ -51,23 +59,55 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
             this.binding = binding;
         }
 
-        public void bind(Context mContext, ConnectLoginJobListModel connectLoginJobListModel) {
+        public void bind(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
             binding.tvTitle.setText(connectLoginJobListModel.getName());
+            binding.tvDate.setText(LoginActivity.formatDate(connectLoginJobListModel.getLastAccessed().toString()));
+            handleProgressBarUI(mContext, connectLoginJobListModel);
             configureJobType(mContext, connectLoginJobListModel);
+
+            clickListener(mContext,connectLoginJobListModel,mCallback);
+        }
+
+        private void clickListener(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
+            binding.rootCardView.setOnClickListener(view -> {
+                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getName());
+            });
+        }
+
+        public void handleProgressBarUI(Context context, ConnectLoginJobListModel item) {
+            int progress = 0;
+            int progressColor = 0;
+            String jobType = item.getJobType();
+
+            if (jobType.equals(JOB_LEARNING)) {
+                progress = item.getLearningProgress();
+                progressColor = context.getResources().getColor(R.color.connect_blue_color);
+            } else if (jobType.equals(JOB_DELIVERY)) {
+                progress = item.getDeliveryProgress();
+                progressColor = context.getResources().getColor(R.color.connect_green);
+            }
+
+            if (progress > 0) {
+                binding.progressBar.setVisibility(View.VISIBLE);
+                binding.progressBar.setProgress(progress);
+                binding.progressBar.setProgressColor(progressColor);
+            } else {
+                binding.progressBar.setVisibility(View.GONE);
+            }
         }
 
         private void configureJobType(Context context, ConnectLoginJobListModel item) {
             if (item.isNew()) {
                 setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
-                        "New Opportunity", R.drawable.ic_connect_new_opportunity,
+                        context.getResources().getString(R.string.connect_new_opportunity), R.drawable.ic_connect_new_opportunity,
                         R.color.connect_yellowish_orange_color);
             } else if (item.isLeaningApp()) {
                 setJobType(context, R.drawable.connect_rounded_corner_teslish_blue,
-                        "Learn", R.drawable.ic_connect_learning,
+                        context.getResources().getString(R.string.connect_learn), R.drawable.ic_connect_learning,
                         R.color.connect_blue_color);
             } else if (item.isDeliveryApp()) {
                 setJobType(context, R.drawable.connect_rounded_corner_light_green,
-                        "Delivery", R.drawable.ic_connect_delivery,
+                        context.getResources().getString(R.string.connect_delivery), R.drawable.ic_connect_delivery,
                         R.color.connect_green);
             }
         }

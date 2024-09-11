@@ -1,7 +1,9 @@
 package org.commcare.fragments.connect.login_job_fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +13,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.adapters.JobListCombinedAdapter;
-import org.commcare.adapters.JobListCommCareAppsAdapter;
 import org.commcare.dalvik.databinding.FragmentConnectLoginCombineAppsBinding;
-import org.commcare.dalvik.databinding.FragmentConnectLoginCommcareAppsBinding;
+import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectCombineJobListModel;
-import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -30,12 +31,18 @@ public class ConnectLoginCombineAppsFragment extends Fragment {
     private FragmentConnectLoginCombineAppsBinding binding;
     private static final String ARG_COMBINE_JOB_LIST = "combine_job_list";
     private ArrayList<ConnectCombineJobListModel> traditionalJobList;
+    private JobListCallBack mCallback;
 
-    public static ConnectLoginCombineAppsFragment newInstance(List<ConnectCombineJobListModel> traditionalJobList) {
+    public static ConnectLoginCombineAppsFragment newInstance(List<ConnectCombineJobListModel> traditionalJobList,JobListCallBack mCallback) {
         ConnectLoginCombineAppsFragment fragment = new ConnectLoginCombineAppsFragment();
         Bundle args = new Bundle();
+        // Sort the list of ConnectCombineJobListModel based on the lastAccessed property
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            traditionalJobList.sort(Comparator.comparing(job -> job.getConnectLoginJobListModel().getLastAccessed()));
+//        }
         args.putParcelableArrayList(ARG_COMBINE_JOB_LIST, (ArrayList<? extends Parcelable>) traditionalJobList);
         fragment.setArguments(args);
+        fragment.setOnJobListClickedListener(mCallback);
         return fragment;
     }
 
@@ -54,17 +61,19 @@ public class ConnectLoginCombineAppsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        JobListCombinedAdapter adapter = new JobListCombinedAdapter(getContext(), traditionalJobList);
+        JobListCombinedAdapter adapter = new JobListCombinedAdapter(getContext(), traditionalJobList, (appId,jobName) -> mCallback.onClick(appId,jobName));
         binding.rcCombineApps.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rcCombineApps.setNestedScrollingEnabled(true);
         binding.rcCombineApps.setAdapter(adapter);
-
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Nullify the binding object to avoid memory leaks
         binding = null;
+    }
+
+    public void setOnJobListClickedListener(JobListCallBack mCallback) {
+        this.mCallback = mCallback;
     }
 }

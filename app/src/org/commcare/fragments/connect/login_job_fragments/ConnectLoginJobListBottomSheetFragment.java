@@ -2,6 +2,7 @@ package org.commcare.fragments.connect.login_job_fragments;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import org.commcare.adapters.JobListCombinedAdapter;
 import org.commcare.adapters.JobListViewPagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.BottomsheetLoginJoblistBinding;
+import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectCombineJobListModel;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
@@ -32,13 +34,16 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
     private static final String ARG_TRADITIONAL_JOB_LIST = "traditional_job_list";
     private List<ConnectLoginJobListModel> jobList;
     private List<ConnectLoginJobListModel> traditionalJobList;
+    private JobListCallBack mCallback;
 
-    public static ConnectLoginJobListBottomSheetFragment newInstance(List<ConnectLoginJobListModel> jobList, List<ConnectLoginJobListModel> traditionalJobList) {
+
+    public static ConnectLoginJobListBottomSheetFragment newInstance(List<ConnectLoginJobListModel> jobList, List<ConnectLoginJobListModel> traditionalJobList,JobListCallBack mCallback) {
         ConnectLoginJobListBottomSheetFragment fragment = new ConnectLoginJobListBottomSheetFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_JOB_LIST, new ArrayList<>(jobList));
         args.putParcelableArrayList(ARG_TRADITIONAL_JOB_LIST, new ArrayList<>(traditionalJobList));
         fragment.setArguments(args);
+        fragment.setOnJobListClickedListener(mCallback);
         return fragment;
     }
 
@@ -86,8 +91,8 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
      */
     private void setupViewPager() {
         JobListViewPagerAdapter viewPagerAdapter = new JobListViewPagerAdapter(requireActivity());
-        viewPagerAdapter.add(ConnectLoginConnectHomeAppsFragment.newInstance(jobList), "Connect Home");
-        viewPagerAdapter.add(ConnectLoginCommcareAppsFragment.newInstance(traditionalJobList), "CommCare App");
+        viewPagerAdapter.add(ConnectLoginConnectHomeAppsFragment.newInstance(jobList, (appId,jobName) -> mCallback.onClick(appId,jobName)), "Connect Home");
+        viewPagerAdapter.add(ConnectLoginCommcareAppsFragment.newInstance(traditionalJobList, (appId,jobName) -> mCallback.onClick(appId,jobName)), "CommCare App");
 
         configureRecyclerViewScrolling();
 
@@ -102,7 +107,7 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
      */
     private void setupCombinedRecyclerView() {
         JobListViewPagerAdapter viewPagerAdapter = new JobListViewPagerAdapter(requireActivity());
-        viewPagerAdapter.add(ConnectLoginCombineAppsFragment.newInstance(combineJobLists()), "Connect Home");
+        viewPagerAdapter.add(ConnectLoginCombineAppsFragment.newInstance(combineJobLists(), (appId,jobName) -> mCallback.onClick(appId,jobName)), "Connect Home");
 
         configureRecyclerViewScrolling();
 
@@ -169,5 +174,9 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
             }
             return true;
         });
+    }
+
+    public void setOnJobListClickedListener(JobListCallBack mCallback) {
+        this.mCallback = mCallback;
     }
 }

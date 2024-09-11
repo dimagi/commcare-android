@@ -5,7 +5,11 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginTop="8dp"
+    android:id="@+id/rootCardView"
     android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:shadowColor="@color/connect_light_grey_transparent"
     android:shadowDx="30"
     android:shadowDy="30"
@@ -24,8 +28,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="5dp"
-            android:text="Malaria 24 Blood Sample Collection"
             android:textColor="@color/black"
+            android:minLines="2"
             android:textSize="18sp"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +55,7 @@
             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="CommCare App"
+                android:text="@string/connect_commcare_app"
                 android:textColor="@color/white"
                 android:textSize="11sp" />
         </LinearLayout>

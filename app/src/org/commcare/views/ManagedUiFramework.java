@@ -141,7 +141,11 @@ public class ManagedUiFramework {
                 try {
                     f.setAccessible(true);
                     try {
+                        Log.e("DEBUG_TESTING", "objectHoldingFields: "+objectHoldingFields.getClass());
+                        Log.e("DEBUG_TESTING", "element: "+element);
+                        Log.e("DEBUG_TESTING", "f: "+f);
                         View v = (View)f.get(objectHoldingFields);
+                        Log.e("DEBUG_TESTING", "saveUiStateToBundle: "+v);
                         String elementKey = getElementKey(element);
                         int vis = v.getVisibility();
                         bundle.putInt(elementKey + "_visibility", vis);

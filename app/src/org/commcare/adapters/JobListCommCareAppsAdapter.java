@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.dalvik.databinding.ItemLoginCommcareAppsBinding;
+import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.util.ArrayList;
@@ -16,10 +17,12 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
 
     private final Context mContext;
     private final ArrayList<ConnectLoginJobListModel> traditionalJobList;
+    private final JobListCallBack mCallback;
 
-    public JobListCommCareAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> traditionalJobList) {
+    public JobListCommCareAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> traditionalJobList, JobListCallBack mCallback) {
         this.mContext = context;
         this.traditionalJobList = traditionalJobList;
+        this.mCallback = mCallback;
     }
 
     @NonNull
@@ -33,7 +36,7 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(mContext, traditionalJobList.get(position));
+        holder.bind(mContext, traditionalJobList.get(position), mCallback);
     }
 
     @Override
@@ -49,8 +52,16 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
             this.binding = binding;
         }
 
-        public void bind(Context mContext, ConnectLoginJobListModel connectLoginJobListModel) {
+        public void bind(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
             binding.tvTitle.setText(connectLoginJobListModel.getName());
+
+            clickListener(mContext, connectLoginJobListModel, mCallback);
+        }
+
+        private void clickListener(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
+            binding.rootCardView.setOnClickListener(view -> {
+                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getName());
+            });
         }
     }
 }

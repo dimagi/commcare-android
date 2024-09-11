@@ -11,10 +11,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.preference.PreferenceManager;
+
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -33,6 +35,7 @@ import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
+import org.commcare.views.connect.CircleProgressBar;
 import org.commcare.views.connect.ConnectEditText;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
@@ -42,8 +45,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
-
-import androidx.preference.PreferenceManager;
 
 /**
  * Handles login activity UI
@@ -77,8 +78,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     @UiElement(value = R.id.edit_password)
     private ConnectEditText passwordOrPin;
 
-    @UiElement(value = R.id.show_password)
-    private Button showPasswordButton;
+    /*@UiElement(value = R.id.show_password)
+    private Button showPasswordButton;*/
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
@@ -96,10 +97,16 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private ConnectMediumTextView welcomeMessage;
 
     @UiElement(R.id.cet_app_selector)
-    private ConnectEditText cetAppSelector;
+    public ConnectEditText cetAppSelector;
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
+
+    @UiElement(value = R.id.tv_new_app_available)
+    private ConnectMediumTextView tvNewAppAvailable;
+
+    @UiElement(value = R.id.img_new_job_popup_icon)
+    private ImageView imgNewJobPopupIcon;
 
     protected final LoginActivity activity;
 
@@ -107,6 +114,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     private boolean manuallySwitchedToPasswordMode;
     private boolean loginManagedByConnectId;
+    boolean isNewJobAvailable = false;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -202,7 +210,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     public void setConnectButtonVisible(Boolean visible) {
 //        connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
-        orLabel.setVisibility(visible ? View.GONE : View.GONE);
+        orLabel.setVisibility(View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -446,7 +454,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     protected void setErrorMessageUi(String message, boolean showNotificationButton) {
-        setLoginBoxesColorError();
+//        setLoginBoxesColorError();
 
 //        username.setCompoundDrawablesWithIntrinsicBounds(
 //                getResources().getDrawable(R.drawable.icon_user_attnneg),
@@ -455,23 +463,27 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 //        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
 //                getResources().getDrawable(R.drawable.icon_lock_attnneg),
 //                null, null, null);
+        username.showErrorState();
+        passwordOrPin.showErrorState();
 
-        errorContainer.setVisibility(View.VISIBLE);
-        errorTextView.setText(message);
-        notificationButtonView.setVisibility(showNotificationButton ? View.VISIBLE : View.GONE);
+//        errorContainer.setVisibility(View.VISIBLE);
+//        errorTextView.setText(message);
+//        notificationButtonView.setVisibility(showNotificationButton ? View.VISIBLE : View.GONE);
     }
 
     private void setLoginBoxesColorNormal() {
-        int normalColor = getResources().getColor(R.color.login_edit_text_color);
-        username.setTextColor(normalColor);
-        passwordOrPin.setTextColor(normalColor);
+//        int normalColor = getResources().getColor(R.color.login_edit_text_color);
+//        username.setTextColor(normalColor);
+//        passwordOrPin.setTextColor(normalColor);
+        username.setNormalBorder();
+        passwordOrPin.setNormalBorder();
     }
 
-    private void setLoginBoxesColorError() {
-        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
-        username.setTextColor(errorColor);
-        passwordOrPin.setTextColor(errorColor);
-    }
+//    private void setLoginBoxesColorError() {
+//        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
+//        username.setTextColor(errorColor);
+//        passwordOrPin.setTextColor(errorColor);
+//    }
 
     private void setStyleDefault() {
         setLoginBoxesColorNormal();
@@ -586,6 +598,11 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 //        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
 //        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
+        if (useConnectId) {
+            passwordOrPin.setGreyBorder();
+        } else {
+            passwordOrPin.setNormalBorder();
+        }
 
         if (useConnectId) {
             passwordOrPin.setText(R.string.login_password_by_connect);
@@ -605,5 +622,15 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     private Resources getResources() {
         return activity.getResources();
+    }
+
+    void visibleNewJobReminderUI() {
+        int visibility = isNewJobAvailable ? View.VISIBLE : View.GONE;
+        tvNewAppAvailable.setVisibility(visibility);
+        imgNewJobPopupIcon.setVisibility(visibility);
+    }
+
+    public void setAppNameOnSelector(String appName){
+        cetAppSelector.setText(appName);
     }
 }

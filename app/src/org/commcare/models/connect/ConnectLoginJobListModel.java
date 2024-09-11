@@ -10,7 +10,7 @@ import java.util.Date;
  */
 public class ConnectLoginJobListModel implements Parcelable {
     private String name;
-    private int id;
+    private String id;
     private Date date;
     private String description;
     private String organization;
@@ -18,9 +18,27 @@ public class ConnectLoginJobListModel implements Parcelable {
     private boolean isNew;
     private boolean isLeaningApp;
     private boolean isDeliveryApp;
+    private Date lastAccessed;
+    private int learningProgress;
+    private int deliveryProgress;
+    private String jobType;
 
     // Constructor
-    public ConnectLoginJobListModel(String name, int id, Date date, String description, String organization, boolean isAppInstalled, boolean isNew, boolean isLeaningApp,boolean isDeliveryApp) {
+    public ConnectLoginJobListModel(
+            String name,
+            String id,
+            Date date,
+            String description,
+            String organization,
+            boolean isAppInstalled,
+            boolean isNew,
+            boolean isLeaningApp,
+            boolean isDeliveryApp,
+            Date lastAccessed,
+            int learningProgress,
+            int deliveryProgress,
+            String jobType
+    ) {
         this.name = name;
         this.id = id;
         this.date = date;
@@ -30,6 +48,10 @@ public class ConnectLoginJobListModel implements Parcelable {
         this.isNew = isNew;
         this.isLeaningApp = isLeaningApp;
         this.isDeliveryApp = isDeliveryApp;
+        this.lastAccessed = lastAccessed;
+        this.learningProgress = learningProgress;
+        this.deliveryProgress = deliveryProgress;
+        this.jobType = jobType;
     }
 
     // Default constructor
@@ -38,7 +60,7 @@ public class ConnectLoginJobListModel implements Parcelable {
 
     protected ConnectLoginJobListModel(Parcel in) {
         name = in.readString();
-        id = in.readInt();
+        id = in.readString();
         description = in.readString();
         organization = in.readString();
     }
@@ -46,7 +68,7 @@ public class ConnectLoginJobListModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
-        dest.writeInt(id);
+        dest.writeString(id);
         dest.writeString(description);
         dest.writeString(organization);
     }
@@ -77,11 +99,11 @@ public class ConnectLoginJobListModel implements Parcelable {
         this.name = name;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -139,6 +161,38 @@ public class ConnectLoginJobListModel implements Parcelable {
 
     public void setDeliveryApp(boolean deliveryApp) {
         isDeliveryApp = deliveryApp;
+    }
+
+    public Date getLastAccessed() {
+        return lastAccessed;
+    }
+
+    public void setLastAccessed(Date lastAccessed) {
+        this.lastAccessed = lastAccessed;
+    }
+
+    public int getLearningProgress() {
+        return learningProgress;
+    }
+
+    public void setLearningProgress(int learningProgress) {
+        this.learningProgress = learningProgress;
+    }
+
+    public int getDeliveryProgress() {
+        return deliveryProgress;
+    }
+
+    public void setDeliveryProgress(int deliveryProgress) {
+        this.deliveryProgress = deliveryProgress;
+    }
+
+    public String getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(String jobType) {
+        this.jobType = jobType;
     }
 
     // Optionally, override toString for easy logging or display
