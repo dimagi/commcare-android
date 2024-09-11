@@ -15,6 +15,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
+apply plugin: 'com.google.firebase.firebase-perf'
 
 repositories {
     // for local aar inclusion
