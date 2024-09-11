@@ -1240,26 +1240,7 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
             case "ON_STOP":
                 break;
             case "ON_PAUSE":
-                logMemoryInfo();
-                logBatteryInfo();
                 break;
         }
-    }
-
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        Logger.log("memory-trim-request", this.getClass()+" - "+ level);
-        switch (level){
-            case TRIM_MEMORY_UI_HIDDEN:
-                // this could be an option to write the logs when the app goes to the background but
-                // LifecycleEventObserver seems more reliable
-                break;
-            case TRIM_MEMORY_BACKGROUND:
-            case TRIM_MEMORY_MODERATE:
-            case TRIM_MEMORY_COMPLETE:
-                break;
-        }
-
     }
 }
