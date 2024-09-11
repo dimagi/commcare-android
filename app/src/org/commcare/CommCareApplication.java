@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.Looper;
@@ -132,13 +130,10 @@ import org.javarosa.core.util.PropertyUtils;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
@@ -1238,12 +1233,13 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
 
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        Logger.log("commcare-state-changed", "Lifecycle.Event : " + event.name());
         switch (event.name()) {
+            case "ON_START":
             case "ON_RESUME":
-                Logger.log("commcare-state-changed", "User returning to CommCare. App lifecycle changed: " + event.name());
+            case "ON_STOP":
                 break;
             case "ON_PAUSE":
-                Logger.log("commcare-state-changed", "User leaving CommCare. App lifecycle changed: " + event.name());
                 logMemoryInfo();
                 logBatteryInfo();
                 break;
@@ -1253,6 +1249,7 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
+        Logger.log("memory-trim-request", this.getClass()+" - "+ level);
         switch (level){
             case TRIM_MEMORY_UI_HIDDEN:
                 // this could be an option to write the logs when the app goes to the background but
@@ -1261,63 +1258,8 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
             case TRIM_MEMORY_BACKGROUND:
             case TRIM_MEMORY_MODERATE:
             case TRIM_MEMORY_COMPLETE:
-                Logger.log("memory-trim-request", "Memory level: "+ getMemoryLevelName(level));
-                logMemoryInfo();
-                logBatteryInfo();
                 break;
         }
-    }
 
-    private String getMemoryLevelName(int level) {
-        switch (level) {
-            case TRIM_MEMORY_UI_HIDDEN:
-                return "TRIM_MEMORY_UI_HIDDEN";
-            case TRIM_MEMORY_BACKGROUND:
-                return "TRIM_MEMORY_BACKGROUND";
-            case TRIM_MEMORY_MODERATE:
-                return "TRIM_MEMORY_MODERATE";
-            case TRIM_MEMORY_COMPLETE:
-                return "TRIM_MEMORY_COMPLETE";
-            default:
-                return "OTHER";
-        }
-    }
-
-    private void logMemoryInfo(){
-        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
-        activityManager.getMemoryInfo(memoryInfo);
-
-        Logger.log(LogTypes.TYPE_MEMINFO, "Device memory info - " +
-                "AvailMemory: " + (memoryInfo.availMem / 1048576) + "MB / " +
-                "Threshold: " + (memoryInfo.threshold / 1048576) + "MB / " +
-                "TotalMemory: " + (memoryInfo.totalMem / 1048576) + "MB / " +
-                "LowMemory: " + memoryInfo.lowMemory);
-
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = activityManager.getRunningAppProcesses();
-        Map<Integer, String> pidMap = new TreeMap<Integer, String>();
-        for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses) {
-            pidMap.put(runningAppProcessInfo.pid, runningAppProcessInfo.processName);
-        }
-
-        Collection<Integer> keys = pidMap.keySet();
-        for(int key : keys) {
-            Debug.MemoryInfo[] memoryInfoArray = activityManager.getProcessMemoryInfo(new int[]{key});
-            for(Debug.MemoryInfo pidMemoryInfo: memoryInfoArray) {
-                Logger.log(LogTypes.TYPE_MEMINFO, "PID Memory Info - " +
-                        "TotalPrivateDirty: " + (pidMemoryInfo.getTotalPrivateDirty()/1024) + "MB / " +
-                        "TotalPss: " + (pidMemoryInfo.getTotalPss()/1024) + "MB / " +
-                        "TotalSharedDirty: " + (pidMemoryInfo.getTotalSharedDirty()/1024) + "MB");
-            }
-        }
-    }
-
-    private void logBatteryInfo() {
-        int batteryLevel = -1;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            BatteryManager bM = (BatteryManager) getSystemService(BATTERY_SERVICE);
-            batteryLevel = bM.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        }
-        Logger.log("battery-status", "Battery status: " + batteryLevel + "%");
     }
 }
