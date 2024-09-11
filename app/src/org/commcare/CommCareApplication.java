@@ -1257,12 +1257,7 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        Logger.log("memory-trim-request", "Memory level: " + getMemoryLevelName(level));
-        switch (level) {
-            case android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL,
-                    android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE,
-                    android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW:
-                break;
+        switch (level){
             case TRIM_MEMORY_UI_HIDDEN:
                 // this could be an option to write the logs when the app goes to the background but
                 // LifecycleEventObserver seems more reliable
@@ -1270,6 +1265,7 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
             case TRIM_MEMORY_BACKGROUND:
             case TRIM_MEMORY_MODERATE:
             case TRIM_MEMORY_COMPLETE:
+                Logger.log("memory-trim-request", "Memory level: "+ getMemoryLevelName(level));
                 logMemoryAndBatteryInfo("memory-trim-request");
                 break;
         }
@@ -1286,7 +1282,7 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
             case TRIM_MEMORY_COMPLETE:
                 return "TRIM_MEMORY_COMPLETE";
             default:
-                return "Level: " + level;
+                return "OTHER";
         }
     }
 
