@@ -1250,13 +1250,9 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
     }
 
     private void logMemoryAndBatteryInfo(String logType) {
-        try {
-            logMemoryInfo();
-            logBatteryInfo();
-        } catch (Exception e){
-            Logger.log(logType, "Exception while logging memory and battery info: "+ e.getMessage());
-        }
-    }
+        logMemoryInfo();
+        logBatteryInfo();
+   }
 
     @Override
     public void onTrimMemory(int level) {
