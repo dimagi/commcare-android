@@ -49,6 +49,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathException;
@@ -493,20 +494,19 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
+        final FormEntryCaption repeatCaptionPrompt = FormEntryActivity.mFormController.getCaptionPrompt();
+
         // Assign title and text strings based on the current state
         String backText = Localization.get("repeat.dialog.go.back");
-        String addAnotherText = Localization.get("repeat.dialog.add");
+        String addAnotherText = repeatCaptionPrompt.getRepeatText(FormEntryActivity.mFormController.getLastRepeatCount() > 0 ? "add" : "add-empty");
         String title, skipText;
         if (!nextExitsForm) {
             skipText = Localization.get("repeat.dialog.leave");
         } else {
             skipText = Localization.get("repeat.dialog.exit");
         }
-        if (FormEntryActivity.mFormController.getLastRepeatCount() > 0) {
-            title = Localization.get("repeat.dialog.add.another", FormEntryActivity.mFormController.getLastGroupText());
-        } else {
-            title = Localization.get("repeat.dialog.add.new", FormEntryActivity.mFormController.getLastGroupText());
-        }
+
+        title = addAnotherText;
 
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(activity, R.style.DialogBaseTheme);
