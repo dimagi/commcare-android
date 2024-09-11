@@ -1244,15 +1244,11 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
                 break;
             case "ON_PAUSE":
                 Logger.log("commcare-state-changed", "User leaving CommCare. App lifecycle changed: " + event.name());
-                logMemoryAndBatteryInfo("commcare-state-changed");
+                logMemoryInfo();
+                logBatteryInfo();
                 break;
         }
     }
-
-    private void logMemoryAndBatteryInfo(String logType) {
-        logMemoryInfo();
-        logBatteryInfo();
-   }
 
     @Override
     public void onTrimMemory(int level) {
@@ -1266,7 +1262,8 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
             case TRIM_MEMORY_MODERATE:
             case TRIM_MEMORY_COMPLETE:
                 Logger.log("memory-trim-request", "Memory level: "+ getMemoryLevelName(level));
-                logMemoryAndBatteryInfo("memory-trim-request");
+                logMemoryInfo();
+                logBatteryInfo();
                 break;
         }
     }
