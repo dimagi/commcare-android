@@ -189,6 +189,7 @@ public class ConnectEditText extends AppCompatEditText {
                 drawableEndPaddingRight,
                 drawableEndPadding
         );
+        setBackground(backgroundDrawable);
     }
 
     public void setNormalBorder(){
@@ -208,13 +209,14 @@ public class ConnectEditText extends AppCompatEditText {
                 drawableEndPaddingRight,
                 drawableEndPadding
         );
+        setBackground(backgroundDrawable);
     }
 
     public void setGreyBorder(){
-        int borderColor = ContextCompat.getColor(getContext(), R.color.connect_divider_color);
+        int borderColor = ContextCompat.getColor(getContext(), R.color.connect_yellowish_orange_color);
         backgroundDrawable.setStroke(borderWidth, borderColor);
-        setTextColor(DEFAULT_HINT_COLOR);
-        setHintTextColor(DEFAULT_HINT_COLOR);
+        setTextColor(borderColor);
+        setHintTextColor(borderColor);
         setDrawables(
                 drawableStart,
                 drawableEnd,
@@ -227,6 +229,7 @@ public class ConnectEditText extends AppCompatEditText {
                 drawableEndPaddingRight,
                 drawableEndPadding
         );
+        setBackground(backgroundDrawable);
     }
 
     public void setEditable(boolean isEditable) {

@@ -776,12 +776,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             position = appIdDropdownList.indexOf(currAppId);
         }
         uiController.cetAppSelector.setText(getDisplayNameByAppId(readyApps, currAppId));
+        uiController.setLoginInputsVisibility(isAppInstalled(currAppId));
+
         uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
     }
 
-    private boolean isConnectJobsSelected() {
+    /*private boolean isConnectJobsSelected() {
         return ConnectManager.isConnectIdConfigured() && uiController.getSelectedAppIndex() == 0;
+    }*/
+
+    private boolean isConnectJobsSelected() {
+        return ConnectManager.isConnectIdConfigured() && uiController.sharedPreferences.getString("job_type", "").equals(SELECTED_COMM_CARE_JOB);
     }
 
     @Override
@@ -1010,13 +1016,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void openJobListBottomSheet() {
         connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(jobList, traditionalJobList, (appId, jobName, jobType) -> {
-            if (isAppInstalled(appId)) {
-                Log.e("DEBUG_TETSTING", "Job installed ");
+            uiController.editor.putString("job_type", jobType).commit();
+            if (isAppInstalled(appId)) { // JUST FOR TESTING
+                Log.e("DEBUG_TESTING", "Job installed ");
                 uiController.setAppNameOnSelector(jobName);
                 JobSelection(String.valueOf(appId), jobType);
                 dismissBottomSheet();
             } else {
-                Log.e("DEBUG_TETSTING", "Job not installed ");
+                Log.e("DEBUG_TESTING", "Job not installed ");
             }
         });
         connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");

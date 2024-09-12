@@ -116,6 +116,9 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private boolean loginManagedByConnectId;
     boolean isNewJobAvailable = false;
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -161,7 +164,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 //        setBannerLayoutLogic();
         setAppSelectorClickListener();
         setLeftRightDrawableClickListener();
-
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        editor = sharedPreferences.edit();
 //        connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
 
         loginButton.setOnClickListener(arg0 -> {
@@ -513,14 +517,14 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
+       /* ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
                 R.layout.spinner_text_view, appNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(activity);
 
         spinner.setSelection(position);
-        spinner.setVisibility(View.GONE);
+        spinner.setVisibility(View.GONE);*/
     }
 
     protected boolean isAppSelectorVisible() {
@@ -630,7 +634,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         imgNewJobPopupIcon.setVisibility(visibility);
     }
 
-    public void setAppNameOnSelector(String appName){
+    public void setAppNameOnSelector(String appName) {
         cetAppSelector.setText(appName);
     }
 }
