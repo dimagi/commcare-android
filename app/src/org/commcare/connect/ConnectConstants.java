@@ -13,5 +13,7 @@ public class ConnectConstants {
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
     public static final String ALT_PHONE = "ALT_PHONE";
+    public static final String CONNECT_KEY_TOKEN = "access_token";
+    public static final String CONNECT_KEY_EXPIRES = "expires_in";
     public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
 }

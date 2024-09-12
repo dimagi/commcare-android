@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -194,12 +195,12 @@ public class ConnectUserRecord extends Persisted {
         connectTokenExpiration = expirationDate;
     }
 
-    public String getConnectToken() {
-        return connectToken;
-    }
+    public AuthInfo.TokenAuth getConnectToken() {
+        if((new Date()).compareTo(connectTokenExpiration) < 0) {
+            return new AuthInfo.TokenAuth(connectToken);
+        }
 
-    public Date getConnectTokenExpiration() {
-        return connectTokenExpiration;
+        return null;
     }
 
     public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
