@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.activities.LoginActivity;
 import org.commcare.dalvik.databinding.ItemLoginCommcareAppsBinding;
 import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectLoginJobListModel;
@@ -60,7 +61,7 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
 
         private void clickListener(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getName());
+                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getName(), LoginActivity.SELECTED_COMM_CARE_JOB);
             });
         }
     }

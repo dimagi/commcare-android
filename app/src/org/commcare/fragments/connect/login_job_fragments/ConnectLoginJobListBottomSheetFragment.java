@@ -2,7 +2,6 @@ package org.commcare.fragments.connect.login_job_fragments;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,8 +90,8 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
      */
     private void setupViewPager() {
         JobListViewPagerAdapter viewPagerAdapter = new JobListViewPagerAdapter(requireActivity());
-        viewPagerAdapter.add(ConnectLoginConnectHomeAppsFragment.newInstance(jobList, (appId,jobName) -> mCallback.onClick(appId,jobName)), "Connect Home");
-        viewPagerAdapter.add(ConnectLoginCommcareAppsFragment.newInstance(traditionalJobList, (appId,jobName) -> mCallback.onClick(appId,jobName)), "CommCare App");
+        viewPagerAdapter.add(ConnectLoginConnectHomeAppsFragment.newInstance(jobList, (appId,jobName,jobType) -> mCallback.onClick(appId,jobName,jobType)), "Connect Home");
+        viewPagerAdapter.add(ConnectLoginCommcareAppsFragment.newInstance(traditionalJobList, (appId,jobName,jobType) -> mCallback.onClick(appId,jobName,jobType)), "CommCare App");
 
         configureRecyclerViewScrolling();
 
@@ -107,7 +106,7 @@ public class ConnectLoginJobListBottomSheetFragment extends BottomSheetDialogFra
      */
     private void setupCombinedRecyclerView() {
         JobListViewPagerAdapter viewPagerAdapter = new JobListViewPagerAdapter(requireActivity());
-        viewPagerAdapter.add(ConnectLoginCombineAppsFragment.newInstance(combineJobLists(), (appId,jobName) -> mCallback.onClick(appId,jobName)), "Connect Home");
+        viewPagerAdapter.add(ConnectLoginCombineAppsFragment.newInstance(combineJobLists(), (appId,jobName,jobType) -> mCallback.onClick(appId,jobName,jobType)), "Connect Home");
 
         configureRecyclerViewScrolling();
 

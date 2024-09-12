@@ -79,7 +79,7 @@ public class JobListCombinedAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             binding.tvTitle.setText(item.getName());
 
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(item.getId(),item.getName());
+                mCallback.onClick(item.getId(),item.getName(),LoginActivity.SELECTED_COMM_CARE_JOB);
             });
         }
     }
@@ -104,7 +104,7 @@ public class JobListCombinedAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         private void clickListener(Context context, ConnectCombineJobListModel item, JobListCallBack mCallback) {
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(item.getConnectLoginJobListModel().getId(),item.getConnectLoginJobListModel().getName());
+                mCallback.onClick(item.getConnectLoginJobListModel().getId(),item.getConnectLoginJobListModel().getName(),LoginActivity.SELECTED_CONNECT_JOB);
             });
         }
 

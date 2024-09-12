@@ -79,7 +79,7 @@ public class ConnectLoginCommcareAppsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        JobListCommCareAppsAdapter adapter = new JobListCommCareAppsAdapter(getContext(), traditionalJobList, (appId,jobName) -> mCallback.onClick(appId,jobName));
+        JobListCommCareAppsAdapter adapter = new JobListCommCareAppsAdapter(getContext(), traditionalJobList, (appId,jobName,jobType) -> mCallback.onClick(appId,jobName,jobType));
         binding.rcCommCareApps.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rcCommCareApps.setNestedScrollingEnabled(true);
         binding.rcCommCareApps.setAdapter(adapter);

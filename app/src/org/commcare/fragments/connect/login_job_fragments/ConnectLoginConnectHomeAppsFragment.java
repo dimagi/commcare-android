@@ -61,7 +61,7 @@ public class ConnectLoginConnectHomeAppsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (appId,jobName) -> mCallback.onClick(appId,jobName));
+        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (appId,jobName,jobType) -> mCallback.onClick(appId,jobName,jobType));
         binding.rcConnectHomeApps.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rcConnectHomeApps.setNestedScrollingEnabled(true);
         binding.rcConnectHomeApps.setAdapter(adapter);
