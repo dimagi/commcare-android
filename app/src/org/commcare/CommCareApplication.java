@@ -147,6 +147,8 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
+import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
+
 public class CommCareApplication extends MultiDexApplication implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
@@ -1233,13 +1235,9 @@ public class CommCareApplication extends MultiDexApplication implements Lifecycl
 
     @Override
     public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
-        Logger.log("commcare-state-changed", "Lifecycle.Event : " + event.name());
-        switch (event.name()) {
-            case "ON_START":
-            case "ON_RESUME":
-            case "ON_STOP":
-                break;
-            case "ON_PAUSE":
+        switch (event) {
+            case ON_DESTROY:
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
         }
     }
