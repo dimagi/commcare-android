@@ -1109,7 +1109,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 HiddenPreferences.getInterruptedFormState();
         if (interruptedFormState!= null
                 && interruptedFormState.getSessionStateDescriptorId() == androidSessionWrapper.getSessionDescriptorId()
-                && interruptedFormState.getFormRecordId() == androidSessionWrapper.getFormRecordId()) {
+                && (interruptedFormState.getFormRecordId() == -1
+                || interruptedFormState.getFormRecordId() == androidSessionWrapper.getFormRecordId())) {
             return interruptedFormState.getFormIndex();
         }
         // data format is invalid, so better to clear the data
