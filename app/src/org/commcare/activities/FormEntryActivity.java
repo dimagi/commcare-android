@@ -1153,7 +1153,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
             Toast.makeText(this,
-                    Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
+                    Localization.get("form.entry.restart.after."
+                                    + (fc.getRestoredAfterSessionPause()?"session.pause":"expiration")),
+                    Toast.LENGTH_LONG).show();
         }
     }
 
