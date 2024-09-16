@@ -616,6 +616,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
     }
 
+    public void handleButtonText(){
+        loginButton.setText("Install App");
+    }
+
     private void updateBanner() {
         ImageView topBannerImageView =
                 banner.findViewById(R.id.main_top_banner);

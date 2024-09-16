@@ -1017,19 +1017,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public void openJobListBottomSheet() {
         connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(jobList, traditionalJobList, (appId, jobName, jobType) -> {
             uiController.editor.putString("job_type", jobType).commit();
-            if (isAppInstalled(appId)) { // JUST FOR TESTING
+            dismissBottomSheet();
+            uiController.setAppNameOnSelector(jobName);
+            if (isAppInstalled(appId)) {
                 Log.e("DEBUG_TESTING", "Job installed ");
-                uiController.setAppNameOnSelector(jobName);
-                JobSelection(String.valueOf(appId), jobType);
-                dismissBottomSheet();
+                uiController.setLoginInputsVisibility(true);
+                JobSelection(String.valueOf(appId));
             } else {
                 Log.e("DEBUG_TESTING", "Job not installed ");
+                uiController.handleButtonText();
+                uiController.setLoginInputsVisibility(false);
             }
         });
         connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");
     }
 
-    public void JobSelection(String appId, String jobType) {
+    public void JobSelection(String appId) {
         boolean selectedConnect = isConnectJobsSelected();
         if (selectedConnect) {
             uiController.setLoginInputsVisibility(false);
