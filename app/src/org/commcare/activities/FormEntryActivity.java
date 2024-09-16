@@ -900,7 +900,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         TextToSpeechConverter.INSTANCE.stop();
 
-        unregisterReceiver(pendingSyncAlertBroadcastReceiver);
+        attemptToUnregisterBroadcastReceiver(pendingSyncAlertBroadcastReceiver);
     }
 
     private void attemptToUnregisterBroadcastReceiver(BroadcastReceiver broadcastReceiver){
