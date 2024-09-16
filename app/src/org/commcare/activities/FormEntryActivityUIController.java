@@ -500,9 +500,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         String backText = Localization.get("repeat.dialog.go.back");
 
         boolean hasRepetitions = FormEntryActivity.mFormController.getLastRepeatCount() > 0;
-        String addAnotherText = repeatCaptionPrompt.getRepeatText(hasRepetitions ? "add" : "add-empty");
+        final String addAnotherText = repeatCaptionPrompt.getRepeatText(hasRepetitions ? "add" : "add-empty");
 
-        String title, skipText;
+        String skipText;
 
         if (!nextExitsForm) {
             skipText = Localization.get("repeat.dialog.leave");
@@ -510,11 +510,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             skipText = Localization.get("repeat.dialog.exit");
         }
 
-        title = addAnotherText;
-
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(activity, R.style.DialogBaseTheme);
-        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
+        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, addAnotherText);
 
         // Panel 1: Back option
         View.OnClickListener backListener = v -> {
