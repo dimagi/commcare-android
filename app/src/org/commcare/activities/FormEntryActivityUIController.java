@@ -499,9 +499,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         // Assign title and text strings based on the current state
         String backText = Localization.get("repeat.dialog.go.back");
 
-        // Checking the repetitions here
         boolean hasRepetitions = FormEntryActivity.mFormController.getLastRepeatCount() > 0;
-        // Setting the text based on repetitions
         String addAnotherText = repeatCaptionPrompt.getRepeatText(hasRepetitions ? "add" : "add-empty");
 
         String title, skipText;
