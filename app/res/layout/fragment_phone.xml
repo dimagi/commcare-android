@@ -1,10 +1,11 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<FrameLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/PhoneFragment"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    tools:context="org.commcare.fragments.newConnectId.PhoneFragment">
+    tools:context="org.commcare.fragments.connectId.ConnectIDSignupFragment">
 
     <RelativeLayout
         android:layout_height="match_parent"
@@ -38,8 +39,8 @@
             android:id="@+id/phone_layout"
             android:layout_below="@id/name_layout"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
             android:layout_width="match_parent"
+            android:layout_marginHorizontal="16dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -47,20 +48,46 @@
                 android:backgroundTint="@color/connect_light_grey"
                 android:layout_height="48dp"
                 android:layout_width="48dp"
+                android:layout_gravity="bottom"
                 android:padding="1dp"
                 android:src="@drawable/ic_outline_phone_24" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phone_input_layout"
+                android:layout_width="match_parent"
 
-            <org.commcare.views.ConnectPhoneInputView
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:backgroundTint="@color/white"
-                android:layout_width="match_parent" />
+                app:errorEnabled="true">
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content">
+                   <EditText
+                       android:layout_marginLeft="16dp"
+                       android:id="@+id/countryCode"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:hint="+91"
+                       android:background="@drawable/login_edit_text"/>
+
+                   <AutoCompleteTextView
+                       android:id="@+id/connect_primary_phone_input"
+                       android:layout_width="fill_parent"
+                       android:layout_height="wrap_content"
+                       android:inputType="numberDecimal"
+                       android:background="@drawable/login_edit_text"
+                       android:digits="1234567890"
+                       android:focusable="true"
+                       android:hint="0000000"
+                       android:focusableInTouchMode="true"/>
+               </LinearLayout>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
         </LinearLayout>
 
         <LinearLayout
             android:gravity="center"
             android:id="@+id/name_layout"
-            android:layout_below="@id/phone_title"
+            android:layout_below="@id/phone_sub_text"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
@@ -82,7 +109,6 @@
                     android:id="@+id/nameTextValue"
                     android:imeOptions="actionNext"
                     android:layout_marginLeft="16dp"
-                    android:inputType="textPassword"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent" />
 
@@ -103,6 +129,7 @@
                 android:textFontWeight="500"
                 android:textSize="14sp" />
             <org.commcare.views.connect.RoundedButton
+                android:id="@+id/recover_button"
                 android:gravity="start|center"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/connect_consent_check"
@@ -134,6 +161,20 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp" />
 
+        <TextView
+            android:id="@+id/phone_sub_text"
+            android:layout_below="@id/phone_title"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:text="ConnectId Signup"
+            android:fontFamily="@font/roboto_regular"
+            android:textColor="@color/connect_subtext"
+            android:textSize="12sp" />
+
         <View
             android:background="@android:color/darker_gray"
             android:id="@+id/divider1"
@@ -150,11 +191,13 @@
             android:layout_width="fill_parent" />
 
         <org.commcare.views.connect.RoundedButton
+            android:id="@+id/continue_button"
             android:gravity="start|center"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/connect_consent_check"
             android:layout_height="40dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
             android:layout_width="wrap_content"
             android:text="@string/review"
             app:roundButtonTextColor="@color/white"
@@ -166,3 +209,4 @@
 
 
 </FrameLayout>
+</layout>

@@ -1,0 +1,63 @@
+package org.commcare.fragments.connectId;
+
+import android.os.Bundle;
+
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import org.commcare.connect.ConnectConstants;
+import org.commcare.dalvik.R;
+
+
+public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragment {
+
+    TextView phoneTextView;
+    Button recover;
+    Button back;
+    String phoneNumber;
+
+    public ConnectIdPhoneAvailableBottomSheet() {
+        // Required empty public constructor
+    }
+
+    public static ConnectIdPhoneAvailableBottomSheet newInstance(String param1, String param2) {
+        ConnectIdPhoneAvailableBottomSheet fragment = new ConnectIdPhoneAvailableBottomSheet();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_phone_available_bottom_sheet, container, false);
+        back = (Button)view.findViewById(R.id.back_button);
+        recover = (Button)view.findViewById(R.id.recover_button);
+        phoneTextView = (TextView)view.findViewById(R.id.phone_number);
+        if (getArguments() != null) {
+            phoneNumber = PhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
+        }
+        phoneTextView.setText(phoneNumber);
+        back.setOnClickListener(v -> Navigation.findNavController(back).popBackStack());
+        recover.setOnClickListener(v -> {
+            NavDirections directions = PhoneAvailableBottomSheetDirections.actionConnectidPhoneNotAvailableToConnectidPhoneFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE).setPhone(phoneNumber);
+            Navigation.findNavController(back).navigate(directions);
+        });
+        return view;
+
+    }
+}

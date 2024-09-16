@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -12,8 +13,16 @@ import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.IApiCallback;
+import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 
 import io.michaelrocks.libphonenumber.android.NumberParseException;

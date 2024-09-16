@@ -275,8 +275,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
                     directions = failedEnrollment || !configured ? ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidMessage(getResources().getString(R.string.connect_biometric_enroll_fail_title), getResources().getString(R.string.connect_biometric_enroll_fail_message), ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL, getResources().getString(R.string.connect_biometric_enroll_fail_button), null) :
                             ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
                                     ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone()).setAllowChange(true);
-                } else {
-                    directions = ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidRegistration(ConnectConstants.CONNECT_REGISTRATION_MAIN, user.getPrimaryPhone());
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS -> {
@@ -294,11 +292,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
                     requireActivity().finish();
 
                 }
-//                else if (intent != null && intent.getBooleanExtra(ConnectConstants.PASSWORD, false)) {
-//                    nextRequestCode = ConnectTask.CONNECT_UNLOCK_PASSWORD;
-//                } else if (intent != null && intent.getBooleanExtra(ConnectConstants.RECOVER, false)) {
-//                    nextRequestCode = ConnectTask.CONNECT_RECOVERY_PRIMARY_PHONE;
-//                }
             }
         }
         if (directions != null) {

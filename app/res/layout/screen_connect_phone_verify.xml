@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
@@ -7,29 +8,83 @@
         android:orientation="vertical"
         android:layout_marginStart="@dimen/content_start"
         android:layout_marginEnd="@dimen/content_start">
+        <ImageView
+            android:id="@+id/company_logo"
+            android:layout_height="32dp"
+            android:layout_marginTop="64dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_dimagi_logo" />
+        <View
+            android:background="@android:color/darker_gray"
+            android:id="@+id/divider"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:layout_width="fill_parent" />
+        <TextView
+            android:fontFamily="@font/roboto_medium"
+            android:id="@+id/connect_phone_verify_title"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="@string/enter_otp"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textFontWeight="500"
+            android:textSize="16sp" />
+        <LinearLayout
+            android:id="@+id/phone_layout"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/connect_phone_verify_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_margin="@dimen/content_min_margin"
-        android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_larger"
-        android:text="@string/connect_verify_phone_title2"/>
+            <TextView
+                android:id="@+id/connect_phone_verify_label"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_width="wrap_content"
+                android:text="+91 7748962888"
+                android:textColor="@color/connect_secondary_text"
+                android:textFontWeight="400"
+                android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/connect_phone_verify_label"
-        android:layout_width="fill_parent"
+            <TextView
+                android:clickable="true"
+                android:focusable="true"
+                android:id="@+id/phone_change_button"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/change"
+                android:textColor="@color/connect_dark_blue_color"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/otp_layout"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
-    <AutoCompleteTextView
-        android:id="@+id/connect_phone_verify_code"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"/>
+        android:layout_margin="16dp"
+        android:layout_width="match_parent"
+        android:orientation="horizontal">
+        <ImageView
+            android:background="@color/black"
+            android:backgroundTint="@color/connect_light_grey"
+            android:layout_height="48dp"
+            android:layout_width="48dp"
+            android:padding="1dp"
+            android:src="@drawable/ic_outline_lock_24" />
+        <AutoCompleteTextView
+            android:id="@+id/connect_phone_verify_code"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:hint="OTP"
+            android:background="@drawable/login_edit_text"
+            android:inputType="numberDecimal"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/connect_phone_verify_error"
@@ -52,22 +107,35 @@
         android:text="@string/connect_verify_phone_change"
         android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/connect_phone_verify_resend"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:textColor="@color/blue"
-        android:text="@string/connect_verify_phone_resend"/>
+        <TextView
+            android:fontFamily="@font/roboto_medium"
+            android:id="@+id/connect_phone_verify_resend"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="80dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Resend OTP in 60s"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textFontWeight="500"
+            android:textSize="12sp" />
 
-    <Button
-        android:id="@+id/connect_phone_verify_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start"
-        android:text="@string/connect_verify_phone_verify"/>
+
+        <org.commcare.views.connect.RoundedButton
+            android:id="@+id/connect_phone_verify_button"
+            android:gravity="start|center"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="end"
+            android:layout_width="wrap_content"
+            android:text="@string/connect_verify_phone_verify"
+            app:roundButtonBackgroundColor="@color/connect_blue_color"
+            app:roundButtonBorderRadius="@dimen/dp48"
+            app:roundButtonIconLeftAlign="false"
+            app:roundButtonIconTintColor="@color/white"
+            app:roundButtonTextColor="@color/white" />
+
     </LinearLayout>
 </layout>

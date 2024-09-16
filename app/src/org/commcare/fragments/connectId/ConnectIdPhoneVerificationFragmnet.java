@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -60,7 +61,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public static final int MethodRecoveryAlternate = 3;
     public static final int MethodVerifyAlternate = 4;
     public static final int REQ_USER_CONSENT = 200;
-
     private int method;
     private String primaryPhone;
     private String username;
@@ -175,9 +175,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         Pattern otpPattern = Pattern.compile("(|^)\\d{6}");
         Matcher matcher = otpPattern.matcher(message);
         if (matcher.find()) {
-
             binding.connectPhoneVerifyCode.setText(matcher.group(0));
         }
+
     }
 
     @Override
@@ -504,7 +504,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE, ConnectConstants.METHOD_CHANGE_PRIMARY, secondaryPhone);
+                        Navigation.findNavController(binding.connectPhoneVerifyButton).popBackStack();
+                        return;
+//                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidSignupFragment(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE, ConnectConstants.METHOD_CHANGE_PRIMARY, secondaryPhone);
                     } else {
                         directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password).setRecover(false).setChange(true);
 
@@ -523,7 +525,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                             directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null);
 
                         } else {
-                            directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret);
+                            directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret,ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
 
                         }
                     }

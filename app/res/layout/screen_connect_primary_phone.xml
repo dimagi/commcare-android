@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
@@ -7,15 +8,29 @@
         android:orientation="vertical"
         android:layout_marginStart="@dimen/content_start"
         android:layout_marginEnd="@dimen/content_start">
-
+        <ImageView
+            android:id="@+id/company_logo"
+            android:layout_centerHorizontal="true"
+            android:layout_height="32dp"
+            android:layout_marginTop="80dp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_dimagi_logo" />
+        <View
+            android:background="@android:color/darker_gray"
+            android:id="@+id/divider"
+            android:layout_below="@+id/company_logo"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:layout_width="fill_parent" />
         <TextView
             android:id="@+id/connect_primary_phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="start"
             android:layout_margin="@dimen/content_min_margin"
-            android:textColor="@color/cc_neutral_color"
-            android:textSize="@dimen/text_largest"
+            android:textColor="@color/connect_blue_color"
+            android:textSize="@dimen/text_medium"
             android:text="@string/connect_phone_title_primary"/>
 
         <TextView
@@ -24,52 +39,78 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/content_min_margin"
             android:gravity="start"
+            android:textColor="@color/connect_subtext"
             android:textSize="@dimen/text_medium"
             android:text="@string/connect_phone_message_primary"/>
 
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8sp"
-                android:text="@string/phone_code_plus" />
-            <AutoCompleteTextView
-                android:id="@+id/connect_primary_phone_country_input"
-                android:layout_width="100sp"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:digits="1234567890"
-                android:gravity="center" />
+        <LinearLayout
+            android:id="@+id/phone_layout"
+            android:layout_below="@id/name_layout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="16dp"
+            android:orientation="horizontal">
 
-            <AutoCompleteTextView
-                android:id="@+id/connect_primary_phone_input"
-                android:layout_toEndOf="@id/connect_primary_phone_country_input"
-                android:layout_width="fill_parent"
+            <ImageView
+                android:background="@color/black"
+                android:backgroundTint="@color/connect_light_grey"
+                android:layout_height="48dp"
+                android:layout_width="48dp"
+                android:layout_gravity="bottom"
+                android:padding="1dp"
+                android:src="@drawable/ic_outline_phone_24" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/phone_input_layout"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="16dp"
                 android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:digits="1234567890"
-                android:focusable="true"
-                android:focusableInTouchMode="true">
-                <requestFocus />
-            </AutoCompleteTextView>
-        </RelativeLayout>
+                app:errorEnabled="true">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:layout_marginLeft="16dp"
+                        android:id="@+id/countryCodeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:hint="+91"
+                        android:background="@drawable/login_edit_text"/>
+
+                    <AutoCompleteTextView
+                        android:id="@+id/connect_primary_phone_input"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:background="@drawable/login_edit_text"
+                        android:digits="1234567890"
+                        android:focusable="true"
+                        android:hint="0000000"
+                        android:focusableInTouchMode="true"/>
+                </LinearLayout>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/connect_primary_phone_availability"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/connect_subtext"
             android:layout_margin="@dimen/content_min_margin"
             android:gravity="start"
             android:textSize="@dimen/text_medium"/>
 
-        <Button
+        <org.commcare.views.connect.RoundedButton
             android:id="@+id/connect_primary_phone_button"
-            android:layout_width="fill_parent"
+            app:roundButtonBackgroundColor="@color/connect_blue_color"
+            app:roundButtonTextColor="@color/white"
+            android:layout_gravity="end"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/content_start"
             android:paddingTop="@dimen/content_start"
+            android:layout_margin="16dp"
             android:text="@string/connect_phone_button"/>
 
     </LinearLayout>

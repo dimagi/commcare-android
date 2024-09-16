@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
 import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -16,6 +18,7 @@ import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
 
 import java.util.Locale;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -27,7 +30,7 @@ import static android.app.Activity.RESULT_OK;
  * Use the {@link ConnectIdMessageFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ConnectIdMessageFragment extends Fragment {
+public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private String title;
     private String message;
     private String buttonText;
@@ -128,14 +131,6 @@ public class ConnectIdMessageFragment extends Fragment {
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
-                //                nextRequestCode = success ? ConnectTask.CONNECT_RECOVERY_CHANGE_PIN :
-//                        ConnectTask.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE;
-//                if (success) {
-//                    forgotPassword = intent.getBooleanExtra(ConnectConstants.FORGOT, false);
-//                    if (forgotPassword) {
-//                        nextRequestCode = ConnectTask.CONNECT_RECOVERY_ALT_PHONE_MESSAGE;
-//                    }
-//                }
                 if(success){
                     if(ConnectIdActivity.forgotPassword){
                         directions =ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_recovery_alt_title),getString(R.string.connect_recovery_alt_message),ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE,getString(R.string.connect_recovery_alt_button),null);
@@ -149,7 +144,7 @@ public class ConnectIdMessageFragment extends Fragment {
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
-                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhone(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE, null);
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE, null);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
                                 ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);

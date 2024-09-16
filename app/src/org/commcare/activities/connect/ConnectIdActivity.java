@@ -9,6 +9,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
 import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +17,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
-
-import org.commcare.fragments.connectId.ConnectIdRecoveryDecisionFragmentDirections;
 
 
 public class ConnectIdActivity extends AppCompatActivity {
@@ -34,8 +33,7 @@ public class ConnectIdActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             getCurrentFragment().onActivityResult(requestCode, resultCode, data);
-        }
-        else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
+        } else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
             String value = "";
             if (data != null) {
                 value = data.getStringExtra("TASK");
@@ -89,30 +87,27 @@ public class ConnectIdActivity extends AppCompatActivity {
         int requestCode = ConnectConstants.CONNECT_NO_ACTIVITY;
         switch (ConnectManager.getStatus()) {
             case NotIntroduced ->
-                    navDirections = ConnectIdRecoveryDecisionFragmentDirections.actionConnectidRecoveryDecisionSelf();
+                    navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentSelf().setCallingClass(ConnectConstants.CONNECT_NO_ACTIVITY);
             case Registering -> {
                 ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
                 int phase = user.getRegistrationPhase();
                 if (phase != ConnectConstants.CONNECT_NO_ACTIVITY) {
                     requestCode = phase;
                 } else if (user.shouldForcePin()) {
-                    navDirections = ConnectIdRecoveryDecisionFragmentDirections.
-                            actionConnectidRecoveryDecisionToConnectidPin(
+                    navDirections = ConnectIDSignupFragmentDirections.
+                            actionConnectidPhoneFragmentToConnectidPin(
                                     ConnectConstants.CONNECT_UNLOCK_PIN,
                                     user.getPrimaryPhone(),
                                     user.getPassword());
                 } else if (user.shouldForcePassword()) {
-                    navDirections = ConnectIdRecoveryDecisionFragmentDirections.
-                            actionConnectidRecoveryDecisionToConnectidPassword
-                                    (ConnectConstants.CONNECT_UNLOCK_PASSWORD,
-                                            user.getPrimaryPhone(),
-                                            user.getPassword());
+                    navDirections = ConnectIDSignupFragmentDirections.
+                            actionConnectidPhoneFragmentToConnectidPassword(
+                                    user.getPrimaryPhone(),
+                                    user.getPassword(), ConnectConstants.CONNECT_UNLOCK_PASSWORD);
                 } else {
-                    navDirections = ConnectIdRecoveryDecisionFragmentDirections
-                            .actionConnectidRecoveryDecisionToConnectidBiometricConfig
-                                    (user.getPrimaryPhone(),
-                                            ConnectConstants.CONNECT_UNLOCK_BIOMETRIC)
-                            .setAllowPassword(true);
+                    navDirections = ConnectIDSignupFragmentDirections
+                            .actionConnectidPhoneFragmentToConnectidBiometricConfig(
+                                    (ConnectConstants.CONNECT_UNLOCK_BIOMETRIC));
                 }
             }
             default -> {
@@ -129,23 +124,20 @@ public class ConnectIdActivity extends AppCompatActivity {
         forgotPin = false;
         NavDirections navDirections = null;
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
-        navDirections = ConnectIdRecoveryDecisionFragmentDirections.
-                actionConnectidRecoveryDecisionToConnectidBiometricConfig
-                        (user.getPrimaryPhone(),
-                                ConnectConstants.CONNECT_UNLOCK_BIOMETRIC)
-                .setAllowPassword(true);
+        navDirections = ConnectIDSignupFragmentDirections.
+                actionConnectidPhoneFragmentToConnectidBiometricConfig(
+                        (
+                                ConnectConstants.CONNECT_UNLOCK_BIOMETRIC));
         if (user.shouldForcePin()) {
-            navDirections = ConnectIdRecoveryDecisionFragmentDirections
-                    .actionConnectidRecoveryDecisionToConnectidPin
+            navDirections = ConnectIDSignupFragmentDirections
+                    .actionConnectidPhoneFragmentToConnectidPin
                             (ConnectConstants.CONNECT_UNLOCK_PIN,
                                     user.getPrimaryPhone(),
                                     user.getPassword());
         } else if (user.shouldForcePassword()) {
-            navDirections = ConnectIdRecoveryDecisionFragmentDirections.
-                    actionConnectidRecoveryDecisionToConnectidPassword
-                            (ConnectConstants.CONNECT_UNLOCK_PASSWORD,
-                                    user.getPrimaryPhone(),
-                                    user.getPassword());
+            navDirections = ConnectIDSignupFragmentDirections.
+                    actionConnectidPhoneFragmentToConnectidPassword
+                            (user.getPrimaryPhone(), user.getPassword(), ConnectConstants.CONNECT_UNLOCK_PASSWORD);
         }
 
         if (navDirections != null) {
@@ -154,8 +146,7 @@ public class ConnectIdActivity extends AppCompatActivity {
     }
 
     public static void beginSecondaryPhoneVerification(Context parent) {
-        NavDirections navDirections = ConnectIdRecoveryDecisionFragmentDirections.
-                actionConnectidRecoveryDecisionToConnectidMessage
+        NavDirections navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage
                 (parent.getString(R.string.connect_recovery_alt_title),
                         parent.getString(R.string.connect_recovery_alt_message),
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
