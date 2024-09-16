@@ -1287,7 +1287,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     hasSaved = true;
                     break;
                 case SAVED_INCOMPLETE:
-                    toastMessage = Localization.get("form.entry.incomplete.save.success");
+                    if (!autoSaving) {
+                        toastMessage = Localization.get("form.entry.incomplete.save.success");
+                    }
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
