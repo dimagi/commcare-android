@@ -54,6 +54,8 @@ public class SaveToDiskTask extends
 
     private final SecretKeySpec symetricKey;
 
+    private boolean autoSavingForm;
+
     public enum SaveStatus {
         SAVED_COMPLETE,
         SAVED_INCOMPLETE,
@@ -66,7 +68,7 @@ public class SaveToDiskTask extends
 
     public SaveToDiskTask(int formRecordId, int formDefId, String formRecordPath, Boolean saveAndExit, Boolean markCompleted,
                           String updatedName,
-                          SecretKeySpec symetricKey, boolean headless) {
+                          SecretKeySpec symetricKey, boolean headless, boolean autoSaving) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
         mFormRecordId = formRecordId;
@@ -76,7 +78,7 @@ public class SaveToDiskTask extends
         mRecordName = updatedName;
         this.symetricKey = symetricKey;
         mFormRecordPath = formRecordPath;
-
+        autoSavingForm = autoSaving;
         if (headless) {
             this.taskId = -1;
 
@@ -270,9 +272,9 @@ public class SaveToDiskTask extends
         synchronized (this) {
             if (mSavedListener != null) {
                 if (result == null) {
-                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error", exitAfterSave);
+                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error", exitAfterSave, autoSavingForm);
                 } else {
-                    mSavedListener.savingComplete(result.data, result.errorMessage, exitAfterSave);
+                    mSavedListener.savingComplete(result.data, result.errorMessage, exitAfterSave, autoSavingForm);
                 }
             }
         }
