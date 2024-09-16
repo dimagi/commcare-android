@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -35,7 +36,12 @@ public class InterruptedFormState implements Externalizable {
             throws IOException, DeserializationException {
         sessionStateDescriptorId = ExtUtil.readInt(in);
         formIndex = (FormIndex)ExtUtil.read(in, FormIndex.class, pf);
-        formRecordId = ExtUtil.readInt(in);
+        try{
+            formRecordId = ExtUtil.readInt(in);
+        } catch(EOFException e){
+            // this is to catch errors caused by EOF when updating from the previous model which didn't have the
+            // formRecordId field
+        }
     }
 
     @Override
