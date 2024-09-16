@@ -17,7 +17,7 @@ public class InterruptedFormState implements Externalizable {
 
     private int sessionStateDescriptorId;
     private FormIndex formIndex;
-    private int formRecordId;
+    private int formRecordId = -1;
 
     public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex, int formRecordId) {
         this.sessionStateDescriptorId = sessionStateDescriptorId;
