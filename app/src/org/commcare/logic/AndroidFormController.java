@@ -20,6 +20,7 @@ public class AndroidFormController extends FormController implements PendingCall
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
     private boolean formCompleteAndSaved = false;
+    private boolean restoredAfterSessionPause = false;
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
@@ -27,6 +28,9 @@ public class AndroidFormController extends FormController implements PendingCall
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
         formIndexToReturnTo = formIndex;
+        if (formIndex != null) {
+            restoredAfterSessionPause = true;
+        }
     }
 
     @Override
@@ -85,5 +89,9 @@ public class AndroidFormController extends FormController implements PendingCall
 
     public FormDef getFormDef() {
         return mFormEntryController.getModel().getForm();
+    }
+
+    public boolean getRestoredAfterSessionPause(){
+        return restoredAfterSessionPause;
     }
 }
