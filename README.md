@@ -8,7 +8,7 @@ This repository represents the Android version of CommCare. It depends on the [C
 
 CommCare Android is a mobile CommCare Platform client runtime, and requires a backend environment for full end-to-end usage and to test platform development.
 
-If you don't have an access to another backend, or if you will be doing full platform development, after completing this setup you can follow [the end-to-end development guide](https://github.com/dimagi/commcare-hq/blob/master/local_dev_guide.rst) which explains how to establish a local environemnt for CommCare's full client/server software. 
+If you don't have an access to another backend, or if you will be doing full platform development, after completing this setup you can follow [the end-to-end development guide](https://github.com/dimagi/commcare-hq/blob/master/local_dev_guide.rst) which explains how to establish a local environment for CommCare's full client/server software. 
 
 ## Setup
 
