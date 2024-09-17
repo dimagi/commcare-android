@@ -1,6 +1,7 @@
 package org.commcare.preferences;
 
 import static org.commcare.preferences.HiddenPreferences.ENABLE_CERTIFICATE_TRANSPARENCY;
+import static org.commcare.preferences.ServerUrls.PREFS_LOG_POST_URL_KEY;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
@@ -120,6 +121,19 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setHasOptionsMenu(true);
+        EditTextPreference editTextPreference = (EditTextPreference)findPreference(PREFS_LOG_POST_URL_KEY);
+        if (editTextPreference != null) {
+            editTextPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (newValue == null || newValue.toString().trim().isEmpty()
+                        || newValue.equals(getString(R.string.logs_server_url_protocol))) {
+                    SharedPreferences appPreferences = CommCareApplication.instance().getCurrentApp()
+                            .getAppPreferences();
+                    appPreferences.edit().remove(PREFS_LOG_POST_URL_KEY).apply();
+                    return false;
+                }
+                return true;
+            });
+        }
     }
 
     @Override
