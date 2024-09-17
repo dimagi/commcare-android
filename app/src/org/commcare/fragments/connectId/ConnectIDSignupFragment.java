@@ -140,10 +140,13 @@ public class ConnectIDSignupFragment extends Fragment {
         String codeText = "";
         if (code > 0) {
             codeText = String.format(Locale.getDefault(), "%d", code);
+            if(!codeText.startsWith("+")){
+                codeText="+"+codeText;
+            }
         }
 
-        if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
-            fullNumber = fullNumber.substring(codeText.length() + 1);
+        if (fullNumber != null && fullNumber.startsWith(codeText)) {
+            fullNumber = fullNumber.substring(codeText.length());
         }
         skipPhoneNumberCheck = false;
         binding.connectPrimaryPhoneInput.setText(fullNumber);
