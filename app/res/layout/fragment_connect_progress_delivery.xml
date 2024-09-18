@@ -200,7 +200,7 @@
                     android:id="@+id/connect_progress_warning_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="15dp"
                     android:text="@string/connect_progress_warning"
                     android:textAlignment="center"
                     android:textColor="@color/black"
