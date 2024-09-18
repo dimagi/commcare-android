@@ -459,4 +459,9 @@
     <string name="connect_job_info_start_visit">Iniciar visita</string>
     <string name="connect_job_info_download_delivery">Baixar entrega</string>
     <string name="connect_job_info_download">Download</string>
+
+    <string name="connect_progress">Progresso</string>
+    <string name="connect_payment">Pagamento</string>
+    <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
+    <string name="connect_click_to_sync_progress">Clique para sincronizar o progresso</string>
 </resources>

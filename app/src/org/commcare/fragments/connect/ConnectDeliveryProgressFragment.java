@@ -109,8 +109,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         pager.setAdapter(viewStateAdapter);
 
         final TabLayout tabLayout = view.findViewById(R.id.connect_delivery_progress_tabs);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress_delivery));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress_delivery_verification));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_payment));
 
         if (tabPosition.equals("1")) {
             TabLayout.Tab tab = tabLayout.getTabAt(Integer.parseInt(tabPosition));

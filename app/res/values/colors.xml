@@ -152,7 +152,11 @@
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_darker_blue_color">#353BA8</color>
     <color name="connect_blue_color">#3A42C7</color>
+    <color name="connect_blue_color_10">#1A3A42C7</color>
+    <color name="connect_blackist_dark_blue_color">#141859</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
     <color name="connect_light_grey">#D9D9D9</color>
+    <color name="connect_divider_color">#E5E7EB</color>
     <color name="connect_background_color">#f2f5ff</color>
+    <color name="connect_aquva">#88BEE1</color>
 </resources>

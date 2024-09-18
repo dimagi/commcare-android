@@ -719,7 +719,7 @@
 
     <string name="connect_progress_delivery">Delivery</string>
     <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>
-    <string name="connect_progress_title">Your Delivery Progress</string>
+    <string name="connect_progress_title">Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
     <string name="connect_progress_begin_date">Project Begins %s\nComplete Delivery by %s</string>
     <string name="connect_progress_complete_by">Complete Delivery by %s</string>
@@ -801,4 +801,9 @@
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
+
+    <string name="connect_progress">Progress</string>
+    <string name="connect_payment">Payment</string>
+    <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
+    <string name="connect_click_to_sync_progress">Click to sync progress</string>
 </resources>
