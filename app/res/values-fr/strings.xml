@@ -271,5 +271,9 @@ License.
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
 
+    <string name="connect_new_opportunity">Nouvelle opportunité</string>
+    <string name="connect_learn">Apprendre</string>
+    <string name="connect_delivery">Livraison</string>
+    <string name="connect_commcare_app">Application CommCare</string>
     <string name="connect_install_app">Installer l\'application</string>
 </resources>

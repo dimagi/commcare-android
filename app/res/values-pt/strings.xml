@@ -450,5 +450,9 @@
     <string name="connect_payment_acknowledge_notification_yes">Sim</string>
     <string name="connect_payment_acknowledge_notification_no">Não</string>
 
+    <string name="connect_new_opportunity">Nova oportunidade</string>
+    <string name="connect_learn">Aprender</string>
+    <string name="connect_delivery">Entrega</string>
+    <string name="connect_commcare_app">Aplicativo CommCare</string>
     <string name="connect_install_app">Instalar aplicativo</string>
 </resources>
