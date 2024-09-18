@@ -177,6 +177,14 @@ public class ConnectIdMessageFragment extends Fragment {
                 }
                 break;
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE:
+                if (success) {
+                    if (secondButton) {
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhone(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE, null);
+                    } else {
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
+                                ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);
+                    }
+                }
                 break;
         }
         if (success) {
