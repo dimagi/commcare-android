@@ -245,28 +245,37 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/connect_progress_complete_by_text" />
 
-                <Button
+                <org.commcare.views.connect.RoundedButton
                     android:id="@+id/connect_progress_review_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="20dp"
                     android:text="@string/connect_progress_review"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/connect_progress_delivery_warning_text" />
+                    app:layout_constraintTop_toBottomOf="@+id/connect_progress_delivery_warning_text"
+                    app:roundButtonBackgroundColor="@color/connect_blue_color"
+                    app:roundButtonFontFamily="@font/roboto_medium"
+                    app:roundButtonTextColor="@color/white"
+                    app:roundButtonTextSize="6sp" />
 
-                <Button
+                <org.commcare.views.connect.RoundedButton
                     android:id="@+id/connect_progress_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
                     android:layout_marginStart="20dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginTop="10dp"
                     android:text="@string/connect_progress_launch"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/connect_progress_review_button" />
+                    app:layout_constraintTop_toBottomOf="@+id/connect_progress_review_button"
+                    app:roundButtonBackgroundColor="@color/connect_blue_color"
+                    app:roundButtonFontFamily="@font/roboto_medium"
+                    app:roundButtonTextColor="@color/white"
+                    app:roundButtonTextSize="6sp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </RelativeLayout>

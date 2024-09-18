@@ -32,7 +32,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
 
-    private Button launchButton;
+    private RoundedButton launchButton;
 
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
@@ -70,7 +70,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             }
         });
 
-        Button reviewButton = view.findViewById(R.id.connect_progress_review_button);
+        RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
         reviewButton.setVisibility(showLearningLaunch ? View.VISIBLE : View.GONE);
         reviewButton.setOnClickListener(v -> {
             launchLearningApp(reviewButton);
