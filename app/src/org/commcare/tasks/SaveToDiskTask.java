@@ -58,6 +58,7 @@ public class SaveToDiskTask extends
         SAVED_COMPLETE,
         SAVED_INCOMPLETE,
         SAVE_ERROR,
+        SAVE_UNRECOVERABLE_ERROR,
         INVALID_ANSWER,
         SAVED_AND_EXIT
     }
@@ -126,7 +127,7 @@ public class SaveToDiskTask extends
             // Likely a user level issue, so send error to HQ as a app build error
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(cleanedMessage);
 
-            return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
+            return new ResultAndError<>(SaveStatus.SAVE_UNRECOVERABLE_ERROR, cleanedMessage);
         }
 
         if (mMarkCompleted) {
