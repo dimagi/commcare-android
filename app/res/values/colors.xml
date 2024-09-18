@@ -150,6 +150,7 @@
     <!-- New connect colors-->
     <color name="connect_border_color">#1A3A42C7</color>
     <color name="connect_dark_blue_color">#3942C7</color>
+    <color name="connect_darker_blue_color">#353BA8</color>
     <color name="connect_blue_color">#3A42C7</color>
     <color name="connect_blue_color_10">#1A3A42C7</color>
     <color name="connect_blackist_dark_blue_color">#141859</color>
