@@ -11,6 +11,7 @@ import java.util.Date;
 public class ConnectLoginJobListModel implements Parcelable {
     private String name;
     private String id;
+    private String appId;
     private Date date;
     private String description;
     private String organization;
@@ -22,11 +23,13 @@ public class ConnectLoginJobListModel implements Parcelable {
     private int learningProgress;
     private int deliveryProgress;
     private String jobType;
+    private String appType;
 
     // Constructor
     public ConnectLoginJobListModel(
             String name,
             String id,
+            String appId,
             Date date,
             String description,
             String organization,
@@ -37,10 +40,12 @@ public class ConnectLoginJobListModel implements Parcelable {
             Date lastAccessed,
             int learningProgress,
             int deliveryProgress,
-            String jobType
+            String jobType,
+            String appType
     ) {
         this.name = name;
         this.id = id;
+        this.appId = appId;
         this.date = date;
         this.description = description;
         this.organization = organization;
@@ -52,6 +57,7 @@ public class ConnectLoginJobListModel implements Parcelable {
         this.learningProgress = learningProgress;
         this.deliveryProgress = deliveryProgress;
         this.jobType = jobType;
+        this.appType = appType;
     }
 
     // Default constructor
@@ -105,6 +111,14 @@ public class ConnectLoginJobListModel implements Parcelable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 
     public Date getDate() {
@@ -193,6 +207,14 @@ public class ConnectLoginJobListModel implements Parcelable {
 
     public void setJobType(String jobType) {
         this.jobType = jobType;
+    }
+
+    public String getAppType() {
+        return appType;
+    }
+
+    public void setAppType(String appType) {
+        this.appType = appType;
     }
 
     // Optionally, override toString for easy logging or display

@@ -270,4 +270,6 @@ License.
     <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
+
+    <string name="connect_install_app">Installer l\'application</string>
 </resources>

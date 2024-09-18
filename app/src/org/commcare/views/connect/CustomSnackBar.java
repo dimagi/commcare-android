@@ -22,6 +22,7 @@ public class CustomSnackBar {
     private final Snackbar snackbar;
     private final Context context;
     private final View customView;
+    Snackbar.SnackbarLayout snackbarLayout;
 
     @SuppressLint("InflateParams")
     public CustomSnackBar(Context context, View anchorView) {
@@ -31,10 +32,11 @@ public class CustomSnackBar {
         setupSnackBarView();
     }
 
+    @SuppressLint("RestrictedApi")
     private void setupSnackBarView() {
         snackbar.getView().setBackgroundColor(Color.TRANSPARENT);
-        @SuppressLint("RestrictedApi") Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
-        snackbarLayout.setPadding(0, 0, 0, 0);
+        snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
+        snackbarLayout.setPadding(10, 10, 10, 10);
         snackbarLayout.addView(customView, 0);
     }
 
@@ -150,7 +152,6 @@ public class CustomSnackBar {
     }
 
     public void setRightIconColor(int color) {
-
         if (customView != null) {
             ImageView icon = customView.findViewById(R.id.imgRightIcon);
             if (icon != null) {
@@ -170,9 +171,13 @@ public class CustomSnackBar {
     }
 
     // Set the background color of the custom view
-    public void setBackgroundColor(int color) {
+    @SuppressLint("RestrictedApi")
+    public void setBackgroundColor(Drawable color) {
         if (customView != null) {
-            customView.setBackgroundColor(color);
+//            GradientDrawable background = new GradientDrawable();
+//            background.setColor(color);  // Set background color
+//            customView.setBackground(background);
+            snackbarLayout.setBackground(color);
         }
     }
 

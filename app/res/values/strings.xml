@@ -798,6 +798,8 @@
     <string name="connect_delivery">Delivery</string>
     <string name="connect_commcare_app">CommCare App</string>
 
+    <string name="connect_install_app">Install App</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

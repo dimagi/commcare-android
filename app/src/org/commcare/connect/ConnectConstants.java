@@ -43,6 +43,13 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
     public static final String CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY = "secondary_phone_validate_by";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
+
+    public static final String JOB_ID = "job_id";
+    public static final String IS_APP_INSTALLED = "is_installed";
+    public static final String APP_ID = "app_id";
+    public static final String JOB_TITLE = "job_title";
+    public static final String JOB_TYPE = "job_type";
+
     public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
     public final static int CONNECT_REGISTER_OR_RECOVER_DECISION = ConnectConstants.ConnectIdTaskIdOffset + 1;
     public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 2;

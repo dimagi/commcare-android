@@ -2,6 +2,7 @@ package org.commcare.adapters;
 
 import static org.commcare.activities.LoginActivity.JOB_DELIVERY;
 import static org.commcare.activities.LoginActivity.JOB_LEARNING;
+import static org.commcare.activities.LoginActivity.JOB_NEW_OPPORTUNITY;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -30,7 +31,7 @@ public class JobListCombinedAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private final Context mContext;
     private final JobListCallBack mCallback;
 
-    public JobListCombinedAdapter(Context context, List<ConnectCombineJobListModel> items,JobListCallBack mCallback) {
+    public JobListCombinedAdapter(Context context, List<ConnectCombineJobListModel> items, JobListCallBack mCallback) {
         this.mContext = context;
         this.items = items;
         this.mCallback = mCallback;
@@ -79,7 +80,7 @@ public class JobListCombinedAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             binding.tvTitle.setText(item.getName());
 
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(item.getId(),item.getName(),LoginActivity.SELECTED_COMM_CARE_JOB);
+                mCallback.onClick(item.getId(),item.getAppId(), item.getName(), LoginActivity.SELECTED_COMM_CARE_JOB);
             });
         }
     }
@@ -103,8 +104,15 @@ public class JobListCombinedAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
 
         private void clickListener(Context context, ConnectCombineJobListModel item, JobListCallBack mCallback) {
+            String jobType = item.getConnectLoginJobListModel().getJobType();
+            String appType;
+            if (jobType.equals(JOB_LEARNING) || jobType.equals(JOB_NEW_OPPORTUNITY)) {
+                appType = LoginActivity.LEARN_APP;
+            } else {
+                appType = LoginActivity.DELIVERY_APP;
+            }
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(item.getConnectLoginJobListModel().getId(),item.getConnectLoginJobListModel().getName(),LoginActivity.SELECTED_CONNECT_JOB);
+                mCallback.onClick(item.getConnectLoginJobListModel().getId(),item.getConnectLoginJobListModel().getAppId(), item.getConnectLoginJobListModel().getName(), appType);
             });
         }
 

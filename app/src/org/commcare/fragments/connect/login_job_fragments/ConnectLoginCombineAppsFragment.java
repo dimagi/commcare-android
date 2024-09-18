@@ -61,7 +61,7 @@ public class ConnectLoginCombineAppsFragment extends Fragment {
     }
 
     private void initRecyclerView() {
-        JobListCombinedAdapter adapter = new JobListCombinedAdapter(getContext(), traditionalJobList, (appId,jobName,jobType) -> mCallback.onClick(appId,jobName,jobType));
+        JobListCombinedAdapter adapter = new JobListCombinedAdapter(getContext(), traditionalJobList, (jobId,appId,jobName,appType) -> mCallback.onClick(jobId,appId,jobName,appType));
         binding.rcCombineApps.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.rcCombineApps.setNestedScrollingEnabled(true);
         binding.rcCombineApps.setAdapter(adapter);

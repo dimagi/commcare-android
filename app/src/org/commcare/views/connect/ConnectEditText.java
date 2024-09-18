@@ -22,6 +22,7 @@ import org.commcare.dalvik.R;
 
 public class ConnectEditText extends AppCompatEditText {
 
+    private static final int DEFAULT_BACKGROUND_COLOR = R.color.white;
     private static final double DEFAULT_BORDER_WIDTH = 1.0;
     private static final double DEFAULT_CORNER_RADIUS = 5.0;
     private static final int DEFAULT_BORDER_COLOR = R.color.connect_light_grey;
@@ -175,6 +176,7 @@ public class ConnectEditText extends AppCompatEditText {
     public void showErrorState() {
         int errorColor = ContextCompat.getColor(getContext(), DEFAULT_ERROR_COLOR);
         backgroundDrawable.setStroke(borderWidth, errorColor);
+        backgroundDrawable.setColor(ContextCompat.getColor(getContext(), DEFAULT_BACKGROUND_COLOR));
         setTextColor(errorColor);
         setHintTextColor(errorColor);
         setDrawables(
@@ -195,6 +197,7 @@ public class ConnectEditText extends AppCompatEditText {
     public void setNormalBorder(){
         int borderColor = ContextCompat.getColor(getContext(), DEFAULT_BORDER_COLOR);
         backgroundDrawable.setStroke(borderWidth, borderColor);
+        backgroundDrawable.setColor(ContextCompat.getColor(getContext(), DEFAULT_BACKGROUND_COLOR));
         setTextColor(DEFAULT_HINT_COLOR);
         setHintTextColor(DEFAULT_HINT_COLOR);
         setDrawables(
@@ -204,7 +207,7 @@ public class ConnectEditText extends AppCompatEditText {
                 drawableEndVisible,
                 dpToPx(20),
                 dpToPx(20),
-                drawableTintColor,
+                borderColor,
                 drawableStartPaddingLeft,
                 drawableEndPaddingRight,
                 drawableEndPadding
@@ -212,11 +215,12 @@ public class ConnectEditText extends AppCompatEditText {
         setBackground(backgroundDrawable);
     }
 
-    public void setGreyBorder(){
-        int borderColor = ContextCompat.getColor(getContext(), R.color.connect_yellowish_orange_color);
+    public void setGreyBackground(){
+        int borderColor = ContextCompat.getColor(getContext(), R.color.connect_light_grey);
         backgroundDrawable.setStroke(borderWidth, borderColor);
-        setTextColor(borderColor);
-        setHintTextColor(borderColor);
+        backgroundDrawable.setColor(borderColor);
+        setTextColor(DEFAULT_HINT_COLOR);
+        setHintTextColor(DEFAULT_HINT_COLOR);
         setDrawables(
                 drawableStart,
                 drawableEnd,
@@ -224,7 +228,7 @@ public class ConnectEditText extends AppCompatEditText {
                 drawableEndVisible,
                 dpToPx(20),
                 dpToPx(20),
-                drawableTintColor,
+                DEFAULT_HINT_COLOR,
                 drawableStartPaddingLeft,
                 drawableEndPaddingRight,
                 drawableEndPadding

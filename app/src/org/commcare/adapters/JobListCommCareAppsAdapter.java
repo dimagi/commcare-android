@@ -61,7 +61,7 @@ public class JobListCommCareAppsAdapter extends RecyclerView.Adapter<JobListComm
 
         private void clickListener(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getName(), LoginActivity.SELECTED_COMM_CARE_JOB);
+                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getAppId(),connectLoginJobListModel.getName(), LoginActivity.SELECTED_COMM_CARE_JOB);
             });
         }
     }

@@ -2,6 +2,7 @@ package org.commcare.adapters;
 
 import static org.commcare.activities.LoginActivity.JOB_DELIVERY;
 import static org.commcare.activities.LoginActivity.JOB_LEARNING;
+import static org.commcare.activities.LoginActivity.JOB_NEW_OPPORTUNITY;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -69,8 +70,14 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
         }
 
         private void clickListener(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
+            String appType;
+            if (connectLoginJobListModel.getJobType().equals(JOB_LEARNING) || connectLoginJobListModel.getJobType().equals(JOB_NEW_OPPORTUNITY)) {
+                appType = LoginActivity.LEARN_APP;
+            } else {
+                appType = LoginActivity.DELIVERY_APP;
+            }
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getName(),LoginActivity.SELECTED_CONNECT_JOB);
+                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getAppId(),connectLoginJobListModel.getName(),appType);
             });
         }
 

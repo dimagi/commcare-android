@@ -449,4 +449,6 @@
     <string name="connect_job_list_api_failure">Ocorreu um erro ao ligar ao servidor.</string>
     <string name="connect_payment_acknowledge_notification_yes">Sim</string>
     <string name="connect_payment_acknowledge_notification_no">Não</string>
+
+    <string name="connect_install_app">Instalar aplicativo</string>
 </resources>

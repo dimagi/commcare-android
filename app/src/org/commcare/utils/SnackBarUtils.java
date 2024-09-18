@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -14,48 +15,37 @@ import org.commcare.views.connect.CustomSnackBar;
 
 public class SnackBarUtils {
 
-    public static void showErrorSnackBar(Context context, View anchorView) {
+    public static void showErrorSnackBar(Activity activity, View anchorView) {
         // Create CustomSnackBar instance
-        CustomSnackBar customSnackBar = new CustomSnackBar(context, anchorView);
+        CustomSnackBar customSnackBar = new CustomSnackBar(activity, anchorView);
 
-        // Set text properties
-        customSnackBar.setText("This is a custom Snackbar!");
-        customSnackBar.setTextColor(Color.WHITE);
-        customSnackBar.setTextSize(16f);
+        // Set the text, icons, and other customizations
+        customSnackBar.setText("This is a custom Snackbar");
+        customSnackBar.setTextColor(ContextCompat.getColor(activity, android.R.color.white));
+        customSnackBar.setTextSize(20f);
 
-        // Set font (ensure you have a valid font resource)
-        customSnackBar.setTextFont(R.font.roboto_medium);
-
-        // Set left icon properties
-        Drawable leftIcon = ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery);
+        // Set left icon
+        Drawable leftIcon = ContextCompat.getDrawable(activity, R.drawable.ic_snackbar_done); // Replace with your drawable resource
         customSnackBar.setLeftIcon(leftIcon);
-        customSnackBar.setLeftIconSize(48, 48);
-        customSnackBar.setLeftIconColor(Color.YELLOW);
-        customSnackBar.setLeftIconClickListener(v -> {
-            Toast.makeText(context, "Left icon clicked", Toast.LENGTH_SHORT).show();
-        });
+//        customSnackBar.setLeftIconColor(ContextCompat.getColor(activity, android.R.color.white));
 
-        // Set right icon properties
-        Drawable rightIcon = ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery);
+        // Set right icon
+        Drawable rightIcon = ContextCompat.getDrawable(activity, R.drawable.ic_snackbar_done); // Replace with your drawable resource
         customSnackBar.setRightIcon(rightIcon);
-        customSnackBar.setRightIconSize(48, 48);
-        customSnackBar.setRightIconColor(Color.GREEN);
-        customSnackBar.setRightIconClickListener(v -> {
-            Toast.makeText(context, "Right icon clicked", Toast.LENGTH_SHORT).show();
-        });
+//        customSnackBar.setRightIconColor(ContextCompat.getColor(activity, android.R.color.white));
 
-        // Set background color
-        customSnackBar.setBackgroundColor(Color.BLACK);
-
-        // Set corner radius
+        // Set background color and corner radius
+//        customSnackBar.setBackgroundColor(R.color.connect_blue_color);
         customSnackBar.setCornerRadius(16);
 
-        // Set layout parameters
-        customSnackBar.setCustomViewLayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                16, 16, 16, 16
-        );
+        // Set click listeners for icons
+        customSnackBar.setLeftIconClickListener(view -> {
+            // Handle left icon click event
+        });
+
+        customSnackBar.setRightIconClickListener(view -> {
+            // Handle right icon click event
+        });
 
         // Show the Snackbar
         customSnackBar.show();

@@ -33,11 +33,13 @@ import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
@@ -131,6 +133,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String JOB_LEARNING = "job-learning";
     public static final String JOB_DELIVERY = "job-delivery";
     public static final String JOB_TRENDING = "job-trending";
+
+    public static final String NEW_APP = "new-app";
+    public static final String LEARN_APP = "learn-app";
+    public static final String DELIVERY_APP = "delivery-app";
+    public static final String TRADITIONAL_APP = "traditional-app";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -340,7 +347,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         if (!lastSeatedId.equals(currentSeatedId)) {
             disableWorkForLastSeatedApp();
-            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
+            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).apply();
             return true;
         }
         return false;
@@ -767,45 +774,38 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             appIdDropdownList.add(r.getUniqueId());
         }
 
-        // Want to set the spinner's selection to match whatever the currently seated app is
-        String currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String currAppId;
+        if (getDisplayNameByAppId(readyApps, uiController.getLastSelectedAppID()) != null) {
+            uiController.isAppInstalled = true;
+            currAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            uiController.cetAppSelector.setText(getDisplayNameByAppId(readyApps, currAppId));
+            uiController.setLoginInputsVisibility(true);
+        } else {
+            uiController.isAppInstalled = false;
+            uiController.selectedAppType = uiController.sharedPreferences.getString(ConnectConstants.JOB_TYPE, "");
+            uiController.selectedJobId = uiController.sharedPreferences.getString(ConnectConstants.JOB_ID, "");
+            currAppId = uiController.sharedPreferences.getString(ConnectConstants.APP_ID, "");
+            uiController.cetAppSelector.setText(uiController.sharedPreferences.getString(ConnectConstants.JOB_TITLE, ""));
+            uiController.handleButtonText();
+            uiController.setLoginInputsVisibility(false);
+        }
         int position = 0;
         if (selectedAppIndex >= 0) {
             position = selectedAppIndex;
         } else if (appIdDropdownList.contains(currAppId)) {
             position = appIdDropdownList.indexOf(currAppId);
         }
-        uiController.cetAppSelector.setText(getDisplayNameByAppId(readyApps, currAppId));
-        uiController.setLoginInputsVisibility(isAppInstalled(currAppId));
 
         uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
     }
 
-    /*private boolean isConnectJobsSelected() {
-        return ConnectManager.isConnectIdConfigured() && uiController.getSelectedAppIndex() == 0;
-    }*/
-
     private boolean isConnectJobsSelected() {
-        return ConnectManager.isConnectIdConfigured() && uiController.sharedPreferences.getString("job_type", "").equals(SELECTED_COMM_CARE_JOB);
+        return ConnectManager.isConnectIdConfigured() && uiController.sharedPreferences.getString(ConnectConstants.JOB_TYPE, "").equals(SELECTED_COMM_CARE_JOB);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        /*boolean selectedConnect = isConnectJobsSelected();
-        if (selectedConnect) {
-            uiController.setLoginInputsVisibility(false);
-        } else {
-            // Retrieve the app record corresponding to the app selected
-            selectedAppIndex = position;
-            String appId = appIdDropdownList.get(selectedAppIndex);
-            if (appId.length() > 0) {
-                uiController.setLoginInputsVisibility(true);
-                if (!seatAppIfNeeded(appId)) {
-                    checkForSavedCredentials();
-                }
-            }
-        }*/
     }
 
     protected boolean seatAppIfNeeded(String appId) {
@@ -1015,21 +1015,43 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void openJobListBottomSheet() {
-        connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(jobList, traditionalJobList, (appId, jobName, jobType) -> {
-            uiController.editor.putString("job_type", jobType).commit();
-            dismissBottomSheet();
-            uiController.setAppNameOnSelector(jobName);
-            if (isAppInstalled(appId)) {
-                Log.e("DEBUG_TESTING", "Job installed ");
-                uiController.setLoginInputsVisibility(true);
-                JobSelection(String.valueOf(appId));
-            } else {
-                Log.e("DEBUG_TESTING", "Job not installed ");
-                uiController.handleButtonText();
-                uiController.setLoginInputsVisibility(false);
-            }
-        });
+        connectLoginJobListBottomSheetFragment = ConnectLoginJobListBottomSheetFragment.newInstance(
+                jobList, traditionalJobList, this::onJobSelected
+        );
         connectLoginJobListBottomSheetFragment.show(getSupportFragmentManager(), "connectLoginJobListBottomSheetFragment");
+    }
+
+    private void onJobSelected(String jobId, String appId, String jobName, String appType) {
+        uiController.saveSelectedItemData(jobId, isAppInstalled(appId), appId, jobName, appType);
+        updateUIForJobSelection(jobName);
+        if (appType.equals(SELECTED_COMM_CARE_JOB)) {
+            uiController.setLoginInputsVisibility(true);
+        } else {
+            if (isAppInstalled(appId)) {
+                handleInstalledApp(appId);
+            } else {
+                handleUninstalledApp(jobId, appType);
+            }
+        }
+    }
+
+    private void updateUIForJobSelection(String jobName) {
+        uiController.setAppNameOnSelector(jobName);
+        dismissBottomSheet();
+    }
+
+    private void handleInstalledApp(String appId) {
+        uiController.isAppInstalled = true;
+        uiController.setLoginInputsVisibility(true);
+        JobSelection(appId);
+    }
+
+    private void handleUninstalledApp(String jobId, String appType) {
+        uiController.isAppInstalled = false;
+        uiController.handleButtonText();
+        uiController.setLoginInputsVisibility(false);
+        uiController.selectedAppType = appType;
+        uiController.selectedJobId = jobId;
     }
 
     public void JobSelection(String appId) {
@@ -1053,6 +1075,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public void initiateJobListAPI() {
+        setJobListData(ConnectDatabaseHelper.getJobs(LoginActivity.this, -1, null));
         ApiConnect.getConnectOpportunities(LoginActivity.this, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -1098,101 +1121,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         });
     }
 
-    private void setJobListData(List<ConnectJobRecord> jobs) {
-        uiController.isNewJobAvailable = false;
-        jobList = new ArrayList<>();
-
-        for (ConnectJobRecord job : jobs) {
-            storeTraditionalApp(job);
-
-            int jobStatus = job.getStatus();
-            boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
-            boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
-
-            switch (jobStatus) {
-                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
-                    jobList.add(storeJobListData(
-                            job.getTitle(),
-                            String.valueOf(job.getJobId()),
-                            job.getProjectStartDate(),
-                            job.getDescription(),
-                            job.getOrganization(),
-                            false,
-                            true,
-                            false,
-                            false,
-                            processJobRecords(job, JOB_NEW_OPPORTUNITY),
-                            job.getLearningPercentComplete(),
-                            job.getCompletedLearningModules(),
-                            JOB_NEW_OPPORTUNITY
-                    ));
-                    uiController.isNewJobAvailable = true;
-                    break;
-
-                case STATUS_LEARNING:
-                    jobList.add(storeJobListData(
-                            job.getLearnAppInfo().getName(),
-                            job.getLearnAppInfo().getAppId(),
-                            job.getProjectStartDate(),
-                            job.getLearnAppInfo().getDescription(),
-                            job.getLearnAppInfo().getOrganization(),
-                            isLearnAppInstalled,
-                            false,
-                            true,
-                            false,
-                            processJobRecords(job, JOB_LEARNING),
-                            job.getLearningPercentComplete(),
-                            job.getCompletedLearningModules(),
-                            JOB_LEARNING
-                    ));
-                    break;
-
-                case STATUS_DELIVERING:
-                    jobList.add(storeJobListData(
-                            job.getLearnAppInfo().getName(),
-                            job.getLearnAppInfo().getAppId(),
-                            job.getProjectStartDate(),
-                            job.getLearnAppInfo().getDescription(),
-                            job.getLearnAppInfo().getOrganization(),
-                            isLearnAppInstalled,
-                            false,
-                            true,
-                            false,
-                            processJobRecords(job, JOB_LEARNING),
-                            job.getLearningPercentComplete(),
-                            job.getCompletedLearningModules(),
-                            JOB_LEARNING
-                    ));
-                    jobList.add(storeJobListData(
-                            job.getDeliveryAppInfo().getName(),
-                            job.getDeliveryAppInfo().getAppId(),
-                            job.getProjectStartDate(),
-                            job.getDeliveryAppInfo().getDescription(),
-                            job.getDeliveryAppInfo().getOrganization(),
-                            isDeliverAppInstalled,
-                            false,
-                            false,
-                            true,
-                            processJobRecords(job, JOB_DELIVERY),
-                            job.getLearningPercentComplete(),
-                            job.getCompletedLearningModules(),
-                            JOB_DELIVERY
-                    ));
-                    break;
-
-                default:
-                    break;
-            }
-        }
-        uiController.visibleNewJobReminderUI();
-    }
-
     private void storeTraditionalApp(ConnectJobRecord job) {
         traditionalJobList = new ArrayList<>();
         ConnectAppRecord appRecord = ConnectDatabaseHelper.getAppRecord(LoginActivity.this, String.valueOf(job.getJobId()));
         if (appRecord == null) {
             traditionalJobList.add(storeJobListData(
                     job.getDeliveryAppInfo().getName(),
+                    String.valueOf(job.getJobId()),
                     job.getDeliveryAppInfo().getAppId(),
                     job.getProjectStartDate(),
                     job.getDescription(),
@@ -1204,8 +1139,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     processJobRecords(job, JOB_TRENDING),
                     job.getLearningPercentComplete(),
                     job.getCompletedLearningModules(),
-                    JOB_TRENDING
-
+                    JOB_TRENDING,
+                    TRADITIONAL_APP
             ));
         }
     }
@@ -1213,6 +1148,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private ConnectLoginJobListModel storeJobListData(
             String name,
             String id,
+            String appId,
             Date date,
             String description,
             String organization,
@@ -1223,9 +1159,26 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             Date lastAssessedDate,
             int learningProgress,
             int deliveryProgress,
-            String jobType
+            String jobType,
+            String appType
     ) {
-        return new ConnectLoginJobListModel(name, id, date, description, organization, isAppInstalled, isNew, isLeaningApp, isDeliveryApp, lastAssessedDate, learningProgress, deliveryProgress, jobType);
+        return new ConnectLoginJobListModel(
+                name,
+                id,
+                appId,
+                date,
+                description,
+                organization,
+                isAppInstalled,
+                isNew,
+                isLeaningApp,
+                isDeliveryApp,
+                lastAssessedDate,
+                learningProgress,
+                deliveryProgress,
+                jobType,
+                appType
+        );
     }
 
     public Date processJobRecords(ConnectJobRecord job, String jobType) {
@@ -1267,5 +1220,117 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
         // Return null or a default value if no record with the appId is found
         return null;
+    }
+
+    public void handleAppInstallation(String appType, String jobId) {
+        switch (appType) {
+            case LEARN_APP, NEW_APP -> goToConnectScreen(ConnectActivity.DOWNLOAD_LEARN_APP, jobId);
+
+            case DELIVERY_APP -> goToConnectScreen(ConnectActivity.DOWNLOAD_DELIVERY_APP, jobId);
+        }
+    }
+
+    private void goToConnectScreen(String action, String jobId) {
+        Intent intent = new Intent(getApplicationContext(), ConnectActivity.class);
+        intent.putExtra("action", action);
+        intent.putExtra("opportunity_id", jobId);
+        startActivity(intent);
+    }
+
+    private void setJobListData(List<ConnectJobRecord> jobs) {
+        uiController.isNewJobAvailable = false;
+        jobList = new ArrayList<>();
+
+        for (ConnectJobRecord job : jobs) {
+            storeTraditionalApp(job);
+
+            int jobStatus = job.getStatus();
+            boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
+            boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
+
+            switch (jobStatus) {
+                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                    jobList.add(storeJobListData(
+                            job.getTitle(),
+                            String.valueOf(job.getJobId()),
+                            "",
+                            job.getProjectStartDate(),
+                            job.getDescription(),
+                            job.getOrganization(),
+                            false,
+                            true,
+                            false,
+                            false,
+                            processJobRecords(job, JOB_NEW_OPPORTUNITY),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_NEW_OPPORTUNITY,
+                            NEW_APP
+                    ));
+                    uiController.isNewJobAvailable = true;
+                    break;
+
+                case STATUS_LEARNING:
+                    jobList.add(storeJobListData(
+                            job.getLearnAppInfo().getName(),
+                            String.valueOf(job.getJobId()),
+                            job.getLearnAppInfo().getAppId(),
+                            job.getProjectStartDate(),
+                            job.getLearnAppInfo().getDescription(),
+                            job.getLearnAppInfo().getOrganization(),
+                            isLearnAppInstalled,
+                            false,
+                            true,
+                            false,
+                            processJobRecords(job, JOB_LEARNING),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_LEARNING,
+                            LEARN_APP
+                    ));
+                    break;
+
+                case STATUS_DELIVERING:
+                    jobList.add(storeJobListData(
+                            job.getLearnAppInfo().getName(),
+                            String.valueOf(job.getJobId()),
+                            job.getLearnAppInfo().getAppId(),
+                            job.getProjectStartDate(),
+                            job.getLearnAppInfo().getDescription(),
+                            job.getLearnAppInfo().getOrganization(),
+                            isLearnAppInstalled,
+                            false,
+                            true,
+                            false,
+                            processJobRecords(job, JOB_LEARNING),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_LEARNING,
+                            LEARN_APP
+                    ));
+                    jobList.add(storeJobListData(
+                            job.getDeliveryAppInfo().getName(),
+                            String.valueOf(job.getJobId()),
+                            job.getDeliveryAppInfo().getAppId(),
+                            job.getProjectStartDate(),
+                            job.getDeliveryAppInfo().getDescription(),
+                            job.getDeliveryAppInfo().getOrganization(),
+                            isDeliverAppInstalled,
+                            false,
+                            false,
+                            true,
+                            processJobRecords(job, JOB_DELIVERY),
+                            job.getLearningPercentComplete(),
+                            job.getCompletedLearningModules(),
+                            JOB_DELIVERY,
+                            DELIVERY_APP
+                    ));
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        uiController.visibleNewJobReminderUI();
     }
 }
