@@ -455,4 +455,6 @@
     <string name="connect_delivery">Entrega</string>
     <string name="connect_commcare_app">Aplicativo CommCare</string>
     <string name="connect_install_app">Instalar aplicativo</string>
+    <string name="connect_install">Instalar</string>
+    <string name="connect_install_new_commcare_app">Instale novos aplicativos \nCommCare</string>
 </resources>

@@ -799,6 +799,8 @@
     <string name="connect_commcare_app">CommCare App</string>
 
     <string name="connect_install_app">Install App</string>
+    <string name="connect_install_new_commcare_app">Install new \nCommCare Apps</string>
+    <string name="connect_install">Install</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

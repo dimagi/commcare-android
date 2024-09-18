@@ -781,9 +781,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.cetAppSelector.setText(getDisplayNameByAppId(readyApps, currAppId));
             uiController.setLoginInputsVisibility(true);
         } else {
-            uiController.isAppInstalled = false;
-            uiController.selectedAppType = uiController.sharedPreferences.getString(ConnectConstants.JOB_TYPE, "");
-            uiController.selectedJobId = uiController.sharedPreferences.getString(ConnectConstants.JOB_ID, "");
+            managePreference();
             currAppId = uiController.sharedPreferences.getString(ConnectConstants.APP_ID, "");
             uiController.cetAppSelector.setText(uiController.sharedPreferences.getString(ConnectConstants.JOB_TITLE, ""));
             uiController.handleButtonText();
@@ -798,6 +796,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
+    }
+
+    private void managePreference() {
+        uiController.isAppInstalled = false;
+        uiController.selectedAppType = uiController.sharedPreferences.getString(ConnectConstants.JOB_TYPE, "");
+        uiController.selectedJobId = uiController.sharedPreferences.getString(ConnectConstants.JOB_ID, "");
     }
 
     private boolean isConnectJobsSelected() {
