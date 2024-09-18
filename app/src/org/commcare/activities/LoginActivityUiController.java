@@ -2,25 +2,25 @@ package org.commcare.activities;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.preference.PreferenceManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
@@ -29,22 +29,22 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
-import org.commcare.views.PasswordShow;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
+import org.commcare.views.connect.ConnectEditText;
+import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
-
-import androidx.preference.PreferenceManager;
 
 /**
  * Handles login activity UI
@@ -53,6 +53,9 @@ import androidx.preference.PreferenceManager;
  */
 @ManagedUi(R.layout.screen_login)
 public class LoginActivityUiController implements CommCareActivityUIController {
+
+    @UiElement(value = R.id.screen_login_main)
+    private View screen_login_main;
 
     @UiElement(value = R.id.screen_login_error_view)
     private View errorContainer;
@@ -73,19 +76,19 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private TextView orLabel;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
-    private AutoCompleteTextView username;
+    private ConnectEditText username;
 
     @UiElement(value = R.id.edit_password)
-    private EditText passwordOrPin;
+    private ConnectEditText passwordOrPin;
 
-    @UiElement(value = R.id.show_password)
-    private Button showPasswordButton;
+    @UiElement(value = R.id.tvAppsTitle)
+    private ConnectBoldTextView tvAppsTitle;
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
 
     @UiElement(value = R.id.login_button)
-    private Button loginButton;
+    private RoundedButton loginButton;
 
     @UiElement(value = R.id.restore_session_checkbox)
     private CheckBox restoreSessionCheckbox;
@@ -94,10 +97,19 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private Spinner spinner;
 
     @UiElement(R.id.welcome_msg)
-    private TextView welcomeMessage;
+    private ConnectMediumTextView welcomeMessage;
+
+    @UiElement(R.id.cet_app_selector)
+    public ConnectEditText cetAppSelector;
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
+
+    @UiElement(value = R.id.tv_new_app_available)
+    private ConnectMediumTextView tvNewAppAvailable;
+
+    @UiElement(value = R.id.img_new_job_popup_icon)
+    private ImageView imgNewJobPopupIcon;
 
     protected final LoginActivity activity;
 
@@ -105,6 +117,13 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     private boolean manuallySwitchedToPasswordMode;
     private boolean loginManagedByConnectId;
+    boolean isNewJobAvailable = false;
+    boolean isAppInstalled = true;
+    String selectedAppType = LoginActivity.LEARN_APP;
+    String selectedJobId = "";
+
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -137,6 +156,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         }
     };
 
+
     public LoginActivityUiController(LoginActivity activity) {
         this.activity = activity;
         this.loginMode = LoginMode.PASSWORD;
@@ -147,12 +167,18 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         setupUsernameEntryBox();
         setLoginBoxesColorNormal();
         setTextChangeListeners();
-        setBannerLayoutLogic();
+        setAppSelectorClickListener();
+        setLeftRightDrawableClickListener();
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        editor = sharedPreferences.edit();
 
-        connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
         loginButton.setOnClickListener(arg0 -> {
-            FirebaseAnalyticsUtil.reportLoginClicks();
-            activity.initiateLoginAttempt(isRestoreSessionChecked());
+            if (isAppInstalled) {
+                FirebaseAnalyticsUtil.reportLoginClicks();
+                activity.initiateLoginAttempt(isRestoreSessionChecked());
+            } else {
+                activity.handleAppInstallation(selectedAppType, selectedJobId);
+            }
         });
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
@@ -174,9 +200,23 @@ public class LoginActivityUiController implements CommCareActivityUIController {
                 .performIntentCalloutToNotificationsView(activity));
     }
 
+    public void setAppSelectorClickListener() {
+        cetAppSelector.setOnClickListener(view -> {
+            activity.openJobListBottomSheet();
+        });
+    }
+
+    public void setLeftRightDrawableClickListener() {
+        username.setOnDrawableStartClickListener(() -> {
+        });
+        username.setOnDrawableEndClickListener(() -> username.getText().clear());
+        passwordOrPin.setOnDrawableStartClickListener(() -> {
+        });
+        passwordOrPin.setOnDrawableEndClickListener(() -> passwordOrPin.getText().clear());
+    }
+
     public void setConnectButtonVisible(Boolean visible) {
-        connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
-        orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orLabel.setVisibility(View.GONE);
     }
 
     private void setTextChangeListeners() {
@@ -190,27 +230,6 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         username.setHint(Localization.get("login.username"));
     }
 
-    private void setBannerLayoutLogic() {
-        final View activityRootView = activity.findViewById(R.id.screen_login_main);
-        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                () -> {
-                    int hideAll = getResources().getInteger(
-                            R.integer.login_screen_hide_all_cuttoff);
-                    int hideBanner = getResources().getInteger(
-                            R.integer.login_screen_hide_banner_cuttoff);
-                    int height = activityRootView.getHeight();
-
-                    if (height < hideAll) {
-                        banner.setVisibility(View.GONE);
-                    } else if (height < hideBanner) {
-                        banner.setVisibility(View.GONE);
-                    } else {
-                        banner.setVisibility(View.VISIBLE);
-                        updateBanner();
-                    }
-                });
-    }
-
     @Override
     public void refreshView() {
         updateBanner();
@@ -219,7 +238,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
-
+        /*Log.e("DEBUG_TESTING", "refreshView: "+readyApps.size());
+        for(int i = 0 ; i < readyApps.size() ; i++){
+            Log.e("DEBUG_TESTING", "refreshView: "+readyApps.get(i).getDisplayName());
+        }*/
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         setLoginInputsVisibility(!noApps);
@@ -231,7 +253,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
-            setSingleAppUiState();
+//            setSingleAppUiState();
             activity.seatAppIfNeeded(r.getUniqueId());
         } else {
             activity.populateAppSpinner(readyApps);
@@ -263,6 +285,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     public void setLoginInputsVisibility(boolean visible) {
         username.setVisibility(visible ? View.VISIBLE : View.GONE);
         passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
+        tvAppsTitle.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public void updateConnectLoginState() {
@@ -385,17 +408,25 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     protected void setNormalPasswordMode() {
         loginMode = LoginMode.PASSWORD;
         loginPrimedMessage.setVisibility(View.GONE);
-        passwordOrPin.setVisibility(View.VISIBLE);
+        if (activity.getDisplayNameByAppId(MultipleAppsUtil.getUsableAppRecords(), getLastSelectedAppID()) != null) {
+            passwordOrPin.setVisibility(View.VISIBLE);
+        } else {
+            passwordOrPin.setVisibility(View.GONE);
+        }
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        new PasswordShow(showPasswordButton, passwordOrPin).setupPasswordVisibility();
+//        new PasswordShow(showPasswordButton, passwordOrPin).setupPasswordVisibility();
         manuallySwitchedToPasswordMode = false;
     }
 
     private void setPinPasswordMode() {
         loginMode = LoginMode.PIN;
         loginPrimedMessage.setVisibility(View.GONE);
-        passwordOrPin.setVisibility(View.VISIBLE);
+        if (activity.getDisplayNameByAppId(MultipleAppsUtil.getUsableAppRecords(), getLastSelectedAppID()) != null) {
+            passwordOrPin.setVisibility(View.VISIBLE);
+        } else {
+            passwordOrPin.setVisibility(View.GONE);
+        }
         passwordOrPin.setHint(Localization.get("login.pin.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         manuallySwitchedToPasswordMode = false;
@@ -417,44 +448,18 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     }
 
     protected void setErrorMessageUi(String message, boolean showNotificationButton) {
-        setLoginBoxesColorError();
-
-        username.setCompoundDrawablesWithIntrinsicBounds(
-                getResources().getDrawable(R.drawable.icon_user_attnneg),
-                null, null, null);
-
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
-                getResources().getDrawable(R.drawable.icon_lock_attnneg),
-                null, null, null);
-
-        errorContainer.setVisibility(View.VISIBLE);
-        errorTextView.setText(message);
-        notificationButtonView.setVisibility(showNotificationButton ? View.VISIBLE : View.GONE);
+        username.showErrorState();
+        passwordOrPin.showErrorState();
+        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
     }
 
     private void setLoginBoxesColorNormal() {
-        int normalColor = getResources().getColor(R.color.login_edit_text_color);
-        username.setTextColor(normalColor);
-        passwordOrPin.setTextColor(normalColor);
-    }
-
-    private void setLoginBoxesColorError() {
-        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
-        username.setTextColor(errorColor);
-        passwordOrPin.setTextColor(errorColor);
+        username.setNormalBorder();
+        passwordOrPin.setNormalBorder();
     }
 
     private void setStyleDefault() {
         setLoginBoxesColorNormal();
-        Drawable usernameDrawable = getResources().getDrawable(R.drawable.icon_user_neutral50);
-        Drawable passwordDrawable = getResources().getDrawable(R.drawable.icon_lock_neutral50);
-        if (LocalePreferences.isLocaleRTL()) {
-            username.setCompoundDrawablesWithIntrinsicBounds(null, null, usernameDrawable, null);
-            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(null, null, passwordDrawable, null);
-        } else {
-            username.setCompoundDrawablesWithIntrinsicBounds(usernameDrawable, null, null, null);
-            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(passwordDrawable, null, null, null);
-        }
         if (loginButton.isEnabled()) {
             clearErrorMessage();
         }
@@ -464,22 +469,8 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         errorContainer.setVisibility(View.GONE);
     }
 
-    private void setSingleAppUiState() {
-        spinner.setVisibility(View.GONE);
-        welcomeMessage.setText(Localization.get("login.welcome.single"));
-    }
-
     protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
-                R.layout.spinner_text_view, appNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(activity);
-
-        spinner.setSelection(position);
-        spinner.setVisibility(View.VISIBLE);
     }
 
     protected boolean isAppSelectorVisible() {
@@ -544,24 +535,32 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         String text;
         if (useConnectId) {
-            text = activity.getString(R.string.login_button_connectid);
+            if (activity.getDisplayNameByAppId(MultipleAppsUtil.getUsableAppRecords(), getLastSelectedAppID()) != null) {
+                text = activity.getString(R.string.login_button_connectid);
+            } else {
+                text = activity.getString(R.string.connect_install_app);
+            }
         } else {
             text = Localization.get("login.button");
         }
         loginButton.setText(text);
 
-        /**
-         * included these lines because when a user changes the language from the system settings while in the app,
-         * the strings should be translate correctly when they return to the app. That's why I added this code.
-         */
-        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
         if (useConnectId) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();
         }
 
         passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+
+        if (useConnectId) {
+            passwordOrPin.setGreyBackground();
+        } else {
+            passwordOrPin.setNormalBorder();
+        }
+    }
+
+    public void handleButtonText() {
+        loginButton.setText(R.string.connect_install_app);
     }
 
     private void updateBanner() {
@@ -574,5 +573,27 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
     private Resources getResources() {
         return activity.getResources();
+    }
+
+    void visibleNewJobReminderUI() {
+        int visibility = isNewJobAvailable ? View.VISIBLE : View.GONE;
+        tvNewAppAvailable.setVisibility(visibility);
+        imgNewJobPopupIcon.setVisibility(visibility);
+    }
+
+    public void setAppNameOnSelector(String appName) {
+        cetAppSelector.setText(appName);
+    }
+
+    public void saveSelectedItemData(String jobId, boolean isInstalled, String appId, String jobTitle, String appType) {
+        editor.putString(ConnectConstants.JOB_ID, jobId).commit();
+        editor.putBoolean(ConnectConstants.IS_APP_INSTALLED, isInstalled).commit();
+        editor.putString(ConnectConstants.APP_ID, appId).commit();
+        editor.putString(ConnectConstants.JOB_TITLE, jobTitle).commit();
+        editor.putString(ConnectConstants.JOB_TYPE, appType).commit();
+    }
+
+    public String getLastSelectedAppID() {
+        return sharedPreferences.getString(ConnectConstants.APP_ID, "");
     }
 }

@@ -93,6 +93,8 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public boolean getIsLearning() { return isLearning; }
     public int getJobId() { return jobId; }
     public void setJobId(int jobId) { this.jobId = jobId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public String getAppId() { return appId; }
     public String getDomain() { return domain; }
@@ -102,4 +104,20 @@ public class ConnectAppRecord extends Persisted implements Serializable {
     public String getInstallUrl() { return installUrl; }
     public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
 }

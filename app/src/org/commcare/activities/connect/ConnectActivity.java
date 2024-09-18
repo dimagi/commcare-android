@@ -3,11 +3,21 @@ package org.commcare.activities.connect;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
@@ -33,14 +43,6 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
-
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean backButtonEnabled = true;
     private boolean waitDialogEnabled = true;
@@ -51,6 +53,8 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private static final String CCC_LEARN_PROGRESS = "ccc_learn_progress";
     private static final String CCC_DELIVERY_PROGRESS = "ccc_delivery_progress";
     private static final String CCC_PAYMENTS = "ccc_payment";
+    public static final String DOWNLOAD_LEARN_APP = "download_learn_app";
+    public static final String DOWNLOAD_DELIVERY_APP = "download_delivery_app";
 
     NavController.OnDestinationChangedListener destinationListener = null;
 
@@ -95,8 +99,9 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     .build();
             navController.navigate(fragmentId, bundle, options);
         } else if (redirectionAction != null) {
+            Log.e("Debug_testing", "onCreate: " + ConnectManager.isConnectIdConfigured());
             ConnectManager.init(this);
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectManager.unlockConnect(ConnectActivity.this, success -> {
                 if (success) {
                     getJobDetails();
                 }
@@ -113,15 +118,13 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
      * @return The ID of the fragment to be displayed.
      */
     private int getFragmentId() {
-        int fragmentId;
-        if (redirectionAction.equals(CCC_OPPORTUNITY_SUMMARY_PAGE)) {
-            fragmentId = R.id.connect_job_intro_fragment;
-        } else if (redirectionAction.equals(CCC_LEARN_PROGRESS)) {
-            fragmentId = R.id.connect_job_learning_progress_fragment;
-        } else {
-            fragmentId = R.id.connect_job_delivery_progress_fragment;
-        }
-        return fragmentId;
+        return switch (redirectionAction) {
+            case CCC_OPPORTUNITY_SUMMARY_PAGE, DOWNLOAD_LEARN_APP ->
+                    R.id.connect_job_intro_fragment;
+            case CCC_LEARN_PROGRESS -> R.id.connect_job_learning_progress_fragment;
+            case DOWNLOAD_DELIVERY_APP -> R.id.connect_job_delivery_details_fragment;
+            default -> R.id.connect_job_delivery_progress_fragment;
+        };
     }
 
     private void getIntentData() {
@@ -281,5 +284,15 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                 ConnectNetworkHelper.showOutdatedApiError(ConnectActivity.this);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
+            if (resultCode == Activity.RESULT_OK) {
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
+            }
+        }
     }
 }
