@@ -196,7 +196,7 @@ License.
 
     <string name="connect_learn_start">Commencez à apprendre</string>
     <string name="connect_progress_delivery">Livraison</string>
-    <string name="connect_progress_title">Votre progression de livraison</string>
+    <string name="connect_progress_title">Progression de livraison</string>
     <string name="connect_progress_status">Vous avez complété %d sur %d visites.</string>
     <string name="connect_progress_complete_by">Terminez la livraison d\'ici le %s</string>
     <string name="connect_progress_delivery_verification">Vérification et paiements</string>
@@ -270,4 +270,9 @@ License.
     <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
+
+    <string name="connect_progress">Progrès</string>
+    <string name="connect_payment">Paiement</string>
+    <string name="connect_delivery_progress_description">Vous n’avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
+    <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
 </resources>
