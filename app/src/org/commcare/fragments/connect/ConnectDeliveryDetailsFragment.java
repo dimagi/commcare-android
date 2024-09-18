@@ -19,6 +19,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,13 +55,16 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
-        TextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
+        ConnectRegularTextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
         int maxPossibleVisits = job.getMaxPossibleVisits();
         int daysRemaining = job.getDaysRemaining();
-        textView.setText(getString(R.string.connect_delivery_max_visits, maxPossibleVisits, daysRemaining));
+        textView.setText(getString(R.string.connect_job_info_visit, maxPossibleVisits));
+
+        textView = view.findViewById(R.id.connect_delivery_days_text);
+        textView.setText(getString(R.string.connect_job_info_days, daysRemaining));
 
         textView = view.findViewById(R.id.connect_delivery_max_daily_text);
-        textView.setText(getString(R.string.connect_delivery_max_daily_visits, job.getMaxDailyVisits()));
+        textView.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
 
         textView = view.findViewById(R.id.connect_delivery_budget_text);
         String paymentText = "";
@@ -75,7 +79,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         } else if(job.getPaymentUnits().size() > 0) {
             //Single payment unit
             String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());
-            paymentText = getString(R.string.connect_delivery_earn_single, moneyValue);
+            paymentText = getString(R.string.connect_job_info_visit_charge, moneyValue);
         }
 
         textView.setText(paymentText);
