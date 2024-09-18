@@ -270,4 +270,14 @@ License.
     <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
+
+    <string name="connect_job_info_delivery_detail">Détails de livraison</string>
+    <string name="connect_job_info_review_delivery">Vérifiez les détails de la livraison</string>
+    <string name="connect_job_info_visit">%d Visites maximales</string>
+    <string name="connect_job_info_days">%d jours pour terminer</string>
+    <string name="connect_job_info_max_visit">Nombre maximum de visites par jour %d</string>
+    <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s pour une visite</string>
+    <string name="connect_job_info_start_visit">Commencer la visite</string>
+    <string name="connect_job_info_download_delivery">Télécharger la livraison</string>
+    <string name="connect_job_info_download">Télécharger</string>
 </resources>

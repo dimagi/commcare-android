@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/connect_background_color">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
@@ -31,9 +32,9 @@
                     android:id="@+id/connect_delivery_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Delivery Details"
+                    android:text="@string/connect_job_info_delivery_detail"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -42,9 +43,9 @@
                     android:id="@+id/connect_review"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Review the delivery details"
+                    android:text="@string/connect_job_info_review_delivery"
                     android:textColor="@color/grey"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_title" />
@@ -54,6 +55,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/ic_connect_check_circle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_review" />
@@ -64,6 +66,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_visits_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_visits_icon"
@@ -74,6 +77,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/ic_connect_check_circle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_visits_icon" />
@@ -84,6 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_days_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_days_icon"
@@ -94,6 +99,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/ic_connect_check_circle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_days_icon" />
@@ -104,6 +110,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_max_daily_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_max_daily_icon"
@@ -114,6 +121,7 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
                     android:src="@drawable/ic_connect_check_circle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_max_daily_icon" />
@@ -124,16 +132,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
+                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_budget_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_budget_icon"
                     app:layout_constraintTop_toTopOf="@id/connect_delivery_budget_icon" />
 
-
                 <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="20dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="5dp"
                     app:layout_constraintEnd_toEndOf="@+id/connect_delivery_budget_text"
@@ -146,6 +154,50 @@
                         android:background="@color/connect_darker_blue_color"
                         android:padding="16dp">
 
+                        <LinearLayout
+                            android:id="@+id/linearLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                                android:id="@+id/connect_delivery_action_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_job_info_start_visit"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                                android:id="@+id/connect_delivery_action_details"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_job_info_download_delivery"
+                                android:textAlignment="center"
+                                android:textColor="@color/grey"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                        <org.commcare.views.connect.RoundedButton
+                            android:id="@+id/connect_delivery_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="@string/connect_job_info_download"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:roundButtonBackgroundColor="@color/white"
+                            app:roundButtonFontFamily="@font/roboto_medium"
+                            app:roundButtonIcon="@drawable/ic_connect_arrow_forward_24px"
+                            app:roundButtonIconLeftAlign="false"
+                            app:roundButtonIconTintColor="@color/connect_dark_blue_color"
+                            app:roundButtonTextColor="@color/connect_blue_color"
+                            app:roundButtonTextSize="5sp" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>

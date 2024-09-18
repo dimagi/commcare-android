@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -19,6 +18,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
+import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.io.IOException;
@@ -84,13 +84,13 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         textView.setText(paymentText);
 
-        boolean expired = daysRemaining < 0;
-        textView = view.findViewById(R.id.connect_delivery_action_title);
-        textView.setText(expired ? R.string.connect_delivery_expired : R.string.connect_delivery_ready_to_claim);
+//        boolean expired = daysRemaining < 0;
+//        textView = view.findViewById(R.id.connect_delivery_action_title);
+//        textView.setText(expired ? R.string.connect_delivery_expired : R.string.connect_delivery_ready_to_claim);
 
-        textView = view.findViewById(R.id.connect_delivery_action_details);
-        textView.setText(expired ? R.string.connect_delivery_expired_detailed :
-                R.string.connect_delivery_ready_to_claim_detailed);
+//        textView = view.findViewById(R.id.connect_delivery_action_details);
+//        textView.setText(expired ? R.string.connect_delivery_expired_detailed :
+//                R.string.connect_delivery_ready_to_claim_detailed);
 
         boolean jobClaimed = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
         boolean installed = false;
@@ -102,11 +102,11 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         }
         final boolean appInstalled = installed;
 
-        int buttonTextId = jobClaimed ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_delivery_get_app) : R.string.connect_delivery_claim;
+        int buttonTextId = jobClaimed ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_job_info_download) : R.string.connect_job_info_download;
 
-        Button button = view.findViewById(R.id.connect_delivery_button);
+        RoundedButton button = view.findViewById(R.id.connect_delivery_button);
         button.setText(buttonTextId);
-        button.setEnabled(!expired);
+//        button.setEnabled(!expired);
         button.setOnClickListener(v -> {
             if(jobClaimed) {
                 proceedAfterJobClaimed(button, job, appInstalled);

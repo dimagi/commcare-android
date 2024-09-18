@@ -792,8 +792,13 @@
     <string name="connect_payment_acknowledge_notification_yes">Yes</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
 
+    <string name="connect_job_info_delivery_detail">Delivery Details</string>
+    <string name="connect_job_info_review_delivery">Review the delivery details</string>
     <string name="connect_job_info_visit">%d maximum Visits</string>
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
+    <string name="connect_job_info_start_visit">Start Visit</string>
+    <string name="connect_job_info_download_delivery">Download Delivery </string>
+    <string name="connect_job_info_download">Download</string>
 </resources>

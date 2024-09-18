@@ -154,4 +154,5 @@
     <color name="connect_blue_color">#3A42C7</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
     <color name="connect_light_grey">#D9D9D9</color>
+    <color name="connect_background_color">#f2f5ff</color>
 </resources>
