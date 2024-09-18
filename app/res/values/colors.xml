@@ -157,4 +157,8 @@
     <color name="connect_secondary_text">#6B7280</color>
     <color name="connect_warning_color">#EA6944</color>
     <color name="connect_subtext_80">#50080B3F</color>
+
+
+    <color name="connect_text_color">#374151</color>
+    <color name="connect_subtext_color">#9CA3AF</color>
 </resources>

@@ -94,6 +94,7 @@ public class ConnectNetworkHelper {
         Date date = null;
         try {
             date = utcFormat.parse(utcDateString);
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -113,6 +114,23 @@ public class ConnectNetworkHelper {
         }
 
         return date;
+    }
+
+    public static String convertDateToLocalFormat(Date utcDate) {
+        utcFormat.setTimeZone(TimeZone.getDefault());
+
+        Date date = null;
+        String formattedDate = "";
+        try {
+            String localDateString = utcFormat.format(utcDate);
+            date = utcFormat.parse(localDateString);
+            final SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+            formattedDate=formatter.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return formattedDate;
     }
 
     public static String getCallInProgress() {
