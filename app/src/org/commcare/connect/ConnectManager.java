@@ -244,6 +244,12 @@ public class ConnectManager {
         return dateFormat.format(date);
     }
 
+    private static final DateFormat paymentDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
+
+    public static String paymentDateFormat(Date date) {
+        return paymentDateFormat.format(date);
+    }
+
     public static String formatDateTime(Date date) {
         return SimpleDateFormat.getDateTimeInstance().format(date);
     }

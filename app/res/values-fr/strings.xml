@@ -204,10 +204,10 @@ License.
     <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
     <string name="connect_results_summary_payments_title">Statut de paiement</string>
     <string name="connect_results_summary_payments_description">Montant gagné: %s\nMontant transféré: %s</string>
-    <string name="connect_results_payment_description">Payé %s</string>
+    <string name="connect_results_payment_description">%s</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
-    <string name="connect_results_payment_date">Émis %s</string>
+    <string name="connect_results_payment_date">%s</string>
 
 
     <string name="connect_last_update">Mis à jour: %s</string>
@@ -285,4 +285,13 @@ License.
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n’avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
     <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
+
+
+    <string name="connect_payment_received">Reçue</string>
+    <string name="connect_payment_transferred">Transféré</string>
+    <string name="connect_payment_confirm_transferred">Confirmer le paiement transféré</string>
+    <string name="connect_payment_revoke_transferred">Révoquer la confirmation de paiement</string>
+    <string name="connect_payment_dialog_no">Non</string>
+    <string name="connect_payment_dialog_yes">Oui</string>
+    <string name="connect_payment_revert">Revenir</string>
 </resources>

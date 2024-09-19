@@ -755,8 +755,8 @@
     <string name="connect_results_summary_approved">Approved</string>
     <string name="connect_results_summary_earned">Earned</string>
     <string name="connect_results_summary_transferred">Transferred</string>
-    <string name="connect_results_payment_date">Issued %s</string>
-    <string name="connect_results_payment_description">Paid %s</string>
+    <string name="connect_results_payment_date">%s</string>
+    <string name="connect_results_payment_description">%s</string>
     <string name="connect_results_payment_confirm">Confirm</string>
     <string name="connect_results_payment_confirm_undo">Undo confirm</string>
     <string name="connect_results_payment_confirmed">Confirmed</string>
@@ -806,4 +806,13 @@
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
+
+
+    <string name="connect_payment_received">Received</string>
+    <string name="connect_payment_transferred">Transferred</string>
+    <string name="connect_payment_confirm_transferred">Confirm Transferred Payment</string>
+    <string name="connect_payment_revoke_transferred">Revoke Payment Confirmation</string>
+    <string name="connect_payment_dialog_no">No</string>
+    <string name="connect_payment_dialog_yes">Yes</string>
+    <string name="connect_payment_revert">Revert</string>
 </resources>
