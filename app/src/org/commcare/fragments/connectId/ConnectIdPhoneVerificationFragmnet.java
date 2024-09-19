@@ -6,6 +6,8 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,9 +124,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         // Inflate the layout for requireActivity() fragment
         binding= ScreenConnectPhoneVerifyBinding.inflate(inflater,container,false);
         View view = binding.getRoot();
-
+        binding.connectPhoneVerifyButton.setEnabled(false);
         getActivity().setTitle(getString(R.string.connect_verify_phone_title));
-
+        buttonEnabled("");
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
         client.startSmsUserConsent(null);
 
@@ -148,9 +150,30 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         binding.connectPhoneVerifyResend.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyChange.setOnClickListener(arg0 -> changeNumber());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
+        binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                buttonEnabled(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
 
         return view;
+    }
+
+    private void buttonEnabled(String code) {
+        binding.connectPhoneVerifyButton.setEnabled(!code.isEmpty() && code.length()>5);
+        binding.connectPhoneVerifyButton.setBackgroundColor(!code.isEmpty() && code.length()>5?getResources().getColor(R.color.connect_blue_color):Color.GRAY);
     }
 
     @Override
@@ -409,7 +432,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     message = e.toString();
                 }
                 logRecoveryResult(false);
-                setErrorMessage(String.format("Error verifying SMS code. %s", message));
+                setErrorMessage("Error verifying SMS code");
             }
 
             @Override
@@ -504,9 +527,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        Navigation.findNavController(binding.connectPhoneVerifyButton).popBackStack();
-                        return;
-//                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidSignupFragment(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE, ConnectConstants.METHOD_CHANGE_PRIMARY, secondaryPhone);
+//                        Navigation.findNavController(binding.connectPhoneVerifyButton).popBackStack();
+                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY,primaryPhone,ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
                     } else {
                         directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password).setRecover(false).setChange(true);
 

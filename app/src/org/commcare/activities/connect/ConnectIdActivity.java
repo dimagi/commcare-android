@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Window;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -14,14 +15,14 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
 import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.commcare.views.dialogs.CustomProgressDialog;
 
-public class ConnectIdActivity extends AppCompatActivity {
+public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
     public static boolean forgotPassword = false;
     public static boolean forgotPin = false;
@@ -36,16 +37,9 @@ public class ConnectIdActivity extends AppCompatActivity {
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             getCurrentFragment().onActivityResult(requestCode, resultCode, data);
         } else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
-            String value = "";
-            if (data != null) {
-                value = data.getStringExtra("TASK");
-            }
-            switch (value) {
-                case ConnectConstants.BEGIN_REGISTRATION -> beginRegistration(this);
-                case ConnectConstants.UNLOCK_CONNECT -> unlockConnect(this);
-                case ConnectConstants.VERIFY_PHONE -> beginSecondaryPhoneVerification(this);
-            }
+            handleRedirection(data);
         }
+
         if (requestCode == RESULT_OK) {
             finish();
         }
@@ -64,15 +58,22 @@ public class ConnectIdActivity extends AppCompatActivity {
         ColorDrawable colorDrawable
                 = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
         getSupportActionBar().setBackgroundDrawable(colorDrawable);
-        String value = "";
-        if (extras != null) {
-            value = extras.getString("TASK");
+        handleRedirection(getIntent());
+    }
+
+    private void handleRedirection(Intent intent) {
+        String value = intent.getStringExtra("TASK");
+        if (value != null) {
+            switch (value) {
+                case ConnectConstants.BEGIN_REGISTRATION -> beginRegistration(this);
+                case ConnectConstants.VERIFY_PHONE -> beginSecondaryPhoneVerification(this);
+            }
         }
-        switch (value) {
-            case ConnectConstants.BEGIN_REGISTRATION -> beginRegistration(this);
-            case ConnectConstants.UNLOCK_CONNECT -> unlockConnect(this);
-            case ConnectConstants.VERIFY_PHONE -> beginSecondaryPhoneVerification(this);
-        }
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     private ConnectIdBiometricConfigFragment getCurrentFragment() {
@@ -86,7 +87,7 @@ public class ConnectIdActivity extends AppCompatActivity {
         return null;
     }
 
-    public static void beginRegistration(Context parent) {
+    public void beginRegistration(Context parent) {
         forgotPassword = false;
         forgotPin = false;
         NavDirections navDirections = null;
@@ -125,31 +126,6 @@ public class ConnectIdActivity extends AppCompatActivity {
         }
     }
 
-    public static void unlockConnect(Context parent) {
-        forgotPassword = false;
-        forgotPin = false;
-        NavDirections navDirections = null;
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
-        navDirections = ConnectIDSignupFragmentDirections.
-                actionConnectidPhoneFragmentToConnectidBiometricConfig(
-                        (
-                                ConnectConstants.CONNECT_UNLOCK_BIOMETRIC));
-        if (user.shouldForcePin()) {
-            navDirections = ConnectIDSignupFragmentDirections
-                    .actionConnectidPhoneFragmentToConnectidPin
-                            (ConnectConstants.CONNECT_UNLOCK_PIN,
-                                    user.getPrimaryPhone(),
-                                    user.getPassword());
-        } else if (user.shouldForcePassword()) {
-            navDirections = ConnectIDSignupFragmentDirections.
-                    actionConnectidPhoneFragmentToConnectidPassword
-                            (user.getPrimaryPhone(), user.getPassword(), ConnectConstants.CONNECT_UNLOCK_PASSWORD);
-        }
-
-        if (navDirections != null) {
-            controller.navigate(navDirections);
-        }
-    }
 
     public static void beginSecondaryPhoneVerification(Context parent) {
         NavDirections navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage

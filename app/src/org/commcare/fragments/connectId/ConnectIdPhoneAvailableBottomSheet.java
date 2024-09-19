@@ -49,12 +49,13 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         recover = (Button)view.findViewById(R.id.recover_button);
         phoneTextView = (TextView)view.findViewById(R.id.phone_number);
         if (getArguments() != null) {
-            phoneNumber = PhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
+            phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }
         phoneTextView.setText(phoneNumber);
+
         back.setOnClickListener(v -> Navigation.findNavController(back).popBackStack());
         recover.setOnClickListener(v -> {
-            NavDirections directions = PhoneAvailableBottomSheetDirections.actionConnectidPhoneNotAvailableToConnectidPhoneFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE).setPhone(phoneNumber);
+            NavDirections directions = ConnectIdPhoneAvailableBottomSheetDirections.actionConnectidPhoneNotAvailableToConnectidPhoneFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE).setPhone(phoneNumber);
             Navigation.findNavController(back).navigate(directions);
         });
         return view;

@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -105,6 +106,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     requireActivity().finish();
                 }
                 break;
+                //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
             case ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
@@ -151,6 +153,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     }
                 }
                 break;
+                //CONNECT_RECOVERY_WRONG_PIN
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
                 if (success) {
                     if (ConnectManager.getFailureAttempt() > 2) {
@@ -172,12 +175,19 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 }
                 break;
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE:
+                if (success) {
+                    if (secondButton) {
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhone(ConnectConstants.METHOD_CHANGE_ALTERNATE, user.getAlternatePhone(), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE);
+                    } else {
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
+                                ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);
+                    }
+                }
                 break;
         }
         if (success) {
-
             if (directions != null) {
-                Navigation.findNavController(binding.connectMessageButton).navigate(directions);
+                NavHostFragment.findNavController(this).navigate(directions);
             }
         }
     }

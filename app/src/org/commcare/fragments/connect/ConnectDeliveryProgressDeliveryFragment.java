@@ -5,14 +5,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
+import org.commcare.views.connect.CircleProgressBar;
+import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -22,15 +27,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private View view;
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
 
-    private Button launchButton;
+    private RoundedButton launchButton;
+
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
@@ -59,7 +62,15 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             launchDeliveryApp(launchButton);
         });
 
-        Button reviewButton = view.findViewById(R.id.connect_progress_review_button);
+        RoundedButton btnSync = view.findViewById(R.id.btnSync);
+        btnSync.setOnClickListener(view -> {
+            ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment) getParentFragment();
+            if (parentFragment != null) {
+                parentFragment.refreshData();
+            }
+        });
+
+        RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
         reviewButton.setVisibility(showLearningLaunch ? View.VISIBLE : View.GONE);
         reviewButton.setOnClickListener(v -> {
             launchLearningApp(reviewButton);
@@ -72,11 +83,10 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     private void launchLearningApp(Button button) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+        if (ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
             ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
             getActivity().finish();
-        }
-        else {
+        } else {
             String title = getString(R.string.connect_downloading_learn);
             Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true, true));
         }
@@ -84,11 +94,10 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     private void launchDeliveryApp(Button button) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        if(ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
+        if (ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
             ConnectManager.launchApp(getContext(), false, job.getDeliveryAppInfo().getAppId());
             getActivity().finish();
-        }
-        else {
+        } else {
             String title = getString(R.string.connect_downloading_delivery);
             Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false, true));
         }
@@ -96,7 +105,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     public void updateView() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        if(job == null || view == null) {
+        if (job == null || view == null) {
             return;
         }
 
@@ -104,27 +113,30 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
 
-        ProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
+        CircleProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
+        progress.setStrokeWidth(15);
+        progress.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.connect_blackist_dark_blue_color));
+        progress.setProgressColor(ContextCompat.getColor(getContext(), R.color.connect_aquva));
         progress.setProgress(percent);
-        progress.setMax(100);
+//        progress.setMax(100);
 
-        TextView textView = view.findViewById(R.id.connect_progress_progress_text);
+        ConnectMediumTextView textView = view.findViewById(R.id.connect_progress_progress_text);
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
         launchButton.setEnabled(!job.getIsUserSuspended());
 
         textView = view.findViewById(R.id.connect_progress_status_text);
         String completedText = getString(R.string.connect_progress_status, completed, total);
-        if(job.isMultiPayment() && completed > 0) {
+        if (job.isMultiPayment() && completed > 0) {
             //Get counts for each type
             Hashtable<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
 
             //Add a line for each payment unit
-            for(int unitIndex = 0; unitIndex < job.getPaymentUnits().size(); unitIndex++) {
+            for (int unitIndex = 0; unitIndex < job.getPaymentUnits().size(); unitIndex++) {
                 ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(unitIndex);
                 int count = 0;
                 String stringKey = Integer.toString(unit.getUnitId());
-                if(paymentCounts.containsKey(stringKey)) {
+                if (paymentCounts.containsKey(stringKey)) {
                     count = paymentCounts.get(stringKey);
                 }
 
@@ -139,34 +151,33 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         boolean finished = job.isFinished();
 
         String warningText = null;
-        if(finished) {
+        if (finished) {
             warningText = getString(R.string.connect_progress_warning_ended);
-        } else if(job.getProjectStartDate().after(new Date())) {
+        } else if (job.getProjectStartDate().after(new Date())) {
             warningText = getString(R.string.connect_progress_warning_not_started);
-        } else if(job.isMultiPayment()) {
+        } else if (job.isMultiPayment()) {
             List<String> warnings = new ArrayList<>();
             Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
             Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
-            for(int i=0; i<job.getPaymentUnits().size(); i++) {
+            for (int i = 0; i < job.getPaymentUnits().size(); i++) {
                 ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
                 String stringKey = Integer.toString(unit.getUnitId());
 
                 int totalCount = 0;
-                if(totalPaymentCounts.containsKey(stringKey)) {
+                if (totalPaymentCounts.containsKey(stringKey)) {
                     totalCount = totalPaymentCounts.get(stringKey);
                 }
 
-                if(totalCount >= unit.getMaxTotal()) {
+                if (totalCount >= unit.getMaxTotal()) {
                     //Reached max total for this type
                     warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
-                }
-                else {
+                } else {
                     int todayCount = 0;
                     if (todayPaymentCounts.containsKey(stringKey)) {
                         todayCount = todayPaymentCounts.get(stringKey);
                     }
 
-                    if(todayCount >= unit.getMaxDaily()) {
+                    if (todayCount >= unit.getMaxDaily()) {
                         //Reached daily max for this type
                         warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi,
                                 unit.getName()));
@@ -174,31 +185,30 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                 }
             }
 
-            if(warnings.size() > 0) {
+            if (warnings.size() > 0) {
                 warningText = String.join("\n", warnings);
             }
         } else {
-            if(totalVisitCount >= job.getMaxVisits()) {
+            if (totalVisitCount >= job.getMaxVisits()) {
                 warningText = getString(R.string.connect_progress_warning_max_reached_single);
-            } else if(dailyVisitCount >= job.getMaxDailyVisits()) {
+            } else if (dailyVisitCount >= job.getMaxDailyVisits()) {
                 warningText = getString(R.string.connect_progress_warning_daily_max_reached_single);
             }
         }
 
         textView = view.findViewById(R.id.connect_progress_delivery_warning_text);
         textView.setVisibility(warningText != null ? View.VISIBLE : View.GONE);
-        if(warningText != null) {
+        if (warningText != null) {
             textView.setText(warningText);
         }
 
         textView = view.findViewById(R.id.connect_progress_complete_by_text);
         String endText = ConnectManager.formatDate(job.getProjectEndDate());
         String text;
-        if(finished) {
+        if (finished) {
             //Project ended
             text = getString(R.string.connect_progress_ended, endText);
-        }
-        else if(job.getProjectStartDate() != null && job.getProjectStartDate().after(new Date())) {
+        } else if (job.getProjectStartDate() != null && job.getProjectStartDate().after(new Date())) {
             //Project hasn't started yet
             text = getString(R.string.connect_progress_begin_date, ConnectManager.formatDate(job.getProjectStartDate()), endText);
         } else if (job.getIsUserSuspended()) {
@@ -212,14 +222,14 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_progress_warning_learn_text);
         textView.setOnClickListener(v -> {
-                StandardAlertDialog dialog = new StandardAlertDialog(
-                        getContext(),
-                        getString(R.string.connect_progress_warning),
-                        getString(R.string.connect_progress_warning_full));
-                dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
-                    dialog1.dismiss();
-                });
-            ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
+            StandardAlertDialog dialog = new StandardAlertDialog(
+                    getContext(),
+                    getString(R.string.connect_progress_warning),
+                    getString(R.string.connect_progress_warning_full));
+            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                dialog1.dismiss();
+            });
+            ((CommCareActivity<?>) getActivity()).showAlertDialog(dialog);
         });
     }
 }

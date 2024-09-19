@@ -125,7 +125,7 @@ public class BiometricsHelper {
         }
     }
 
-    public static boolean handlePinUnlockActivityResult(int requestCode, int resultCode, Intent intent) {
+    public static boolean handlePinUnlockActivityResult(int requestCode, int resultCode) {
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             if (resultCode == Activity.RESULT_OK) {
                 biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
