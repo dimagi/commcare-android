@@ -36,7 +36,7 @@ public class InterruptedFormState implements Externalizable {
             throws IOException, DeserializationException {
         sessionStateDescriptorId = ExtUtil.readInt(in);
         formIndex = (FormIndex)ExtUtil.read(in, FormIndex.class, pf);
-        try{
+        try {
             formRecordId = ExtUtil.readInt(in);
         } catch(EOFException e){
             // this is to catch errors caused by EOF when updating from the previous model which didn't have the
