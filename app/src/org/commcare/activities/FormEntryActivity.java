@@ -1153,8 +1153,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
-            Toast.makeText(this,
-                    Localization.get("form.entry.restart.after.expiration"), Toast.LENGTH_LONG).show();
+            String localeKey =
+                    (fc.getRestoredFormSession() == null
+                            || fc.getRestoredFormSession().getInterruptedDueToSessionExpiration())
+                    ? "form.entry.restart.after.expiration" : "form.entry.restart.after.session.pause";
+            Toast.makeText(this, Localization.get(localeKey), Toast.LENGTH_LONG).show();
         }
     }
 
