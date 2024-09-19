@@ -10,5 +10,5 @@ public interface FormSavedListener {
     /**
      * Callback to be run after a form has been saved.
      */
-    void savingComplete(SaveToDiskTask.SaveStatus formSaveStatus, String errorMessage, boolean exit);
+    void savingComplete(SaveToDiskTask.SaveStatus formSaveStatus, String errorMessage, boolean exit, boolean userTriggered);
 }
