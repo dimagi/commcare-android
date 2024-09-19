@@ -252,17 +252,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
-        interruptAndSaveForm(true);
+        interruptAndSaveForm(true, false);
     }
 
-    private void interruptAndSaveForm(boolean sessionExpiredOrSustended) {
+    private void interruptAndSaveForm(boolean sessionExpiredOrSustended, boolean userTriggered) {
         if (mFormController != null) {
             // Set flag that will allow us to restore this form when we log back in
             CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted(
                     mFormController.getFormIndex(), sessionExpiredOrSustended);
 
             // Start saving form; will trigger expireUserSession() on completion
-            saveIncompleteFormToDisk(sessionExpiredOrSustended);
+            saveIncompleteFormToDisk(sessionExpiredOrSustended, userTriggered);
         }
     }
 
@@ -766,19 +766,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
             boolean isFormComplete = instanceState.isFormRecordComplete();
-            saveDataToDisk(exit, isFormComplete, null, false);
+            saveDataToDisk(exit, isFormComplete, null, false, true);
         } else if (exit) {
             showSaveErrorAndExit();
         }
     }
 
     private void saveCompletedFormToDisk(String updatedSaveName) {
-        saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false);
+        saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false, true);
     }
 
-    private void saveIncompleteFormToDisk(boolean sessionExpiredOrSuspended) {
+    private void saveIncompleteFormToDisk(boolean sessionExpiredOrSuspended, boolean userTriggered) {
         boolean shouldExit = sessionExpiredOrSuspended ? FormEntryConstants.EXIT : FormEntryConstants.DO_NOT_EXIT;
-        saveDataToDisk(shouldExit, false, null, true);
+        saveDataToDisk(shouldExit, false, null, true, userTriggered);
     }
 
     /**
@@ -792,7 +792,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         String formStatus = formRecord.getStatus();
         if (FormRecord.STATUS_INCOMPLETE.equals(formStatus)) {
-            saveDataToDisk(false, false, null, true);
+            saveDataToDisk(false, false, null, true, true);
         }
     }
 
@@ -812,8 +812,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * @param headless        Disables GUI warnings and lets answers that
      *                        violate constraints be saved.
      */
-    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName,
-                                boolean headless) {
+    private void saveDataToDisk(boolean exit, boolean complete, String updatedSaveName, boolean headless,
+                                boolean userTriggered) {
         if (!formHasLoaded()) {
             if (exit) {
                 showSaveErrorAndExit();
@@ -852,7 +852,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1),
                 getIntent().getIntExtra(KEY_FORM_DEF_ID, -1),
                 FormEntryInstanceState.mFormRecordPath,
-                exit, complete, updatedSaveName, symetricKey, headless);
+                exit, complete, updatedSaveName, symetricKey, headless, userTriggered);
         if (!headless) {
             mSaveToDiskTask.connect(this);
         }
@@ -936,7 +936,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onStop() {
         super.onStop();
         if (shouldSaveFormOnStop()) {
-            interruptAndSaveForm(false);
+            interruptAndSaveForm(false, false);
         }
     }
 
@@ -1269,7 +1269,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * continue closing the session/logging out.
      */
     @Override
-    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage, boolean exit) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage, boolean exit, boolean userTriggered) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (customFormSaveCallback != null) {
