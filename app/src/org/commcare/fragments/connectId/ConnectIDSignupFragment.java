@@ -83,6 +83,15 @@ public class ConnectIDSignupFragment extends Fragment {
             existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
         }
+
+        View.OnFocusChangeListener listener = (v, hasFocus) -> {
+            if(hasFocus) {
+                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
+            }
+        };
+
+        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
+        binding.countryCode.setOnFocusChangeListener(listener);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -103,7 +112,6 @@ public class ConnectIDSignupFragment extends Fragment {
         });
         enableButton();
         setupUi();
-        requestPhoneNumberHint();
         if (!existingPhone.isEmpty()) {
             displayNumber(existingPhone);
         }
@@ -140,21 +148,6 @@ public class ConnectIDSignupFragment extends Fragment {
     public void enableButton() {
 //        binding.continueButton.setEnabled(isEnabled);
 //        binding.continueButton.setBackgroundColor(isEnabled?getResources().getColor(R.color.connect_blue_color):Color.GRAY);
-    }
-
-    public void requestPhoneNumberHint() {
-        GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
-        Identity.getSignInClient(requireActivity()).getPhoneNumberHintIntent(hintRequest)
-                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
-                    @Override
-                    public void onSuccess(PendingIntent pendingIntent) {
-                        try {
-                            startIntentSenderForResult(pendingIntent.getIntentSender(), ConnectConstants.CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0, null);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
     }
 
     @Override

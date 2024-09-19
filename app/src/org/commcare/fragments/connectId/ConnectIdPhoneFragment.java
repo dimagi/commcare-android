@@ -87,10 +87,18 @@ public class ConnectIdPhoneFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for getContext() fragment
-        String existing;
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
+
+        View.OnFocusChangeListener listener = (v, hasFocus) -> {
+            if(hasFocus) {
+                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
+            }
+        };
+
+        binding.countryCode.setOnFocusChangeListener(listener);
+        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
+
         binding.connectPrimaryPhoneButton.setOnClickListener(v -> handleButtonPress());
         requireActivity().setTitle(getString(R.string.connect_phone_page_title));
         if (getArguments() != null) {
@@ -103,13 +111,12 @@ public class ConnectIdPhoneFragment extends Fragment {
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
-        requestPhoneNumberHint();
-        existing = user != null ? user.getPrimaryPhone() : existingPhone;
+        String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         binding.connectPrimaryPhoneTitle.setText(title);
         binding.connectPrimaryPhoneMessage.setText(message);
         displayNumber(existing);
 
-        return view;
+        return binding.getRoot();
     }
 
     @Override
@@ -119,22 +126,6 @@ public class ConnectIdPhoneFragment extends Fragment {
         checkPhoneNumber();
 
         KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPrimaryPhoneInput);
-
-    }
-
-    public void requestPhoneNumberHint() {
-        GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
-        Identity.getSignInClient(requireActivity()).getPhoneNumberHintIntent(hintRequest)
-                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
-                    @Override
-                    public void onSuccess(PendingIntent pendingIntent) {
-                        try {
-                            startIntentSenderForResult(pendingIntent.getIntentSender(), ConnectConstants.CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0, null);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
     }
 
     @Override
