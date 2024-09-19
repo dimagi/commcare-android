@@ -76,7 +76,7 @@
             android:layout_width="48dp"
             android:padding="1dp"
             android:src="@drawable/ic_outline_lock_24" />
-        <AutoCompleteTextView
+        <EditText
             android:id="@+id/connect_phone_verify_code"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

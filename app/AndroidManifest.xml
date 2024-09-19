@@ -175,9 +175,6 @@
         <activity
             android:name="org.commcare.activities.connect.ConnectIdActivity"
             android:exported="true"></activity>
-        <activity
-            android:name="org.commcare.activities.connect.ConnectIdNewActivity"
-            android:exported="true"></activity>
         <activity android:name="org.commcare.activities.AppSelectActivity" />
 
         <provider

@@ -7,7 +7,7 @@
     <dialog
         android:id="@+id/connectid_phone_not_available"
         android:label="fragment_connectid_phone_available_fragment"
-        android:name="org.commcare.fragments.connectId.PhoneAvailableBottomSheet"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneAvailableBottomSheet"
         tools:layout="@layout/fragment_phone_available_bottom_sheet">
         <action
             android:id="@+id/action_connectid_phone_not_available_to_connectid_phone_fragment"
@@ -105,6 +105,9 @@
             android:name="secondaryPhone"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_phoneNo"
+            app:destination="@id/connectid_phoneNo" />
     </fragment>
 
     <dialog

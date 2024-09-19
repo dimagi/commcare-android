@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,8 +60,27 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         }
+        binding.countryCode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(!s.toString().contains("+")){
+                    binding.countryCode.setText("+"+binding.countryCode.getText());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         binding.continueButton.setOnClickListener(v -> handleButtonPress());
         binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
+       requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
         binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
 
         return view;

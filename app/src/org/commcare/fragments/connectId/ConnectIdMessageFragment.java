@@ -105,6 +105,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     requireActivity().finish();
                 }
                 break;
+                //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
             case ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
@@ -151,6 +152,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     }
                 }
                 break;
+                //CONNECT_RECOVERY_WRONG_PIN
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
                 if (success) {
                     if (ConnectManager.getFailureAttempt() > 2) {
@@ -177,7 +179,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         if (success) {
 
             if (directions != null) {
-                Navigation.findNavController(binding.connectMessageButton).navigate(directions);
+                Navigation.findNavController(binding.connectMessageTitle).navigate(directions);
             }
         }
     }

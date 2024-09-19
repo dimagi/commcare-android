@@ -1,6 +1,7 @@
 package org.commcare.fragments.connectId;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -106,6 +107,7 @@ public class ConnectIdPinFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        buttonEnabled("");
         binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
         binding.connectPinVerifyForgot.setOnClickListener(v -> handleForgotPress());
         binding.connectPinInput.addTextChangedListener(watcher);
@@ -136,7 +138,29 @@ public class ConnectIdPinFragment extends Fragment {
         }
 
         binding.connectPinVerifyForgot.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
+        binding.connectPinInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                buttonEnabled(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         return view;
+    }
+
+    private void buttonEnabled(String code) {
+        binding.connectPinButton.setEnabled(code.length()>5);
+        binding.connectPinButton.setBackgroundColor(code.length()>5?getResources().getColor(R.color.connect_blue_color): Color.GRAY);
     }
 
     public void setPinLength(int length) {
@@ -178,6 +202,8 @@ public class ConnectIdPinFragment extends Fragment {
         binding.connectPinErrorMessage.setText(errorText);
         binding.connectPinButton.setEnabled(buttonEnabled);
     }
+
+
 
     public void handleButtonPress() {
         String pin = binding.connectPinInput.getText().toString();

@@ -206,6 +206,9 @@ public class ConnectIdPhoneFragment extends Fragment {
         String codeText = "";
         if (code > 0) {
             codeText = String.format(Locale.getDefault(), "%d", code);
+            if (!codeText.startsWith("+")) {
+                codeText = "+" + codeText;
+            }
         }
 
         if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
@@ -214,12 +217,12 @@ public class ConnectIdPhoneFragment extends Fragment {
         skipPhoneNumberCheck = false;
         binding.connectPrimaryPhoneInput.setText(fullNumber);
         skipPhoneNumberCheck = true;
-        binding.countryCodeText.setText(code);
+        binding.countryCode.setText(codeText);
         skipPhoneNumberCheck = false;
     }
 
     public void handleButtonPress() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCodeText.getText().toString(),
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectManager.getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
@@ -274,7 +277,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
     public void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
-            String phone = binding.countryCodeText.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
+            String phone = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
 
             boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
             ConnectUserRecord user = ConnectManager.getUser(getContext());
@@ -282,14 +285,14 @@ public class ConnectIdPhoneFragment extends Fragment {
             if (valid) {
                 String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
                 String existingAlternate = user != null ? user.getAlternatePhone() : null;
-                switch (callingClass) {
-                    case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
-                            ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
+                switch (method) {
+                    case ConnectConstants.METHOD_REGISTER_PRIMARY,
+                            ConnectConstants.METHOD_CHANGE_PRIMARY -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.connectPrimaryPhoneAvailability.setText("");
+                            binding.errorTextView.setText("");
                             binding.connectPrimaryPhoneButton.setEnabled(true);
                         } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_not_alt));
+                            binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                         } else {
                             //Make sure the number isn't already in use
@@ -302,7 +305,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
                                             skipPhoneNumberCheck = false;
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_available));
+                                            binding.errorTextView.setText(getString(R.string.connect_phone_available));
                                             binding.connectPrimaryPhoneButton.setEnabled(true);
 
                                         }
@@ -313,20 +316,20 @@ public class ConnectIdPhoneFragment extends Fragment {
                                             if (e != null) {
                                                 Logger.exception("Checking phone number", e);
                                             }
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_unavailable));
+                                            binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
                                             binding.connectPrimaryPhoneButton.setEnabled(false);
                                         }
 
                                         @Override
                                         public void processNetworkFailure() {
                                             skipPhoneNumberCheck = false;
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.recovery_network_unavailable));
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
                                         }
 
                                         @Override
                                         public void processOldApiError() {
                                             skipPhoneNumberCheck = false;
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.recovery_network_outdated));
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });
 
@@ -335,22 +338,22 @@ public class ConnectIdPhoneFragment extends Fragment {
                             }
                         }
                     }
-                    case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
+                    case ConnectConstants.METHOD_CHANGE_ALTERNATE-> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_not_primary));
+                            binding.errorTextView.setText(getString(R.string.connect_phone_not_primary));
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                         } else {
-                            binding.connectPrimaryPhoneAvailability.setText("");
+                            binding.errorTextView.setText("");
                             binding.connectPrimaryPhoneButton.setEnabled(true);
                         }
                     }
-                    case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        binding.connectPrimaryPhoneAvailability.setText("");
+                    case ConnectConstants.METHOD_RECOVER_PRIMARY -> {
+                        binding.errorTextView.setText("");
                         binding.connectPrimaryPhoneButton.setEnabled(true);
                     }
                 }
             } else {
-                binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_invalid));
+                binding.errorTextView.setText(getString(R.string.connect_phone_invalid));
                 binding.connectPrimaryPhoneButton.setEnabled(false);
             }
         }
