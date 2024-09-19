@@ -27,6 +27,7 @@ public class ConnectLinkedAppRecord extends Persisted {
     public static final String META_OFFERED_2 = "link_offered_2";
     public static final String META_OFFERED_2_DATE = "link_offered_2_date";
     public static final String META_LOCAL_PASSPHRASE = "using_local_passphrase";
+    public static final String META_LAST_ACCESSED = "last_accessed";
 
     @Persisting(1)
     @MetaField(META_APP_ID)
@@ -62,51 +63,15 @@ public class ConnectLinkedAppRecord extends Persisted {
     @MetaField(META_LOCAL_PASSPHRASE)
     private boolean usingLocalPassphrase;
 
+    @Persisting(13)
+    @MetaField(META_LAST_ACCESSED)
+    private Date lastAccessed;
+
     public ConnectLinkedAppRecord() {
         hqTokenExpiration = new Date();
         linkOfferDate1 = new Date();
         linkOfferDate2 = new Date();
-    }
-
-    public static ConnectLinkedAppRecord fromV3(ConnectLinkedAppRecordV3 oldRecord) {
-        ConnectLinkedAppRecord newRecord = new ConnectLinkedAppRecord();
-
-        newRecord.appId = oldRecord.getAppId();
-        newRecord.userId = oldRecord.getUserId();
-        newRecord.password = oldRecord.getPassword();
-        newRecord.workerLinked = oldRecord.getWorkerLinked();
-        newRecord.hqToken = oldRecord.getHqToken();
-        newRecord.hqTokenExpiration = oldRecord.getHqTokenExpiration();
-
-        newRecord.connectIdLinked = true;
-        newRecord.linkOffered1 = true;
-        newRecord.linkOfferDate1 = new Date();
-        newRecord.linkOffered2 = false;
-        newRecord.linkOfferDate2 = new Date();
-
-        newRecord.usingLocalPassphrase = true;
-
-        return newRecord;
-    }
-
-    public static ConnectLinkedAppRecord fromV8(ConnectLinkedAppRecordV8 oldRecord) {
-        ConnectLinkedAppRecord newRecord = new ConnectLinkedAppRecord();
-
-        newRecord.appId = oldRecord.getAppId();
-        newRecord.userId = oldRecord.getUserId();
-        newRecord.password = oldRecord.getPassword();
-        newRecord.workerLinked = oldRecord.getWorkerLinked();
-        newRecord.hqToken = oldRecord.getHqToken();
-        newRecord.hqTokenExpiration = oldRecord.getHqTokenExpiration();
-        newRecord.connectIdLinked = oldRecord.getConnectIdLinked();
-        newRecord.linkOffered1 = oldRecord.getLinkOfferDate1() != null;
-        newRecord.linkOfferDate1 = newRecord.linkOffered1 ? oldRecord.getLinkOfferDate1() : new Date();
-        newRecord.linkOffered2 = oldRecord.getLinkOfferDate2() != null;
-        newRecord.linkOfferDate2 = newRecord.linkOffered2 ? oldRecord.getLinkOfferDate2() : new Date();
-
-        newRecord.usingLocalPassphrase = true;
-
-        return newRecord;
+        lastAccessed = new Date();
     }
 
     public ConnectLinkedAppRecord(String appId, String userId, boolean connectIdLinked, String password) {
@@ -184,4 +149,27 @@ public class ConnectLinkedAppRecord extends Persisted {
 
     public boolean isUsingLocalPassphrase() { return usingLocalPassphrase; }
     public void setIsUsingLocalPassphrase(boolean using) { usingLocalPassphrase = using; }
+
+    public Date getLastAccessed() { return lastAccessed; }
+    public void setLastAccessed(Date date) { lastAccessed = date; }
+
+    public static ConnectLinkedAppRecord fromV9(ConnectLinkedAppRecordV9 oldRecord) {
+        ConnectLinkedAppRecord newRecord = new ConnectLinkedAppRecord();
+
+        newRecord.appId = oldRecord.getAppId();
+        newRecord.userId = oldRecord.getUserId();
+        newRecord.password = oldRecord.getPassword();
+        newRecord.workerLinked = oldRecord.getWorkerLinked();
+        newRecord.hqToken = oldRecord.getHqToken();
+        newRecord.hqTokenExpiration = oldRecord.getHqTokenExpiration();
+        newRecord.connectIdLinked = oldRecord.getConnectIdLinked();
+        newRecord.linkOffered1 = oldRecord.getLinkOfferDate1() != null;
+        newRecord.linkOfferDate1 = newRecord.linkOffered1 ? oldRecord.getLinkOfferDate1() : new Date();
+        newRecord.linkOffered2 = oldRecord.getLinkOfferDate2() != null;
+        newRecord.linkOfferDate2 = newRecord.linkOffered2 ? oldRecord.getLinkOfferDate2() : new Date();
+
+        newRecord.usingLocalPassphrase = oldRecord.isUsingLocalPassphrase();
+
+        return newRecord;
+    }
 }

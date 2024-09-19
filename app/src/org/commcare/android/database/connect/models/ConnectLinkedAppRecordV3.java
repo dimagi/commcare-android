@@ -41,14 +41,6 @@ public class ConnectLinkedAppRecordV3 extends Persisted {
         hqTokenExpiration = new Date();
     }
 
-    public ConnectLinkedAppRecordV3(String appId, String userId, String password) {
-        this.appId = appId;
-        this.userId = userId;
-        this.password = password;
-
-        hqTokenExpiration = new Date();
-    }
-
     public String getAppId() { return appId; }
     public String getUserId() {
         return userId;
@@ -66,20 +58,11 @@ public class ConnectLinkedAppRecordV3 extends Persisted {
         return workerLinked;
     }
 
-    public void setWorkerLinked(boolean linked) {
-        workerLinked = linked;
-    }
-
     public String getHqToken() {
         return hqToken;
     }
 
     public Date getHqTokenExpiration() {
         return hqTokenExpiration;
-    }
-
-    public void updateHqToken(String token, Date expirationDate) {
-        hqToken = token;
-        hqTokenExpiration = expirationDate;
     }
 }

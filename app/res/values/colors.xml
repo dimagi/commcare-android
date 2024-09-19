@@ -150,11 +150,20 @@
     <!-- New connect colors-->
     <color name="connect_border_color">#1A3A42C7</color>
     <color name="connect_dark_blue_color">#3942C7</color>
+    <color name="connect_darker_blue_color">#353BA8</color>
     <color name="connect_blue_color">#3A42C7</color>
+    <color name="connect_blue_color_10">#1A3A42C7</color>
+    <color name="connect_blackist_dark_blue_color">#141859</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>
     <color name="connect_light_grey">#E5E7EB</color>
     <color name="connect_subtext">#080B3F</color>
     <color name="connect_secondary_text">#6B7280</color>
     <color name="connect_warning_color">#EA6944</color>
     <color name="connect_subtext_80">#50080B3F</color>
+    <color name="connect_grey">#9A9A9A</color>
+    <color name="connect_divider_color">#E5E7EB</color>
+    <color name="connect_background_color">#f2f5ff</color>
+    <color name="connect_aquva">#88BEE1</color>
+    <color name="connect_green">#16A085</color>
+    <color name="connect_red">#EA6944</color>
 </resources>

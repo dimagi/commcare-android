@@ -12,7 +12,6 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
@@ -203,7 +202,7 @@ public class ConnectJobsListsFragment extends Fragment {
         boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(getContext());
 
         ConnectManager.updateSecondaryPhoneConfirmationTile(getContext(), connectTile, show, v -> {
-            ConnectManager.launchConnect((CommCareActivity<?>)getActivity(), ConnectConstants.VERIFY_PHONE, success -> {
+            ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>)getActivity(), success -> {
                 updateSecondaryPhoneConfirmationTile();
             });
         });

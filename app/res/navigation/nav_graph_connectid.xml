@@ -131,7 +131,7 @@
             android:id="@+id/action_connectid_message_self"
             app:destination="@id/connectid_message" />
         <action
-            android:id="@+id/action_connectid_message_to_connectid_phoneNo"
+            android:id="@+id/action_connectid_message_to_connectid_phone"
             app:destination="@id/connectid_phoneNo" />
         <action
             android:id="@+id/action_connectid_message_to_connectid_secondary_phone_fragment"
