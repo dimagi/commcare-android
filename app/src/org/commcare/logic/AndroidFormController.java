@@ -4,6 +4,7 @@ package org.commcare.logic;
 import androidx.annotation.NonNull;
 
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -20,13 +21,17 @@ public class AndroidFormController extends FormController implements PendingCall
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
     private boolean formCompleteAndSaved = false;
+    private InterruptedFormState restoredFormSession;
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
-    public AndroidFormController(FormEntryController fec, boolean readOnly, FormIndex formIndex) {
+    public AndroidFormController(FormEntryController fec, boolean readOnly, InterruptedFormState savedFormSession) {
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
-        formIndexToReturnTo = formIndex;
+        this.restoredFormSession = savedFormSession;
+        if (savedFormSession !=null ){
+            formIndexToReturnTo = savedFormSession.getFormIndex();
+        }
     }
 
     @Override
@@ -85,5 +90,9 @@ public class AndroidFormController extends FormController implements PendingCall
 
     public FormDef getFormDef() {
         return mFormEntryController.getModel().getForm();
+    }
+
+    public InterruptedFormState getRestoredFormSession(){
+        return restoredFormSession;
     }
 }

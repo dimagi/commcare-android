@@ -1022,7 +1022,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private void loadForm() {
         mFormController = null;
         instanceState.setFormRecordPath(null);
-        FormIndex lastFormIndex = null;
+        InterruptedFormState savedFormSession = null;
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -1040,10 +1040,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     formId = instanceAndStatus.first;
                     instanceIsReadOnly = instanceAndStatus.second;
 
-                    // only retrieve a potentially stored form index when loading an existing form record
+                    // only retrieve a potentially stored form session when loading an existing form record
                     AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-                    lastFormIndex = retrieveAndValidateFormIndex(asw.getSessionDescriptorId());
-                    if (lastFormIndex != null) {
+                    savedFormSession = retrieveAndValidateSavedFormSession(asw.getSessionDescriptorId());
+                    if (savedFormSession != null) {
                         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Recovering form entry session");
                     }
                 } else if (intent.hasExtra(KEY_FORM_DEF_ID)) {
@@ -1062,7 +1062,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
 
             mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
-                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, lastFormIndex) {
+                    formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, savedFormSession) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1105,11 +1105,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private FormIndex retrieveAndValidateFormIndex(int sessionDescriptorId) {
+    private InterruptedFormState retrieveAndValidateSavedFormSession(int sessionDescriptorId) {
         InterruptedFormState interruptedFormState =
                 HiddenPreferences.getInterruptedFormState();
         if (interruptedFormState!= null && interruptedFormState.getSessionStateDescriptorId() == sessionDescriptorId) {
-            return interruptedFormState.getFormIndex();
+            return interruptedFormState;
         }
         // data format is invalid, so better to clear the data
         HiddenPreferences.clearInterruptedFormState();

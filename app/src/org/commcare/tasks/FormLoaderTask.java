@@ -13,6 +13,7 @@ import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.templates.CommCareTask;
@@ -63,7 +64,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
     private final boolean recordEntrySession;
-    private final FormIndex lastFormIndex;
+    private final InterruptedFormState savedFormSession;
 
     private EvaluationTraceReporter traceReporterForFullForm;
     private final boolean profilingEnabledForFormLoad = false;
@@ -76,7 +77,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
     public static final int FORM_LOADER_TASK_ID = 16;
 
     public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
-                          boolean recordEntrySession, String formRecordPath, R activity, FormIndex lastFormIndex) {
+                          boolean recordEntrySession, String formRecordPath, R activity, InterruptedFormState savedFormSession) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
@@ -84,7 +85,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         this.recordEntrySession = recordEntrySession;
         this.formRecordPath = formRecordPath;
         TAG = FormLoaderTask.class.getSimpleName();
-        this.lastFormIndex = lastFormIndex;
+        this.savedFormSession = savedFormSession;
     }
 
     /**
@@ -138,7 +139,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
 
         setupFormMedia(formDefRecord.getMediaPath());
 
-        AndroidFormController formController = new AndroidFormController(fec, mReadOnly, lastFormIndex);
+        AndroidFormController formController = new AndroidFormController(fec, mReadOnly, savedFormSession);
 
         data = new FECWrapper(formController);
         return data;
