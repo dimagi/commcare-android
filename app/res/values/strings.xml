@@ -449,6 +449,9 @@
     <string name="connect_phone_button">OK</string>
     <string name="connect_phone_checking">Checking…</string>
 
+    <string name="connect_phone_country_code_default">+1</string>
+    <string name="connect_phone_number_hint">0000000000</string>
+
     <string name="connect_phone_available">Phone number is available!</string>
     <string name="connect_phone_unavailable">Phone number is already in use</string>
     <string name="connect_phone_invalid">Enter a valid phone number</string>

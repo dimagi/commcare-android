@@ -71,7 +71,7 @@
                             android:paddingHorizontal="8dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:hint="+91"
+                            android:text="@string/connect_phone_country_code_default"
                             android:background="@drawable/login_edit_text"/>
 
                         <AutoCompleteTextView
@@ -84,7 +84,7 @@
                             android:background="@drawable/login_edit_text"
                             android:digits="1234567890"
                             android:focusable="true"
-                            android:hint="0000000000"
+                            android:hint="@string/connect_phone_number_hint"
                             android:focusableInTouchMode="true"/>
                     </LinearLayout>
                     <TextView

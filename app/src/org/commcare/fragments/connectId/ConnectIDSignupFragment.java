@@ -78,7 +78,7 @@ public class ConnectIDSignupFragment extends Fragment {
         View view = binding.getRoot();
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        binding.connectConsentCheck.setOnClickListener(v -> updateState());
+        binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
         if (getArguments() != null) {
             existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
@@ -110,7 +110,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
             }
         });
-        enableButton();
+        updateButtonEnabled();
         setupUi();
         if (!existingPhone.isEmpty()) {
             displayNumber(existingPhone);
@@ -127,6 +127,7 @@ public class ConnectIDSignupFragment extends Fragment {
             binding.buttonTitle.setText("Don’t have Connect ID?");
             binding.recoverButton.setText("Signup");
             binding.connectConsentCheck.setVisibility(View.GONE);
+            binding.checkText.setVisibility(View.GONE);
             binding.recoverButton.setOnClickListener(v -> handleSignupButtonPress());
             binding.phoneSubText.setVisibility(View.GONE);
             binding.continueButton.setOnClickListener(v -> handleContinueButtonPress());
@@ -134,7 +135,6 @@ public class ConnectIDSignupFragment extends Fragment {
         } else {
             binding.nameLayout.setVisibility(View.VISIBLE);
             binding.phoneTitle.setText("ConnectID SignUp");
-            binding.checkText.setText(getString(R.string.connect_consent_message_1));
             binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
             binding.buttonTitle.setText("Already have an account?");
             binding.recoverButton.setText("Recover");
@@ -145,9 +145,17 @@ public class ConnectIDSignupFragment extends Fragment {
         }
     }
 
-    public void enableButton() {
-//        binding.continueButton.setEnabled(isEnabled);
-//        binding.continueButton.setBackgroundColor(isEnabled?getResources().getColor(R.color.connect_blue_color):Color.GRAY);
+    public void updateButtonEnabled() {
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+                binding.connectPrimaryPhoneInput.getText().toString());
+
+        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+
+        boolean isEnabled = valid && binding.nameTextValue.getText().toString().length() > 0 &&
+                binding.connectConsentCheck.isChecked();
+        binding.continueButton.setEnabled(isEnabled);
+        //TODO: Handle visual styling for disabled button
+        //binding.continueButton.setBackgroundColor(isEnabled?getResources().getColor(R.color.connect_blue_color):Color.GRAY);
     }
 
     @Override
@@ -197,10 +205,6 @@ public class ConnectIDSignupFragment extends Fragment {
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 
-    public void updateState() {
-        binding.continueButton.setEnabled(binding.connectConsentCheck.isChecked());
-    }
-
     public void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
             String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
@@ -232,7 +236,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                             skipPhoneNumberCheck = false;
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                                                 isValidNo=true;
-                                                enableButton();
+                                                updateButtonEnabled();
                                                 createAccount();
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                                                 binding.errorTextView.setText(getString(R.string.connect_phone_not_found));
@@ -247,14 +251,14 @@ public class ConnectIDSignupFragment extends Fragment {
                                             }
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                                                 isValidNo=false;
-                                                enableButton();
+                                                updateButtonEnabled();
                                                 binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
                                                 directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                                                 Navigation.findNavController(binding.continueButton).navigate(directions);
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                                                 ConnectIdActivity.recoverPhone = finalPhone;
                                                 isValidNo=true;
-                                                enableButton();
+                                                updateButtonEnabled();
                                                 directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                                                 Navigation.findNavController(binding.continueButton).navigate(directions);
                                             }
@@ -264,7 +268,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                         public void processNetworkFailure() {
                                             skipPhoneNumberCheck = false;
                                             isValidNo=false;
-                                            enableButton();
+                                            updateButtonEnabled();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
                                         }
 
@@ -272,7 +276,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                         public void processOldApiError() {
                                             skipPhoneNumberCheck = false;
                                             isValidNo=false;
-                                            enableButton();
+                                            updateButtonEnabled();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });

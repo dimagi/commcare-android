@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -185,9 +186,8 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 break;
         }
         if (success) {
-
             if (directions != null) {
-                Navigation.findNavController(binding.connectMessageTitle).navigate(directions);
+                NavHostFragment.findNavController(this).navigate(directions);
             }
         }
     }
