@@ -252,17 +252,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void formSaveCallback(Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
-        interruptAndSaveForm(exit);
+        interruptAndSaveForm(true);
     }
 
-    private void interruptAndSaveForm(boolean exit) {
+    private void interruptAndSaveForm(boolean sessionExpiredOrSustended) {
         if (mFormController != null) {
             // Set flag that will allow us to restore this form when we log back in
             CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted(
                     mFormController.getFormIndex());
 
             // Start saving form; will trigger expireUserSession() on completion
-            saveIncompleteFormToDisk(exit);
+            saveIncompleteFormToDisk(sessionExpiredOrSustended);
         }
     }
 
@@ -776,8 +776,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false);
     }
 
-    private void saveIncompleteFormToDisk(boolean exit) {
-        saveDataToDisk(exit, false, null, true);
+    private void saveIncompleteFormToDisk(boolean sessionExpiredOrSuspended) {
+        boolean shouldExit = sessionExpiredOrSuspended ? FormEntryConstants.EXIT : FormEntryConstants.DO_NOT_EXIT;
+        saveDataToDisk(shouldExit, false, null, true);
     }
 
     /**
