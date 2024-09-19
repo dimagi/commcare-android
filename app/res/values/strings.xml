@@ -608,7 +608,8 @@
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
-    <string name="connect_job_full_description">%s\nEarn up to %s</string>
+    <string name="connect_job_full_description">%s</string>
+    <string name="connect_end_date">Complete Project by %s</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
 
     <string name="connect_job_download_learn_app">Download Learn App</string>
@@ -739,6 +740,11 @@
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Recovery Code</string>
     <string name="learn_more">Learn More</string>
+    <string name="download_app">Download</string>
+    <string name="progress">Progress</string>
+    <string name="click_to_sync">Click to sync progress</string>
+    <string name="sync">Sync</string>
+
     <string-array name="frequency_vals">
         <item>freq-never</item>
         <item>freq-daily</item>

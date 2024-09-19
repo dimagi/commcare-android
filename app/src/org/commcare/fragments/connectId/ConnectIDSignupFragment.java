@@ -92,6 +92,23 @@ public class ConnectIDSignupFragment extends Fragment {
 
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
+
+        binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateButtonEnabled();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -151,8 +168,9 @@ public class ConnectIDSignupFragment extends Fragment {
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
 
-        boolean isEnabled = valid && binding.nameTextValue.getText().toString().length() > 0 &&
-                binding.connectConsentCheck.isChecked();
+        boolean isEnabled = valid && (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE ||
+                (binding.nameTextValue.getText().toString().length() > 0 &&
+                binding.connectConsentCheck.isChecked()));
         binding.continueButton.setEnabled(isEnabled);
         //TODO: Handle visual styling for disabled button
         //binding.continueButton.setBackgroundColor(isEnabled?getResources().getColor(R.color.connect_blue_color):Color.GRAY);

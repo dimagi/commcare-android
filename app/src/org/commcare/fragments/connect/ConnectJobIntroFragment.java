@@ -60,12 +60,16 @@ public class ConnectJobIntroFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
 
         TextView textView = view.findViewById(R.id.connect_job_intro_title);
+        TextView payText = view.findViewById(R.id.connect_job_pay_title);
+        TextView endDate = view.findViewById(R.id.connect_job_end_date);
         textView.setText(job.getTitle());
+        endDate.setText( String.format(Locale.getDefault(), getString(R.string.connect_end_date), ConnectNetworkHelper.convertDateToLocalFormat(job.getProjectEndDate())));
 
         String visitPayment = job.getMoneyString(job.getTotalBudget());
-        String fullDescription = String.format(Locale.getDefault(), getString(R.string.connect_job_full_description), job.getDescription(), visitPayment);
+        String fullDescription =  job.getDescription();
 
         textView = view.findViewById(R.id.connect_job_intro_description);
+        payText.setText(job.getCurrency()+" "+job.getBudgetPerVisit());
         textView.setText(fullDescription);
 
         int totalHours = 0;
@@ -89,7 +93,7 @@ public class ConnectJobIntroFragment extends Fragment {
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setVisibility(showLaunchButton ? View.VISIBLE : View.GONE);
         if(showLaunchButton) {
-            button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
+            button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.download_app));
             button.setOnClickListener(v -> {
                 //First, need to tell Connect we're starting learning so it can create a user on HQ
                 ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {

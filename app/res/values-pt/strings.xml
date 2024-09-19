@@ -308,12 +308,6 @@
     <string name="connect_verify_phone_resend_wait">Não recebeu o seu código? Reenviar em %d s</string>
     <string name="connect_verify_phone_change">Alterar número de telefone</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_pictures_title">Recuperação de Conta</string>
-    <string name="connect_pictures_label">Para ajudar na recuperação da conta, você pode, opcionalmente, tirar algumas fotos para ajudar a identificá-lo.</string>
-    <string name="connect_pictures_face">Rosto</string>
-    <string name="connect_pictures_id">Identificação oficial</string>
-    <string name="connect_pictures_skip">Pular</string>
-    <string name="connect_pictures_continue">Continuar</string>
     <string name="connect_last_update">Atualizado: %s</string>
     <string name="connect_title">Ligar</string>
     <string name="connect_jobs_all">Todos os empregos</string>
