@@ -4,6 +4,12 @@ CommCare is an easily customizable, open source mobile platform that supports fr
 
 This repository represents the Android version of CommCare. It depends on the [CommCare Core](https://github.com/dimagi/commcare-core) repository, which contains the XForm engine and case/lookup table implementations.
 
+## End-to-End Development
+
+CommCare Android is a mobile CommCare Platform client runtime, and requires a backend environment for full end-to-end usage and to test platform development.
+
+If you don't have an access to another backend, or if you will be doing full platform development, after completing this setup you can follow [the end-to-end development guide](https://github.com/dimagi/commcare-hq/blob/master/local_dev_guide.rst) which explains how to establish a local environment for CommCare's full client/server software. 
+
 ## Setup
 
 To set up an Android dev environment for commcare-android, do the following:
