@@ -45,12 +45,11 @@ import androidx.navigation.Navigation;
  * create an instance of getContext() fragment.
  */
 public class ConnectIdPhoneFragment extends Fragment {
- 
+
     private String method;
     private String existingPhone;
     private int callingClass;
     private ScreenConnectPrimaryPhoneBinding binding;
-
     protected boolean skipPhoneNumberCheck = false;
 
     TextWatcher watcher = new TextWatcher() {
@@ -89,9 +88,8 @@ public class ConnectIdPhoneFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for getContext() fragment
         String existing;
-        binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater,container,false);
+        binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        binding.connectPrimaryPhoneCountryInput.addTextChangedListener(watcher);
         binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
         binding.connectPrimaryPhoneButton.setOnClickListener(v -> handleButtonPress());
         requireActivity().setTitle(getString(R.string.connect_phone_page_title));
@@ -105,19 +103,8 @@ public class ConnectIdPhoneFragment extends Fragment {
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
-
-        if (!method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE))
-            requestPhoneNumberHint();
-
-        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-            title = getString(R.string.connect_phone_title_alternate);
-            message = getString(R.string.connect_phone_message_alternate);
-
-            existing = user != null ? user.getAlternatePhone() : null;
-        } else {
-            existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        }
-
+        requestPhoneNumberHint();
+        existing = user != null ? user.getPrimaryPhone() : existingPhone;
         binding.connectPrimaryPhoneTitle.setText(title);
         binding.connectPrimaryPhoneMessage.setText(message);
         displayNumber(existing);
@@ -162,25 +149,15 @@ public class ConnectIdPhoneFragment extends Fragment {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
         switch (callingClass) {
-            case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE -> {
-                if (success) {
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidRegistration(ConnectConstants.CONNECT_REGISTRATION_MAIN, phone);
-                    if (user != null) {
-                        user.setPrimaryPhone(phone);
-                        ConnectDatabaseHelper.storeUser(getActivity(), user);
-                    }
-                } else {
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidConsent(ConnectConstants.CONNECT_REGISTRATION_CONSENT);
-                }
-            }
+
             case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 if (success) {
                     user.setAlternatePhone(phone);
                     ConnectDatabaseHelper.storeUser(getActivity(), user);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, "").setRecover(false).setChange(false);
+                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, "").setRecover(false).setChange(false);
                 } else {
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, "").setRecover(false).setChange(true);
+                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, "").setRecover(false).setChange(true);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
@@ -189,26 +166,26 @@ public class ConnectIdPhoneFragment extends Fragment {
                     ConnectDatabaseHelper.storeUser(getActivity(), user);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE);
                 }
-                directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
                         ConnectIdPhoneVerificationFragmnet.MethodRegistrationPrimary), phone, user.getUserId(), user.getPassword(), null).setAllowChange(true);
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {
                     ConnectIdActivity.recoverPhone = phone;
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
+                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
-                directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
+                directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
                         ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
+                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
                             ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);
                 } else {
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
+                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
                 }
 
             }
@@ -229,6 +206,9 @@ public class ConnectIdPhoneFragment extends Fragment {
         String codeText = "";
         if (code > 0) {
             codeText = String.format(Locale.getDefault(), "%d", code);
+            if (!codeText.startsWith("+")) {
+                codeText = "+" + codeText;
+            }
         }
 
         if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
@@ -237,16 +217,16 @@ public class ConnectIdPhoneFragment extends Fragment {
         skipPhoneNumberCheck = false;
         binding.connectPrimaryPhoneInput.setText(fullNumber);
         skipPhoneNumberCheck = true;
-        binding.connectPrimaryPhoneCountryInput.setText(codeText);
+        binding.countryCode.setText(codeText);
         skipPhoneNumberCheck = false;
     }
 
     public void handleButtonPress() {
-        String phone = PhoneNumberHelper.buildPhoneNumber("+" + binding.connectPrimaryPhoneCountryInput.getText().toString(),
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectManager.getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
+        if (callingClass == ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE || callingClass == ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE) {
             existing = user != null ? user.getAlternatePhone() : null;
         }
         if (user != null && existing != null && !existing.equals(phone)) {
@@ -279,7 +259,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
             //Update the phone number with the server
             boolean isBusy;
-            if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
+            if (callingClass == ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE || callingClass == ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE) {
                 isBusy = !ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
                         null, phone, callback);
             } else {
@@ -297,8 +277,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
     public void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
-            String phone = PhoneNumberHelper.buildPhoneNumber("+" + binding.connectPrimaryPhoneCountryInput.getText().toString(),
-                    binding.connectPrimaryPhoneInput.getText().toString());
+            String phone = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
 
             boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
             ConnectUserRecord user = ConnectManager.getUser(getContext());
@@ -310,10 +289,10 @@ public class ConnectIdPhoneFragment extends Fragment {
                     case ConnectConstants.METHOD_REGISTER_PRIMARY,
                             ConnectConstants.METHOD_CHANGE_PRIMARY -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.connectPrimaryPhoneAvailability.setText("");
+                            binding.errorTextView.setText("");
                             binding.connectPrimaryPhoneButton.setEnabled(true);
                         } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_not_alt));
+                            binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                         } else {
                             //Make sure the number isn't already in use
@@ -326,7 +305,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
                                             skipPhoneNumberCheck = false;
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_available));
+                                            binding.errorTextView.setText(getString(R.string.connect_phone_available));
                                             binding.connectPrimaryPhoneButton.setEnabled(true);
 
                                         }
@@ -337,20 +316,20 @@ public class ConnectIdPhoneFragment extends Fragment {
                                             if (e != null) {
                                                 Logger.exception("Checking phone number", e);
                                             }
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_unavailable));
+                                            binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
                                             binding.connectPrimaryPhoneButton.setEnabled(false);
                                         }
 
                                         @Override
                                         public void processNetworkFailure() {
                                             skipPhoneNumberCheck = false;
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.recovery_network_unavailable));
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
                                         }
 
                                         @Override
                                         public void processOldApiError() {
                                             skipPhoneNumberCheck = false;
-                                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.recovery_network_outdated));
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });
 
@@ -359,22 +338,22 @@ public class ConnectIdPhoneFragment extends Fragment {
                             }
                         }
                     }
-                    case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {
+                    case ConnectConstants.METHOD_CHANGE_ALTERNATE-> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_not_primary));
+                            binding.errorTextView.setText(getString(R.string.connect_phone_not_primary));
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                         } else {
-                            binding.connectPrimaryPhoneAvailability.setText("");
+                            binding.errorTextView.setText("");
                             binding.connectPrimaryPhoneButton.setEnabled(true);
                         }
                     }
                     case ConnectConstants.METHOD_RECOVER_PRIMARY -> {
-                        binding.connectPrimaryPhoneAvailability.setText("");
+                        binding.errorTextView.setText("");
                         binding.connectPrimaryPhoneButton.setEnabled(true);
                     }
                 }
             } else {
-                binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_invalid));
+                binding.errorTextView.setText(getString(R.string.connect_phone_invalid));
                 binding.connectPrimaryPhoneButton.setEnabled(false);
             }
         }

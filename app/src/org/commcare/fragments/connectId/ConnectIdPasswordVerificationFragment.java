@@ -38,19 +38,12 @@ import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ConnectIdPasswordVerificationFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ConnectIdPasswordVerificationFragment extends Fragment {
     private int callingClass;
-
     public static final int PASSWORD_FAIL = 1;
     public static final int PASSWORD_LOCK = 2;
     private String phone = null;
     private String secretKey = null;
-
     private static final int MaxFailures = 3;
     private int failureCount = 0;
 
@@ -110,7 +103,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                 if (success) {
                     if (forgot) {
                         ConnectIdActivity.forgotPassword = true;
-                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY, null);
+                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneNo( ConnectConstants.METHOD_RECOVER_PRIMARY, null,ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     } else {
                         ConnectIdActivity.forgotPassword = false;
                         FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);

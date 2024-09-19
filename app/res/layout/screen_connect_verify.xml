@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <ScrollView
         android:layout_height="match_parent"
         android:layout_width="match_parent">
@@ -49,12 +50,16 @@
                     android:layout_width="90dp"
                     android:src="@drawable/fingerprint" />
 
-                <Button
+                <org.commcare.views.connect.RoundedButton
                     android:id="@+id/connect_verify_fingerprint_button"
                     android:layout_gravity="center"
+                    app:roundButtonBackgroundColor="@color/connect_blue_color"
+                    app:roundButtonTextColor="@color/white"
+                    android:layout_marginTop="16dp"
                     android:layout_height="wrap_content"
                     android:layout_width="fill_parent"
-                    android:text="@string/connect_verify_configure_fingerprint" />
+                    android:text="@string/connect_verify_configure_fingerprint"/>
+
             </LinearLayout>
 
             <TextView
@@ -79,13 +84,15 @@
                     android:layout_height="90dp"
                     android:layout_width="90dp"
                     android:src="@drawable/pattern" />
-
-                <Button
+                <org.commcare.views.connect.RoundedButton
                     android:id="@+id/connect_verify_pin_button"
                     android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    app:roundButtonBackgroundColor="@color/connect_blue_color"
+                    app:roundButtonTextColor="@color/white"
                     android:layout_height="wrap_content"
                     android:layout_width="fill_parent"
-                    android:text="@string/connect_verify_configure_pin" />
+                    android:text="@string/connect_verify_configure_pin"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

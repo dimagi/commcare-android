@@ -1,6 +1,7 @@
 package org.commcare.fragments.connectId;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -19,6 +20,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.dalvik.databinding.ScreenConnectPinBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -47,8 +49,6 @@ import static android.app.Activity.RESULT_OK;
  */
 public class ConnectIdPinFragment extends Fragment {
     private static final int pinLength = 6;
-    public static final int PIN_FAIL = 1;
-    public static final int PIN_LOCK = 2;
 
     private String phone = null;
     private String secret = null;
@@ -60,7 +60,7 @@ public class ConnectIdPinFragment extends Fragment {
 
     private int callingClass;
 
-    private ScreenConnectPinBinding binding;
+    private FragmentRecoveryCodeBinding binding;
 
     TextWatcher watcher = new TextWatcher() {
         @Override
@@ -105,8 +105,9 @@ public class ConnectIdPinFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = ScreenConnectPinBinding.inflate(inflater, container, false);
+        binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        buttonEnabled("");
         binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
         binding.connectPinVerifyForgot.setOnClickListener(v -> handleForgotPress());
         binding.connectPinInput.addTextChangedListener(watcher);
@@ -122,22 +123,44 @@ public class ConnectIdPinFragment extends Fragment {
         int titleId = isChanging ? R.string.connect_pin_title_set :
                 R.string.connect_pin_title_confirm;
         requireActivity().setTitle(getString(titleId));
-        binding.connectPinTitle.setText(getString(titleId));
-
-        int messageId;
-        if (isChanging) {
-            messageId = R.string.connect_pin_message_set;
-        } else {
-            messageId = isRecovery ? R.string.connect_pin_message_repeat :
-                    R.string.connect_pin_message_confirm;
-        }
-        binding.connectPinMessage.setText(getString(messageId));
-
-        binding.connectPinRepeatHolder.setVisibility(isChanging ? View.VISIBLE : View.GONE);
         setPinLength(pinLength);
+        if (callingClass == ConnectConstants.CONNECT_UNLOCK_PIN ||
+                callingClass == ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN ||
+                callingClass == ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN
+                ) {
+            binding.confirmCodeLayout.setVisibility(View.GONE);
+            binding.recoveryCodeTilte.setText("Enter the recovery code");
+            binding.recoveryCodeTilte.setText("Enter the recovery code");
+            binding.phoneTitle.setText("Enter the 6 digit recovery code entered at the time of registration");
+
+        }else{
+            binding.confirmCodeLayout.setVisibility(View.VISIBLE);
+        }
 
         binding.connectPinVerifyForgot.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
+        binding.connectPinInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                buttonEnabled(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         return view;
+    }
+
+    private void buttonEnabled(String code) {
+        binding.connectPinButton.setEnabled(code.length()>5);
+        binding.connectPinButton.setBackgroundColor(code.length()>5?getResources().getColor(R.color.connect_blue_color): Color.GRAY);
     }
 
     public void setPinLength(int length) {
@@ -179,6 +202,8 @@ public class ConnectIdPinFragment extends Fragment {
         binding.connectPinErrorMessage.setText(errorText);
         binding.connectPinButton.setEnabled(buttonEnabled);
     }
+
+
 
     public void handleButtonPress() {
         String pin = binding.connectPinInput.getText().toString();
@@ -349,7 +374,7 @@ public class ConnectIdPinFragment extends Fragment {
                 if (success) {
                     ConnectIdActivity.forgotPin = forgot;
                     if (forgot) {
-                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhone(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE, ConnectConstants.METHOD_RECOVER_PRIMARY, null);
+                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneNo( ConnectConstants.METHOD_RECOVER_PRIMARY, null,ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     } else {
                         if (user.shouldRequireSecondaryPhoneVerification()) {
                             directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
@@ -369,7 +394,7 @@ public class ConnectIdPinFragment extends Fragment {
                 if (success) {
                     ConnectIdActivity.forgotPin = false;
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
-                    directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
+                    directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
                     if (user != null) {
                         user.setPin(pin);
                         user.setLastPinDate(new Date());
@@ -395,7 +420,7 @@ public class ConnectIdPinFragment extends Fragment {
                     if (!forgot) {
                         directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectManager.getFailureAttempt() > 2 ? getString(R.string.connect_pin_confirm_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null);
                     } else {
-                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhone(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
+                        directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
                     }
                 }
             }
@@ -406,7 +431,7 @@ public class ConnectIdPinFragment extends Fragment {
                         if (ConnectIdActivity.forgotPassword) {
                             directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_REGISTRATION_SUCCESS, getString(R.string.connect_recovery_alt_button), null);
                         } else {
-                            directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPassword(ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret);
+                            directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPassword( ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret,ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
                         }
                     } else {
                         directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null);

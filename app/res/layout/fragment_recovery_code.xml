@@ -1,0 +1,192 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<FrameLayout
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    tools:context="org.commcare.fragments.newConnectId.RecoveryCode">
+
+    <RelativeLayout
+        android:layout_height="match_parent"
+        android:layout_marginTop="120px"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/company_logo"
+            android:layout_centerHorizontal="true"
+            android:layout_height="32dp"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_dimagi_logo" />
+
+        <View
+            android:id="@+id/divider"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@+id/company_logo"
+            android:layout_height="1dp"
+            android:layout_marginTop="40dp"
+            android:layout_width="fill_parent" />
+
+        <TextView
+            android:id="@+id/recovery_code_tilte"
+            android:layout_below="@id/divider"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="@string/create_a_new_recovery_code"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textFontWeight="600"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/phone_title"
+            android:layout_below="@id/recovery_code_tilte"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:text="@string/choose_a_6_digit_recovery_code"
+            android:textColor="@color/connect_subtext"
+            android:textFontWeight="400"
+            android:textSize="12sp" />
+        <LinearLayout
+            android:id="@+id/name_layout"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_below="@id/phone_title"
+            android:layout_margin="16dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="1dp"
+                android:layout_gravity="bottom"
+                android:background="@color/black"
+                android:backgroundTint="@color/connect_light_grey"
+                android:src="@drawable/ic_outline_lock_24"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutTextInput"
+                android:layout_width="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/connect_pin_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@drawable/login_edit_text"
+                    android:drawablePadding="5dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="numberPassword"
+                    android:hint="@string/code"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/confirm_code_layout"
+            android:layout_below="@id/name_layout"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:background="@color/black"
+                android:backgroundTint="@color/connect_light_grey"
+                android:layout_gravity="bottom"
+                android:layout_height="48dp"
+                android:layout_width="48dp"
+                android:padding="1dp"
+                android:src="@drawable/ic_outline_lock_24" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/connect_pin_repeat_holder"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_width="match_parent"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:background="@drawable/login_edit_text"
+                    android:drawablePadding="5dp"
+                    android:hint="@string/confirm_code"
+                    android:id="@+id/connect_pin_repeat_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberPassword" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/connect_pin_error_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/content_min_margin"
+            android:gravity="start"
+            android:textSize="@dimen/text_medium"
+            android:layout_below="@id/confirm_code_layout"
+            android:textColor="@color/red"/>
+        <TextView
+            android:gravity="start"
+            android:id="@+id/connect_pin_verify_forgot"
+            android:layout_below="@id/connect_pin_error_message"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/content_min_margin"
+            android:layout_marginEnd="@dimen/content_min_margin"
+            android:layout_marginStart="@dimen/content_min_margin"
+            android:layout_marginTop="@dimen/content_min_margin"
+            android:layout_width="fill_parent"
+            android:text="@string/connect_pin_verify_forgot"
+            android:textSize="@dimen/text_medium" />
+
+        <org.commcare.views.connect.RoundedButton
+            android:gravity="start|center"
+            android:id="@+id/back_button"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/connect_pin_verify_forgot"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:visibility="gone"
+            android:text="Learn More"
+            app:roundButtonBorderColor="@color/border_grey"
+            app:roundButtonBorderVisible="true"
+            app:roundButtonTextColor="@color/connect_blue_color" />
+
+        <org.commcare.views.connect.RoundedButton
+            android:gravity="start|center"
+            android:id="@+id/connect_pin_button"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/connect_pin_verify_forgot"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:text="Continue"
+            app:roundButtonBackgroundColor="@color/connect_blue_color"
+            app:roundButtonBorderRadius="@dimen/dp48"
+            app:roundButtonIcon="@drawable/connect_right_arrow"
+            app:roundButtonIconLeftAlign="false"
+            app:roundButtonTextColor="@color/white" />
+
+
+
+    </RelativeLayout>
+
+
+</FrameLayout>
+</layout>
