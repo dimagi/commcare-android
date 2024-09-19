@@ -2,7 +2,9 @@ package org.commcare.activities.connect;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
@@ -73,7 +75,11 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         setTitle(getString(R.string.connect_title));
         getIntentData();
         updateBackButton();
-
+        Window window = getWindow();
+        window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
+        ColorDrawable colorDrawable
+                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
         NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);

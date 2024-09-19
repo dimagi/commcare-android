@@ -149,6 +149,7 @@
 
     <!-- New connect colors-->
     <color name="connect_border_color">#1A3A42C7</color>
+    <color name="connect_status_bar_color">#5c70d1</color>
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_blue_color">#3A42C7</color>
     <color name="connect_yellowish_orange_color">#F3B34D</color>

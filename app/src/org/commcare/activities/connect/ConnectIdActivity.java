@@ -2,7 +2,9 @@ package org.commcare.activities.connect;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Window;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
@@ -54,10 +56,14 @@ public class ConnectIdActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_id);
+        Window window = getWindow();
+        window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
         NavHostFragment host2 = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         controller = host2.getNavController();
         Bundle extras = getIntent().getExtras();
-
+        ColorDrawable colorDrawable
+                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
         String value = "";
         if (extras != null) {
             value = extras.getString("TASK");

@@ -93,9 +93,11 @@
                             android:id="@+id/btn_fetch_uri"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
+                            android:layout_gravity="center"
                             SquareButtonWithText:backgroundColor="@color/cc_brand_color"
-                            SquareButtonWithText:img="@drawable/startup_barcode"
+                            SquareButtonWithText:img="@drawable/qrcode_solid"
                             SquareButtonWithText:subtitle="Scan Application Barcode"
+                            android:paddingHorizontal="24dp"
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
 
@@ -112,9 +114,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:background="@drawable/tile_drop_shadow_small_margins"
-                            android:gravity="end"
+                            android:gravity="center"
                             SquareButtonWithText:backgroundColor="@color/cc_light_cool_accent_color"
-                            SquareButtonWithText:img="@drawable/startup_url"
+                            SquareButtonWithText:img="@drawable/enter_code"
+                            android:paddingHorizontal="18dp"
                             SquareButtonWithText:subtitle="Enter Code"
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
