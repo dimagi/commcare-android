@@ -52,7 +52,8 @@ public class ConnectIDSignupFragment extends Fragment {
     private int callingClass = 1002;
     protected boolean skipPhoneNumberCheck = false;
     private FragmentSignupBinding binding;
-    private boolean isValidNo;
+    private boolean isValidNo=false;
+    private boolean showhPoneDialog=true;
     private ConnectUserRecord user;
     NavDirections directions = null;
 
@@ -77,19 +78,20 @@ public class ConnectIDSignupFragment extends Fragment {
         binding = FragmentSignupBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        PhoneNumberHelper.requestPhoneNumberHint(getActivity());
         binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
         if (getArguments() != null) {
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
             existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
         }
 
-//        View.OnFocusChangeListener listener = (v, hasFocus) -> {
-//            if(hasFocus) {
-//            }
-//        };
+        View.OnFocusChangeListener listener = (v, hasFocus) -> {
+            if(hasFocus && showhPoneDialog) {
+                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
+                showhPoneDialog=false;
+            }
+        };
 
-//        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
+        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
 //        binding.countryCode.setOnFocusChangeListener(listener);
 
         binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {

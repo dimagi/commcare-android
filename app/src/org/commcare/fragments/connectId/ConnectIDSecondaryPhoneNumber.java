@@ -60,6 +60,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         }
+        String code= "+"+String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
+        binding.countryCode.setText(code);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -80,7 +82,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         });
         binding.continueButton.setOnClickListener(v -> handleButtonPress());
         binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
-       requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
+        requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
         binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
 
         return view;
