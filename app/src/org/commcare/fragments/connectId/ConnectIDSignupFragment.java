@@ -49,11 +49,11 @@ import java.util.Random;
 
 public class ConnectIDSignupFragment extends Fragment {
     private String existingPhone = "";
-    private int callingClass = 1002;
+    private int callingClass = ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE;
     protected boolean skipPhoneNumberCheck = false;
     private FragmentSignupBinding binding;
-    private boolean isValidNo=false;
-    private boolean showhPoneDialog=true;
+    private boolean isValidNo = false;
+    private boolean showhPhoneDialog = true;
     private ConnectUserRecord user;
     NavDirections directions = null;
 
@@ -85,14 +85,14 @@ public class ConnectIDSignupFragment extends Fragment {
         }
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
-            if(hasFocus && showhPoneDialog) {
+            if(hasFocus && showhPhoneDialog) {
                 PhoneNumberHelper.requestPhoneNumberHint(getActivity());
-                showhPoneDialog=false;
+                showhPhoneDialog = false;
             }
         };
 
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
-//        binding.countryCode.setOnFocusChangeListener(listener);
+        binding.countryCode.setOnFocusChangeListener(listener);
 
         binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -211,28 +211,6 @@ public class ConnectIDSignupFragment extends Fragment {
 
     void handleContinueButtonPress() {
         user = ConnectManager.getUser(getActivity());
-//        if(callingClass==ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE){
-//            if(!binding.connectConsentCheck.isChecked()){
-//                Toast.makeText(getContext(),"Please give consent", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//            if(binding.nameTextValue.getText()!=null && binding.nameTextValue.getText().toString().isEmpty()){
-//                Toast.makeText(getContext(),"Please fill the name", Toast.LENGTH_SHORT).show();
-//                return;
-//            }
-//        }
-//        if(callingClass==ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE && binding.connectPrimaryPhoneInput.getText()!=null && binding.connectPrimaryPhoneInput.getText().toString().isEmpty()){
-//            Toast.makeText(getContext(),"Please fill the phone no", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
-//                binding.connectPrimaryPhoneInput.getText().toString());
-//
-//        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-//        if(valid){
-//            Toast.makeText(getContext(),"Please enter the valid number", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
         checkPhoneNumber();
     }
 
