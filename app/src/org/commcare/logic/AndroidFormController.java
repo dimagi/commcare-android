@@ -1,17 +1,14 @@
 package org.commcare.logic;
 
+
 import androidx.annotation.NonNull;
 
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
-import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
-
-import java.io.File;
-import java.util.Date;
 
 /**
  * Wrapper around FormController to handle Android-specific form entry actions
@@ -26,9 +23,10 @@ public class AndroidFormController extends FormController implements PendingCall
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
-    public AndroidFormController(FormEntryController fec, boolean readOnly) {
+    public AndroidFormController(FormEntryController fec, boolean readOnly, FormIndex formIndex) {
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
+        formIndexToReturnTo = formIndex;
     }
 
     @Override

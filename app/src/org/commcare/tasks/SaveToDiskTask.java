@@ -1,7 +1,5 @@
 package org.commcare.tasks;
 
-import android.util.Log;
-
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.components.ImageCaptureProcessing;
@@ -60,6 +58,7 @@ public class SaveToDiskTask extends
         SAVED_COMPLETE,
         SAVED_INCOMPLETE,
         SAVE_ERROR,
+        SAVE_UNRECOVERABLE_ERROR,
         INVALID_ANSWER,
         SAVED_AND_EXIT
     }
@@ -102,7 +101,7 @@ public class SaveToDiskTask extends
         } catch (XPathException xpe) {
             String cleanedMessage = "An error in your form prevented it from saving: \n" +
                     xpe.getMessage();
-            return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
+            return new ResultAndError<>(SaveStatus.SAVE_UNRECOVERABLE_ERROR, cleanedMessage);
         }
 
         FormEntryActivity.mFormController.postProcessInstance();
@@ -111,15 +110,15 @@ public class SaveToDiskTask extends
             exportData(mMarkCompleted);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
+            return new ResultAndError<>(SaveStatus.SAVE_UNRECOVERABLE_ERROR,
                     "Something is blocking acesss to the submission file in " + mFormRecordPath);
         } catch (XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
             Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
-            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
+            return new ResultAndError<>(SaveStatus.SAVE_UNRECOVERABLE_ERROR,
                     Localization.get("form.entry.save.invalid.unicode", e.getMessage()));
         } catch (IOException e) {
             Logger.log(LogTypes.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
-            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
+            return new ResultAndError<>(SaveStatus.SAVE_UNRECOVERABLE_ERROR,
                     "Unable to write xml to " + mFormRecordPath);
         } catch (FormInstanceTransactionException e) {
             e.printStackTrace();
@@ -128,7 +127,7 @@ public class SaveToDiskTask extends
             // Likely a user level issue, so send error to HQ as a app build error
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(cleanedMessage);
 
-            return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
+            return new ResultAndError<>(SaveStatus.SAVE_UNRECOVERABLE_ERROR, cleanedMessage);
         }
 
         if (mMarkCompleted) {
@@ -272,9 +271,9 @@ public class SaveToDiskTask extends
         synchronized (this) {
             if (mSavedListener != null) {
                 if (result == null) {
-                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error");
+                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error", exitAfterSave);
                 } else {
-                    mSavedListener.savingComplete(result.data, result.errorMessage);
+                    mSavedListener.savingComplete(result.data, result.errorMessage, exitAfterSave);
                 }
             }
         }
