@@ -1032,16 +1032,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 SqlStorage<FormDefRecord> formDefStorage = CommCareApplication.instance()
                         .getAppStorage(FormDefRecord.class);
                 if (intent.hasExtra(KEY_FORM_RECORD_ID)) {
-                    Pair<Integer, Boolean> instanceAndStatus = instanceState.getFormDefIdForRecord(
-                            formDefStorage,
-                            intent.getIntExtra(KEY_FORM_RECORD_ID, -1),
-                            instanceState);
+                    int formRecordId = intent.getIntExtra(KEY_FORM_RECORD_ID, -1);
+                    Pair<Integer, Boolean> instanceAndStatus = instanceState.getFormDefIdForRecord(formDefStorage,
+                            formRecordId, instanceState);
+
                     formId = instanceAndStatus.first;
                     instanceIsReadOnly = instanceAndStatus.second;
 
                     // only retrieve a potentially stored form index when loading an existing form record
-                    AndroidSessionWrapper asw = CommCareApplication.instance().getCurrentSessionWrapper();
-                    lastFormIndex = retrieveAndValidateFormIndex(asw.getSessionDescriptorId());
+                    lastFormIndex = retrieveAndValidateFormIndex(
+                            CommCareApplication.instance().getCurrentSessionWrapper());
                     if (lastFormIndex != null) {
                         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Recovering form entry session");
                     }
@@ -1104,10 +1104,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private FormIndex retrieveAndValidateFormIndex(int sessionDescriptorId) {
+    private FormIndex retrieveAndValidateFormIndex(AndroidSessionWrapper androidSessionWrapper) {
         InterruptedFormState interruptedFormState =
                 HiddenPreferences.getInterruptedFormState();
-        if (interruptedFormState!= null && interruptedFormState.getSessionStateDescriptorId() == sessionDescriptorId) {
+        if (interruptedFormState!= null
+                && interruptedFormState.getSessionStateDescriptorId() == androidSessionWrapper.getSessionDescriptorId()
+                && (interruptedFormState.getFormRecordId() == -1
+                || interruptedFormState.getFormRecordId() == androidSessionWrapper.getFormRecordId())) {
             return interruptedFormState.getFormIndex();
         }
         // data format is invalid, so better to clear the data

@@ -8,6 +8,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 
 /**
@@ -15,12 +16,14 @@ import java.io.IOException;
  */
 public class InterruptedFormState implements Externalizable {
 
-    int sessionStateDescriptorId;
-    FormIndex formIndex;
+    private int sessionStateDescriptorId;
+    private FormIndex formIndex;
+    private int formRecordId = -1;
 
-    public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex) {
+    public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex, int formRecordId) {
         this.sessionStateDescriptorId = sessionStateDescriptorId;
         this.formIndex = formIndex;
+        this.formRecordId = formRecordId;
     }
 
     public InterruptedFormState() {
@@ -33,12 +36,19 @@ public class InterruptedFormState implements Externalizable {
             throws IOException, DeserializationException {
         sessionStateDescriptorId = ExtUtil.readInt(in);
         formIndex = (FormIndex)ExtUtil.read(in, FormIndex.class, pf);
+        try {
+            formRecordId = ExtUtil.readInt(in);
+        } catch(EOFException e){
+            // this is to catch errors caused by EOF when updating from the previous model which didn't have the
+            // formRecordId field
+        }
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, sessionStateDescriptorId);
         ExtUtil.write(out, formIndex);
+        ExtUtil.writeNumeric(out, formRecordId);
     }
 
     public int getSessionStateDescriptorId() {
@@ -47,5 +57,9 @@ public class InterruptedFormState implements Externalizable {
 
     public FormIndex getFormIndex() {
         return formIndex;
+    }
+
+    public int getFormRecordId() {
+        return formRecordId;
     }
 }
