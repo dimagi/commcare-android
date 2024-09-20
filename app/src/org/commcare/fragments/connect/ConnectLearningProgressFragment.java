@@ -5,20 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.RoundedButton;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;
 import java.util.List;
@@ -183,6 +179,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_learning_claim_label);
         textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
+        textView.setText(R.string.connect_learn_claim_label);
 
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
@@ -199,18 +196,6 @@ public class ConnectLearningProgressFragment extends Fragment {
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
         textView.setVisibility(finished ? View.VISIBLE : View.GONE);
-
-        textView = view.findViewById(R.id.connect_learning_warning_learn_text);
-        textView.setOnClickListener(v -> {
-            StandardAlertDialog dialog = new StandardAlertDialog(
-                    getContext(),
-                    getString(R.string.connect_progress_warning),
-                    getString(R.string.connect_progress_warning_full));
-            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
-                dialog1.dismiss();
-            });
-            ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
-        });
 
         if(learningFinished) {
             textView = view.findViewById(R.id.connect_learn_cert_subject);
