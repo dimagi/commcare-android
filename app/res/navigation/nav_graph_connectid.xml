@@ -251,10 +251,16 @@
         android:id="@+id/connectid_signup_fragment"
         android:label="fragment_connectid_signup_fragment"
         android:name="org.commcare.fragments.connectId.ConnectIDSignupFragment"
-        tools:layout="@layout/fragment_phone">
-        <action
-            android:id="@+id/action_connectid_phone_fragment_self"
-            app:destination="@id/connectid_signup_fragment" />
+        tools:layout="@layout/fragment_signup">
+        <argument
+            android:name="callingClass"
+            android:defaultValue="1002"
+            app:argType="integer" />
+        <argument
+            android:defaultValue=""
+            android:name="phone"
+            app:argType="string"
+            app:nullable="true"/>
         <action
             android:id="@+id/action_connectid_phone_fragment_to_connectid_phone_not_available"
             app:destination="@id/connectid_phone_not_available" />
@@ -264,25 +270,17 @@
         <action
             android:id="@+id/action_connectid_phone_fragment_to_connectid_message"
             app:destination="@id/connectid_message" />
-
-        <action
-            android:id="@+id/action_connectid_phone_fragment_self2"
-            app:destination="@id/connectid_signup_fragment" />
         <action
             android:id="@+id/action_connectid_phone_fragment_to_connectid_password"
             app:destination="@id/connectid_password" />
         <action
             android:id="@+id/action_connectid_phone_fragment_to_connectid_pin"
             app:destination="@id/connectid_pin" />
-        <argument
-            android:defaultValue=""
-            android:name="phone"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:defaultValue="1003"
-            android:name="callingClass"
-            app:argType="integer" />
+        <action
+            android:id="@+id/action_connectid_signup_fragment_self"
+            app:destination="@id/connectid_signup_fragment" />
+
+
     </fragment>
 
     <fragment

@@ -54,7 +54,6 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
         NavHostFragment host2 = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         controller = host2.getNavController();
-        Bundle extras = getIntent().getExtras();
         ColorDrawable colorDrawable
                 = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
         getSupportActionBar().setBackgroundDrawable(colorDrawable);
@@ -91,11 +90,12 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         forgotPassword = false;
         forgotPin = false;
         NavDirections navDirections = null;
-        int requestCode = ConnectConstants.CONNECT_NO_ACTIVITY;
+        int requestCode = ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE;
         switch (ConnectManager.getStatus()) {
-            case NotIntroduced ->
-                    navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentSelf().setCallingClass(ConnectConstants.CONNECT_NO_ACTIVITY);
-            case Registering -> {
+            case NotIntroduced :
+                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+                    break;
+            case Registering :
                 ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
                 int phase = user.getRegistrationPhase();
                 if (phase != ConnectConstants.CONNECT_NO_ACTIVITY) {
@@ -116,9 +116,11 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                             .actionConnectidPhoneFragmentToConnectidBiometricConfig(
                                     (ConnectConstants.CONNECT_UNLOCK_BIOMETRIC));
                 }
-            }
-            default -> {
-            }
+                break;
+
+            default :
+//                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+
         }
 
         if (navDirections != null && requestCode != ConnectConstants.CONNECT_NO_ACTIVITY) {
