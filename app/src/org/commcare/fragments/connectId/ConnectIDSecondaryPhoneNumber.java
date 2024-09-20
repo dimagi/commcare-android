@@ -59,6 +59,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         }
+        String code= "+"+String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
+        binding.countryCode.setText(code);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

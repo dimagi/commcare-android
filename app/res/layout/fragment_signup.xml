@@ -238,7 +238,7 @@
                 android:layout_marginHorizontal="30dp"
                 android:layout_weight="1"
                 android:gravity="start"
-                android:text="@string/already_have_an_account"
+                android:text="@string/connect_registration_have_account"
                 android:textSize="14sp" />
 
             <org.commcare.views.connect.RoundedButton

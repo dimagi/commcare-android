@@ -434,6 +434,12 @@
     <string name="connect_consent_title">Consent</string>
 
     <!-- ConnectID strings -->
+    <string name="connect_registration_title">ConnectID Signup</string>
+    <string name="connect_signup">Signup</string>
+    <string name="connect_recover">Recover</string>
+    <string name="connect_registration_have_account">Already have\nConnectID?</string>
+    <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
+
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
     <string name="connect_consent_message_2">I acknowledge and understand that I may receive push notifications and SMS messages for the purpose of communication</string>
     <string name="connect_consent_check">Click here to give consent</string>
@@ -444,7 +450,7 @@
     <string name="connect_phone_message_primary">Please enter your primary phone number</string>
 
     <string name="connect_phone_title_alternate">Alternate Phone</string>
-    <string name="connect_phone_message_alternate">Enter a phone number of a friend or family who can provide you an SMS OTP if you forget your password or PIN.</string>
+    <string name="connect_phone_message_alternate">Enter a phone number of a friend or family who can provide you an SMS OTP if you forget your Code.</string>
 
     <string name="connect_phone_button">OK</string>
     <string name="connect_phone_checking">Checking…</string>
@@ -489,14 +495,14 @@
     <string name="connect_password_fail_message">You entered the wrong password, please try again.</string>
     <string name="connect_password_recovery_message">You entered the wrong password too many times, you will need to recover your account.</string>
     <string name="connect_password_fail_button">OK</string>
-    <string name="connect_pin_fail_title">Wrong PIN</string>
-    <string name="connect_pin_fail_message">You entered the wrong PIN, please try again.</string>
-    <string name="connect_pin_recovery_message">You entered the wrong PIN too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
+    <string name="connect_pin_fail_title">Wrong Code</string>
+    <string name="connect_pin_fail_message">You entered the wrong Code, please try again.</string>
+    <string name="connect_pin_recovery_message">You entered the wrong Code too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
 
-    <string name="connect_pin_confirm_message">You entered the wrong PIN too many times, you will have to configure the pin again.\n On the next screen, we\'ll redirect you to the configure pin page.</string>
+    <string name="connect_pin_confirm_message">You entered the wrong Code too many times, you will have to configure the code again.\n On the next screen, we\'ll redirect you to the configure code page.</string>
     <string name="connect_pin_verify_forgot">Don\'t have or forgot your Code?</string>
     <string name="connect_pin_fail_button">OK</string>
-    <string name="connect_recovery_title">ConnectID Setup</string>
+    <string name="connect_recovery_title">ConnectID Recovery</string>
     <string name="connect_recovery_title2">Identify Existing Account</string>
 
     <string name="connect_recovery_decision_new">Choose a step below</string>
@@ -568,8 +574,8 @@
     <string name="connect_verify_button_password">Use Password Only</string>
     <string name="connect_verify_phone_title">Verification Code</string>
     <string name="connect_verify_phone_title2">Enter verification code</string>
-    <string name="connect_verify_phone_label">We attempted to send you a code on number ending with %s.</string>
-    <string name="connect_verify_phone_label_secondary">We attempted to send you a code on your secondary phone number.</string>
+    <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
+    <string name="connect_verify_phone_label_secondary">We attempted to send you a SMS on your secondary phone number.</string>
     <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
 
@@ -614,7 +620,7 @@
 
     <string name="connect_job_download_learn_app">Download Learn App</string>
     <string name="connect_job_learn_summary">%d modules, %d hours</string>
-    <string name="connect_learn_progress_title">Your Learning Progress</string>
+    <string name="connect_learn_progress_title">Learning Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
@@ -732,8 +738,7 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
-    <string name="already_have_an_account">Already Have an account?</string>
-    <string name="enter_otp">Enter OTP</string>
+    <string name="enter_otp">Enter SMS Code</string>
     <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
     <string name="confirm_code">Confirm Code</string>

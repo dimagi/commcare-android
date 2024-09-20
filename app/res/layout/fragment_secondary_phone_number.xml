@@ -144,7 +144,6 @@
                             android:visibility="gone" />
                     </LinearLayout>
 
-
                 </LinearLayout>
 
                 <RelativeLayout
@@ -166,6 +165,7 @@
                         android:layout_marginBottom="16dp"
                         android:gravity="start|center"
                         android:text="Learn More"
+                        android:visibility="gone"
                         app:roundButtonBorderColor="@color/border_grey"
                         app:roundButtonBorderVisible="true"
                         app:roundButtonTextColor="@color/connect_blue_color"

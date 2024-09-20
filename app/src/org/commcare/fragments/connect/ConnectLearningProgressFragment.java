@@ -147,8 +147,8 @@ public class ConnectLearningProgressFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.connect_learning_progress_bar);
         LinearLayout progressBarTextContainer = view.findViewById(R.id.connect_learn_progress_bar_text_container);
 
-        progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
+        progressText.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
         progressBarTextContainer.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
         if(!learningFinished) {
             progressBar.setProgress(percent);
