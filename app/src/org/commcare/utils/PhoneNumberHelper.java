@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
@@ -37,6 +40,7 @@ import io.michaelrocks.libphonenumber.android.Phonenumber;
  */
 public class PhoneNumberHelper {
     private static PhoneNumberUtil utilStatic = null;
+    public static ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher;
 
     //Private constructor, class should be used statically
     private PhoneNumberHelper() {
@@ -94,14 +98,12 @@ public class PhoneNumberHelper {
     public static void requestPhoneNumberHint(Activity activity) {
         GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
         Identity.getSignInClient(activity).getPhoneNumberHintIntent(hintRequest)
-                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
-                    @Override
-                    public void onSuccess(PendingIntent pendingIntent) {
-                        try {
-                            activity.startIntentSenderForResult(pendingIntent.getIntentSender(), ConnectConstants.CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
+                .addOnSuccessListener(pendingIntent -> {
+                    try {
+                        IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
+                        phoneNumberHintLauncher.launch(intentSenderRequest);
+                    } catch (Exception  e) {
+                        e.printStackTrace();
                     }
                 });
     }

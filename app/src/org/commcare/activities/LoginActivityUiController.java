@@ -37,6 +37,9 @@ import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
+import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -61,16 +64,16 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private View notificationButtonView;
 
     @UiElement(value = R.id.screen_login_bad_password)
-    private TextView errorTextView;
+    private ConnectRegularTextView errorTextView;
 
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
 
     @UiElement(value = R.id.connect_login_button)
-    private Button connectLoginButton;
+    private RoundedButton connectLoginButton;
 
     @UiElement(value = R.id.login_or)
-    private TextView orLabel;
+    private ConnectMediumTextView orLabel;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
@@ -85,7 +88,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private View banner;
 
     @UiElement(value = R.id.login_button)
-    private Button loginButton;
+    private RoundedButton loginButton;
 
     @UiElement(value = R.id.restore_session_checkbox)
     private CheckBox restoreSessionCheckbox;
@@ -94,10 +97,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private Spinner spinner;
 
     @UiElement(R.id.welcome_msg)
-    private TextView welcomeMessage;
+    private ConnectMediumTextView welcomeMessage;
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
-    private TextView loginPrimedMessage;
+    private ConnectRegularTextView loginPrimedMessage;
 
     protected final LoginActivity activity;
 

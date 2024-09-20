@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectId;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.IntentSender;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.databinding.adapters.TextViewBindingAdapter;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -15,6 +17,7 @@ import androidx.navigation.Navigation;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.commcare.activities.connect.ConnectIdActivity;
@@ -89,6 +93,24 @@ public class ConnectIDSignupFragment extends Fragment {
                 PhoneNumberHelper.requestPhoneNumberHint(getActivity());
             }
         };
+
+        PhoneNumberHelper.phoneNumberHintLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        String phoneNumber;
+                        try {
+                            phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
+                            displayNumber(phoneNumber);
+                        } catch (ApiException e) {
+                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+        );
 
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
