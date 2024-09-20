@@ -38,33 +38,16 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp" />
 
-        <LinearLayout
-            android:id="@+id/phone_layout"
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            android:id="@+id/connect_phone_verify_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"
-            android:orientation="horizontal">
-
-            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-                android:id="@+id/connect_phone_verify_label"
-                android:layout_width="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:layout_height="wrap_content"
-                android:textColor="@color/connect_secondary_text"
-                android:textSize="16sp"
-                tools:text="+91 7748962888" />
-
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                android:id="@+id/phone_change_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="@string/change"
-                android:textColor="@color/connect_dark_blue_color"
-                android:textSize="14sp" />
-        </LinearLayout>
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/connect_secondary_text"
+            android:textSize="16sp"
+            tools:text="+91 7748962888" />
 
         <LinearLayout
             android:id="@+id/otp_layout"

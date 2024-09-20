@@ -79,12 +79,41 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
             }
         });
+
+        binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateButtonEnabled();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         binding.continueButton.setOnClickListener(v -> handleButtonPress());
         binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
         requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
         binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
 
+        updateButtonEnabled();
+
         return view;
+    }
+
+    public void updateButtonEnabled() {
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+                binding.connectPrimaryPhoneInput.getText().toString());
+
+        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+
+        binding.continueButton.setEnabled(valid);
     }
 
     public void handleButtonPress() {

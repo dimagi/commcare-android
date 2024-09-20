@@ -196,8 +196,6 @@ public class ConnectIDSignupFragment extends Fragment {
                 (binding.nameTextValue.getText().toString().length() > 0 &&
                         binding.connectConsentCheck.isChecked()));
         binding.continueButton.setEnabled(isEnabled);
-        //TODO: Handle visual styling for disabled button
-        //binding.continueButton.setBackgroundColor(isEnabled?getResources().getColor(R.color.connect_blue_color):Color.GRAY);
     }
 
     @Override

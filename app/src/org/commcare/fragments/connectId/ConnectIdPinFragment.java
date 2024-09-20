@@ -3,7 +3,6 @@ package org.commcare.fragments.connectId;
 import static android.app.Activity.RESULT_OK;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -30,7 +29,6 @@ import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
-import org.commcare.views.connect.RoundedButtonDrawable;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -107,7 +105,7 @@ public class ConnectIdPinFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        buttonEnabled("");
+        checkPin();
         binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
         binding.connectPinVerifyForgot.setOnClickListener(v -> handleForgotPress());
         binding.connectPinInput.addTextChangedListener(watcher);
@@ -130,7 +128,6 @@ public class ConnectIdPinFragment extends Fragment {
         ) {
             binding.confirmCodeLayout.setVisibility(View.GONE);
             binding.recoveryCodeTilte.setText("Enter the recovery code");
-            binding.recoveryCodeTilte.setText("Enter the recovery code");
             binding.phoneTitle.setText("Enter the 6 digit recovery code entered at the time of registration");
 
         } else {
@@ -138,7 +135,7 @@ public class ConnectIdPinFragment extends Fragment {
         }
 
         binding.connectPinVerifyForgot.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
-        binding.connectPinInput.addTextChangedListener(new TextWatcher() {
+        TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -146,20 +143,19 @@ public class ConnectIdPinFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                buttonEnabled(s.toString());
+                checkPin();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
 
             }
-        });
+        };
+
+        binding.connectPinInput.addTextChangedListener(watcher);
+        binding.connectPinRepeatInput.addTextChangedListener(watcher);
 
         return view;
-    }
-
-    private void buttonEnabled(String code) {
-        binding.connectPinButton.setEnabled(code.length() > 5);
     }
 
     public void setPinLength(int length) {
@@ -184,7 +180,7 @@ public class ConnectIdPinFragment extends Fragment {
 
     public void checkPin() {
         String pin1 = binding.connectPinInput.getText().toString();
-        String pin2 = binding.connectPinInput.getText().toString();
+        String pin2 = binding.connectPinRepeatInput.getText().toString();
 
         String errorText = "";
         boolean buttonEnabled = false;

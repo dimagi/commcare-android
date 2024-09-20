@@ -90,16 +90,32 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         forgotPassword = false;
         forgotPin = false;
         NavDirections navDirections = null;
-        int requestCode = ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE;
         switch (ConnectManager.getStatus()) {
             case NotIntroduced :
-                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-                    break;
+                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf()
+                        .setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+                break;
             case Registering :
                 ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
                 int phase = user.getRegistrationPhase();
                 if (phase != ConnectConstants.CONNECT_NO_ACTIVITY) {
-                    requestCode = phase;
+                    switch(phase) {
+                        case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE:
+                            navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf();
+                            break;
+                        case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS:
+                            navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
+                            break;
+//                        case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> fragmentId = R.id.connectid_phone_verify;
+//                        case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> fragmentId = R.id.connectid_phoneNo;
+//                        case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> fragmentId = R.id.connectid_secondary_phone_fragment;
+                        case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN:
+                        case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN:
+                        case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN:
+                            navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPin(
+                                    phase, user.getPrimaryPhone(), user.getPassword());
+                            break;
+                    }
                 } else if (user.shouldForcePin()) {
                     navDirections = ConnectIDSignupFragmentDirections.
                             actionConnectidPhoneFragmentToConnectidPin(
@@ -117,13 +133,9 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                                     (ConnectConstants.CONNECT_UNLOCK_BIOMETRIC));
                 }
                 break;
-
-            default :
-//                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-
         }
 
-        if (navDirections != null && requestCode != ConnectConstants.CONNECT_NO_ACTIVITY) {
+        if (navDirections != null) {
             controller.navigate(navDirections);
         }
     }
