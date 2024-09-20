@@ -1,25 +1,24 @@
 package org.commcare.fragments.connectId;
 
 import android.os.Bundle;
-
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 
 public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragment {
 
-    TextView phoneTextView;
+    ConnectMediumTextView phoneTextView;
     Button recover;
     Button back;
     String phoneNumber;
@@ -45,9 +44,9 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_phone_available_bottom_sheet, container, false);
-        back = (Button)view.findViewById(R.id.back_button);
-        recover = (Button)view.findViewById(R.id.recover_button);
-        phoneTextView = (TextView)view.findViewById(R.id.phone_number);
+        back = (Button) view.findViewById(R.id.back_button);
+        recover = (Button) view.findViewById(R.id.recover_button);
+        phoneTextView = (ConnectMediumTextView) view.findViewById(R.id.phone_number);
         if (getArguments() != null) {
             phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }

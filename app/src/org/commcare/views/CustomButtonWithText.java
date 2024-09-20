@@ -83,6 +83,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
     public void setImage(Drawable backgroundImg) {
         button.setImageDrawable(backgroundImg);
+        button.setPadding(70, 0,70,0);
     }
 
     private void setColor(int backgroundColor) {

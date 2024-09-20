@@ -32,6 +32,9 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
     private static final int DEFAULT_BORDER_RADIUS = DEFAULT_RADIUS;
     private static final int DEFAULT_BORDER_WIDTH = 1;
     private static final int DEFAULT_TEXT_SIZE = 7;
+    private static final int DEFAULT_DISABLED_BACKGROUND_COLOR = Color.LTGRAY;
+    private int enabledBackgroundColor;
+    private int disabledBackgroundColor;
 
     public RoundedButton(@NonNull Context context) {
         super(context);
@@ -75,6 +78,9 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
                 int iconPadding = a.getDimensionPixelSize(R.styleable.RoundedButton_roundButtonIconPadding, dpToPx(16));
                 setCompoundDrawablePadding(iconPadding);
 
+                enabledBackgroundColor = backgroundColor;
+                disabledBackgroundColor = DEFAULT_DISABLED_BACKGROUND_COLOR;
+
                 setBackgroundDrawable(radius, backgroundColor, borderVisible, borderColor, borderRadius,borderWidth);
                 setTextColor(textColor);
                 setButtonHeight(buttonHeight);
@@ -89,6 +95,8 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
                 a.recycle();
             }
         } else {
+            enabledBackgroundColor = DEFAULT_BACKGROUND_COLOR;
+            disabledBackgroundColor = DEFAULT_DISABLED_BACKGROUND_COLOR;
             setBackgroundDrawable(dpToPx(DEFAULT_RADIUS), DEFAULT_BACKGROUND_COLOR, DEFAULT_BORDER_VISIBLE, DEFAULT_BORDER_COLOR, dpToPx(DEFAULT_BORDER_RADIUS), dpToPx(DEFAULT_BORDER_WIDTH));
             setTextColor(DEFAULT_TEXT_COLOR);
             setPadding(dpToPx(DEFAULT_PADDING), 0, dpToPx(DEFAULT_PADDING), 0);
@@ -167,5 +175,15 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
     public void setFontFamily(int fontResId) {
         Typeface typeface = ResourcesCompat.getFont(getContext(), fontResId);
         setTypeface(typeface);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (enabled) {
+            setBackgroundDrawable(dpToPx(DEFAULT_RADIUS), enabledBackgroundColor, DEFAULT_BORDER_VISIBLE, DEFAULT_BORDER_COLOR, dpToPx(DEFAULT_BORDER_RADIUS), dpToPx(DEFAULT_BORDER_WIDTH));
+        } else {
+            setBackgroundDrawable(dpToPx(DEFAULT_RADIUS), disabledBackgroundColor, DEFAULT_BORDER_VISIBLE, DEFAULT_BORDER_COLOR, dpToPx(DEFAULT_BORDER_RADIUS), dpToPx(DEFAULT_BORDER_WIDTH));
+        }
     }
 }

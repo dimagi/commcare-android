@@ -9,7 +9,7 @@
     <size android:height="48dp"/>
     <solid android:color="@color/white"/>
     <stroke
-        android:color="@color/cc_neutral_bg"
+        android:color="@color/connect_blue_color_10"
         android:width="1dp"/>
     <corners android:radius="5dp"/>
 </shape>

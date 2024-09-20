@@ -1,9 +1,15 @@
 package org.commcare.fragments.connectId;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
@@ -17,14 +23,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
 
 import java.util.Locale;
-
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
-
-import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,7 +55,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding= ScreenConnectMessageBinding.inflate(inflater,container,false);
+        binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         binding.connectMessageButton.setOnClickListener(v -> handleButtonPress(false));
         binding.connectMessageButton2.setOnClickListener(v -> handleButtonPress(true));
@@ -106,7 +104,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     requireActivity().finish();
                 }
                 break;
-                //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
+            //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
             case ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
@@ -133,15 +131,15 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
-                if(success){
-                    if(ConnectIdActivity.forgotPassword){
-                        directions =ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_recovery_alt_title),getString(R.string.connect_recovery_alt_message),ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE,getString(R.string.connect_recovery_alt_button),null);
-                    }else{
-                        directions=ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN,ConnectIdActivity.recoverPhone,ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
+                if (success) {
+                    if (ConnectIdActivity.forgotPassword) {
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null);
+                    } else {
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
                     }
-                }else{
-                    directions=ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE,String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary),ConnectIdActivity.recoverPhone,ConnectIdActivity.recoverPhone,null,null).setAllowChange(false);
+                } else {
+                    directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, null, null).setAllowChange(false);
                 }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
@@ -153,7 +151,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     }
                 }
                 break;
-                //CONNECT_RECOVERY_WRONG_PIN
+            //CONNECT_RECOVERY_WRONG_PIN
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
                 if (success) {
                     if (ConnectManager.getFailureAttempt() > 2) {
@@ -164,7 +162,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     }
                 }
                 break;
-                case ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN:
+            case ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN:
                 if (success) {
                     if (ConnectManager.getFailureAttempt() > 2) {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "").setChange(true).setRecover(false);

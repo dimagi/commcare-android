@@ -1,11 +1,17 @@
 package org.commcare.fragments.connectId;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -31,12 +37,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import static android.app.Activity.RESULT_OK;
 
 public class ConnectIdPasswordVerificationFragment extends Fragment {
     private int callingClass;
@@ -103,7 +103,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                 if (success) {
                     if (forgot) {
                         ConnectIdActivity.forgotPassword = true;
-                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneNo( ConnectConstants.METHOD_RECOVER_PRIMARY, null,ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, null, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     } else {
                         ConnectIdActivity.forgotPassword = false;
                         FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
