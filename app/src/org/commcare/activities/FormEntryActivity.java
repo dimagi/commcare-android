@@ -1309,8 +1309,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                                 Localization.get("notification.formentry.save_error.title"),
                                 FormEntryConstants.EXIT);
                     }
-                    String reasonType = (saveStatus == SAVE_UNRECOVERABLE_ERROR) ? QuarantineReason_LOCAL_PROCESSING_ERROR
-                            : QuarantineReason_RECORD_ERROR ;
+                    String reasonType = (saveStatus == SAVE_UNRECOVERABLE_ERROR) ?
+                            QuarantineReason_LOCAL_PROCESSING_ERROR : QuarantineReason_RECORD_ERROR;
                     quarantineRecordOnError(errorMessage, reasonType);
                     return;
             }
