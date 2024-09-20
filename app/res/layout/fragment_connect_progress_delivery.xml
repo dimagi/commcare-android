@@ -141,30 +141,15 @@
                         android:background="@color/connect_blue_color_10"
                         android:padding="16dp">
 
-                        <LinearLayout
-                            android:id="@+id/linearLayout"
+                        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:text="@string/connect_click_to_sync_progress"
+                            android:textColor="@color/black"
+                            android:textSize="15sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
-
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/connect_progress"
-                                android:textColor="@color/connect_dark_blue_color"
-                                android:textSize="16sp" />
-
-                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/connect_click_to_sync_progress"
-                                android:textColor="@color/black"
-                                android:textSize="15sp" />
-
-                        </LinearLayout>
+                            app:layout_constraintTop_toTopOf="parent" />
 
                         <org.commcare.views.connect.RoundedButton
                             android:id="@+id/btnSync"
@@ -185,31 +170,6 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-                    android:id="@+id/connect_progress_warning_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
-                    android:text="@string/connect_progress_warning"
-                    android:textAlignment="center"
-                    android:textColor="@color/black"
-                    android:textSize="14sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/clRefreshView" />
-
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                    android:id="@+id/connect_progress_warning_learn_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/connect_progress_warning_learn"
-                    android:textAlignment="center"
-                    android:textColor="@color/blue"
-                    android:textSize="15sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/connect_progress_warning_text" />
-
                 <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                     android:id="@+id/connect_progress_complete_by_text"
                     android:layout_width="match_parent"
@@ -219,7 +179,7 @@
                     android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/connect_progress_warning_learn_text" />
+                    app:layout_constraintTop_toBottomOf="@+id/clRefreshView" />
 
                 <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                     android:id="@+id/connect_progress_delivery_warning_text"
@@ -238,9 +198,9 @@
                     android:id="@+id/connect_progress_review_button"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/connect_progress_review"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -254,9 +214,9 @@
                     android:id="@+id/connect_progress_button"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="8dp"
                     android:text="@string/connect_progress_launch"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

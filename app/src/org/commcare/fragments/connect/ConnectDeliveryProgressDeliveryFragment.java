@@ -219,17 +219,5 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView.setText(text);
         int color = job.getIsUserSuspended() ? R.color.red : R.color.black;
         textView.setTextColor(getResources().getColor(color));
-
-        textView = view.findViewById(R.id.connect_progress_warning_learn_text);
-        textView.setOnClickListener(v -> {
-            StandardAlertDialog dialog = new StandardAlertDialog(
-                    getContext(),
-                    getString(R.string.connect_progress_warning),
-                    getString(R.string.connect_progress_warning_full));
-            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
-                dialog1.dismiss();
-            });
-            ((CommCareActivity<?>) getActivity()).showAlertDialog(dialog);
-        });
     }
 }
