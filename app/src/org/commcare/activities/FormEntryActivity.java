@@ -108,7 +108,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
+import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_RECORD_ERROR;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
+import static org.commcare.tasks.SaveToDiskTask.SaveStatus.SAVE_UNRECOVERABLE_ERROR;
 
 /**
  * Displays questions, animates transitions between
@@ -1304,13 +1306,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     uiController.refreshView();
                     saveAnswersForCurrentScreen(true);
                     return;
-                case SAVE_ERROR:
+                case SAVE_ERROR, SAVE_UNRECOVERABLE_ERROR:
                     if (!CommCareApplication.instance().isConsumerApp()) {
                         new UserfacingErrorHandling<>().createErrorDialog(this, errorMessage,
                                 Localization.get("notification.formentry.save_error.title"),
                                 FormEntryConstants.EXIT);
                     }
-                    quarantineRecordOnError(errorMessage);
+                    String reasonType = (saveStatus == SAVE_UNRECOVERABLE_ERROR) ?
+                            QuarantineReason_LOCAL_PROCESSING_ERROR : QuarantineReason_RECORD_ERROR;
+                    quarantineRecordOnError(errorMessage, reasonType);
                     return;
             }
             if (!"".equals(toastMessage) && !CommCareApplication.instance().isConsumerApp()) {
@@ -1321,17 +1325,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     // clean the form record in case it was saved
-    private void quarantineRecordOnError(String errorMessage) {
+    private void quarantineRecordOnError(String errorMessage, String reasonType) {
         AndroidSessionWrapper currentState = CommCareApplication.instance().getCurrentSessionWrapper();
         FormRecord toBeQuarantined = currentState.getFormRecord();
 
         // quarantine in case the form record was saved
         if (toBeQuarantined != null) {
-            new FormRecordProcessor(this).quarantineRecord(
-                    toBeQuarantined,
-                    QuarantineReason_LOCAL_PROCESSING_ERROR,
-                    errorMessage
-            );
+            new FormRecordProcessor(this).quarantineRecord(toBeQuarantined, reasonType, errorMessage);
         }
     }
 
