@@ -1,8 +1,6 @@
 package org.commcare.fragments.connectId;
 
-import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
-import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -32,12 +32,6 @@ import org.javarosa.core.services.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -90,7 +84,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
-            if(hasFocus) {
+            if (hasFocus) {
                 PhoneNumberHelper.requestPhoneNumberHint(getActivity());
             }
         };
@@ -278,7 +272,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                 String existingAlternate = user != null ? user.getAlternatePhone() : null;
                 switch (method) {
                     case ConnectConstants.METHOD_REGISTER_PRIMARY,
-                            ConnectConstants.METHOD_CHANGE_PRIMARY -> {
+                         ConnectConstants.METHOD_CHANGE_PRIMARY -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
                             binding.errorTextView.setText("");
                             binding.connectPrimaryPhoneButton.setEnabled(true);
@@ -329,7 +323,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                             }
                         }
                     }
-                    case ConnectConstants.METHOD_CHANGE_ALTERNATE-> {
+                    case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_primary));
                             binding.connectPrimaryPhoneButton.setEnabled(false);

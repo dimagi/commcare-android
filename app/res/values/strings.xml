@@ -434,6 +434,12 @@
     <string name="connect_consent_title">Consent</string>
 
     <!-- ConnectID strings -->
+    <string name="connect_registration_title">ConnectID Signup</string>
+    <string name="connect_signup">Signup</string>
+    <string name="connect_recover">Recover</string>
+    <string name="connect_registration_have_account">Already have\nConnectID?</string>
+    <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
+
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
     <string name="connect_consent_message_2">I acknowledge and understand that I may receive push notifications and SMS messages for the purpose of communication</string>
     <string name="connect_consent_check">Click here to give consent</string>
@@ -496,7 +502,7 @@
     <string name="connect_pin_confirm_message">You entered the wrong Code too many times, you will have to configure the code again.\n On the next screen, we\'ll redirect you to the configure code page.</string>
     <string name="connect_pin_verify_forgot">Don\'t have or forgot your Code?</string>
     <string name="connect_pin_fail_button">OK</string>
-    <string name="connect_recovery_title">ConnectID Setup</string>
+    <string name="connect_recovery_title">ConnectID Recovery</string>
     <string name="connect_recovery_title2">Identify Existing Account</string>
 
     <string name="connect_recovery_decision_new">Choose a step below</string>
@@ -732,7 +738,6 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
-    <string name="already_have_an_account">Already Have an account?</string>
     <string name="enter_otp">Enter SMS Code</string>
     <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Recovery Code</string>

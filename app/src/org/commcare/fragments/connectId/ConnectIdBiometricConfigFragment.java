@@ -1,5 +1,8 @@
 package org.commcare.fragments.connectId;
 
+import static android.app.Activity.RESULT_OK;
+import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -22,22 +32,12 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import static android.app.Activity.RESULT_OK;
-import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ConnectIdBiometricConfigFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ConnectIdBiometricConfigFragment extends Fragment  {
+public class ConnectIdBiometricConfigFragment extends Fragment {
     private BiometricManager biometricManager;
     private int callingActivity;
     private boolean allowPassword = false;
@@ -254,7 +254,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment  {
     public void handlePinButton() {
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
-           performPinUnlock();
+            performPinUnlock();
         } else if (!BiometricsHelper.configurePin(getActivity())) {
             finish(true, true);
         }
