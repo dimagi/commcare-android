@@ -203,7 +203,6 @@ License.
     <string name="connect_results_summary_verifications_title">Statut de vérification</string>
     <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
     <string name="connect_results_summary_payments_title">Statut de paiement</string>
-    <string name="connect_results_summary_payments_description">Montant gagné: %s\nMontant transféré: %s</string>
     <string name="connect_results_payment_description">%s</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>

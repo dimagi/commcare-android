@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -53,7 +52,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         }
         phoneTextView.setText(phoneNumber);
 
-        back.setOnClickListener(v -> Navigation.findNavController(back).popBackStack());
+        back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
         recover.setOnClickListener(v -> {
             NavDirections directions = ConnectIdPhoneAvailableBottomSheetDirections.actionConnectidPhoneNotAvailableToConnectidPhoneFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE).setPhone(phoneNumber);
             NavHostFragment.findNavController(this).navigate(directions);

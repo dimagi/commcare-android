@@ -149,8 +149,8 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         progressText.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
-        progressBarTextContainer.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        if(!learningFinished) {
+        progressBarTextContainer.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        if(!assessmentPassed) {
             progressBar.setProgress(percent);
             progressBar.setMax(100);
 
