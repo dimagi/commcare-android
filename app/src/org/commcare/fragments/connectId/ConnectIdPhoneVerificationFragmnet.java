@@ -1,5 +1,7 @@
 package org.commcare.fragments.connectId;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,6 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
@@ -44,14 +51,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import static android.app.Activity.RESULT_OK;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ConnectIdPhoneVerificationFragmnet#newInstance} factory method to
@@ -72,7 +71,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     private int callingClass;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
-    
+
     private ScreenConnectPhoneVerifyBinding binding;
 
     private final Handler taskHandler = new android.os.Handler();
@@ -86,7 +85,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 int resendLimitMinutes = 2;
                 double minutesRemaining = resendLimitMinutes - elapsedMinutes;
                 if (minutesRemaining > 0) {
-                    secondsToReset = (int)Math.ceil(minutesRemaining * 60);
+                    secondsToReset = (int) Math.ceil(minutesRemaining * 60);
                 }
             }
 
@@ -122,7 +121,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
-        binding= ScreenConnectPhoneVerifyBinding.inflate(inflater,container,false);
+        binding = ScreenConnectPhoneVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         binding.connectPhoneVerifyButton.setEnabled(false);
         getActivity().setTitle(getString(R.string.connect_verify_phone_title));
@@ -172,8 +171,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     private void buttonEnabled(String code) {
-        binding.connectPhoneVerifyButton.setEnabled(!code.isEmpty() && code.length()>5);
-        binding.connectPhoneVerifyButton.setBackgroundColor(!code.isEmpty() && code.length()>5?getResources().getColor(R.color.connect_blue_color):Color.GRAY);
+        binding.connectPhoneVerifyButton.setEnabled(!code.isEmpty() && code.length() > 5);
+//        binding.connectPhoneVerifyButton.setBackgroundColor(!code.isEmpty() && code.length() > 5 ? getResources().getColor(R.color.connect_blue_color) : Color.GRAY);
     }
 
     @Override
@@ -224,7 +223,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         try {
             stopHandler();
             requireActivity().unregisterReceiver(smsBroadcastReceiver);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
 
@@ -528,7 +527,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 if (success) {
                     if (changeNumber) {
 //                        Navigation.findNavController(binding.connectPhoneVerifyButton).popBackStack();
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY,primaryPhone,ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
+                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY, primaryPhone, ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
                     } else {
                         directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password).setRecover(false).setChange(true);
 
@@ -547,23 +546,23 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                             directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null);
 
                         } else {
-                            directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret,ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                            directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
 
                         }
                     }
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
-                if(success){
+                if (success) {
                     directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
 
-                }else{
-                    directions= ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE,String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary),ConnectIdActivity.recoverPhone,ConnectIdActivity.recoverPhone,"","").setAllowChange(false);
+                } else {
+                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", "").setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
-                if(success){
+                if (success) {
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
@@ -571,8 +570,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 }
 
             }
-            case  ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE->{
-                if(success){
+            case ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
+                if (success) {
                     user.setSecondaryPhoneVerified(true);
                     ConnectDatabaseHelper.storeUser(requireActivity(), user);
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
@@ -587,5 +586,4 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(directions);
         }
     }
-
 }

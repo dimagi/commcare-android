@@ -22,7 +22,7 @@
             android:textColor="@color/connect_subtext"
             android:textSize="@dimen/text_larger" />
 
-        <TextView
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
             android:gravity="start"
             android:id="@+id/connect_message_message"
             android:layout_height="wrap_content"
@@ -33,7 +33,8 @@
 
         <org.commcare.views.connect.RoundedButton
             android:id="@+id/connect_message_button"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
+            app:roundButtonTextSize="6.5sp"
             android:layout_width="fill_parent"
             android:paddingBottom="@dimen/content_start"
             android:paddingTop="@dimen/content_start"

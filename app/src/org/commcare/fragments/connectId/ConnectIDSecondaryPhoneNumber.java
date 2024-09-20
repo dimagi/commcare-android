@@ -1,17 +1,16 @@
 package org.commcare.fragments.connectId;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
@@ -60,6 +59,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         }
+        String code= "+"+String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
+        binding.countryCode.setText(code);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -68,8 +69,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().contains("+")){
-                    binding.countryCode.setText("+"+binding.countryCode.getText());
+                if (!s.toString().contains("+")) {
+                    binding.countryCode.setText("+" + binding.countryCode.getText());
                 }
             }
 
@@ -80,7 +81,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         });
         binding.continueButton.setOnClickListener(v -> handleButtonPress());
         binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
-       requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
+        requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
         binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
 
         return view;
