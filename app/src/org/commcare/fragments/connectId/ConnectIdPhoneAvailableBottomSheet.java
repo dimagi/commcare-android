@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,7 +57,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         back.setOnClickListener(v -> Navigation.findNavController(back).popBackStack());
         recover.setOnClickListener(v -> {
             NavDirections directions = ConnectIdPhoneAvailableBottomSheetDirections.actionConnectidPhoneNotAvailableToConnectidPhoneFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE).setPhone(phoneNumber);
-            Navigation.findNavController(back).navigate(directions);
+            NavHostFragment.findNavController(this).navigate(directions);
         });
         return view;
 

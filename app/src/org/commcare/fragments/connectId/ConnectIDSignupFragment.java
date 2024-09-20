@@ -34,7 +34,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentPhoneBinding;
+import org.commcare.dalvik.databinding.FragmentSignupBinding;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -49,9 +49,9 @@ import java.util.Random;
 
 public class ConnectIDSignupFragment extends Fragment {
     private String existingPhone = "";
-    private int callingClass = 1003;
+    private int callingClass = 1002;
     protected boolean skipPhoneNumberCheck = false;
-    private FragmentPhoneBinding binding;
+    private FragmentSignupBinding binding;
     private boolean isValidNo;
     private ConnectUserRecord user;
     NavDirections directions = null;
@@ -74,24 +74,23 @@ public class ConnectIDSignupFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentPhoneBinding.inflate(inflater, container, false);
+        binding = FragmentSignupBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
+        PhoneNumberHelper.requestPhoneNumberHint(getActivity());
         binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
         if (getArguments() != null) {
-            existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
         }
 
-        View.OnFocusChangeListener listener = (v, hasFocus) -> {
-            if(hasFocus) {
-                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
-            }
-        };
+//        View.OnFocusChangeListener listener = (v, hasFocus) -> {
+//            if(hasFocus) {
+//            }
+//        };
 
-        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
-        binding.countryCode.setOnFocusChangeListener(listener);
+//        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
+//        binding.countryCode.setOnFocusChangeListener(listener);
 
         binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -210,16 +209,38 @@ public class ConnectIDSignupFragment extends Fragment {
 
     void handleContinueButtonPress() {
         user = ConnectManager.getUser(getActivity());
+//        if(callingClass==ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE){
+//            if(!binding.connectConsentCheck.isChecked()){
+//                Toast.makeText(getContext(),"Please give consent", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//            if(binding.nameTextValue.getText()!=null && binding.nameTextValue.getText().toString().isEmpty()){
+//                Toast.makeText(getContext(),"Please fill the name", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//        }
+//        if(callingClass==ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE && binding.connectPrimaryPhoneInput.getText()!=null && binding.connectPrimaryPhoneInput.getText().toString().isEmpty()){
+//            Toast.makeText(getContext(),"Please fill the phone no", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+//                binding.connectPrimaryPhoneInput.getText().toString());
+//
+//        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+//        if(valid){
+//            Toast.makeText(getContext(),"Please enter the valid number", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         checkPhoneNumber();
     }
 
     void handleRecoverButtonPress() {
-        directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+        directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 
     void handleSignupButtonPress() {
-        directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+        directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 
@@ -239,9 +260,10 @@ public class ConnectIDSignupFragment extends Fragment {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setText("");
-                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
+//                        if (existingPrimary != null && existingPrimary.equals(phone)) {
+//                            binding.errorTextView.setText("");
+//                        }
+                         if (existingAlternate != null && existingAlternate.equals(phone)) {
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
                             //Make sure the number isn't already in use
@@ -257,6 +279,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                                 updateButtonEnabled();
                                                 createAccount();
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
+                                                isValidNo=false;
                                                 binding.errorTextView.setText(getString(R.string.connect_phone_not_found));
                                             }
                                         }
@@ -268,7 +291,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                                 Logger.exception("Checking phone number", e);
                                             }
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                                                isValidNo=false;
+                                                isValidNo=true;
                                                 updateButtonEnabled();
                                                 binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
                                                 directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);

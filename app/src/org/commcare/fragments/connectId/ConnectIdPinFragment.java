@@ -25,6 +25,7 @@ import org.commcare.dalvik.databinding.ScreenConnectPinBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.views.connect.RoundedButtonDrawable;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -159,8 +160,7 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
     private void buttonEnabled(String code) {
-        binding.connectPinButton.setEnabled(code.length()>5);
-        binding.connectPinButton.setBackgroundColor(code.length()>5?getResources().getColor(R.color.connect_blue_color): Color.GRAY);
+        binding.connectPinButton.setEnabled(code.length() > 5);
     }
 
     public void setPinLength(int length) {
@@ -437,7 +437,7 @@ public class ConnectIdPinFragment extends Fragment {
                         directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null);
                     }
                 } else {
-                    directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectManager.getFailureAttempt() > 2 ? getString(R.string.connect_pin_confirm_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_RECOVERY_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null);
+                    directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectManager.getFailureAttempt() > 2 ? getString(R.string.connect_pin_recovery_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_RECOVERY_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null);
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN -> {
