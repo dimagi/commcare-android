@@ -6,8 +6,8 @@
     app:startDestination="@id/connectid_signup_fragment">
     <dialog
         android:id="@+id/connectid_phone_not_available"
-        android:label="fragment_connectid_phone_available_fragment"
         android:name="org.commcare.fragments.connectId.ConnectIdPhoneAvailableBottomSheet"
+        android:label="fragment_connectid_phone_available_fragment"
         tools:layout="@layout/fragment_phone_available_bottom_sheet">
         <action
             android:id="@+id/action_connectid_phone_not_available_to_connectid_phone_fragment"
@@ -23,8 +23,8 @@
 
     <fragment
         android:id="@+id/connectid_biometric_config"
-        android:label="fragment_connectid_biometric_config"
         android:name="org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment"
+        android:label="fragment_connectid_biometric_config"
         tools:layout="@layout/screen_connect_verify">
         <action
             android:id="@+id/action_connectid_biometric_config_to_connectid_phone_verify"
@@ -39,15 +39,15 @@
             app:argType="integer"
             app:nullable="false" />
         <argument
-            android:defaultValue="false"
             android:name="allowPassword"
+            android:defaultValue="false"
             app:argType="boolean" />
     </fragment>
 
     <fragment
         android:id="@+id/connectid_phone_verify"
-        android:label="fragment_connectid_phone_verify"
         android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragmnet"
+        android:label="fragment_connectid_phone_verify"
         tools:layout="@layout/screen_connect_phone_verify">
 
         <action
@@ -90,8 +90,8 @@
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:defaultValue="true"
             android:name="allowChange"
+            android:defaultValue="true"
             app:argType="boolean" />
         <argument
             android:name="username"
@@ -112,8 +112,8 @@
 
     <dialog
         android:id="@+id/connectid_message"
-        android:label="fragment_connectid_message"
         android:name="org.commcare.fragments.connectId.ConnectIdMessageFragment"
+        android:label="fragment_connectid_message"
         tools:layout="@layout/screen_connect_message">
         <action
             android:id="@+id/action_connectid_message_to_connectid_biometric_config"
@@ -153,6 +153,14 @@
             android:name="button2Text"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="phone"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="password"
+            app:argType="string"
+            app:nullable="true" />
         <!--        <action-->
         <!--            android:id="@+id/action_connectid_message_to_connectid_phone_fragment"-->
         <!--            app:destination="@id/connectid_signup_fragment" />-->
@@ -161,8 +169,8 @@
 
     <fragment
         android:id="@+id/connectid_pin"
-        android:label="fragment_connectid_pin"
         android:name="org.commcare.fragments.connectId.ConnectIdPinFragment"
+        android:label="fragment_connectid_pin"
         tools:layout="@layout/fragment_recovery_code">
         <action
             android:id="@+id/action_connectid_pin_to_connectid_phone_verify"
@@ -199,20 +207,20 @@
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:defaultValue="false"
             android:name="recover"
+            android:defaultValue="false"
             app:argType="boolean" />
         <argument
-            android:defaultValue="false"
             android:name="change"
+            android:defaultValue="false"
             app:argType="boolean" />
 
     </fragment>
 
     <fragment
         android:id="@+id/connectid_password"
-        android:label="fragment_connectid_password"
         android:name="org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment"
+        android:label="fragment_connectid_password"
         tools:layout="@layout/screen_connect_password_verify">
         <action
             android:id="@+id/action_connectid_password_to_connectid_message"
@@ -249,18 +257,18 @@
 
     <fragment
         android:id="@+id/connectid_signup_fragment"
-        android:label="fragment_connectid_signup_fragment"
         android:name="org.commcare.fragments.connectId.ConnectIDSignupFragment"
+        android:label="fragment_connectid_signup_fragment"
         tools:layout="@layout/fragment_signup">
         <argument
             android:name="callingClass"
             android:defaultValue="1002"
             app:argType="integer" />
         <argument
-            android:defaultValue=""
             android:name="phone"
+            android:defaultValue=""
             app:argType="string"
-            app:nullable="true"/>
+            app:nullable="true" />
         <action
             android:id="@+id/action_connectid_phone_fragment_to_connectid_phone_not_available"
             app:destination="@id/connectid_phone_not_available" />
@@ -285,8 +293,8 @@
 
     <fragment
         android:id="@+id/connectid_secondary_phone_fragment"
-        android:label="connectid_secondary_phone_fragment"
         android:name="org.commcare.fragments.connectId.ConnectIDSecondaryPhoneNumber"
+        android:label="connectid_secondary_phone_fragment"
         tools:layout="@layout/fragment_secondary_phone_number">
         <action
             android:id="@+id/action_connectid_secondary_phone_fragment_to_connectid_phone_verify"
@@ -313,8 +321,8 @@
 
     <fragment
         android:id="@+id/connectid_phoneNo"
-        android:label="fragment_connectid_phoneNo"
         android:name="org.commcare.fragments.connectId.ConnectIdPhoneFragment"
+        android:label="fragment_connectid_phoneNo"
         tools:layout="@layout/screen_connect_primary_phone">
         <action
             android:id="@+id/action_connectid_phoneNo_to_connectid_pin"

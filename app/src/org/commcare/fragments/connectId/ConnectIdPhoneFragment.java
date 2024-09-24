@@ -1,8 +1,6 @@
 package org.commcare.fragments.connectId;
 
 import android.app.Activity;
-import android.app.PendingIntent;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -12,17 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-
-import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
-import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnSuccessListener;
-
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.common.api.ApiException;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -41,14 +37,6 @@ import org.javarosa.core.services.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
-
-
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -205,7 +193,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
                             ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);
                 } else {
-                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
+                    directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
 
             }

@@ -59,7 +59,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         }
-        String code= "+"+String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
+        String code = "+" + String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
         binding.countryCode.setText(code);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -195,7 +195,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                     directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
                             ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null).setAllowChange(false);
                 } else {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
+                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
 
             }
