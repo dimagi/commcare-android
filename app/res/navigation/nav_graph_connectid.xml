@@ -105,6 +105,10 @@
             android:name="secondaryPhone"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="deactivateButton"
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_phoneNo"
             app:destination="@id/connectid_phoneNo" />

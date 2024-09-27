@@ -849,4 +849,5 @@
     <string name="connect_deactivate_account_go_back">Go Back</string>
     <string name="connect_deactivate_account_deactivated">Account deactivated, go create a new one</string>
     <string name="connect_deactivate_account_creation">Create Account</string>
+
 </resources>

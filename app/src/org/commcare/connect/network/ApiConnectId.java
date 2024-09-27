@@ -410,4 +410,18 @@ public class ApiConnectId {
         return ConnectNetworkHelper.post(context, context.getString(urlId),
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
+
+    public static boolean confirmUserDeactivation(Context context, String phone, String secret,
+                                                  String token, IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone_number", phone);
+        params.put("secret_key", secret);
+        params.put("token", token);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
 }

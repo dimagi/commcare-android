@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,12 +62,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
     public static final int MethodVerifyAlternate = 4;
+    public static final int MethodUserDeactivate = 5;
     public static final int REQ_USER_CONSENT = 200;
     private int method;
     private String primaryPhone;
     private String username;
     private String password;
     private String recoveryPhone;
+    private String deactivateButton;
     private boolean allowChange;
     private int callingClass;
     private SMSBroadcastReceiver smsBroadcastReceiver;
@@ -138,7 +141,12 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             password = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getPassword();
             recoveryPhone = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getSecondaryPhone();
             callingClass = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getCallingClass();
+            deactivateButton = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getDeactivateButton();
         }
+
+        handleDeactivateButton();
+
+        handleKeyboardType();
 
         updateMessage();
 
@@ -149,6 +157,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         binding.connectPhoneVerifyResend.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyChange.setOnClickListener(arg0 -> changeNumber());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
+        binding.connectDeactivateButton.setOnClickListener(arg0 -> deactivateButton());
         binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -170,9 +179,18 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         return view;
     }
 
+    private void handleDeactivateButton() {
+        binding.connectDeactivateButton.setVisibility(deactivateButton == null ? View.GONE : View.VISIBLE);
+    }
+
+    private void handleKeyboardType() {
+        int inputType = (method == MethodUserDeactivate || method == MethodRecoveryAlternate) ? InputType.TYPE_CLASS_TEXT : InputType.TYPE_CLASS_PHONE;
+        binding.connectPhoneVerifyCode.setInputType(inputType);
+    }
+
+
     private void buttonEnabled(String code) {
         binding.connectPhoneVerifyButton.setEnabled(!code.isEmpty() && code.length() > 5);
-//        binding.connectPhoneVerifyButton.setBackgroundColor(!code.isEmpty() && code.length() > 5 ? getResources().getColor(R.color.connect_blue_color) : Color.GRAY);
     }
 
     @Override
@@ -352,6 +370,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case MethodVerifyAlternate -> {
                 isBusy = !ApiConnectId.requestVerificationOtpSecondary(requireActivity(), username, password, callback);
             }
+            case MethodUserDeactivate -> {
+                isBusy = false;
+            }
             default -> {
                 isBusy = !ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
             }
@@ -416,6 +437,17 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
                             resetPassword(context, phone, password, username, displayName);
                         }
+
+                        case MethodUserDeactivate -> {
+                            String responseAsString = new String(
+                                    StreamsUtil.inputStreamToByteArray(responseData));
+                            JSONObject json = new JSONObject(responseAsString);
+                            if (json.getBoolean("success")) {
+                                finish(true, false, null);
+                            } else {
+                                setErrorMessage("Error verifying SMS code");
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     Logger.exception("Parsing return from OTP verification", e);
@@ -455,6 +487,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
             case MethodVerifyAlternate -> {
                 isBusy = !ApiConnectId.confirmVerificationOtpSecondary(requireActivity(), username, password, token, callback);
+            }
+            case MethodUserDeactivate -> {
+                isBusy = !ApiConnectId.confirmUserDeactivation(requireActivity(), username, password, token, callback);
             }
             default -> {
                 isBusy = !ApiConnectId.confirmRegistrationOtpPrimary(requireActivity(), username, password, token, callback);
@@ -512,6 +547,10 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         finish(true, true, null);
     }
 
+    public void deactivateButton() {
+        initiateDeactivation();
+    }
+
     public void finish(boolean success, boolean changeNumber, String secondaryPhone) {
         stopHandler();
         if (method == MethodRecoveryPrimary) {
@@ -530,7 +569,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                         directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY, primaryPhone, ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
                     } else {
                         directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password).setRecover(false).setChange(true);
-
                     }
                 } else {
                     directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
@@ -547,18 +585,21 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
                         } else {
                             directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
-
                         }
                     }
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 if (success) {
-                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
-
+                    if (deactivateButton == null) {
+                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
+                    } else {
+                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE, String.format(Locale.getDefault(), "%d",
+                                ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", "", null).setAllowChange(false);
+                    }
                 } else {
                     directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", "").setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", "", null).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
@@ -580,10 +621,59 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     requireActivity().finish();
                 }
             }
+            case ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE -> {
+                if (success) {
+                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_deactivated), ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS, getString(R.string.connect_deactivate_account_creation), null, username, password);
+                }
+            }
         }
 
         if (directions != null) {
             Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(directions);
+        }
+    }
+
+    private void initiateDeactivation() {
+        boolean isBusy = !ApiConnectId.requestInitiateAccountDeactivation(getContext(), username, password, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        JSONObject json = new JSONObject(responseAsString);
+                        if (json.getBoolean("success")) {
+                            finish(true, true, null);
+                        }
+                    }
+
+                } catch (IOException e) {
+                    Logger.exception("User deactivation", e);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                String message = "";
+                if (responseCode > 0) {
+                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                } else if (e != null) {
+                    message = e.toString();
+                }
+            }
+
+            @Override
+            public void processNetworkFailure() {
+            }
+
+            @Override
+            public void processOldApiError() {
+            }
+        });
+
+        if (isBusy) {
+            Toast.makeText(getContext(), R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
 }

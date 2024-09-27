@@ -52,6 +52,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         }
         phoneTextView.setText(phoneNumber);
 
+
         back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
         recover.setOnClickListener(v -> {
             NavDirections directions = ConnectIdPhoneAvailableBottomSheetDirections.actionConnectidPhoneNotAvailableToConnectidPhoneFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE).setPhone(phoneNumber);
