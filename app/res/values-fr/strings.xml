@@ -293,4 +293,11 @@ License.
     <string name="connect_payment_dialog_no">Non</string>
     <string name="connect_payment_dialog_yes">Oui</string>
     <string name="connect_payment_revert">Revenir</string>
+
+    <string name="connect_deactivate_account">Désactiver le compte</string>
+    <string name="connect_deactivate_account_message">Vous êtes sur le point de désactiver définitivement ce compte…</string>
+    <string name="connect_deactivate_account_delete">Supprimer le compte</string>
+    <string name="connect_deactivate_account_go_back">Retourner</string>
+    <string name="connect_deactivate_account_deactivated">Compte désactivé, allez en créer un nouveau</string>
+    <string name="connect_deactivate_account_creation">Créer un compte</string>
 </resources>

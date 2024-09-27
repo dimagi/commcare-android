@@ -467,4 +467,11 @@
     <string name="connect_payment_dialog_no">Não</string>
     <string name="connect_payment_dialog_yes">Sim</string>
     <string name="connect_payment_revert">Reverter</string>
+
+    <string name="connect_deactivate_account">Desativar conta</string>
+    <string name="connect_deactivate_account_message">Você está prestes a desativar permanentemente esta conta…</string>
+    <string name="connect_deactivate_account_delete">Excluir conta</string>
+        <string name="connect_deactivate_account_go_back">Volte</string>
+    <string name="connect_deactivate_account_deactivated">Conta desativada, crie uma nova</string>
+    <string name="connect_deactivate_account_creation">Criar uma conta</string>
 </resources>
