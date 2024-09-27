@@ -255,14 +255,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         interruptAndSaveForm(true, false);
     }
 
-    private void interruptAndSaveForm(boolean sessionExpiredOrSustended, boolean userTriggered) {
+    private void interruptAndSaveForm(boolean sessionExpired, boolean userTriggered) {
         if (mFormController != null) {
             // Set flag that will allow us to restore this form when we log back in
             CommCareApplication.instance().getCurrentSessionWrapper().setCurrentStateAsInterrupted(
-                    mFormController.getFormIndex(), sessionExpiredOrSustended);
+                    mFormController.getFormIndex(), sessionExpired);
 
             // Start saving form; will trigger expireUserSession() on completion
-            saveIncompleteFormToDisk(sessionExpiredOrSustended, userTriggered);
+            saveIncompleteFormToDisk(sessionExpired, userTriggered);
         }
     }
 
@@ -1154,8 +1154,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
             String localeKey =
-                    (fc.getRestoredFormSession() == null
-                            || fc.getRestoredFormSession().getInterruptedDueToSessionExpiration())
+                    (fc.getInterruptedFormState() == null
+                            || fc.getInterruptedFormState().getInterruptedDueToSessionExpiration())
                     ? "form.entry.restart.after.expiration" : "form.entry.restart.after.session.pause";
             Toast.makeText(this, Localization.get(localeKey), Toast.LENGTH_LONG).show();
         }

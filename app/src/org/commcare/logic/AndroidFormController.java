@@ -21,16 +21,16 @@ public class AndroidFormController extends FormController implements PendingCall
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
     private boolean formCompleteAndSaved = false;
-    private InterruptedFormState restoredFormSession;
+    private InterruptedFormState interruptedFormState;
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
-    public AndroidFormController(FormEntryController fec, boolean readOnly, InterruptedFormState savedFormSession) {
+    public AndroidFormController(FormEntryController fec, boolean readOnly, InterruptedFormState interruptedFormState) {
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
-        this.restoredFormSession = savedFormSession;
-        if (savedFormSession !=null ){
-            formIndexToReturnTo = savedFormSession.getFormIndex();
+        this.interruptedFormState = interruptedFormState;
+        if (interruptedFormState !=null ){
+            formIndexToReturnTo = interruptedFormState.getFormIndex();
         }
     }
 
@@ -92,7 +92,7 @@ public class AndroidFormController extends FormController implements PendingCall
         return mFormEntryController.getModel().getForm();
     }
 
-    public InterruptedFormState getRestoredFormSession(){
-        return restoredFormSession;
+    public InterruptedFormState getInterruptedFormState(){
+        return interruptedFormState;
     }
 }
