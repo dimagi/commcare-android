@@ -19,11 +19,17 @@ import android.widget.TextView;
 
 import androidx.preference.PreferenceManager;
 
+import java.util.ArrayList;
+import java.util.Vector;
+
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
@@ -38,8 +44,6 @@ import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.ArrayList;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +53,7 @@ import javax.annotation.Nullable;
  * @author Aliza Stone (astone@dimagi.com)
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivityUIController implements CommCareActivityUIController {
+public class LoginActivityUiController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.screen_login_error_view)
     private View errorContainer;
@@ -75,7 +79,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
 
-    @UiElement(value = R.id.login_button, locale = "login.button")
+    @UiElement(value = R.id.login_button)
     private Button loginButton;
 
     @UiElement(value = R.id.restore_session_checkbox)
@@ -95,6 +99,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private LoginMode loginMode;
 
     private boolean manuallySwitchedToPasswordMode;
+    private boolean loginManagedByConnectId;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -127,7 +132,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     };
 
-    public LoginActivityUIController(LoginActivity activity) {
+    public LoginActivityUiController(LoginActivity activity) {
         this.activity = activity;
         this.loginMode = LoginMode.PASSWORD;
     }
@@ -139,7 +144,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
+        loginButton.setOnClickListener(arg0 -> {
+            FirebaseAnalyticsUtil.reportLoginClicks();
+            activity.initiateLoginAttempt(isRestoreSessionChecked());
+        });
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -149,8 +157,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             return false;
         });
 
+        passwordOrPin.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                setConnectIdLoginState(false);
+            }
+        });
+
         notificationButton.setText(Localization.get("error.button.text"));
-        notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
+        notificationButton.setOnClickListener(view -> CommCareNoficationManager
+                .performIntentCalloutToNotificationsView(activity));
     }
 
     private void setTextChangeListeners() {
@@ -166,7 +181,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setBannerLayoutLogic() {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
-        final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 () -> {
                     int hideAll = getResources().getInteger(
@@ -194,14 +208,19 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
+
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
-        if (readyApps.size() == 1 || presetAppRecord != null) {
+        boolean noApps = readyApps.isEmpty();
+        setLoginInputsVisibility(!noApps);
+        if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
+            setLoginInputsVisibility(true);
+
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
-            setSingleAppUIState();
+            setSingleAppUiState();
             activity.seatAppIfNeeded(r.getUniqueId());
         } else {
             activity.populateAppSpinner(readyApps);
@@ -223,14 +242,30 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             checkEnteredUsernameForMatch();
         }
 
+        updateConnectLoginState();
+
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
     }
 
+    public void setLoginInputsVisibility(boolean visible) {
+        username.setVisibility(visible ? View.VISIBLE : View.GONE);
+        passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    public void updateConnectLoginState() {
+        if (ConnectManager.isConnectIdIntroduced()) {
+            String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+                    ConnectDatabaseHelper.getUser(activity).getName());
+
+            welcomeMessage.setText(welcomeText);
+        }
+    }
+
     @Nullable
     private ApplicationRecord getPresetAppRecord(ArrayList<ApplicationRecord> readyApps) {
-        String presetAppId = activity.getPresetAppID();
+        String presetAppId = activity.getPresetAppId();
         if (presetAppId != null) {
             for (ApplicationRecord readyApp : readyApps) {
                 if (readyApp.getUniqueId().equals(presetAppId)) {
@@ -240,7 +275,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
             // if preset App id is supplied but not found show an error
             String appNotFoundError = activity.getString(R.string.app_with_id_not_found);
-            setErrorMessageUI(appNotFoundError, false);
+            setErrorMessageUi(appNotFoundError, false);
         }
         return null;
     }
@@ -295,8 +330,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Even though we don't allow multiple users with same username in a domain, there can be
         // multiple UKRs for 1 user (for ex if password changes)
-        Vector<UserKeyRecord> matchingRecords = existingUsers.
-                getRecordsForValue(UserKeyRecord.META_USERNAME, username);
+        Vector<UserKeyRecord> matchingRecords = existingUsers
+                .getRecordsForValue(UserKeyRecord.META_USERNAME, username);
 
         // However, we guarantee that there will be at most 1 record marked ACTIVE per username
         for (UserKeyRecord record : matchingRecords) {
@@ -368,11 +403,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
-    protected void setErrorMessageUI(String message, boolean showNotificationButton) {
+    protected void setErrorMessageUi(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        username.setCompoundDrawablesWithIntrinsicBounds(
+                getResources().getDrawable(R.drawable.icon_user_attnneg),
+                null, null, null);
+
+        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
+                getResources().getDrawable(R.drawable.icon_lock_attnneg),
+                null, null, null);
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);
@@ -411,12 +451,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         errorContainer.setVisibility(View.GONE);
     }
 
-    private void setSingleAppUIState() {
+    private void setSingleAppUiState() {
         spinner.setVisibility(View.GONE);
         welcomeMessage.setText(Localization.get("login.welcome.single"));
     }
 
-    protected void setMultipleAppsUIState(ArrayList<String> appNames, int position) {
+    protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
@@ -427,6 +467,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         spinner.setSelection(position);
         spinner.setVisibility(View.VISIBLE);
+    }
+
+    protected boolean isAppSelectorVisible() {
+        return spinner.getVisibility() == View.VISIBLE;
+    }
+
+    protected int getSelectedAppIndex() {
+        return spinner.getSelectedItemPosition();
     }
 
     protected void setPermissionsGrantedState() {
@@ -468,6 +516,38 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     protected void setPasswordOrPin(String s) {
         passwordOrPin.setText(s);
+    }
+
+    protected boolean loginManagedByConnectId() {
+        return loginManagedByConnectId;
+    }
+
+    protected void setConnectIdLoginState(boolean useConnectId) {
+        if (!useConnectId && loginManagedByConnectId) {
+            setPasswordOrPin("");
+        }
+
+        loginManagedByConnectId = useConnectId;
+
+        String text;
+        if (useConnectId) {
+            text = activity.getString(R.string.login_button_connectid);
+        } else {
+            text = Localization.get("login.button");
+        }
+        loginButton.setText(text);
+
+        /**
+         * included these lines because when a user changes the language from the system settings while in the app,
+         * the strings should be translate correctly when they return to the app. That's why I added this code.
+         */
+        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
+        if (useConnectId) {
+            passwordOrPin.setText(R.string.login_password_by_connect);
+            passwordOrPin.clearFocus();
+        }
+
+        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
     }
 
     private void updateBanner() {

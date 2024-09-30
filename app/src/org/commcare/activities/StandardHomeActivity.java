@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -15,8 +16,8 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -51,6 +52,8 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+
+        updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -115,7 +118,7 @@ public class StandardHomeActivity
     }
 
     void syncSubTextPressed() {
-        if(CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             CommCareNoficationManager.performIntentCalloutToNotificationsView(this);
         }
     }
@@ -252,7 +255,8 @@ public class StandardHomeActivity
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend,
                                      boolean usingRemoteKeyManagement) {
-        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend, usingRemoteKeyManagement);
+        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend,
+                usingRemoteKeyManagement);
         uiController.refreshView();
     }
 
@@ -267,12 +271,24 @@ public class StandardHomeActivity
     }
 
     @Override
-    public void refreshUI() {
+    public void refreshUi() {
         uiController.refreshView();
     }
 
     @Override
-    void refreshCCUpdateOption() {
+    void refreshCcUpdateOption() {
         invalidateOptionsMenu();
+    }
+
+    private void updateSecondaryPhoneConfirmationTile() {
+        boolean show = getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false) && ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
+
+        uiController.updateConnectTile(show);
+    }
+
+    public void performSecondaryPhoneVerification() {
+        ConnectManager.verifySecondaryPhone(this, success -> {
+            updateSecondaryPhoneConfirmationTile();
+        });
     }
 }
