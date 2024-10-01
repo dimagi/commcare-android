@@ -27,7 +27,6 @@ import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
-import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
@@ -83,7 +82,6 @@ public class CommCareSessionService extends Service {
     public static final ReentrantLock sessionAliveLock = new ReentrantLock();
 
     private Timer maintenanceTimer;
-    private CipherPool pool;
 
     private byte[] key = null;
 
@@ -141,7 +139,6 @@ public class CommCareSessionService extends Service {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
-        createCipherPool();
     }
 
     @Override
@@ -152,27 +149,6 @@ public class CommCareSessionService extends Service {
             Log.e(LogTypes.SOFT_ASSERT,
                     "Trying to wipe uninitialized session in session service tear-down");
         }
-    }
-
-    public void createCipherPool() {
-        pool = new CipherPool() {
-            @Override
-            public Cipher generateNewCipher() {
-                synchronized (lock) {
-                    try {
-                        SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                        Cipher decrypter = Cipher.getInstance("AES");
-                        decrypter.init(Cipher.DECRYPT_MODE, spec);
-
-                        return decrypter;
-                    } catch (NoSuchPaddingException | NoSuchAlgorithmException |
-                             InvalidKeyException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
-        };
     }
 
     @Override
@@ -286,7 +262,6 @@ public class CommCareSessionService extends Service {
         synchronized (lock) {
             this.userKeyRecordUUID = record.getUuid();
             this.key = symetricKey;
-            pool.init();
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
@@ -488,8 +463,6 @@ public class CommCareSessionService extends Service {
                 maintenanceTimer.cancel();
             }
             logoutStartedAt = -1;
-
-            pool.expire();
             endHeartbeatLifecycle();
         }
     }
