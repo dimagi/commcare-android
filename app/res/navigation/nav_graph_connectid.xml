@@ -49,7 +49,6 @@
         android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragmnet"
         android:label="fragment_connectid_phone_verify"
         tools:layout="@layout/screen_connect_phone_verify">
-
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_pin"
             app:destination="@id/connectid_pin"
@@ -62,17 +61,14 @@
             android:id="@+id/action_connectid_phone_verify_to_connectid_password"
             app:destination="@id/connectid_password"
             app:popUpTo="@id/connectid_phone_verify" />
-
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_message"
             app:destination="@id/connectid_message"
             app:popUpTo="@id/connectid_phone_verify" />
-
         <action
             android:id="@+id/action_connectid_phone_verify_self"
             app:destination="@id/connectid_phone_verify"
             app:popUpTo="@id/connectid_phone_verify" />
-
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_signup_fragment"
             app:destination="@id/connectid_signup_fragment" />
@@ -84,7 +80,6 @@
             android:name="method"
             app:argType="string"
             app:nullable="true" />
-
         <argument
             android:name="primaryPhone"
             app:argType="string"
@@ -107,8 +102,7 @@
             app:nullable="true" />
         <argument
             android:name="deactivateButton"
-            app:argType="string"
-            app:nullable="true" />
+            app:argType="boolean" />
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_phoneNo"
             app:destination="@id/connectid_phoneNo" />
@@ -165,10 +159,6 @@
             android:name="password"
             app:argType="string"
             app:nullable="true" />
-        <!--        <action-->
-        <!--            android:id="@+id/action_connectid_message_to_connectid_phone_fragment"-->
-        <!--            app:destination="@id/connectid_signup_fragment" />-->
-
     </dialog>
 
     <fragment
@@ -218,7 +208,6 @@
             android:name="change"
             android:defaultValue="false"
             app:argType="boolean" />
-
     </fragment>
 
     <fragment
@@ -253,11 +242,7 @@
             android:name="callingClass"
             app:argType="integer"
             app:nullable="false" />
-        <!--        <action-->
-        <!--            android:id="@+id/action_connectid_password_to_connectid_phone_fragment"-->
-        <!--            app:destination="@id/connectid_signup_fragment" />-->
     </fragment>
-
 
     <fragment
         android:id="@+id/connectid_signup_fragment"
@@ -291,8 +276,6 @@
         <action
             android:id="@+id/action_connectid_signup_fragment_self"
             app:destination="@id/connectid_signup_fragment" />
-
-
     </fragment>
 
     <fragment
@@ -320,7 +303,6 @@
             android:name="phone"
             app:argType="string"
             app:nullable="true" />
-
     </fragment>
 
     <fragment
@@ -356,5 +338,4 @@
             app:argType="integer"
             app:nullable="false" />
     </fragment>
-
 </navigation>

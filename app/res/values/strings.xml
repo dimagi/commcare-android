@@ -847,7 +847,9 @@
     <string name="connect_deactivate_account_message">You are about to permanently deactivate this account…</string>
     <string name="connect_deactivate_account_delete">Delete Account</string>
     <string name="connect_deactivate_account_go_back">Go Back</string>
-    <string name="connect_deactivate_account_deactivated">Account deactivated, go create a new one</string>
-    <string name="connect_deactivate_account_creation">Create Account</string>
+    <string name="connect_deactivate_account_deactivated">Account deactivated, you may now register a new account with your primary phone number</string>
+    <string name="connect_deactivate_account_creation">Ok</string>
+    <string name="connect_deactivate_dialog_title">Are you sure?</string>
+    <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
 
 </resources>

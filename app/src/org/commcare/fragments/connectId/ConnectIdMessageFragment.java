@@ -2,12 +2,10 @@ package org.commcare.fragments.connectId;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -15,24 +13,14 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import org.commcare.activities.LoginActivity;
 import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 
 /**
@@ -130,7 +118,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                                 ConnectIdActivity.recoverPhone,
                                 ConnectIdActivity.recoverSecret,
                                 ConnectIdActivity.recoveryAltPhone,
-                                getString(R.string.connect_deactivate_account)
+                                true
                         ).setAllowChange(false);
                     }
                 }
@@ -157,7 +145,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     }
                 } else {
                     directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, null, null,null).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, null, null,false).setAllowChange(false);
                 }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
@@ -165,7 +153,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE, null);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,null).setAllowChange(false);
+                                ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
                     }
                 }
                 break;
@@ -174,7 +162,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (success) {
                     if (ConnectManager.getFailureAttempt() > 2) {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,null).setAllowChange(false);
+                                ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,false).setAllowChange(false);
                         ConnectManager.setFailureAttempt(0);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setChange(false).setRecover(true);
@@ -196,14 +184,20 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhone(ConnectConstants.METHOD_CHANGE_ALTERNATE, user.getAlternatePhone(), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,null).setAllowChange(false);
+                                ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
                     }
                 }
                 break;
             case ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION:
                 if (success) {
                     if (!secondButton) {
-                        initiateDeactivation();
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(
+                                ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE,
+                                String.format(Locale.getDefault(), "%d", ConnectIdPhoneVerificationFragmnet.MethodUserDeactivate),
+                                null,
+                                userName,
+                                password,
+                                null,false).setAllowChange(false);
                     } else {
                         NavHostFragment.findNavController(this).popBackStack();
                     }
@@ -213,7 +207,6 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (success) {
                     if (!secondButton) {
                         ConnectDatabaseHelper.forgetUser(requireActivity());
-                        startActivity(new Intent(requireActivity(), LoginActivity.class));
                         requireActivity().finish();
                     }
                 }
@@ -223,57 +216,6 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             if (directions != null) {
                 NavHostFragment.findNavController(this).navigate(directions);
             }
-        }
-    }
-
-    private void initiateDeactivation() {
-        boolean isBusy = !ApiConnectId.requestInitiateAccountDeactivation(getContext(), userName, password, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        if (json.getBoolean("success")) {
-                            NavDirections directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(
-                                    ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE,
-                                    String.format(Locale.getDefault(), "%d", ConnectIdPhoneVerificationFragmnet.MethodUserDeactivate),
-                                    null,
-                                    userName,
-                                    password,
-                                    null,null).setAllowChange(false);
-                            NavHostFragment.findNavController(getParentFragment()).navigate(directions);
-                        }
-                    }
-
-                } catch (IOException e) {
-                    Logger.exception("User deactivation", e);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-            }
-
-            @Override
-            public void processNetworkFailure() {
-            }
-
-            @Override
-            public void processOldApiError() {
-            }
-        });
-
-        if (isBusy) {
-            Toast.makeText(getContext(), R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -382,7 +382,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,null);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
@@ -397,7 +397,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(),null).setAllowChange(true);
+                            ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(),false).setAllowChange(true);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN -> {
@@ -447,7 +447,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,null).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {
