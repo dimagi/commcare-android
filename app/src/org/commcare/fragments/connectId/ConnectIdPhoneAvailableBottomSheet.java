@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -18,7 +19,7 @@ import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragment {
 
-    ConnectMediumTextView phoneTextView;
+    TextView phoneTextView;
     Button recover;
     Button back;
     String phoneNumber;
@@ -46,7 +47,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         View view = inflater.inflate(R.layout.fragment_phone_available_bottom_sheet, container, false);
         back = (Button) view.findViewById(R.id.back_button);
         recover = (Button) view.findViewById(R.id.recover_button);
-        phoneTextView = (ConnectMediumTextView) view.findViewById(R.id.phone_number);
+        phoneTextView = (TextView) view.findViewById(R.id.phone_number);
         if (getArguments() != null) {
             phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }

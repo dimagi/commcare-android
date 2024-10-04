@@ -58,6 +58,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,11 +93,11 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                 if (success) {
                     directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setChange(true).setRecover(true);
                     if (forgot) {
-                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null);
+                        directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), getString(R.string.connect_deactivate_account), phone, secretKey);
                     }
                 } else {
                     directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false).setAllowChange(false);
                 }
                 break;
             case ConnectConstants.CONNECT_UNLOCK_PASSWORD:
@@ -111,7 +112,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                         user.setLastPinDate(new Date());
                         ConnectDatabaseHelper.storeUser(requireActivity(), user);
                         if (user.shouldRequireSecondaryPhoneVerification()) {
-                            directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button));
+                            directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), phone, secretKey);
                         } else {
                             ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
@@ -139,7 +140,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             requestCode = PASSWORD_LOCK;
             message = R.string.connect_password_recovery_message;
         }
-        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, getString(R.string.connect_recovery_success_button), null);
+        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, getString(R.string.connect_recovery_success_button), null, phone, secretKey);
 
         Navigation.findNavController(binding.connectPasswordVerifyButton).navigate(directions);
 

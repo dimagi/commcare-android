@@ -77,7 +77,7 @@
                 android:id="@+id/connect_phone_verify_code"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 android:background="@drawable/connect_edit_text_bg"
                 android:hint="OTP"
                 android:imeOptions="actionNext"
@@ -120,23 +120,51 @@
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="12sp" />
 
-        <org.commcare.views.connect.RoundedButton
-            android:id="@+id/connect_phone_verify_button"
-            android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:layout_gravity="end"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:gravity="start|center"
-            android:text="@string/connect_verify_phone_verify"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonBorderRadius="@dimen/dp48"
-            app:roundButtonIconLeftAlign="false"
-            app:roundButtonIconTintColor="@color/white"
-            app:roundButtonTextColor="@color/white"
-            app:roundButtonTextSize="6.5sp" />
+            android:orientation="horizontal">
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_deactivate_button"
+                android:layout_width="150dp"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:text="@string/connect_deactivate_account"
+                app:roundButtonBackgroundColor="@color/white"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonBorderWidth="0.5dp"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonTextSize="6.5sp" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_phone_verify_button"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:gravity="start|center"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:text="@string/connect_verify_phone_verify"
+                app:roundButtonBackgroundColor="@color/connect_blue_color"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="6.5sp" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 </layout>
