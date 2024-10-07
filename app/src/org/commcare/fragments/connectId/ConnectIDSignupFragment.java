@@ -148,7 +148,7 @@ public class ConnectIDSignupFragment extends Fragment {
             displayNumber(existingPhone);
         }
 
-        getActivity().setTitle("ConnectID Signup");
+        getActivity().setTitle(getString(R.string.connect_registration_title));
         return view;
     }
 
