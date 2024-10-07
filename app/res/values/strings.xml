@@ -40,6 +40,8 @@
     <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
     <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
     <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
+    <string name="ConnectInitiateUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/initiate_deactivation</string>
+    <string name="ConnectConfirmUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/confirm_deactivation</string>
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
@@ -840,4 +842,14 @@
     <string name="connect_payment_dialog_no">No</string>
     <string name="connect_payment_dialog_yes">Yes</string>
     <string name="connect_payment_revert">Revert</string>
+
+    <string name="connect_deactivate_account">Deactivate Account</string>
+    <string name="connect_deactivate_account_message">You are about to permanently deactivate this account…</string>
+    <string name="connect_deactivate_account_delete">Delete Account</string>
+    <string name="connect_deactivate_account_go_back">Go Back</string>
+    <string name="connect_deactivate_account_deactivated">Account deactivated, you may now register a new account with your primary phone number</string>
+    <string name="connect_deactivate_account_creation">Ok</string>
+    <string name="connect_deactivate_dialog_title">Are you sure?</string>
+    <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
+
 </resources>

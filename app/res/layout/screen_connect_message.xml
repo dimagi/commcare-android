@@ -1,60 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/transparent">
-    <LinearLayout
-        android:background="@color/white"
-        android:layout_height="wrap_content"
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_gravity="bottom"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:background="@color/transparent">
 
-        <TextView
-            android:id="@+id/connect_message_title"
-            android:layout_gravity="center"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
-            android:layout_width="wrap_content"
-            android:textColor="@color/connect_subtext"
-            android:textSize="@dimen/text_larger" />
+            android:layout_gravity="bottom"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:gravity="start"
-            android:id="@+id/connect_message_message"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
+            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                android:id="@+id/connect_message_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/content_min_margin"
+                android:textColor="@color/connect_subtext"
+                android:textSize="@dimen/text_larger" />
 
-            android:layout_width="fill_parent"
-            android:textSize="@dimen/text_medium" />
+            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                android:id="@+id/connect_message_message"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/content_min_margin"
+                android:gravity="start"
+                android:textSize="16sp" />
 
-        <org.commcare.views.connect.RoundedButton
-            android:id="@+id/connect_message_button"
-            android:layout_height="45dp"
-            app:roundButtonTextSize="6.5sp"
-            android:layout_width="fill_parent"
-            android:paddingBottom="@dimen/content_start"
-            android:paddingTop="@dimen/content_start"
-            android:text="Back"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonTextColor="@color/white" />
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_message_button"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
+                android:paddingTop="@dimen/content_start"
+                android:paddingBottom="@dimen/content_start"
+                android:text="Back"
+                app:roundButtonBackgroundColor="@color/connect_blue_color"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="6.5sp" />
 
-        <org.commcare.views.connect.RoundedButton
-            android:id="@+id/connect_message_button2"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_width="fill_parent"
-            android:paddingBottom="@dimen/content_start"
-            android:visibility="gone"
-            android:paddingTop="@dimen/content_start"
-            android:text="Back"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonTextColor="@color/white" />
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_message_button2"
+                android:layout_width="fill_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:paddingTop="@dimen/content_start"
+                android:paddingBottom="@dimen/content_start"
+                android:text="Back"
+                android:visibility="gone"
+                app:roundButtonBackgroundColor="@color/connect_blue_color"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="6.5sp" />
 
-    </LinearLayout>
-</FrameLayout>
+        </LinearLayout>
+    </FrameLayout>
 </layout>

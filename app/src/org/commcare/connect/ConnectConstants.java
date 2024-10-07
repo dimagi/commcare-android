@@ -61,4 +61,8 @@ public class ConnectConstants {
     public final static int CONNECT_VERIFY_ALT_PHONE_CHANGE = ConnectConstants.ConnectIdTaskIdOffset + 37;
     public final static int CONNECT_RECOVERY_WRONG_PIN = ConnectConstants.ConnectIdTaskIdOffset + 38;
     public final static int CONNECT_REGISTRATION_WRONG_PIN = ConnectConstants.ConnectIdTaskIdOffset + 39;
+
+    public final static int CONNECT_USER_DEACTIVATE_CONFIRMATION = ConnectConstants.ConnectIdTaskIdOffset + 40;
+    public final static int CONNECT_VERIFY_USER_DEACTIVATE = ConnectConstants.ConnectIdTaskIdOffset + 41;
+    public final static int CONNECT_USER_DEACTIVATE_SUCCESS = ConnectConstants.ConnectIdTaskIdOffset + 42;
 }
