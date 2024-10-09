@@ -7,7 +7,17 @@
 
     <fragment
         android:id="@+id/channelListFragment"
-        android:name="org.commcare.fragments.connectMessaging.ChannelListFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment"
         android:label="Message"
-        tools:layout="@layout/fragment_channel_list" />
+        tools:layout="@layout/fragment_channel_list" >
+        <action
+            android:id="@+id/action_channelListFragment_to_connectMessageFragment"
+            app:destination="@id/connectMessageFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectMessageFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageFragment"
+        android:label="Channel Name"
+        tools:layout="@layout/fragment_connect_message" />
 </navigation>

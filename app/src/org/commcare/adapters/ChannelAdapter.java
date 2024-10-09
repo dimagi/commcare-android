@@ -1,7 +1,6 @@
 package org.commcare.adapters;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -11,8 +10,10 @@ import org.commcare.dalvik.databinding.ItemChannelBinding;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
+    private final OnChannelClickListener clickListener;
 
-    public ChannelAdapter() {
+    public ChannelAdapter(OnChannelClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -23,7 +24,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
     @Override
     public void onBindViewHolder(@NonNull ChannelViewHolder holder, int position) {
-        holder.bind(holder.binding);
+        holder.bind(holder.binding, position, clickListener);
     }
 
     @Override
@@ -40,8 +41,16 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             this.binding = binding;
         }
 
-        public void bind(ItemChannelBinding binding) {
-            binding.itemRootLayout.setOnClickListener(view -> {});
+        public void bind(ItemChannelBinding binding, int position, OnChannelClickListener clickListener) {
+            binding.itemRootLayout.setOnClickListener(view -> {
+                if (clickListener != null) {
+                    clickListener.onChannelClick(position);
+                }
+            });
         }
+    }
+
+    public interface OnChannelClickListener {
+        void onChannelClick(int position);
     }
 }

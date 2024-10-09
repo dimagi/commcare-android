@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    tools:context="org.commcare.fragments.connectMessaging.ChannelListFragment">
+    tools:context="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChannel"

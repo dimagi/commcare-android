@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +21,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connectMessaging.ChannelListFragment;
+import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 
 public class ConnectMessagingActivity extends AppCompatActivity {
 
@@ -92,8 +91,8 @@ public class ConnectMessagingActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect_messaging);
         if (navHostFragment != null) {
             Fragment currentFragment = navHostFragment.getChildFragmentManager().getFragments().get(0);
-            if (currentFragment instanceof ChannelListFragment) {
-                ((ChannelListFragment) currentFragment).onSearchQueryReceived(query);
+            if (currentFragment instanceof ConnectMessageChannelListFragment) {
+                ((ConnectMessageChannelListFragment) currentFragment).onSearchQueryReceived(query);
             }
         }
     }

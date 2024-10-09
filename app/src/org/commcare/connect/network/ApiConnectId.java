@@ -424,4 +424,10 @@ public class ApiConnectId {
         return ConnectNetworkHelper.post(context, context.getString(urlId),
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
+
+    public static boolean retrieveChannel(Context context,IApiCallback callback) {
+        return ConnectNetworkHelper.get(context,
+                context.getString(R.string.ConnectMessageRetrieveMessagesURL),
+                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), null, false, callback);
+    }
 }

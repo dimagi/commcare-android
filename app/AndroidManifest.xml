@@ -119,11 +119,6 @@
         <activity
             android:name="org.commcare.activities.connect.ConnectMessagingActivity"
             android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <meta-data
@@ -143,7 +138,11 @@
             android:name="org.commcare.activities.DispatchActivity"
             android:exported="true"
             android:label="@string/application_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareSession" />
 
