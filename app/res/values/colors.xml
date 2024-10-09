@@ -171,4 +171,7 @@
     <color name="connect_aquva">#88BEE1</color>
     <color name="connect_green">#16A085</color>
     <color name="connect_red">#EA6944</color>
+    <color name="connect_message_receiver_bg">#5C6FD0</color>
+    <color name="connect_message_sender_bg">#F1F5F9</color>
+    <color name="connect_message_sender_text_color">#334155</color>
 </resources>
