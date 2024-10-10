@@ -55,7 +55,7 @@ public class ConnectJobIntroFragment extends Fragment {
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_job_intro_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
 

@@ -51,7 +51,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_job_info_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
