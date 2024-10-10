@@ -158,7 +158,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         } else {
             String title = getString(R.string.connect_downloading_delivery);
             directions = ConnectDeliveryDetailsFragmentDirections
-                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, false);
+                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false);
         }
 
         Navigation.findNavController(button).navigate(directions);

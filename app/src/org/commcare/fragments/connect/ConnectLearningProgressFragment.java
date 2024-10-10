@@ -240,7 +240,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                 getActivity().finish();
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
 
             if(directions != null) {
@@ -260,7 +260,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                 getActivity().finish();
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
 
             if(directions != null) {

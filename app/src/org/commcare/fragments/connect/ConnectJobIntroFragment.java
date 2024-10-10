@@ -110,7 +110,7 @@ public class ConnectJobIntroFragment extends Fragment {
                             directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false);
+                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true);
                         }
 
                         Navigation.findNavController(button).navigate(directions);
