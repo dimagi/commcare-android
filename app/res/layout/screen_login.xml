@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:background="@color/cc_core_bg"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
@@ -26,7 +26,7 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <TextView
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                     android:id="@+id/str_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -47,10 +47,10 @@
                         android:id="@+id/screen_login_banner_pane"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingEnd="@dimen/standard_spacer_half"
+                        android:paddingStart="@dimen/standard_spacer_half"
                         android:paddingLeft="@dimen/standard_spacer_half"
-                        android:paddingRight="@dimen/standard_spacer_half"
-                        android:paddingStart="@dimen/standard_spacer_half">
+                        android:paddingEnd="@dimen/standard_spacer_half"
+                        android:paddingRight="@dimen/standard_spacer_half">
 
                         <include layout="@layout/grid_header_top_banner" />
                     </FrameLayout>
@@ -67,13 +67,13 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:paddingBottom="@dimen/content_start"
-                            android:paddingEnd="@dimen/login_box_margins"
+                            android:paddingStart="@dimen/login_box_margins"
                             android:paddingLeft="@dimen/login_box_margins"
+                            android:paddingEnd="@dimen/login_box_margins"
                             android:paddingRight="@dimen/login_box_margins"
-                            android:paddingStart="@dimen/login_box_margins">
+                            android:paddingBottom="@dimen/content_start">
 
-                            <TextView
+                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                                 android:id="@+id/welcome_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -82,25 +82,28 @@
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium" />
 
-                            <Button
+                            <org.commcare.views.connect.RoundedButton
                                 android:id="@+id/connect_login_button"
                                 android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="45dp"
                                 android:layout_gravity="bottom"
-                                android:paddingBottom="@dimen/content_start"
                                 android:paddingTop="@dimen/content_start"
+                                android:paddingBottom="@dimen/content_start"
+                                android:text="@string/connect_button_logged_in"
                                 android:visibility="gone"
-                                android:text="@string/connect_button_logged_in"/>
+                                RectangleButtonWithText:roundButtonBackgroundColor="@color/connect_blue_color"
+                                RectangleButtonWithText:roundButtonTextColor="@color/white"
+                                RectangleButtonWithText:roundButtonTextSize="6.0sp" />
 
-                            <TextView
+                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                                 android:id="@+id/login_or"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_margin="@dimen/content_min_margin"
+                                android:text="@string/choice_or"
                                 android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
-                                android:text="@string/choice_or" />
+                                android:textSize="@dimen/text_medium" />
 
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
@@ -116,50 +119,53 @@
                                 android:id="@+id/edit_username"
                                 style="@style/LoginEditTextV2"
                                 android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
+                                android:paddingLeft="15dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/login_edit_text"
-                                android:drawableLeft="@drawable/icon_user_neutral50"
                                 android:drawableStart="@drawable/icon_user_neutral50"
                                 android:hint="Username"
                                 android:imeOptions="actionNext"
                                 android:inputType="text"
+                                android:fontFamily="@font/roboto_regular"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textAlignment="viewStart"
-                                android:textSize="@dimen/text_medium"
+                                android:textSize="18sp"
                                 tools:ignore="RtlCompat">
 
                                 <requestFocus />
                             </AutoCompleteTextView>
 
-                            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                            <RelativeLayout
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
+                                android:layout_height="50dp"
+                                android:padding="0dp"
+                                android:layout_marginTop="15dp"
+                                android:background="@drawable/login_edit_text">
 
                                 <EditText
                                     android:id="@+id/edit_password"
                                     style="@style/LoginEditTextV2"
                                     android:layout_width="fill_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="@dimen/content_start"
-                                    android:background="@drawable/login_edit_text"
-                                    android:drawableLeft="@drawable/icon_lock_neutral50"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
                                     android:drawableStart="@drawable/icon_lock_neutral50"
                                     android:hint="Password"
+                                    android:fontFamily="@font/roboto_regular"
+                                    android:textSize="18sp"
                                     android:imeOptions="actionDone"
                                     android:inputType="textPassword"
                                     android:nextFocusUp="@+id/edit_username"
                                     android:textAlignment="viewStart"
-                                    android:textSize="@dimen/text_medium"
                                     tools:ignore="RtlCompat" />
 
                                 <Button
                                     android:id="@+id/show_password"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_alignBottom="@+id/edit_password"
+                                    android:layout_alignTop="@+id/edit_password"
                                     android:layout_alignEnd="@+id/edit_password"
                                     android:layout_alignRight="@+id/edit_password"
-                                    android:layout_alignTop="@+id/edit_password"
+                                    android:layout_alignBottom="@+id/edit_password"
                                     android:background="@android:color/transparent"
                                     android:padding="@dimen/spacer_small"
                                     android:src="@drawable/close_cross_icon"
@@ -178,7 +184,7 @@
                                 android:textSize="16dp"
                                 android:visibility="gone" />
 
-                            <TextView
+                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                                 android:id="@+id/primed_password_message"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
@@ -186,25 +192,29 @@
                                 android:textSize="@dimen/font_size_medium"
                                 android:visibility="gone" />
 
-                            <Button
+                            <org.commcare.views.connect.RoundedButton
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="45dp"
                                 android:layout_gravity="bottom"
+                                android:layout_marginTop="30dp"
                                 android:nextFocusUp="@+id/edit_password"
+                                android:paddingTop="@dimen/content_start"
                                 android:paddingBottom="@dimen/content_start"
-                                android:paddingTop="@dimen/content_start" />
+                                RectangleButtonWithText:roundButtonBackgroundColor="@color/connect_blue_color"
+                                RectangleButtonWithText:roundButtonTextColor="@color/white"
+                                RectangleButtonWithText:roundButtonTextSize="6.0sp" />
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="24dp"
                                 android:layout_marginTop="@dimen/content_min_margin"
+                                android:layout_marginBottom="24dp"
                                 android:orientation="vertical"
                                 android:visibility="gone">
 
-                                <TextView
+                                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                                     android:id="@+id/screen_login_bad_password"
                                     android:layout_width="fill_parent"
                                     android:layout_height="wrap_content"

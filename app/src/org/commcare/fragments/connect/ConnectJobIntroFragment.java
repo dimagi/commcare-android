@@ -1,11 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +8,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -28,6 +23,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 /**
  * Fragment for showing detailed info about an available job
@@ -56,17 +55,21 @@ public class ConnectJobIntroFragment extends Fragment {
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_job_intro_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
 
         TextView textView = view.findViewById(R.id.connect_job_intro_title);
+        TextView payText = view.findViewById(R.id.connect_job_pay_title);
+        TextView endDate = view.findViewById(R.id.connect_job_end_date);
         textView.setText(job.getTitle());
+        endDate.setText( String.format(Locale.getDefault(), getString(R.string.connect_end_date), ConnectNetworkHelper.convertDateToLocalFormat(job.getProjectEndDate())));
 
         String visitPayment = job.getMoneyString(job.getTotalBudget());
-        String fullDescription = String.format(Locale.getDefault(), getString(R.string.connect_job_full_description), job.getDescription(), visitPayment);
+        String fullDescription =  job.getDescription();
 
         textView = view.findViewById(R.id.connect_job_intro_description);
+        payText.setText(job.getCurrency()+" "+job.getBudgetPerVisit());
         textView.setText(fullDescription);
 
         int totalHours = 0;
@@ -90,7 +93,7 @@ public class ConnectJobIntroFragment extends Fragment {
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setVisibility(showLaunchButton ? View.VISIBLE : View.GONE);
         if(showLaunchButton) {
-            button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.connect_job_download_learn_app));
+            button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.download_app));
             button.setOnClickListener(v -> {
                 //First, need to tell Connect we're starting learning so it can create a user on HQ
                 ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {
@@ -107,7 +110,7 @@ public class ConnectJobIntroFragment extends Fragment {
                             directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false);
+                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true);
                         }
 
                         Navigation.findNavController(button).navigate(directions);

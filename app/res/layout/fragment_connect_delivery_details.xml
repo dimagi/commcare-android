@@ -1,131 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/connect_background_color">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/connect_delivery_details_container"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
             android:paddingBottom="20dp"
-            android:background="@drawable/dots_rect_back">
+            app:cardCornerRadius="10dp"
+            app:cardElevation="5dp">
 
-            <TextView
-                android:id="@+id/connect_delivery_title"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/connect_delivery_details_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:paddingTop="10dp"
-                android:textStyle="bold"
-                android:textSize="@dimen/text_large"
-                android:text="@string/connect_delivery_review_title"
-                />
+                android:background="@color/connect_dark_blue_color"
+                android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/connect_delivery_visits_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                app:layout_constraintTop_toBottomOf="@id/connect_delivery_title"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="20dp"
-                android:src="@drawable/report_approved"
-                />
+                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    android:id="@+id/connect_delivery_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_job_info_delivery_detail"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/connect_delivery_total_visits_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/connect_delivery_visits_icon"
-                app:layout_constraintBottom_toBottomOf="@id/connect_delivery_visits_icon"
-                app:layout_constraintStart_toEndOf="@id/connect_delivery_visits_icon"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="20dp"
-                />
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    android:id="@+id/connect_review"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_job_info_review_delivery"
+                    android:textColor="@color/grey"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/connect_delivery_title" />
 
-            <ImageView
-                android:id="@+id/connect_delivery_max_daily_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                app:layout_constraintTop_toBottomOf="@id/connect_delivery_visits_icon"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="20dp"
-                android:src="@drawable/time"
-                />
+                <ImageView
+                    android:id="@+id/connect_delivery_visits_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/connect_review" />
 
-            <TextView
-                android:id="@+id/connect_delivery_max_daily_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/connect_delivery_max_daily_icon"
-                app:layout_constraintBottom_toBottomOf="@id/connect_delivery_max_daily_icon"
-                app:layout_constraintStart_toEndOf="@id/connect_delivery_max_daily_icon"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="20dp"
-                />
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    android:id="@+id/connect_delivery_total_visits_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@id/connect_delivery_visits_icon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_visits_icon"
+                    app:layout_constraintTop_toTopOf="@id/connect_delivery_visits_icon" />
 
-            <ImageView
-                android:id="@+id/connect_delivery_budget_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                app:layout_constraintTop_toBottomOf="@id/connect_delivery_max_daily_icon"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="20dp"
-                android:layout_marginStart="20dp"
-                android:src="@drawable/monetary_support"
-                />
+                <ImageView
+                    android:id="@+id/connect_delivery_days_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/connect_delivery_visits_icon" />
 
-            <TextView
-                android:id="@+id/connect_delivery_budget_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@id/connect_delivery_budget_icon"
-                app:layout_constraintBottom_toBottomOf="@id/connect_delivery_budget_icon"
-                app:layout_constraintStart_toEndOf="@id/connect_delivery_budget_icon"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginStart="20dp"
-                />
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    android:id="@+id/connect_delivery_days_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@id/connect_delivery_days_icon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_days_icon"
+                    app:layout_constraintTop_toTopOf="@id/connect_delivery_days_icon" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <ImageView
+                    android:id="@+id/connect_delivery_max_daily_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/connect_delivery_days_icon" />
 
-        <TextView
-            android:id="@+id/connect_delivery_action_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_marginTop="20dp"
-            android:textStyle="bold"
-            android:text="@string/connect_delivery_ready_to_claim"/>
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    android:id="@+id/connect_delivery_max_daily_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@id/connect_delivery_max_daily_icon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_max_daily_icon"
+                    app:layout_constraintTop_toTopOf="@id/connect_delivery_max_daily_icon" />
 
-        <TextView
-            android:id="@+id/connect_delivery_action_details"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:textAlignment="center"
-            />
+                <ImageView
+                    android:id="@+id/connect_delivery_budget_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="20dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/connect_delivery_max_daily_icon" />
 
-        <Button
-            android:id="@+id/connect_delivery_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:text="@string/connect_delivery_claim" />
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    android:id="@+id/connect_delivery_budget_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="@id/connect_delivery_budget_icon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_budget_icon"
+                    app:layout_constraintTop_toTopOf="@id/connect_delivery_budget_icon" />
 
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="5dp"
+                    app:layout_constraintEnd_toEndOf="@+id/connect_delivery_budget_text"
+                    app:layout_constraintStart_toStartOf="@+id/connect_delivery_budget_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_budget_icon">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/connect_darker_blue_color"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/linearLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                                android:id="@+id/connect_delivery_action_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_job_info_start_visit"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                                android:id="@+id/connect_delivery_action_details"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_job_info_download_delivery"
+                                android:textAlignment="center"
+                                android:textColor="@color/grey"
+                                android:textSize="14sp" />
+
+                        </LinearLayout>
+
+                        <org.commcare.views.connect.RoundedButton
+                            android:id="@+id/connect_delivery_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="@string/connect_job_info_download"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:roundButtonBackgroundColor="@color/white"
+                            app:roundButtonFontFamily="@font/roboto_medium"
+                            app:roundButtonIcon="@drawable/ic_connect_arrow_forward_24px"
+                            app:roundButtonIconLeftAlign="false"
+                            app:roundButtonIconTintColor="@color/connect_dark_blue_color"
+                            app:roundButtonTextColor="@color/connect_blue_color"
+                            app:roundButtonTextSize="5sp" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 </ScrollView>

@@ -5,34 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.activities.CommCareActivity;
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.commcare.views.connect.RoundedButton;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -67,7 +50,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_learn_title));
 
         if(getArguments() != null) {
             showAppLaunch = getArguments().getBoolean("showLaunch", true);
@@ -75,12 +58,12 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
 
-        ImageView refreshButton = view.findViewById(R.id.connect_learning_refresh);
+        RoundedButton refreshButton = view.findViewById(R.id.connect_learning_refresh);
         refreshButton.setOnClickListener(v -> {
             refreshData();
         });
 
-        updateUpdatedDate(job.getLastLearnUpdate());
+//        updateUpdatedDate(job.getLastLearnUpdate());
         updateUi(view);
         refreshData();
 
@@ -91,7 +74,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectManager.isUnlocked()) {
+        if(ConnectManager.isConnectIdConfigured()) {
             refreshData();
         }
     }
@@ -101,7 +84,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectManager.updateLearningProgress(getContext(), job, success -> {
             if(success) {
                 try {
-                    updateUpdatedDate(new Date());
+//                    updateUpdatedDate(new Date());
                     updateUi(null);
                 }
                 catch(Exception e) {
@@ -160,10 +143,10 @@ public class ConnectLearningProgressFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.connect_learning_progress_bar);
         LinearLayout progressBarTextContainer = view.findViewById(R.id.connect_learn_progress_bar_text_container);
 
-        progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        progressBarTextContainer.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        if(!learningFinished) {
+        progressText.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        progressBarTextContainer.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        if(!assessmentPassed) {
             progressBar.setProgress(percent);
             progressBar.setMax(100);
 
@@ -196,9 +179,16 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_learning_claim_label);
         textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
+        textView.setText(R.string.connect_learn_claim_label);
 
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
+
+        textView = view.findViewById(R.id.connect_job_intro_description);
+        textView.setText(job.getDescription());
+
+        textView = view.findViewById(R.id.connect_job_intro_title);
+        textView.setText(job.getTitle());
 
         TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
         completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
@@ -206,18 +196,6 @@ public class ConnectLearningProgressFragment extends Fragment {
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
         textView.setVisibility(finished ? View.VISIBLE : View.GONE);
-
-        textView = view.findViewById(R.id.connect_learning_warning_learn_text);
-        textView.setOnClickListener(v -> {
-            StandardAlertDialog dialog = new StandardAlertDialog(
-                    getContext(),
-                    getString(R.string.connect_progress_warning),
-                    getString(R.string.connect_progress_warning_full));
-            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
-                dialog1.dismiss();
-            });
-            ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
-        });
 
         if(learningFinished) {
             textView = view.findViewById(R.id.connect_learn_cert_subject);
@@ -262,7 +240,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                 getActivity().finish();
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
 
             if(directions != null) {
@@ -282,7 +260,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                 getActivity().finish();
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
 
             if(directions != null) {
@@ -291,13 +269,13 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
     }
 
-    private void updateUpdatedDate(Date lastUpdate) {
-        View view = getView();
-        if(view == null) {
-            return;
-        }
-
-        TextView updateText = view.findViewById(R.id.connect_learning_last_update);
-        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
-    }
+//    private void updateUpdatedDate(Date lastUpdate) {
+//        View view = getView();
+//        if(view == null) {
+//            return;
+//        }
+//
+//        TextView updateText = view.findViewById(R.id.connect_learning_last_update);
+//        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
+//    }
 }

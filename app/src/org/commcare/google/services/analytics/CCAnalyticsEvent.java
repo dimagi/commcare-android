@@ -39,6 +39,7 @@ public class CCAnalyticsEvent {
     static final String CCC_LAUNCH_APP = "ccc_launch_app";
     static final String PARAM_CCC_LAUNCH_APP_TYPE = "ccc_launch_app_type";
     static final String CCC_AUTO_LOGIN_FAILED = "ccc_auto_login_failed";
+    static final String CCC_AUTO_LOGIN_LOCAL_PASSPHRASE = "ccc_auto_login_local_passphrase";
     static final String PARAM_CCC_APP_NAME = "ccc_app_name";
     static final String CCC_API_JOBS = "ccc_api_jobs";
     static final String PARAM_API_SUCCESS = "ccc_api_success";

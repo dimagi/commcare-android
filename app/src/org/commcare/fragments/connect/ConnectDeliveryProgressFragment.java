@@ -8,14 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -26,6 +18,14 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Fragment for showing delivery progress for a Connect job
@@ -64,7 +64,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_delivery_progress_title));
 
         if (getArguments() != null) {
             showLearningLaunch = getArguments().getBoolean("showLaunch", true);
@@ -109,8 +109,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         pager.setAdapter(viewStateAdapter);
 
         final TabLayout tabLayout = view.findViewById(R.id.connect_delivery_progress_tabs);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress_delivery));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress_delivery_verification));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_payment));
 
         if (tabPosition.equals("1")) {
             TabLayout.Tab tab = tabLayout.getTabAt(Integer.parseInt(tabPosition));
@@ -163,7 +163,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (ConnectManager.isUnlocked()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             refreshData();
         }
     }
