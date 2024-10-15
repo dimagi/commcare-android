@@ -167,8 +167,9 @@
     <color name="connect_subtext_color">#9CA3AF</color>
     <color name="connect_grey">#9A9A9A</color>
     <color name="connect_divider_color">#E5E7EB</color>
-    <color name="connect_background_color">#f2f5ff</color>
+    <color name="connect_background_color">#f7f9fa</color>
     <color name="connect_aquva">#88BEE1</color>
     <color name="connect_green">#16A085</color>
     <color name="connect_red">#EA6944</color>
+    <color name="connect_un_fill_progress">#ebecfa</color>
 </resources>

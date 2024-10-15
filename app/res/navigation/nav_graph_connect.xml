@@ -86,6 +86,9 @@
         <action
             android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_results_fragment"
             app:destination="@id/connect_results_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_delivery_fragment"
+            app:destination="@id/connect_delivery_fragment" />
     </fragment>
 
     <fragment
@@ -120,6 +123,16 @@
         <argument
             android:name="showPayments"
             app:argType="boolean" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_delivery_fragment"
+        android:name="org.commcare.fragments.connect.ConnectDeliveryListFragment"
+        android:label="fragment_connect_delivery_list"
+        tools:layout="@layout/fragment_connect_delivery_list">
+        <argument
+            android:name="unitId"
+            app:argType="string" />
     </fragment>
 
 </navigation>

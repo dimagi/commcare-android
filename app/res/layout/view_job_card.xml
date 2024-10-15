@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            android:id="@+id/connectBoldTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Infant Child Vaccination By Rama"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connectMediumTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="Complete Project by 01/31/2024"
+            android:textColor="@color/connect_grey"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/connectBoldTextView" />
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connectMediumTextView2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            android:text="View More"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/connectMediumTextView" />
+
+        <ImageView
+            android:id="@+id/imgJobIcon"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:src="@drawable/dumy_job_logo"
+            android:layout_marginStart="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="120dp"
+            android:background="@color/connect_divider_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.7" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
