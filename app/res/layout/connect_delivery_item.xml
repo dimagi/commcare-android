@@ -29,7 +29,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:text="Name of the person"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/delivery_item_reason"
         app:layout_constraintStart_toEndOf="@+id/llDeliveryStatus"
@@ -40,7 +39,6 @@
         android:id="@+id/delivery_item_reason"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Message"
         android:textColor="@color/connect_yellowish_orange_color"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -63,14 +61,12 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="10dp"
             android:layout_marginVertical="5dp"
-            android:text="ECD Week 1"
             android:textSize="12sp" />
 
     </androidx.cardview.widget.CardView>
 
     <org.commcare.views.connect.connecttextview.ConnectRegularTextView
         android:id="@+id/delivery_item_date"
-        android:text="12 Jun, 2024"
         android:textSize="12sp"
         android:layout_marginTop="5dp"
         android:layout_width="wrap_content"
