@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:id="@+id/llDeliveryStatus"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/shape_connect_delivery_pending"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgDeliveryStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_connect_delivery_pending" />
+
+    </LinearLayout>
+
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:id="@+id/delivery_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Name of the person"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/delivery_item_reason"
+        app:layout_constraintStart_toEndOf="@+id/llDeliveryStatus"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        android:id="@+id/delivery_item_reason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Message"
+        android:textColor="@color/connect_yellowish_orange_color"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/delivery_item_name"
+        app:layout_constraintTop_toBottomOf="@+id/delivery_item_name" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:cardBackgroundColor="@color/connect_light_grey"
+        app:cardCornerRadius="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            android:layout_width="wrap_content"
+            android:id="@+id/tv"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="5dp"
+            android:text="ECD Week 1"
+            android:textSize="12sp" />
+
+    </androidx.cardview.widget.CardView>
+
+    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        android:id="@+id/delivery_item_date"
+        android:text="12 Jun, 2024"
+        android:textSize="12sp"
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        android:id="@+id/delivery_item_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,13 +1,18 @@
 package org.commcare.fragments.connect;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +22,9 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +67,8 @@ public class ConnectDeliveryListFragment extends Fragment {
     private void setupRecyclerView(View view) {
         RecyclerView recyclerView = view.findViewById(R.id.delivery_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new DeliveryAdapter(getFilteredDeliveries());
+        adapter = new DeliveryAdapter(getContext(), getFilteredDeliveries());
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
     }
 
     private void setupFilterViews(View view) {
@@ -116,21 +123,23 @@ public class ConnectDeliveryListFragment extends Fragment {
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {
         private List<ConnectJobDeliveryRecord> filteredDeliveries;
+        Context context;
 
-        public DeliveryAdapter(List<ConnectJobDeliveryRecord> filteredDeliveries) {
+        public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> filteredDeliveries) {
+            this.context = context;
             this.filteredDeliveries = filteredDeliveries;
         }
 
         @NonNull
         @Override
         public VerificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new VerificationViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_verification_item, parent, false));
+            return new VerificationViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_delivery_item, parent, false));
         }
 
         @Override
         public void onBindViewHolder(@NonNull VerificationViewHolder holder, int position) {
             ConnectJobDeliveryRecord delivery = filteredDeliveries.get(position);
-            holder.bind(delivery);
+            holder.bind(context, delivery);
         }
 
         @Override
@@ -145,10 +154,12 @@ public class ConnectDeliveryListFragment extends Fragment {
         }
 
         static class VerificationViewHolder extends RecyclerView.ViewHolder {
-            final TextView nameText;
-            final TextView dateText;
-            final TextView statusText;
-            final TextView reasonText;
+            final ConnectMediumTextView nameText;
+            final ConnectRegularTextView dateText;
+            final ConnectRegularTextView statusText;
+            final ConnectBoldTextView reasonText;
+            final LinearLayout llDeliveryStatus;
+            final ImageView imgDeliveryStatus;
 
             public VerificationViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -156,13 +167,38 @@ public class ConnectDeliveryListFragment extends Fragment {
                 dateText = itemView.findViewById(R.id.delivery_item_date);
                 statusText = itemView.findViewById(R.id.delivery_item_status);
                 reasonText = itemView.findViewById(R.id.delivery_item_reason);
+                llDeliveryStatus = itemView.findViewById(R.id.llDeliveryStatus);
+                imgDeliveryStatus = itemView.findViewById(R.id.imgDeliveryStatus);
             }
 
-            public void bind(ConnectJobDeliveryRecord delivery) {
+            public void bind(Context context, ConnectJobDeliveryRecord delivery) {
                 nameText.setText(delivery.getEntityName());
-                dateText.setText(ConnectManager.formatDate(delivery.getDate()));
+                dateText.setText(ConnectManager.paymentDateFormat(delivery.getDate()));
                 statusText.setText(delivery.getStatus());
                 reasonText.setText(delivery.getReason());
+                handleUI(context, delivery.getStatus());
+            }
+
+            public void handleUI(Context context, String status) {
+                switch (status) {
+                    case "pending": {
+                        llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_pending);
+                        imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_pending));
+                        break;
+                    }
+
+                    case "approved": {
+                        llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_approved);
+                        imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_approved));
+                        break;
+                    }
+
+                    case "rejected": {
+                        llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_rejected);
+                        imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_rejected));
+                        break;
+                    }
+                }
             }
         }
     }
