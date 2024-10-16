@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_connect_messaging"
+    app:startDestination="@+id/channelListFragment">
+
+    <fragment
+        android:id="@+id/channelListFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment"
+        android:label="Message"
+        tools:layout="@layout/fragment_channel_list" >
+        <action
+            android:id="@+id/action_channelListFragment_to_connectMessageFragment"
+            app:destination="@id/connectMessageFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectMessageFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageFragment"
+        android:label="Channel Name"
+        tools:layout="@layout/fragment_connect_message" />
+</navigation>
