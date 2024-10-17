@@ -22,7 +22,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="@string/connect_verify_title"
                 android:textAlignment="center"
-                android:textColor="@color/black"
+                android:textColor="@color/connect_text_color"
                 android:textSize="@dimen/text_larger" />
 
             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
@@ -35,7 +35,7 @@
                 android:layout_marginBottom="10dp"
                 android:text="@string/connect_verify_message"
                 android:textAlignment="center"
-                android:textColor="@color/cc_neutral_color"
+                android:textColor="@color/connect_subtext"
                 android:textSize="16sp" />
 
             <LinearLayout

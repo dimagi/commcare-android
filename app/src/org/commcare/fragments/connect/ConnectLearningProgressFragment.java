@@ -1,6 +1,9 @@
 package org.commcare.fragments.connect;
 
+import android.animation.LayoutTransition;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +18,14 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -31,6 +37,9 @@ import androidx.navigation.Navigation;
  */
 public class ConnectLearningProgressFragment extends Fragment {
     boolean showAppLaunch = true;
+
+    TextView viewMore;
+    TextView jobDiscription;
     public ConnectLearningProgressFragment() {
         // Required empty public constructor
     }
@@ -52,12 +61,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(getString(R.string.connect_learn_title));
 
+
         if(getArguments() != null) {
             showAppLaunch = getArguments().getBoolean("showLaunch", true);
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
-
         RoundedButton refreshButton = view.findViewById(R.id.connect_learning_refresh);
         refreshButton.setOnClickListener(v -> {
             refreshData();
@@ -118,7 +127,11 @@ public class ConnectLearningProgressFragment extends Fragment {
                 showReviewLearningButton = true;
 
                 if(assessmentPassed) {
+                    TextView textView = view.findViewById(R.id.connect_learn_cert_score);
+                    String text=getString(R.string.your_score, job.getAssessmentScore());
+                    textView.setText(text);
                     status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
+
                     buttonText = getString(R.string.connect_learn_view_details);
                 }
                 else {
@@ -149,12 +162,14 @@ public class ConnectLearningProgressFragment extends Fragment {
         if(!assessmentPassed) {
             progressBar.setProgress(percent);
             progressBar.setMax(100);
-
             progressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
         }
 
-        LinearLayout certContainer = view.findViewById(R.id.connect_learning_certificate_container);
+        CardView certContainer = view.findViewById(R.id.connect_learning_certificate_container);
         certContainer.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
+
+        CardView learningContainer = view.findViewById(R.id.learning_card);
+        learningContainer.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         int titleResource;
         if(learningFinished) {
@@ -184,14 +199,16 @@ public class ConnectLearningProgressFragment extends Fragment {
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
 
-        textView = view.findViewById(R.id.connect_job_intro_description);
-        textView.setText(job.getDescription());
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobIntroFragment(false));
+        });
 
-        textView = view.findViewById(R.id.connect_job_intro_title);
-        textView.setText(job.getTitle());
-
-        TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
-        completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
@@ -227,7 +244,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            completeByText.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+            tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
@@ -236,8 +253,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         reviewButton.setOnClickListener(v -> {
             NavDirections directions = null;
             if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-                getActivity().finish();
+                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
@@ -254,10 +270,9 @@ public class ConnectLearningProgressFragment extends Fragment {
         button.setOnClickListener(v -> {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment();
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(true);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-                getActivity().finish();
+                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);

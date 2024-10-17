@@ -89,7 +89,6 @@ public class ConnectJobsListsFragment extends Fragment {
         viewStateAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle(), (appId, isLearning) -> {
             //Launch app and finish this activity
             ConnectManager.launchApp(getActivity(), isLearning, appId);
-            getActivity().finish();
         });
         viewPager.setAdapter(viewStateAdapter);
 

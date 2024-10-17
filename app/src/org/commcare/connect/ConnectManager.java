@@ -118,7 +118,7 @@ public class ConnectManager {
 
     private static ConnectManager manager = null;
     private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
-    private CommCareActivity<?> parentActivity;
+    private Context parentActivity;
 
     private String primedAppIdForAutoLogin = null;
 
@@ -142,7 +142,7 @@ public class ConnectManager {
         getInstance().connectStatus = connectStatus;
     }
 
-    public static void init(CommCareActivity<?> parent) {
+    public static void init(Context parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
 
@@ -199,7 +199,7 @@ public class ConnectManager {
         }
     }
 
-    public static void setParent(CommCareActivity<?> parent) {
+    public static void setParent(Context parent) {
         getInstance().parentActivity = parent;
     }
 
@@ -380,7 +380,7 @@ public class ConnectManager {
         launchConnectId(parent, ConnectConstants.VERIFY_PHONE, callback);
     }
 
-    public static void goToConnectJobsList(CommCareActivity<?> parent) {
+    public static void goToConnectJobsList(Context parent) {
         manager.parentActivity = parent;
         completeSignin();
         Intent i = new Intent(parent, ConnectActivity.class);
@@ -641,7 +641,7 @@ public class ConnectManager {
         }
     }
 
-    public static void launchApp(Context context, boolean isLearning, String appId) {
+    public static void launchApp(Activity activity, boolean isLearning, String appId) {
         CommCareApplication.instance().closeUserSession();
 
         String appType = isLearning ? "Learn" : "Deliver";
@@ -649,7 +649,9 @@ public class ConnectManager {
 
         getInstance().primedAppIdForAutoLogin = appId;
 
-        CommCareLauncher.launchCommCareForAppId(context, appId);
+        CommCareLauncher.launchCommCareForAppId(activity, appId);
+
+        activity.finish();
     }
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
