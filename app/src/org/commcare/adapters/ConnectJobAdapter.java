@@ -305,7 +305,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             String title = parentContext.getString(textId);
-            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning, true));
+            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
         }
     }
 

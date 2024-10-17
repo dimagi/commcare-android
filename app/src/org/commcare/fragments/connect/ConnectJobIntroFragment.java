@@ -55,7 +55,7 @@ public class ConnectJobIntroFragment extends Fragment {
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_job_intro_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
 
@@ -110,7 +110,7 @@ public class ConnectJobIntroFragment extends Fragment {
                             directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true, false);
+                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true);
                         }
 
                         Navigation.findNavController(button).navigate(directions);

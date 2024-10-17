@@ -600,6 +600,8 @@
     <string name="connect_job_visits_completed">Completed %d visits</string>
     <string name="connect_job_remaining">%d days remaining%s</string>
 
+    <string name="connect_job_intro_title">Opportunity</string>
+
     <string name="connect_job_remaining_from"> from %s</string>
 
     <string name="connect_job_learning">Learning</string>
@@ -622,19 +624,22 @@
 
     <string name="connect_job_download_learn_app">Download Learn App</string>
     <string name="connect_job_learn_summary">%d modules, %d hours</string>
-    <string name="connect_learn_progress_title">Learning Progress</string>
+    <string name="connect_learn_progress_title">Learn Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
 
+    <string name="connect_learn_title">Learning Progress</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
+    <string name="your_score">Score: %d</string>
+
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
     <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_learn_complete">Complete</string>
-    <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
+    <string name="connect_learn_certificate">Certificate</string>
 
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
@@ -820,6 +825,7 @@
         <item>save</item>
     </string-array>
 
+    <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
     <string name="connect_job_info_review_delivery">Review the delivery details</string>
     <string name="connect_job_info_visit">%d maximum Visits</string>
@@ -830,6 +836,7 @@
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
 
+    <string name="connect_delivery_progress_title">Delivery Progress</string>
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>

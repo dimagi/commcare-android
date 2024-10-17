@@ -68,6 +68,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
 //        getActivity().setTitle(job.getTitle());
         getActivity().setTitle(R.string.connect_progress_delivery);
+ 
 
         if (getArguments() != null) {
             showLearningLaunch = getArguments().getBoolean("showLaunch", true);

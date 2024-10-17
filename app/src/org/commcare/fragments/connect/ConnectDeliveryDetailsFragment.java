@@ -52,9 +52,9 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
         ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
         boolean isButtonVisible = args.getIsButtonVisible();
+        getActivity().setTitle(getString(R.string.connect_job_info_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
@@ -164,7 +164,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         } else {
             String title = getString(R.string.connect_downloading_delivery);
             directions = ConnectDeliveryDetailsFragmentDirections
-                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, false);
+                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false);
         }
 
         Navigation.findNavController(button).navigate(directions);

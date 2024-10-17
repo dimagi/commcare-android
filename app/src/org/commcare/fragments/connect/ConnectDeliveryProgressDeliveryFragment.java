@@ -98,7 +98,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             getActivity().finish();
         } else {
             String title = getString(R.string.connect_downloading_learn);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true, true));
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true));
         }
     }
 
@@ -109,7 +109,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             getActivity().finish();
         } else {
             String title = getString(R.string.connect_downloading_delivery);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false, true));
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false));
         }
     }
 
