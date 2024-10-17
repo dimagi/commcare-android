@@ -244,6 +244,12 @@ public class ConnectManager {
         return dateFormat.format(date);
     }
 
+    private static final DateFormat opportunitydateFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.getDefault());
+
+    public static String opportunityFormatDate(Date date) {
+        return opportunitydateFormat.format(date);
+    }
+
     private static final DateFormat paymentDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
 
     public static String paymentDateFormat(Date date) {
