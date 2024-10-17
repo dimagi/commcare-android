@@ -16,6 +16,8 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.Date;
 
@@ -24,6 +26,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -64,7 +67,9 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(getString(R.string.connect_delivery_progress_title));
+//        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(R.string.connect_progress_delivery);
+ 
 
         if (getArguments() != null) {
             showLearningLaunch = getArguments().getBoolean("showLaunch", true);
@@ -156,6 +161,17 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         updatePaymentConfirmationTile(getContext(), false);
 
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         return view;
     }
 

@@ -139,6 +139,7 @@
                     app:layout_constraintTop_toTopOf="@id/connect_delivery_budget_icon" />
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/cardButtonLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
