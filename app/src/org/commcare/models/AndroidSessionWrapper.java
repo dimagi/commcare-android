@@ -54,7 +54,8 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
     private int sessionStateRecordId = -1;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
-        session = new SessionWrapper(new CommCareSession(platform), platform, new AndroidSandbox(CommCareApplication.instance()));
+        session = new SessionWrapper(new CommCareSession(platform), platform,
+                new AndroidSandbox(CommCareApplication.instance()));
     }
 
     public AndroidSessionWrapper(SessionWrapper session) {
