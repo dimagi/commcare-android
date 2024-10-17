@@ -16,6 +16,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.Date;
 
@@ -24,6 +25,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
+import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -156,6 +158,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         });
 
         updatePaymentConfirmationTile(getContext(), false);
+
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment());
+
+        });
 
         return view;
     }

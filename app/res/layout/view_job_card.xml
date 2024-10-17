@@ -38,7 +38,7 @@
             app:layout_constraintTop_toBottomOf="@+id/connectBoldTextView" />
 
         <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:id="@+id/connectMediumTextView2"
+            android:id="@+id/tvViewMore"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -48,7 +48,6 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/connectMediumTextView" />
 

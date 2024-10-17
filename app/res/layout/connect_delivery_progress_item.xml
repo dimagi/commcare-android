@@ -102,7 +102,7 @@
                         android:layout_width="13dp"
                         android:layout_height="13dp"
                         android:contentDescription="@null"
-                        android:src="@drawable/ic_connect_check_circle" />
+                        android:src="@drawable/ic_connect_delivery_check_circle" />
                 </LinearLayout>
 
                 <LinearLayout
