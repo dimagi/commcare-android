@@ -269,8 +269,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         reviewButton.setOnClickListener(v -> {
             NavDirections directions = null;
             if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-                getActivity().finish();
+                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
@@ -289,8 +288,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             if(learningFinished && assessmentPassed) {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment();
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-                getActivity().finish();
+                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);

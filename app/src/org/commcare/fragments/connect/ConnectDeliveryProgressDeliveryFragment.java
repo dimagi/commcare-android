@@ -84,8 +84,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private void launchLearningApp(Button button) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-            ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-            getActivity().finish();
+            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
         } else {
             String title = getString(R.string.connect_downloading_learn);
             Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true));
@@ -95,8 +94,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private void launchDeliveryApp(Button button) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
-            ConnectManager.launchApp(getContext(), false, job.getDeliveryAppInfo().getAppId());
-            getActivity().finish();
+            ConnectManager.launchApp(getActivity(), false, job.getDeliveryAppInfo().getAppId());
         } else {
             String title = getString(R.string.connect_downloading_delivery);
             Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false));
