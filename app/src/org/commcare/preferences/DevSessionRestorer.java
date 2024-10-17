@@ -118,7 +118,7 @@ public class DevSessionRestorer {
                 Log.i(TAG, "Restoring session from storage");
                 ///TODO we have to figure this out
                 return new AndroidSessionWrapper(new SessionWrapper(restoredSession, platform,
-                        new AndroidSandbox(CommCareApplication.instance()),""));
+                        new AndroidSandbox(CommCareApplication.instance()),null));
             } catch (Exception e) {
                 clearSession(prefs);
                 Log.w(TAG, "Restoring session from serialized file failed");

@@ -55,7 +55,7 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         ///TODO we have to check this again
-        session = new SessionWrapper(new CommCareSession(platform), platform, new AndroidSandbox(CommCareApplication.instance()), getSession().getWindowWidth());
+        session = new SessionWrapper(new CommCareSession(platform), platform, new AndroidSandbox(CommCareApplication.instance()), null);
     }
 
     public AndroidSessionWrapper(SessionWrapper session) {
