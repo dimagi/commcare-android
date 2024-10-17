@@ -6,6 +6,7 @@ import static org.commcare.activities.LoginActivity.JOB_LEARNING;
 import static org.commcare.activities.LoginActivity.JOB_NEW_OPPORTUNITY;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,23 +16,26 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.activities.LoginActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectJobListLauncher;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
-import org.commcare.interfaces.JobListCallBack;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListConnectHomeAppsAdapter.ViewHolder> {
 
     private final Context mContext;
     private final ArrayList<ConnectLoginJobListModel> jobList;
-    private JobListCallBack mCallback;
+    private final ConnectJobListLauncher launcher;
 
-    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,JobListCallBack mCallback) {
+    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList, ConnectJobListLauncher launcher) {
         this.mContext = context;
         this.jobList = jobList;
-        this.mCallback = mCallback;
+        this.launcher = launcher;
     }
 
     @NonNull
@@ -45,7 +49,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(mContext, jobList.get(position),mCallback);
+        holder.bind(mContext, position, jobList.get(position), launcher);
     }
 
     @Override
@@ -61,24 +65,44 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
             this.binding = binding;
         }
 
-        public void bind(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
+        public void bind(Context mContext, int position, ConnectLoginJobListModel connectLoginJobListModel, ConnectJobListLauncher launcher) {
             binding.tvTitle.setText(connectLoginJobListModel.getName());
             binding.tvDate.setText(LoginActivity.formatDate(connectLoginJobListModel.getLastAccessed().toString()));
             handleProgressBarUI(mContext, connectLoginJobListModel);
             configureJobType(mContext, connectLoginJobListModel);
 
-            clickListener(mContext,connectLoginJobListModel,mCallback);
+            clickListener(mContext, position, connectLoginJobListModel, launcher);
         }
 
-        private void clickListener(Context mContext, ConnectLoginJobListModel connectLoginJobListModel, JobListCallBack mCallback) {
-            String appType;
-            if (connectLoginJobListModel.getJobType().equals(JOB_LEARNING) || connectLoginJobListModel.getJobType().equals(JOB_NEW_OPPORTUNITY)) {
-                appType = LoginActivity.LEARN_APP;
-            } else {
-                appType = LoginActivity.DELIVERY_APP;
-            }
+        private void clickListener(Context mContext, int position, ConnectLoginJobListModel connectLoginJobListModel, ConnectJobListLauncher launcher) {
             binding.rootCardView.setOnClickListener(view -> {
-                mCallback.onClick(connectLoginJobListModel.getId(),connectLoginJobListModel.getAppId(),connectLoginJobListModel.getName(),appType);
+                ConnectJobRecord job = null;
+                Log.e("DEBUG_TESTING", "getJobType->: "+connectLoginJobListModel.getJobType());
+                switch (connectLoginJobListModel.getJobType()) {
+                    case JOB_NEW_OPPORTUNITY:
+                        Log.e("DEBUG_TESTING", "JOB_NEW_OPPORTUNITY: ");
+                        job = ConnectDatabaseHelper.getAvailableJobs(mContext).get(position);
+                        break;
+                    case JOB_LEARNING,JOB_DELIVERY:
+                        // Handle claimed and ended jobs
+                        List<ConnectJobRecord> claimedJobs = ConnectDatabaseHelper.getDeliveryJobs(mContext);
+                        // Get the name to match
+                        int jobNameToMatch = Integer.parseInt(connectLoginJobListModel.getId());
+                        // Find the job with matching name in claimedJobs
+                        for (ConnectJobRecord claimedJob : claimedJobs) {
+                            Log.e("DEBUG_TESTING", "getTitle " +claimedJob.getJobId());
+                            Log.e("DEBUG_TESTING", "jobNameToMatch " +jobNameToMatch);
+                            if (claimedJob.getJobId() == jobNameToMatch) {
+                                Log.e("DEBUG_TESTING", "Matched ");
+                                job = claimedJob;  // Store the matching job
+                                break;  // Exit loop once the job is found
+                            }
+                        }
+
+                        break;
+                }
+                Log.e("DEBUG_TESTING", "Called ");
+                launcher.launchApp(job, binding.rootCardView, connectLoginJobListModel.getJobType().equalsIgnoreCase(JOB_NEW_OPPORTUNITY));
             });
         }
 
