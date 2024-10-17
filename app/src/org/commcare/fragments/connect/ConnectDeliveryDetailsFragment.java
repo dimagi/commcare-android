@@ -5,25 +5,26 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.network.ApiConnect;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
+import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -51,17 +52,22 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
+        boolean isButtonVisible = args.getIsButtonVisible();
+        getActivity().setTitle(getString(R.string.connect_job_info_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
-        TextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
+        ConnectRegularTextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
         int maxPossibleVisits = job.getMaxPossibleVisits();
         int daysRemaining = job.getDaysRemaining();
-        textView.setText(getString(R.string.connect_delivery_max_visits, maxPossibleVisits, daysRemaining));
+        textView.setText(getString(R.string.connect_job_info_visit, maxPossibleVisits));
+
+        textView = view.findViewById(R.id.connect_delivery_days_text);
+        textView.setText(getString(R.string.connect_job_info_days, daysRemaining));
 
         textView = view.findViewById(R.id.connect_delivery_max_daily_text);
-        textView.setText(getString(R.string.connect_delivery_max_daily_visits, job.getMaxDailyVisits()));
+        textView.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
 
         textView = view.findViewById(R.id.connect_delivery_budget_text);
         String paymentText = "";
@@ -76,18 +82,18 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         } else if(job.getPaymentUnits().size() > 0) {
             //Single payment unit
             String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());
-            paymentText = getString(R.string.connect_delivery_earn_single, moneyValue);
+            paymentText = getString(R.string.connect_job_info_visit_charge, moneyValue);
         }
 
         textView.setText(paymentText);
 
-        boolean expired = daysRemaining < 0;
-        textView = view.findViewById(R.id.connect_delivery_action_title);
-        textView.setText(expired ? R.string.connect_delivery_expired : R.string.connect_delivery_ready_to_claim);
+//        boolean expired = daysRemaining < 0;
+//        textView = view.findViewById(R.id.connect_delivery_action_title);
+//        textView.setText(expired ? R.string.connect_delivery_expired : R.string.connect_delivery_ready_to_claim);
 
-        textView = view.findViewById(R.id.connect_delivery_action_details);
-        textView.setText(expired ? R.string.connect_delivery_expired_detailed :
-                R.string.connect_delivery_ready_to_claim_detailed);
+//        textView = view.findViewById(R.id.connect_delivery_action_details);
+//        textView.setText(expired ? R.string.connect_delivery_expired_detailed :
+//                R.string.connect_delivery_ready_to_claim_detailed);
 
         boolean jobClaimed = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
         boolean installed = false;
@@ -99,11 +105,14 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         }
         final boolean appInstalled = installed;
 
-        int buttonTextId = jobClaimed ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_delivery_get_app) : R.string.connect_delivery_claim;
+        int buttonTextId = jobClaimed ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_job_info_download) : R.string.connect_job_info_download;
 
-        Button button = view.findViewById(R.id.connect_delivery_button);
+        CardView cardButtonLayout = view.findViewById(R.id.cardButtonLayout);
+        cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
+
+        RoundedButton button = view.findViewById(R.id.connect_delivery_button);
         button.setText(buttonTextId);
-        button.setEnabled(!expired);
+//        button.setEnabled(!expired);
         button.setOnClickListener(v -> {
             if(jobClaimed) {
                 proceedAfterJobClaimed(button, job, appInstalled);
@@ -155,7 +164,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         } else {
             String title = getString(R.string.connect_downloading_delivery);
             directions = ConnectDeliveryDetailsFragmentDirections
-                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false, false);
+                    .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false);
         }
 
         Navigation.findNavController(button).navigate(directions);

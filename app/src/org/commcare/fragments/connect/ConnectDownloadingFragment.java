@@ -9,14 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import org.commcare.activities.connect.ConnectActivity;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -28,12 +24,15 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
 
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
 public class ConnectDownloadingFragment extends Fragment implements ResourceEngineListener {
 
     private ProgressBar progressBar;
     private TextView statusText;
     private boolean getLearnApp;
-    private boolean goToApp;
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -48,7 +47,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         super.onCreate(savedInstanceState);
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         getLearnApp = args.getLearning();
-        goToApp = args.getGoToApp();
 
         //Disable back button during install (done by providing empty callback)
         setBackButtonEnabled(false);
@@ -114,26 +112,12 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         setBackButtonEnabled(true);
         View view = getView();
         if (view != null) {
-            if(goToApp) {
-                Navigation.findNavController(view).popBackStack();
+            Navigation.findNavController(view).popBackStack();
 
-                //Launch the learn/deliver app
-                ConnectJobRecord job = ConnectManager.getActiveJob();
-                ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-                ConnectManager.launchApp(getContext(), getLearnApp, appToLaunch.getAppId());
-                getActivity().finish();
-            }
-            else {
-                //Go to learn/deliver progress
-                NavDirections directions;
-                if(getLearnApp) {
-                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment();
-                }
-                else {
-                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment();
-                }
-                Navigation.findNavController(statusText).navigate(directions);
-            }
+            //Launch the learn/deliver app
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
+            ConnectManager.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
         }
     }
 

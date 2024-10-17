@@ -20,11 +20,6 @@ public class ConnectJobRecordV7 extends Persisted implements Serializable {
      */
     public static final String STORAGE_KEY = "connect_jobs";
 
-    public static final int STATUS_AVAILABLE_NEW = 1;
-    public static final int STATUS_AVAILABLE = 2;
-    public static final int STATUS_LEARNING = 3;
-    public static final int STATUS_DELIVERING = 4;
-
     public static final String META_JOB_ID = "id";
     public static final String META_NAME = "name";
     public static final String META_DESCRIPTION = "description";
@@ -39,13 +34,8 @@ public class ConnectJobRecordV7 extends Persisted implements Serializable {
     public static final String META_LEARN_MODULES = "total_modules";
     public static final String META_COMPLETED_MODULES = "completed_modules";
 
-    public static final String META_LEARN_PROGRESS = "learn_progress";
     public static final String META_DELIVERY_PROGRESS = "deliver_progress";
-    public static final String META_LEARN_APP = "learn_app";
-    public static final String META_DELIVER_APP = "deliver_app";
-    public static final String META_CLAIM = "claim";
     public static final String META_CLAIM_DATE = "date_claimed";
-    public static final String META_MAX_PAYMENTS = "max_payments";
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
@@ -155,4 +145,35 @@ public class ConnectJobRecordV7 extends Persisted implements Serializable {
 
     public Date getDateClaimed() { return dateClaimed; }
 
+    public static ConnectJobRecordV7 fromV4(ConnectJobRecordV4 oldRecord) {
+        ConnectJobRecordV7 newRecord = new ConnectJobRecordV7();
+
+        newRecord.jobId = oldRecord.getJobId();
+        newRecord.title = oldRecord.getTitle();
+        newRecord.description = oldRecord.getDescription();
+        newRecord.status = oldRecord.getStatus();
+        newRecord.completedVisits = oldRecord.getCompletedVisits();
+        newRecord.maxDailyVisits = oldRecord.getMaxDailyVisits();
+        newRecord.maxVisits = oldRecord.getMaxVisits();
+        newRecord.budgetPerVisit = oldRecord.getBudgetPerVisit();
+        newRecord.totalBudget = oldRecord.getTotalBudget();
+        newRecord.projectEndDate = oldRecord.getProjectEndDate();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+
+        newRecord.organization = oldRecord.getOrganization();
+        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
+        newRecord.numLearningModules = oldRecord.getNumLearningModules();
+        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+        newRecord.currency = oldRecord.getCurrency();
+        newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
+        newRecord.shortDescription = oldRecord.getShortDescription();
+        newRecord.lastUpdate = oldRecord.getLastUpdate();
+        newRecord.lastLearnUpdate = oldRecord.getLastLearnUpdate();
+        newRecord.lastDeliveryUpdate = oldRecord.getLastDeliveryUpdate();
+        newRecord.dateClaimed = new Date();
+        newRecord.projectStartDate = new Date();
+        newRecord.isActive = true;
+
+        return newRecord;
+    }
 }

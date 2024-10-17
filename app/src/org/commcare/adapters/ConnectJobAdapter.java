@@ -8,10 +8,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
 
@@ -305,7 +305,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             String title = parentContext.getString(textId);
-            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning, true));
+            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
         }
     }
 
@@ -316,7 +316,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch(job.getStatus()) {
             case ConnectJobRecord.STATUS_AVAILABLE,
                     ConnectJobRecord.STATUS_AVAILABLE_NEW -> {
-                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment();
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true);
             }
             case ConnectJobRecord.STATUS_LEARNING -> {
                 directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment();
