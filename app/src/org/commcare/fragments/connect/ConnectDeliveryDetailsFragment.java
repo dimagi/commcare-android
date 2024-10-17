@@ -24,6 +24,7 @@ import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import java.io.IOException;
 import java.io.InputStream;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -52,6 +53,8 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(job.getTitle());
+        ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
+        boolean isButtonVisible = args.getIsButtonVisible();
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
@@ -103,6 +106,9 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         final boolean appInstalled = installed;
 
         int buttonTextId = jobClaimed ? (appInstalled ? R.string.connect_delivery_go : R.string.connect_job_info_download) : R.string.connect_job_info_download;
+
+        CardView cardButtonLayout = view.findViewById(R.id.cardButtonLayout);
+        cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
 
         RoundedButton button = view.findViewById(R.id.connect_delivery_button);
         button.setText(buttonTextId);

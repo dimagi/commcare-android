@@ -254,7 +254,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         button.setOnClickListener(v -> {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment();
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(true);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
                 getActivity().finish();

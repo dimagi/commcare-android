@@ -162,7 +162,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         View viewJobCard = view.findViewById(R.id.viewJobCard);
         ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
         viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment());
+            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment(false));
 
         });
 
