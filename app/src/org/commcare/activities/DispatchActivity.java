@@ -65,6 +65,8 @@ public class DispatchActivity extends AppCompatActivity {
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
     private boolean connectIdManagedLogin;
+    private boolean connectManagedLogin;
+    private boolean goToConnectHome;
     private boolean shouldGoToConnectJobStatus;
 
     private boolean shouldFinish;
@@ -200,6 +202,9 @@ public class DispatchActivity extends AppCompatActivity {
                     CommCareApplication.instance().closeUserSession();
                     ConnectManager.goToActiveInfoForJob(this, true);
                     shouldGoToConnectJobStatus = false;
+                } else if(goToConnectHome) {
+                    ConnectManager.goToConnectJobsList(this);
+                    goToConnectHome = false;
                 } else {
                     launchHomeScreen();
                 }
@@ -467,12 +472,14 @@ public class DispatchActivity extends AppCompatActivity {
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
                     shouldGoToConnectJobStatus = intent.getBooleanExtra(LoginActivity.GO_TO_CONNECT_JOB_STATUS, false);
                     connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false);
+                    connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    shouldFinish = true;
+                    shouldFinish = !connectManagedLogin;
+                    goToConnectHome = connectManagedLogin;
                     return;
                 } else {
                     userTriggeredLogout = true;
