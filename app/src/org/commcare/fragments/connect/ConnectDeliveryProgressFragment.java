@@ -16,6 +16,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.Date;
@@ -162,11 +163,15 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         View viewJobCard = view.findViewById(R.id.viewJobCard);
         ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
         viewMore.setOnClickListener(view1 -> {
             Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment(false));
 
         });
 
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         return view;
     }
 

@@ -18,6 +18,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.Date;
 import java.util.List;
@@ -75,16 +77,6 @@ public class ConnectLearningProgressFragment extends Fragment {
         refreshData();
 
         return view;
-    }
-
-    public void expand(View view) { //the function that given to onclick event
-        int v = (jobDiscription.getVisibility() == View.GONE) ? View.VISIBLE : View.GONE;
-        jobDiscription.setVisibility(v);
-        if(jobDiscription.getVisibility() == View.GONE){
-            viewMore.setText("view more");
-        }else{
-            viewMore.setText("view less");
-        }
     }
 
     @Override
@@ -207,24 +199,16 @@ public class ConnectLearningProgressFragment extends Fragment {
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
 
-        jobDiscription = view.findViewById(R.id.connect_job_intro_description);
-        jobDiscription.setText(job.getDescription());
-
-        viewMore = view.findViewById(R.id.viewMore);
-        View finalView = view;
-        viewMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                expand(finalView);
-            }
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobIntroFragment(false));
         });
 
-        textView = view.findViewById(R.id.connect_job_intro_title);
-        textView.setText(job.getTitle());
-
-        TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
-        completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
@@ -260,7 +244,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            completeByText.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+            tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);

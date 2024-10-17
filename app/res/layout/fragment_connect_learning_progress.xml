@@ -9,71 +9,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <androidx.cardview.widget.CardView
-            android:onClick="expand"
-            android:clickable="true"
+        <include
+            android:id="@+id/viewJobCard"
+            layout="@layout/view_job_card"
             android:layout_width="match_parent"
-            android:elevation="5dp"
-            android:padding="16dp"
-            android:layout_margin="16dp"
-            android:outlineAmbientShadowColor="@color/grey_light"
-            app:cardCornerRadius="16dp"
             android:layout_height="wrap_content"
-            android:focusable="true">
-            <LinearLayout
-                android:id="@+id/card_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/connect_job_intro_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Infant Child Vaccination By Rama"
-                    android:textColor="@color/connect_blackist_dark_blue_color"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="20dp"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-                <TextView
-                    android:id="@+id/connect_job_intro_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:text="Check vaccine status"
-                    android:textColor="@color/connect_text_color"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="20dp"
-                    />
-
-                <TextView
-                    android:id="@+id/connect_learning_complete_by_text"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:textColor="@color/connect_subtext_color"
-                    android:textSize="14sp"
-                    android:layout_marginStart="16dp"
-                    android:layout_width="wrap_content"
-                    tools:text="Complete By" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="view more"
-                    android:paddingLeft="16dp"
-                    android:clickable="true"
-                    android:id="@+id/viewMore"
-                    android:paddingBottom="16dp"
-                    android:textColor="@color/connect_blue_color"
-                    />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:layout_margin="16dp" />
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:elevation="5dp"

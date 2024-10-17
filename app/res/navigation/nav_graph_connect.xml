@@ -41,6 +41,10 @@
             android:id="@+id/action_connect_job_intro_fragment_to_connect_job_learning_progress_fragment"
             app:destination="@id/connect_job_learning_progress_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
+
+        <argument
+            android:name="isButtonVisible"
+            app:argType="boolean" />
     </fragment>
 
     <fragment
@@ -56,6 +60,9 @@
             android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_intro_fragment"
+            app:destination="@id/connect_job_intro_fragment" />
     </fragment>
 
     <fragment
