@@ -71,6 +71,8 @@ public class QuestionsView extends ScrollView
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
+    private boolean containsNonRecoverableWidgets = false;
+
     public QuestionsView(Context context, BlockingActionsManager blockingActionsManager) {
         super(context);
         mQuestionFontsize = FormEntryPreferences.getQuestionFontSize();
@@ -137,6 +139,7 @@ public class QuestionsView extends ScrollView
             mView.addView(qw, mLayout);
 
             qw.setChangedListeners(this, blockingActionsManager);
+            containsNonRecoverableWidgets = containsNonRecoverableWidgets || qw.isNonRecoverable();
         }
 
         markLastStringWidget();
@@ -495,5 +498,9 @@ public class QuestionsView extends ScrollView
             return null;
         }
         return compoundedCallout;
+    }
+
+    public boolean hasNonRecoverableWidgets(){
+        return containsNonRecoverableWidgets;
     }
 }
