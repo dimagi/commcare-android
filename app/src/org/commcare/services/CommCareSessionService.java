@@ -82,6 +82,11 @@ public class CommCareSessionService extends Service {
      */
     public static final ReentrantLock sessionAliveLock = new ReentrantLock();
 
+    /**
+     * 2h time in Milliseconds to extend the session if needed
+     */
+    private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
+
     private Timer maintenanceTimer;
     private CipherPool pool;
 
@@ -673,6 +678,17 @@ public class CommCareSessionService extends Service {
 
     public boolean shouldShowInAppUpdate() {
         return this.showInAppUpdate;
+    }
+
+    public void extendUserSessionIfNeeded(){
+        long currentTime = new Date().getTime();
+
+        if (sessionExpireDate.getTime() < currentTime + SESSION_EXTENSION_TIME) {
+            sessionExpireDate.setTime(sessionExpireDate.getTime() + SESSION_EXTENSION_TIME);
+            sessionLength += SESSION_EXTENSION_TIME;
+
+            mNM.notify(NOTIFICATION, createSessionNotification());
+        }
     }
 
     private Notification createSessionNotification(){
