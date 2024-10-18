@@ -69,7 +69,7 @@ public abstract class MediaWidget extends QuestionWidget {
 
     public MediaWidget(Context context, FormEntryPrompt prompt,
                        PendingCalloutInterface pendingCalloutInterface) {
-        super(context, prompt);
+        super(context, prompt, true);
 
         this.pendingCalloutInterface = pendingCalloutInterface;
 
@@ -79,7 +79,6 @@ public abstract class MediaWidget extends QuestionWidget {
         initializeButtons();
         setupLayout();
     }
-
 
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {

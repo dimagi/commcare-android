@@ -91,6 +91,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private ShrinkingTextView mHintText;
     private View warningView;
 
+    // This signals that the widget can't be recovered after a session expiration
+    protected boolean mNonRecoverable;
+
     //Whether this question widget needs to request focus on
     //its next draw, due to a new element having been added (which couldn't have
     //requested focus yet due to having not been layed out)
@@ -103,13 +106,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private LinearLayout compactLayout;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
-        this(context, p, false);
+        this(context, p, false, false);
     }
 
-    public QuestionWidget(Context context, FormEntryPrompt p, boolean inCompactGroup) {
+    public QuestionWidget(Context context, FormEntryPrompt p, boolean nonRecoverable) {
+        this(context, p, false, nonRecoverable);
+    }
+
+    public QuestionWidget(Context context, FormEntryPrompt p, boolean inCompactGroup, boolean nonRecoverable) {
         super(context);
         mPrompt = p;
         mCompact = inCompactGroup;
+        mNonRecoverable = nonRecoverable;
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
         this.setClipToPadding(false);
@@ -133,6 +141,10 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             addHelpPlaceholder();
             addHintText();
         }
+    }
+
+    public boolean isNonRecoverable(){
+        return mNonRecoverable;
     }
 
     protected void acceptFocus() {

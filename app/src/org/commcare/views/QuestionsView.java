@@ -71,6 +71,8 @@ public class QuestionsView extends ScrollView
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
+    private boolean mContainsNonRecoverableWidgets = false;
+
     public QuestionsView(Context context, BlockingActionsManager blockingActionsManager) {
         super(context);
         mQuestionFontsize = FormEntryPreferences.getQuestionFontSize();
