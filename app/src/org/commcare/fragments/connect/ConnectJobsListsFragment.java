@@ -206,7 +206,7 @@ public class ConnectJobsListsFragment extends Fragment {
         if (appInstalled) {
             return switch (jobType) {
                 case JOB_NEW_OPPORTUNITY ->
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment();
+                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true);
                 case JOB_LEARNING ->
                         ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment();
                 case JOB_DELIVERY ->
