@@ -3,6 +3,8 @@ package org.commcare.models.connect;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+
 import java.util.Date;
 
 /**
@@ -24,6 +26,7 @@ public class ConnectLoginJobListModel implements Parcelable {
     private int deliveryProgress;
     private String jobType;
     private String appType;
+    ConnectJobRecord job;
 
     // Constructor
     public ConnectLoginJobListModel(
@@ -41,7 +44,8 @@ public class ConnectLoginJobListModel implements Parcelable {
             int learningProgress,
             int deliveryProgress,
             String jobType,
-            String appType
+            String appType,
+            ConnectJobRecord job
     ) {
         this.name = name;
         this.id = id;
@@ -58,6 +62,7 @@ public class ConnectLoginJobListModel implements Parcelable {
         this.deliveryProgress = deliveryProgress;
         this.jobType = jobType;
         this.appType = appType;
+        this.job = job;
     }
 
     // Default constructor
@@ -215,6 +220,14 @@ public class ConnectLoginJobListModel implements Parcelable {
 
     public void setAppType(String appType) {
         this.appType = appType;
+    }
+
+    public ConnectJobRecord getJob() {
+        return job;
+    }
+
+    public void setJob(ConnectJobRecord job) {
+        this.job = job;
     }
 
     // Optionally, override toString for easy logging or display
