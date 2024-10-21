@@ -97,6 +97,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
+
         refreshUi();
         refreshData();
 

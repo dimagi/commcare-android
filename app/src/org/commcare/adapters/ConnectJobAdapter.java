@@ -316,7 +316,7 @@ public class ConnectJobAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch(job.getStatus()) {
             case ConnectJobRecord.STATUS_AVAILABLE,
                     ConnectJobRecord.STATUS_AVAILABLE_NEW -> {
-                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment();
+                directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true);
             }
             case ConnectJobRecord.STATUS_LEARNING -> {
                 directions = ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment();

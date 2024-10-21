@@ -9,60 +9,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <androidx.cardview.widget.CardView
+        <include
+            android:id="@+id/viewJobCard"
+            layout="@layout/view_job_card"
             android:layout_width="match_parent"
-            android:elevation="5dp"
-            android:padding="16dp"
-            android:layout_margin="16dp"
-            android:outlineAmbientShadowColor="@color/grey_light"
-            app:cardCornerRadius="16dp"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/connect_job_intro_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Infant Child Vaccination By Rama"
-                    android:textColor="@color/connect_text_color"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="20dp"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/connect_job_intro_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:text="Check vaccine status"
-                    android:textColor="@color/connect_subtext_color"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="20dp"
-                    />
-
-                <TextView
-                    android:id="@+id/connect_learning_complete_by_text"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:textColor="@color/connect_subtext_color"
-                    android:textSize="14sp"
-                    android:layout_marginStart="16dp"
-                    android:layout_width="wrap_content"
-                    tools:text="Complete By" />
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp" />
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:elevation="5dp"
             app:cardCornerRadius="16dp"
+            android:id="@+id/learning_card"
             android:layout_marginHorizontal="16dp"
             android:layout_height="wrap_content">
             <LinearLayout
@@ -89,11 +46,11 @@
                     android:id="@+id/connect_learn_progress_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    android:paddingTop="2dp"
                     android:paddingStart="16dp"
-                    android:textColor="@color/connect_blue_color"
+                    android:textColor="@color/connect_subtext"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -121,10 +78,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
-                            android:layout_marginTop="10dp"
-                            android:paddingBottom="16dp"
+                            android:lineSpacingExtra="8sp"
+                            android:padding="16dp"
                             android:textColor="@color/white"
-                            android:textAlignment="center"/>
+                            />
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/connect_learning_central_content"
                             android:layout_width="match_parent"
@@ -166,62 +123,129 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/connect_learn_complete"/>
                             </LinearLayout>
-
-                            <LinearLayout
-                                android:id="@+id/connect_learning_certificate_container"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                android:orientation="vertical"
-                                android:layout_marginStart="20dp"
-                                android:layout_marginEnd="20dp"
-                                android:background="@drawable/dots_rect_back"
-                                android:layout_marginTop="20dp"
-                                android:paddingTop="20dp"
-                                android:paddingBottom="20dp"
-                                android:visibility="gone"
-                                >
-
-                                <TextView
-                                    android:id="@+id/connect_learn_cert_title"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="center"
-                                    android:textColor="@color/solid_blue"
-                                    android:text="@string/connect_learn_certificate"
-                                    />
-
-                                <TextView
-                                    android:id="@+id/connect_learn_cert_subject"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="20dp"
-                                    android:textAlignment="center"
-                                    />
-
-                                <TextView
-                                    android:id="@+id/connect_learn_cert_person"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="10dp"
-                                    android:textAlignment="center"
-                                    android:textStyle="bold"
-                                    />
-                                <TextView
-                                    android:id="@+id/connect_learn_cert_date"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="20dp"
-                                    android:textAlignment="center"
-                                    />
-
-
-                            </LinearLayout>
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+        <androidx.cardview.widget.CardView
+            android:id="@+id/connect_learning_certificate_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            app:cardCornerRadius="24dp"
+            android:backgroundTint="@color/connect_dark_blue_color"
+            android:layout_marginTop="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:visibility="gone"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_marginTop="16dp"
+                    android:id="@+id/connect_learn_cert_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:textColor="@color/connect_aquva"
+                    android:text="@string/connect_learn_certificate"
+                    />
+
+                <TextView
+                    android:id="@+id/connect_learn_cert_subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:textAlignment="center"
+                    />
+
+                <TextView
+                    android:id="@+id/connect_learn_cert_person"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingTop="16dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/connect_learn_cert_score"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="@color/connect_subtext_color"
+                        android:textAlignment="center"
+                        />
+                    <TextView
+                        android:id="@+id/connect_learn_cert_date"
+                        android:layout_width="wrap_content"
+                        android:paddingLeft="16dp"
+                        android:textSize="11sp"
+                        android:layout_gravity="center"
+                        android:textColor="@color/connect_subtext_color"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:src="@drawable/flower"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:src="@drawable/cert_1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            />
+                        <ImageView
+                            android:minWidth="48dp"
+                            android:src="@drawable/logo_white"
+                            android:layout_width="wrap_content"
+                            android:paddingTop="14dp"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="center"
+                            />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:src="@drawable/flower"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        />
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

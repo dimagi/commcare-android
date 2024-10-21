@@ -99,7 +99,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
-    public static final String CONNECTID_MANAGED_LOGIN = "cid-managed-login";
+    public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
+    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
 
     public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
@@ -475,6 +476,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         i.putExtra(GO_TO_CONNECT_JOB_STATUS, goToJobInfo);
         i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || uiController.loginManagedByConnectId());
+        i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
         setResult(RESULT_OK, i);
         finish();
     }
