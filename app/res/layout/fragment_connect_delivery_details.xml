@@ -11,11 +11,17 @@
 
         android:orientation="vertical">
 
+        <include
+            android:id="@+id/viewJobCard"
+            layout="@layout/view_job_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp" />
+
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
             android:paddingBottom="20dp"
             app:cardCornerRadius="10dp"
