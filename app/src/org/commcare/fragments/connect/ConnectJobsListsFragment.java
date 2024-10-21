@@ -232,7 +232,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
         for (ConnectJobRecord job : jobs) {
             ConnectAppRecord appRecord = ConnectDatabaseHelper.getAppRecord(getActivity(), String.valueOf(job.getJobId()));
-            // this condition to check this app is not related to traditional app
+            // This condition ensures that the app is not associated with a traditional app.
             if (appRecord != null) {
                 int jobStatus = job.getStatus();
                 boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
