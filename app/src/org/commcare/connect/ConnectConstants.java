@@ -29,6 +29,13 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
     public static final String CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY = "secondary_phone_validate_by";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
+    public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
+    public static final String JOB_LEARNING = "job-learning";
+    public static final String JOB_DELIVERY = "job-delivery";
+    public static final String NEW_APP = "new-app";
+    public static final String LEARN_APP = "learn-app";
+    public static final String DELIVERY_APP = "delivery-app";
+
     public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
     public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 2;
     public final static int CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS = ConnectConstants.ConnectIdTaskIdOffset + 5;

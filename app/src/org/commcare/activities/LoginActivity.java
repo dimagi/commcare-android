@@ -58,11 +58,8 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -102,14 +99,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
-
-    public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
-    public static final String JOB_LEARNING = "job-learning";
-    public static final String JOB_DELIVERY = "job-delivery";
-
-    public static final String NEW_APP = "new-app";
-    public static final String LEARN_APP = "learn-app";
-    public static final String DELIVERY_APP = "delivery-app";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -978,17 +967,5 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     protected String getPresetAppId() {
         return presetAppId;
-    }
-
-    public static String formatDate(String dateStr) {
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-            Date date = inputFormat.parse(dateStr);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

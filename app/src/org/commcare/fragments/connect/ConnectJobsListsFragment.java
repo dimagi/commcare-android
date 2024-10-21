@@ -1,15 +1,15 @@
 package org.commcare.fragments.connect;
 
-import static org.commcare.activities.LoginActivity.DELIVERY_APP;
-import static org.commcare.activities.LoginActivity.JOB_DELIVERY;
-import static org.commcare.activities.LoginActivity.JOB_LEARNING;
-import static org.commcare.activities.LoginActivity.JOB_NEW_OPPORTUNITY;
-import static org.commcare.activities.LoginActivity.LEARN_APP;
-import static org.commcare.activities.LoginActivity.NEW_APP;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
+import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
+import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
+import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
+import static org.commcare.connect.ConnectConstants.JOB_NEW_OPPORTUNITY;
+import static org.commcare.connect.ConnectConstants.LEARN_APP;
+import static org.commcare.connect.ConnectConstants.NEW_APP;
 import static org.commcare.connect.ConnectManager.isAppInstalled;
 
 import android.os.Bundle;

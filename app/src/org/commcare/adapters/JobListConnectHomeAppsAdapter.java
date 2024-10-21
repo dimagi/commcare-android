@@ -1,9 +1,6 @@
 package org.commcare.adapters;
 
 
-import static org.commcare.activities.LoginActivity.JOB_DELIVERY;
-import static org.commcare.activities.LoginActivity.JOB_LEARNING;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +16,14 @@ import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
+import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
+import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListConnectHomeAppsAdapter.ViewHolder> {
 
@@ -62,9 +66,21 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
         }
     }
 
+    private static String formatDate(String dateStr) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+            Date date = inputFormat.parse(dateStr);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public void bind(Context mContext, ItemLoginConnectHomeAppsBinding binding, ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        binding.tvDate.setText(LoginActivity.formatDate(connectLoginJobListModel.getLastAccessed().toString()));
+        binding.tvDate.setText(formatDate(connectLoginJobListModel.getLastAccessed().toString()));
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
