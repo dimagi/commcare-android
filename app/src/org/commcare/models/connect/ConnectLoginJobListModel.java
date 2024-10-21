@@ -19,7 +19,7 @@ public class ConnectLoginJobListModel implements Parcelable {
     private String organization;
     private boolean isAppInstalled;
     private boolean isNew;
-    private boolean isLeaningApp;
+    private boolean isLearningApp;
     private boolean isDeliveryApp;
     private Date lastAccessed;
     private int learningProgress;
@@ -38,7 +38,7 @@ public class ConnectLoginJobListModel implements Parcelable {
             String organization,
             boolean isAppInstalled,
             boolean isNew,
-            boolean isLeaningApp,
+            boolean isLearningApp,
             boolean isDeliveryApp,
             Date lastAccessed,
             int learningProgress,
@@ -55,7 +55,7 @@ public class ConnectLoginJobListModel implements Parcelable {
         this.organization = organization;
         this.isAppInstalled = isAppInstalled;
         this.isNew = isNew;
-        this.isLeaningApp = isLeaningApp;
+        this.isLearningApp = isLearningApp;
         this.isDeliveryApp = isDeliveryApp;
         this.lastAccessed = lastAccessed;
         this.learningProgress = learningProgress;
@@ -166,12 +166,12 @@ public class ConnectLoginJobListModel implements Parcelable {
         isNew = aNew;
     }
 
-    public boolean isLeaningApp() {
-        return isLeaningApp;
+    public boolean isLearningApp() {
+        return isLearningApp;
     }
 
-    public void setLeaningApp(boolean leaningApp) {
-        isLeaningApp = leaningApp;
+    public void setLearningApp(boolean learningApp) {
+        isLearningApp = learningApp;
     }
 
     public boolean isDeliveryApp() {

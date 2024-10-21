@@ -73,7 +73,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
 
     private void clickListener(ItemLoginConnectHomeAppsBinding binding, ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.rootCardView.setOnClickListener(view -> {
-            launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLeaningApp(), connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
+            launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLearningApp(), connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
         });
     }
 
@@ -104,7 +104,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
             setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
                     context.getResources().getString(R.string.connect_new_opportunity), R.drawable.ic_connect_new_opportunity,
                     R.color.connect_yellowish_orange_color, binding);
-        } else if (item.isLeaningApp()) {
+        } else if (item.isLearningApp()) {
             setJobType(context, R.drawable.connect_rounded_corner_teslish_blue,
                     context.getResources().getString(R.string.connect_learn), R.drawable.ic_connect_learning,
                     R.color.connect_blue_color, binding);
