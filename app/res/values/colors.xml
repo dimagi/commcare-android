@@ -173,5 +173,10 @@
     <color name="connect_green">#16A085</color>
     <color name="connect_light_green">#E6F5E5</color>
     <color name="connect_red">#EA6944</color>
+
+    <color name="connect_light_grey_transparent">#1AD9D9D9</color>
+    <color name="connect_orange_yellow">#FFEFD5</color>
+    <color name="connect_tealish_blue_color">#E7EAF8</color>
+    <color name="connect_dark_grey">#9CA3AF</color>
     <color name="connect_un_fill_progress">#ebecfa</color>
 </resources>

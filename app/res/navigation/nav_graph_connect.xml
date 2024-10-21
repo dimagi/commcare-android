@@ -26,6 +26,9 @@
             android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment"
             app:destination="@id/connect_downloading_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment2"
+            app:destination="@id/connect_downloading_fragment" />
     </fragment>
 
     <fragment

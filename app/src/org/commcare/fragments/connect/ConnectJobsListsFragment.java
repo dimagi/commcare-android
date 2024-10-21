@@ -1,5 +1,17 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
+import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
+import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
+import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
+import static org.commcare.connect.ConnectConstants.JOB_NEW_OPPORTUNITY;
+import static org.commcare.connect.ConnectConstants.LEARN_APP;
+import static org.commcare.connect.ConnectConstants.NEW_APP;
+import static org.commcare.connect.ConnectManager.isAppInstalled;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,11 +19,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.tabs.TabLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.adapters.JobListConnectHomeAppsAdapter;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
@@ -20,6 +39,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -30,17 +50,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Fragment for showing the two job lists (available and mine)
@@ -49,11 +62,11 @@ import androidx.viewpager2.widget.ViewPager2;
  */
 public class ConnectJobsListsFragment extends Fragment {
     private ConstraintLayout connectTile;
-    private TabLayout tabLayout;
-    private ViewPager2 viewPager;
-    private ViewStateAdapter viewStateAdapter;
     private TextView updateText;
     private IConnectAppLauncher launcher;
+    ArrayList<ConnectLoginJobListModel> jobList;
+    View view;
+
 
     public ConnectJobsListsFragment() {
         // Required empty public constructor
@@ -75,7 +88,7 @@ public class ConnectJobsListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         getActivity().setTitle(R.string.connect_title);
 
-        View view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
+        view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
 
         connectTile = view.findViewById(R.id.connect_alert_tile);
 
@@ -85,45 +98,10 @@ public class ConnectJobsListsFragment extends Fragment {
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
 
-        viewPager = view.findViewById(R.id.jobs_view_pager);
-        viewStateAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle(), (appId, isLearning) -> {
-            //Launch app and finish this activity
+        launcher = (appId, isLearning) -> {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
-        });
-        viewPager.setAdapter(viewStateAdapter);
+        };
 
-        tabLayout = view.findViewById(R.id.connect_jobs_tabs);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_jobs_all));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_jobs_mine));
-
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                TabLayout.Tab tab = tabLayout.getTabAt(position);
-                tabLayout.selectTab(tab);
-
-                FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
-            }
-        });
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-        chooseTab();
         refreshUi();
         refreshData();
 
@@ -143,24 +121,25 @@ public class ConnectJobsListsFragment extends Fragment {
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
                         for (int i = 0; i < json.length(); i++) {
-                            JSONObject obj = (JSONObject)json.get(i);
+                            JSONObject obj = (JSONObject) json.get(i);
                             jobs.add(ConnectJobRecord.fromJson(obj));
                         }
 
                         //Store retrieved jobs
                         newJobs = ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
+                        setJobListData(jobs);
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from Opportunities request", e);
                 }
 
                 reportApiCall(true, newJobs);
-
                 refreshUi();
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
+                setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
                 reportApiCall(false, 0);
                 refreshUi();
@@ -168,6 +147,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
             @Override
             public void processNetworkFailure() {
+                setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
                 Logger.log("ERROR", "Failed (network)");
                 reportApiCall(false, 0);
                 refreshUi();
@@ -175,10 +155,12 @@ public class ConnectJobsListsFragment extends Fragment {
 
             @Override
             public void processOldApiError() {
+                setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
                 ConnectNetworkHelper.showOutdatedApiError(getContext());
                 reportApiCall(false, 0);
             }
         });
+
     }
 
     private void reportApiCall(boolean success, int newJobs) {
@@ -189,10 +171,7 @@ public class ConnectJobsListsFragment extends Fragment {
         try {
             updateUpdatedDate(new Date());
             updateSecondaryPhoneConfirmationTile();
-            viewStateAdapter.refresh();
-            chooseTab();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             //Ignore exception, happens if we leave the page before API call finishes
         }
     }
@@ -201,7 +180,7 @@ public class ConnectJobsListsFragment extends Fragment {
         boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(getContext());
 
         ConnectManager.updateSecondaryPhoneConfirmationTile(getContext(), connectTile, show, v -> {
-            ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>)getActivity(), success -> {
+            ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {
                 updateSecondaryPhoneConfirmationTile();
             });
         });
@@ -211,48 +190,170 @@ public class ConnectJobsListsFragment extends Fragment {
         updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
     }
 
-    private void chooseTab() {
-        int numAvailable = ConnectDatabaseHelper.getAvailableJobs(CommCareApplication.instance()).size();
-        int index = numAvailable > 0 ? 0 : 1;
-        viewPager.setCurrentItem(index);
-        tabLayout.setScrollPosition(index, 0f, true);
+    private void initRecyclerView() {
+        RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
+        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
+            if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
+                launchJobInfo(job, jobType, rvJobList, isAppInstalled(appId));
+            } else {
+                launchAppForJob(job, isLearning, rvJobList);
+            }
+        });
+        rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvJobList.setNestedScrollingEnabled(true);
+        rvJobList.setAdapter(adapter);
     }
 
-    private static class ViewStateAdapter extends FragmentStateAdapter {
-        static ConnectJobsAvailableListFragment availableFragment;
-        static ConnectJobsMyListFragment myFragment;
-        final IConnectAppLauncher launcher;
+    private void launchJobInfo(ConnectJobRecord job, String jobType, View view, boolean appInstalled) {
+        ConnectManager.setActiveJob(job);
+        NavDirections directions = getNavigationDirections(jobType, appInstalled);
+        Navigation.findNavController(view).navigate(directions);
+    }
 
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, IConnectAppLauncher appLauncher) {
-            super(fragmentManager, lifecycle);
-            launcher = appLauncher;
+    private void launchAppForJob(ConnectJobRecord job, boolean isLearning, View view) {
+        ConnectManager.setActiveJob(job);
+
+        String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
+
+        if (ConnectManager.isAppInstalled(appId)) {
+            launcher.launchApp(appId, isLearning);
+        } else {
+            int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
+            String title = getString(textId);
+            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
+        }
+    }
+
+    private NavDirections getNavigationDirections(String jobType, boolean appInstalled) {
+        if (appInstalled) {
+            return switch (jobType) {
+                case JOB_NEW_OPPORTUNITY ->
+                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true);
+                case JOB_LEARNING ->
+                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment();
+                case JOB_DELIVERY ->
+                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment();
+                default ->
+                        throw new RuntimeException(String.format("Unexpected job status: %s", jobType));
+            };
+        } else {
+            String title = getDownloadTitle(jobType);
+            boolean isLearning = jobType.equals(JOB_LEARNING) || jobType.equals(JOB_NEW_OPPORTUNITY);
+            return ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning);
+        }
+    }
+
+    private String getDownloadTitle(String jobType) {
+        return jobType.equals(JOB_DELIVERY) ? getString(R.string.connect_downloading_delivery) : getString(R.string.connect_downloading_learn);
+    }
+
+    private void setJobListData(List<ConnectJobRecord> jobs) {
+        jobList = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> availableNewJobs = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> otherJobs = new ArrayList<>();
+
+        for (ConnectJobRecord job : jobs) {
+                int jobStatus = job.getStatus();
+                boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
+                boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
+
+                switch (jobStatus) {
+                    case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                        availableNewJobs.add(createJobModel(
+                                job, JOB_NEW_OPPORTUNITY, NEW_APP, false, true, false, false
+                        ));
+                        break;
+
+                    case STATUS_LEARNING:
+                        otherJobs.add(createJobModel(
+                                job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+                        ));
+                        break;
+
+                    case STATUS_DELIVERING:
+                        otherJobs.add(createJobModel(
+                                job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+                        ));
+                        otherJobs.add(createJobModel(
+                                job, JOB_DELIVERY, DELIVERY_APP, isDeliverAppInstalled, false, false, true
+                        ));
+                        break;
+
+                    default:
+                        break;
+                }
+
         }
 
-        @NonNull
-        @Override
-        public Fragment createFragment(int position) {
-            if (position == 0) {
-                availableFragment = ConnectJobsAvailableListFragment.newInstance(launcher);
-                return availableFragment;
+        Collections.sort(otherJobs, (job1, job2) -> job2.getLastAccessed().compareTo(job1.getLastAccessed()));
+        jobList.addAll(availableNewJobs);
+        jobList.addAll(otherJobs);
+        initRecyclerView();
+    }
+
+    private ConnectLoginJobListModel createJobModel(
+            ConnectJobRecord job,
+            String jobType,
+            String appType,
+            boolean isAppInstalled,
+            boolean isNew,
+            boolean isLearningApp,
+            boolean isDeliveryApp
+    ) {
+        return new ConnectLoginJobListModel(
+                job.getTitle(),
+                String.valueOf(job.getJobId()),
+                getAppIdForType(job, jobType),
+                job.getProjectStartDate(),
+                getDescriptionForType(job, jobType),
+                getOrganizationForType(job, jobType),
+                isAppInstalled,
+                isNew,
+                isLearningApp,
+                isDeliveryApp,
+                processJobRecords(job, jobType),
+                job.getLearningPercentComplete(),
+                job.getCompletedLearningModules(),
+                jobType,
+                appType,
+                job
+        );
+    }
+
+    private String getAppIdForType(ConnectJobRecord job, String jobType) {
+        return jobType.equalsIgnoreCase(JOB_LEARNING)
+                ? job.getLearnAppInfo().getAppId()
+                : job.getDeliveryAppInfo().getAppId();
+    }
+
+    private String getDescriptionForType(ConnectJobRecord job, String jobType) {
+        return jobType.equalsIgnoreCase(JOB_LEARNING)
+                ? job.getLearnAppInfo().getDescription()
+                : job.getDeliveryAppInfo().getDescription();
+    }
+
+    private String getOrganizationForType(ConnectJobRecord job, String jobType) {
+        return jobType.equalsIgnoreCase(JOB_LEARNING)
+                ? job.getLearnAppInfo().getOrganization()
+                : job.getDeliveryAppInfo().getOrganization();
+    }
+
+    public Date processJobRecords(ConnectJobRecord job, String jobType) {
+        Date lastAssessedDate = new Date();
+        try {
+            String learnAppId = job.getLearnAppInfo().getAppId();
+            String deliverAppId = job.getDeliveryAppInfo().getAppId();
+            if (jobType.equalsIgnoreCase(JOB_LEARNING)) {
+                ConnectLinkedAppRecord learnRecord = ConnectDatabaseHelper.getAppData(getActivity(), learnAppId, "");
+                return learnRecord != null ? learnRecord.getLastAccessed() : lastAssessedDate;
+
+            } else if (jobType.equalsIgnoreCase(JOB_DELIVERY)) {
+                ConnectLinkedAppRecord deliverRecord = ConnectDatabaseHelper.getAppData(getActivity(), deliverAppId, "");
+                return deliverRecord != null ? deliverRecord.getLastAccessed() : lastAssessedDate;
             }
-
-            myFragment = ConnectJobsMyListFragment.newInstance(launcher);
-            return myFragment;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        @Override
-        public int getItemCount() {
-            return 2;
-        }
-
-        public void refresh() {
-            if (availableFragment != null) {
-                availableFragment.updateView();
-            }
-
-            if (myFragment != null) {
-                myFragment.updateView();
-            }
-        }
+        return lastAssessedDate;
     }
 }
