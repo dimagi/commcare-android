@@ -125,12 +125,10 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         EditTextPreference editTextPreference = (EditTextPreference)findPreference(PREFS_LOG_POST_URL_KEY);
         if (editTextPreference != null) {
             editTextPreference.setOnPreferenceChangeListener((preference, newValue) -> {
-                if (newValue == null || newValue.toString().trim().isEmpty()
-                        || newValue.equals(getString(R.string.logs_server_url_protocol))) {
+                if (newValue == null || newValue.toString().trim().isEmpty()) {
                     SharedPreferences appPreferences = CommCareApplication.instance().getCurrentApp()
                             .getAppPreferences();
                     appPreferences.edit().remove(PREFS_LOG_POST_URL_KEY).apply();
-                    return false;
                 }
                 return true;
             });
