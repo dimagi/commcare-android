@@ -302,4 +302,9 @@ License.
     <string name="connect_deactivate_account_creation">D\'accord</string>
     <string name="connect_deactivate_dialog_title">Es-tu sûr?</string>
     <string name="connect_deactivate_dialog_description">Vous souhaitez désactiver votre compte définitivement ?</string>
+
+    <string name="connect_new_opportunity">New Opportunity</string>
+    <string name="connect_learn">Apprendre</string>
+    <string name="connect_delivery">Livraison</string>
+    <string name="connect_commcare_app">Application CommCare</string>
 </resources>

@@ -476,4 +476,9 @@
     <string name="connect_deactivate_account_creation">OK</string>
     <string name="connect_deactivate_dialog_title">Tem certeza?</string>
     <string name="connect_deactivate_dialog_description">Você deseja desativar sua conta permanentemente?</string>
+
+    <string name="connect_new_opportunity">Nova oportunidade</string>
+    <string name="connect_learn">Aprender</string>
+    <string name="connect_delivery">Entrega</string>
+    <string name="connect_commcare_app">Aplicativo CommCare</string>
 </resources>
