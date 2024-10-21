@@ -231,9 +231,6 @@ public class ConnectJobsListsFragment extends Fragment {
         ArrayList<ConnectLoginJobListModel> otherJobs = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
-            ConnectAppRecord appRecord = ConnectDatabaseHelper.getAppRecord(getActivity(), String.valueOf(job.getJobId()));
-            // This condition ensures that the app is not associated with a traditional app.
-            if (appRecord != null) {
                 int jobStatus = job.getStatus();
                 boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
                 boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
@@ -263,7 +260,7 @@ public class ConnectJobsListsFragment extends Fragment {
                     default:
                         break;
                 }
-            }
+
         }
 
         Collections.sort(otherJobs, (job1, job2) -> job2.getLastAccessed().compareTo(job1.getLastAccessed()));
