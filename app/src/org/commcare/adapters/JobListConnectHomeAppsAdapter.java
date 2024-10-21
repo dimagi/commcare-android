@@ -73,7 +73,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
 
     private void clickListener(ItemLoginConnectHomeAppsBinding binding, ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.rootCardView.setOnClickListener(view -> {
-            launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
+            launcher.onClick(connectLoginJobListModel.getJob(), connectLoginJobListModel.isLeaningApp(), connectLoginJobListModel.getAppId(), connectLoginJobListModel.getJobType());
         });
     }
 

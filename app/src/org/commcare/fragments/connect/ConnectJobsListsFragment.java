@@ -98,6 +98,10 @@ public class ConnectJobsListsFragment extends Fragment {
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
 
+        launcher = (appId, isLearning) -> {
+            ConnectManager.launchApp(getActivity(), isLearning, appId);
+        };
+
         refreshUi();
         refreshData();
 
@@ -188,8 +192,12 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void initRecyclerView() {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
-        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, appId, jobType) -> {
-            launchJobInfo(job, jobType, rvJobList, isAppInstalled(appId));
+        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
+            if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
+                launchJobInfo(job, jobType, rvJobList, isAppInstalled(appId));
+            } else {
+                launchAppForJob(job, isLearning, rvJobList);
+            }
         });
         rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvJobList.setNestedScrollingEnabled(true);
@@ -200,6 +208,20 @@ public class ConnectJobsListsFragment extends Fragment {
         ConnectManager.setActiveJob(job);
         NavDirections directions = getNavigationDirections(jobType, appInstalled);
         Navigation.findNavController(view).navigate(directions);
+    }
+
+    private void launchAppForJob(ConnectJobRecord job, boolean isLearning, View view) {
+        ConnectManager.setActiveJob(job);
+
+        String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
+
+        if (ConnectManager.isAppInstalled(appId)) {
+            launcher.launchApp(appId, isLearning);
+        } else {
+            int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
+            String title = getString(textId);
+            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
+        }
     }
 
     private NavDirections getNavigationDirections(String jobType, boolean appInstalled) {
