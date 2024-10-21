@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormLayoutHelpers;
 import org.commcare.activities.components.FormNavigationController;
@@ -246,6 +247,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         setupGroupLabel();
         checkForOrientationRequirements();
+
+        if (questionsView.hasNonRecoverableWidgets()) {
+            CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
+        }
     }
 
     private void checkForOrientationRequirements() {
