@@ -249,7 +249,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void formSaveCallback(Runnable listener) {
+    public void formSaveCallback(boolean exit, Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
         interruptAndSaveForm(true, false);
