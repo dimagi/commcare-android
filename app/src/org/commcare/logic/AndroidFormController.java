@@ -2,6 +2,7 @@ package org.commcare.logic;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
 import org.commcare.models.database.InterruptedFormState;
@@ -21,11 +22,12 @@ public class AndroidFormController extends FormController implements PendingCall
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
     private boolean formCompleteAndSaved = false;
+    @Nullable
     private InterruptedFormState interruptedFormState;
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
-    public AndroidFormController(FormEntryController fec, boolean readOnly, InterruptedFormState interruptedFormState) {
+    public AndroidFormController(FormEntryController fec, boolean readOnly, @Nullable InterruptedFormState interruptedFormState) {
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
         this.interruptedFormState = interruptedFormState;
