@@ -85,9 +85,7 @@ public class TabbedDetailView extends RelativeLayout {
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index) {
-        EntityDetailPagerAdapter entityDetailPagerAdapter =
-                new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
-                        new ListItemViewStriper(this.mOddColor, this.mEvenColor));
+        EntityDetailPagerAdapter entityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), mContext.getLifecycle(), detail, index, reference, new ListItemViewStriper(this.mOddColor, this.mEvenColor));
         mViewPager.setAdapter(entityDetailPagerAdapter);
     }
 
