@@ -891,16 +891,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             saveAnswersForCurrentScreen(false);
         }
 
-        if (mLocationServiceIssueReceiver != null) {
-            try {
-                unregisterReceiver(mLocationServiceIssueReceiver);
-            } catch (IllegalArgumentException e) {
-                // Thrown when given receiver isn't registered.
-                // This shouldn't ever happen, but seems to come up in production
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Tried to unregister a BroadcastReceiver that wasn't registered: " + e.getMessage());
-            }
-        }
+        attemptToUnregisterBroadcastReceiver(mLocationServiceIssueReceiver);
 
         saveInlineVideoState();
 
@@ -909,7 +900,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         TextToSpeechConverter.INSTANCE.stop();
 
-        unregisterReceiver(pendingSyncAlertBroadcastReceiver);
+        attemptToUnregisterBroadcastReceiver(pendingSyncAlertBroadcastReceiver);
+    }
+
+    private void attemptToUnregisterBroadcastReceiver(BroadcastReceiver broadcastReceiver){
+        if (broadcastReceiver != null) {
+            try {
+                unregisterReceiver(broadcastReceiver);
+            } catch (IllegalArgumentException e) {}
+        }
     }
 
     private void saveInlineVideoState() {
