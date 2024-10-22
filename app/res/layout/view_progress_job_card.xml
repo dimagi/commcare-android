@@ -96,125 +96,32 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/tv_view_more" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/tv_primary_visit_title"
-            android:layout_width="0dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rdDeliveryTypeList"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="10dp"
-            android:text="Primary Visit"
-            android:textColor="@color/connect_grey"
-            android:textSize="12sp"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/tv_primary_visit_count"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_view_more" />
-
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:id="@+id/tv_primary_visit_count"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="2/2"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_primary_visit_title"
-            app:layout_constraintEnd_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/tv_primary_visit_title" />
-
-        <org.commcare.views.connect.LinearProgressBar
-            android:id="@+id/lp_primary_visit_progress"
-            android:layout_width="0dp"
-            android:layout_height="8dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_primary_visit_title"
+            android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/tv_primary_visit_title" />
-
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/tv_follow_up_visit_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Follow up visit"
-            android:textColor="@color/connect_grey"
-            android:textSize="12sp"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/tv_follow_up_count"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_primary_visit_title" />
-
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:id="@+id/tv_follow_up_count"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="2/2"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_follow_up_visit_title"
-            app:layout_constraintEnd_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/tv_follow_up_visit_title" />
-
-        <org.commcare.views.connect.LinearProgressBar
-            android:id="@+id/lp_follow_up_visit_Progress"
-            android:layout_width="0dp"
-            android:layout_height="8dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_follow_up_visit_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/tv_follow_up_visit_title" />
-
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/tv_final_visit_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:text="Final visit"
-            android:textColor="@color/connect_grey"
-            android:textSize="12sp"
-            android:visibility="visible"
-            app:layout_constraintEnd_toStartOf="@+id/tv_final_visit_count"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_follow_up_visit_title" />
-
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:id="@+id/tv_final_visit_count"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="2/2"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_final_visit_title"
-            app:layout_constraintEnd_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/tv_final_visit_title" />
-
-        <org.commcare.views.connect.LinearProgressBar
-            android:id="@+id/lp_final_visit_Progress"
-            android:layout_width="0dp"
-            android:layout_height="8dp"
-            android:layout_marginStart="20dp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_final_visit_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toTopOf="@+id/tv_final_visit_title" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_view_more"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_progress_job_summary_visit" />
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
             android:id="@+id/connect_job_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
             android:gravity="end"
             android:text="Complete Project by 01/31/2024"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp"
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline3"
-            app:layout_constraintTop_toBottomOf="@+id/lp_final_visit_Progress" />
+            app:layout_constraintTop_toBottomOf="@+id/rdDeliveryTypeList" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline3"
