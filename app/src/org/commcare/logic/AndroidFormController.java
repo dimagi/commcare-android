@@ -29,7 +29,7 @@ public class AndroidFormController extends FormController implements PendingCall
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
         this.interruptedFormState = interruptedFormState;
-        if (interruptedFormState !=null ){
+        if (interruptedFormState !=null) {
             formIndexToReturnTo = interruptedFormState.getFormIndex();
         }
     }

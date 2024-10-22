@@ -107,6 +107,8 @@ import javax.crypto.spec.SecretKeySpec;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
+import static org.commcare.activities.components.FormEntryConstants.DO_NOT_EXIT;
+import static org.commcare.activities.components.FormEntryConstants.EXIT;
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
 
@@ -249,10 +251,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void formSaveCallback(boolean exit, Runnable listener) {
+    public void formSaveCallback(boolean sessionExpired, boolean userTriggered, Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;
-        interruptAndSaveForm(true, false);
+        interruptAndSaveForm(sessionExpired, userTriggered);
     }
 
     private void interruptAndSaveForm(boolean sessionExpired, boolean userTriggered) {
@@ -262,7 +264,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     mFormController.getFormIndex(), sessionExpired);
 
             // Start saving form; will trigger expireUserSession() on completion
-            saveIncompleteFormToDisk(sessionExpired, userTriggered);
+            boolean exit = sessionExpired ? FormEntryConstants.EXIT : FormEntryConstants.DO_NOT_EXIT;
+            saveIncompleteFormToDisk(exit, userTriggered);
         }
     }
 
@@ -776,9 +779,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveDataToDisk(FormEntryConstants.EXIT, true, updatedSaveName, false, true);
     }
 
-    private void saveIncompleteFormToDisk(boolean sessionExpiredOrSuspended, boolean userTriggered) {
-        boolean shouldExit = sessionExpiredOrSuspended ? FormEntryConstants.EXIT : FormEntryConstants.DO_NOT_EXIT;
-        saveDataToDisk(shouldExit, false, null, true, userTriggered);
+    private void saveIncompleteFormToDisk(boolean exit, boolean userTriggered) {
+        saveDataToDisk(exit, false, null, true, userTriggered);
     }
 
     /**
