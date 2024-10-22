@@ -29,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="5dp"
-            android:minLines="2"
+            android:minLines="1"
             android:text=""
             android:textColor="@color/black"
             android:textSize="14sp"
@@ -79,6 +79,17 @@
             app:layout_constraintBottom_toBottomOf="@+id/llOpportunity"
             app:layout_constraintStart_toEndOf="@+id/llOpportunity"
             app:layout_constraintTop_toTopOf="@+id/llOpportunity" />
+
+        <ImageView
+            android:id="@+id/imgDownload"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_connect_download_green"
+            app:layout_constraintBottom_toBottomOf="@+id/llOpportunity"
+            app:layout_constraintStart_toEndOf="@+id/progressBar"
+            app:layout_constraintTop_toTopOf="@+id/llOpportunity"/>
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
             android:id="@+id/tvDate"

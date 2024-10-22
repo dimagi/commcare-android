@@ -80,7 +80,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
 
     public void bind(Context mContext, ItemLoginConnectHomeAppsBinding binding, ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        binding.tvDate.setText(formatDate(connectLoginJobListModel.getLastAccessed().toString()));
+        binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate().toString()));
+        binding.imgDownload.setVisibility(connectLoginJobListModel.isAppInstalled() ? View.GONE : View.VISIBLE);
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
 
@@ -98,10 +99,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
         int progressColor = 0;
         String jobType = item.getJobType();
 
-        if (jobType.equals(JOB_LEARNING)) {
+        if (jobType.equals(JOB_LEARNING) && !item.getJob().passedAssessment()) {
             progress = item.getLearningProgress();
             progressColor = context.getResources().getColor(R.color.connect_blue_color);
-        } else if (jobType.equals(JOB_DELIVERY)) {
+        } else if (jobType.equals(JOB_DELIVERY) && !item.getJob().isFinished()) {
             progress = item.getDeliveryProgress();
             progressColor = context.getResources().getColor(R.color.connect_green);
         }
@@ -119,23 +120,34 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
         if (item.isNew()) {
             setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
                     context.getResources().getString(R.string.connect_new_opportunity), R.drawable.ic_connect_new_opportunity,
-                    R.color.connect_yellowish_orange_color, binding);
+                    255, R.color.connect_yellowish_orange_color, binding);
         } else if (item.isLearningApp()) {
+            boolean passedAssessment = item.getJob().passedAssessment();
+            int textId = passedAssessment ? R.string.connect_learn_review : R.string.connect_learn;
+            int textColorId = passedAssessment ? R.color.connect_blue_color_50 : R.color.connect_blue_color;
+            int iconAlpha = passedAssessment ? 128 : 255;
             setJobType(context, R.drawable.connect_rounded_corner_teslish_blue,
-                    context.getResources().getString(R.string.connect_learn), R.drawable.ic_connect_learning,
-                    R.color.connect_blue_color, binding);
+                    context.getResources().getString(textId), R.drawable.ic_connect_learning, iconAlpha,
+                    textColorId, binding);
         } else if (item.isDeliveryApp()) {
-            setJobType(context, R.drawable.connect_rounded_corner_light_green,
-                    context.getResources().getString(R.string.connect_delivery), R.drawable.ic_connect_delivery,
-                    R.color.connect_green, binding);
+            boolean finished = item.getJob().isFinished();
+            int textId = finished ? R.string.connect_expired : R.string.connect_delivery;
+            int textColorId = finished ? R.color.connect_middle_grey : R.color.connect_green;
+            int drawableId = finished ? R.drawable.connect_rounded_corner_grey : R.drawable.connect_rounded_corner_light_green;
+            int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
+
+            setJobType(context, drawableId,
+                    context.getResources().getString(textId), iconId, 255,
+                    textColorId, binding);
         }
     }
 
     private void setJobType(Context context, int backgroundResId, String jobTypeText,
-                            int iconResId, int textColorResId, ItemLoginConnectHomeAppsBinding binding) {
+                            int iconResId, int iconAlpha, int textColorResId, ItemLoginConnectHomeAppsBinding binding) {
         binding.llOpportunity.setBackground(ContextCompat.getDrawable(context, backgroundResId));
         binding.tvJobType.setText(jobTypeText);
         binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
+        binding.imgJobType.setImageAlpha(iconAlpha);
         binding.tvJobType.setTextColor(ContextCompat.getColor(context, textColorResId));
     }
 }
