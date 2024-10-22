@@ -1,29 +1,31 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import android.content.Context;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.connect.ConnectManager;
 import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
+import org.commcare.views.connect.LinearProgressBar;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.Locale;
 import java.util.Vector;
@@ -41,6 +43,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private ProgressBar connectProgressBar;
     private TextView connectProgressText;
     private TextView connectProgressMaxText;
+    private View viewJobCard;
 
     private ConstraintLayout connectTile;
 
@@ -58,9 +61,39 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         connectProgressBar = activity.findViewById(R.id.home_connect_prog_bar);
         connectProgressText = activity.findViewById(R.id.home_connect_prog_text);
         connectProgressMaxText = activity.findViewById(R.id.home_connect_prog_max_text);
+        viewJobCard = activity.findViewById(R.id.viewJobCard);
         updateConnectProgress();
+        updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
         setupGridView();
+    }
+
+    private void updateJobTileDetails() {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
+
+        viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connectJobPay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectMediumTextView tvPrimaryVisitCount = viewJobCard.findViewById(R.id.tv_primary_visit_count);
+        ConnectMediumTextView tvFollowUpCount = viewJobCard.findViewById(R.id.tv_follow_up_count);
+        ConnectMediumTextView tvFinalVisitCount = viewJobCard.findViewById(R.id.tv_final_visit_count);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        LinearProgressBar lpPrimaryVisitProgress = viewJobCard.findViewById(R.id.lp_primary_visit_progress);
+        LinearProgressBar lpFollowUpVisitProgress = viewJobCard.findViewById(R.id.lp_follow_up_visit_Progress);
+        LinearProgressBar lpFinalVisitProgress = viewJobCard.findViewById(R.id.lp_final_visit_Progress);
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connectJobPay.setText(activity.getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        tvPrimaryVisitCount.setText(String.valueOf(job.numberOfDeliveriesToday()));
     }
 
     @Override
@@ -85,7 +118,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
 
-        if(connectProgressTile != null) {
+        if (connectProgressTile != null) {
             connectProgressTile.setVisibility(show ? View.VISIBLE : View.GONE);
 
             if (show) {
@@ -122,7 +155,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if(ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null) {
+        if (ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null) {
             hiddenButtons.add("connect");
         }
 

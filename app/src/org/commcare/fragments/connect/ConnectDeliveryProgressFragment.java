@@ -27,6 +27,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.Date;
 
@@ -167,16 +168,21 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
     private void jobCardDataHandle(View view, ConnectJobRecord job) {
         View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
         viewMore.setOnClickListener(view1 -> {
             Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment(false));
-
         });
 
         tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
     }
 
     @Override

@@ -20,6 +20,7 @@ import org.commcare.dalvik.R;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.Date;
 import java.util.List;
@@ -76,6 +77,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         updateUi(view);
         refreshData();
 
+        jobCardDataHandle(view, job);
         return view;
     }
 
@@ -199,16 +201,6 @@ public class ConnectLearningProgressFragment extends Fragment {
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
 
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobIntroFragment(false));
-        });
-
-        tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
@@ -244,7 +236,6 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
@@ -282,6 +273,25 @@ public class ConnectLearningProgressFragment extends Fragment {
                 Navigation.findNavController(button).navigate(directions);
             }
         });
+    }
+
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
     }
 
 //    private void updateUpdatedDate(Date lastUpdate) {

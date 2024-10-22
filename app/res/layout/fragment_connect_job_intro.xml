@@ -13,7 +13,7 @@
 
         <include
             android:id="@+id/viewJobCard"
-            layout="@layout/view_job_summary_with_progress"
+            layout="@layout/view_job_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp" />

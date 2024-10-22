@@ -136,27 +136,27 @@ public class ConnectJobIntroFragment extends Fragment {
             });
         }
 
-        viewJobUIHandle(view, job);
+        jobCardDataHandle(view, job);
         return view;
     }
 
-    private void viewJobUIHandle(View view, ConnectJobRecord job) {
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
         View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
-        ConnectRegularTextView tvJobDiscrepation = findView(viewJobCard, R.id.connect_job_end_date);
-        ConnectBoldTextView tvJobTitle = findView(viewJobCard, R.id.connect_job_intro_title);
-        ConnectMediumTextView jobPayTitle = findView(viewJobCard, R.id.connect_job_pay_title);
-        ConnectBoldTextView tvDailyVisitTitle = findView(viewJobCard, R.id.tvDailyVisitTitle);
-        LinearProgressBar progress = findView(viewJobCard, R.id.progress);
-        ConnectBoldTextView tvVisitCount = findView(viewJobCard, R.id.tvVisitCount);
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDeliveryDetailsFragment(false));
+        });
 
-        setText(tvJobTitle, job.getTitle());
-        setText(tvJobDiscrepation, getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
-        setText(jobPayTitle, getString(R.string.connect_job_tile_price, String.valueOf(job.getBudgetPerVisit())));
-
-        setVisibility(tvDailyVisitTitle, View.GONE);
-        setVisibility(progress, View.GONE);
-        setVisibility(tvVisitCount, View.GONE);
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
     }
 
     private <T extends View> T findView(View parent, int id) {
