@@ -907,11 +907,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (broadcastReceiver != null) {
             try {
                 unregisterReceiver(broadcastReceiver);
-            } catch (IllegalArgumentException e) {
-                // Thrown when given receiver isn't registered.
-                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                        "Tried to unregister a BroadcastReceiver that wasn't registered: " + e.getMessage());
-            }
+            } catch (IllegalArgumentException e) {}
         }
     }
 
