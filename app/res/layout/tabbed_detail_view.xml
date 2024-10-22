@@ -19,22 +19,10 @@
         this ID shouldn't be considered static for layouts, etc. DO NOT REFER
         to the tabbed_detail_pager ID in any xml, and only within the pager
         class in android until its ID changes. -->
-        <com.duolingo.open.rtlviewpager.RtlViewPager
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/tabbed_detail_pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.viewpager.widget.PagerTabStrip
-                android:id="@+id/pager_tab_strip"
-                android:layout_gravity="top"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/content_min_margin"
-                android:paddingBottom="@dimen/content_min_margin"
-                android:textColor="@color/cc_brand_text"
-                android:background="@color/cc_brand_bg"
-                />
-        </com.duolingo.open.rtlviewpager.RtlViewPager>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
