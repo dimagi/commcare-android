@@ -61,6 +61,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.services.FCMMessageData;
 import org.commcare.services.PendingSyncAlertBroadcastReceiver;
 import org.commcare.tasks.FormLoaderTask;
+import org.commcare.tasks.FormSaveHelper;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.tts.TextToSpeechCallback;
 import org.commcare.tts.TextToSpeechConverter;
@@ -829,10 +830,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
-        mSaveToDiskTask = new SaveToDiskTask(getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1),
-                getIntent().getIntExtra(KEY_FORM_DEF_ID, -1),
-                FormEntryInstanceState.mFormRecordPath,
-                exit, complete, updatedSaveName, symetricKey, headless);
+        int formRecordId = getIntent().getIntExtra(KEY_FORM_RECORD_ID, -1);
+        int formDefId = getIntent().getIntExtra(KEY_FORM_DEF_ID, -1);
+        FormSaveHelper formSaveHelper;
+        try {
+            formSaveHelper = FormSaveHelper.getNewInstance(formRecordId, formDefId, exit, complete,
+                    updatedSaveName, symetricKey, FormEntryInstanceState.mFormRecordPath);
+        } catch (IllegalStateException e) {
+            // We already have a form save in progress outside the scope of saveToDisk Task, let it do it's thing
+            return;
+        }
+
+        mSaveToDiskTask = new SaveToDiskTask(formSaveHelper, headless);
+
         if (!headless) {
             mSaveToDiskTask.connect(this);
         }
