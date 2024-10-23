@@ -16,8 +16,6 @@ import org.commcare.suite.model.Detail;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.Objects;
-
 /**
  * Subclass of FragmentStatePagerAdapter for populating a ViewPager (swipe-based paging widget) with entity detail fields.
  *
