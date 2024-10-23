@@ -1159,6 +1159,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         uiController.refreshView();
         FormNavigationUI.updateNavigationCues(this, mFormController, uiController.questionsView);
         if (isRestartAfterSessionExpiration) {
+            // InterruptedFormState null check is important to ensure backward compatibility
             String localeKey =
                     (fc.getInterruptedFormState() == null
                             || fc.getInterruptedFormState().getInterruptedDueToSessionExpiration())
