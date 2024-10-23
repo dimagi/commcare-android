@@ -19,17 +19,18 @@ public class InterruptedFormState implements Externalizable {
     private int sessionStateDescriptorId;
     private FormIndex formIndex;
     private int formRecordId = -1;
+    private boolean interruptedDueToSessionExpiration = false;
 
-    public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex, int formRecordId) {
+    public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex, int formRecordId, boolean sessionExpired) {
         this.sessionStateDescriptorId = sessionStateDescriptorId;
         this.formIndex = formIndex;
         this.formRecordId = formRecordId;
+        this.interruptedDueToSessionExpiration = sessionExpired;
     }
 
     public InterruptedFormState() {
         // serialization only
     }
-
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
@@ -38,9 +39,10 @@ public class InterruptedFormState implements Externalizable {
         formIndex = (FormIndex)ExtUtil.read(in, FormIndex.class, pf);
         try {
             formRecordId = ExtUtil.readInt(in);
+            interruptedDueToSessionExpiration = ExtUtil.readBool(in);
         } catch(EOFException e){
             // this is to catch errors caused by EOF when updating from the previous model which didn't have the
-            // formRecordId field
+            // formRecordId and interruptedDueToSessionExpiration fields
         }
     }
 
@@ -49,6 +51,7 @@ public class InterruptedFormState implements Externalizable {
         ExtUtil.writeNumeric(out, sessionStateDescriptorId);
         ExtUtil.write(out, formIndex);
         ExtUtil.writeNumeric(out, formRecordId);
+        ExtUtil.writeBool(out, interruptedDueToSessionExpiration);
     }
 
     public int getSessionStateDescriptorId() {
@@ -57,6 +60,10 @@ public class InterruptedFormState implements Externalizable {
 
     public FormIndex getFormIndex() {
         return formIndex;
+    }
+
+    public boolean isInterruptedDueToSessionExpiration(){
+        return interruptedDueToSessionExpiration;
     }
 
     public int getFormRecordId() {
