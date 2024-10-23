@@ -332,7 +332,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public int getLearningCompletePercentage() {
         int numLearning = getNumLearningModules();
-        return numLearning > 0 ? (100 * getCompletedLearningModules() / getNumLearningModules()) : 100;
+        return numLearning > 0 ? (100 * getCompletedLearningModules() / numLearning) : 100;
     }
 
     public boolean attemptedAssessment() {
@@ -340,7 +340,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean passedAssessment() {
-        return getLearningCompletePercentage() >= 100 && getAssessmentScore() >= getLearnAppInfo().getPassingScore();
+        return status == STATUS_DELIVERING || (getLearningCompletePercentage() >= 100 && getAssessmentScore() >= getLearnAppInfo().getPassingScore());
     }
 
     public int getAssessmentScore() {

@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginTop="2dp"
+        android:padding="10dp"
         android:layout_marginEnd="5dp"
         android:background="@drawable/dots_rect_back"
         android:visibility="visible">
@@ -29,17 +30,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
             android:id="@+id/connect_phone_label"
             android:layout_width="0dp"
+            android:textSize="16dp"
             android:layout_height="match_parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
             android:id="@+id/connect_phone_yes_button"
             android:layout_width="wrap_content"
+            android:textSize="18sp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:text="@string/connect_payment_confirm_yes"
@@ -47,8 +50,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
 
-        <TextView
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
             android:id="@+id/connect_phone_no_button"
+            android:textSize="18sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="40dp"

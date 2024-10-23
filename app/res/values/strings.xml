@@ -859,6 +859,11 @@
     <string name="connect_deactivate_dialog_title">Are you sure?</string>
     <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
 
+    <string name="connect_new_opportunity">New Opportunity</string>
+    <string name="connect_learn">Learn</string>
+    <string name="connect_delivery">Delivery</string>
+    <string name="connect_expired">Expired</string>
+    <string name="connect_commcare_app">CommCare App</string>
     <string name="connect_job_tile_price">₹ %s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>

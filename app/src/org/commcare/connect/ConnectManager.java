@@ -38,6 +38,8 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -244,6 +246,12 @@ public class ConnectManager {
         return dateFormat.format(date);
     }
 
+    private static final DateFormat opportunitydateFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.getDefault());
+
+    public static String opportunityFormatDate(Date date) {
+        return opportunitydateFormat.format(date);
+    }
+
     private static final DateFormat paymentDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
 
     public static String paymentDateFormat(Date date) {
@@ -273,13 +281,13 @@ public class ConnectManager {
             String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 
-            TextView view = tile.findViewById(R.id.connect_phone_label);
+            ConnectRegularTextView view = tile.findViewById(R.id.connect_phone_label);
             view.setText(message);
 
-            TextView yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            ConnectMediumTextView yesButton = tile.findViewById(R.id.connect_phone_yes_button);
             yesButton.setOnClickListener(listener);
 
-            TextView noButton = tile.findViewById(R.id.connect_phone_no_button);
+            ConnectMediumTextView noButton = tile.findViewById(R.id.connect_phone_no_button);
             noButton.setOnClickListener(v -> {
                 tile.setVisibility(View.GONE);
             });
@@ -649,9 +657,9 @@ public class ConnectManager {
 
         getInstance().primedAppIdForAutoLogin = appId;
 
-        CommCareLauncher.launchCommCareForAppId(activity, appId);
-
         activity.finish();
+
+        CommCareLauncher.launchCommCareForAppId(activity, appId);
     }
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
