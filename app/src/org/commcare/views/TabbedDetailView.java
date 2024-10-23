@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -20,6 +19,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+
 import java.util.Objects;
 
 /**
@@ -32,6 +34,7 @@ public class TabbedDetailView extends RelativeLayout {
     private AppCompatActivity mContext;
 
     private LinearLayout mMenu;
+    private TabLayout mTabLayout;
     private ViewPager2 mViewPager;
 
     private int mEvenColor;
@@ -75,6 +78,8 @@ public class TabbedDetailView extends RelativeLayout {
         mMenu = root.findViewById(R.id.tabbed_detail_menu);
         mViewPager = root.findViewById(R.id.tabbed_detail_pager);
         mViewPager.setId(AndroidUtil.generateViewId());
+
+        mTabLayout = root.findViewById(R.id.tab_layout);
     }
 
     public void showMenu() {
@@ -87,6 +92,10 @@ public class TabbedDetailView extends RelativeLayout {
     public void refresh(Detail detail, TreeReference reference, int index) {
         EntityDetailPagerAdapter entityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), mContext.getLifecycle(), detail, index, reference, new ListItemViewStriper(this.mOddColor, this.mEvenColor));
         mViewPager.setAdapter(entityDetailPagerAdapter);
+
+        new TabLayoutMediator(mTabLayout, mViewPager,
+                (tab, position) -> tab.setText("Item " + (position + 1))
+        ).attach();
     }
 
     /**

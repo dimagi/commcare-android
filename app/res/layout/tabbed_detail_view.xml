@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:viewBindingIgnore="true">
 
     <LinearLayout
@@ -8,13 +9,24 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/content_min_margin"
+            android:paddingBottom="@dimen/content_min_margin"
+            android:textColor="@color/cc_brand_text"
+            android:background="@color/cc_brand_bg" />
+
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/tabbed_detail_pager_wrapper"
         android:layout_below="@id/tabbed_detail_menu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <!--  NOTE: In order to deal with annoying issues of multiplicity,
         this ID shouldn't be considered static for layouts, etc. DO NOT REFER
         to the tabbed_detail_pager ID in any xml, and only within the pager
@@ -22,7 +34,7 @@
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/tabbed_detail_pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 
