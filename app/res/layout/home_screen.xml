@@ -23,6 +23,7 @@
             android:id="@+id/connect_secondary_phone_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@null"
             android:src="@drawable/phone_heart"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -61,10 +62,56 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvDailyLimitView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/viewJobCard"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="-35dp"
+                android:layout_marginRight="10dp"
+                app:cardBackgroundColor="@color/connect_light_orange_color"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="10dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingStart="15dp"
+                    android:paddingTop="35dp"
+                    android:layout_marginBottom="15dp"
+                    android:paddingEnd="15dp">
+
+                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                        android:id="@+id/tvOverLimitDescription"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/connect_job_tile_daily_limit_description"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/connect_warning_color"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="@+id/btnOverLimit"
+                        app:layout_constraintEnd_toStartOf="@+id/btnOverLimit"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <org.commcare.views.connect.RoundedButton
+                        android:id="@+id/btnOverLimit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:text="@string/connect_job_tile_daily_limit"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:roundButtonTextSize="4sp" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
 
             <include
                 android:id="@+id/viewJobCard"
@@ -77,6 +124,8 @@
                 android:id="@+id/home_connect_progress_tile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/cvDailyLimitView"
+                android:layout_marginTop="10dp"
                 android:visibility="visible">
 
                 <ProgressBar
@@ -124,8 +173,9 @@
                 android:id="@+id/home_gridview_buttons"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_below="@+id/home_connect_progress_tile"
                 android:nestedScrollingEnabled="false"
                 android:scrollbars="vertical" />
-        </LinearLayout>
+        </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

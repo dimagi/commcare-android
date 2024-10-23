@@ -33,8 +33,14 @@ public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<Conne
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ConnectDeliveryPaymentSummaryInfo primaryVisit = primaryVisits.get(position);
         holder.tvPrimaryVisitTitle.setText(primaryVisit.getPaymentUnitName());
-        holder.tvPrimaryVisitCount.setText(String.valueOf(primaryVisit.getPaymentUnitMaxDaily()));
-//        holder.lpPrimaryVisitProgress.setProgress(primaryVisit.getProgress());
+        holder.tvPrimaryVisitCount.setText(String.valueOf(primaryVisit.getPaymentUnitAmount()) + "/" + String.valueOf(primaryVisit.getPaymentUnitMaxDaily()));
+
+        // Calculate the percentage (make sure to avoid division by zero)
+        double percentage = 0;
+        if (primaryVisit.getPaymentUnitMaxDaily() > 0) {
+            percentage = ((double) primaryVisit.getPaymentUnitAmount() / primaryVisit.getPaymentUnitMaxDaily()) * 100;
+        }
+        holder.lpPrimaryVisitProgress.setProgress((float) percentage);
     }
 
     @Override

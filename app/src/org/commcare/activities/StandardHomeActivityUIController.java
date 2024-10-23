@@ -7,6 +7,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,6 +49,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private TextView connectProgressText;
     private TextView connectProgressMaxText;
     private View viewJobCard;
+    private CardView cvDailyLimitView;
 
     private ConstraintLayout connectTile;
 
@@ -67,6 +69,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         connectProgressText = activity.findViewById(R.id.home_connect_prog_text);
         connectProgressMaxText = activity.findViewById(R.id.home_connect_prog_max_text);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
+        cvDailyLimitView = activity.findViewById(R.id.cvDailyLimitView);
         updateConnectProgress();
         updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
@@ -79,12 +82,13 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
 
+        cvDailyLimitView.setVisibility(job.getDaysRemaining() == 0 ? View.VISIBLE : View.GONE);
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
 
         ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
         ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
         ConnectMediumTextView connectJobPay = viewJobCard.findViewById(R.id.connect_job_pay);
-        ConnectMediumTextView tvPrimaryVisitCount = viewJobCard.findViewById(R.id.tv_primary_visit_count);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
 
@@ -92,7 +96,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         tvJobDiscrepation.setText(job.getDescription());
         connectJobPay.setText(activity.getString(R.string.connect_job_tile_price, String.valueOf(job.getBudgetPerVisit())));
         connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
-        tvPrimaryVisitCount.setText(String.valueOf(job.numberOfDeliveriesToday()));
 
         for (int i = 0; i < job.getDeliveries().size(); i++) {
             for (int j = 0; j < job.getPaymentUnits().size(); j++) {

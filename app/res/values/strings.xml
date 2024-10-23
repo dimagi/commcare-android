@@ -860,5 +860,7 @@
     <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
 
     <string name="connect_job_tile_price">₹ %s</string>
+    <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
+    <string name="connect_job_tile_daily_limit">Over Limit</string>
 
 </resources>
