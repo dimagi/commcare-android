@@ -62,7 +62,7 @@ public class InterruptedFormState implements Externalizable {
         return formIndex;
     }
 
-    public boolean getInterruptedDueToSessionExpiration(){
+    public boolean isInterruptedDueToSessionExpiration(){
         return interruptedDueToSessionExpiration;
     }
 

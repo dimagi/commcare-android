@@ -1162,7 +1162,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // InterruptedFormState null check is important to ensure backward compatibility
             String localeKey =
                     (fc.getInterruptedFormState() == null
-                            || fc.getInterruptedFormState().getInterruptedDueToSessionExpiration())
+                            || fc.getInterruptedFormState().isInterruptedDueToSessionExpiration())
                     ? "form.entry.restart.after.expiration" : "form.entry.restart.after.session.pause";
             Toast.makeText(this, Localization.get(localeKey), Toast.LENGTH_LONG).show();
         }
