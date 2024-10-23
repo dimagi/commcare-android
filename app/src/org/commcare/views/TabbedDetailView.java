@@ -47,7 +47,7 @@ public class TabbedDetailView extends RelativeLayout {
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (isInEditMode()) return;
-        mContext = (AppCompatActivity)context;
+        mContext = (AppCompatActivity) context;
 
         loadViewConfig(context, attrs);
     }
@@ -64,14 +64,14 @@ public class TabbedDetailView extends RelativeLayout {
     @SuppressLint("NewApi")
     public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = (AppCompatActivity)context;
+        mContext = (AppCompatActivity) context;
     }
 
     /*
      * Attach this view to a layout.
      */
     public void setRoot(ViewGroup root) {
-        LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
@@ -93,9 +93,7 @@ public class TabbedDetailView extends RelativeLayout {
         EntityDetailPagerAdapter entityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), mContext.getLifecycle(), detail, index, reference, new ListItemViewStriper(this.mOddColor, this.mEvenColor));
         mViewPager.setAdapter(entityDetailPagerAdapter);
 
-        new TabLayoutMediator(mTabLayout, mViewPager,
-                (tab, position) -> tab.setText("Item " + (position + 1))
-        ).attach();
+        new TabLayoutMediator(mTabLayout, mViewPager, (tab, position) -> tab.setText(detail.getDetails()[position].getTitle().getText().evaluate())).attach();
     }
 
     /**
