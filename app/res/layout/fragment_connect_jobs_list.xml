@@ -84,6 +84,17 @@
             app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:id="@+id/connect_no_jobs_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:layout_margin="40dp"
+        android:text="@string/connect_no_jobs"
+        android:textColor="@color/blue"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvJobList"
         android:layout_marginTop="10dp"

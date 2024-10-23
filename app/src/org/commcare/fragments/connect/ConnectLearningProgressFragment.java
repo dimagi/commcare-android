@@ -68,7 +68,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
-        RoundedButton refreshButton = view.findViewById(R.id.connect_learning_refresh);
+        RoundedButton refreshButton = view.findViewById(R.id.btnSync);
         refreshButton.setOnClickListener(v -> {
             refreshData();
         });
@@ -194,13 +194,8 @@ public class ConnectLearningProgressFragment extends Fragment {
         TextView textView = view.findViewById(R.id.connect_learn_progress_title);
         textView.setText(getString(titleResource));
 
-        textView = view.findViewById(R.id.connect_learning_claim_label);
-        textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
-        textView.setText(R.string.connect_learn_claim_label);
-
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
-
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);

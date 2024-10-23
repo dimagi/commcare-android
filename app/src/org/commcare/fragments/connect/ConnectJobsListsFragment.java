@@ -186,6 +186,10 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void initRecyclerView() {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
+
+        TextView noJobsText = view.findViewById(R.id.connect_no_jobs_text);
+        noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
+
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
             if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
                 launchJobInfo(job);
@@ -193,6 +197,7 @@ public class ConnectJobsListsFragment extends Fragment {
                 launchAppForJob(job, isLearning);
             }
         });
+
         rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvJobList.setNestedScrollingEnabled(true);
         rvJobList.setAdapter(adapter);

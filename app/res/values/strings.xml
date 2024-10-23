@@ -591,6 +591,7 @@
     <string name="connect_jobs_all">ALL JOBS</string>
     <string name="connect_jobs_mine">MY JOBS</string>
     <string name="connect_job_new">NEW</string>
+    <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
     <string name="connect_job_visits">Cover %d Households in %d Days</string>
 
     <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
