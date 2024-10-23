@@ -75,22 +75,24 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
 
-        cvDailyLimitView.setVisibility(job.getDaysRemaining() == 0 ? View.VISIBLE : View.GONE);
+        cvDailyLimitView.setVisibility(show && job.getDaysRemaining() == 0 ? View.VISIBLE : View.GONE);
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
 
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-        ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
-        ConnectMediumTextView connectJobPay = viewJobCard.findViewById(R.id.connect_job_pay);
-        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+        if(show) {
+            ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+            ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
+            ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+            ConnectMediumTextView connectJobPay = viewJobCard.findViewById(R.id.connect_job_pay);
+            ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
-        tvJobTitle.setText(job.getTitle());
-        tvViewMore.setVisibility(View.GONE);
-        tvJobDiscrepation.setText(job.getDescription());
-        connectJobPay.setText(activity.getString(R.string.connect_job_tile_price, String.valueOf(job.getBudgetPerVisit())));
-        connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+            tvJobTitle.setText(job.getTitle());
+            tvViewMore.setVisibility(View.GONE);
+            tvJobDiscrepation.setText(job.getDescription());
+            connectJobPay.setText(activity.getString(R.string.connect_job_tile_price, String.valueOf(job.getBudgetPerVisit())));
+            connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
-        updateConnectProgress();
+            updateConnectProgress();
+        }
     }
 
     @Override
@@ -115,19 +117,21 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         deliveryPaymentInfoList.clear();
 
-        Hashtable<String, Integer> todayDeliveryCounts = job.getDeliveryCountsPerPaymentUnit(true);
-        for (int j = 0; j < job.getPaymentUnits().size(); j++) {
-            ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(j);
-            String stringKey = Integer.toString(unit.getUnitId());
-            int amount = 0;
-            if(todayDeliveryCounts.containsKey(stringKey)) {
-                amount = todayDeliveryCounts.get(stringKey);
+        if(job != null) {
+            Hashtable<String, Integer> todayDeliveryCounts = job.getDeliveryCountsPerPaymentUnit(true);
+            for (int j = 0; j < job.getPaymentUnits().size(); j++) {
+                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(j);
+                String stringKey = Integer.toString(unit.getUnitId());
+                int amount = 0;
+                if (todayDeliveryCounts.containsKey(stringKey)) {
+                    amount = todayDeliveryCounts.get(stringKey);
+                }
+                deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
+                        unit.getName(),
+                        amount,
+                        unit.getMaxDaily()
+                ));
             }
-            deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
-                    unit.getName(),
-                    amount,
-                    unit.getMaxDaily()
-            ));
         }
 
         ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);

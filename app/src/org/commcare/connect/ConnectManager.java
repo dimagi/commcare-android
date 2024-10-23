@@ -657,9 +657,9 @@ public class ConnectManager {
 
         getInstance().primedAppIdForAutoLogin = appId;
 
-        activity.finish();
-
         CommCareLauncher.launchCommCareForAppId(activity, appId);
+
+        activity.finish();
     }
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
