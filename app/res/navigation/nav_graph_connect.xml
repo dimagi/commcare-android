@@ -48,6 +48,9 @@
         <argument
             android:name="isButtonVisible"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_delivery_details_fragment"
+            app:destination="@id/connect_job_delivery_details_fragment" />
     </fragment>
 
     <fragment
