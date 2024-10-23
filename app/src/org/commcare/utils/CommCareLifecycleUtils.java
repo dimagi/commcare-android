@@ -1,10 +1,11 @@
 package org.commcare.utils;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.UnrecoverableErrorActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Utils for exiting and restarting the app

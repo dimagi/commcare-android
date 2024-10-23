@@ -2,16 +2,10 @@ package org.commcare.activities.connect;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
@@ -40,6 +34,14 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean backButtonEnabled = true;
@@ -72,7 +74,11 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         setTitle(getString(R.string.connect_title));
         getIntentData();
         updateBackButton();
-
+        Window window = getWindow();
+        window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
+        ColorDrawable colorDrawable
+                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
         NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
@@ -177,12 +183,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         }
 
         super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
-        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     @Override
