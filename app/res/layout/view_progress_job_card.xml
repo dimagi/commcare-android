@@ -41,6 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="@+id/tv_job_discrepation"
             app:layout_constraintTop_toBottomOf="@+id/tv_job_discrepation">
 
@@ -67,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="View More"
+            android:visibility="gone"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -92,9 +94,8 @@
             android:text="8:00 AM - 5:00 PM"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_view_more" />
+            app:layout_constraintTop_toBottomOf="@id/tvDailyVisitTitle" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rdDeliveryTypeList"
@@ -104,13 +105,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_view_more"
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_time"
             tools:itemCount="3"
             tools:listitem="@layout/item_progress_job_summary_visit" />
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
             android:id="@+id/connect_job_end_date"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginStart="20dp"
@@ -120,7 +121,6 @@
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline3"
             app:layout_constraintTop_toBottomOf="@+id/rdDeliveryTypeList" />
 
         <androidx.constraintlayout.widget.Guideline

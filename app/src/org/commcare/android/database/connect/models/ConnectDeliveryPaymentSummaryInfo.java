@@ -2,10 +2,10 @@ package org.commcare.android.database.connect.models;
 
 public class ConnectDeliveryPaymentSummaryInfo {
     private String paymentUnitName;
-    private double paymentUnitAmount;
-    private double paymentUnitMaxDaily;
+    private int paymentUnitAmount;
+    private int paymentUnitMaxDaily;
 
-    public ConnectDeliveryPaymentSummaryInfo(String paymentUnitName, double paymentUnitAmount, double paymentUnitMaxDaily) {
+    public ConnectDeliveryPaymentSummaryInfo(String paymentUnitName, int paymentUnitAmount, int paymentUnitMaxDaily) {
         this.paymentUnitName = paymentUnitName;
         this.paymentUnitAmount = paymentUnitAmount;
         this.paymentUnitMaxDaily = paymentUnitMaxDaily;
@@ -20,19 +20,19 @@ public class ConnectDeliveryPaymentSummaryInfo {
         this.paymentUnitName = paymentUnitName;
     }
 
-    public double getPaymentUnitAmount() {
+    public int getPaymentUnitAmount() {
         return paymentUnitAmount;
     }
 
-    public void setPaymentUnitAmount(double paymentUnitAmount) {
+    public void setPaymentUnitAmount(int paymentUnitAmount) {
         this.paymentUnitAmount = paymentUnitAmount;
     }
 
-    public double getPaymentUnitMaxDaily() {
+    public int getPaymentUnitMaxDaily() {
         return paymentUnitMaxDaily;
     }
 
-    public void setPaymentUnitMaxDaily(double paymentUnitMaxDaily) {
+    public void setPaymentUnitMaxDaily(int paymentUnitMaxDaily) {
         this.paymentUnitMaxDaily = paymentUnitMaxDaily;
     }
 }

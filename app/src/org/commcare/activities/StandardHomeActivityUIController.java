@@ -20,6 +20,7 @@ import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -31,6 +32,7 @@ import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
@@ -43,11 +45,6 @@ import java.util.Vector;
 public class StandardHomeActivityUIController implements CommCareActivityUIController {
 
     private final StandardHomeActivity activity;
-
-    private ConstraintLayout connectProgressTile;
-    private ProgressBar connectProgressBar;
-    private TextView connectProgressText;
-    private TextView connectProgressMaxText;
     private View viewJobCard;
     private CardView cvDailyLimitView;
 
@@ -64,10 +61,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
         connectTile = activity.findViewById(R.id.connect_alert_tile);
-        connectProgressTile = activity.findViewById(R.id.home_connect_progress_tile);
-        connectProgressBar = activity.findViewById(R.id.home_connect_prog_bar);
-        connectProgressText = activity.findViewById(R.id.home_connect_prog_text);
-        connectProgressMaxText = activity.findViewById(R.id.home_connect_prog_max_text);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         cvDailyLimitView = activity.findViewById(R.id.cvDailyLimitView);
         updateConnectProgress();
@@ -90,26 +83,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
         ConnectMediumTextView connectJobPay = viewJobCard.findViewById(R.id.connect_job_pay);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
-        RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
 
         tvJobTitle.setText(job.getTitle());
+        tvViewMore.setVisibility(View.GONE);
         tvJobDiscrepation.setText(job.getDescription());
         connectJobPay.setText(activity.getString(R.string.connect_job_tile_price, String.valueOf(job.getBudgetPerVisit())));
         connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
-        for (int i = 0; i < job.getDeliveries().size(); i++) {
-            for (int j = 0; j < job.getPaymentUnits().size(); j++) {
-                deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
-                        job.getPaymentUnits().get(j).getName(),
-                        job.getPaymentUnits().get(j).getAmount(),
-                        job.getPaymentUnits().get(j).getMaxDaily()
-                ));
-            }
-        }
-
-        ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        recyclerView.setAdapter(connectProgressJobSummaryAdapter);
+        updateConnectProgress();
     }
 
     @Override
@@ -129,27 +110,29 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateConnectProgress() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
 
-        if (connectProgressTile != null) {
-            connectProgressTile.setVisibility(show ? View.VISIBLE : View.GONE);
+        deliveryPaymentInfoList.clear();
 
-            if (show) {
-                int today = job.numberOfDeliveriesToday();
-                int max = job.getMaxDailyVisits();
-
-                //Configure the progress bar
-                connectProgressBar.setMax(max);
-                connectProgressBar.setProgress(today);
-
-                //Configure the text fields
-                connectProgressText.setText(activity.getString(R.string.connect_home_progress_today, today));
-                connectProgressMaxText.setText(String.format(Locale.getDefault(), "%d", max));
+        Hashtable<String, Integer> todayDeliveryCounts = job.getDeliveryCountsPerPaymentUnit(true);
+        for (int j = 0; j < job.getPaymentUnits().size(); j++) {
+            ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(j);
+            String stringKey = Integer.toString(unit.getUnitId());
+            int amount = 0;
+            if(todayDeliveryCounts.containsKey(stringKey)) {
+                amount = todayDeliveryCounts.get(stringKey);
             }
+            deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
+                    unit.getName(),
+                    amount,
+                    unit.getMaxDaily()
+            ));
         }
+
+        ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        recyclerView.setAdapter(connectProgressJobSummaryAdapter);
     }
 
     private static Vector<String> getHiddenButtons(Context context) {

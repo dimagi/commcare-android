@@ -118,66 +118,20 @@
             </androidx.cardview.widget.CardView>
 
             <include
-                android:id="@+id/viewJobCard"
                 layout="@layout/view_progress_job_card"
-                android:layout_width="match_parent"
+                android:id="@+id/viewJobCard"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/home_connect_progress_tile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/cvDailyLimitView"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                android:visibility="visible">
-
-                <ProgressBar
-                    android:id="@+id/home_connect_prog_bar"
-                    style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="@dimen/content_start"
-                    android:layout_marginLeft="@dimen/content_start"
-                    android:layout_marginEnd="@dimen/content_start"
-                    android:layout_marginRight="@dimen/content_start"
-                    android:indeterminate="false"
-                    android:indeterminateOnly="false"
-                    android:max="100"
-                    android:paddingTop="@dimen/content_start"
-                    android:paddingBottom="@dimen/content_start"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/progressbar_modern"
-                    android:progressTint="@color/green"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/home_connect_prog_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/home_connect_prog_bar"
-                    app:layout_constraintStart_toStartOf="@id/home_connect_prog_bar"
-                    app:layout_constraintTop_toTopOf="@id/home_connect_prog_bar" />
-
-                <TextView
-                    android:id="@+id/home_connect_prog_max_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="5dp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/home_connect_prog_bar"
-                    app:layout_constraintEnd_toEndOf="@id/home_connect_prog_bar"
-                    app:layout_constraintTop_toTopOf="@id/home_connect_prog_bar" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_width="match_parent" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/home_gridview_buttons"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/home_connect_progress_tile"
+                android:layout_below="@+id/cvDailyLimitView"
                 android:nestedScrollingEnabled="false"
                 android:scrollbars="vertical" />
         </RelativeLayout>
