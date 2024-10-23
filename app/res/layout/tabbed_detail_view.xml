@@ -17,7 +17,9 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/content_min_margin"
             android:paddingBottom="@dimen/content_min_margin"
-            android:textColor="@color/cc_brand_text"
+            app:tabIndicatorGravity="bottom"
+            app:tabIndicatorColor="@color/grey_dark"
+            app:tabTextColor="@color/cc_brand_text"
             android:background="@color/cc_brand_bg" />
 
     </LinearLayout>
