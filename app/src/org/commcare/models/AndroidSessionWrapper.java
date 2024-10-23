@@ -190,8 +190,9 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
             SqlStorage<SessionStateDescriptor> sessionStorage =
                     CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
             SessionStateDescriptor current = sessionStorage.read(sessionStateRecordId);
+
             InterruptedFormState interruptedFormState =
-                    new InterruptedFormState(current.getID(), formIndex, sessionExpired);
+                    new InterruptedFormState(current.getID(), formIndex, current.getFormRecordId(), sessionExpired);
             HiddenPreferences.setInterruptedSSD(current.getID());
             HiddenPreferences.setInterruptedFormState(interruptedFormState);
         }

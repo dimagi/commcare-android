@@ -16,13 +16,15 @@ import java.io.IOException;
  */
 public class InterruptedFormState implements Externalizable {
 
-    int sessionStateDescriptorId;
-    FormIndex formIndex;
+    private int sessionStateDescriptorId;
+    private FormIndex formIndex;
+    private int formRecordId = -1;
     private boolean interruptedDueToSessionExpiration = false;
 
-    public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex, boolean sessionExpired) {
+    public InterruptedFormState(int sessionStateDescriptorId, FormIndex formIndex, int formRecordId, boolean sessionExpired) {
         this.sessionStateDescriptorId = sessionStateDescriptorId;
         this.formIndex = formIndex;
+        this.formRecordId = formRecordId;
         this.interruptedDueToSessionExpiration = sessionExpired;
     }
 
@@ -30,16 +32,17 @@ public class InterruptedFormState implements Externalizable {
         // serialization only
     }
 
-
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         sessionStateDescriptorId = ExtUtil.readInt(in);
         formIndex = (FormIndex)ExtUtil.read(in, FormIndex.class, pf);
         try {
+            formRecordId = ExtUtil.readInt(in);
             interruptedDueToSessionExpiration = ExtUtil.readBool(in);
         } catch(EOFException e){
-            // interruptedDueToSessionExpiration field
+            // this is to catch errors caused by EOF when updating from the previous model which didn't have the
+            // formRecordId and interruptedDueToSessionExpiration fields
         }
     }
 
@@ -47,6 +50,7 @@ public class InterruptedFormState implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, sessionStateDescriptorId);
         ExtUtil.write(out, formIndex);
+        ExtUtil.writeNumeric(out, formRecordId);
         ExtUtil.writeBool(out, interruptedDueToSessionExpiration);
     }
 
@@ -60,5 +64,9 @@ public class InterruptedFormState implements Externalizable {
 
     public boolean getInterruptedDueToSessionExpiration(){
         return interruptedDueToSessionExpiration;
+    }
+
+    public int getFormRecordId() {
+        return formRecordId;
     }
 }
