@@ -194,6 +194,7 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.setBase(SystemClock.elapsedRealtime());
         recordingInProgress();
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
+        CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
     }
 
     private void recordingInProgress() {
