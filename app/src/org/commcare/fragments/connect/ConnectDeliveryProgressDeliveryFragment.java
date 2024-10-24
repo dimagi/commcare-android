@@ -9,8 +9,12 @@ import android.widget.Button;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import org.commcare.activities.CommCareActivity;
+import org.commcare.adapters.ConnectDeliveryProgressReportAdapter;
+import org.commcare.android.database.connect.models.ConnectDeliveryDetails;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
@@ -18,14 +22,14 @@ import org.commcare.dalvik.R;
 import org.commcare.views.connect.CircleProgressBar;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private View view;
@@ -33,6 +37,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private boolean showDeliveryLaunch = true;
 
     private RoundedButton launchButton;
+    private RecyclerView recyclerView;
+    private ConnectDeliveryProgressReportAdapter adapter;
 
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
@@ -68,6 +74,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             if (parentFragment != null) {
                 parentFragment.refreshData();
             }
+            setDeliveriesData();
         });
 
         RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
@@ -77,29 +84,27 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         });
 
         updateView();
-
+        setDeliveriesData();
         return view;
     }
 
     private void launchLearningApp(Button button) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-            ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-            getActivity().finish();
+            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
         } else {
             String title = getString(R.string.connect_downloading_learn);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true, true));
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true));
         }
     }
 
     private void launchDeliveryApp(Button button) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
-            ConnectManager.launchApp(getContext(), false, job.getDeliveryAppInfo().getAppId());
-            getActivity().finish();
+            ConnectManager.launchApp(getActivity(), false, job.getDeliveryAppInfo().getAppId());
         } else {
             String title = getString(R.string.connect_downloading_delivery);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false, true));
+            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false));
         }
     }
 
@@ -118,7 +123,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         progress.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.connect_blackist_dark_blue_color));
         progress.setProgressColor(ContextCompat.getColor(getContext(), R.color.connect_aquva));
         progress.setProgress(percent);
-//        progress.setMax(100);
 
         ConnectMediumTextView textView = view.findViewById(R.id.connect_progress_progress_text);
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
@@ -219,5 +223,92 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView.setText(text);
         int color = job.getIsUserSuspended() ? R.color.red : R.color.black;
         textView.setTextColor(getResources().getColor(color));
+    }
+
+    public void setDeliveriesData() {
+        ConnectDeliveryDetails connectDeliveryDetails = null;
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        if (job != null) {
+            List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
+            HashMap<String, HashMap<String, Integer>> paymentTypeAndStatusCounts = new HashMap<>();
+            int totalApproved = 0;
+            int totalPending = 0;
+            String totalAmount;
+            long daysRemaining;
+            ConnectJobDeliveryRecord delivery = null;
+
+            if (!job.getDeliveries().isEmpty()) {
+                // Loop through each delivery and count statuses
+                for (int i = 0; i < job.getDeliveries().size(); i++) {
+                    delivery = job.getDeliveries().get(i);
+                    if (delivery == null) {
+                        continue;
+                    }
+                    String deliverySlug = delivery.getSlug();
+
+                    if (!paymentTypeAndStatusCounts.containsKey(deliverySlug)) {
+                        paymentTypeAndStatusCounts.put(deliverySlug, new HashMap<>());
+                    }
+
+                    HashMap<String, Integer> typeCounts = paymentTypeAndStatusCounts.get(deliverySlug);
+                    String status = delivery.getStatus();
+
+                    int count = typeCounts.containsKey(status) ? typeCounts.get(status) : 0;
+                    typeCounts.put(status, count + 1);
+                }
+
+                // Loop through the payment units and process the counts
+                for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
+                    if (unit == null) {
+                        continue;
+                    }
+
+                    String unitIdKey = Integer.toString(unit.getUnitId());
+                    HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.containsKey(unitIdKey) ? paymentTypeAndStatusCounts.get(unitIdKey) : new HashMap<>();
+
+                    // Get pending and approved counts
+                    totalPending = statusCounts.containsKey("pending") ? statusCounts.get("pending") : 0;
+                    totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
+
+                    // Calculate the total amount for this delivery (numApproved * unit amount)
+                    totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
+
+                    // Calculate remaining days for the delivery
+                    daysRemaining = calculateDaysPending(delivery);
+
+                    int totalStatus = totalPending + totalApproved;
+                    double approvedPercentage = totalStatus > 0 ? (double) totalApproved / totalStatus * 100 : 0.0;
+                    connectDeliveryDetails = new ConnectDeliveryDetails();
+                    connectDeliveryDetails.setUnitId(unit.getUnitId());
+                    connectDeliveryDetails.setDeliveryName(unit.getName());
+                    connectDeliveryDetails.setApprovedCount(totalApproved);
+                    connectDeliveryDetails.setPendingCount(totalPending);
+                    connectDeliveryDetails.setRemainingDays(daysRemaining);
+                    connectDeliveryDetails.setTotalAmount(totalAmount);
+                    connectDeliveryDetails.setApprovedPercentage(approvedPercentage);
+                    deliveryProgressList.add(connectDeliveryDetails);
+                }
+
+                recyclerView = view.findViewById(R.id.rvDeliveryProgressReport);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                adapter = new ConnectDeliveryProgressReportAdapter(getContext(), deliveryProgressList, unitName -> {
+                    Navigation.findNavController(recyclerView).navigate(ConnectDeliveryProgressFragmentDirections
+                            .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName));
+                });
+                recyclerView.setAdapter(adapter);
+            }
+        }
+    }
+
+    private long calculateDaysPending(ConnectJobDeliveryRecord delivery) {
+        Date dueDate = delivery.getDate();
+        if (dueDate == null) {
+            return 0;
+        }
+        long currentTime = System.currentTimeMillis();
+        long dueTime = dueDate.getTime();
+        long timeDifference = dueTime - currentTime;
+        long daysPending = TimeUnit.MILLISECONDS.toDays(timeDifference);
+        return Math.max(0, daysPending);
     }
 }

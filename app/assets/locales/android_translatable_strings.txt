@@ -899,8 +899,8 @@ repeat.dialog.go.back=Go Back
 repeat.dialog.leave=Do Not Add
 repeat.dialog.exit=Do Not Add. I'm Finished.
 repeat.dialog.add=Add Group
-repeat.dialog.add.another=Add another "${0}" group?
-repeat.dialog.add.new=Add a new "${0}" group?
+repeat.dialog.add.another=Add another ${0}?
+repeat.dialog.add.new=Add a new ${0}?
 lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exists and this user has access to it.
 
 ethiopian_months=Mäskäräm,T’ïk’ïmt,Hïdar,Tahsas,T’ïr,Yäkatit,Mägabit,Miyaziya,Gïnbot,Säne,Hämle,Nähäse,P’agume

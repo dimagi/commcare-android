@@ -8,6 +8,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.navigation.Navigation;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -16,16 +25,11 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.Date;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Fragment for showing delivery progress for a Connect job
@@ -64,7 +68,9 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+//        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(R.string.connect_progress_delivery);
+
 
         if (getArguments() != null) {
             showLearningLaunch = getArguments().getBoolean("showLaunch", true);
@@ -156,7 +162,27 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         updatePaymentConfirmationTile(getContext(), false);
 
+        jobCardDataHandle(view,job);
         return view;
+    }
+
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
     }
 
     @Override

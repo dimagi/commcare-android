@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -96,7 +97,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
-    public static final String CONNECTID_MANAGED_LOGIN = "cid-managed-login";
+    public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
+    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
 
     private static final int TASK_KEY_EXCHANGE = 1;
@@ -127,6 +129,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.setupUI();
+
+        ColorDrawable colorDrawable
+                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
+
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectManager.init(this);
@@ -464,6 +471,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         i.putExtra(GO_TO_CONNECT_JOB_STATUS, goToJobInfo);
         i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || uiController.loginManagedByConnectId());
+        i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
         setResult(RESULT_OK, i);
         finish();
     }

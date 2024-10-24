@@ -594,6 +594,7 @@
     <string name="connect_jobs_all">ALL JOBS</string>
     <string name="connect_jobs_mine">MY JOBS</string>
     <string name="connect_job_new">NEW</string>
+    <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
     <string name="connect_job_visits">Cover %d Households in %d Days</string>
 
     <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
@@ -602,6 +603,8 @@
     <string name="connect_job_training_progress">%s %d%% Complete</string>
     <string name="connect_job_visits_completed">Completed %d visits</string>
     <string name="connect_job_remaining">%d days remaining%s</string>
+
+    <string name="connect_job_intro_title">Opportunity</string>
 
     <string name="connect_job_remaining_from"> from %s</string>
 
@@ -625,19 +628,22 @@
 
     <string name="connect_job_download_learn_app">Download Learn App</string>
     <string name="connect_job_learn_summary">%d modules, %d hours</string>
-    <string name="connect_learn_progress_title">Learning Progress</string>
+    <string name="connect_learn_progress_title">Learn Progress</string>
     <string name="connect_learn_complete_title">Training Complete!</string>
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
 
+    <string name="connect_learn_title">Learning Progress</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
+    <string name="your_score">Score: %d</string>
+
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
     <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_learn_complete">Complete</string>
-    <string name="connect_learn_certificate">CERTIFICATE OF COMPLETION</string>
+    <string name="connect_learn_certificate">Certificate</string>
 
     <string name="connect_learn_completed">Completed on: %s</string>
     <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
@@ -823,6 +829,7 @@
         <item>save</item>
     </string-array>
 
+    <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
     <string name="connect_job_info_review_delivery">Review the delivery details</string>
     <string name="connect_job_info_visit">%d maximum Visits</string>
@@ -833,6 +840,7 @@
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
 
+    <string name="connect_delivery_progress_title">Delivery Progress</string>
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
@@ -854,5 +862,14 @@
     <string name="connect_deactivate_account_creation">Ok</string>
     <string name="connect_deactivate_dialog_title">Are you sure?</string>
     <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
+
+    <string name="connect_new_opportunity">New Opportunity</string>
+    <string name="connect_learn">Learn</string>
+    <string name="connect_delivery">Delivery</string>
+    <string name="connect_expired">Expired</string>
+    <string name="connect_commcare_app">CommCare App</string>
+    <string name="connect_job_tile_price">₹ %s</string>
+    <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
+    <string name="connect_job_tile_daily_limit">Over Limit</string>
 
 </resources>

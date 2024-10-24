@@ -33,7 +33,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     private ProgressBar progressBar;
     private TextView statusText;
     private boolean getLearnApp;
-    private boolean goToApp;
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -48,7 +47,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         super.onCreate(savedInstanceState);
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         getLearnApp = args.getLearning();
-        goToApp = args.getGoToApp();
 
         //Disable back button during install (done by providing empty callback)
         setBackButtonEnabled(false);
@@ -114,26 +112,12 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         setBackButtonEnabled(true);
         View view = getView();
         if (view != null) {
-            if(goToApp) {
-                Navigation.findNavController(view).popBackStack();
+            Navigation.findNavController(view).popBackStack();
 
-                //Launch the learn/deliver app
-                ConnectJobRecord job = ConnectManager.getActiveJob();
-                ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-                ConnectManager.launchApp(getContext(), getLearnApp, appToLaunch.getAppId());
-                getActivity().finish();
-            }
-            else {
-                //Go to learn/deliver progress
-                NavDirections directions;
-                if(getLearnApp) {
-                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobLearningProgressFragment();
-                }
-                else {
-                    directions = ConnectDownloadingFragmentDirections.actionConnectDownloadingFragmentToConnectJobDeliveryProgressFragment();
-                }
-                Navigation.findNavController(statusText).navigate(directions);
-            }
+            //Launch the learn/deliver app
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
+            ConnectManager.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
         }
     }
 
