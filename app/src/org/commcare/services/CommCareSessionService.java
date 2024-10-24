@@ -85,6 +85,11 @@ public class CommCareSessionService extends Service {
      */
     public static final ReentrantLock sessionAliveLock = new ReentrantLock();
 
+    /**
+     * 2h time in Milliseconds to extend the session if needed
+     */
+    private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
+
     private Timer maintenanceTimer;
     private CipherPool pool;
 
@@ -205,44 +210,9 @@ public class CommCareSessionService extends Service {
      */
     @SuppressLint("UnspecifiedImmutableFlag")
     public void showLoggedInNotification(@Nullable User user) {
-        //We always want this click to simply bring the live stack back to the top
-        Intent callable = new Intent(this, DispatchActivity.class);
-        callable.setAction("android.intent.action.MAIN");
-        callable.addCategory("android.intent.category.LAUNCHER");
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-        else
-            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
-
-        String notificationText;
-        if (AppUtils.getInstalledAppRecords().size() > 1) {
-            try {
-                notificationText = Localization.get("notification.logged.in",
-                        new String[]{Localization.get("app.display.name")});
-            } catch (NoLocalizedTextException e) {
-                notificationText = getString(NOTIFICATION);
-            }
-        } else {
-            notificationText = getString(NOTIFICATION);
-        }
-
-        // Set the icon, scrolling text and timestamp
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
-                .setContentTitle(notificationText)
-                .setSmallIcon(R.drawable.notification)
-                .setContentIntent(contentIntent);
-
-        if (user != null) {
-            String contentText = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
-            notificationBuilder.setContentText(contentText);
-        }
-
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
-        this.startForeground(NOTIFICATION, notificationBuilder.build());
+        this.startForeground(NOTIFICATION, createSessionNotification());
     }
 
     /**
@@ -713,5 +683,54 @@ public class CommCareSessionService extends Service {
 
     public boolean shouldShowInAppUpdate() {
         return this.showInAppUpdate;
+    }
+
+    public void extendUserSessionIfNeeded(){
+        long currentTime = new Date().getTime();
+
+        if (sessionExpireDate.getTime() < currentTime + SESSION_EXTENSION_TIME) {
+            sessionExpireDate.setTime(sessionExpireDate.getTime() + SESSION_EXTENSION_TIME);
+            sessionLength += SESSION_EXTENSION_TIME;
+
+            mNM.notify(NOTIFICATION, createSessionNotification());
+        }
+    }
+
+    private Notification createSessionNotification(){
+        //We always want this click to simply bring the live stack back to the top
+        Intent callable = new Intent(this, DispatchActivity.class);
+        callable.setAction("android.intent.action.MAIN");
+        callable.addCategory("android.intent.category.LAUNCHER");
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
+        else
+            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
+
+        String notificationText;
+        if (AppUtils.getInstalledAppRecords().size() > 1) {
+            try {
+                notificationText = Localization.get("notification.logged.in",
+                        new String[]{Localization.get("app.display.name")});
+            } catch (NoLocalizedTextException e) {
+                notificationText = getString(NOTIFICATION);
+            }
+        } else {
+            notificationText = getString(NOTIFICATION);
+        }
+
+        // Set the icon, scrolling text and timestamp
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
+                .setContentTitle(notificationText)
+                .setSmallIcon(R.drawable.notification)
+                .setContentIntent(contentIntent);
+
+        if (user != null) {
+            String contentText = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
+            notificationBuilder.setContentText(contentText);
+        }
+        return notificationBuilder.build();
     }
 }
