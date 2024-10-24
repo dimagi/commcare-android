@@ -5,11 +5,12 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.core.interfaces.RemoteInstanceFetcher;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.modern.session.SessionWrapperInterface;
+import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionDescriptorUtil;
@@ -20,12 +21,12 @@ import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.analysis.InstanceNameAccumulatingAnalyzer;
 import org.javarosa.xpath.analysis.XPathAnalyzable;
@@ -184,12 +185,16 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
                 formRecordStorage.getMetaDataFieldForRecord(correspondingFormRecordId, FormRecord.META_STATUS));
     }
 
-    public void setCurrentStateAsInterrupted() {
+    public void setCurrentStateAsInterrupted(FormIndex formIndex, boolean sessionExpired) {
         if (sessionStateRecordId != -1) {
             SqlStorage<SessionStateDescriptor> sessionStorage =
                     CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
             SessionStateDescriptor current = sessionStorage.read(sessionStateRecordId);
+
+            InterruptedFormState interruptedFormState =
+                    new InterruptedFormState(current.getID(), formIndex, current.getFormRecordId(), sessionExpired);
             HiddenPreferences.setInterruptedSSD(current.getID());
+            HiddenPreferences.setInterruptedFormState(interruptedFormState);
         }
     }
 

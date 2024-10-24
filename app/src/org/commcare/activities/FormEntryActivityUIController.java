@@ -82,6 +82,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private boolean formRelevanciesUpdateInProgress = false;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
+    private TextView finishText;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -103,7 +104,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         View finishButton = activity.findViewById(R.id.nav_btn_finish);
 
-        TextView finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
+        finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
         nextButton.setOnClickListener(v -> {
@@ -198,6 +199,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         } else {
             QuestionsView current = createView();
             showView(current, AnimationType.FADE, animateLastView);
+        }
+
+        if (finishText != null && FormEntryActivity.mFormController.isFormReadOnly()) {
+            finishText.setText(Localization.get("form.entry.exit.button").toUpperCase());
         }
     }
 

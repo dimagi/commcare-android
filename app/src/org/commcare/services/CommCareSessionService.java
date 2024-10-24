@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -29,6 +31,7 @@ import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
@@ -279,7 +282,7 @@ public class CommCareSessionService extends Service {
 
                 //Let anyone who is listening know!
                 Intent i = new Intent("org.commcare.dalvik.api.action.session.login");
-                this.sendBroadcast(i);
+                sendBroadcastFailSafe(this, i, null);
             }
 
             this.user = user;
@@ -331,6 +334,7 @@ public class CommCareSessionService extends Service {
                 return;
             }
             try {
+                Logger.log(LogTypes.TYPE_USER, "Expiring user session forcefully due to session timeout");
                 CommCareApplication.instance().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
@@ -352,6 +356,7 @@ public class CommCareSessionService extends Service {
             }
 
             try {
+                Logger.log(LogTypes.TYPE_USER, "Expiring user session due to session timeout");
                 saveFormAndCloseSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
@@ -376,7 +381,7 @@ public class CommCareSessionService extends Service {
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
-                formSaver.formSaveCallback(() -> {
+                formSaver.formSaveCallback(true, false, () -> {
                     CommCareApplication.instance().expireUserSession();
                 });
             } else {
@@ -395,7 +400,7 @@ public class CommCareSessionService extends Service {
             if (formSaver != null) {
                 Toast.makeText(CommCareApplication.instance(),
                         "Suspending existing form entry session...", Toast.LENGTH_LONG).show();
-                formSaver.formSaveCallback(callback);
+                formSaver.formSaveCallback(true, false, callback);
                 formSaver = null;
                 return;
             }
@@ -439,7 +444,7 @@ public class CommCareSessionService extends Service {
 
             // Let anyone who is listening know!
             Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
-            this.sendBroadcast(i);
+            sendBroadcastFailSafe(this, i, null);
 
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Logging out service login");
 
