@@ -129,6 +129,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
                     SharedPreferences appPreferences = CommCareApplication.instance().getCurrentApp()
                             .getAppPreferences();
                     appPreferences.edit().remove(PREFS_LOG_POST_URL_KEY).apply();
+                    return false;
                 }
                 return true;
             });
