@@ -513,6 +513,9 @@ refresh.build.settings.error=No refresh occurred. In order to use this utility, 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
+login.attempts.exceeded.auth.title=Maximum password attempts exceeded
+login.attempts.exceeded.auth.detail=Your user account has been locked due to too many attempts. Please contact your supervisor or CommCare Support.
+
 login.attempt.fail.empty.url.title=Url not set
 login.attempt.fail.empty.url.detail=Sync url is empty. Please contact CommCare Support.
 

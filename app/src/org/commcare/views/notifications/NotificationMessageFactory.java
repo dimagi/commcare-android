@@ -162,7 +162,12 @@ public class NotificationMessageFactory {
         /**
          * Bad SSL Certificate *
          */
-        BadSslCertificate("notification.bad.certificate");
+        BadSslCertificate("notification.bad.certificate"),
+
+        /**
+         * Exceeded the maximum number of login attempts *
+         */
+        Auth_UserLockedOut("login.attempts.exceeded.auth");
 
         StockMessages(String root) {
             this.root = root;
