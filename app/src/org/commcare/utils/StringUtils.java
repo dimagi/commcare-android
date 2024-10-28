@@ -1,18 +1,19 @@
 package org.commcare.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.text.Spannable;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+
+import org.commcare.modern.util.Pair;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.text.Normalizer;
-import java.util.regex.Pattern;
-
-import androidx.annotation.NonNull;
-import androidx.collection.LruCache;
+import java.io.Serializable;
 
 /**
  * @author ctsims

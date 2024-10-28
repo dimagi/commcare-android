@@ -173,4 +173,9 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-certificate-transparency"
         android:title="Certificate Transparency"/>
+    <EditTextPreference
+        android:dialogMessage="The URL must use the HTTPS protocol"
+        android:enabled="true"
+        android:key="log_receiver_url"
+        android:title="Override Log Submission Server"/>
 </PreferenceScreen>
