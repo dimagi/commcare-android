@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +22,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
-import androidx.multidex.MultiDexApplication;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -147,9 +147,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
-
-public class CommCareApplication extends MultiDexApplication implements LifecycleEventObserver {
+public class CommCareApplication extends Application implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 

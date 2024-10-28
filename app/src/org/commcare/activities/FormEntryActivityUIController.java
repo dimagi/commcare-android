@@ -49,6 +49,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathException;
@@ -498,24 +499,25 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
+        final FormEntryCaption repeatCaptionPrompt = FormEntryActivity.mFormController.getCaptionPrompt();
+
         // Assign title and text strings based on the current state
         String backText = Localization.get("repeat.dialog.go.back");
-        String addAnotherText = Localization.get("repeat.dialog.add");
-        String title, skipText;
+
+        boolean hasRepetitions = FormEntryActivity.mFormController.getLastRepeatCount() > 0;
+        final String addAnotherText = repeatCaptionPrompt.getRepeatText(hasRepetitions ? "add" : "add-empty");
+
+        String skipText;
+
         if (!nextExitsForm) {
             skipText = Localization.get("repeat.dialog.leave");
         } else {
             skipText = Localization.get("repeat.dialog.exit");
         }
-        if (FormEntryActivity.mFormController.getLastRepeatCount() > 0) {
-            title = Localization.get("repeat.dialog.add.another", FormEntryActivity.mFormController.getLastGroupText());
-        } else {
-            title = Localization.get("repeat.dialog.add.new", FormEntryActivity.mFormController.getLastGroupText());
-        }
 
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(activity, R.style.DialogBaseTheme);
-        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
+        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, addAnotherText);
 
         // Panel 1: Back option
         View.OnClickListener backListener = v -> {
