@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/cc_core_bg"
+    android:orientation="vertical"
+    android:layout_marginStart="@dimen/content_start"
+    android:layout_marginEnd="@dimen/content_start">
+
+    <TextView
+        android:id="@+id/connect_phone_verify_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_margin="@dimen/content_min_margin"
+        android:textColor="@color/cc_neutral_color"
+        android:textSize="@dimen/text_larger"
+        android:text="@string/connect_verify_phone_title2"/>
+
+    <TextView
+        android:id="@+id/connect_phone_verify_label"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_medium"/>
+    <AutoCompleteTextView
+        android:id="@+id/connect_phone_verify_code"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"/>
+
+    <TextView
+        android:id="@+id/connect_phone_verify_error"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_medium"
+        android:textColor="@color/red"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/connect_phone_verify_change"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_medium"
+        android:textColor="@color/blue"
+        android:text="@string/connect_verify_phone_change"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/connect_phone_verify_resend"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/content_min_margin"
+        android:gravity="start"
+        android:textSize="@dimen/text_medium"
+        android:textColor="@color/blue"
+        android:text="@string/connect_verify_phone_resend"/>
+
+    <Button
+        android:id="@+id/connect_phone_verify_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingTop="@dimen/content_start"
+        android:text="@string/connect_verify_phone_verify"/>
+
+</LinearLayout>
