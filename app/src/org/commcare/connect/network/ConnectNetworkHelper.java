@@ -152,7 +152,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean post(Context context, String url, String version, AuthInfo authInfo,
-                               HashMap<String, String> params, boolean useFormEncoding,
+                               HashMap<String, Object> params, boolean useFormEncoding,
                                boolean background, IApiCallback handler) {
         return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding,
                 background, handler);
@@ -240,7 +240,7 @@ public class ConnectNetworkHelper {
     }
 
     private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
-                                 HashMap<String, String> params, boolean useFormEncoding,
+                                 HashMap<String, Object> params, boolean useFormEncoding,
                                  boolean background, IApiCallback handler) {
         if(!background) {
             if (isBusy()) {
@@ -256,8 +256,8 @@ public class ConnectNetworkHelper {
 
         if (useFormEncoding) {
             Multimap<String, String> multimap = ArrayListMultimap.create();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                multimap.put(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                multimap.put(entry.getKey(), entry.getValue().toString());
             }
 
             requestBody = ModernHttpRequester.getPostBody(multimap);

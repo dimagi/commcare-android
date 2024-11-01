@@ -11,16 +11,29 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import org.commcare.adapters.ConnectMessageAdapter;
-import org.commcare.dalvik.R;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.MessageManager;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 public class ConnectMessageFragment extends Fragment {
 
+    private String channelId;
     private FragmentConnectMessageBinding binding;
+    private ConnectMessageAdapter adapter;
 
-    public static ConnectMessageFragment newInstance(String param1, String param2) {
+    public static ConnectMessageFragment newInstance(String channelId) {
         ConnectMessageFragment fragment = new ConnectMessageFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -31,8 +44,13 @@ public class ConnectMessageFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentConnectMessageBinding.inflate(inflater, container, false);
+
+        ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
+        channelId = args.getChannelId();
+
         handleSendButtonListener();
         setChatAdapter();
+
         return binding.getRoot();
     }
 
@@ -57,35 +75,46 @@ public class ConnectMessageFragment extends Fragment {
             public void afterTextChanged(Editable s) {
             }
         });
+
+        binding.imgSendMessage.setOnClickListener(v -> {
+            ConnectMessagingMessageRecord message =  new ConnectMessagingMessageRecord();
+            message.setMessageId(UUID.randomUUID().toString());
+            message.setMessage(binding.etMessage.getText().toString());
+            message.setChannelId(channelId);
+            message.setTimeStamp(new Date());
+            message.setIsOutgoing(true);
+            message.setConfirmed(false);
+
+            binding.etMessage.setText("");
+
+            MessageManager.sendMessage(requireContext(), message, success -> {
+                refreshUi();
+            });
+        });
     }
 
     private void setChatAdapter() {
-        ConnectMessageAdapter connectMessageAdapter = new ConnectMessageAdapter(getDummyData());
-        binding.rvChat.setAdapter(connectMessageAdapter);
+        List<ConnectMessageChatData> messages = new ArrayList<>();
+
+        adapter = new ConnectMessageAdapter(messages);
+        binding.rvChat.setAdapter(adapter);
+
+        refreshUi();
     }
 
-    public static ArrayList<ConnectMessageChatData> getDummyData() {
-        ArrayList<ConnectMessageChatData> dataList = new ArrayList<>();
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "I commented on Figma, I want to add some fancy icons. Do you have any icon set?", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "I am in a process of designing some. When do you need them?", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Hi! Are you there", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "Yes", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Do you want to go out", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "Sorry I am busy!!", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "I commented on Figma, I want to add some fancy icons. Do you have any icon set?", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "I am in a process of designing some. When do you need them?", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Hi! Are you there", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "Yes", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Do you want to go out", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "Sorry I am busy!!", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "I commented on Figma, I want to add some fancy icons. Do you have any icon set?", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "I am in a process of designing some. When do you need them?", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Hi! Are you there", "@Esther", true));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.LEFTVIEW, "Yes", "@Jane", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Do you want to go out", "@Esther", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Do you want to go out", "@Esther", false));
-        dataList.add(new ConnectMessageChatData(ConnectMessageAdapter.RIGHTVIEW, "Do you want to go out", "@Esther", false));
-        return dataList;
+    public void refreshUi() {
+        List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesForChannel(requireContext(), channelId);
+
+        List<ConnectMessageChatData> chats = new ArrayList<>();
+        for(ConnectMessagingMessageRecord message : messages) {
+            int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
+            chats.add(new ConnectMessageChatData(viewType,
+                    message.getMessage(),
+                    message.getIsOutgoing() ? "You" : "Them",
+                    message.getConfirmed()));
+        }
+
+        adapter.updateData(chats);
     }
 }
 

@@ -44,7 +44,10 @@
     <string name="ConnectConfirmUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/confirm_deactivation</string>
 
     <!--    Connect Messaging URLs-->
-    <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/users/retrieve_messages</string>
+    <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
+    <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
+    <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
+    <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
@@ -588,6 +591,11 @@
     <string name="connect_verify_phone_change">Change phone number</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
+
+    <string name="connect_messaging_channel_consent_title">Consent to channel</string>
+    <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
+    <string name="connect_messaging_channel_consent_accept">Accept</string>
+    <string name="connect_messaging_channel_consent_decline">Decline</string>
 
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>

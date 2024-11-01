@@ -1,15 +1,24 @@
 package org.commcare.android.database.connect.models;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
+import org.commcare.util.EncryptionUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.simpleframework.xml.core.PersistenceException;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+
+import kotlinx.coroutines.channels.ChannelResult;
 
 @Table(ConnectMessagingMessageRecord.STORAGE_KEY)
 public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
@@ -20,9 +29,9 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     public static final String STORAGE_KEY = "connect_messaging_message";
 
     public static final String META_MESSAGE_ID = "message_id";
-    public static final String META_MESSAGE_CHANNEL_ID = "channel_id";
+    public static final String META_MESSAGE_CHANNEL_ID = "channel";
     public static final String META_MESSAGE_TIMESTAMP = "timestamp";
-    public static final String META_MESSAGE = "message";
+    public static final String META_MESSAGE = "content";
     public static final String META_MESSAGE_IS_OUTGOING = "is_outgoing";
     public static final String META_MESSAGE_CONFIRM = "confirmed";
     public static final String META_MESSAGE_USER_VIEWED = "user_viewed";
@@ -33,15 +42,15 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     @Persisting(1)
     @MetaField(META_MESSAGE_ID)
-    private int messageId;
+    private String messageId;
 
     @Persisting(2)
     @MetaField(META_MESSAGE_CHANNEL_ID)
-    private int channelId;
+    private String channelId;
 
     @Persisting(3)
     @MetaField(META_MESSAGE_TIMESTAMP)
-    private String timeStamp;
+    private Date timeStamp;
 
     @Persisting(4)
     @MetaField(META_MESSAGE)
@@ -49,51 +58,128 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     @Persisting(5)
     @MetaField(META_MESSAGE_IS_OUTGOING)
-    private String isOutgoing;
+    private boolean isOutgoing;
 
     @Persisting(6)
     @MetaField(META_MESSAGE_CONFIRM)
-    private String confirmed;
+    private boolean confirmed;
 
     @Persisting(7)
     @MetaField(META_MESSAGE_USER_VIEWED)
-    private String userViewed;
+    private boolean userViewed;
 
-    private static ConnectMessagingMessageRecord fromJson(JSONObject json) throws JSONException, ParseException{
+    public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
         ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
 
-        connectMessagingMessageRecord.messageId = json.getInt(META_MESSAGE_ID);
-        connectMessagingMessageRecord.channelId = json.getInt(META_MESSAGE_CHANNEL_ID);
-        connectMessagingMessageRecord.timeStamp = json.getString(META_MESSAGE_TIMESTAMP);
-        connectMessagingMessageRecord.message = json.getString(META_MESSAGE);
-        connectMessagingMessageRecord.isOutgoing = json.getString(META_MESSAGE_IS_OUTGOING);
-        connectMessagingMessageRecord.confirmed = json.getString(META_MESSAGE_CONFIRM);
-        connectMessagingMessageRecord.userViewed = json.getString (META_MESSAGE_USER_VIEWED);
+        connectMessagingMessageRecord.messageId = json.getString(META_MESSAGE_ID);
+        connectMessagingMessageRecord.channelId = json.getString(META_MESSAGE_CHANNEL_ID);
+
+        ConnectMessagingChannelRecord channel = getChannel(channels, connectMessagingMessageRecord.channelId);
+        if(channel == null) {
+            return null;
+        }
+
+        String dateString = json.getString(META_MESSAGE_TIMESTAMP);
+        connectMessagingMessageRecord.timeStamp = ConnectNetworkHelper.convertUTCToDate(dateString);
+
+        JSONObject content = json.getJSONObject(META_MESSAGE);
+        String tag = content.getString("tag");
+        String nonce = content.getString("nonce");
+        String cipherText = content.getString("ciphertext");
+
+        String decrypted = decrypt(cipherText, nonce, tag, channel.getKey());
+
+        if(decrypted == null) {
+            return null;
+        }
+
+        connectMessagingMessageRecord.message = decrypted;
+
+        connectMessagingMessageRecord.isOutgoing = false;
+        connectMessagingMessageRecord.confirmed = false;
+        connectMessagingMessageRecord.userViewed = false;
 
         return connectMessagingMessageRecord;
     }
 
-    public int getMessageId() {
+    private static ConnectMessagingChannelRecord getChannel(List<ConnectMessagingChannelRecord> channels, String channelId) {
+        for(ConnectMessagingChannelRecord channel : channels) {
+            if(channel.getChannelId().equals(channelId)) {
+                return channel;
+            }
+        }
+
+        return null;
+    }
+
+    private static String decrypt(String cipherText, String nonce, String tag, String key) {
+        try {
+            byte[] cipherTextBytes = Base64.decode(cipherText);
+            byte[] nonceBytes = Base64.decode(nonce);
+            byte[] tagBytes = Base64.decode(tag);
+
+            ByteBuffer bytes = ByteBuffer.allocate(cipherTextBytes.length + nonceBytes.length + tagBytes.length + 1);
+            bytes.put((byte)nonceBytes.length);
+            bytes.put(nonceBytes);
+            bytes.put(cipherTextBytes);
+            bytes.put(tagBytes);
+
+            String encoded = Base64.encode(bytes.array());
+            return EncryptionUtils.decrypt(encoded, key);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static String[] encrypt(String text, String key) {
+        try {
+            String encoded = EncryptionUtils.encrypt(text, key);
+            byte[] bytes = Base64.decode(encoded);
+
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+            int nonceLength = buffer.get();
+            byte[] nonceBytes = new byte[nonceLength];
+            buffer.get(nonceBytes);
+            String nonce = Base64.encode(nonceBytes);
+
+            int tagLength = 16;
+            int textLength = bytes.length - 1 - nonceLength - tagLength;
+            byte[] cipherBytes = new byte[textLength];
+            buffer.get(cipherBytes);
+            String cipherText = Base64.encode(cipherBytes);
+
+            byte[] tagBytes = new byte[tagLength];
+            buffer.get(tagBytes);
+            String tag = Base64.encode(tagBytes);
+
+            return new String[] { cipherText, nonce, tag };
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(int messageId) {
+    public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
 
-    public int getChannelId() {
+    public String getChannelId() {
         return channelId;
     }
 
-    public void setChannelId(int channelId) {
+    public void setChannelId(String channelId) {
         this.channelId = channelId;
     }
 
-    public String getTimeStamp() {
+    public Date getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
+    public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
     }
 
@@ -105,27 +191,27 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         this.message = message;
     }
 
-    public String getIsOutgoing() {
+    public boolean getIsOutgoing() {
         return isOutgoing;
     }
 
-    public void setIsOutgoing(String isOutgoing) {
+    public void setIsOutgoing(boolean isOutgoing) {
         this.isOutgoing = isOutgoing;
     }
 
-    public String getConfirmed() {
+    public boolean getConfirmed() {
         return confirmed;
     }
 
-    public void setConfirmed(String confirmed) {
+    public void setConfirmed(boolean confirmed) {
         this.confirmed = confirmed;
     }
 
-    public String getUserViewed() {
+    public boolean getUserViewed() {
         return userViewed;
     }
 
-    public void setUserViewed(String userViewed) {
+    public void setUserViewed(boolean userViewed) {
         this.userViewed = userViewed;
     }
 }

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.Date;
 
 @Table(ConnectMessagingChannelRecord.STORAGE_KEY)
 public class ConnectMessagingChannelRecord extends Persisted implements Serializable {
@@ -18,11 +19,11 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
      */
     public static final String STORAGE_KEY = "connect_messaging_channel";
 
-    public static final String META_CHANNEL_ID = "channel_id ";
+    public static final String META_CHANNEL_ID = "channel_id";
     public static final String META_CHANNEL_CREATED = "created";
     public static final String META_ANSWERED_CONSENT = "answered_consent";
     public static final String META_CONSENTED = "consented";
-    public static final String META_CHANNEL_NAME = "name";
+    public static final String META_CHANNEL_NAME = "channel_source";
     public static final String META_KEY_URL = "key_url";
     public static final String META_KEY = "key";
 
@@ -32,19 +33,19 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
     @Persisting(1)
     @MetaField(META_CHANNEL_ID)
-    private int channelId;  
+    private String channelId;
 
     @Persisting(2)
     @MetaField(META_CHANNEL_CREATED)
-    private String channelCreated;
+    private Date channelCreated;
 
     @Persisting(3)
     @MetaField(META_ANSWERED_CONSENT)
-    private String answeredConsent;
+    private boolean answeredConsent;
 
     @Persisting(4)
     @MetaField(META_CONSENTED)
-    private String consented;
+    private boolean consented;
 
     @Persisting(5)
     @MetaField(META_CHANNEL_NAME)
@@ -61,46 +62,46 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public static ConnectMessagingChannelRecord fromJson(JSONObject json) throws JSONException, ParseException {
         ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
 
-        connectMessagingChannelRecord.channelId = json.getInt(META_CHANNEL_ID);
-        connectMessagingChannelRecord.channelCreated = json.getString(META_CHANNEL_CREATED);
-        connectMessagingChannelRecord.answeredConsent = json.getString(META_ANSWERED_CONSENT);
-        connectMessagingChannelRecord.consented = json.getString(META_CONSENTED);
+        connectMessagingChannelRecord.channelId = json.getString(META_CHANNEL_ID);
+        connectMessagingChannelRecord.channelCreated = new Date();// json.getString(META_CHANNEL_CREATED);
+        connectMessagingChannelRecord.answeredConsent = false;//json.getString(META_ANSWERED_CONSENT);
+        connectMessagingChannelRecord.consented = false;//json.getString(META_CONSENTED);
         connectMessagingChannelRecord.channelName = json.getString(META_CHANNEL_NAME);
         connectMessagingChannelRecord.keyUrl = json.getString(META_KEY_URL);
-        connectMessagingChannelRecord.key = json.getString(META_KEY);
+        connectMessagingChannelRecord.key = "";//json.getString(META_KEY);
 
         return connectMessagingChannelRecord;
     }
 
-    public int getChannelId() {
+    public String getChannelId() {
         return channelId;
     }
 
-    public void setChannelId(int channelId) {
+    public void setChannelId(String channelId) {
         this.channelId = channelId;
     }
 
-    public String getChannelCreated() {
+    public Date getChannelCreated() {
         return channelCreated;
     }
 
-    public void setChannelCreated(String channelCreated) {
+    public void setChannelCreated(Date channelCreated) {
         this.channelCreated = channelCreated;
     }
 
-    public String getAnsweredConsent() {
+    public boolean getAnsweredConsent() {
         return answeredConsent;
     }
 
-    public void setAnsweredConsent(String answeredConsent) {
+    public void setAnsweredConsent(boolean answeredConsent) {
         this.answeredConsent = answeredConsent;
     }
 
-    public String getConsented() {
+    public boolean getConsented() {
         return consented;
     }
 
-    public void setConsented(String consented) {
+    public void setConsented(boolean consented) {
         this.consented = consented;
     }
 

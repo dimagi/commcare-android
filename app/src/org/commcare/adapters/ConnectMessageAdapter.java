@@ -11,15 +11,21 @@ import org.commcare.dalvik.databinding.ItemChatRightViewBinding;
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public static final int LEFTVIEW = 0;
     public static final int RIGHTVIEW = 1;
-    ArrayList<ConnectMessageChatData> dummyData;
+    List<ConnectMessageChatData> messages;
 
-    public ConnectMessageAdapter(ArrayList<ConnectMessageChatData> dummyData) {
-        this.dummyData = dummyData;
+    public ConnectMessageAdapter(List<ConnectMessageChatData> messages) {
+        this.messages = messages;
+    }
+
+    public void updateData(List<ConnectMessageChatData> messages) {
+        this.messages = messages;
+        notifyDataSetChanged();
     }
 
     public static class LeftViewHolder extends RecyclerView.ViewHolder {
@@ -30,8 +36,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             this.binding = binding;
         }
 
-        public void bind() {
-
+        public void bind(ConnectMessageChatData chat) {
+            binding.tvChatMessage.setText(chat.getMessage());
+            //binding.tvUserName.setText();
         }
     }
 
@@ -43,8 +50,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             this.binding = binding;
         }
 
-        public void bind() {
-
+        public void bind(ConnectMessageChatData chat) {
+            binding.tvChatMessage.setText(chat.getMessage());
+            //binding.tvUserName.setText();
         }
     }
 
@@ -64,20 +72,21 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        ConnectMessageChatData chat = messages.get(position);
         if (getItemViewType(position) == LEFTVIEW) {
-            ((LeftViewHolder) holder).bind();
+            ((LeftViewHolder) holder).bind(chat);
         } else {
-            ((RightViewHolder) holder).bind();
+            ((RightViewHolder) holder).bind(chat);
         }
     }
 
     @Override
     public int getItemCount() {
-        return dummyData.size();
+        return messages.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return dummyData.get(position).getType() == LEFTVIEW ? LEFTVIEW : RIGHTVIEW;
+        return messages.get(position).getType() == LEFTVIEW ? LEFTVIEW : RIGHTVIEW;
     }
 }
