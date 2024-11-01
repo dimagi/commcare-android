@@ -287,6 +287,21 @@ public class ConnectLearningProgressFragment extends Fragment {
         tvJobDiscrepation.setText(job.getDescription());
         connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String dailyStart = job.getDailyStartTime();
+        if(dailyStart.length() == 0) {
+            dailyStart = "00:00";
+        } else if(dailyStart.length() > 5) {
+            dailyStart = dailyStart.substring(0, 5);
+        }
+
+        String dailyFinish = job.getDailyFinishTime();
+        if(dailyFinish.length() == 0) {
+            dailyFinish = "23:59";
+        } else if(dailyFinish.length() > 5) {
+            dailyFinish = dailyFinish.substring(0, 5);
+        }
+        tv_job_time.setText(dailyStart + " - " + dailyFinish);
     }
 
 //    private void updateUpdatedDate(Date lastUpdate) {
