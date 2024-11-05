@@ -19,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import org.commcare.dalvik.R;
+import org.commcare.views.connect.ConnectEditText;
 import org.javarosa.core.model.condition.pivot.StringLengthRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
@@ -34,13 +35,13 @@ import org.javarosa.form.api.FormEntryPrompt;
 public class StringWidget extends QuestionWidget implements OnClickListener, TextWatcher {
 
     private boolean mReadOnly = false;
-    protected final EditText mAnswer;
+    protected final ConnectEditText mAnswer;
     protected boolean secret = false;
     private static final String SHORT_APPEARANCE = "short";
 
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret, boolean inCompactGroup) {
         super(context, prompt, inCompactGroup);
-        mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(getAnswerLayout(), this, false);
+        mAnswer = (ConnectEditText)LayoutInflater.from(getContext()).inflate(getAnswerLayout(), this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontSize);
         mAnswer.setOnClickListener(this);
 
@@ -113,7 +114,6 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         }
         throw new UnpivotableExpressionException();
     }
-
 
     protected void addAnswerFilter(InputFilter filter) {
         //Let's add a filter

@@ -1,64 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
-    android:gravity="start"
-    android:background="#FF6200EE">
+    android:layout_height="wrap_content">
 
-    <ImageButton
-        android:id="@+id/menu_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_menu_bar"
-        android:visibility="invisible"
-        android:padding="16dp"
-        android:background="?attr/selectableItemBackground"
-       />
+        android:background="@color/connect_dark_blue_color"
+        android:gravity="start">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:textFontWeight='500'
-        android:text="Your Title"
-        android:fontFamily="@font/roboto_medium"
-        android:layout_gravity="center"
-        android:textSize="20sp"
-        android:textColor="#FFFFFF"
-        />
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@null"
+            android:padding="16dp"
+            android:src="@drawable/ic_menu_bar"
+            android:visibility="invisible" />
 
-   <LinearLayout
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:gravity="end">
-       <ImageButton
-           android:id="@+id/list_icon"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_gravity="center"
-           android:visibility="gone"
-           android:src="@drawable/ic_list_alt"
-           android:background="?attr/selectableItemBackground"
-          android:padding="16dp"/>
-       <ImageButton
-           android:id="@+id/notification_icon"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_gravity="center"
-           android:padding="8dp"
-           android:visibility="gone"
-           android:src="@drawable/ic_notifications_24"
-           android:background="?attr/selectableItemBackground"
-          />
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:fontFamily="@font/roboto_medium"
+            android:text="Your Title"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
 
-       <ImageButton
-           android:id="@+id/menu_icon"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:src="@drawable/ic_action_overflow"
-           android:background="?attr/selectableItemBackground"
-           android:padding="16dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end">
 
-   </LinearLayout>
-</LinearLayout>
+            <ImageButton
+                android:id="@+id/list_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@null"
+                android:padding="16dp"
+                android:src="@drawable/ic_list_alt"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/notification_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_notifications_24"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/menu_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@null"
+                android:padding="16dp"
+                android:src="@drawable/ic_action_overflow" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@+id/appBar"
+        android:background="@drawable/bottom_shadow" />
+</RelativeLayout>

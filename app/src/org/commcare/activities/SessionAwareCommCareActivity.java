@@ -2,7 +2,9 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
 
+import org.commcare.dalvik.R;
 import org.commcare.utils.SessionRegistrationHelper;
 
 /**
@@ -17,6 +19,8 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Window window = getWindow();
+        window.setStatusBarColor(getResources().getColor(org.commcare.dalvik.R.color.connect_status_bar_color));
         this.redirectedInOnCreate = SessionAwareHelper.onCreateHelper(this, this, savedInstanceState);
     }
 

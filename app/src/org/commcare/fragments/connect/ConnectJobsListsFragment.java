@@ -188,7 +188,8 @@ public class ConnectJobsListsFragment extends Fragment {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
 
         TextView noJobsText = view.findViewById(R.id.connect_no_jobs_text);
-        noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
+        noJobsText.setVisibility(!jobList.isEmpty() ? View.GONE : View.VISIBLE);
+        rvJobList.setVisibility(!jobList.isEmpty() ? View.VISIBLE : View.GONE);
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
             if (jobType.equals(JOB_NEW_OPPORTUNITY)) {

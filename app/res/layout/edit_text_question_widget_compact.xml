@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+<org.commcare.views.connect.ConnectEditText xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:gravity="start"
     android:imeOptions="flagNoExtractUi"
     android:layout_gravity="end"
     android:layout_height="match_parent"
     android:layout_width="@dimen/edit_text_question_widget_compact_width"
+    android:layout_marginTop="5dp"
     android:paddingEnd="@dimen/edit_text_question_widget_padding_horizontal"
     android:paddingLeft="@dimen/edit_text_question_widget_padding_horizontal"
     android:paddingRight="@dimen/edit_text_question_widget_padding_horizontal"

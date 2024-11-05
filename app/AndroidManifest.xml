@@ -165,7 +165,6 @@
         <activity
             android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure"></activity>
-        <activity android:name="org.commcare.activities.StandardHomeActivity" />
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
 
@@ -316,6 +315,7 @@
         <activity
             android:name="org.commcare.activities.FormEntryActivity"
             android:launchMode="singleTop"
+            android:theme="@style/NoAppBarTheme"
             android:windowSoftInputMode="adjustResize"></activity>
         <activity
             android:name="org.commcare.activities.DrawActivity"
