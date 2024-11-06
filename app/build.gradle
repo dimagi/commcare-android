@@ -306,7 +306,7 @@ android {
 
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
 
-        buildConfigField 'String', 'CCC_HOST', "\"connect-staging.dimagi.com\""
+        buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
 
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
