@@ -266,17 +266,12 @@ public class ConnectIdPhoneFragment extends Fragment {
             };
 
             //Update the phone number with the server
-            boolean isBusy;
             if (callingClass == ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE || callingClass == ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE) {
-                isBusy = !ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
+               ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
                         null, phone, callback);
             } else {
-                isBusy = !ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
+                 ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
                         existing, phone, callback);
-            }
-
-            if (isBusy) {
-                Toast.makeText(getContext(), R.string.busy_message, Toast.LENGTH_SHORT).show();
             }
         } else {
             finish(true, phone);
@@ -304,11 +299,10 @@ public class ConnectIdPhoneFragment extends Fragment {
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                         } else {
                             //Make sure the number isn't already in use
-                            phone = phone.replaceAll("\\+", "%2b");
+//                            phone = phone.replaceAll("\\+", "%2b");
                             binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_checking));
                             binding.connectPrimaryPhoneButton.setEnabled(false);
-
-                            boolean isBusy = !ApiConnectId.checkPhoneAvailable(getContext(), phone,
+                            ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -340,10 +334,6 @@ public class ConnectIdPhoneFragment extends Fragment {
                                             binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });
-
-                            if (isBusy) {
-                                Toast.makeText(getContext(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-                            }
                         }
                     }
                     case ConnectConstants.METHOD_CHANGE_ALTERNATE -> {

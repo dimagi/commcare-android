@@ -153,18 +153,14 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             };
 
             //Update the phone number with the server
-            boolean isBusy;
             if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-                isBusy = !ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
+              ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
                         null, phone, callback);
             } else {
-                isBusy = !ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
+                ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
                         existing, phone, callback);
             }
 
-            if (isBusy) {
-                Toast.makeText(getContext(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-            }
 
         } else {
             finish(true, phone);

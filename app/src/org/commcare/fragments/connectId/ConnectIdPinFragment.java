@@ -204,11 +204,10 @@ public class ConnectIdPinFragment extends Fragment {
         String pin = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
 
-        boolean isBusy = false;
         final Context context = getActivity();
         if (isChanging) {
             //Change PIN
-            isBusy = !ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
+           ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
                     new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -235,7 +234,7 @@ public class ConnectIdPinFragment extends Fragment {
                     });
         } else if (isRecovery) {
             //Confirm PIN
-            isBusy = !ApiConnectId.checkPin(getActivity(), phone, secret, pin,
+            ApiConnectId.checkPin(getActivity(), phone, secret, pin,
                     new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -306,10 +305,6 @@ public class ConnectIdPinFragment extends Fragment {
         } else {
             //Local failure
             handleWrongPin();
-        }
-
-        if (isBusy) {
-            Toast.makeText(getActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
 
