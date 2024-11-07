@@ -82,10 +82,9 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         String dateString = json.getString(META_MESSAGE_TIMESTAMP);
         connectMessagingMessageRecord.timeStamp = ConnectNetworkHelper.convertUTCToDate(dateString);
 
-        JSONObject content = json.getJSONObject(META_MESSAGE);
-        String tag = content.getString("tag");
-        String nonce = content.getString("nonce");
-        String cipherText = content.getString("ciphertext");
+        String tag = json.getString("tag");
+        String nonce = json.getString("nonce");
+        String cipherText = json.getString("ciphertext");
 
         String decrypted = decrypt(cipherText, nonce, tag, channel.getKey());
 

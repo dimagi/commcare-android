@@ -479,15 +479,13 @@ public class ApiConnectId {
                 ConnectMessagingMessageRecord message, String key, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
-        String[] parts = message.encrypt(message.getMessage(), key);
-        HashMap<String, String> content = new HashMap<>();
-        content.put("ciphertext", parts[0]);
-        content.put("nonce", parts[1]);
-        content.put("tag", parts[2]);
+        String[] parts = ConnectMessagingMessageRecord.encrypt(message.getMessage(), key);
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("channel", message.getChannelId());
-        params.put("content", content);
+        params.put("ciphertext", parts[0]);
+        params.put("nonce", parts[1]);
+        params.put("tag", parts[2]);
         params.put("timestamp", ConnectManager.formatDate(message.getTimeStamp()));
         params.put("message_id", message.getMessageId());
 
