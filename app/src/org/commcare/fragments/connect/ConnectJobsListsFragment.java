@@ -267,11 +267,11 @@ public class ConnectJobsListsFragment extends Fragment {
                             job, JOB_DELIVERY, DELIVERY_APP, isDeliverAppInstalled, false, false, true
                     );
 
+                    reviewLearnApps.add(learnModel);
+
                     if(finished) {
-                        finishedItems.add(learnModel);
                         finishedItems.add(deliverModel);
                     } else {
-                        reviewLearnApps.add(learnModel);
                         deliverApps.add(deliverModel);
                     }
 
