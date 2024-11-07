@@ -141,12 +141,12 @@
                     android:id="@+id/cardButtonLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="25dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="5dp"
                     app:layout_constraintEnd_toEndOf="@+id/connect_delivery_budget_text"
                     app:layout_constraintStart_toStartOf="@+id/connect_delivery_budget_icon"
-                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_budget_icon">
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_budget_text">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
