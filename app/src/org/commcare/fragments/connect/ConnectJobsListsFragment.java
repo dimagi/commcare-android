@@ -227,6 +227,7 @@ public class ConnectJobsListsFragment extends Fragment {
         ArrayList<ConnectLoginJobListModel> availableNewJobs = new ArrayList<>();
         ArrayList<ConnectLoginJobListModel> learnApps = new ArrayList<>();
         ArrayList<ConnectLoginJobListModel> deliverApps = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> reviewLearnApps = new ArrayList<>();
         ArrayList<ConnectLoginJobListModel> finishedItems = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
@@ -270,7 +271,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         finishedItems.add(learnModel);
                         finishedItems.add(deliverModel);
                     } else {
-                        learnApps.add(learnModel);
+                        reviewLearnApps.add(learnModel);
                         deliverApps.add(deliverModel);
                     }
 
@@ -282,10 +283,12 @@ public class ConnectJobsListsFragment extends Fragment {
 
         Collections.sort(learnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
         Collections.sort(deliverApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+        Collections.sort(reviewLearnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
         Collections.sort(finishedItems, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
         jobList.addAll(availableNewJobs);
         jobList.addAll(learnApps);
         jobList.addAll(deliverApps);
+        jobList.addAll(reviewLearnApps);
         jobList.addAll(finishedItems);
         initRecyclerView();
     }
