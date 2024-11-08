@@ -96,6 +96,13 @@ public class ConnectJobsListsFragment extends Fragment {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
         };
 
+        view.findViewById(R.id.connect_jobs_last_update).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
+            }
+        });
+
         refreshUi();
         refreshData();
 

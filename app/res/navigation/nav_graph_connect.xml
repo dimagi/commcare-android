@@ -29,6 +29,9 @@
         <action
             android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment2"
             app:destination="@id/connect_downloading_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connectPaymentSetupFragment"
+            app:destination="@id/connectPaymentSetupFragment" />
     </fragment>
 
     <fragment
@@ -150,5 +153,10 @@
             android:name="unitId"
             app:argType="string" />
     </fragment>
+    <fragment
+        android:id="@+id/connectPaymentSetupFragment"
+        android:name="org.commcare.fragments.connect.ConnectPaymentSetupFragment"
+        android:label="fragment_connect_payment_setup"
+        tools:layout="@layout/fragment_connect_payment_setup" />
 
 </navigation>
