@@ -481,4 +481,8 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_commcare_app">Aplicativo CommCare</string>
+    <string name="connect_appbar_title_opportunity">Oportunidade</string>
+    <string name="connect_appbar_title_learning_progress">Progresso de aprendizagem</string>
+    <string name="connect_appbar_title_delivery">Entrega</string>
+    <string name="connect_appbar_title_opportunity_detail">Detalhes da oportunidade</string>
 </resources>
