@@ -13,22 +13,15 @@ import android.widget.Toast;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectPaymentSetupBinding;
 import org.commcare.utils.PhoneNumberHelper;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 
 public class ConnectPaymentSetupFragment extends Fragment {
@@ -119,42 +112,46 @@ public class ConnectPaymentSetupFragment extends Fragment {
     private void submitPaymentDetail() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-        boolean isBusy = !ApiConnectId.paymentInfo(requireActivity(), phone, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
-                    JSONObject json = new JSONObject(responseAsString);
 
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing return from confirm_secondary_otp", e);
-                }
+        Navigation.findNavController(binding.continueButton).navigate(
+                ConnectPaymentSetupFragmentDirections.actionConnectPaymentSetupFragmentToConnectPaymentSetupPhoneVerificationFragment(phone));
 
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                binding.errorTextView.setVisibility(View.VISIBLE);
-                binding.errorTextView.setText(String.format(Locale.getDefault(), "Registration error: %d",
-                        responseCode));
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                Toast.makeText(requireActivity(), R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
-
-            }
-
-            @Override
-            public void processOldApiError() {
-                Toast.makeText(requireActivity(), R.string.recovery_network_outdated, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+//        boolean isBusy = !ApiConnectId.paymentInfo(requireActivity(), phone, new IApiCallback() {
+//            @Override
+//            public void processSuccess(int responseCode, InputStream responseData) {
+//                try {
+//                    String responseAsString = new String(
+//                            StreamsUtil.inputStreamToByteArray(responseData));
+//                    JSONObject json = new JSONObject(responseAsString);
+//
+//                } catch (IOException | JSONException e) {
+//                    Logger.exception("Parsing return from confirm_secondary_otp", e);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void processFailure(int responseCode, IOException e) {
+//                binding.errorTextView.setVisibility(View.VISIBLE);
+//                binding.errorTextView.setText(String.format(Locale.getDefault(), "Registration error: %d",
+//                        responseCode));
+//            }
+//
+//            @Override
+//            public void processNetworkFailure() {
+//                Toast.makeText(requireActivity(), R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
+//
+//            }
+//
+//            @Override
+//            public void processOldApiError() {
+//                Toast.makeText(requireActivity(), R.string.recovery_network_outdated, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        if (isBusy) {
+//            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
+//        }
     }
 
     public void updateButtonEnabled() {

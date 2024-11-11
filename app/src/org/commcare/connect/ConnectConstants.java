@@ -72,4 +72,5 @@ public class ConnectConstants {
     public final static int CONNECT_USER_DEACTIVATE_CONFIRMATION = ConnectConstants.ConnectIdTaskIdOffset + 40;
     public final static int CONNECT_VERIFY_USER_DEACTIVATE = ConnectConstants.ConnectIdTaskIdOffset + 41;
     public final static int CONNECT_USER_DEACTIVATE_SUCCESS = ConnectConstants.ConnectIdTaskIdOffset + 42;
+    public final static int CONNECT_PAYMENT_SETUP = ConnectConstants.ConnectIdTaskIdOffset + 43;
 }

@@ -157,6 +157,24 @@
         android:id="@+id/connectPaymentSetupFragment"
         android:name="org.commcare.fragments.connect.ConnectPaymentSetupFragment"
         android:label="fragment_connect_payment_setup"
-        tools:layout="@layout/fragment_connect_payment_setup" />
-
+        tools:layout="@layout/fragment_connect_payment_setup">
+        <action
+            android:id="@+id/action_connectPaymentSetupFragment_to_connectPaymentSetupPhoneVerificationFragment"
+            app:destination="@id/connectPaymentSetupPhoneVerificationFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/connectPaymentSetupPhoneVerificationFragment"
+        android:name="org.commcare.fragments.connect.ConnectPaymentSetupPhoneVerificationFragment"
+        android:label="ConnectPaymentSetupPhoneVerificationFragment"
+        tools:layout="@layout/screen_connect_payment_phone_verify">
+        <argument
+            android:name="phone"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_connectPaymentSetupPhoneVerificationFragment_to_connect_jobs_list_fragment"
+            app:destination="@id/connect_jobs_list_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>
