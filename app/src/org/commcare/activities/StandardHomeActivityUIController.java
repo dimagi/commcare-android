@@ -82,6 +82,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+            ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
             ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
             ConnectMediumTextView connectJobPay = viewJobCard.findViewById(R.id.connect_job_pay);
             ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
@@ -93,19 +94,13 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
             String dailyStart = job.getDailyStartTime();
-            if(dailyStart.length() == 0) {
-                dailyStart = "00:00";
-            } else if(dailyStart.length() > 5) {
-                dailyStart = dailyStart.substring(0, 5);
-            }
-
             String dailyFinish = job.getDailyFinishTime();
-            if(dailyFinish.length() == 0) {
-                dailyFinish = "23:59";
-            } else if(dailyFinish.length() > 5) {
-                dailyFinish = dailyFinish.substring(0, 5);
+            boolean showHours = dailyStart.length() > 0 && dailyFinish.length() > 0;
+            tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+            hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+            if(showHours) {
+                tv_job_time.setText(dailyStart + " - " + dailyFinish);
             }
-            tv_job_time.setText(dailyStart + " - " + dailyFinish);
 
             updateConnectProgress();
         }
