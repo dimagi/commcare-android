@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,6 +27,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
+import org.commcare.utils.ConnectAppBarUtils;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -34,7 +35,6 @@ import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
 
 /**
@@ -67,6 +67,17 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
         setupGridView();
+        handleAppBar();
+    }
+
+    private void handleAppBar() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        View appBarView = activity.findViewById(R.id.commonAppBar);
+        ConnectAppBarUtils.setTitle(appBarView, job.getTitle());
+        ConnectAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, null);
+        ConnectAppBarUtils.setMenuIconWithCallback(appBarView, true, click -> {
+            activity.showPopupMenu(appBarView);
+        });
     }
 
     private void updateJobTileDetails() {
@@ -78,7 +89,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         cvDailyLimitView.setVisibility(show && job.getDaysRemaining() == 0 ? View.VISIBLE : View.GONE);
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
 
-        if(show) {
+        if (show) {
             ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
@@ -117,7 +128,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         deliveryPaymentInfoList.clear();
 
-        if(job != null) {
+        if (job != null) {
             Hashtable<String, Integer> todayDeliveryCounts = job.getDeliveryCountsPerPaymentUnit(true);
             for (int j = 0; j < job.getPaymentUnits().size(); j++) {
                 ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(j);

@@ -68,6 +68,7 @@
         <item name="android:scrollViewStyle">@style/fading_edge</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:dropDownListViewStyle">@style/dropDownListView</item>
+        <item name="android:statusBarColor">@color/connect_status_bar_color</item>
 
         <!--  Material Components styling that can be removed when we migrate to a material component theme from the bridge theme-->
         <item name="materialCalendarStyle">@style/Widget.MaterialComponents.MaterialCalendar</item>

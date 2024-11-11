@@ -22,6 +22,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectAppBarUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
@@ -149,7 +150,16 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         });
 
 //        jobCardDataHandle(view, job);
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectAppBarUtils.setTitle(appBarView, requireActivity().getResources().getString(R.string.connect_appbar_title_opportunity_detail));
+        ConnectAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     private void jobCardDataHandle(View view, ConnectJobRecord job) {

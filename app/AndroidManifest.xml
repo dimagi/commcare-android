@@ -165,7 +165,8 @@
         <activity
             android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure"></activity>
-        <activity android:name="org.commcare.activities.StandardHomeActivity" />
+        <activity android:name="org.commcare.activities.StandardHomeActivity"
+            android:theme="@style/NoAppBarTheme" />
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
 

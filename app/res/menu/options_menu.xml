@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_update"
+        android:title="Update App"
+        android:icon="@android:drawable/ic_menu_upload" />
+
+    <item
+        android:id="@+id/menu_saved_forms"
+        android:title="Saved Forms"
+        android:icon="@android:drawable/ic_menu_save" />
+
+    <item
+        android:id="@+id/menu_change_language"
+        android:title="Change Language"
+        android:icon="@android:drawable/ic_menu_set_as" />
+
+    <item
+        android:id="@+id/menu_about"
+        android:title="About CommCare"
+        android:icon="@android:drawable/ic_menu_help" />
+
+    <item
+        android:id="@+id/menu_advanced"
+        android:title="Advanced"
+        android:icon="@android:drawable/ic_menu_edit" />
+
+    <item
+        android:id="@+id/menu_preferences"
+        android:title="Settings"
+        android:icon="@android:drawable/ic_menu_preferences" />
+
+    <item
+        android:id="@+id/menu_pin"
+        android:title="Set My PIN" />
+
+    <item
+        android:id="@+id/menu_update_commcare"
+        android:title="Update CommCare" />
+
+</menu>

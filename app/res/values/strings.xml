@@ -868,5 +868,9 @@
     <string name="connect_job_tile_price">₹ %s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
+    <string name="connect_appbar_title_opportunity">Opportunity</string>
+    <string name="connect_appbar_title_learning_progress">Learning Progress</string>
+    <string name="connect_appbar_title_delivery">Delivery</string>
+    <string name="connect_appbar_title_opportunity_detail">Opportunity Details</string>
 
 </resources>

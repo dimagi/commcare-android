@@ -50,7 +50,7 @@
                 android:contentDescription="@null"
                 android:src="@drawable/ic_list_alt"
                 android:paddingHorizontal="8dp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/cloud_sync"
@@ -61,7 +61,7 @@
                 android:contentDescription="@null"
                 android:paddingHorizontal="8dp"
                 android:src="@drawable/ic_connect_cloud_sync"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/notification_icon"
@@ -72,7 +72,7 @@
                 android:contentDescription="@null"
                 android:paddingHorizontal="8dp"
                 android:src="@drawable/ic_notifications_24"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
             <ImageButton
                 android:id="@+id/menu_icon"
@@ -81,6 +81,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:contentDescription="@null"
                 android:paddingHorizontal="8dp"
+                android:visibility="gone"
                 android:src="@drawable/ic_connect_action_overflow" />
         </LinearLayout>
     </LinearLayout>
