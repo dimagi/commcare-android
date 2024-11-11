@@ -108,7 +108,7 @@ public class HomeScreenAdapter
         boolean noCustomBanner =
                 !CustomBanner.useCustomBanner(context, screenHeight, screenWidth, headerHolder.headerImage, CustomBanner.Banner.HOME);
         if (noCustomBanner) {
-            headerHolder.headerImage.setImageResource(R.drawable.commcare_logo);
+            headerHolder.headerImage.setImageResource(R.drawable.commcare_dimagi_logo);
         }
     }
 

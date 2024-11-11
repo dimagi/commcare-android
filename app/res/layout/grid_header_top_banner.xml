@@ -19,7 +19,7 @@
         android:paddingLeft="@dimen/standard_spacer"
         android:paddingRight="@dimen/standard_spacer"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/commcare_logo"
+        app:srcCompat="@drawable/commcare_dimagi_logo"
         android:visibility="visible"
         android:paddingStart="@dimen/standard_spacer"
         android:paddingEnd="@dimen/standard_spacer" />

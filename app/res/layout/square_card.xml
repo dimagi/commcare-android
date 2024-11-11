@@ -29,6 +29,7 @@
             <org.commcare.views.SquareImageView
                 android:id="@+id/card_image"
                 android:layout_width="wrap_content"
+                android:padding="16dp"
                 android:layout_height="wrap_content"/>
 
             <org.commcare.views.ResizingTextView

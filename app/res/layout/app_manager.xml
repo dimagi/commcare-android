@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:paddingTop="@dimen/activity_vertical_margin"
+        android:padding="@dimen/activity_vertical_margin"
         android:id="@+id/screen_manager_banner_pane">
 
         <ImageView
@@ -18,7 +18,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:scaleType="fitStart"
-            app:srcCompat="@drawable/commcare_logo"
+            app:srcCompat="@drawable/commcare_dimagi_logo"
             android:adjustViewBounds="true"/>
 
     </FrameLayout>
