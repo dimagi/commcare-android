@@ -22,7 +22,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.views.connect.LinearProgressBar;
+import org.commcare.utils.ConnectAppBarUtils;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -137,7 +137,16 @@ public class ConnectJobIntroFragment extends Fragment {
         }
 
         jobCardDataHandle(view, job);
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectAppBarUtils.setTitle(appBarView, "requireActivity().getResources().getString(R.string.connect_title)");
+        ConnectAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).navigateUp();
+        });
     }
 
     private void jobCardDataHandle(View view, ConnectJobRecord job) {
@@ -155,7 +164,7 @@ public class ConnectJobIntroFragment extends Fragment {
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price, String.valueOf(job.getBudgetPerVisit())));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
     }
 

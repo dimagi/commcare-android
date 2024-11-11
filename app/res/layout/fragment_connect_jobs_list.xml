@@ -4,20 +4,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/connect_fragment_jobs_list"
     android:layout_width="match_parent"
-    android:background="@color/connect_background_color"
     android:layout_height="match_parent"
+    android:background="@color/connect_background_color"
     tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
+
+    <LinearLayout
+        android:id="@+id/llTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include
+            layout="@layout/connectid_title_bar"
+            android:id="@+id/commonAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/connect_jobs_refresh"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
         android:contentDescription="@string/refresh"
         android:src="@drawable/cloud_backup"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/llTopBar" />
 
     <org.commcare.views.connect.connecttextview.ConnectMediumTextView
         android:id="@+id/connect_jobs_last_update"
@@ -35,10 +49,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:padding="10dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="2dp"
         android:background="@drawable/dots_rect_back"
+        android:padding="10dp"
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update">
@@ -67,8 +81,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:text="@string/connect_payment_confirm_yes"
-            android:textSize="18sp"
             android:textColor="@color/blue"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
 
@@ -76,10 +90,10 @@
             android:id="@+id/connect_phone_no_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
             android:layout_marginEnd="40dp"
             android:text="@string/connect_payment_confirm_no"
             android:textColor="@color/blue"
+            android:textSize="18sp"
             app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
             app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -88,20 +102,20 @@
         android:id="@+id/connect_no_jobs_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textAlignment="center"
         android:layout_margin="40dp"
         android:text="@string/connect_no_jobs"
+        android:textAlignment="center"
         android:textColor="@color/blue"
+        android:textSize="18sp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"/>
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvJobList"
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        tools:listitem="@layout/item_login_connect_home_apps"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile" />
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"
+        tools:listitem="@layout/item_login_connect_home_apps" />
 </androidx.constraintlayout.widget.ConstraintLayout>
