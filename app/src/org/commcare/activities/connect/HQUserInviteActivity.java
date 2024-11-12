@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.commcare.activities.DispatchActivity;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -28,6 +30,7 @@ public class HQUserInviteActivity extends AppCompatActivity {
     String domain;
     String inviteCode;
     String username;
+    String callBackURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +39,15 @@ public class HQUserInviteActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         Intent intent = getIntent();
         Uri data = intent.getData();
-
-        if (data != null && "connect".equals(data.getScheme())) {
+        if(data != null) {
             List<String> pathSegments = data.getPathSegments();
             if (pathSegments.size() >= 3) {
-                domain = pathSegments.get(0);
-                inviteCode = pathSegments.get(1);
+                callBackURL = pathSegments.get(1);
                 username = pathSegments.get(2);
+                inviteCode = pathSegments.get(3);
+                domain = pathSegments.get(4);
             }
         }
-
         binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(HQUserInviteActivity.this, inviteCode, true));
 
         binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(HQUserInviteActivity.this, inviteCode, false));
@@ -59,7 +61,8 @@ public class HQUserInviteActivity extends AppCompatActivity {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-
+                        startActivity(new Intent(HQUserInviteActivity.this, DispatchActivity.class));
+                        finish();
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from OTP request", e);

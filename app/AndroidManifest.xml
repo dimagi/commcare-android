@@ -143,22 +143,23 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                    android:host="hq_invite"
-                    android:scheme="connect" />
-                <data android:pathPattern="/.*/.*/.*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="https"/>
+                <data android:host="connectid.dimagi.com"/>
+                <data android:pathPrefix="/hq_invite/"/>
+                <data android:scheme="http"/>
+                <data android:host="connectid.dimagi.com"/>
+                <data android:pathPrefix="/hq_invite/"/>
             </intent-filter>
         </activity>
         <activity
             android:name="org.commcare.activities.DispatchActivity"
             android:exported="true"
             android:label="@string/application_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.CommCareSession" />
 
