@@ -83,7 +83,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
 
     private void handleAppBar(View view) {
         View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, "Password Verification");
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_appbar_title_password_verification));
         ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
             Navigation.findNavController(appBarView).popBackStack();
         });

@@ -95,7 +95,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
     private void handleAppBar(View view) {
         View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, "App Lock");
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_appbar_title_app_lock));
         ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
             Navigation.findNavController(appBarView).popBackStack();
         });
