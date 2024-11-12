@@ -25,6 +25,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPasswordVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -76,8 +77,16 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         failureCount = 0;
         binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> handleForgotPress());
         binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> handleButtonPress());
-
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, "Password Verification");
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     @Override

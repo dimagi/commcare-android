@@ -30,6 +30,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPrimaryPhoneBinding;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
@@ -132,8 +133,16 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneTitle.setText(title);
         binding.connectPrimaryPhoneMessage.setText(message);
         displayNumber(existing);
-
+        handleAppBar(binding.getRoot());
         return binding.getRoot();
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_phone_title_primary));
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     @Override

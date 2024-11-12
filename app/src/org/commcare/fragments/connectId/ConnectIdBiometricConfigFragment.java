@@ -28,6 +28,7 @@ import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.BiometricsHelper;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
@@ -88,8 +89,16 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
         binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
-
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, "App Lock");
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     private BiometricPrompt.AuthenticationCallback preparePromptCallbacks() {
@@ -274,14 +283,14 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 if (success) {
                     directions = failedEnrollment || !configured ? ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidMessage(getResources().getString(R.string.connect_biometric_enroll_fail_title), getResources().getString(R.string.connect_biometric_enroll_fail_message), ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL, getResources().getString(R.string.connect_biometric_enroll_fail_button), null, null, null) :
                             ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                                    ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(),false).setAllowChange(true);
+                                    ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(), false).setAllowChange(true);
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS -> {
                 if (success) {
                     directions =
                             ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                                    ConnectManager.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false).setAllowChange(false);
+                                    ConnectManager.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null, false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_BIOMETRIC -> {
