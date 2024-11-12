@@ -14,7 +14,7 @@
 
         <include
             android:id="@+id/commonAppBar"
-            layout="@layout/connectid_title_bar"
+            layout="@layout/connect_common_title_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
