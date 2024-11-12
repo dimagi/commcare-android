@@ -865,4 +865,8 @@
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
     <string name="connect_commcare_app">CommCare App</string>
+
+    <string name="connect_hq_invitation_heading">You are invited to CommCareHQ project domain as %s</string>
+    <string name="connect_hq_invitation_accept">Accept</string>
+    <string name="connect_hq_invitation_denied">Denied</string>
 </resources>

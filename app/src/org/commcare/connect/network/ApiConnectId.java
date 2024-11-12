@@ -425,14 +425,15 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
-    public static boolean hqUserInvitation(Context context, String invitationCode, boolean acceptStatus, IApiCallback callback) {
+    public static boolean hqUserInvitation(Context context,String callBackUrl, String invitationCode, boolean acceptStatus, IApiCallback callback) {
         int urlId = R.string.ConnectConfirmUserInvitation;
         AuthInfo authInfo = new AuthInfo.NoAuth();
         AuthInfo.TokenAuth connectIdToken = ApiConnectId.retrieveConnectIdTokenSync(context);
 
         HashMap<String, String> params = new HashMap<>();
+        params.put("callback_url", callBackUrl);
         params.put("invite_code", invitationCode);
-        params.put("token", connectIdToken.toString());
+        params.put("user_token", connectIdToken.toString());
         params.put("accept", String.valueOf(acceptStatus));
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),

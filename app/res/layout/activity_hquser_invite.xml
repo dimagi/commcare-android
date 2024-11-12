@@ -19,13 +19,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-        android:id="@+id/connectMediumTextView"
+        android:id="@+id/tvHqInvitationHeaderTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
         android:layout_marginTop="20dp"
         android:gravity="center"
-        android:text="You are invited to CommCareHQ project domain as username"
+        android:text=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
@@ -36,15 +36,15 @@
         android:layout_height="40dp"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="30dp"
-        android:text="Accept"
+        android:text="@string/connect_hq_invitation_accept"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/connectMediumTextView"
+        app:layout_constraintTop_toBottomOf="@+id/tvHqInvitationHeaderTitle"
         app:roundButtonBackgroundColor="@color/connect_blue_color"
         app:roundButtonTextColor="@color/white"
         app:roundButtonTextSize="6sp"
-        tools:text="Accept" />
+        tools:text="@string/connect_hq_invitation_accept" />
 
     <org.commcare.views.connect.RoundedButton
         android:id="@+id/btn_denied_invitation"
@@ -52,7 +52,7 @@
         android:layout_height="40dp"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="15dp"
-        android:text="Denied"
+        android:text="@string/connect_hq_invitation_denied"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +60,19 @@
         app:roundButtonBackgroundColor="@color/connect_blue_color"
         app:roundButtonTextColor="@color/white"
         app:roundButtonTextSize="6sp"
-        tools:text="Denied" />
+        tools:text="@string/connect_hq_invitation_denied" />
+
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:id="@+id/connect_phone_verify_error"
+        android:textSize="16sp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/connect_red"
+        app:layout_constraintEnd_toEndOf="@+id/btn_denied_invitation"
+        app:layout_constraintStart_toStartOf="@+id/btn_denied_invitation"
+        app:layout_constraintTop_toBottomOf="@+id/btn_denied_invitation" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"

@@ -1,10 +1,9 @@
 package org.commcare.activities.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +15,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ActivityHquserInviteBinding;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +36,7 @@ public class HQUserInviteActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         Intent intent = getIntent();
         Uri data = intent.getData();
-        if(data != null) {
+        if (data != null) {
             List<String> pathSegments = data.getPathSegments();
             if (pathSegments.size() >= 3) {
                 callBackURL = pathSegments.get(1);
@@ -48,23 +45,24 @@ public class HQUserInviteActivity extends AppCompatActivity {
                 domain = pathSegments.get(4);
             }
         }
-        binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(HQUserInviteActivity.this, inviteCode, true));
+        binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, true));
 
-        binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(HQUserInviteActivity.this, inviteCode, false));
+        binding.btnDeniedInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, false));
+
+        binding.tvHqInvitationHeaderTitle.setText(getString(R.string.connect_hq_invitation_heading,username));
     }
 
-    private void handleInvitation(Context context, String inviteCode, boolean acceptStatus) {
+    private void handleInvitation(String callBackUrl, String inviteCode, boolean acceptStatus) {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
                         startActivity(new Intent(HQUserInviteActivity.this, DispatchActivity.class));
                         finish();
                     }
-                } catch (IOException | JSONException e) {
+                } catch (IOException e) {
                     Logger.exception("Parsing return from OTP request", e);
                 }
             }
@@ -91,21 +89,20 @@ public class HQUserInviteActivity extends AppCompatActivity {
             }
         };
 
-        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this, inviteCode, acceptStatus, callback);
+        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this, callBackUrl, inviteCode, acceptStatus, callback);
         if (isBusy) {
             Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
 
     public void setErrorMessage(String message) {
-//        if (message == null) {
-//            binding.connectPhoneVerifyError.setVisibility(View.GONE);
-//        } else {
-//            binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
-//            binding.connectPhoneVerifyError.setText(message);
-//        }
+        if (message == null) {
+            binding.connectPhoneVerifyError.setVisibility(View.GONE);
+        } else {
+            binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
+            binding.connectPhoneVerifyError.setText(message);
+        }
     }
-
 
     @Override
     protected void onDestroy() {
