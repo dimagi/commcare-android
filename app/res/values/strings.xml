@@ -439,7 +439,7 @@
     <string name="connect_registration_title">ConnectID Signup</string>
     <string name="connect_signup">Signup</string>
     <string name="connect_recover">Recover</string>
-    <string name="connect_registration_have_account">Already have\nConnectID?</string>
+    <string name="connect_registration_have_account">Already have\nan Account?</string>
     <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>

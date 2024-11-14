@@ -363,7 +363,7 @@
     <string name="connect_registration_title">Inscrição no Connect ID</string>
     <string name="connect_signup">Inscrição</string>
     <string name="connect_recover">Recuperar</string>
-    <string name="connect_registration_have_account">Já tem\nConnectID? Não tem\nConnectID?</string>
+    <string name="connect_registration_have_account">Já tem\nConnectID? Não tem\numa conta?</string>
     <string name="connect_recover_no_account">Não tem ConnectID?</string>
     <string name="connect_consent_message_1">Li e concordo com a Política de Privacidade, Termos de Serviço, Acordo Comercial e Política de Uso Aceitável da Dimagi</string>
     <string name="connect_phone_page_title">Número de telefone</string>
