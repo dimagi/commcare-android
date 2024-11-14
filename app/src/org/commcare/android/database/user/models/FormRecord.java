@@ -430,18 +430,18 @@ public class FormRecord extends Persisted implements EncryptedModel {
                     this, CommCareApplication.instance().getUserStorage(FormRecord.class));
         } catch (InvalidStructureException e1) {
             e1.printStackTrace();
-            throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor.");
+            throw new InvalidStateException("Invalid data structure found while parsing form. There's something wrong with the application structure, please contact your supervisor", e1);
         } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
-            throw new InvalidStateException("There was a problem with the local storage and the form could not be read.");
+            throw new InvalidStateException("There was a problem with the local storage and the form could not be read.", e);
         } catch (UnfullfilledRequirementsException e) {
             throw new RuntimeException(e);
         }
     }
 
     private static class InvalidStateException extends Exception {
-        public InvalidStateException(String message) {
-            super(message);
+        public InvalidStateException(String message, Throwable e) {
+            super(message, e);
         }
     }
 
