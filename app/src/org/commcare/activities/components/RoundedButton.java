@@ -20,14 +20,14 @@ public class RoundedButton extends androidx.appcompat.widget.AppCompatButton {
 
     private static final int DEFAULT_BUTTON_HEIGHT = 100;
     private static final int DEFAULT_RADIUS = 30;
-    private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
-    private static final int DEFAULT_TEXT_COLOR = Color.BLACK;
+    private static final int DEFAULT_BACKGROUND_COLOR = Color.parseColor("#004EBC");
+    private static final int DEFAULT_TEXT_COLOR = Color.WHITE;
     private static final int DEFAULT_ICON_TINT_COLOR = Color.WHITE;
     private static final int DEFAULT_PADDING = 24;
     private static final boolean DEFAULT_ICON_LEFT_ALIGN = false;
     private static final int DEFAULT_FONT_RES_ID = R.font.roboto_regular;
     private static final boolean DEFAULT_BORDER_VISIBLE = false;
-    private static final int DEFAULT_BORDER_COLOR = Color.BLACK;
+    private static final int DEFAULT_BORDER_COLOR = Color.parseColor("#004EBC");
     private static final int DEFAULT_BORDER_RADIUS = DEFAULT_RADIUS;
     private static final int DEFAULT_BORDER_WIDTH = 1;
     private static final int DEFAULT_TEXT_SIZE = 7;
