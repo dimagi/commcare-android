@@ -374,7 +374,9 @@
         <activity android:name="org.commcare.activities.MessageActivity">
         </activity>
 
-        <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver">
+        <receiver
+            android:exported="false"
+            android:name="org.commcare.views.notifications.NotificationClearReceiver">
         </receiver>
 
         <activity
@@ -562,6 +564,7 @@
             Below code removes this receiver's entry from Manifest.
          -->
         <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
+            android:exported="false"
             tools:node="remove"/>
 
         <!-- The zebra-print-android library is not yet targeting Android 12 and at least one
