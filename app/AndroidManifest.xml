@@ -38,6 +38,7 @@
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -307,6 +308,7 @@
 
         <service
             android:enabled="true"
+            android:foregroundServiceType="dataSync"
             android:name="org.commcare.services.CommCareSessionService">
         </service>
 
