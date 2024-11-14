@@ -43,24 +43,28 @@
                 android:layout_centerHorizontal="true"
                 android:layout_margin="10dp"
                 android:gravity="center"
-                android:layout_below="@+id/screen_multimedia_inflater_filefetch"
                 android:text="From here you can dump your forms to an SD card or submit the forms on your SD card"/>
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/screen_bulk_form_dump"
                 style="@style/ButtonBottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/screen_bulk_form_prompt"
-                android:text="Dump Forms"/>
+                android:text="Dump Forms"
 
-            <Button
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
+
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/screen_bulk_form_submit"
                 style="@style/ButtonBottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/screen_bulk_form_dump"
-                android:text="Submit Forms"/>
+                android:text="Submit Forms"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
 
         </RelativeLayout>
 

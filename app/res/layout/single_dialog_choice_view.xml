@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Button xmlns:android="http://schemas.android.com/apk/res/android"
+<org.commcare.activities.components.RoundedButton xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/choice_dialog_panel"
     style="@style/CommCare.Button.Default"
     android:layout_width="wrap_content"
@@ -10,4 +11,5 @@
     android:drawablePadding="5dp"
     android:padding="12dp"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-    tools:viewBindingIgnore="true"/>
+    tools:viewBindingIgnore="true"
+    app:roundButtonTextColor="@color/cc_neutral_text" />

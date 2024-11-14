@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center_horizontal"
     android:gravity="center_horizontal"
     android:orientation="vertical"
@@ -68,7 +69,7 @@
         android:layout_height="wrap_content"
         android:visibility="invisible" />
 
-    <Button
+    <org.commcare.activities.components.RoundedButton
         android:id="@+id/action_button"
         style="@style/Commcare.Button.Primary"
         android:layout_width="wrap_content"
@@ -82,6 +83,8 @@
         android:layout_marginTop="15dp"
         android:gravity="center"
         tools:text="Finish"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        app:roundButtonBackgroundColor="@color/primary_button_background"
+        app:roundButtonTextColor="@color/white"/>
 
 </LinearLayout>

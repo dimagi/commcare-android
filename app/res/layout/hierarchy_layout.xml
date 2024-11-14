@@ -12,11 +12,11 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:viewBindingIgnore="true">
 
     <TextView
@@ -40,41 +40,38 @@ the License.
             android:layout_height="match_parent"
             android:layout_weight="1"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/jumpPreviousButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_previous"
             android:padding="12dp"
-            android:textSize="@dimen/text_medium"
-            android:textColor="@color/cc_brand_color"
-            android:background="@color/cc_core_bg"
-            style="@style/CommCare.Button.Default"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:textSize="12sp"
+            app:roundButtonBackgroundColor="@color/cc_core_bg"
+            app:roundButtonTextColor="@color/cc_brand_color"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/jumpBeginningButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_beginning"
             android:padding="12dp"
-            android:textSize="@dimen/text_medium"
-            android:textColor="@color/cc_brand_color"
-            android:background="@color/cc_core_bg"
-            style="@style/CommCare.Button.Default"
-            android:layout_weight="1"/>
+            android:textSize="12sp"
+            app:roundButtonBackgroundColor="@color/cc_core_bg"
+            app:roundButtonTextColor="@color/cc_brand_color"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/jumpEndButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_end"
             android:padding="12dp"
-            android:textSize="@dimen/text_medium"
-            android:textColor="@color/cc_brand_color"
-            android:background="@color/cc_core_bg"
+            android:textSize="12sp"
             style="@style/CommCare.Button.Default"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            app:roundButtonBackgroundColor="@color/cc_core_bg"
+            app:roundButtonTextColor="@color/cc_brand_color"/>
     </LinearLayout>
 
     <ListView

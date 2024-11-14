@@ -25,19 +25,19 @@
         android:layout_marginEnd="@dimen/standard_spacer_large">
     </ListView>
 
-    <Button xmlns:android="http://schemas.android.com/apk/res/android"
+    <org.commcare.activities.components.RoundedButton
+        xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/optional_button"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/min_button_height"
-            android:padding="@dimen/standard_spacer"
             android:layout_gravity="end"
             android:layout_marginRight="@dimen/standard_spacer"
-            android:background="@android:color/transparent"
-            android:textSize="@dimen/font_size_dp_medium"
-            android:textColor="@color/dialog_button_color"
-            android:visibility="gone"
-        android:layout_marginEnd="@dimen/standard_spacer">
-    </Button>
+            android:visibility="visible"
+        android:layout_marginEnd="@dimen/standard_spacer"
+        app:roundButtonLeftPadding="8dp"
+        app:roundButtonRightPadding="8dp"
+        app:roundButtonBackgroundColor="@color/transparent"
+        app:roundButtonTextColor="@color/dialog_button_color"/>
 
     <LinearLayout
         android:layout_width="match_parent"

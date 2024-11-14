@@ -13,7 +13,6 @@
     <attr name="drawer_pulldown_odd_row_color" format="reference"/>
     <attr name="menu_tile_title_text_color" format="reference"/>
     <attr name="entity_select_title_text_color" format="reference"/>
-
     <attr name="backgroundColor" format="reference|color"/>
     <attr name="subtitle" format="string"/>
     <attr name="img" format="reference"/>

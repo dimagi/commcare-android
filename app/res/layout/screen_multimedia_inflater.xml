@@ -53,7 +53,7 @@
         android:layout_below="@id/screen_multimedia_inflater_frame_location"
         android:layout_centerHorizontal="true"/>
 
-    <Button
+    <org.commcare.activities.components.RoundedButton
         android:id="@+id/screen_multimedia_inflater_install"
         style="@style/ButtonBottom"
         android:layout_width="match_parent"
@@ -61,6 +61,8 @@
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingTop="@dimen/content_start"
+        app:roundButtonBackgroundColor="@color/primary_button_background"
+        app:roundButtonTextColor="@color/white" />
 
 </RelativeLayout>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:viewBindingIgnore="true">
 
     <ScrollView
@@ -38,16 +38,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/request_button"
-                style="@style/ButtonBottom"
+                android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_gravity="center"
                 android:layout_height="wrap_content"
-                android:background="@color/cc_brand_color"
                 android:paddingBottom="@dimen/content_start"
                 android:paddingTop="@dimen/content_start"
-                android:textColor="@color/cc_neutral_bg"/>
+                app:roundButtonBackgroundColor="@color/cc_brand_color"
+                app:roundButtonTextColor="@color/cc_neutral_bg"/>
 
         </LinearLayout>
     </ScrollView>
