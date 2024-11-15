@@ -582,7 +582,7 @@
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
-    <string name="connect_verify_phone_change">Change phone number</string>
+    <string name="connect_verify_phone_change">Change</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
 
@@ -746,7 +746,7 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
-    <string name="enter_otp">Enter SMS Code</string>
+    <string name="enter_otp">Enter OTP</string>
     <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
     <string name="confirm_code">Confirm Code</string>

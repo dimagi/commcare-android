@@ -4,7 +4,6 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -13,6 +12,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +41,7 @@ import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.views.connect.CustomOtpView;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
@@ -176,6 +177,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
             }
         });
+
+        binding.customOtpView.setOnOtpChangedListener(this::buttonEnabled);
         return view;
     }
 
@@ -217,7 +220,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         if (matcher.find()) {
             binding.connectPhoneVerifyCode.setText(matcher.group(0));
         }
-
     }
 
     @Override
@@ -265,9 +267,11 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void setErrorMessage(String message) {
         if (message == null) {
             binding.connectPhoneVerifyError.setVisibility(View.GONE);
+            binding.customOtpView.setErrorState(false);
         } else {
             binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
             binding.connectPhoneVerifyError.setText(message);
+            binding.customOtpView.setErrorState(true);
         }
     }
 
@@ -286,9 +290,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         String text;
         String phone = alternate ? recoveryPhone : primaryPhone;
         if (phone != null) {
-            //Crop to last 4 digits
-            phone = phone.substring(phone.length() - 4);
-            text = getString(R.string.connect_verify_phone_label, phone);
+            text = phone;
         } else {
             //The primary phone is never missing
             text = getString(R.string.connect_verify_phone_label_secondary);
@@ -618,7 +620,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     public void showYesNoDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),R.style.AlertDialogTheme);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme);
         builder.setTitle(R.string.connect_deactivate_dialog_title);
         builder.setMessage(R.string.connect_deactivate_dialog_description)
                 .setPositiveButton(R.string.connect_payment_dialog_yes, (dialog, which) -> {
