@@ -842,6 +842,7 @@
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
+    <string name="connect_visit_type_title">%s Visits</string>
 
     <string name="connect_payment_received">Received</string>
     <string name="connect_payment_transferred">Transferred</string>

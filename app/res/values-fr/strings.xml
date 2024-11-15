@@ -284,7 +284,7 @@ License.
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n’avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
     <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
-
+    <string name="connect_visit_type_title">%s Visites</string>
 
     <string name="connect_payment_received">Reçue</string>
     <string name="connect_payment_transferred">Transféré</string>
