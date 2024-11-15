@@ -144,6 +144,7 @@ public class ConnectJobIntroFragment extends Fragment {
         View viewJobCard = view.findViewById(R.id.viewJobCard);
         ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
         ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
         ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
         ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
@@ -157,6 +158,15 @@ public class ConnectJobIntroFragment extends Fragment {
         tvJobDiscrepation.setText(job.getDescription());
         connect_job_pay.setText(getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String dailyStart = job.getDailyStartTime();
+        String dailyFinish = job.getDailyFinishTime();
+        boolean showHours = dailyStart.length() > 0 && dailyFinish.length() > 0;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(dailyStart + " - " + dailyFinish);
+        }
     }
 
     private <T extends View> T findView(View parent, int id) {
