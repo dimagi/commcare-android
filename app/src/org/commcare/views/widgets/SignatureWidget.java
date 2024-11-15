@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -30,6 +31,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DrawActivity;
@@ -89,7 +92,10 @@ public class SignatureWidget extends QuestionWidget {
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup Blank Image Button
-        mSignButton = new AppCompatButton(getContext());
+        mSignButton = new MaterialButton(getContext());
+        mSignButton.setBackgroundResource(R.drawable.rounded_button);
+        mSignButton.setTextColor(getResources().getColor(R.color.white));
+        mSignButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mSignButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
                 !prompt.isReadOnly());

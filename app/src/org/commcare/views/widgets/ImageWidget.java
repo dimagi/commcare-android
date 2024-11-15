@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -19,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
@@ -93,7 +96,10 @@ public class ImageWidget extends QuestionWidget {
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup capture button
-        mCaptureButton = new AppCompatButton(getContext());
+        mCaptureButton = new MaterialButton(getContext());
+        mCaptureButton.setBackgroundResource(R.drawable.rounded_button);
+        mCaptureButton.setTextColor(getResources().getColor(R.color.white));
+        mCaptureButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
                 !mPrompt.isReadOnly());
@@ -119,7 +125,10 @@ public class ImageWidget extends QuestionWidget {
         });
 
         // setup chooser button
-        mChooseButton = new AppCompatButton(getContext());
+        mChooseButton = new MaterialButton(getContext());
+        mChooseButton.setBackgroundResource(R.drawable.rounded_button);
+        mChooseButton.setTextColor(getResources().getColor(R.color.white));
+        mChooseButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
                 !mPrompt.isReadOnly());
