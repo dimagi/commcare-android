@@ -237,11 +237,17 @@
         android:layout_height="wrap_content"
         android:id="@+id/multiple_intent_dispatch_pane"
         android:layout_above="@+id/screen_form_entry_bottom_anchor">
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/multiple_intent_dispatch_button"
             android:text="Batch Dispatch"
+            android:drawableRight="@drawable/icon_chevron_right_brand"
             android:visibility="gone"
-            style="@style/ScreenPinnedButtonNeutral"/>
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/cc_light_cool_accent_bg"
+            android:textColor="@color/cc_light_cool_accent_text"
+           />
     </FrameLayout>
 
     <View

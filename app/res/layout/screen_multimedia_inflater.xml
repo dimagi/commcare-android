@@ -53,14 +53,14 @@
         android:layout_below="@id/screen_multimedia_inflater_frame_location"
         android:layout_centerHorizontal="true"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        style="@style/CustomButtonStyle"
         android:id="@+id/screen_multimedia_inflater_install"
-        style="@style/ButtonBottom"
         android:layout_width="match_parent"
+        android:layout_margin="10dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
-        android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start" />
+        android:paddingVertical="8dp"/>
 
 </RelativeLayout>

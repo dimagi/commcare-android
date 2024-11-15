@@ -40,18 +40,20 @@
         android:id="@+id/dotsbuttonframe"
         android:weightSum="1">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="Save Details"
             android:id="@+id/btn_dots_detail_ok"
-            android:layout_weight="0.5"></Button>
+            android:layout_weight="0.5"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_dots_detail_cancel"
             android:text="Cancel"
-            android:layout_weight="0.5"></Button>
+            android:layout_weight="0.5"/>
     </LinearLayout>
 </RelativeLayout>

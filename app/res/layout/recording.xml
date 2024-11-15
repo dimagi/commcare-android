@@ -9,7 +9,8 @@
     android:layout_marginTop="10dp"
     tools:viewBindingIgnore="true">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        style="@style/CustomButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id = "@+id/startrecording"/>
@@ -23,7 +24,8 @@
         android:id = "@+id/recordingprogress"
         android:background="@color/blue"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        style="@style/CustomButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/stoprecording"/>

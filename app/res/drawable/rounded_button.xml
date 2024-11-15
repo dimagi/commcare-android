@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Disabled State -->
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <corners android:radius="22dp" />
+            <solid android:color="#A5B8D8" /> <!-- Light blue for disabled -->
+        </shape>
+    </item>
+    <!-- Default State -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="22dp" />
+            <solid android:color="#004EBC" /> <!-- Blue background -->
+        </shape>
+    </item>
+</selector>

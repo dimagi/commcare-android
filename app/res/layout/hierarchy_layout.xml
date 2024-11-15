@@ -40,40 +40,34 @@ the License.
             android:layout_height="match_parent"
             android:layout_weight="1"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/jumpPreviousButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_previous"
             android:padding="12dp"
             android:textSize="@dimen/text_medium"
-            android:textColor="@color/cc_brand_color"
-            android:background="@color/cc_core_bg"
-            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/jumpBeginningButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_beginning"
             android:padding="12dp"
             android:textSize="@dimen/text_medium"
-            android:textColor="@color/cc_brand_color"
-            android:background="@color/cc_core_bg"
-            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/jumpEndButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_end"
             android:padding="12dp"
             android:textSize="@dimen/text_medium"
-            android:textColor="@color/cc_brand_color"
-            android:background="@color/cc_core_bg"
-            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
     </LinearLayout>
 

@@ -8,6 +8,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_margin="16dp"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -46,7 +47,8 @@
             android:lines="5"
             android:textColor="@color/black"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/ReportButton01"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

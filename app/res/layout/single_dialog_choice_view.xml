@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Button xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.button.MaterialButton
+    style="@style/CustomButtonStyle"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/choice_dialog_panel"
-    style="@style/CommCare.Button.Default"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/standard_spacer"
-    android:background="@drawable/selector_button_press"
     android:drawablePadding="5dp"
     android:padding="12dp"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"

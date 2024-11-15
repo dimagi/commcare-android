@@ -39,10 +39,11 @@
             android:paddingStart="5dp"
             android:paddingEnd="5dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/run_connection_test"
-                style="@style/ButtonBottom"
                 android:layout_width="match_parent"
+                android:layout_margin="10dp"
                 android:layout_height="wrap_content"
                 android:text="Run Connection Test"/>
 
@@ -58,17 +59,17 @@
             android:text="Output message."
             android:visibility="invisible"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/settings_button"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Go to Settings"
             android:visibility="invisible"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/report_button"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Report to CommCare"

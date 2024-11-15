@@ -33,7 +33,8 @@
             android:paddingBottom="2dip"
             android:paddingTop="2dip">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/show_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
@@ -41,14 +42,16 @@
                 android:text="@string/go_to_location"
                 android:visibility="gone"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/accept_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:text="@string/accept_location" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/cancel_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"

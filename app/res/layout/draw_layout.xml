@@ -19,7 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/CustomButtonStyle"
             android:id="@+id/btnFinishDraw"
             android:layout_width="wrap_content"
             android:enabled="false"
@@ -31,12 +32,14 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/btnResetDraw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/btnCancelDraw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>

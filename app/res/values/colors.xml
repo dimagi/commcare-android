@@ -146,4 +146,9 @@
     <!-- Button colors -->
     <color name="button_primary">#005ab2</color>
     <color name="button_disabled">#d0e3ff</color>
+
+
+    <color name="button_primary_color"> #3A42C7</color>
+
+
 </resources>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/entity_detail"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -8,10 +9,17 @@
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
+        style="@style/CustomButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:backgroundTint="@color/cc_attention_positive_bg"
+        android:textColor="@color/cc_attention_positive_text"
         android:id="@+id/entity_select_button"
-        style="@style/ScreenPinnedButton"
+        android:drawableRight="@drawable/icon_chevron_right_attnpos"
+        android:drawableTint="@color/cc_attention_positive_text"
         android:text="Continue"
+        android:textSize="@dimen/text_large"
         android:layout_below="@+id/universal_frame_tile"/>
 
     <FrameLayout

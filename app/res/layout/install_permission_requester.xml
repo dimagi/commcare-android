@@ -52,16 +52,15 @@
                 android:layout_marginStart="@dimen/content_min_margin"
                 android:layout_marginEnd="@dimen/content_min_margin" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                style="@style/CustomButtonStyle"
                 android:id="@+id/get_perms_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:background="@color/cc_brand_color"
                 android:nextFocusUp="@+id/edit_password"
                 android:paddingBottom="@dimen/content_start"
-                android:paddingTop="@dimen/content_start"
-                android:textColor="@color/cc_neutral_bg"/>
+                android:paddingTop="@dimen/content_start" />
 
         </LinearLayout>
     </ScrollView>

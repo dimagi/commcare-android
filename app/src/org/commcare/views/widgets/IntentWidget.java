@@ -19,8 +19,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.CompoundIntentList;
 import org.javarosa.core.model.FormDef;
@@ -93,7 +96,7 @@ public class IntentWidget extends QuestionWidget {
         } else {
             mStringAnswer = new TextView(getContext());
         }
-        launchIntentButton = new AppCompatButton(getContext());
+        launchIntentButton = new MaterialButton(getContext());
         setupTextView();
         setupButton();
     }
@@ -119,6 +122,9 @@ public class IntentWidget extends QuestionWidget {
 
     private void setupButton() {
         setOrientation(LinearLayout.VERTICAL);
+        launchIntentButton.setBackgroundResource(R.drawable.rounded_button);
+        launchIntentButton.setTextColor(getResources().getColor(R.color.white));
+        launchIntentButton.setGravity(Gravity.CENTER);
 
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
