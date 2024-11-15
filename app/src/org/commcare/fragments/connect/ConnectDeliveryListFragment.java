@@ -54,8 +54,7 @@ public class ConnectDeliveryListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ConnectDeliveryListFragmentArgs args = ConnectDeliveryListFragmentArgs.fromBundle(getArguments());
         unitName = args.getUnitId();
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_list, container, false);
         setupRecyclerView(view);
