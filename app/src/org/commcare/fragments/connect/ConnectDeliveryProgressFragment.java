@@ -25,6 +25,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectAppBarUtils;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -163,7 +164,16 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         updatePaymentConfirmationTile(getContext(), false);
 
         jobCardDataHandle(view,job);
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectAppBarUtils.setTitle(appBarView, requireActivity().getResources().getString(R.string.connect_appbar_title_delivery));
+        ConnectAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            getActivity().finish();
+        });
     }
 
     private void jobCardDataHandle(View view, ConnectJobRecord job) {

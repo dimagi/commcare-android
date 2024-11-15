@@ -92,7 +92,6 @@ public class BreadcrumbBarFragment extends Fragment {
         boolean breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
         ActionBar actionBar = activity.getSupportActionBar();
-
         if(actionBar != null) {
             if (!breadCrumbsEnabled) {
                 configureSimpleNav(activity, actionBar);

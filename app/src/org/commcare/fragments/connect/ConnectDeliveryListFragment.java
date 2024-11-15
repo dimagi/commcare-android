@@ -2,7 +2,6 @@ package org.commcare.fragments.connect;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +21,7 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
+import org.commcare.utils.ConnectAppBarUtils;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -55,13 +55,20 @@ public class ConnectDeliveryListFragment extends Fragment {
         ConnectDeliveryListFragmentArgs args = ConnectDeliveryListFragmentArgs.fromBundle(getArguments());
         unitName = args.getUnitId();
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_list, container, false);
         setupRecyclerView(view);
         setupFilterViews(view);
-
+        handleAppBar(view, job);
         return view;
+    }
+
+    private void handleAppBar(View view, ConnectJobRecord job) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectAppBarUtils.setTitle(appBarView, job.getTitle());
+        ConnectAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     private void setupRecyclerView(View view) {

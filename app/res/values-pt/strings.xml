@@ -569,4 +569,8 @@
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="connect_appbar_title_password_verification">Verificação de palavra-passe</string>
 
+    <string name="connect_appbar_title_opportunity">Oportunidade</string>
+    <string name="connect_appbar_title_learning_progress">Progresso de aprendizagem</string>
+    <string name="connect_appbar_title_delivery">Entrega</string>
+    <string name="connect_appbar_title_opportunity_detail">Detalhes da oportunidade</string>
 </resources>
