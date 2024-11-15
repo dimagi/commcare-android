@@ -60,6 +60,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
     public static final String META_START_DATE = "start_date";
+    public static final String META_DAILY_START_TIME = "form_submission_start";
+    public static final String META_DAILY_FINISH_TIME = "form_submission_end";
     public static final String META_IS_ACTIVE = "is_active";
     public static final String META_PAYMENT_UNITS = "payment_units";
     public static final String META_PAYMENT_UNIT = "payment_unit";
@@ -138,6 +140,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_USER_SUSPENDED)
     private boolean isUserSuspended;
 
+    @Persisting(25)
+    @MetaField(META_DAILY_START_TIME)
+    private String dailyStartTime;
+
+    @Persisting(26)
+    @MetaField(META_DAILY_FINISH_TIME)
+    private String dailyFinishTime;
+
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
     private List<ConnectJobLearningRecord> learnings;
@@ -154,6 +164,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dateClaimed = new Date();
         lastDeliveryUpdate = new Date();
         lastWorkedDate = new Date();
+        dailyStartTime = "";
+        dailyFinishTime = "";
     }
 
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
@@ -188,6 +200,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.isUserSuspended = json.has(META_USER_SUSPENDED) && json.getBoolean(META_USER_SUSPENDED);
 
+        //verification_flags -> {"form_submission_start":"07:30:00","form_submission_end":"18:45:00"}
+        String flagsKey = "verification_flags";
+        JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
+        if(flags != null) {
+            job.dailyStartTime = flags.has(META_DAILY_START_TIME) ? flags.getString(META_DAILY_START_TIME) : "";
+            job.dailyFinishTime = flags.has(META_DAILY_FINISH_TIME) ? flags.getString(META_DAILY_FINISH_TIME) : "";
+        }
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
@@ -272,6 +291,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
     public Date getProjectStartDate() { return projectStartDate; }
     public Date getProjectEndDate() { return projectEndDate; }
+    public String getDailyStartTime() { return dailyStartTime; }
+    public String getDailyFinishTime() { return dailyFinishTime; }
     public void setProjectEndDate(Date date) { projectEndDate = date; }
     public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
     public void setPaymentAccrued(int paymentAccrued) { this.paymentAccrued = Integer.toString(paymentAccrued); }
@@ -449,7 +470,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return status == STATUS_LEARNING && passedAssessment();
     }
 
-    public static ConnectJobRecord fromV7(ConnectJobRecordV7 oldRecord) {
+    public static ConnectJobRecord fromV10(ConnectJobRecordV10 oldRecord) {
         ConnectJobRecord newRecord = new ConnectJobRecord();
 
         newRecord.jobId = oldRecord.getJobId();
@@ -471,7 +492,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         newRecord.organization = oldRecord.getOrganization();
         newRecord.numLearningModules = oldRecord.getNumLearningModules();
-        newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
+        newRecord.learningModulesCompleted = oldRecord.getCompletedLearningModules();
         newRecord.currency = oldRecord.getCurrency();
         newRecord.paymentAccrued = Integer.toString(oldRecord.getPaymentAccrued());
         newRecord.shortDescription = oldRecord.getShortDescription();
@@ -481,7 +502,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.dateClaimed = oldRecord.getDateClaimed();
         newRecord.projectStartDate = oldRecord.getProjectStartDate();
         newRecord.isActive = oldRecord.getIsActive();
-        newRecord.isUserSuspended= false;
+        newRecord.isUserSuspended= oldRecord.getIsUserSuspended();
+        newRecord.dailyStartTime = "";
+        newRecord.dailyFinishTime = "";
 
         return newRecord;
     }

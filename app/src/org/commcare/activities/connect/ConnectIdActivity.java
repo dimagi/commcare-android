@@ -39,7 +39,6 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         } else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
             handleRedirection(data);
         }
-
         if (requestCode == RESULT_OK) {
             finish();
         }
@@ -50,13 +49,8 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_id);
-        Window window = getWindow();
-        window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
         NavHostFragment host2 = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         controller = host2.getNavController();
-        ColorDrawable colorDrawable
-                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-        getSupportActionBar().setBackgroundDrawable(colorDrawable);
         handleRedirection(getIntent());
     }
 

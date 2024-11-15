@@ -311,4 +311,6 @@ License.
     <string name="connect_appbar_title_learning_progress">Progrès de l\'apprentissage</string>
     <string name="connect_appbar_title_delivery">Livraison</string>
     <string name="connect_appbar_title_opportunity_detail">Détails de l\'opportunité</string>
+    <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
+    <string name="connect_appbar_title_password_verification">Vérification du mot de passe</string>
 </resources>
