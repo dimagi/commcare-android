@@ -10,15 +10,28 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/llTopBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <include
+                    android:id="@+id/commonAppBar"
+                    layout="@layout/connectid_common_title_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
             <org.commcare.views.connect.connecttextview.ConnectBoldTextView
                 android:id="@+id/connect_verify_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:text="@string/connect_verify_title"
                 android:textAlignment="center"

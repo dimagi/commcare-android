@@ -182,7 +182,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(getString(R.string.connect_job_tile_price,String.valueOf(job.getBudgetPerVisit())));
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String dailyStart = job.getDailyStartTime();

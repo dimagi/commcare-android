@@ -93,10 +93,12 @@ public class BreadcrumbBarFragment extends Fragment {
 
         ActionBar actionBar = activity.getSupportActionBar();
 
-        if (!breadCrumbsEnabled) {
-            configureSimpleNav(activity, actionBar);
-        } else {
-            attachBreadcrumbBar(activity, actionBar);
+        if(actionBar != null) {
+            if (!breadCrumbsEnabled) {
+                configureSimpleNav(activity, actionBar);
+            } else {
+                attachBreadcrumbBar(activity, actionBar);
+            }
         }
 
         try {
