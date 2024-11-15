@@ -1,9 +1,6 @@
 package org.commcare.fragments.connect;
 
-import android.animation.LayoutTransition;
 import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -289,13 +286,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         connect_job_pay.setText(getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
-        String dailyStart = job.getDailyStartTime();
-        String dailyFinish = job.getDailyFinishTime();
-        boolean showHours = dailyStart.length() > 0 && dailyFinish.length() > 0;
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
         tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
         hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
         if(showHours) {
-            tv_job_time.setText(dailyStart + " - " + dailyFinish);
+            tv_job_time.setText(workingHours);
         }
     }
 

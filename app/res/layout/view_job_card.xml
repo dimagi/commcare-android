@@ -69,7 +69,6 @@
             android:text="View More"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
@@ -82,7 +81,7 @@
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/linearLayout6"
+            app:layout_constraintBottom_toTopOf="@+id/tv_job_time"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/linearLayout6"
             tools:visibility="visible" />
@@ -96,7 +95,7 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle" />
+            app:layout_constraintBottom_toBottomOf="@+id/tv_view_more" />
 
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView

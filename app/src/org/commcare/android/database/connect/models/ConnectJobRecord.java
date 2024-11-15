@@ -1,10 +1,14 @@
 package org.commcare.android.database.connect.models;
 
+import android.view.View;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.CrashUtil;
+import org.javarosa.core.services.Logger;
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +16,9 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -205,7 +212,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
         if(flags != null) {
             job.dailyStartTime = flags.has(META_DAILY_START_TIME) ? flags.getString(META_DAILY_START_TIME) : "";
+            if(job.dailyStartTime.equals("null")) {
+                job.dailyStartTime = "";
+            }
             job.dailyFinishTime = flags.has(META_DAILY_FINISH_TIME) ? flags.getString(META_DAILY_FINISH_TIME) : "";
+            if(job.dailyFinishTime.equals("null")) {
+                job.dailyFinishTime = "";
+            }
         }
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
@@ -345,6 +358,27 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int days = (int)Math.ceil(millis / 1000 / 3600 / 24);
         //Now plus 1 so we report i.e. 1 day remaining on the last day
         return days >= 0 ? (days + 1) : 0;
+    }
+
+    public String getWorkingHours() {
+        String dailyStart = getDailyStartTime();
+        String dailyFinish = getDailyFinishTime();
+
+        if (dailyStart.length() == 0 || dailyFinish.length() == 0) {
+            return null;
+        }
+
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            LocalTime start = LocalTime.parse(dailyStart, formatter);
+            LocalTime end = LocalTime.parse(dailyFinish, formatter);
+            formatter = DateTimeFormatter.ofPattern("h:mm a");
+
+            return formatter.format(start) + " - " + formatter.format(end);
+        } catch(Exception e) {
+            CrashUtil.reportException(new Exception("Error parsing working hours", e));
+            return null;
+        }
     }
 
     public int getMaxPossibleVisits() {
