@@ -566,5 +566,7 @@
     <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Limite diário atingido. Nenhum pagamento pelo envio de formulários</string>
     <string name="connect_job_tile_daily_limit">Acima do limite</string>
+    <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
+    <string name="connect_appbar_title_password_verification">Verificação de palavra-passe</string>
 
 </resources>

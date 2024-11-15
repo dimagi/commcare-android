@@ -868,5 +868,6 @@
     <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
-
+    <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_appbar_title_password_verification">Password Verification</string>
 </resources>
