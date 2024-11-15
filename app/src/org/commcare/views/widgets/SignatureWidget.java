@@ -54,7 +54,6 @@ import java.io.File;
 import javax.annotation.Nullable;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 import static org.commcare.views.widgets.ImageWidget.getFileToDisplay;
 

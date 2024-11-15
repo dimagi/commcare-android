@@ -1,7 +1,6 @@
 package org.commcare.views.widgets;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;

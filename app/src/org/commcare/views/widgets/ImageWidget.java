@@ -50,7 +50,6 @@ import java.io.File;
 import javax.crypto.spec.SecretKeySpec;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -160,7 +159,10 @@ public class ImageWidget extends QuestionWidget {
         });
 
         // setup discard button
-        mDiscardButton = new AppCompatButton(getContext());
+        mDiscardButton = new MaterialButton(getContext());
+        mDiscardButton.setBackgroundResource(R.drawable.rounded_button);
+        mDiscardButton.setTextColor(getResources().getColor(R.color.white));
+        mDiscardButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mDiscardButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
                 !mPrompt.isReadOnly());

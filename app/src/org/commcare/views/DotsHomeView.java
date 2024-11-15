@@ -11,7 +11,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.AppCompatButton;
+import com.google.android.material.button.MaterialButton;
+
 
 import org.commcare.dalvik.R;
 import org.commcare.utils.DotsData;
@@ -86,9 +87,12 @@ public class DotsHomeView extends RelativeLayout {
             table.addView(row);
         }
 
-        Button done = new AppCompatButton(this.getContext());
+        Button done = new MaterialButton(this.getContext());
         done.setId(666);
         done.setText("Finished");
+        done.setBackgroundResource(R.drawable.rounded_button);
+        done.setTextColor(getResources().getColor(R.color.white));
+        done.setGravity(Gravity.CENTER);
         done.setOnClickListener(v -> listener.doneWithDOTS());
 
 

@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.GeoPointMapActivity;
 import org.commcare.activities.components.FormEntryConstants;
@@ -26,7 +28,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import java.text.DecimalFormat;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
@@ -86,7 +87,10 @@ public class GeoPointWidget extends QuestionWidget {
             viewButtonEnabled = false;
         }
 
-        mGetLocationButton = new AppCompatButton(getContext());
+        mGetLocationButton = new MaterialButton(getContext());
+        mGetLocationButton.setBackgroundResource(R.drawable.rounded_button);
+        mGetLocationButton.setTextColor(getResources().getColor(R.color.white));
+        mGetLocationButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
                 !prompt.isReadOnly());
@@ -106,7 +110,10 @@ public class GeoPointWidget extends QuestionWidget {
         });
 
         // setup 'view location' button
-        mViewButton = new AppCompatButton(getContext());
+        mViewButton = new MaterialButton(getContext());
+        mViewButton.setBackgroundResource(R.drawable.rounded_button);
+        mViewButton.setTextColor(getResources().getColor(R.color.white));
+        mViewButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
                 viewButtonEnabled);
