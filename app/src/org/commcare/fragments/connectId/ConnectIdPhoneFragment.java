@@ -89,8 +89,15 @@ public class ConnectIdPhoneFragment extends Fragment {
         // Inflate the layout for getContext() fragment
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
 
+        requireActivity().setTitle(getString(R.string.connect_phone_page_title));
+        if (getArguments() != null) {
+            method = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getMethod();
+            existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
+            callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
+        }
+
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
-            if (hasFocus) {
+            if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                 PhoneNumberHelper.requestPhoneNumberHint(getActivity());
             }
         };
@@ -118,12 +125,6 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
 
         binding.connectPrimaryPhoneButton.setOnClickListener(v -> handleButtonPress());
-        requireActivity().setTitle(getString(R.string.connect_phone_page_title));
-        if (getArguments() != null) {
-            method = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getMethod();
-            existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
-            callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
-        }
         //Special case for initial reg. screen. Remembering phone number before account has been created
 
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
@@ -228,8 +229,8 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
         }
 
-        if (fullNumber != null && fullNumber.startsWith("+" + codeText)) {
-            fullNumber = fullNumber.substring(codeText.length() + 1);
+        if (fullNumber != null && fullNumber.startsWith(codeText)) {
+            fullNumber = fullNumber.substring(codeText.length());
         }
         skipPhoneNumberCheck = false;
         binding.connectPrimaryPhoneInput.setText(fullNumber);
