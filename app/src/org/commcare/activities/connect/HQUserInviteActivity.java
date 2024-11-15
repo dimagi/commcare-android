@@ -47,7 +47,7 @@ public class HQUserInviteActivity extends AppCompatActivity {
         }
         binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, true));
 
-        binding.btnDeniedInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, false));
+        binding.btnDeniedInvitation.setOnClickListener(view -> finish());
 
         binding.tvHqInvitationHeaderTitle.setText(getString(R.string.connect_hq_invitation_heading,username));
     }
@@ -89,7 +89,7 @@ public class HQUserInviteActivity extends AppCompatActivity {
             }
         };
 
-        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this, callBackUrl, inviteCode, acceptStatus, callback);
+        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this, callBackUrl, inviteCode, callback);
         if (isBusy) {
             Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
