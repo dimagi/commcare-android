@@ -260,9 +260,9 @@ public class MessageManager {
         List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesAll(context);
         for(ConnectMessagingMessageRecord message : messages) {
             if(message.getIsOutgoing() && !message.getConfirmed()) {
-                //sendMessage(context, message, success -> {
-                //    Log.d("Check", Boolean.toString(success));
-                //});
+                sendMessage(context, message, success -> {
+                    Log.d("Check", Boolean.toString(success));
+                });
                 break;
             }
         }
