@@ -1,9 +1,6 @@
 package org.commcare.fragments.connect;
 
-import android.animation.LayoutTransition;
 import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.Date;
 import java.util.List;
@@ -67,7 +65,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
-        RoundedButton refreshButton = view.findViewById(R.id.connect_learning_refresh);
+        RoundedButton refreshButton = view.findViewById(R.id.btnSync);
         refreshButton.setOnClickListener(v -> {
             refreshData();
         });
@@ -76,6 +74,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         updateUi(view);
         refreshData();
 
+        jobCardDataHandle(view, job);
         return view;
     }
 
@@ -192,23 +191,8 @@ public class ConnectLearningProgressFragment extends Fragment {
         TextView textView = view.findViewById(R.id.connect_learn_progress_title);
         textView.setText(getString(titleResource));
 
-        textView = view.findViewById(R.id.connect_learning_claim_label);
-        textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
-        textView.setText(R.string.connect_learn_claim_label);
-
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
-
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobIntroFragment(false));
-        });
-
-        tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
@@ -244,7 +228,6 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
@@ -282,6 +265,34 @@ public class ConnectLearningProgressFragment extends Fragment {
                 Navigation.findNavController(button).navigate(directions);
             }
         });
+    }
+
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(workingHours);
+        }
     }
 
 //    private void updateUpdatedDate(Date lastUpdate) {

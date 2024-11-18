@@ -1,13 +1,11 @@
 package org.commcare.fragments.connect;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -76,6 +74,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             if (parentFragment != null) {
                 parentFragment.refreshData();
             }
+            setDeliveriesData();
         });
 
         RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
@@ -85,9 +84,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         });
 
         updateView();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            updateView12();
-        }
+        setDeliveriesData();
         return view;
     }
 
@@ -228,9 +225,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         textView.setTextColor(getResources().getColor(color));
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void updateView12() {
+    public void setDeliveriesData() {
         ConnectDeliveryDetails connectDeliveryDetails = null;
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (job != null) {
@@ -258,7 +253,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                     HashMap<String, Integer> typeCounts = paymentTypeAndStatusCounts.get(deliverySlug);
                     String status = delivery.getStatus();
 
-                    int count = typeCounts.getOrDefault(status, 0);
+                    int count = typeCounts.containsKey(status) ? typeCounts.get(status) : 0;
                     typeCounts.put(status, count + 1);
                 }
 
@@ -269,11 +264,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                     }
 
                     String unitIdKey = Integer.toString(unit.getUnitId());
-                    HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.getOrDefault(unitIdKey, new HashMap<>());
+                    HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.containsKey(unitIdKey) ? paymentTypeAndStatusCounts.get(unitIdKey) : new HashMap<>();
 
                     // Get pending and approved counts
-                    totalPending = statusCounts.getOrDefault("pending", 0);
-                    totalApproved = statusCounts.getOrDefault("approved", 0);
+                    totalPending = statusCounts.containsKey("pending") ? statusCounts.get("pending") : 0;
+                    totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
 
                     // Calculate the total amount for this delivery (numApproved * unit amount)
                     totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
@@ -304,7 +299,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             }
         }
     }
-
 
     private long calculateDaysPending(ConnectJobDeliveryRecord delivery) {
         Date dueDate = delivery.getDate();

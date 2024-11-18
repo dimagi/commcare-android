@@ -591,6 +591,7 @@
     <string name="connect_jobs_all">ALL JOBS</string>
     <string name="connect_jobs_mine">MY JOBS</string>
     <string name="connect_job_new">NEW</string>
+    <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
     <string name="connect_job_visits">Cover %d Households in %d Days</string>
 
     <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
@@ -841,6 +842,7 @@
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
+    <string name="connect_visit_type_title">%s Visits</string>
 
     <string name="connect_payment_received">Received</string>
     <string name="connect_payment_transferred">Transferred</string>
@@ -859,8 +861,14 @@
     <string name="connect_deactivate_dialog_title">Are you sure?</string>
     <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
 
-    <string name="connect_new_opportunity">Nouvelle opportunité</string>
+    <string name="connect_new_opportunity">New Opportunity</string>
     <string name="connect_learn">Learn</string>
     <string name="connect_delivery">Delivery</string>
+    <string name="connect_expired">Expired</string>
     <string name="connect_commcare_app">CommCare App</string>
+    <string name="connect_job_tile_price">%s</string>
+    <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
+    <string name="connect_job_tile_daily_limit">Over Limit</string>
+    <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_appbar_title_password_verification">Password Verification</string>
 </resources>

@@ -284,7 +284,7 @@ License.
     <string name="connect_payment">Paiement</string>
     <string name="connect_delivery_progress_description">Vous n’avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
     <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
-
+    <string name="connect_visit_type_title">%s Visites</string>
 
     <string name="connect_payment_received">Reçue</string>
     <string name="connect_payment_transferred">Transféré</string>
@@ -303,8 +303,10 @@ License.
     <string name="connect_deactivate_dialog_title">Es-tu sûr?</string>
     <string name="connect_deactivate_dialog_description">Vous souhaitez désactiver votre compte définitivement ?</string>
 
-    <string name="connect_new_opportunity">New Opportunity</string>
+    <string name="connect_new_opportunity">Nouvelle opportunité</string>
     <string name="connect_learn">Apprendre</string>
     <string name="connect_delivery">Livraison</string>
     <string name="connect_commcare_app">Application CommCare</string>
+    <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
+    <string name="connect_appbar_title_password_verification">Vérification du mot de passe</string>
 </resources>

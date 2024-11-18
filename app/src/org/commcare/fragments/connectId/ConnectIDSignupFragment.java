@@ -32,6 +32,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -148,8 +149,16 @@ public class ConnectIDSignupFragment extends Fragment {
             displayNumber(existingPhone);
         }
 
-        getActivity().setTitle(getString(R.string.connect_registration_title));
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_registration_title));
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            getActivity().finish();
+        });
     }
 
     void setupUi() {

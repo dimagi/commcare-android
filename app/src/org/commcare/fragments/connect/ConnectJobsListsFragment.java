@@ -72,12 +72,6 @@ public class ConnectJobsListsFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ConnectJobsListsFragment newInstance(IConnectAppLauncher appLauncher) {
-        ConnectJobsListsFragment fragment = new ConnectJobsListsFragment();
-        fragment.launcher = appLauncher;
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,25 +186,29 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void initRecyclerView() {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
+
+        TextView noJobsText = view.findViewById(R.id.connect_no_jobs_text);
+        noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
+
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
             if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
-                launchJobInfo(job, jobType, rvJobList, isAppInstalled(appId));
+                launchJobInfo(job);
             } else {
-                launchAppForJob(job, isLearning, rvJobList);
+                launchAppForJob(job, isLearning);
             }
         });
+
         rvJobList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvJobList.setNestedScrollingEnabled(true);
         rvJobList.setAdapter(adapter);
     }
 
-    private void launchJobInfo(ConnectJobRecord job, String jobType, View view, boolean appInstalled) {
+    private void launchJobInfo(ConnectJobRecord job) {
         ConnectManager.setActiveJob(job);
-        NavDirections directions = getNavigationDirections(jobType, appInstalled);
-        Navigation.findNavController(view).navigate(directions);
+        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true));
     }
 
-    private void launchAppForJob(ConnectJobRecord job, boolean isLearning, View view) {
+    private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
         ConnectManager.setActiveJob(job);
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
@@ -224,70 +222,74 @@ public class ConnectJobsListsFragment extends Fragment {
         }
     }
 
-    private NavDirections getNavigationDirections(String jobType, boolean appInstalled) {
-        if (appInstalled) {
-            return switch (jobType) {
-                case JOB_NEW_OPPORTUNITY ->
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true);
-                case JOB_LEARNING ->
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobLearningProgressFragment();
-                case JOB_DELIVERY ->
-                        ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment();
-                default ->
-                        throw new RuntimeException(String.format("Unexpected job status: %s", jobType));
-            };
-        } else {
-            String title = getDownloadTitle(jobType);
-            boolean isLearning = jobType.equals(JOB_LEARNING) || jobType.equals(JOB_NEW_OPPORTUNITY);
-            return ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning);
-        }
-    }
-
-    private String getDownloadTitle(String jobType) {
-        return jobType.equals(JOB_DELIVERY) ? getString(R.string.connect_downloading_delivery) : getString(R.string.connect_downloading_learn);
-    }
-
     private void setJobListData(List<ConnectJobRecord> jobs) {
         jobList = new ArrayList<>();
         ArrayList<ConnectLoginJobListModel> availableNewJobs = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> otherJobs = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> learnApps = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> deliverApps = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> reviewLearnApps = new ArrayList<>();
+        ArrayList<ConnectLoginJobListModel> finishedItems = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
-                int jobStatus = job.getStatus();
-                boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
-                boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
+            int jobStatus = job.getStatus();
+            boolean finished = job.isFinished();
+            boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
+            boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
-                switch (jobStatus) {
-                    case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+            switch (jobStatus) {
+                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                    if (!finished) {
                         availableNewJobs.add(createJobModel(
-                                job, JOB_NEW_OPPORTUNITY, NEW_APP, false, true, false, false
+                                job, JOB_NEW_OPPORTUNITY, NEW_APP, true, true, false, false
                         ));
-                        break;
+                    }
+                    break;
 
-                    case STATUS_LEARNING:
-                        otherJobs.add(createJobModel(
-                                job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
-                        ));
-                        break;
+                case STATUS_LEARNING:
+                    ConnectLoginJobListModel model = createJobModel(
+                            job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+                    );
 
-                    case STATUS_DELIVERING:
-                        otherJobs.add(createJobModel(
-                                job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
-                        ));
-                        otherJobs.add(createJobModel(
-                                job, JOB_DELIVERY, DELIVERY_APP, isDeliverAppInstalled, false, false, true
-                        ));
-                        break;
+                    if(finished) {
+                        finishedItems.add(model);
+                    } else {
+                        learnApps.add(model);
+                    }
 
-                    default:
-                        break;
-                }
+                    break;
 
+                case STATUS_DELIVERING:
+                    ConnectLoginJobListModel learnModel = createJobModel(
+                            job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+                    );
+
+                    ConnectLoginJobListModel deliverModel = createJobModel(
+                            job, JOB_DELIVERY, DELIVERY_APP, isDeliverAppInstalled, false, false, true
+                    );
+
+                    reviewLearnApps.add(learnModel);
+
+                    if(finished) {
+                        finishedItems.add(deliverModel);
+                    } else {
+                        deliverApps.add(deliverModel);
+                    }
+
+                    break;
+                default:
+                    break;
+            }
         }
 
-        Collections.sort(otherJobs, (job1, job2) -> job2.getLastAccessed().compareTo(job1.getLastAccessed()));
+        Collections.sort(learnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+        Collections.sort(deliverApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+        Collections.sort(reviewLearnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+        Collections.sort(finishedItems, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
         jobList.addAll(availableNewJobs);
-        jobList.addAll(otherJobs);
+        jobList.addAll(learnApps);
+        jobList.addAll(deliverApps);
+        jobList.addAll(reviewLearnApps);
+        jobList.addAll(finishedItems);
         initRecyclerView();
     }
 
@@ -304,7 +306,7 @@ public class ConnectJobsListsFragment extends Fragment {
                 job.getTitle(),
                 String.valueOf(job.getJobId()),
                 getAppIdForType(job, jobType),
-                job.getProjectStartDate(),
+                job.getProjectEndDate(),
                 getDescriptionForType(job, jobType),
                 getOrganizationForType(job, jobType),
                 isAppInstalled,

@@ -8,15 +8,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
             android:paddingBottom="20dp"
             app:cardCornerRadius="10dp"
             app:cardElevation="5dp">
@@ -142,12 +141,12 @@
                     android:id="@+id/cardButtonLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="25dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="5dp"
                     app:layout_constraintEnd_toEndOf="@+id/connect_delivery_budget_text"
                     app:layout_constraintStart_toStartOf="@+id/connect_delivery_budget_icon"
-                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_budget_icon">
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_budget_text">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -159,6 +158,7 @@
                             android:id="@+id/linearLayout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:orientation="vertical"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -166,7 +166,7 @@
 
                             <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                                 android:id="@+id/connect_delivery_action_title"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/connect_job_info_start_visit"
                                 android:textColor="@color/white"
@@ -175,7 +175,7 @@
 
                             <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                                 android:id="@+id/connect_delivery_action_details"
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/connect_job_info_download_delivery"
                                 android:textAlignment="center"
