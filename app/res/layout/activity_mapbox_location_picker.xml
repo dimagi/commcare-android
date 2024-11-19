@@ -57,7 +57,6 @@
             android:minLines="3" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/confirm_location_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -66,7 +65,6 @@
             android:text="@string/confirm_location" />
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/cancel_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

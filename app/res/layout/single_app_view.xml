@@ -37,7 +37,6 @@
         android:visibility="visible"/>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/uninstall_button"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
@@ -46,7 +45,6 @@
         android:text="@string/uninstall_app" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/archive_button"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
@@ -55,7 +53,6 @@
         android:text="@string/archive_app" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/update_button"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
@@ -64,7 +61,6 @@
         android:text="@string/update_app" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:clickable="true"
         android:id="@+id/verify_button"
         android:layout_height="wrap_content"

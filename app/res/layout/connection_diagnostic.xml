@@ -40,7 +40,6 @@
             android:paddingEnd="5dp">
 
             <com.google.android.material.button.MaterialButton
-                style="@style/CustomButtonStyle"
                 android:id="@+id/run_connection_test"
                 android:layout_width="match_parent"
                 android:layout_margin="10dp"
@@ -60,7 +59,6 @@
             android:visibility="invisible"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/settings_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -68,7 +66,6 @@
             android:visibility="invisible"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/report_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -41,7 +41,6 @@
         android:weightSum="1">
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="Save Details"
@@ -49,7 +48,6 @@
             android:layout_weight="0.5"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_dots_detail_cancel"

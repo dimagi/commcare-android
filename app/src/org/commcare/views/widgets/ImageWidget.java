@@ -96,9 +96,6 @@ public class ImageWidget extends QuestionWidget {
 
         // setup capture button
         mCaptureButton = new MaterialButton(getContext());
-        mCaptureButton.setBackgroundResource(R.drawable.rounded_button);
-        mCaptureButton.setTextColor(getResources().getColor(R.color.white));
-        mCaptureButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
                 !mPrompt.isReadOnly());
@@ -125,9 +122,6 @@ public class ImageWidget extends QuestionWidget {
 
         // setup chooser button
         mChooseButton = new MaterialButton(getContext());
-        mChooseButton.setBackgroundResource(R.drawable.rounded_button);
-        mChooseButton.setTextColor(getResources().getColor(R.color.white));
-        mChooseButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
                 !mPrompt.isReadOnly());
@@ -160,9 +154,6 @@ public class ImageWidget extends QuestionWidget {
 
         // setup discard button
         mDiscardButton = new MaterialButton(getContext());
-        mDiscardButton.setBackgroundResource(R.drawable.rounded_button);
-        mDiscardButton.setTextColor(getResources().getColor(R.color.white));
-        mDiscardButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mDiscardButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
                 !mPrompt.isReadOnly());

@@ -22,7 +22,6 @@
     </ImageView>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/skip_verification_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -32,7 +31,6 @@
         android:visibility="gone"/>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@id/screen_multimedia_retry"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

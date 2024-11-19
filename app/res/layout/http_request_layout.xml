@@ -39,7 +39,6 @@
                 android:orientation="vertical" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/CustomButtonStyle"
                 android:id="@+id/request_button"
                 android:layout_margin="10dp"
                 android:layout_width="wrap_content"

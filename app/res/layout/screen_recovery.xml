@@ -39,7 +39,6 @@
         tools:text="Waiting"/>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/retry_button"
         android:layout_below="@id/recovery_status"
         android:layout_centerHorizontal="true"
@@ -50,7 +49,6 @@
         android:visibility="gone"/>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/app_manager_button"
         android:layout_below="@id/retry_button"
         android:layout_centerHorizontal="true"

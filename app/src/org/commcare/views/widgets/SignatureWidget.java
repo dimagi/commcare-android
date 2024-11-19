@@ -92,9 +92,6 @@ public class SignatureWidget extends QuestionWidget {
 
         // setup Blank Image Button
         mSignButton = new MaterialButton(getContext());
-        mSignButton.setBackgroundResource(R.drawable.rounded_button);
-        mSignButton.setTextColor(getResources().getColor(R.color.white));
-        mSignButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mSignButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.sign_button),
                 !prompt.isReadOnly());

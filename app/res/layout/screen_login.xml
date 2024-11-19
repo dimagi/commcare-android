@@ -167,7 +167,6 @@
                                 android:visibility="gone" />
 
                             <com.google.android.material.button.MaterialButton
-                                style="@style/CustomButtonStyle"
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"

@@ -54,7 +54,6 @@
             tools:text="2 out of 5 done"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/retry_button"
             android:layout_below="@id/status_tv"
             android:layout_centerHorizontal="true"
@@ -65,7 +64,6 @@
             android:visibility="gone"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/reinstall_button"
             android:layout_below="@id/retry_button"
             android:layout_centerHorizontal="true"
@@ -76,7 +74,6 @@
             android:visibility="gone"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/select_ccz_button"
             android:layout_below="@id/reinstall_button"
             android:layout_centerHorizontal="true"

@@ -41,7 +41,6 @@ the License.
             android:layout_weight="1"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/jumpPreviousButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,7 +50,6 @@ the License.
             android:layout_weight="1"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/jumpBeginningButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -61,7 +59,6 @@ the License.
             android:layout_weight="1"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/jumpEndButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -88,9 +88,6 @@ public class GeoPointWidget extends QuestionWidget {
         }
 
         mGetLocationButton = new MaterialButton(getContext());
-        mGetLocationButton.setBackgroundResource(R.drawable.rounded_button);
-        mGetLocationButton.setTextColor(getResources().getColor(R.color.white));
-        mGetLocationButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mGetLocationButton,
                 locButtonText,
                 !prompt.isReadOnly());
@@ -111,9 +108,6 @@ public class GeoPointWidget extends QuestionWidget {
 
         // setup 'view location' button
         mViewButton = new MaterialButton(getContext());
-        mViewButton.setBackgroundResource(R.drawable.rounded_button);
-        mViewButton.setTextColor(getResources().getColor(R.color.white));
-        mViewButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mViewButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.show_location),
                 viewButtonEnabled);

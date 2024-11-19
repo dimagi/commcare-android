@@ -35,9 +35,6 @@ public class VideoWidget extends MediaWidget {
     protected void initializeButtons() {
         // setup capture button
         mCaptureButton = new MaterialButton(getContext());
-        mCaptureButton.setBackgroundResource(R.drawable.rounded_button);
-        mCaptureButton.setTextColor(getResources().getColor(R.color.white));
-        mCaptureButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_video),
                 !mPrompt.isReadOnly());
@@ -61,9 +58,6 @@ public class VideoWidget extends MediaWidget {
 
         // setup capture button
         mChooseButton = new MaterialButton(getContext());
-        mChooseButton.setBackgroundResource(R.drawable.rounded_button);
-        mChooseButton.setTextColor(getResources().getColor(R.color.white));
-        mChooseButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_video),
                 !mPrompt.isReadOnly());
@@ -86,9 +80,6 @@ public class VideoWidget extends MediaWidget {
 
         // setup play button
         mPlayButton = new MaterialButton(getContext());
-        mPlayButton.setBackgroundResource(R.drawable.rounded_button);
-        mPlayButton.setTextColor(getResources().getColor(R.color.white));
-        mPlayButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_video),
                 !mPrompt.isReadOnly());

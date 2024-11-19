@@ -94,7 +94,6 @@
     </ScrollView>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/RestartCommCare"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

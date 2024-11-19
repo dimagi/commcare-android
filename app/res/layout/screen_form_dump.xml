@@ -46,7 +46,6 @@
                 android:text="From here you can dump your forms to an SD card or submit the forms on your SD card"/>
 
             <com.google.android.material.button.MaterialButton
-                style="@style/CustomButtonStyle"
                 android:id="@+id/screen_bulk_form_dump"
                 android:layout_width="match_parent"
                 android:layout_margin="10dp"
@@ -55,7 +54,6 @@
                 android:text="Dump Forms"/>
 
             <com.google.android.material.button.MaterialButton
-                style="@style/CustomButtonStyle"
                 android:id="@+id/screen_bulk_form_submit"
                 android:layout_margin="10dp"
                 android:layout_width="match_parent"

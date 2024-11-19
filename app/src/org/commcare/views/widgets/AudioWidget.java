@@ -35,27 +35,18 @@ public class AudioWidget extends MediaWidget {
     protected void initializeButtons() {
         // setup capture button
         mCaptureButton = new MaterialButton(getContext());
-        mCaptureButton.setBackgroundResource(R.drawable.rounded_button);
-        mCaptureButton.setTextColor(getResources().getColor(R.color.white));
-        mCaptureButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
                 !mPrompt.isReadOnly());
 
         // setup audio filechooser button
         mChooseButton = new MaterialButton(getContext());
-        mChooseButton.setBackgroundResource(R.drawable.rounded_button);
-        mChooseButton.setTextColor(getResources().getColor(R.color.white));
-        mChooseButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 !mPrompt.isReadOnly());
 
         // setup play button
         mPlayButton = new MaterialButton(getContext());
-        mPlayButton.setBackgroundResource(R.drawable.rounded_button);
-        mPlayButton.setTextColor(getResources().getColor(R.color.white));
-        mPlayButton.setGravity(Gravity.CENTER);
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
                 !mPrompt.isReadOnly());

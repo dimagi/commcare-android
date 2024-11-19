@@ -9,6 +9,7 @@
         <item name="android:textColorSecondary">@color/cc_neutral_text</item>
         <item name="android:textColorPrimary">@color/cc_core_text</item>
         <item name="buttonStyle">@style/Commcare.Button.Primary</item>
+        <item name="materialButtonStyle">@style/Commcare.Button.Primary.Rounded</item>
         <item name="buttonBarButtonStyle">@style/Commcare.Button.Primary</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Medium</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
@@ -133,7 +134,23 @@
         <item name="cornerRadius">@dimen/dp6</item>
     </style>
 
+
+<!--    <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">-->
+<!--        <item name="background">@color/button_primary_color</item>-->
+<!--        <item name="android:textColor">@color/white</item>-->
+<!--        <item name="android:textSize">16sp</item>-->
+<!--        <item name="android:gravity">center</item>-->
+<!--        <item name="android:padding">12dp</item>-->
+<!--        <item name="height">40dp</item>-->
+<!--        <item name="cornerRadius">22dp</item>-->
+<!--        <item name="iconPadding">8dp</item>-->
+<!--        <item name="android:textAllCaps">false</item>-->
+<!--        <item name="android:textStyle">bold</item>-->
+<!--    </style>-->
+
     <style name="Commcare.Button.Primary" parent="commcare_primary_button" />
+
+    <style name="Commcare.Button.Primary.Rounded" parent="CustomButtonStyle" />
 
     <style name="CommCare.Button.Default" parent="Widget.AppCompat.Button">
         <item name="textAllCaps">true</item>

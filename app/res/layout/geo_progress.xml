@@ -52,7 +52,6 @@
         android:layout_weight="1">
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/geoOK"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -61,7 +60,6 @@
             android:layout_margin="@dimen/standard_spacer"/>
 
         <com.google.android.material.button.MaterialButton
-            style="@style/CustomButtonStyle"
             android:id="@+id/geoCancel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

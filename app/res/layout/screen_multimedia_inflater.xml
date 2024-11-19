@@ -54,7 +54,6 @@
         android:layout_centerHorizontal="true"/>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:id="@+id/screen_multimedia_inflater_install"
         android:layout_width="match_parent"
         android:layout_margin="10dp"

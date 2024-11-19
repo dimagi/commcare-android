@@ -90,9 +90,6 @@ public class DotsHomeView extends RelativeLayout {
         Button done = new MaterialButton(this.getContext());
         done.setId(666);
         done.setText("Finished");
-        done.setBackgroundResource(R.drawable.rounded_button);
-        done.setTextColor(getResources().getColor(R.color.white));
-        done.setGravity(Gravity.CENTER);
         done.setOnClickListener(v -> listener.doneWithDOTS());
 
 

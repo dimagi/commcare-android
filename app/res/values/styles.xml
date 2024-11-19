@@ -320,9 +320,9 @@
         </style>
     
     <style name="CustomButtonStyleOutline" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="shapeAppearanceOverlay">@style/MyShapeAppearance</item>
+        <item name="shapeAppearanceOverlay">@style/RoundedButtonStyle</item>
     </style>
-    <style name="MyShapeAppearance" parent="">
+    <style name="RoundedButtonStyle" parent="">
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerFamilyTopRight">rounded</item>

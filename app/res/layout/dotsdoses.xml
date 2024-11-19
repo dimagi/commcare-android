@@ -62,7 +62,6 @@
     </TableLayout>
 
     <com.google.android.material.button.MaterialButton
-        style="@style/CustomButtonStyle"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:id="@+id/btn_dots_doses_done"

@@ -61,9 +61,6 @@ public class SpinnerMultiWidget extends QuestionWidget {
         answerItems = new CharSequence[mItems.size()];
         alert_builder = new AlertDialog.Builder(context);
         button = new MaterialButton(context);
-        button.setBackgroundResource(R.drawable.rounded_button);
-        button.setTextColor(getResources().getColor(R.color.white));
-        button.setGravity(Gravity.CENTER);
         selectionText = new TextView(getContext());
 
         // Build View

@@ -5,24 +5,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.button.MaterialButton;
-
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.javarosa.IntentCallout;
-import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.CompoundIntentList;
 import org.javarosa.core.model.FormDef;
@@ -121,9 +116,6 @@ public class IntentWidget extends QuestionWidget {
 
     private void setupButton() {
         setOrientation(LinearLayout.VERTICAL);
-        launchIntentButton.setBackgroundResource(R.drawable.rounded_button);
-        launchIntentButton.setTextColor(getResources().getColor(R.color.white));
-        launchIntentButton.setGravity(Gravity.CENTER);
 
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
