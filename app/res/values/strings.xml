@@ -689,7 +689,7 @@
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>

@@ -76,7 +76,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean show = record != null && !record.getIsLearning();
 
-        setOpportunityMessage(show);
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if(show) {
@@ -106,18 +105,22 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
     }
 
-    private void setOpportunityMessage(boolean isConnectApp) {
+    private void updateOpportunityMessage() {
         String warningText = null;
-        if(isConnectApp) {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        boolean show = record != null && !record.getIsLearning();
+        if(show) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
             if (job.isFinished()) {
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
             } else if (job.getProjectStartDate().after(new Date())) {
                 warningText = activity.getString(R.string.connect_progress_warning_not_started);
             } else if (job.isMultiPayment()) {
-                List<String> warnings = new ArrayList<>();
                 Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
                 Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+                List<String> dailyMaxes = new ArrayList<>();
+                List<String> totalMaxes = new ArrayList<>();
                 for (int i = 0; i < job.getPaymentUnits().size(); i++) {
                     ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
                     String stringKey = Integer.toString(unit.getUnitId());
@@ -129,7 +132,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
                     if (totalCount >= unit.getMaxTotal()) {
                         //Reached max total for this type
-                        warnings.add(activity.getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
+                        totalMaxes.add(unit.getName());
                     } else {
                         int todayCount = 0;
                         if (todayPaymentCounts.containsKey(stringKey)) {
@@ -138,14 +141,22 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
                         if (todayCount >= unit.getMaxDaily()) {
                             //Reached daily max for this type
-                            warnings.add(activity.getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                                    unit.getName()));
+                            dailyMaxes.add(unit.getName());
                         }
                     }
                 }
 
-                if (warnings.size() > 0) {
-                    warningText = String.join("\n", warnings);
+                if(totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
+                    warningText = "";
+                    if(totalMaxes.size() > 0) {
+                        String maxes = String.join(", ", totalMaxes);
+                        warningText = activity.getString(R.string.connect_progress_warning_max_reached_multi, maxes);
+                    }
+
+                    if(dailyMaxes.size() > 0) {
+                        String maxes = String.join(", ", dailyMaxes);
+                        warningText += activity.getString(R.string.connect_progress_warning_daily_max_reached_multi, maxes);
+                    }
                 }
             } else {
                 if (job.getDeliveries().size() >= job.getMaxVisits()) {
@@ -182,6 +193,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     public void updateConnectProgress() {
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectManager.getActiveJob();
+
+        updateOpportunityMessage();
 
         deliveryPaymentInfoList.clear();
 

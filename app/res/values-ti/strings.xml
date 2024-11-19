@@ -476,7 +476,7 @@
     <string name="connect_progress_warning_not_started">እቲ ስራሕ ገና ኣይተጀመረን። ንስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_single">ዝለዓለ ቁፅሪ ምብፃሕ ፈፂምካ ኣለኻ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
-    <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ።</string>
+    <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
     <string name="connect_progress_warning_daily_max_reached_multi">ንመዓልታዊ ገደብ %s በፂሕካ ኣለኻ።</string>
     <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
     <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
