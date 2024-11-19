@@ -544,6 +544,7 @@
     <string name="connect_payment">Pagamento</string>
     <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
     <string name="connect_click_to_sync_progress">Clique para sincronizar o progresso</string>
+    <string name="connect_visit_type_title">%s Visitas</string>
     <string name="connect_payment_received">Recebida</string>
     <string name="connect_payment_transferred">Transferido</string>
     <string name="connect_payment_confirm_transferred">Confirmar pagamento transferido</string>
@@ -563,8 +564,10 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
-    <string name="connect_job_tile_price">₹ %s</string>
+    <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Limite diário atingido. Nenhum pagamento pelo envio de formulários</string>
     <string name="connect_job_tile_daily_limit">Acima do limite</string>
+    <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
+    <string name="connect_appbar_title_password_verification">Verificação de palavra-passe</string>
 
 </resources>
