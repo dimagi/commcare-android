@@ -61,6 +61,7 @@
     <color name="very_light_blue">#AAE3ECFF</color>
     <color name="solid_dark_red">#BF3D3D</color>
     <color name="solid_dark_orange">#F57E20</color>
+    <color name="red_incomplete">#E44434</color>
 
     <color name="dark_brown">#5C4033</color>
 
@@ -146,4 +147,12 @@
     <!-- Button colors -->
     <color name="button_primary">#005ab2</color>
     <color name="button_disabled">#d0e3ff</color>
+
+    <color name="start_home_button">#6AB849</color>
+    <color name="start_save_button">#1B998B</color>
+    <color name="start_sync_button">#5D70D2</color>
+    <color name="start_sync_dark_button">#3b4fb6</color>
+    <color name="start_logout_button">#373534</color>
+
+
 </resources>
