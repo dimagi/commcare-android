@@ -483,9 +483,16 @@ public class ApiConnectId {
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("channel", message.getChannelId());
-        params.put("ciphertext", parts[0]);
-        params.put("nonce", parts[1]);
-        params.put("tag", parts[2]);
+
+        JSONObject content = new JSONObject();
+        try {
+            content.put("ciphertext", parts[0]);
+            content.put("nonce", parts[1]);
+            content.put("tag", parts[2]);
+        } catch(Exception e) {
+            Logger.exception("Sending message", e);
+        }
+        params.put("content", content);
         params.put("timestamp", ConnectManager.formatDate(message.getTimeStamp()));
         params.put("message_id", message.getMessageId());
 
