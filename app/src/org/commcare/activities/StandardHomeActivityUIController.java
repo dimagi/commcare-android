@@ -32,6 +32,7 @@ import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
@@ -46,7 +47,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private final StandardHomeActivity activity;
     private View viewJobCard;
-    private CardView cvDailyLimitView;
+    private CardView connectMessageCard;
 
     private ConstraintLayout connectTile;
 
@@ -62,7 +63,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         activity.setContentView(R.layout.home_screen);
         connectTile = activity.findViewById(R.id.connect_alert_tile);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
-        cvDailyLimitView = activity.findViewById(R.id.cvDailyLimitView);
+        connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
         updateConnectProgress();
         updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
@@ -73,9 +74,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
+        boolean show = record != null && !record.getIsLearning();
 
-        cvDailyLimitView.setVisibility(show && job.getDaysRemaining() == 0 ? View.VISIBLE : View.GONE);
+        setOpportunityMessage(show);
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if(show) {
@@ -102,6 +103,63 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             }
 
             updateConnectProgress();
+        }
+    }
+
+    private void setOpportunityMessage(boolean isConnectApp) {
+        String warningText = null;
+        if(isConnectApp) {
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            if (job.isFinished()) {
+                warningText = activity.getString(R.string.connect_progress_warning_ended);
+            } else if (job.getProjectStartDate().after(new Date())) {
+                warningText = activity.getString(R.string.connect_progress_warning_not_started);
+            } else if (job.isMultiPayment()) {
+                List<String> warnings = new ArrayList<>();
+                Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+                Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+                for (int i = 0; i < job.getPaymentUnits().size(); i++) {
+                    ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+                    String stringKey = Integer.toString(unit.getUnitId());
+
+                    int totalCount = 0;
+                    if (totalPaymentCounts.containsKey(stringKey)) {
+                        totalCount = totalPaymentCounts.get(stringKey);
+                    }
+
+                    if (totalCount >= unit.getMaxTotal()) {
+                        //Reached max total for this type
+                        warnings.add(activity.getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
+                    } else {
+                        int todayCount = 0;
+                        if (todayPaymentCounts.containsKey(stringKey)) {
+                            todayCount = todayPaymentCounts.get(stringKey);
+                        }
+
+                        if (todayCount >= unit.getMaxDaily()) {
+                            //Reached daily max for this type
+                            warnings.add(activity.getString(R.string.connect_progress_warning_daily_max_reached_multi,
+                                    unit.getName()));
+                        }
+                    }
+                }
+
+                if (warnings.size() > 0) {
+                    warningText = String.join("\n", warnings);
+                }
+            } else {
+                if (job.getDeliveries().size() >= job.getMaxVisits()) {
+                    warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
+                } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
+                    warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
+                }
+            }
+        }
+
+        connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+        if(warningText != null) {
+            TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
+            tv.setText(warningText);
         }
     }
 
