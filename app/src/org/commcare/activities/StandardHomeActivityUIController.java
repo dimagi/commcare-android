@@ -199,20 +199,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         deliveryPaymentInfoList.clear();
 
         if(job != null) {
-            Hashtable<String, Integer> todayDeliveryCounts = job.getDeliveryCountsPerPaymentUnit(true);
-            for (int j = 0; j < job.getPaymentUnits().size(); j++) {
-                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(j);
-                String stringKey = Integer.toString(unit.getUnitId());
-                int amount = 0;
-                if (todayDeliveryCounts.containsKey(stringKey)) {
-                    amount = todayDeliveryCounts.get(stringKey);
-                }
-                deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
-                        unit.getName(),
-                        amount,
-                        unit.getMaxDaily()
-                ));
-            }
+            //Note: Only showing a single daily progress bar for now
+            //Adding more entries to the list would show multiple progress bars
+            //(i.e. one for each payment type)
+            deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
+                    activity.getString(R.string.connect_job_tile_daily_visits),
+                    job.numberOfDeliveriesToday(),
+                    job.getMaxDailyVisits()
+            ));
         }
 
         ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);

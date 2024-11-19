@@ -554,4 +554,5 @@
     <string name="connect_job_tile_price">₹ %s</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_job_tile_daily_limit">ልዕሊ (ገደብ) ደረት</string>
+    <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
 </resources>
