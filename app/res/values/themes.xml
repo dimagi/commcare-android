@@ -60,7 +60,7 @@
     </style>
 
     <style name="ActionBar" parent="Widget.AppCompat.Light.ActionBar">
-        <item name="background">@color/cc_brand_color</item>
+        <item name="background">@color/title_bar_color</item>
         <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
         <item name="logo">@drawable/actionbar_modern_spacing</item>
@@ -73,7 +73,9 @@
 
     <style name="ActionBar.TitleTextStyle">
         <item name="android:textColor">@color/white</item>
-        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ActionBarSubtitleTextStyle">

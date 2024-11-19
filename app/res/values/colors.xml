@@ -149,6 +149,7 @@
 
 
     <color name="button_primary_color"> #3A42C7</color>
+    <color name="title_bar_color"> #5d70D2</color>
 
 
 </resources>
