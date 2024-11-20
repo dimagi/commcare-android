@@ -1,23 +1,16 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
 
-import androidx.appcompat.widget.PopupMenu;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -311,86 +304,6 @@ public class StandardHomeActivity
                     uiController.updateConnectProgress();
                 }
             });
-        }
-    }
-
-    public void showPopupMenu(View anchorView) {
-        PopupMenu popupMenu = new PopupMenu(this, anchorView);
-        popupMenu.getMenuInflater().inflate(R.menu.options_menu, popupMenu.getMenu());
-
-        boolean enableMenus = !isDemoUser();
-        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
-
-        setMenuItemVisibility(popupMenu, enableMenus, pinEnabled);
-
-        setPinMenuTitle(popupMenu);
-
-        popupMenu.setOnMenuItemClickListener(this::handleMenuItemClick);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            popupMenu.setGravity(Gravity.END);
-        }
-
-        popupMenu.show();
-    }
-
-    private void setMenuItemVisibility(PopupMenu popupMenu, boolean enableMenus, boolean pinEnabled) {
-        popupMenu.getMenu().findItem(R.id.menu_update).setVisible(enableMenus);
-        popupMenu.getMenu().findItem(R.id.menu_saved_forms).setVisible(enableMenus);
-        popupMenu.getMenu().findItem(R.id.menu_change_language).setVisible(true); // Always visible
-        popupMenu.getMenu().findItem(R.id.menu_preferences).setVisible(enableMenus);
-        popupMenu.getMenu().findItem(R.id.menu_advanced).setVisible(enableMenus);
-        popupMenu.getMenu().findItem(R.id.menu_about).setVisible(enableMenus);
-        popupMenu.getMenu().findItem(R.id.menu_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
-        popupMenu.getMenu().findItem(R.id.menu_pin).setVisible(pinEnabled);
-    }
-
-    private void setPinMenuTitle(PopupMenu popupMenu) {
-        boolean hasPinSet = false;
-        try {
-            hasPinSet = CommCareApplication.instance().getRecordForCurrentUser().hasPinSet();
-        } catch (SessionUnavailableException e) {
-            Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
-        }
-
-        int pinMenuItemId = R.id.menu_pin;
-        String pinTitle = hasPinSet ? Localization.get("home.menu.pin.change") : Localization.get("home.menu.pin.set");
-        popupMenu.getMenu().findItem(pinMenuItemId).setTitle(pinTitle);
-    }
-
-    private boolean handleMenuItemClick(MenuItem menuItem) {
-        int itemId = menuItem.getItemId();
-
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(), menuIdToAnalyticsParam.get(itemId));
-
-        switch (itemId) {
-            case R.id.menu_update:
-                launchUpdateActivity(false);
-                return true;
-            case R.id.menu_saved_forms:
-                goToFormArchive(false);
-                return true;
-            case R.id.menu_change_language:
-                showLocaleChangeMenu(uiController);
-                return true;
-            case R.id.menu_preferences:
-                createPreferencesMenu(this);
-                return true;
-            case R.id.menu_advanced:
-                showAdvancedActionsPreferences();
-                return true;
-            case R.id.menu_about:
-                showAboutCommCareDialog();
-                return true;
-            case R.id.menu_pin:
-                launchPinAuthentication();
-                return true;
-            case R.id.menu_update_commcare:
-                startCommCareUpdate();
-                return true;
-            default:
-                return false;
         }
     }
 }

@@ -4,9 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.Toast;
-
-import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,7 +24,6 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
-import org.commcare.utils.ConnectAppBarUtils;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -67,17 +63,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
         setupGridView();
-        handleAppBar();
-    }
-
-    private void handleAppBar() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        View appBarView = activity.findViewById(R.id.commonAppBar);
-        ConnectAppBarUtils.setTitle(appBarView, job.getTitle());
-        ConnectAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, null);
-        ConnectAppBarUtils.setMenuIconWithCallback(appBarView, true, click -> {
-            activity.showPopupMenu(appBarView);
-        });
     }
 
     private void updateJobTileDetails() {
