@@ -134,20 +134,6 @@
         <item name="cornerRadius">@dimen/dp6</item>
     </style>
 
-
-<!--    <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">-->
-<!--        <item name="background">@color/button_primary_color</item>-->
-<!--        <item name="android:textColor">@color/white</item>-->
-<!--        <item name="android:textSize">16sp</item>-->
-<!--        <item name="android:gravity">center</item>-->
-<!--        <item name="android:padding">12dp</item>-->
-<!--        <item name="height">40dp</item>-->
-<!--        <item name="cornerRadius">22dp</item>-->
-<!--        <item name="iconPadding">8dp</item>-->
-<!--        <item name="android:textAllCaps">false</item>-->
-<!--        <item name="android:textStyle">bold</item>-->
-<!--    </style>-->
-
     <style name="Commcare.Button.Primary" parent="commcare_primary_button" />
 
     <style name="Commcare.Button.Primary.Rounded" parent="CustomButtonStyle" />
