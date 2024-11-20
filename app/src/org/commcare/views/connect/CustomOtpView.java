@@ -105,6 +105,7 @@ public class CustomOtpView extends LinearLayout {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                setErrorState(false);
                 if (s.length() == 1) {
                     // Automatically move to the next EditText if current is filled
                     if (index < digitCount - 1) {
@@ -112,14 +113,14 @@ public class CustomOtpView extends LinearLayout {
                     } else {
                         checkOtpCompletion();
                     }
-                    // Notify listener whenever OTP changes
                     if (otpChangedListener != null) {
-                        Log.e("DEBUG_TESTING", "otpChangedListener: called"+ s);
-
                         String otp = getOtpValue();
                         otpChangedListener.onOtpChanged(otp);
-                    }else {
-                        Log.e("DEBUG_TESTING", "otpChangedListener: not called"+ s);
+                    }
+                } else {
+                    if (otpChangedListener != null) {
+                        String otp = getOtpValue();
+                        otpChangedListener.onOtpChanged(otp);
                     }
                 }
             }
@@ -136,7 +137,7 @@ public class CustomOtpView extends LinearLayout {
         return editText;
     }
 
-    private String getOtpValue() {
+    public String getOtpValue() {
         StringBuilder otp = new StringBuilder();
         for (int i = 0; i < digitCount; i++) {
             EditText editText = (EditText) getChildAt(i);
@@ -191,5 +192,20 @@ public class CustomOtpView extends LinearLayout {
 
     public interface OnOtpChangedListener {
         void onOtpChanged(String otp);
+    }
+
+    public void setOtp(String otp) {
+        if (otp.length() > digitCount) {
+            throw new IllegalArgumentException("OTP length exceeds the digit count");
+        }
+
+        for (int i = 0; i < digitCount; i++) {
+            EditText editText = (EditText) getChildAt(i);
+            if (i < otp.length()) {
+                editText.setText(String.valueOf(otp.charAt(i)));
+            } else {
+                editText.setText(""); // Clear remaining fields if OTP is shorter
+            }
+        }
     }
 }

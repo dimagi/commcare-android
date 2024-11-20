@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -41,7 +40,6 @@ import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
-import org.commcare.views.connect.CustomOtpView;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
@@ -157,33 +155,37 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
         startHandler();
 
-        binding.connectPhoneVerifyResend.setOnClickListener(arg0 -> requestSmsCode());
+        binding.connectResendButton.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyChange.setOnClickListener(arg0 -> changeNumber());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
         binding.connectDeactivateButton.setOnClickListener(arg0 -> showYesNoDialog());
-        binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//        binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                buttonEnabled(s.toString());
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                buttonEnabled(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
+        binding.customOtpView.setOnOtpChangedListener( otp -> {
+            setErrorMessage(null);
+            buttonEnabled(otp);
         });
-
-        binding.customOtpView.setOnOtpChangedListener(this::buttonEnabled);
         return view;
     }
 
     private void handleDeactivateButton() {
         binding.connectDeactivateButton.setVisibility(!deactivateButton ? View.GONE : View.VISIBLE);
+        binding.connectResendButton.setVisibility(View.GONE);
     }
 
     private void handleKeyboardType() {
@@ -193,7 +195,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
 
     private void buttonEnabled(String code) {
-        binding.connectPhoneVerifyButton.setEnabled(!code.isEmpty() && code.length() > 5);
+        binding.connectPhoneVerifyButton.setEnabled(code.length() > 5);
     }
 
     @Override
@@ -219,6 +221,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         Matcher matcher = otpPattern.matcher(message);
         if (matcher.find()) {
             binding.connectPhoneVerifyCode.setText(matcher.group(0));
+            binding.customOtpView.setOtp(matcher.group(0));
         }
     }
 
@@ -241,7 +244,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void onPause() {
         super.onPause();
         try {
-            stopHandler();
             requireActivity().unregisterReceiver(smsBroadcastReceiver);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -280,17 +282,18 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     public void setResendEnabled(boolean enabled) {
-        binding.connectPhoneVerifyResend.setEnabled(enabled);
-        binding.connectPhoneVerifyResend.setTextColor(enabled ? Color.BLUE : Color.GRAY);
+        binding.connectResendButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        binding.connectDeactivateButton.setVisibility(enabled ? View.GONE : (deactivateButton ? View.VISIBLE : View.GONE));
     }
-
 
     public void updateMessage() {
         boolean alternate = method == MethodRecoveryAlternate || method == MethodVerifyAlternate;
         String text;
         String phone = alternate ? recoveryPhone : primaryPhone;
         if (phone != null) {
-            text = phone;
+            //Crop to last 4 digits
+            phone = phone.substring(phone.length() - 4);
+            text = getString(R.string.connect_verify_phone_label, phone);
         } else {
             //The primary phone is never missing
             text = getString(R.string.connect_verify_phone_label_secondary);
@@ -388,7 +391,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void verifySmsCode() {
         setErrorMessage(null);
 
-        String token = binding.connectPhoneVerifyCode.getText().toString();
+        String token = binding.customOtpView.getOtpValue();
         String phone = username;
         final Context context = getContext();
 
