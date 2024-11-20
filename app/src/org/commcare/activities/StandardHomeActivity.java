@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -55,6 +57,10 @@ public class StandardHomeActivity
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
 
+        ColorDrawable colorDrawable
+                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
+        
         updateSecondaryPhoneConfirmationTile();
     }
 
