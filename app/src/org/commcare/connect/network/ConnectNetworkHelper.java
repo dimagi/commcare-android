@@ -94,6 +94,12 @@ public class ConnectNetworkHelper {
         return utcFormat.parse(utcDateString);
     }
 
+    public static String dateToUtcString(Date date) {
+        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        return utcFormat.format(date);
+    }
+
     public static Date convertDateToLocal(Date utcDate) {
         utcFormat.setTimeZone(TimeZone.getDefault());
 
