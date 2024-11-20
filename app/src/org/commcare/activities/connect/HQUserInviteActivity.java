@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
-public class HQUserInviteActivity extends AppCompatActivity {
+public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity> {
 
     private ActivityHquserInviteBinding binding;
     String domain;
@@ -45,11 +45,38 @@ public class HQUserInviteActivity extends AppCompatActivity {
                 domain = pathSegments.get(4);
             }
         }
-        binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, true));
+        handleButtons();
+    }
 
-        binding.btnDeniedInvitation.setOnClickListener(view -> finish());
+    private void handleButtons() {
+        boolean isTokenPresent = ConnectManager.isConnectIdConfigured();
 
-        binding.tvHqInvitationHeaderTitle.setText(getString(R.string.connect_hq_invitation_heading,username));
+        setButtonVisibility(isTokenPresent);
+        setButtonListeners(isTokenPresent);
+
+        binding.tvHqInvitationHeaderTitle.setText(isTokenPresent
+                ? getString(R.string.connect_hq_invitation_heading, username)
+                : getString(R.string.connect_hq_invitation_connectId_not_configure));
+    }
+
+    private void setButtonVisibility(boolean isTokenPresent) {
+        binding.btnAcceptInvitation.setVisibility(isTokenPresent ? View.VISIBLE : View.GONE);
+        binding.btnDeniedInvitation.setVisibility(isTokenPresent ? View.VISIBLE : View.GONE);
+        binding.btnGoToRecovery.setVisibility(isTokenPresent ? View.GONE : View.VISIBLE);
+    }
+
+    private void setButtonListeners(boolean isTokenPresent) {
+        if (isTokenPresent) {
+            binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, true));
+            binding.btnDeniedInvitation.setOnClickListener(view -> finish());
+        } else {
+            binding.btnGoToRecovery.setOnClickListener(view -> ConnectManager.registerUser(this, success -> {
+                        if (success) {
+                            ConnectManager.goToConnectJobsList(this);
+                        }
+                    })
+            );
+        }
     }
 
     private void handleInvitation(String callBackUrl, String inviteCode, boolean acceptStatus) {
@@ -108,5 +135,12 @@ public class HQUserInviteActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        finish();
+        ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
     }
 }

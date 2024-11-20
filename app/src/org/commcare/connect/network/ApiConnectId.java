@@ -1,6 +1,7 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -429,15 +430,12 @@ public class ApiConnectId {
         int urlId = R.string.ConnectConfirmUserInvitation;
         AuthInfo authInfo = new AuthInfo.NoAuth();
         AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context);
-        if (connectIdToken == null) {
-            return false;
-        } else {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("callback_url", callBackUrl);
-            params.put("invite_code", invitationCode);
-            params.put("user_token", connectIdToken.toString());
-            return ConnectNetworkHelper.post(context, context.getString(urlId),
-                    API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
-        }
+        Log.e("DEBUG_TESTING", "hqUserInvitation: " + connectIdToken.toString());
+        HashMap<String, String> params = new HashMap<>();
+        params.put("callback_url", callBackUrl);
+        params.put("invite_code", invitationCode);
+        params.put("user_token", connectIdToken.toString());
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 }

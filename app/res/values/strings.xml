@@ -869,4 +869,6 @@
     <string name="connect_hq_invitation_heading">You are invited to CommCareHQ project domain as %s</string>
     <string name="connect_hq_invitation_accept">Accept</string>
     <string name="connect_hq_invitation_denied">Denied</string>
+    <string name="connect_hq_invitation_go_to_recovery">Go To Recovery</string>
+    <string name="connect_hq_invitation_connectId_not_configure">You have not configured your ConnectID. To accept this invitation, please configure your ConnectID first. Once configured, you\'ll be able to accept the invitation.</string>
 </resources>
