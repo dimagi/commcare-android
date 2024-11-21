@@ -168,32 +168,18 @@
             android:textColor="@color/red"
             android:textSize="16sp" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/connect_pin_verify_forgot"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/connect_pin_error_message"
-            android:layout_marginStart="@dimen/content_min_margin"
-            android:layout_marginTop="@dimen/content_min_margin"
-            android:layout_marginEnd="@dimen/content_min_margin"
-            android:layout_marginBottom="@dimen/content_min_margin"
-            android:gravity="start"
-            android:text="@string/connect_pin_verify_forgot"
-            android:textSize="16sp" />
-
         <org.commcare.views.connect.RoundedButton
-            android:id="@+id/back_button"
+            android:id="@+id/forgot_button"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_below="@id/connect_pin_verify_forgot"
+            android:layout_below="@id/connect_pin_error_message"
             android:layout_alignParentLeft="true"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="start|center"
-            android:text="Learn More"
-            android:visibility="gone"
+            android:text="@string/connect_pin_verify_forgot"
             app:roundButtonBorderColor="@color/border_grey"
             app:roundButtonBorderVisible="true"
             app:roundButtonTextColor="@color/connect_blue_color" />
@@ -202,7 +188,7 @@
             android:id="@+id/connect_pin_button"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:layout_below="@id/connect_pin_verify_forgot"
+            android:layout_below="@id/connect_pin_error_message"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="16dp"
             app:roundButtonTextSize="6.5sp"
