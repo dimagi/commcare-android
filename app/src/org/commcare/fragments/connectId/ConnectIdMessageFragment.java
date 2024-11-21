@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -54,7 +55,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
@@ -191,7 +192,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION:
                 if (success) {
                     if (!secondButton) {
-                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidUserDeactivateOtpVerify(
                                 ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE,
                                 String.format(Locale.getDefault(), "%d", ConnectIdPhoneVerificationFragmnet.MethodUserDeactivate),
                                 null,
