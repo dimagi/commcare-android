@@ -291,16 +291,20 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
 
     public void updateMessage() {
-        boolean alternate = method == MethodRecoveryAlternate || method == MethodVerifyAlternate;
         String text;
-        String phone = alternate ? recoveryPhone : primaryPhone;
-        if (phone != null) {
-            //Crop to last 4 digits
-            phone = phone.substring(phone.length() - 4);
-            text = getString(R.string.connect_verify_phone_label, phone);
+        if(method == MethodUserDeactivate) {
+            text = getString(R.string.connect_verify_phone_label_deactivate);
         } else {
-            //The primary phone is never missing
-            text = getString(R.string.connect_verify_phone_label_secondary);
+            boolean alternate = method == MethodRecoveryAlternate || method == MethodVerifyAlternate;
+            String phone = alternate ? recoveryPhone : primaryPhone;
+            if (phone != null) {
+                //Crop to last 4 digits
+                phone = phone.substring(phone.length() - 4);
+                text = getString(R.string.connect_verify_phone_label, phone);
+            } else {
+                //The primary phone is never missing
+                text = getString(R.string.connect_verify_phone_label_secondary);
+            }
         }
 
         binding.connectPhoneVerifyLabel.setText(text);
