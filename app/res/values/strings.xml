@@ -439,7 +439,7 @@
     <string name="connect_registration_title">ConnectID Signup</string>
     <string name="connect_signup">Signup</string>
     <string name="connect_recover">Recover</string>
-    <string name="connect_registration_have_account">Already have\nConnectID?</string>
+    <string name="connect_registration_have_account">Already have\nan Account?</string>
     <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
@@ -689,7 +689,7 @@
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
@@ -842,6 +842,7 @@
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
+    <string name="connect_visit_type_title">%s Visits</string>
 
     <string name="connect_payment_received">Received</string>
     <string name="connect_payment_transferred">Transferred</string>
@@ -865,8 +866,10 @@
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
     <string name="connect_commcare_app">CommCare App</string>
-    <string name="connect_job_tile_price">₹ %s</string>
+    <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
-
+    <string name="connect_job_tile_daily_visits">Daily Visits</string>
+    <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_appbar_title_password_verification">Password Verification</string>
 </resources>

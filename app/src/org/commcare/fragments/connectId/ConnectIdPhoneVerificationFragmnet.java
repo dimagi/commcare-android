@@ -35,6 +35,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -124,7 +125,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         binding = ScreenConnectPhoneVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         binding.connectPhoneVerifyButton.setEnabled(false);
-        getActivity().setTitle(getString(R.string.connect_verify_phone_title));
         buttonEnabled("");
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
         client.startSmsUserConsent(null);
@@ -158,7 +158,16 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             setErrorMessage(null);
             buttonEnabled(otp);
         });
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_verify_phone_title));
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     private void handleDeactivateButton() {

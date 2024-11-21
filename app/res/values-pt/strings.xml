@@ -363,7 +363,7 @@
     <string name="connect_registration_title">Inscrição no Connect ID</string>
     <string name="connect_signup">Inscrição</string>
     <string name="connect_recover">Recuperar</string>
-    <string name="connect_registration_have_account">Já tem\nConnectID? Não tem\nConnectID?</string>
+    <string name="connect_registration_have_account">Já tem\nConnectID? Não tem\numa conta?</string>
     <string name="connect_recover_no_account">Não tem ConnectID?</string>
     <string name="connect_consent_message_1">Li e concordo com a Política de Privacidade, Termos de Serviço, Acordo Comercial e Política de Uso Aceitável da Dimagi</string>
     <string name="connect_phone_page_title">Número de telefone</string>
@@ -488,7 +488,7 @@
     <string name="connect_progress_warning_not_started">O trabalho ainda não começou. Você não ganhará nenhum progresso para o trabalho.</string>
     <string name="connect_progress_warning_max_reached_single">Completou o número máximo de visitas. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Atingiu o número máximo de visitas para hoje. Você não ganhará nenhum progresso por trabalho adicional.</string>
-    <string name="connect_progress_warning_max_reached_multi">Você atingiu o número máximo de visitas para %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">Você atingiu o número máximo de visitas para %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">Atingiu o seu limite diário para %s.</string>
     <string name="connect_downloading_learn">Descarregamento da aplicação Learn</string>
     <string name="connect_downloading_delivery">Baixando o aplicativo de entrega</string>
@@ -544,6 +544,7 @@
     <string name="connect_payment">Pagamento</string>
     <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
     <string name="connect_click_to_sync_progress">Clique para sincronizar o progresso</string>
+    <string name="connect_visit_type_title">%s Visitas</string>
     <string name="connect_payment_received">Recebida</string>
     <string name="connect_payment_transferred">Transferido</string>
     <string name="connect_payment_confirm_transferred">Confirmar pagamento transferido</string>
@@ -563,8 +564,11 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
-    <string name="connect_job_tile_price">₹ %s</string>
+    <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Limite diário atingido. Nenhum pagamento pelo envio de formulários</string>
     <string name="connect_job_tile_daily_limit">Acima do limite</string>
+    <string name="connect_job_tile_daily_visits">Visitas diárias</string>
+    <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
+    <string name="connect_appbar_title_password_verification">Verificação de palavra-passe</string>
 
 </resources>

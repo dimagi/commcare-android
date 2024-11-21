@@ -21,6 +21,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSecondaryPhoneNumberBinding;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.PhoneNumberHelper;
 
 import java.io.IOException;
@@ -103,8 +104,16 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
 
         updateButtonEnabled();
-
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_phone_title_alternate));
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     public void updateButtonEnabled() {

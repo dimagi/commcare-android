@@ -19,7 +19,7 @@ import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragment {
 
-    TextView phoneTextView;
+    ConnectMediumTextView phoneTextView;
     Button recover;
     Button back;
     String phoneNumber;
@@ -47,7 +47,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         View view = inflater.inflate(R.layout.fragment_phone_available_bottom_sheet, container, false);
         back = (Button) view.findViewById(R.id.back_button);
         recover = (Button) view.findViewById(R.id.recover_button);
-        phoneTextView = (TextView) view.findViewById(R.id.phone_number);
+        phoneTextView = (ConnectMediumTextView) view.findViewById(R.id.phone_number);
         if (getArguments() != null) {
             phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }
