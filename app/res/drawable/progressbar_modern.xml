@@ -2,20 +2,22 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape>
+            <corners android:radius="2dp" />
             <gradient
-                android:startColor="@color/cc_neutral_bg"
-                android:endColor="@color/cc_neutral_bg"
+                android:startColor="@color/progress_bar_bg"
+                android:endColor="@color/progress_bar_bg"
                 />
         </shape>
     </item>
     <item android:id="@android:id/progress">
-        <clip>
+        <scale android:scaleWidth="100%">
             <shape>
+                <corners android:radius="4dp" />
                 <gradient
-                    android:startColor="@color/cc_brand_color"
-                    android:endColor="@color/cc_brand_color"
+                    android:startColor="@color/white"
+                    android:endColor="@color/white"
                     />
             </shape>
-        </clip>
+        </scale>
     </item>
 </layer-list>
