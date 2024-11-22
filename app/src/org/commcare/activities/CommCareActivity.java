@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
@@ -162,7 +163,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             persistManagedUiState(fm);
 
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setLogo(org.commcare.dalvik.R.mipmap.commcare_launcher);
+                getSupportActionBar().setLogo(org.commcare.dalvik.R.drawable.logo_spacing);
             }
 
             if (shouldShowBreadcrumbBar()) {

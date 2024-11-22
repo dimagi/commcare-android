@@ -63,7 +63,7 @@
         <item name="background">@color/title_bar_color</item>
         <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
-        <item name="logo">@drawable/actionbar_modern_spacing</item>
+        <item name="logo">@drawable/logo_spacing</item>
         <item name="actionButtonStyle">@style/ActionButtonStyle</item>
     </style>
 
