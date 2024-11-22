@@ -307,7 +307,7 @@
     </style>
 
         <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
-            <item name="background">@color/button_primary_color</item>
+            <item name="background">@color/start_sync_button</item>
             <item name="android:textColor">@color/white</item>
             <item name="android:textSize">16sp</item>
             <item name="android:gravity">center</item>

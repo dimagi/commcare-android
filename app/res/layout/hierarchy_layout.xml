@@ -40,31 +40,40 @@ the License.
             android:layout_height="match_parent"
             android:layout_weight="1"/>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/jumpPreviousButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_previous"
             android:padding="12dp"
+            android:textColor="@color/button_primary_color"
+            android:background="@color/cc_core_bg"
+            style="@style/CommCare.Button.Default"
             android:textSize="@dimen/text_medium"
             android:layout_weight="1"/>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/jumpBeginningButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_beginning"
             android:padding="12dp"
             android:textSize="@dimen/text_medium"
+            android:textColor="@color/button_primary_color"
+            android:background="@color/cc_core_bg"
+            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/jumpEndButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/jump_to_end"
             android:padding="12dp"
             android:textSize="@dimen/text_medium"
+            android:textColor="@color/button_primary_color"
+            android:background="@color/cc_core_bg"
+            style="@style/CommCare.Button.Default"
             android:layout_weight="1"/>
     </LinearLayout>
 

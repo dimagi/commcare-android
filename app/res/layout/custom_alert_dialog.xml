@@ -94,7 +94,6 @@
                 android:padding="@dimen/standard_spacer"
                 android:layout_toLeftOf="@id/positive_button"
                 android:textSize="@dimen/font_size_dp_medium"
-                android:text="@string/access_error"
                 android:visibility="gone"
                 android:layout_toStartOf="@id/positive_button"/>
 
