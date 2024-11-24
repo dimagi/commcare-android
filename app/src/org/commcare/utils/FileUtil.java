@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -356,17 +357,16 @@ public class FileUtil {
     }
 
     public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws InvalidReferenceException {
-        Reference mRef = ReferenceManager.instance().DeriveReference(URI);
+        Reference mRef = ReferenceManager.instance().DeriveReference(uri);
         String mLocalReference = mRef.getLocalURI();
         try {
             if (!mRef.doesBinaryExist()) {
-                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, URI,
-                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
+                throw new InvalidReferenceException("Missing external media: " + mLocalReference);
             }
         } catch (IOException e) {
-            problems.addElement(new MissingMediaException(r, "Problem reading external media: " + mLocalReference, URI,
-                    MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
+            throw new InvalidReferenceException("Problem reading external media: " + mLocalReference);
         }
+        return mRef;
     }
 
     public static boolean referenceFileExists(String uri) {
@@ -494,8 +494,9 @@ public class FileUtil {
 
             BigInteger number = new BigInteger(1, messageDigest);
             String md5 = number.toString(16);
-            while (md5.length() < 32)
+            while (md5.length() < 32) {
                 md5 = "0" + md5;
+            }
             is.close();
             return md5;
 
@@ -612,7 +613,8 @@ public class FileUtil {
         Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
         if (bitmapAndScaledBool.second) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
+                    "An image captured during form entry was too large to be processed at its original size, " +
+                    "and had to be downsized");
         }
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
         if (scaledBitmap != null) {
@@ -723,7 +725,9 @@ public class FileUtil {
      * @param dstFile     destination File where we need to copy the inputStream
      */
     public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
-        if (inputStream == null) return;
+        if (inputStream == null) {
+            return;
+        }
         OutputStream outputStream = new FileOutputStream(dstFile);
         StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
         inputStream.close();
@@ -844,8 +848,13 @@ public class FileUtil {
     }
 
     /**
-     * Returns true only when we're certain that the file size is too large.
-     * <p> https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     * Checks if a file referenced by a content URI exceeds the maximum allowed upload size
+     * <p>
+     * @param contentResolver ContentResolver to query the file size
+     * @param uri Content URI of the file to check
+     * @return true if the file size exceeds FormUploadUtil.MAX_BYTES, false otherwise or if size cannot be determined
+     * @see FormUploadUtil#MAX_BYTES
+     * @see <a href="https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo">Android docs</a>
      */
     public static boolean isFileTooLargeToUpload(ContentResolver contentResolver, Uri uri) {
         try (Cursor returnCursor = contentResolver.query(uri, null, null, null, null)) {
@@ -856,5 +865,69 @@ public class FileUtil {
             returnCursor.moveToFirst();
             return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
         }
+    }
+
+    @SuppressLint("ExifInterface")
+    public static void copyFileWithExifData(File sourceFile, File destFile) throws IOException {
+        // First copy the file normally
+        copyFile(sourceFile, destFile);
+        
+        // Then copy EXIF data
+        copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+    }
+
+    @SuppressLint("ExifInterface")
+    public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) throws IOException {
+        // First scale the image
+        boolean scaled = scaleAndSaveImage(sourceFile, destFile.getAbsolutePath(), maxDimen);
+        
+        if (scaled) {
+            // Copy EXIF data from source to scaled image
+            copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+        }
+        
+        return scaled;
+    }
+
+    @SuppressLint("ExifInterface")
+    private static void copyExifData(String sourcePath, String destPath) throws IOException {
+        ExifInterface source = new ExifInterface(sourcePath);
+        ExifInterface dest = new ExifInterface(destPath);
+        
+        String[] tagsToPreserve = {
+            // GPS data
+            ExifInterface.TAG_GPS_LATITUDE,
+            ExifInterface.TAG_GPS_LATITUDE_REF,
+            ExifInterface.TAG_GPS_LONGITUDE,
+            ExifInterface.TAG_GPS_LONGITUDE_REF,
+            ExifInterface.TAG_GPS_TIMESTAMP,
+            ExifInterface.TAG_GPS_DATESTAMP,
+            ExifInterface.TAG_GPS_ALTITUDE,
+            ExifInterface.TAG_GPS_ALTITUDE_REF,
+            ExifInterface.TAG_GPS_AREA_INFORMATION,
+            
+            // Timestamp data
+            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_DATETIME_DIGITIZED,
+            ExifInterface.TAG_DATETIME_ORIGINAL,
+            ExifInterface.TAG_OFFSET_TIME,
+            ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+            ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
+            
+            // Image metadata
+            ExifInterface.TAG_COPYRIGHT,
+            ExifInterface.TAG_IMAGE_DESCRIPTION,
+            ExifInterface.TAG_EXIF_VERSION,
+            ExifInterface.TAG_ORIENTATION
+        };
+        
+        for (String tag : tagsToPreserve) {
+            String value = source.getAttribute(tag);
+            if (value != null) {
+                dest.setAttribute(tag, value);
+            }
+        }
+        
+        dest.saveAttributes();
     }
 }

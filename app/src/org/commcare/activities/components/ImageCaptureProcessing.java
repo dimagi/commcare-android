@@ -36,6 +36,7 @@ public class ImageCaptureProcessing {
      * @return A pair containing raw image and scaled imagePath. The first entry is the raw image
      * while the second one is path to scaled image.
      */
+    @SuppressLint("ExifInterface")
     private static Pair<File, String> moveAndScaleImage(File originalImage, boolean shouldScale,
                                                         String instanceFolder,
                                                         FormEntryActivity formEntryActivity) throws IOException {
@@ -56,7 +57,8 @@ public class ImageCaptureProcessing {
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
-                    savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, tempFilePathForScaledImage, maxDimen);
+                    File tempFile = new File(tempFilePathForScaledImage);
+                    savedScaledImage = FileUtil.scaleAndSaveImageWithExif(originalImage, tempFile, maxDimen);
                 }
             }
         }
@@ -83,6 +85,7 @@ public class ImageCaptureProcessing {
         return new Pair<>(rawImageFile, finalFilePath);
     }
 
+    @SuppressLint("ExifInterface")
     private static File makeRawCopy(File originalImage, String instanceFolder, String imageFilename)
             throws IOException {
         String rawDirPath = getRawDirectoryPath(instanceFolder);
@@ -92,7 +95,7 @@ public class ImageCaptureProcessing {
         }
         File rawImageFile = new File(rawDirPath + "/" + imageFilename);
         try {
-            FileUtil.copyFile(originalImage, rawImageFile);
+            FileUtil.copyFileWithExifData(originalImage, rawImageFile);
         } catch (Exception e) {
             throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
                     " to " + rawImageFile.getAbsolutePath());
@@ -208,6 +211,7 @@ public class ImageCaptureProcessing {
         }
     }
 
+    @SuppressLint("ExifInterface")
     private static boolean scaleAndSaveImage(File originalImage, boolean shouldScale,
                                              String instanceFolder, FormEntryActivity activity) throws IOException {
         Pair<File, String> rawImageAndScaledPath = moveAndScaleImage(originalImage, shouldScale, instanceFolder, activity);
