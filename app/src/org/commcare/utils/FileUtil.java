@@ -357,16 +357,17 @@ public class FileUtil {
     }
 
     public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws InvalidReferenceException {
-        Reference mRef = ReferenceManager.instance().DeriveReference(uri);
+        Reference mRef = ReferenceManager.instance().DeriveReference(URI);
         String mLocalReference = mRef.getLocalURI();
         try {
             if (!mRef.doesBinaryExist()) {
-                throw new InvalidReferenceException("Missing external media: " + mLocalReference);
+                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, URI,
+                        MissingMediaException.MissingMediaExceptionType.FILE_NOT_FOUND));
             }
         } catch (IOException e) {
-            throw new InvalidReferenceException("Problem reading external media: " + mLocalReference);
+            problems.addElement(new MissingMediaException(r, "Problem reading external media: " + mLocalReference, URI,
+                    MissingMediaException.MissingMediaExceptionType.FILE_NOT_ACCESSIBLE));
         }
-        return mRef;
     }
 
     public static boolean referenceFileExists(String uri) {
