@@ -398,7 +398,6 @@ public class FileUtil {
      * if we are on KitKat we need use the new API to find the mounted roots, then append our application
      * specific path that we're allowed to write to
      */
-    @SuppressLint("NewApi")
     private static String getExternalDirectoryKitKat(Context c) {
         File[] extMounts = c.getExternalFilesDirs(null);
         // first entry is emualted storage. Second if it exists is secondary (real) SD.
@@ -868,7 +867,6 @@ public class FileUtil {
         }
     }
 
-    @SuppressLint("ExifInterface")
     public static void copyFileWithExifData(File sourceFile, File destFile) throws IOException {
         // First copy the file normally
         copyFile(sourceFile, destFile);
@@ -877,7 +875,6 @@ public class FileUtil {
         copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
     }
 
-    @SuppressLint("ExifInterface")
     public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) throws IOException {
         // First scale the image
         boolean scaled = scaleAndSaveImage(sourceFile, destFile.getAbsolutePath(), maxDimen);
@@ -890,7 +887,6 @@ public class FileUtil {
         return scaled;
     }
 
-    @SuppressLint("ExifInterface")
     private static void copyExifData(String sourcePath, String destPath) throws IOException {
         ExifInterface source = new ExifInterface(sourcePath);
         ExifInterface dest = new ExifInterface(destPath);
