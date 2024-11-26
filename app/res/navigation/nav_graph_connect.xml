@@ -171,6 +171,14 @@
             android:name="phone"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="username"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="password"
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_connectPaymentSetupPhoneVerificationFragment_to_connect_jobs_list_fragment"
             app:destination="@id/connect_jobs_list_fragment"

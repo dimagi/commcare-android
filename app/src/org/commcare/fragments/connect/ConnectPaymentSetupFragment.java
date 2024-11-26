@@ -18,15 +18,14 @@ import androidx.navigation.Navigation;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectPaymentSetupBinding;
 import org.commcare.utils.PhoneNumberHelper;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,17 +119,14 @@ public class ConnectPaymentSetupFragment extends Fragment {
     private void submitPaymentDetail() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-
-        boolean isBusy = !ApiConnectId.paymentInfo(requireActivity(), phone, binding.nameTextValue.toString(), new IApiCallback() {
+        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        boolean isBusy = !ApiConnectId.paymentInfo(requireActivity(), phone, user.getUserId(), user.getPassword(), binding.nameTextValue.getText().toString(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
-                    JSONObject json = new JSONObject(responseAsString);
                     Navigation.findNavController(binding.continueButton).navigate(
-                            ConnectPaymentSetupFragmentDirections.actionConnectPaymentSetupFragmentToConnectPaymentSetupPhoneVerificationFragment(phone));
-                } catch (IOException | JSONException e) {
+                            ConnectPaymentSetupFragmentDirections.actionConnectPaymentSetupFragmentToConnectPaymentSetupPhoneVerificationFragment(phone,user.getUserId(),user.getPassword()));
+                } catch (Exception e) {
                     Logger.exception("Parsing return from confirm_secondary_otp", e);
                 }
             }

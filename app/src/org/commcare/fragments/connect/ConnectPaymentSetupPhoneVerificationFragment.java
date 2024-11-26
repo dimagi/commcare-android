@@ -2,7 +2,6 @@ package org.commcare.fragments.connect;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -13,6 +12,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,13 +21,21 @@ import androidx.navigation.Navigation;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.SMSListener;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPaymentPhoneVerifyBinding;
 import org.commcare.utils.KeyboardHelper;
+import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,19 +112,12 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
 
 
         if (getArguments() != null) {
-//            method = Integer.parseInt(Objects.requireNonNull(ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
             primaryPhone = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
-//            allowChange = (ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getAllowChange());
-//            username = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
-//            password = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
-//            recoveryPhone = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getSecondaryPhone();
-//            callingClass = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
-//            deactivateButton = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
+            username = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
+            password = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
         }
 
         updateMessage();
-
-//        requestSmsCode();
 
         startHandler();
 
@@ -149,7 +150,6 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     public void onStart() {
         super.onStart();
         registerBrodcastReciever();
-
     }
 
     @Override
@@ -158,7 +158,6 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
         if (requestCode == REQ_USER_CONSENT && (resultCode == RESULT_OK) && data != null) {
             String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
             getOtpFromMessage(message);
-
         }
     }
 
@@ -185,7 +184,6 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     public void onPause() {
         super.onPause();
         try {
-            stopHandler();
             requireActivity().unregisterReceiver(smsBroadcastReceiver);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -235,6 +233,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     }
 
     void startHandler() {
+        smsTime = new DateTime();
         taskHandler.postDelayed(runnable, 100);
     }
 
@@ -242,90 +241,19 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
         taskHandler.removeCallbacks(runnable);
     }
 
-    /*public void requestSmsCode() {
-        smsTime = new DateTime();
+    public void verifySmsCode() {
         setErrorMessage(null);
+
+        String token = binding.connectPhoneVerifyCode.getText().toString();
+        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
 
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_SECRET;
-                        if (json.has(key)) {
-                            password = json.getString(key);
-                        }
-
-                        key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                        if (json.has(key)) {
-                            recoveryPhone = json.getString(key);
-                            updateMessage();
-                        }
-                    }
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing return from OTP request", e);
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                setErrorMessage("Error requesting SMS code" + message);
-
-                //Null out the last-requested time so user can request again immediately
-                smsTime = null;
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                setErrorMessage(getString(R.string.recovery_network_unavailable));
-                //Null out the last-requested time so user can request again immediately
-                smsTime = null;
-            }
-
-            @Override
-            public void processOldApiError() {
-                setErrorMessage(getString(R.string.recovery_network_outdated));
-            }
-        };
-
-        boolean isBusy;
-        isBusy = !ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
-    }*/
-
-    public void verifySmsCode() {
-        setErrorMessage(null);
-
-        String token = binding.connectPhoneVerifyCode.getText().toString();
-        String phone = username;
-        final Context context = getContext();
-
-        Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(
-                ConnectPaymentSetupPhoneVerificationFragmentDirections.actionConnectPaymentSetupPhoneVerificationFragmentToConnectJobsListFragment());
-
-       /* IApiCallback callback = new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String secondaryPhone = null;
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                        secondaryPhone = json.has(key) ? json.getString(key) : null;
-                    }
-
+                    stopHandler();
+                    Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(
+                            ConnectPaymentSetupPhoneVerificationFragmentDirections.actionConnectPaymentSetupPhoneVerificationFragmentToConnectJobsListFragment());
                 } catch (Exception e) {
                     Logger.exception("Parsing return from OTP verification", e);
                 }
@@ -354,9 +282,9 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
         };
 
         boolean isBusy;
-        isBusy = !ApiConnectId.confirmPaymentInfo(requireActivity(), username, password, token, callback);
+        isBusy = !ApiConnectId.confirmPaymentInfo(requireActivity(), primaryPhone, username, password, token, callback);
         if (isBusy) {
             Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }*/
+        }
     }
 }
