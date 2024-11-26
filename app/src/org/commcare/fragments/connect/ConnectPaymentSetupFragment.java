@@ -125,7 +125,7 @@ public class ConnectPaymentSetupFragment extends Fragment {
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     Navigation.findNavController(binding.continueButton).navigate(
-                            ConnectPaymentSetupFragmentDirections.actionConnectPaymentSetupFragmentToConnectPaymentSetupPhoneVerificationFragment(phone,user.getUserId(),user.getPassword()));
+                            ConnectPaymentSetupFragmentDirections.actionConnectPaymentSetupFragmentToConnectPaymentSetupPhoneVerificationFragment(phone,binding.nameTextValue.getText().toString(),user.getUserId(),user.getPassword()));
                 } catch (Exception e) {
                     Logger.exception("Parsing return from confirm_secondary_otp", e);
                 }

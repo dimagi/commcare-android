@@ -120,6 +120,26 @@
             android:orientation="horizontal">
 
             <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_resend_otp_button"
+                android:layout_width="150dp"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:visibility="visible"
+                android:gravity="center"
+                android:text="@string/connect_payment_info_resend_otp"
+                app:roundButtonBackgroundColor="@color/white"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonBorderWidth="1dp"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonTextSize="6.5sp" />
+
+            <org.commcare.views.connect.RoundedButton
                 android:id="@+id/connect_phone_verify_button"
                 android:layout_width="wrap_content"
                 android:layout_height="45dp"

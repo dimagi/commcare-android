@@ -4,7 +4,6 @@ import static android.app.Activity.RESULT_OK;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -48,6 +47,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     public static final int MethodUserDeactivate = 5;
     public static final int REQ_USER_CONSENT = 200;
     private String primaryPhone;
+    private String paymentProfileName;
     private String username;
     private String password;
     private SMSBroadcastReceiver smsBroadcastReceiver;
@@ -113,6 +113,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
 
         if (getArguments() != null) {
             primaryPhone = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
+            paymentProfileName = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPaymentProfileName();
             username = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
             password = ConnectPaymentSetupPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
         }
@@ -121,7 +122,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
 
         startHandler();
 
-//        binding.connectPhoneVerifyResend.setOnClickListener(arg0 -> requestSmsCode());
+        binding.connectResendOtpButton.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
         binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -142,6 +143,44 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
         return view;
     }
 
+    private void requestSmsCode() {
+        setErrorMessage(null);
+        boolean isBusy = !ApiConnectId.paymentInfo(requireActivity(), primaryPhone, username, password, paymentProfileName, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                updateMessage();
+                startHandler();
+            }
+
+            @Override
+            public void processFailure(int responseCode, IOException e) {
+                smsTime = null;
+                String message = "";
+                if (responseCode > 0) {
+                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                } else if (e != null) {
+                    message = e.toString();
+                }
+                setErrorMessage("Error sending SMS");
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                smsTime = null;
+                setErrorMessage(getString(R.string.recovery_network_unavailable));
+            }
+
+            @Override
+            public void processOldApiError() {
+                setErrorMessage(getString(R.string.recovery_network_outdated));
+            }
+        });
+
+        if (isBusy) {
+            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void buttonEnabled(String code) {
         binding.connectPhoneVerifyButton.setEnabled(!code.isEmpty() && code.length() > 5);
     }
@@ -149,7 +188,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        registerBrodcastReciever();
+        registerBroadcastReceiver();
     }
 
     @Override
@@ -184,6 +223,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     public void onPause() {
         super.onPause();
         try {
+            stopHandler();
             requireActivity().unregisterReceiver(smsBroadcastReceiver);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -191,7 +231,7 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
 
     }
 
-    public void registerBrodcastReciever() {
+    public void registerBroadcastReceiver() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
         smsBroadcastReceiver.smsListener = new SMSListener() {
@@ -220,8 +260,8 @@ public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
     }
 
     public void setResendEnabled(boolean enabled) {
-        binding.connectPhoneVerifyResend.setEnabled(enabled);
-        binding.connectPhoneVerifyResend.setTextColor(enabled ? Color.BLUE : Color.GRAY);
+        binding.connectResendOtpButton.setEnabled(enabled);
+        binding.connectResendOtpButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
     }
 
 

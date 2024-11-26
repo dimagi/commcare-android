@@ -871,5 +871,6 @@
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
     <string name="connect_payment_info">Payment Info</string>
+    <string name="connect_payment_info_resend_otp">Resend OTP</string>
 
 </resources>

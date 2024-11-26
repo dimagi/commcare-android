@@ -172,6 +172,10 @@
             app:argType="string"
             app:nullable="true" />
         <argument
+            android:name="paymentProfileName"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
             android:name="username"
             app:argType="string"
             app:nullable="true" />
