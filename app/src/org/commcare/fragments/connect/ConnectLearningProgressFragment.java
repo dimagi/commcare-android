@@ -278,7 +278,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
         tvJobTitle.setText(job.getTitle());

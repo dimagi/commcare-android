@@ -448,11 +448,16 @@ public class FirebaseAnalyticsUtil {
     public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
         return (navController, navDestination, args) -> {
             Bundle bundle = new Bundle();
-            var currentFragmentClassName = ((FragmentNavigator.Destination) navController.getCurrentDestination())
-                    .getClassName();
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
-            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+            if (navController.getCurrentDestination() instanceof FragmentNavigator.Destination) {
+                String currentFragmentClassName = ((FragmentNavigator.Destination) navController.getCurrentDestination()).getClassName();
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+                reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+            } else {
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+                bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, "UnknownDestination");
+                reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+            }
         };
     }
 
