@@ -184,7 +184,7 @@ afterEvaluate {
  * https://discuss.gradle.org/t/gradle-7-0-seems-to-take-an-overzealous-approach-to-inter-task-dependencies/39656/2
  * Gradle 7.0 treats any copy tasks as having an implicit dependencies with each other.
  */
-task injectPropertiesIntoFirebaseConfigFile {
+tasks.register('injectPropertiesIntoFirebaseConfigFile') {
     description = 'Injects properties into the google-services.json file at runtime'
 
     copy {
@@ -492,7 +492,7 @@ android {
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
  */
-task downloadCCApp(type: Exec)
+tasks.register('downloadCCApp', Exec)
 
 // task configuration phase
 downloadCCApp {
@@ -522,7 +522,7 @@ downloadCCApp {
 }
 
 
-task downloadRestoreFile(type: Exec)
+tasks.register('downloadRestoreFile', Exec)
 
 // task configuration phase
 downloadRestoreFile {
@@ -552,7 +552,7 @@ downloadRestoreFile {
 }
 
 // dynamically inject commcare app download into standalone build process
-tasks.whenTaskAdded { task ->
+tasks.configureEach { task ->
     if ((task.name == 'processStandaloneDebugResources' ||
             task.name == 'processStandaloneReleaseResources') && 'true' == runDownloadScripts) {
         task.dependsOn downloadCCApp
