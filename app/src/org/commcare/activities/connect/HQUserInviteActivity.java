@@ -39,14 +39,11 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         Intent intent = getIntent();
         Uri data = intent.getData();
         if (data != null) {
-            List<String> pathSegments = data.getPathSegments();
-            if (pathSegments.size() >= 4) {
-                callBackURL = pathSegments.get(1);
-                username = pathSegments.get(2);
-                inviteCode = pathSegments.get(3);
-                domain = pathSegments.get(4);
-                connectUserName = pathSegments.get(5);
-            }
+            callBackURL = data.getQueryParameter("callback_url");
+            username = data.getQueryParameter("hq_username");
+            inviteCode = data.getQueryParameter("invite_code");
+            domain = data.getQueryParameter("hq_domain");
+            connectUserName = data.getQueryParameter("connect_username");
         }
         handleButtons();
     }

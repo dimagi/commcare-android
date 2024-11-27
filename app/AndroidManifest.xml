@@ -145,10 +145,8 @@
 
                 <data android:scheme="https"/>
                 <data android:host="connectid.dimagi.com"/>
-                <data android:pathPrefix="/hq_invite/"/>
                 <data android:scheme="http"/>
                 <data android:host="connectid.dimagi.com"/>
-                <data android:pathPrefix="/hq_invite/"/>
             </intent-filter>
         </activity>
         <activity
