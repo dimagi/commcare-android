@@ -130,7 +130,7 @@
         <item name="textAllCaps">true</item>
         <item name="android:minHeight">@dimen/dp60</item>
         <item name="android:textColor">@color/white</item>
-        <item name="backgroundTint">@color/primary_button_background</item>
+        <item name="backgroundTint">@color/button_background_color</item>
         <item name="cornerRadius">@dimen/dp6</item>
     </style>
 
