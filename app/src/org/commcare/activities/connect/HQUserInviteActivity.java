@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
@@ -28,6 +29,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
     String inviteCode;
     String username;
     String callBackURL;
+    String connectUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,25 +40,34 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         Uri data = intent.getData();
         if (data != null) {
             List<String> pathSegments = data.getPathSegments();
-            if (pathSegments.size() >= 3) {
+            if (pathSegments.size() >= 4) {
                 callBackURL = pathSegments.get(1);
                 username = pathSegments.get(2);
                 inviteCode = pathSegments.get(3);
                 domain = pathSegments.get(4);
+                connectUserName = pathSegments.get(5);
             }
         }
         handleButtons();
     }
 
     private void handleButtons() {
+        ConnectManager.init(this);
+
+        ConnectUserRecord user = ConnectManager.getUser(this);
         boolean isTokenPresent = ConnectManager.isConnectIdConfigured();
+        boolean isCorrectUser = user.getUserId().equals(connectUserName);
 
-        setButtonVisibility(isTokenPresent);
-        setButtonListeners(isTokenPresent);
-
-        binding.tvHqInvitationHeaderTitle.setText(isTokenPresent
-                ? getString(R.string.connect_hq_invitation_heading, username)
-                : getString(R.string.connect_hq_invitation_connectId_not_configure));
+        if (isCorrectUser) {
+            binding.tvHqInvitationHeaderTitle.setText(isTokenPresent
+                    ? getString(R.string.connect_hq_invitation_heading, username)
+                    : getString(R.string.connect_hq_invitation_connectId_not_configure));
+            setButtonVisibility(isTokenPresent);
+            setButtonListeners(isTokenPresent);
+        } else {
+            binding.tvHqInvitationHeaderTitle.setText(getString(R.string.connect_hq_invitation_wrong_user));
+            hideInvitationButtons();
+        }
     }
 
     private void setButtonVisibility(boolean isTokenPresent) {
@@ -65,9 +76,15 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         binding.btnGoToRecovery.setVisibility(isTokenPresent ? View.GONE : View.VISIBLE);
     }
 
+    private void hideInvitationButtons() {
+        binding.btnAcceptInvitation.setVisibility(View.GONE);
+        binding.btnDeniedInvitation.setVisibility(View.GONE);
+        binding.btnGoToRecovery.setVisibility(View.GONE);
+    }
+
     private void setButtonListeners(boolean isTokenPresent) {
         if (isTokenPresent) {
-            binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode, true));
+            binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode));
             binding.btnDeniedInvitation.setOnClickListener(view -> finish());
         } else {
             binding.btnGoToRecovery.setOnClickListener(view -> ConnectManager.registerUser(this, success -> {
@@ -79,7 +96,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         }
     }
 
-    private void handleInvitation(String callBackUrl, String inviteCode, boolean acceptStatus) {
+    private void handleInvitation(String callBackUrl, String inviteCode) {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
