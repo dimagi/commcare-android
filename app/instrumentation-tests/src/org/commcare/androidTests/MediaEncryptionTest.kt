@@ -53,6 +53,11 @@ class MediaEncryptionTest : BaseTest() {
         CommCareApplication.instance().currentApp.appPreferences.edit()
                 .remove(HiddenPreferences.ENCRYPT_CAPTURED_MEDIA)
                 .apply()
+
+        // Ensure test image has valid format for EXIF
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testImage = File(context.externalCacheDir.toString() + "/test.jpg") // Use .jpg instead of .png
+        // ... rest of setup
     }
 
     @After
@@ -63,6 +68,15 @@ class MediaEncryptionTest : BaseTest() {
                 .perform(ViewActions.click())
 
         InstrumentationUtility.logout()
+    }
+
+    @After
+    fun cleanup() {
+        // Clean up any test files
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        FileUtil.deleteFileOrDir(context.externalCacheDir)
+        
+        // ... existing cleanup code ...
     }
 
     @Test

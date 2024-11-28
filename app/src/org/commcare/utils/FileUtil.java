@@ -867,12 +867,77 @@ public class FileUtil {
         }
     }
 
-    public static void copyFileWithExifData(File sourceFile, File destFile) throws IOException {
+    private static void copyExifData(String sourcePath, String destPath) throws IOException {
+        try {
+            ExifInterface source = new ExifInterface(sourcePath);
+            ExifInterface dest = new ExifInterface(destPath);
+            
+            // Add null check for source file
+            if (source == null) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
+                    "Source file doesn't support EXIF data: " + sourcePath);
+                return;
+            }
+            
+            String[] tagsToPreserve = {
+                // GPS data
+                ExifInterface.TAG_GPS_LATITUDE,
+                ExifInterface.TAG_GPS_LATITUDE_REF,
+                ExifInterface.TAG_GPS_LONGITUDE,
+                ExifInterface.TAG_GPS_LONGITUDE_REF,
+                ExifInterface.TAG_GPS_TIMESTAMP,
+                ExifInterface.TAG_GPS_DATESTAMP,
+                ExifInterface.TAG_GPS_ALTITUDE,
+                ExifInterface.TAG_GPS_ALTITUDE_REF,
+                ExifInterface.TAG_GPS_AREA_INFORMATION,
+                
+                // Timestamp data
+                ExifInterface.TAG_DATETIME,
+                ExifInterface.TAG_DATETIME_DIGITIZED,
+                ExifInterface.TAG_DATETIME_ORIGINAL,
+                ExifInterface.TAG_OFFSET_TIME,
+                ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+                ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
+                
+                // Image metadata
+                ExifInterface.TAG_COPYRIGHT,
+                ExifInterface.TAG_IMAGE_DESCRIPTION,
+                ExifInterface.TAG_EXIF_VERSION,
+                ExifInterface.TAG_ORIENTATION
+            };
+            
+            for (String tag : tagsToPreserve) {
+                String value = source.getAttribute(tag);
+                if (value != null) {
+                    dest.setAttribute(tag, value);
+                }
+            }
+            
+            dest.saveAttributes();
+        } catch (IllegalArgumentException e) {
+            // Log but don't fail if file doesn't support EXIF
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
+                "File doesn't support EXIF data: " + sourcePath);
+        } catch (IOException e) {
+            // Log but don't fail if EXIF copying fails
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
+                "Failed to copy EXIF data from " + sourcePath + " to " + destPath + ": " + e.getMessage());
+        }
+    }
+
+    public static void copyFileWithExifData(File sourceFile, File destFile, boolean isSignature) throws IOException {
         // First copy the file normally
         copyFile(sourceFile, destFile);
         
-        // Then copy EXIF data
-        copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+        // Skip EXIF copying for signatures
+        if (!isSignature) {
+            try {
+                copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+            } catch (Exception e) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                    "Failed to copy EXIF data: " + e.getMessage());
+            }
+        }
     }
 
     public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) throws IOException {
@@ -885,46 +950,5 @@ public class FileUtil {
         }
         
         return scaled;
-    }
-
-    private static void copyExifData(String sourcePath, String destPath) throws IOException {
-        ExifInterface source = new ExifInterface(sourcePath);
-        ExifInterface dest = new ExifInterface(destPath);
-        
-        String[] tagsToPreserve = {
-            // GPS data
-            ExifInterface.TAG_GPS_LATITUDE,
-            ExifInterface.TAG_GPS_LATITUDE_REF,
-            ExifInterface.TAG_GPS_LONGITUDE,
-            ExifInterface.TAG_GPS_LONGITUDE_REF,
-            ExifInterface.TAG_GPS_TIMESTAMP,
-            ExifInterface.TAG_GPS_DATESTAMP,
-            ExifInterface.TAG_GPS_ALTITUDE,
-            ExifInterface.TAG_GPS_ALTITUDE_REF,
-            ExifInterface.TAG_GPS_AREA_INFORMATION,
-            
-            // Timestamp data
-            ExifInterface.TAG_DATETIME,
-            ExifInterface.TAG_DATETIME_DIGITIZED,
-            ExifInterface.TAG_DATETIME_ORIGINAL,
-            ExifInterface.TAG_OFFSET_TIME,
-            ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
-            ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
-            
-            // Image metadata
-            ExifInterface.TAG_COPYRIGHT,
-            ExifInterface.TAG_IMAGE_DESCRIPTION,
-            ExifInterface.TAG_EXIF_VERSION,
-            ExifInterface.TAG_ORIENTATION
-        };
-        
-        for (String tag : tagsToPreserve) {
-            String value = source.getAttribute(tag);
-            if (value != null) {
-                dest.setAttribute(tag, value);
-            }
-        }
-        
-        dest.saveAttributes();
     }
 }
