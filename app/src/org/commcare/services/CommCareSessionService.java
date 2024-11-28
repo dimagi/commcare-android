@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -208,11 +209,14 @@ public class CommCareSessionService extends Service {
     /**
      * Show a notification while this service is running.
      */
-    @SuppressLint("UnspecifiedImmutableFlag")
     public void showLoggedInNotification(@Nullable User user) {
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
-        this.startForeground(NOTIFICATION, createSessionNotification());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.startForeground(NOTIFICATION, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            this.startForeground(NOTIFICATION, createSessionNotification());
+        }
     }
 
     /**

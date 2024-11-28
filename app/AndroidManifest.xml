@@ -37,6 +37,7 @@
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -303,12 +304,14 @@
             android:name="org.commcare.activities.FormRecordListActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-
         <service
             android:enabled="true"
+            android:foregroundServiceType="specialUse"
             android:name="org.commcare.services.CommCareSessionService">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Service that maintains an encryption key in memory to securely submit data to the server" />
         </service>
-
         <activity
             android:launchMode="singleTop"
             android:name="org.commcare.activities.FormEntryActivity"
