@@ -867,17 +867,26 @@ public class FileUtil {
         }
     }
 
+    public static void copyFileWithExifData(File sourceFile, File destFile) throws IOException {
+        // First copy the file normally
+        copyFile(sourceFile, destFile);
+        
+        // Only try to copy EXIF data for image files
+        String mimeType = getMimeType(sourceFile.getAbsolutePath());
+        if (mimeType != null && mimeType.startsWith("image/")) {
+            try {
+                copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+            } catch (Exception e) {
+                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+                    "Failed to copy EXIF data: " + e.getMessage());
+            }
+        }
+    }
+
     private static void copyExifData(String sourcePath, String destPath) throws IOException {
         try {
             ExifInterface source = new ExifInterface(sourcePath);
             ExifInterface dest = new ExifInterface(destPath);
-            
-            // Add null check for source file
-            if (source == null) {
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
-                    "Source file doesn't support EXIF data: " + sourcePath);
-                return;
-            }
             
             String[] tagsToPreserve = {
                 // GPS data
@@ -914,29 +923,10 @@ public class FileUtil {
             }
             
             dest.saveAttributes();
-        } catch (IllegalArgumentException e) {
-            // Log but don't fail if file doesn't support EXIF
-            Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
-                "File doesn't support EXIF data: " + sourcePath);
         } catch (IOException e) {
             // Log but don't fail if EXIF copying fails
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
                 "Failed to copy EXIF data from " + sourcePath + " to " + destPath + ": " + e.getMessage());
-        }
-    }
-
-    public static void copyFileWithExifData(File sourceFile, File destFile, boolean isSignature) throws IOException {
-        // First copy the file normally
-        copyFile(sourceFile, destFile);
-        
-        // Skip EXIF copying for signatures
-        if (!isSignature) {
-            try {
-                copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
-            } catch (Exception e) {
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
-                    "Failed to copy EXIF data: " + e.getMessage());
-            }
         }
     }
 
