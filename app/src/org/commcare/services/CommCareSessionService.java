@@ -706,12 +706,11 @@ public class CommCareSessionService extends Service {
         callable.setAction("android.intent.action.MAIN");
         callable.addCategory("android.intent.category.LAUNCHER");
 
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-        else
-            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, pendingIntentFlags);
 
         String notificationText;
         if (AppUtils.getInstalledAppRecords().size() > 1) {
