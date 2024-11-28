@@ -149,7 +149,6 @@
                 android:textSize="@dimen/text_medium"
                 android:inputType="number"
                 android:maxLength="4"
-                android:elevation="@dimen/button_elevation"
                 android:selectAllOnFocus="true"
                 android:imeOptions="flagNoExtractUi"
                 android:layout_marginStart="5dp" />
