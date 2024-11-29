@@ -874,12 +874,7 @@ public class FileUtil {
         // Only try to copy EXIF data for image files
         String mimeType = getMimeType(sourceFile.getAbsolutePath());
         if (mimeType != null && mimeType.startsWith("image/")) {
-            try {
-                copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
-            } catch (Exception e) {
-                Logger.log(LogTypes.TYPE_WARNING_NETWORK,
-                    "Failed to copy EXIF data: " + e.getMessage());
-            }
+            copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
         }
     }
 
