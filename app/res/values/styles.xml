@@ -258,7 +258,7 @@
     </style>
 
     <style name="PromptedUpdateButtonUpdateLater" parent="PromptedUpdateButtonBase">
-        <item name="android:background">@color/cc_brand_color</item>
+        <item name="android:background">@color/button_background_color</item>
         <item name="android:textSize">@dimen/font_size_xlarge</item>
         <item name="android:paddingLeft">@dimen/standard_spacer_large</item>
         <item name="android:paddingRight">@dimen/standard_spacer_large</item>
@@ -307,7 +307,7 @@
     </style>
 
         <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
-            <item name="background">@color/button_primary_color</item>
+            <item name="backgroundTint">@color/button_background_color</item>
             <item name="android:textColor">@color/white</item>
             <item name="android:textSize">16sp</item>
             <item name="android:gravity">center</item>
@@ -323,14 +323,15 @@
         <item name="shapeAppearanceOverlay">@style/RoundedButtonStyle</item>
     </style>
     <style name="RoundedButtonStyle" parent="">
+        <item name="android:background">@drawable/button_background_white</item>
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerFamilyBottomRight">rounded</item>
         <item name="cornerSize">22dp</item>
-        <item name="strokeColor">@color/button_primary_color</item>
+        <item name="strokeColor">@color/button_background_color</item>
         <item name="strokeWidth">2dp</item>
-        <item name="textColor">@color/button_primary_color</item>
+        <item name="textColor">@color/button_background_color</item>
     </style>
 
 </resources>

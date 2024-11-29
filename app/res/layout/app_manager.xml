@@ -18,7 +18,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:scaleType="fitStart"
-            app:srcCompat="@drawable/commcare_dimagi_logo"
+            app:srcCompat="@drawable/commcare_by_dimagi"
             android:adjustViewBounds="true"/>
 
     </FrameLayout>

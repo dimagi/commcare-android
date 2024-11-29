@@ -21,7 +21,7 @@
             android:paddingTop="@dimen/content_min_margin"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
-            app:srcCompat="@drawable/commcare_dimagi_logo"
+            app:srcCompat="@drawable/commcare_by_dimagi"
             android:layout_marginEnd="@dimen/content_min_margin"
             android:paddingStart="@dimen/content_min_margin"></ImageView>
 
