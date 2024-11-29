@@ -16,17 +16,11 @@
         <ImageView
             android:id="@+id/screen_bulk_image1"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:maxHeight="135dp"
-            android:maxWidth="663dp"
-            android:paddingBottom="0dp"
-            android:paddingLeft="20dp"
-            android:paddingTop="20dp"
+            android:layout_height="120dp"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ccbanner"
-            android:paddingStart="20dp"
-            android:layout_marginEnd="20dp" />
+            android:padding="16dp"
+            app:srcCompat="@drawable/commcare_by_dimagi"
+            />
 
         <TextView
             android:id="@+id/connection_test_prompt"
