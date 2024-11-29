@@ -1,8 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:drawable="@color/green_700" android:state_enabled="false" />
-    <item android:drawable="@color/green_900" android:state_pressed="true" />
-    <item android:drawable="@color/green_500" />
-
+    <!-- Disabled state -->
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="@color/green_700" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="@color/green_900" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <!-- Default state -->
+    <item>
+        <shape>
+            <solid android:color="@color/green_500" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
 </selector>
+

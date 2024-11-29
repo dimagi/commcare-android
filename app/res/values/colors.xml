@@ -146,6 +146,8 @@
     
     <!-- Button colors -->
     <color name="button_disabled">#d0e3ff</color>
+    <color name="button_primary_color"> #3A42C7</color>
+    <color name="title_bar_color"> #5d70D2</color>
     <color name="start_home_button">#6AB849</color>
     <color name="start_save_button">#1B998B</color>
     <color name="button_background_color">#5D70D2</color>

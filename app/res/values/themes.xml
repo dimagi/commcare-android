@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="CommonTheme" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
         <item name="colorPrimary">@color/cc_brand_color</item>
@@ -60,11 +60,10 @@
     </style>
 
     <style name="ActionBar" parent="Widget.AppCompat.Light.ActionBar">
-        <item name="background">@color/cc_brand_color</item>
+        <item name="background">@color/title_bar_color</item>
         <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
-        <item name="logo">@drawable/actionbar_modern_spacing</item>
-        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="logo">@drawable/commcare_actionbar_logo_spacing</item>
     </style>
 
     <style name="dropDownListView" parent="Widget.AppCompat.ListView.DropDown">
@@ -73,7 +72,9 @@
 
     <style name="ActionBar.TitleTextStyle">
         <item name="android:textColor">@color/white</item>
-        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ActionBarSubtitleTextStyle">
