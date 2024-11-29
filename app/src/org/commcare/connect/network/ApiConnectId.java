@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
@@ -484,7 +485,7 @@ public class ApiConnectId {
         HashMap<String, Object> params = new HashMap<>();
         params.put("channel", message.getChannelId());
 
-        JSONObject content = new JSONObject();
+        HashMap<String, String> content = new HashMap<>();
         try {
             content.put("ciphertext", parts[0]);
             content.put("nonce", parts[1]);
