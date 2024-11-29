@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/cc_core_bg"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
@@ -165,15 +166,17 @@
                                 android:layout_margin="@dimen/standard_spacer"
                                 android:textSize="@dimen/font_size_medium"
                                 android:visibility="gone" />
-
-                            <Button
+                            
+                            <org.commcare.activities.components.RoundedButton
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="bottom"
                                 android:nextFocusUp="@+id/edit_password"
                                 android:paddingBottom="@dimen/content_start"
-                                android:paddingTop="@dimen/content_start" />
+                                android:paddingTop="@dimen/content_start"
+                                app:roundButtonBackgroundColor="@color/primary_button_background"
+                                app:roundButtonTextColor="@color/white"/>
+
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"

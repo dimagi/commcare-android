@@ -33,27 +33,33 @@
             android:paddingBottom="2dip"
             android:paddingTop="2dip">
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/show_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:text="@string/go_to_location"
-                android:visibility="gone"/>
+                android:visibility="gone"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/accept_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="@string/accept_location" />
+                android:text="@string/accept_location"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/cancel_location"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="@string/cancel" />
+                android:text="@string/cancel"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
         </LinearLayout>
 
         <com.google.android.gms.maps.MapView

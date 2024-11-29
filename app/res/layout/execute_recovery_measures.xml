@@ -53,7 +53,7 @@
             android:visibility="gone"
             tools:text="2 out of 5 done"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/retry_button"
             android:layout_below="@id/status_tv"
             android:layout_centerHorizontal="true"
@@ -61,9 +61,11 @@
             android:layout_marginTop="@dimen/standard_spacer_large"
             android:layout_width="@dimen/center_button_width"
             android:text="@string/recovery_measure_retry"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/reinstall_button"
             android:layout_below="@id/retry_button"
             android:layout_centerHorizontal="true"
@@ -71,9 +73,11 @@
             android:layout_marginTop="@dimen/standard_spacer_large"
             android:layout_width="@dimen/center_button_width"
             android:text="@string/recovery_measure_reinstall"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/select_ccz_button"
             android:layout_below="@id/reinstall_button"
             android:layout_centerHorizontal="true"
@@ -81,7 +85,9 @@
             android:layout_marginTop="@dimen/standard_spacer_large"
             android:layout_width="@dimen/center_button_width"
             android:text="@string/recovery_measure_select_ccz"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
     </RelativeLayout>
 </ScrollView>

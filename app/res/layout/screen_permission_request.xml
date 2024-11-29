@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="@dimen/activity_horizontal_margin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,17 +34,21 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp">
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/screen_permission_request_button_grant"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Grant Access"/>
+            android:text="Grant Access"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/screen_permission_request_button_deny"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Deny Access"/>
+            android:text="Deny Access"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
     </LinearLayout>
 

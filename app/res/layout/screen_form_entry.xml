@@ -82,28 +82,28 @@
             android:paddingEnd="@dimen/new_progressbar_button_padding" />
 
         <ProgressBar
-            android:id="@+id/nav_prog_bar"
             style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/nav_prog_bar"
+            android:indeterminate="false"
+            android:indeterminateOnly="false"
             android:layout_alignBottom="@id/nav_btn_prev"
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/content_start"
             android:layout_marginLeft="@dimen/content_start"
             android:layout_marginRight="@dimen/content_start"
+            android:layout_marginStart="@dimen/content_start"
+            android:layout_toEndOf="@id/nav_btn_prev"
             android:layout_toLeftOf="@+id/nav_btn_next"
             android:layout_toRightOf="@id/nav_btn_prev"
-            android:indeterminate="false"
-            android:indeterminateOnly="false"
+            android:layout_toStartOf="@+id/nav_btn_next"
+            android:layout_width="wrap_content"
             android:max="100"
             android:paddingBottom="@dimen/content_start"
             android:paddingTop="@dimen/content_start"
             android:progress="0"
-            android:progressDrawable="@drawable/progressbar_modern"
-            android:layout_marginStart="@dimen/content_start"
-            android:layout_marginEnd="@dimen/content_start"
-            android:layout_toStartOf="@+id/nav_btn_next"
-            android:layout_toEndOf="@id/nav_btn_prev" />
+            android:progressDrawable="@drawable/progressbar_modern" />
 
         <ImageButton
             android:rotationY="@integer/locale_mirror_flip"
@@ -237,11 +237,17 @@
         android:layout_height="wrap_content"
         android:id="@+id/multiple_intent_dispatch_pane"
         android:layout_above="@+id/screen_form_entry_bottom_anchor">
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/multiple_intent_dispatch_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:roundButtonTextSize="12sp"
             android:text="Batch Dispatch"
-            android:visibility="gone"
-            style="@style/ScreenPinnedButtonNeutral"/>
+            android:layout_margin="16dp"
+            app:roundButtonIconTintColor="@color/cc_light_cool_accent_text"
+            app:roundButtonTextColor="@color/cc_light_cool_accent_text"
+            app:roundButtonIcon="@drawable/icon_chevron_right_brand"
+            app:roundButtonBackgroundColor="@color/cc_light_cool_accent_bg"/>
     </FrameLayout>
 
     <View

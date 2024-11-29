@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:gravity="center"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
@@ -44,16 +45,16 @@
             android:layout_marginEnd="10dp"
             android:layout_marginStart="20dp">
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/dayupbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/white"
-                style="@style/CommCare.Button.Default"
-                android:background="@color/bright_blue_grad_start"
-                android:elevation="@dimen/button_elevation"/>
+                android:elevation="@dimen/button_elevation"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="12sp"
+                app:roundButtonBackgroundColor="@color/bright_blue_grad_start"/>
 
             <EditText
                 android:id="@+id/day_txt_field"
@@ -67,16 +68,15 @@
                 android:selectAllOnFocus="true"
                 android:imeOptions="flagNoExtractUi"/>
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/daydownbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="-"
-                android:textSize="@dimen/text_largest"
-                style="@style/CommCare.Button.Default"
-                android:textColor="@color/white"
-                android:background="@color/dark_blue"
-                android:elevation="@dimen/button_elevation" />
+                android:elevation="@dimen/button_elevation"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="14sp"
+                app:roundButtonBackgroundColor="@color/dark_blue"/>
 
         </LinearLayout>
 
@@ -89,18 +89,18 @@
             android:layout_marginRight="10dp"
             android:layout_marginEnd="10dp">
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/monthupbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="+"
-                android:textSize="@dimen/text_largest"
-                style="@style/CommCare.Button.Default"
                 android:textColor="@color/white"
-                android:background="@color/bright_blue_grad_start"
                 android:elevation="@dimen/button_elevation"
-                android:layout_marginStart="5dp" />
+                android:layout_marginStart="5dp"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="12sp"
+                app:roundButtonBackgroundColor="@color/bright_blue_grad_start"/>
 
            <Spinner
                android:layout_width="match_parent"
@@ -108,18 +108,17 @@
                android:id="@+id/month_spinner">
            </Spinner>
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/monthdownbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="-"
-                android:textSize="@dimen/text_largest"
-                style="@style/CommCare.Button.Default"
-                android:textColor="@color/white"
-                android:background="@color/dark_blue"
                 android:elevation="@dimen/button_elevation"
-                android:layout_marginStart="5dp" />
+                android:layout_marginStart="5dp"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="16sp"
+                app:roundButtonBackgroundColor="@color/dark_blue"/>
 
         </LinearLayout>
 
@@ -131,18 +130,18 @@
             android:layout_marginRight="20dp"
             android:layout_marginEnd="20dp">
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/yearupbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
-                style="@style/CommCare.Button.Default"
-                android:textColor="@color/white"
-                android:background="@color/bright_blue_grad_start"
                 android:elevation="@dimen/button_elevation"
-                android:layout_marginStart="5dp" />
+                android:layout_marginStart="5dp"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="12sp"
+                app:roundButtonBackgroundColor="@color/bright_blue_grad_start"/>
 
             <EditText
                 android:id="@+id/year_txt_field"
@@ -159,18 +158,17 @@
                 android:imeOptions="flagNoExtractUi"
                 android:layout_marginStart="5dp" />
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/yeardownbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="-"
-                android:textSize="@dimen/text_largest"
-                style="@style/CommCare.Button.Default"
-                android:textColor="@color/white"
-                android:background="@color/dark_blue"
                 android:elevation="@dimen/button_elevation"
-                android:layout_marginStart="5dp" />
+                android:layout_marginStart="5dp"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="16sp"
+                app:roundButtonBackgroundColor="@color/dark_blue"/>
         </LinearLayout>
 
     </LinearLayout>

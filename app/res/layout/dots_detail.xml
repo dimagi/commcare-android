@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="fill_parent"
     android:layout_width="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:viewBindingIgnore="true">
 
     <TextView
@@ -37,21 +37,26 @@
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
         android:id="@+id/dotsbuttonframe"
         android:weightSum="1">
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="Save Details"
             android:id="@+id/btn_dots_detail_ok"
-            android:layout_weight="0.5"></Button>
+            android:layout_weight="0.5"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn_dots_detail_cancel"
             android:text="Cancel"
-            android:layout_weight="0.5"></Button>
+            android:layout_weight="0.5"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
     </LinearLayout>
 </RelativeLayout>

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center"
     tools:viewBindingIgnore="true">
@@ -50,11 +51,13 @@
         android:layout_marginStart="@dimen/standard_spacer_double"
         android:layout_marginEnd="@dimen/standard_spacer_double" />
 
-    <Button
+    <org.commcare.activities.components.RoundedButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/claim_button"
-        android:textSize="@dimen/font_size_xlarge"
-        android:text="@string/claim_privilege_button_text" />
+        app:roundButtonTextSize="@dimen/font_size_small"
+        android:text="@string/claim_privilege_button_text"
+        app:roundButtonBackgroundColor="@color/primary_button_background"
+        app:roundButtonTextColor="@color/white"/>
 
 </LinearLayout>

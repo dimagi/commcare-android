@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.components.FormEntryConstants;
+import org.commcare.activities.components.RoundedButton;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.CompoundIntentList;
@@ -93,7 +94,7 @@ public class IntentWidget extends QuestionWidget {
         } else {
             mStringAnswer = new TextView(getContext());
         }
-        launchIntentButton = new AppCompatButton(getContext());
+        launchIntentButton = new RoundedButton(getContext());
         setupTextView();
         setupButton();
     }
@@ -123,6 +124,7 @@ public class IntentWidget extends QuestionWidget {
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
                 !mPrompt.isReadOnly());
+
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(v -> performCallout());

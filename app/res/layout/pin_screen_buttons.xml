@@ -3,24 +3,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_alignParentBottom="true"
     android:weightSum="2"
     tools:viewBindingIgnore="true">
 
-    <Button
+    <org.commcare.activities.components.RoundedButton
         android:layout_width="wrap_content"
         android:layout_height="@dimen/min_button_height"
         android:id="@+id/pin_cancel_button"
-        android:textSize="@dimen/font_size_dp_medium"
-        android:layout_weight="1"/>
+        app:roundButtonTextSize="@dimen/font_size_dp_medium"
+        android:layout_weight="1"
+        app:roundButtonBackgroundColor="@color/primary_button_background"
+        app:roundButtonTextColor="@color/white"/>
 
-    <Button
+    <org.commcare.activities.components.RoundedButton
         android:layout_width="wrap_content"
         android:layout_height="@dimen/min_button_height"
         android:id="@+id/pin_confirm_button"
-        android:textSize="@dimen/font_size_dp_medium"
+        app:roundButtonTextSize="@dimen/font_size_dp_medium"
         android:enabled="false"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        app:roundButtonBackgroundColor="@color/primary_button_background"
+        app:roundButtonTextColor="@color/white"/>
 
 </LinearLayout>

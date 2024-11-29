@@ -41,21 +41,22 @@
             android:visibility="visible"
             android:layout_marginEnd="8dp" />
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/detail_value_phone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start|center_vertical"
             android:layout_marginLeft="11dp"
             android:layout_marginRight="12dp"
-            android:drawableLeft="@drawable/sym_action_call"
-            android:drawablePadding="@dimen/content_min_margin"
+            app:roundButtonIconPadding="16dp"
             android:text="555-555-5555"
-            android:typeface="monospace"
             android:visibility="gone"
             android:layout_marginEnd="12dp"
-            android:drawableStart="@drawable/sym_action_call"
-            android:layout_marginStart="11dp" />
+            android:layout_marginStart="11dp"
+            app:roundButtonIconLeftAlign="true"
+            app:roundButtonIcon="@drawable/sym_action_call"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
         <ImageButton
             android:id="@+id/detail_video_button"
@@ -105,13 +106,15 @@
                 android:drawablePadding="@dimen/content_min_margin"
                 android:text="Callout"/>
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/callout_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:drawablePadding="@dimen/content_min_margin"
-                android:text="Callout"/>
+                android:text="Callout"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
 
             <TextView
                 android:id="@+id/callout_text"
@@ -141,20 +144,24 @@
             android:paddingLeft="11dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_marginEnd="8dp"
             android:paddingStart="11dp"
             android:paddingEnd="4dp">
 
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/detail_address_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
-                android:drawableLeft="@drawable/sym_action_lookup"
+                app:roundButtonIcon="@drawable/sym_action_lookup"
+                app:roundButtonIconLeftAlign="true"
                 android:drawablePadding="@dimen/content_min_margin"
                 android:text="Show Address"
-                android:drawableStart="@drawable/sym_action_lookup" />
+                android:drawableStart="@drawable/sym_action_lookup"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"
+                />
 
             <TextView
                 android:id="@+id/detail_address_text"

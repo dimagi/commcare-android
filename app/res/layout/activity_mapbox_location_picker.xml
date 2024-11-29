@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="org.commcare.gis.MapboxLocationPickerActivity">
 
     <io.ona.kujaku.views.KujakuMapView
@@ -56,22 +57,25 @@
             android:maxLines="3"
             android:minLines="3" />
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/confirm_location_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:enabled="false"
-            style="@style/Commcare.Button.Primary"
-            android:text="@string/confirm_location" />
+            android:text="@string/confirm_location"
+            app:roundButtonBackgroundColor="@color/button_primary"
+            app:roundButtonTextColor="@color/white"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/cancel_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:layout_gravity="bottom"
-            style="@style/Commcare.Button.Primary"
-            android:text="@string/cancel" />
+            android:text="@string/cancel"
+            app:roundButtonBackgroundColor="@color/button_primary"
+            app:roundButtonTextColor="@color/white"/>
 
     </LinearLayout>
 

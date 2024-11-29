@@ -46,13 +46,15 @@
             android:lines="5"
             android:textColor="@color/black"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/ReportButton01"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/ReportText01"
             android:layout_centerHorizontal="true"
-            android:text="Submit Report"/>
+            android:text="Submit Report"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
 
     </RelativeLayout>
 </ScrollView>

@@ -38,13 +38,13 @@
             android:paddingRight="5dp"
             android:paddingStart="5dp"
             android:paddingEnd="5dp">
-
-            <Button
+            <org.commcare.activities.components.RoundedButton
                 android:id="@+id/run_connection_test"
-                style="@style/ButtonBottom"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Run Connection Test"/>
+                android:text="Run Connection Test"
+                app:roundButtonBackgroundColor="@color/primary_button_background"
+                app:roundButtonTextColor="@color/white"/>
 
         </RelativeLayout>
 
@@ -58,20 +58,22 @@
             android:text="Output message."
             android:visibility="invisible"/>
 
-        <Button
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/settings_button"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Go to Settings"
-            android:visibility="invisible"/>
-
-        <Button
+            android:visibility="visible"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
+        <org.commcare.activities.components.RoundedButton
             android:id="@+id/report_button"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="Report to CommCare"
-            android:visibility="invisible"/>
+            android:visibility="visible"
+            app:roundButtonBackgroundColor="@color/primary_button_background"
+            app:roundButtonTextColor="@color/white"/>
     </LinearLayout>
 </ScrollView>
