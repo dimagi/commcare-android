@@ -193,7 +193,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                             }
 
                             ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                    password, name, "");
+                                    password, name, "","","");
 
                             key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
                             user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));

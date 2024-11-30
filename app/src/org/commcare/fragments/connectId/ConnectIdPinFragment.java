@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -206,6 +207,7 @@ public class ConnectIdPinFragment extends Fragment {
 
         boolean isBusy = false;
         final Context context = getActivity();
+        Log.e("DEBUG_TESTING12", "handleButtonPress: " + secret);
         if (isChanging) {
             //Change PIN
             isBusy = !ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
@@ -224,6 +226,7 @@ public class ConnectIdPinFragment extends Fragment {
                         }
 
                         @Override
+
                         public void processNetworkFailure() {
                             ConnectNetworkHelper.showNetworkError(getActivity());
                         }
@@ -245,9 +248,10 @@ public class ConnectIdPinFragment extends Fragment {
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 ConnectManager.setFailureAttempt(0);
+                                Log.e("DEBUG_TESTING12", "responseAsString: " + responseAsString);
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
-
+                                    Log.e("DEBUG_TESTING12", "json: " + json.toString());
                                     String key = ConnectConstants.CONNECT_KEY_USERNAME;
                                     if (json.has(key)) {
                                         username = json.getString(key);
@@ -263,8 +267,16 @@ public class ConnectIdPinFragment extends Fragment {
                                         ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                                     }
 
+                                    key = ConnectConstants.CONNECT_PAYMENT_INFO;
+                                    String paymentName = "",paymentPhone = "";
+//                                    if(json.has(key)){
+//                                        JSONObject paymentJson = json.getJSONObject(key);
+//                                        paymentName = paymentJson.getString("");
+//                                        paymentPhone = paymentJson.getString("");
+//                                    }
+
                                     ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                            "", name, "");
+                                            "", name, "",paymentName,paymentPhone);
                                     user.setPin(pin);
                                     user.setLastPinDate(new Date());
 
@@ -382,7 +394,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null, false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
@@ -397,7 +409,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(),false).setAllowChange(true);
+                            ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(), false).setAllowChange(true);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN -> {
@@ -447,7 +459,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone, false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {

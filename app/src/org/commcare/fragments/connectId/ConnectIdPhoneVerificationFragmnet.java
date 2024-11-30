@@ -435,7 +435,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                                 ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                             }
 
-                            resetPassword(context, phone, password, username, displayName);
+                            resetPassword(context, phone, password, username, displayName,"","");
                         }
                     }
                 } catch (Exception e) {
@@ -490,14 +490,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         }
     }
 
-    private void resetPassword(Context context, String phone, String secret, String username, String name) {
+    private void resetPassword(Context context, String phone, String secret, String username, String name,String paymentName,String paymentPhone) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                        password, name, recoveryPhone);
+                        password, name, recoveryPhone,paymentName,paymentPhone);
                 user.setSecondaryPhoneVerified(true);
                 ConnectDatabaseHelper.storeUser(context, user);
 

@@ -63,6 +63,12 @@ public class ConnectUserRecord extends Persisted {
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
     private Date verifySecondaryPhoneByDate;
 
+    @Persisting(13)
+    private String paymentName;
+
+    @Persisting(14)
+    private String paymentPhone;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
@@ -72,13 +78,15 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
-                             String alternatePhone) {
+                             String alternatePhone,String paymentName,String paymentPhone) {
         this();
         this.primaryPhone = primaryPhone;
         this.alternatePhone = alternatePhone;
         this.userId = userId;
         this.password = password;
         this.name = name;
+        this.paymentName = paymentName;
+        this.paymentPhone = paymentPhone;
 
         connectTokenExpiration = new Date();
     }
@@ -89,7 +97,10 @@ public class ConnectUserRecord extends Persisted {
                 intent.getStringExtra(ConnectConstants.USERNAME),
                 intent.getStringExtra(ConnectConstants.PASSWORD),
                 intent.getStringExtra(ConnectConstants.NAME),
-                intent.getStringExtra(ConnectConstants.ALT_PHONE));
+                intent.getStringExtra(ConnectConstants.ALT_PHONE),
+                intent.getStringExtra(ConnectConstants.PAYMENT_NAME),
+                intent.getStringExtra(ConnectConstants.PAYMENT_PHONE)
+        );
     }
 
     public void putUserInIntent(Intent intent) {
