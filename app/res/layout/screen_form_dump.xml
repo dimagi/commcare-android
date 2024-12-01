@@ -20,9 +20,9 @@
             android:paddingTop="20px"
             android:paddingBottom="0px"
             android:scaleType="fitStart"
-            android:maxHeight="135px"
+            android:maxHeight="125px"
             android:maxWidth="663px"
-            app:srcCompat="@drawable/ccbanner"
+            app:srcCompat="@drawable/commcare_by_dimagi"
             android:layout_marginEnd="20px"
             android:paddingStart="20px"></ImageView>
 

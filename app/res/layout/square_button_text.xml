@@ -10,6 +10,7 @@
     <org.commcare.views.SquareButton
         android:id="@+id/button"
         android:layout_width="match_parent"
+        android:padding="16dp"
         android:layout_height="wrap_content"
         android:background="@null"
         android:clickable="false"
@@ -21,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:paddingBottom="@dimen/standard_spacer"

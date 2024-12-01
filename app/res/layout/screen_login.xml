@@ -171,6 +171,7 @@
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
+                                android:textAllCaps="true"
                                 android:nextFocusUp="@+id/edit_password"
                                />
 

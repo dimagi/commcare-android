@@ -153,6 +153,8 @@
     <color name="button_background_color">#5D70D2</color>
     <color name="start_sync_dark_button">#3b4fb6</color>
     <color name="start_logout_button">#373534</color>
+    <color name="barcode_button_color">#3843D0</color>
+    <color name="url_button_color">#8EA1FF</color>
 
 
 </resources>

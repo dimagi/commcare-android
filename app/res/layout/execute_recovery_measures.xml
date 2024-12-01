@@ -17,9 +17,9 @@
         <ImageView
             android:id="@+id/screen_login_top_banner"
             android:layout_centerHorizontal="true"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            app:srcCompat="@drawable/icon_color"/>
+            android:layout_height="136dp"
+            android:layout_width="136dp"
+            app:srcCompat="@mipmap/commcare_launcher"/>
 
         <TextView
             android:gravity="center"
