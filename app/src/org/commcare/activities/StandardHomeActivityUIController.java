@@ -62,6 +62,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
         connectTile = activity.findViewById(R.id.connect_alert_tile);
+        connectTile.setVisibility(View.GONE);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
         updateConnectProgress();
