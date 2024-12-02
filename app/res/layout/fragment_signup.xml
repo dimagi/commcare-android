@@ -236,43 +236,55 @@
 
 
         <LinearLayout
-            android:id="@+id/button_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/firstLayout"
-            android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
-            android:layout_margin="16dp"
-            android:gravity="center_vertical|center_horizontal">
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                android:id="@+id/button_title"
-                android:layout_width="wrap_content"
+            <View
+                android:id="@+id/dividerBottom"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/connect_light_grey" />
+
+            <LinearLayout
+                android:id="@+id/button_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="30dp"
-                android:layout_weight="1"
-                android:gravity="start"
-                android:text="@string/connect_registration_have_account"
-                android:textSize="14sp" />
+                android:layout_margin="16dp"
+                android:gravity="center_vertical|center_horizontal">
 
-            <org.commcare.views.connect.RoundedButton
-                android:id="@+id/recover_button"
-                android:layout_width="wrap_content"
-                android:layout_height="45dp"
-                android:layout_below="@+id/connect_consent_check"
-                android:layout_alignParentRight="true"
-                android:layout_marginEnd="16dp"
-                android:gravity="start|center"
-                android:padding="1dp"
-                android:text="Recover"
-                app:roundButtonBorderColor="@color/connect_border_color"
-                app:roundButtonBorderRadius="@dimen/dp48"
-                app:roundButtonBorderVisible="true"
-                app:roundButtonIconLeftAlign="false"
-                app:roundButtonTextColor="@color/connect_blue_color"
-                app:roundButtonTextSize="6.5sp" />
+                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    android:id="@+id/button_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="30dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/connect_registration_have_account"
+                    android:textSize="14sp" />
+
+                <org.commcare.views.connect.RoundedButton
+                    android:id="@+id/recover_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="45dp"
+                    android:layout_below="@+id/connect_consent_check"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="start|center"
+                    android:padding="1dp"
+                    android:text="Recover"
+                    app:roundButtonBorderColor="@color/connect_border_color"
+                    app:roundButtonBorderRadius="@dimen/dp48"
+                    app:roundButtonBorderVisible="true"
+                    app:roundButtonIconLeftAlign="false"
+                    app:roundButtonTextColor="@color/connect_blue_color"
+                    app:roundButtonTextSize="6.5sp" />
 
 
+            </LinearLayout>
         </LinearLayout>
     </FrameLayout>
 </layout>

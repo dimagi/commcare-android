@@ -441,7 +441,7 @@
     <string name="connect_registration_title">ConnectID Signup</string>
     <string name="connect_signup">Signup</string>
     <string name="connect_recover">Recover</string>
-    <string name="connect_registration_have_account">Already have\nConnectID?</string>
+    <string name="connect_registration_have_account">Already have\nan Account?</string>
     <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
@@ -468,17 +468,19 @@
     <string name="connect_phone_not_found">Phone number not found</string>
     <string name="connect_phone_change_error">Error changing phone number</string>
     <string name="connect_password_button">OK</string>
-    <string name="connect_pin_title_set">Choose PIN</string>
-    <string name="connect_pin_title_confirm">Confirm PIN</string>
 
-    <string name="connect_pin">Enter PIN</string>
-    <string name="connect_pin_repeat">Confirm PIN</string>
+    <string name="connect_pin_title_set">Recovery Code</string>
+    <string name="connect_pin_title_confirm">Confirm Recovery Code</string>
+    <string name="connect_pin_message_title">ConnectID Recovery Code</string>
+    <string name="connect_pin_message">Enter your 6-digit Recovery Code</string>
+    <string name="connect_pin">Enter Recovery Code</string>
+    <string name="connect_pin_repeat">Confirm Recovery Code</string>
     <string name="connect_pin_length">Code must be %d digits</string>
-    <string name="connect_pin_mismatch">PINs must match</string>
+    <string name="connect_pin_mismatch">Codes must match</string>
+
     <string name="connect_password_verify_title">Enter Your Password</string>
     <string name="connect_password_verify_message">Please enter your recovery password to continue.</string>
     <string name="connect_password_verify">Enter Password</string>
-
     <string name="connect_password_verify_forgot">Don\'t have or forgot your password?</string>
     <string name="connect_password_verify_button">Submit</string>
     <string name="connect_password_fail_title">Wrong Password</string>
@@ -490,9 +492,18 @@
     <string name="connect_pin_recovery_message">You entered the wrong Code too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
 
     <string name="connect_pin_confirm_message">You entered the wrong Code too many times, you will have to configure the code again.\n On the next screen, we\'ll redirect you to the configure code page.</string>
-    <string name="connect_pin_verify_forgot">Don\'t have or forgot your Code?</string>
+    <string name="connect_pin_verify_forgot">Forgot Code</string>
     <string name="connect_recovery_title">ConnectID Recovery</string>
 
+
+
+    <string name="connect_recovery_decision_new">Choose a step below</string>
+    <string name="connect_recovery_button_new">Create New ConnectID Account</string>
+    <string name="connect_recovery_button_recover">Recover Existing Account</string>
+    <string name="connect_recovery_decision_phone">Please enter the primary phone number you entered with your account</string>
+
+    <string name="connect_recovery_button_phone">Continue</string>
+    <string name="connect_recovery_button_extended">More Options</string>
     <string name="connect_recovery_alt_title">Alternate Phone</string>
     <string name="connect_recovery_alt_message">On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
     <string name="connect_recovery_alt_button">Continue</string>
@@ -535,10 +546,13 @@
     <string name="connect_verify_phone_title">Verification Code</string>
     <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
     <string name="connect_verify_phone_label_secondary">We attempted to send you a SMS on your secondary phone number.</string>
+    <string name="connect_verify_phone_label_deactivate">In order to deactivate your account, please enter the code sent by SMS to your primary phone number.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
+    <string name="connect_verify_phone_error">Error verifying SMS code</string>
+    <string name="connect_verify_phone_resend_code">Resend Code</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
-    <string name="connect_verify_phone_change">Change phone number</string>
+    <string name="connect_verify_phone_change">Change</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
 
@@ -554,6 +568,7 @@
     <string name="connect_job_intro_title">Opportunity</string>
 
     <string name="connect_job_none_available">There are no available opportunities right now</string>
+    <string name="connect_job_learn_details">Learn Details</string>
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_no_learning_required">No learning required</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
@@ -600,7 +615,7 @@
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
@@ -640,7 +655,7 @@
     <string name="connect_payment_acknowledge_notification_yes">Yes</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
 
-    <string name="enter_otp">Enter SMS Code</string>
+    <string name="enter_otp">Enter OTP</string>
     <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
     <string name="confirm_code">Confirm Code</string>
@@ -725,6 +740,9 @@
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
+    <string name="connect_job_info_per_visit">per visit</string>
+    <string name="connect_job_info_delivery_hours">Delivery Hours</string>
+    <string name="connect_job_info_view_more">View More</string>
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
@@ -744,8 +762,8 @@
     <string name="connect_payment_revert">Revert</string>
 
     <string name="connect_deactivate_account">Deactivate Account</string>
-    <string name="connect_deactivate_account_message">You are about to permanently deactivate this account…</string>
-    <string name="connect_deactivate_account_delete">Delete Account</string>
+    <string name="connect_deactivate_account_message">Are you sure you want to permanently deactivate this account? Once finished, you will need to register a new account for this phone number.</string>
+    <string name="connect_deactivate_account_delete">Deactivate Account</string>
     <string name="connect_deactivate_account_go_back">Go Back</string>
     <string name="connect_deactivate_account_deactivated">Account deactivated, you may now register a new account with your primary phone number</string>
     <string name="connect_deactivate_account_creation">Ok</string>
@@ -759,6 +777,7 @@
     <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
+    <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
     <string name="connect_appbar_title_password_verification">Password Verification</string>
 </resources>

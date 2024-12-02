@@ -221,7 +221,7 @@ License.
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne gagnerez aucun progrès pour le travail.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximum de visites. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximum de visites pour aujourd\'hui. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
-    <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne pour %s.</string>
     <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
     <string name="connect_job_go_to_learn_app">Accédez à l\'application Apprendre</string>

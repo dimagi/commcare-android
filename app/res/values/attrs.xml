@@ -125,4 +125,14 @@
         <attr name="editTextPaddingEnd" format="dimension" />
         <attr name="editTextFontFamily" format="string" />
     </declare-styleable>
+    <declare-styleable name="CustomOtpView">
+        <attr name="otpViewDigitCount" format="integer" />
+        <attr name="otpViewBorderColor" format="color" />
+        <attr name="otpViewBorderRadius" format="dimension" />
+        <attr name="otpViewBorderWidth" format="dimension" />
+        <attr name="otpViewTextColor" format="color" />
+        <attr name="otpViewTextSize" format="dimension" />
+        <attr name="otpViewErrorBorderColor" format="color" />
+        <attr name="otpViewErrorTextColor" format="color" />
+    </declare-styleable>
 </resources>

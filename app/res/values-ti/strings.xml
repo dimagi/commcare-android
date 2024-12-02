@@ -39,7 +39,6 @@
     <string name="install_from_list_prompt">ከም ተጠቃሚ ሞባይል ወይ መርበብ ሓበሬታ ብምእታው ዝርዝር ናይቶም ክፅዕንዎም ዝኽእሉ ኣፕስ ምርኣይ</string>
     <string name="legacy_failure">CommCare ካብቲ ቅድሚ ሕጂ ትጥቀሙሉ ዝነበርኩም CommCare ስርሒት ምዕባይ ኣይድግፍን እዩ። ነዚ ጸገም ንምፍታሕ፡ በጃኹም CommCare ካብ መሳርሒኹም ኣውፅእዎ እሞ ዳግማይ ይፅዓኑ።</string>
     <string name="legacy_failure_title">ዘይስማዕማዕ ኮምኬር ምዕባይ</string>
-    <string name="app_version_string">version.id.long ዝብል ጽሑፍ ኣሎ።</string>
     <string name="notificationtitle">ናብ ኮምኬር ኣትዩም</string>
     <string name="expirenotification">መእተዊ ኮምኬር ግዜኡ ኣኺሉ።</string>
     <string name="submission_notification_title">ዳታ ምቕራብ/ምርካብ</string>
@@ -371,12 +370,14 @@
     <string name="connect_phone_not_found">ቁጽሪ ስልኪ ሞባይል ኣይተረኽበን።</string>
     <string name="connect_phone_change_error">ቁጽሪ ስልኪ ቁፅሪ ሞባይል ኣብ ምቕያር ጌጋ</string>
     <string name="connect_password_button">እሺ</string>
-    <string name="connect_pin_title_set">PIN/ፒን ምረጽ</string>
-    <string name="connect_pin_title_confirm">PIN/ፒን ኣረጋግጽ</string>
-    <string name="connect_pin">PIN/ፒን ኣእቱ</string>
-    <string name="connect_pin_repeat">PIN/ፒን ኣረጋግጽ</string>
-    <string name="connect_pin_length">ኮድ %d ኣሃዛት ክኸውን ኣለዎ።</string>
-    <string name="connect_pin_mismatch">PIN/ፒን ክሰማማዕ/ክዛመድ ኣለዎ።</string>
+    <string name="connect_pin_title_set">ናይ ምሕዋይ ሕጊ</string>
+    <string name="connect_pin_title_confirm">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
+    <string name="connect_pin_message_title">ConnectID ናይ ምሕዋይ ኮድ</string>
+    <string name="connect_pin_message">6 ኣሃዝ ዘለዎ ናይ ምሕዋይ ኮድካ ኣእቱ</string>
+    <string name="connect_pin">ናይ ምሕዋይ ኮድ ኣእትዉ</string>
+    <string name="connect_pin_repeat">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
+    <string name="connect_pin_length">ኮድ %d ኣሃዝ ክኸውን ኣለዎ።</string>
+    <string name="connect_pin_mismatch">ኮዳት ክሰማምዑ ኣለዎም።</string>
     <string name="connect_password_verify_title">ናይ ይሕለፍ ቃል/ ፓስዎርድ ኣእቱ</string>
     <string name="connect_password_verify_message">በይዛኩም ናብ ንቡር ንምምላስ ንኽትቅፅሉ ናይ ይሕለፍ ቃል/ ፓስዎርድካ ኣእትዉ።</string>
     <string name="connect_password_verify">ናይ ይሕለፍ ቃል/ ፓስዎርድ ኣእቱ</string>
@@ -390,7 +391,7 @@
     <string name="connect_pin_fail_message">ጌጋ ኮድ ኣእቲኻ፤ በይዛኻ ደጊምካ ፈትን።</string>
     <string name="connect_pin_recovery_message">ጌጋ ኮድ ብዙሕ ግዜ ኣእቲኻ፡ ኣካውንትካ ናብ ንቡር ኩነታት ክትመልስ ከድልየካ እዩ።\n ኣብ ዝቕጽል ስክሪን፤ ብኤስኤምኤስ/ ብመልእክቲ ፅሑፍ ናብቲ ምስ ኣካውንትካ ዝተኣሳሰር ኣማራጺ ቁጽሪ ስልኪ ሞባይል ኮድ ክንሰድድ ኢና።</string>
     <string name="connect_pin_confirm_message">ጌጋ ኮድ ብዙሕ ግዜ ኣእቲኻ፡ ነቲ ኮድ እንደገና ክተስተካክሎ ክትግደድ ኢኻ።\n ኣብ ዝቕጽል ስክሪን፡ ናብቲ ናይ መስተካከሊ ኮድ ገጽ ክንመርሐካ ኢና።</string>
-    <string name="connect_pin_verify_forgot">ኮድካ የብልካን ወይ ረሲዕካዮ?</string>
+    <string name="connect_pin_verify_forgot">ኮድ ረሲዐዮ</string>
     <string name="connect_recovery_title">ConnectID ናብ ንቡር ምምላስ</string>
     <string name="connect_recovery_alt_title">ኣማራፂ ስልኪ</string>
     <string name="connect_recovery_alt_message">ኣብ ዝቕጽል ስክሪን፤ ብኤስኤምኤስ/ ብመልእክቲ ፅሑፍ ናብቲ ምስ ኣካውንትኩም ዝተኣሳሰር ኣማራጺ ቁጽሪ ስልኪ ሞባይል ኮድ ክንሰድድ ኢና።</string>
@@ -428,6 +429,8 @@
     <string name="connect_verify_phone_label">ብ %s ዝውዳእ መልአኽቲ ( SMS ) ክንሰደልኩም ፈቲንና።</string>
     <string name="connect_verify_phone_label_secondary">ኣብ ካልኣይ ደረጃ ቁፅሪ ተሌፎንኩም መልእኽቲ ( SMS ) ክንሰደልኩም ፈቲንና።</string>
     <string name="connect_verify_phone_resend">ኮድካ ኣይተቐበልካን ዲኻ? ዳግማይ ስደድ</string>
+    <string name="connect_verify_phone_error">ኮድ ኤስኤምኤስ ኣብ ምርግጋጽ ጌጋ</string>
+    <string name="connect_verify_phone_resend_code">ዳግማይ ምልኣኽ ኮድ</string>
     <string name="connect_verify_phone_resend_wait">ኮድካ ኣይተቐበልካን ዲኻ? ኣብ %d s ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_change">ቁፅሪ ተሌፎን ቐይር።</string>
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
@@ -436,6 +439,7 @@
     <string name="connect_no_jobs">ኣብ ዝኾነ ንጡፍ ዕድላት ኣይተዓደምኩምን። በይዛኹም ፀኒሕኹም ተመለሱ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_none_available">ኣብዚ ኸዚ እዋን ዝረኽብዎ ዕድላት የለዉን።</string>
+    <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
     <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
     <string name="connect_job_no_learning_required">ትምህርቲ ኣየድልን።</string>
     <string name="connect_job_go_to_learn_app">ናብ Learn App ኪድ</string>
@@ -476,7 +480,7 @@
     <string name="connect_progress_warning_not_started">እቲ ስራሕ ገና ኣይተጀመረን። ንስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_single">ዝለዓለ ቁፅሪ ምብፃሕ ፈፂምካ ኣለኻ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
-    <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ።</string>
+    <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
     <string name="connect_progress_warning_daily_max_reached_multi">ንመዓልታዊ ገደብ %s በፂሕካ ኣለኻ።</string>
     <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
     <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
@@ -525,6 +529,9 @@
     <string name="connect_job_info_days">%d መዓልታት ንምዝዛም</string>
     <string name="connect_job_info_max_visit">ዝለዓለ ምጉብናይ ኣብ መዓልቲ %መ</string>
     <string name="connect_job_info_visit_charge">ንምጉብናይ ክሳብ %s ኣታዊ ምርካብ</string>
+    <string name="connect_job_info_per_visit">ኣብ ነፍሲ ወከፍ ምብጻሕ</string>
+    <string name="connect_job_info_delivery_hours">ሰዓታት ምብጻሕ</string>
+    <string name="connect_job_info_view_more">ተወሳኺ ርአ</string>
     <string name="connect_job_info_start_visit">ምብጻሕ (ምጉብንይ) ጀምር</string>
     <string name="connect_job_info_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_job_info_download">ዳውንሎድ</string>
@@ -554,6 +561,7 @@
     <string name="connect_job_tile_price">₹ %s</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_job_tile_daily_limit">ልዕሊ (ገደብ) ደረት</string>
+    <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="connect_messaging_channel_consent_title">ፍቓድ ንቻነል ሃብ</string>
     <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
     <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
