@@ -320,9 +320,14 @@ public class ConnectIdPhoneFragment extends Fragment {
 
                             boolean isBusy = !ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
+                                        private void completeCall() {
+                                            skipPhoneNumberCheck = false;
+                                            binding.connectPrimaryPhoneAvailability.setText("");
+                                        }
+
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             binding.errorTextView.setText(getString(R.string.connect_phone_available));
                                             binding.connectPrimaryPhoneButton.setEnabled(true);
 
@@ -330,7 +335,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
                                         @Override
                                         public void processFailure(int responseCode, IOException e) {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             if (e != null) {
                                                 Logger.exception("Checking phone number", e);
                                             }
@@ -340,13 +345,13 @@ public class ConnectIdPhoneFragment extends Fragment {
 
                                         @Override
                                         public void processNetworkFailure() {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
                                         }
 
                                         @Override
                                         public void processOldApiError() {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });

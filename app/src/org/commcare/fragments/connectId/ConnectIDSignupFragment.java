@@ -278,6 +278,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                         public void processSuccess(int responseCode, InputStream responseData) {
                                             skipPhoneNumberCheck = false;
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
+                                                binding.errorTextView.setVisibility(View.GONE);
                                                 updateButtonEnabled();
                                                 createAccount();
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
