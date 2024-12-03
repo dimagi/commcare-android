@@ -498,8 +498,9 @@
     <string name="connect_downloading_delivery">Baixando o aplicativo de entrega</string>
     <string name="connect_results_summary_earned">Ganhos</string>
     <string name="connect_results_summary_transferred">Transferido</string>
-    <string name="connect_results_payment_date">%s</string>
-    <string name="connect_results_payment_description">%s</string>
+    <string name="connect_results_summary_all">Todos</string>
+    <string name="connect_results_summary_remaining">Restante</string>
+    <string name="connect_results_summary_remaining_days">%d em %d dias</string>
     <string name="connect_results_payment_confirm">Confirmar</string>
     <string name="connect_results_payment_confirm_undo">Desfazer confirmação</string>
     <string name="connect_results_payment_confirmed">Confirmado</string>
@@ -571,7 +572,6 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
     <string name="connect_expired">Expirado</string>
-    <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Limite diário atingido. Nenhum pagamento pelo envio de formulários</string>
     <string name="connect_job_tile_daily_limit">Acima do limite</string>
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>

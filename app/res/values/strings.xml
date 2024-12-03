@@ -624,7 +624,6 @@
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
-    <string name="connect_job_full_description">%s</string>
     <string name="connect_end_date">Complete Project by %s</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
 
@@ -705,14 +704,15 @@
     <string name="connect_results_summary_view_deliveries">View Deliveries</string>
     <string name="connect_results_summary_payments_title">Payments</string>
     <string name="connect_results_summary_view_payments">View Payments</string>
+    <string name="connect_results_summary_all">All</string>
     <string name="connect_results_summary_pending">Pending</string>
     <string name="connect_results_summary_rejected">Rejected</string>
     <string name="connect_results_summary_approved">Approved</string>
     <string name="connect_results_summary_earned">Earned</string>
+    <string name="connect_results_summary_remaining">Remaining</string>
+    <string name="connect_results_summary_remaining_days">%d in %d days</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
-    <string name="connect_results_payment_date">%s</string>
-    <string name="connect_results_payment_description">%s</string>
 
     <string name="connect_results_payment_confirm">Confirm</string>
     <string name="connect_results_payment_confirm_undo">Undo confirm</string>
@@ -874,7 +874,6 @@
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
     <string name="connect_commcare_app">CommCare App</string>
-    <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>

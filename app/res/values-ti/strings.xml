@@ -486,8 +486,9 @@
     <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
     <string name="connect_results_summary_earned">ዝረኸበ</string>
     <string name="connect_results_summary_transferred">ተሰጋጊሩ</string>
-    <string name="connect_results_payment_date">%s</string>
-    <string name="connect_results_payment_description">%s</string>
+    <string name="connect_results_summary_all">ኩሎም</string>
+    <string name="connect_results_summary_remaining">ዝተረፈ</string>
+    <string name="connect_results_summary_remaining_days">%d ኣብ ውሽጢ %d መዓልቲ</string>
     <string name="connect_results_payment_confirm">ኣረጋግፅ</string>
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
@@ -558,7 +559,6 @@
     <string name="connect_learn">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
     <string name="connect_delivery">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
     <string name="connect_expired">ኣገልግሎቱ ዝወደአ</string>
-    <string name="connect_job_tile_price">₹ %s</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_job_tile_daily_limit">ልዕሊ (ገደብ) ደረት</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
