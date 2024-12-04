@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.SsoToken;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -190,9 +191,9 @@ public class ConnectUserRecord extends Persisted {
         return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
-    public void updateConnectToken(String token, Date expirationDate) {
-        connectToken = token;
-        connectTokenExpiration = expirationDate;
+    public void updateConnectToken(SsoToken token) {
+        connectToken = token.token;
+        connectTokenExpiration = token.expiration;
     }
 
     public AuthInfo.TokenAuth getConnectToken() {

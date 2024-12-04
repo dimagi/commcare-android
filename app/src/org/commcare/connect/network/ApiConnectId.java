@@ -21,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -71,22 +72,12 @@ public class ApiConnectId {
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         if (postResult.responseCode == 200) {
             try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                if (json.has(key)) {
-                    String token = json.getString(key);
-                    Date expiration = new Date();
-                    key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                    int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token);
 
-                    return new AuthInfo.TokenAuth(token);
-                }
+                return new AuthInfo.TokenAuth(token.token);
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from HQ OIDC call", e);
             }
@@ -130,22 +121,12 @@ public class ApiConnectId {
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
             if (postResult.responseCode == 200) {
                 try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                            postResult.responseStream));
-                    postResult.responseStream.close();
-                    JSONObject json = new JSONObject(responseAsString);
-                    String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                    if (json.has(key)) {
-                        String token = json.getString(key);
-                        Date expiration = new Date();
-                        key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                        int seconds = json.has(key) ? json.getInt(key) : 0;
-                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-                        user.updateConnectToken(token, expiration);
-                        ConnectDatabaseHelper.storeUser(context, user);
+                    SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
-                        return new AuthInfo.TokenAuth(token);
-                    }
+                    user.updateConnectToken(token);
+                    ConnectDatabaseHelper.storeUser(context, user);
+
+                    return new AuthInfo.TokenAuth(token.token);
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from Connect OIDC call", e);
                 }

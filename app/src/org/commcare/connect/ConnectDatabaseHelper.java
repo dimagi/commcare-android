@@ -18,6 +18,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
@@ -248,13 +249,13 @@ public class ConnectDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void storeHqToken(Context context, String appId, String userId, String token, Date expiration) {
+    public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, false, "");
         }
 
-        record.updateHqToken(token, expiration);
+        record.updateHqToken(token);
 
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
