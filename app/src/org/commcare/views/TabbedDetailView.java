@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -18,7 +17,12 @@ import org.commcare.utils.AndroidUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+
+import java.util.Objects;
 
 /**
  * Widget that combines a ViewPager with a set of page titles styled to look like tabs.
@@ -30,9 +34,8 @@ public class TabbedDetailView extends RelativeLayout {
     private AppCompatActivity mContext;
 
     private LinearLayout mMenu;
-    private ViewPager mViewPager;
-
-    private View mViewPageTabStrip;
+    private TabLayout mTabLayout;
+    private ViewPager2 mViewPager;
 
     private int mEvenColor;
     private int mOddColor;
@@ -44,7 +47,7 @@ public class TabbedDetailView extends RelativeLayout {
     public TabbedDetailView(Context context, AttributeSet attrs) {
         super(context, attrs);
         if (isInEditMode()) return;
-        mContext = (AppCompatActivity)context;
+        mContext = (AppCompatActivity) context;
 
         loadViewConfig(context, attrs);
     }
@@ -61,14 +64,14 @@ public class TabbedDetailView extends RelativeLayout {
     @SuppressLint("NewApi")
     public TabbedDetailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = (AppCompatActivity)context;
+        mContext = (AppCompatActivity) context;
     }
 
     /*
      * Attach this view to a layout.
      */
     public void setRoot(ViewGroup root) {
-        LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
@@ -76,24 +79,7 @@ public class TabbedDetailView extends RelativeLayout {
         mViewPager = root.findViewById(R.id.tabbed_detail_pager);
         mViewPager.setId(AndroidUtil.generateViewId());
 
-        mViewPageTabStrip = root.findViewById(R.id.pager_tab_strip);
-
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
-            @Override
-            public void onPageSelected(int position) {
-                markSelectedTab(position);
-            }
-
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-            }
-
-        });
+        mTabLayout = root.findViewById(R.id.tab_layout);
     }
 
     public void showMenu() {
@@ -104,15 +90,10 @@ public class TabbedDetailView extends RelativeLayout {
      * Get form list from database and insert into view.
      */
     public void refresh(Detail detail, TreeReference reference, int index) {
-        EntityDetailPagerAdapter entityDetailPagerAdapter =
-                new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), detail, index, reference,
-                        new ListItemViewStriper(this.mOddColor, this.mEvenColor));
+        EntityDetailPagerAdapter entityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), mContext.getLifecycle(), detail, index, reference, new ListItemViewStriper(this.mOddColor, this.mEvenColor));
         mViewPager.setAdapter(entityDetailPagerAdapter);
-        if (!detail.isCompound()) {
-            if (mViewPageTabStrip != null) {
-                mViewPageTabStrip.setVisibility(GONE);
-            }
-        }
+
+        new TabLayoutMediator(mTabLayout, mViewPager, (tab, position) -> tab.setText(detail.getDetails()[position].getTitle().getText().evaluate())).attach();
     }
 
     /**
@@ -134,6 +115,6 @@ public class TabbedDetailView extends RelativeLayout {
     }
 
     public int getTabCount() {
-        return mViewPager.getAdapter().getCount();
+        return Objects.requireNonNull(mViewPager.getAdapter()).getItemCount();
     }
 }
