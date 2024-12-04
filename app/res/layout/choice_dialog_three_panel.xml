@@ -24,7 +24,7 @@
         android:layout_marginEnd="@dimen/standard_spacer_large"
         android:layout_marginStart="@dimen/standard_spacer_large">
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/choice_dialog_panel_1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
             android:paddingTop="15dp"
             android:layout_marginEnd="@dimen/standard_spacer" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/choice_dialog_panel_2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             android:layout_marginStart="@dimen/standard_spacer"
             android:layout_marginEnd="@dimen/standard_spacer" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/choice_dialog_panel_3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
