@@ -28,6 +28,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -207,13 +208,13 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                             key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
                             user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
                             if (!user.getSecondaryPhoneVerified()) {
-                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
                             }
 
                             //TODO: Need to get secondary phone from server
                             ConnectDatabaseHelper.storeUser(context, user);
                         }
-                    } catch (IOException | JSONException | ParseException e) {
+                    } catch (IOException | JSONException e) {
                         Logger.exception("Parsing return from OTP request", e);
                     }
 
