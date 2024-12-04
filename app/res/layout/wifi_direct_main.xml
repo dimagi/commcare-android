@@ -98,7 +98,7 @@
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/send"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     android:padding="@dimen/content_min_margin"
@@ -110,7 +110,7 @@
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/discover"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     android:padding="@dimen/content_min_margin"
@@ -122,11 +122,11 @@
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/submit"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     android:padding="@dimen/content_min_margin"
-                    SquareButtonWithText:backgroundColor="@color/orange_500"
+                    SquareButtonWithText:backgroundColor="@color/cc_dark_warm_accent_color"
                     SquareButtonWithText:img="@drawable/wifi_direct_submit"
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>
@@ -134,7 +134,7 @@
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/mode"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     android:padding="@dimen/content_min_margin"

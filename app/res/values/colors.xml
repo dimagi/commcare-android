@@ -109,7 +109,7 @@
     <color name="cc_light_cool_accent_text">#00799A</color>
 
     <!-- Dark Warm Accent -->
-    <color name="cc_dark_warm_accent_color">#FF8400</color>
+    <color name="cc_dark_warm_accent_color">#FEAF31</color>
     <color name="cc_dark_warm_accent_bg">#FFE3C2</color>
     <color name="cc_dark_warm_accent_text">#994f00</color>
 
