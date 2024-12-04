@@ -156,5 +156,7 @@
     <color name="barcode_button_color">#3843D0</color>
     <color name="url_button_color">#8EA1FF</color>
 
+    <!-- Progress bar colors -->
+    <color name="progress_bar_bg">#33000000</color>
 
 </resources>
