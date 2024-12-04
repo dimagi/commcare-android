@@ -65,6 +65,12 @@ public class FileUtil {
 
     private static final String LOG_TOKEN = "cc-file-util";
 
+    /**
+     * Deletes a file or directory.
+     *
+     * @param path The path to the file or directory to delete
+     * @return true if the file and all of its contents were deleted successfully, false otherwise
+     */
     public static boolean deleteFileOrDir(String path) {
         return deleteFileOrDir(new File(path));
     }
@@ -84,6 +90,13 @@ public class FileUtil {
         return f.delete();
     }
 
+    /**
+     * Cleans up file paths.
+     *
+     * @param fullPath The full path to the file
+     * @param extendedPath The extended path to stop at
+     * @return true if the file path was cleaned up successfully, false otherwise
+     */
     public static boolean cleanFilePath(String fullPath, String extendedPath) {
         //There are actually a few things that can go wrong here, should be careful
 
@@ -867,6 +880,14 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Copies a file from source to destination while preserving EXIF metadata for image files.
+     * For non-image files, performs a regular file copy.
+     *
+     * @param sourceFile The source file to copy from
+     * @param destFile The destination file to copy to
+     * @throws IOException If there is an error during file copying or EXIF data transfer
+     */
     public static void copyFileWithExifData(File sourceFile, File destFile) throws IOException {
         // First copy the file normally
         copyFile(sourceFile, destFile);
@@ -925,7 +946,18 @@ public class FileUtil {
         }
     }
 
-    public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) throws IOException {
+    /**
+     * Scales an image if needed and preserves its EXIF metadata in the process.
+     * 
+     * @param sourceFile The original image file
+     * @param destFile The destination file where the scaled image will be saved
+     * @param maxDimen The maximum dimension (width or height) allowed for the scaled image
+     * @return true if the operation was successful (either scaled with EXIF preserved or 
+     *         copied with EXIF if scaling wasn't needed)
+     * @throws IOException If there is an error during scaling, file operations or EXIF data transfer
+     */
+    public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) 
+            throws IOException {
         // First scale the image
         boolean scaled = scaleAndSaveImage(sourceFile, destFile.getAbsolutePath(), maxDimen);
 
