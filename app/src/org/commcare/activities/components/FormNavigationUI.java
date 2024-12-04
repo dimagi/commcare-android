@@ -62,10 +62,10 @@ public class FormNavigationUI {
                 findViewById(R.id.nav_btn_finish);
 
         if (!details.relevantBeforeCurrentScreen) {
-            prevButton.setImageResource(R.drawable.icon_close_darkwarm);
+            prevButton.setImageResource(R.drawable.icon_close_white);
             prevButton.setTag(FormEntryConstants.NAV_STATE_QUIT);
         } else {
-            prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
+            prevButton.setImageResource(R.drawable.icon_chevron_left_white);
             prevButton.setTag(FormEntryConstants.NAV_STATE_BACK);
         }
 

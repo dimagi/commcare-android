@@ -154,5 +154,7 @@
     <color name="start_sync_dark_button">#3b4fb6</color>
     <color name="start_logout_button">#373534</color>
 
+    <!-- Progress bar colors -->
+    <color name="progress_bar_bg">#33000000</color>
 
 </resources>
