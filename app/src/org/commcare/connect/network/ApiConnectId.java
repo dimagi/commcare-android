@@ -40,15 +40,20 @@ public class ApiConnectId {
         try {
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
-            if (postResult.e == null && postResult.responseCode == 200) {
+            if(postResult.e != null) {
+                Logger.exception("Network error linking HQ worker", postResult.e);
+            } else if (postResult.responseCode == 200) {
                 postResult.responseStream.close();
 
                 //Remember that we linked the user successfully
                 appRecord.setWorkerLinked(true);
                 ConnectDatabaseHelper.storeApp(context, appRecord);
+            } else {
+                Logger.log("API Error", "API call to link HQ worker failed with code " + postResult.responseCode);
             }
         } catch (IOException e) {
             //Don't care for now
+            Logger.exception("Error linking HQ worker", e);
         }
     }
 
