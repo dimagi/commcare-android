@@ -148,6 +148,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
                             ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, null, null,false).setAllowChange(false);
                 }
+                break;
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
