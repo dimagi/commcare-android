@@ -3,12 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/CustomButtonStyleOutline"
-    app:strokeColor="@color/primary_button_background"
+    app:strokeColor="@color/cc_brand_color"
     android:id="@+id/blue_outlined_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="right"
-    android:textColor="@color/blue"
     android:visibility="gone"
     android:padding="10dp"
     tools:viewBindingIgnore="true" />
