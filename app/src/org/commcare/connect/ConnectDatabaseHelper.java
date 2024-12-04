@@ -82,9 +82,9 @@ public class ConnectDatabaseHelper {
 
     public static String getConnectDbEncodedPassphrase(Context context, boolean local) {
         try {
-            ConnectKeyRecord record = getKeyRecord(local);
-            if (record != null) {
-                return Base64.encode(EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase()));
+            byte[] passBytes = getConnectDbPassphrase(context);
+            if (passBytes != null) {
+                return Base64.encode(passBytes);
             }
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);
@@ -94,13 +94,11 @@ public class ConnectDatabaseHelper {
     }
 
     private static ConnectKeyRecord getKeyRecord(boolean local) {
-        for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
-            if (r.getIsLocal() == local) {
-                return r;
-            }
-        }
+        Vector<ConnectKeyRecord> records = CommCareApplication.instance()
+                .getGlobalStorage(ConnectKeyRecord.class)
+                .getRecordsForValue(ConnectKeyRecord.IS_LOCAL, local);
 
-        return null;
+        return records.size() > 0 ? records.firstElement() : null;
     }
 
     public static void storeConnectDbPassphrase(Context context, String base64EncodedPassphrase, boolean isLocal) {
@@ -162,7 +160,7 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            Logger.log("DB ERROR", "Connect DB is corrupt");
+                            Logger.exception("Corrupt Connect DB", e);
                         }
                     }
                     return connectDatabase;
@@ -194,6 +192,7 @@ public class ConnectDatabaseHelper {
                     break;
                 }
             } catch (Exception e) {
+                Logger.exception("Corrupt Connect DB trying to get user", e);
                 dbBroken = true;
             }
         }

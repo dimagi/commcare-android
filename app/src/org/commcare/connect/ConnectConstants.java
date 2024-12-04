@@ -6,7 +6,7 @@ package org.commcare.connect;
  * @author dviggiano
  */
 public class ConnectConstants {
-    public static final int ConnectIdTaskIdOffset = 1000;
+    public static final int CONNECTID_TASKID_OFFSET = 1000;
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
     public static final String PIN = "PIN";
@@ -15,5 +15,5 @@ public class ConnectConstants {
     public static final String ALT_PHONE = "ALT_PHONE";
     public static final String CONNECT_KEY_TOKEN = "access_token";
     public static final String CONNECT_KEY_EXPIRES = "expires_in";
-    public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
+    public final static int CONNECT_NO_ACTIVITY = ConnectConstants.CONNECTID_TASKID_OFFSET;
 }
