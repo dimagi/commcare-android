@@ -3,12 +3,13 @@ package org.commcare.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import org.commcare.connect.ConnectManager;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -27,8 +28,8 @@ import java.util.Vector;
  */
 public class HomeButtons {
 
-    private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
+    private static String[] buttonNames =
+            new String[]{};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -48,49 +49,100 @@ public class HomeButtons {
             logoutMessageKey = "home.logout.demo";
         }
 
-        HomeCardDisplayData[] allButtons = new HomeCardDisplayData[]{
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get(homeMessageKey),
-                        R.color.white,
-                        R.drawable.start,
-                        R.color.cc_attention_positive_color,
-                        getStartButtonListener(activity)),
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
-                        R.drawable.home_training, R.color.cc_dark_cool_accent_color,
-                        getTrainingButtonListener(activity)),
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.forms.saved"),
-                        R.color.white,
-                        R.drawable.home_saved,
-                        R.color.cc_light_cool_accent_color,
-                        getViewOldFormsListener(activity)),
-                HomeCardDisplayData.homeCardDataWithDynamicText(Localization.get("home.forms.incomplete"), R.color.white,
-                        R.drawable.home_incomplete,
-                        R.color.solid_dark_orange,
-                        getIncompleteButtonListener(activity),
-                        null,
-                        getIncompleteButtonTextSetter(activity)),
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
-                        R.drawable.baseline_save_24, R.color.orange_500,
-                        getConnectButtonListener(activity)),
-                HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
-                        R.color.white,
-                        R.drawable.sync,
-                        R.color.cc_brand_color,
-                        R.color.cc_brand_text,
-                        getSyncButtonListener(activity),
-                        getSyncButtonSubTextListener(activity),
-                        getSyncButtonTextSetter(activity)),
-                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
-                        R.drawable.home_report, R.color.cc_attention_negative_color,
-                        getReportButtonListener(activity)),
-                HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
-                        R.color.white,
-                        R.drawable.logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
-                        getLogoutButtonListener(activity),
-                        null,
-                        getLogoutButtonTextSetter(activity)),
-        };
+        Log.e("DEBUG_TESTING", "buildButtonData: "+ ConnectManager.shouldShowJobStatus());
+        if (!ConnectManager.shouldShowJobStatus()) {
+            buttonNames =
+                    new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
 
-        return getVisibleButtons(allButtons, buttonsToHide);
+            HomeCardDisplayData[] allButtons = new HomeCardDisplayData[]{
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get(homeMessageKey),
+                            R.color.white,
+                            R.drawable.start,
+                            R.color.cc_attention_positive_color,
+                            getStartButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
+                            R.drawable.home_training, R.color.cc_dark_cool_accent_color,
+                            getTrainingButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.forms.saved"),
+                            R.color.white,
+                            R.drawable.home_saved,
+                            R.color.cc_light_cool_accent_color,
+                            getViewOldFormsListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithDynamicText(Localization.get("home.forms.incomplete"), R.color.white,
+                            R.drawable.home_incomplete,
+                            R.color.solid_dark_orange,
+                            getIncompleteButtonListener(activity),
+                            null,
+                            getIncompleteButtonTextSetter(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+                            R.drawable.baseline_save_24, R.color.orange_500,
+                            getConnectButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
+                            R.color.white,
+                            R.drawable.sync,
+                            R.color.cc_brand_color,
+                            R.color.cc_brand_text,
+                            getSyncButtonListener(activity),
+                            getSyncButtonSubTextListener(activity),
+                            getSyncButtonTextSetter(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
+                            R.drawable.home_report, R.color.cc_attention_negative_color,
+                            getReportButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
+                            R.color.white,
+                            R.drawable.logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
+                            getLogoutButtonListener(activity),
+                            null,
+                            getLogoutButtonTextSetter(activity)),
+            };
+            return getVisibleButtons(allButtons, buttonsToHide);
+        } else {
+            buttonNames =
+                    new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+
+            HomeCardDisplayData[] allButtons = new HomeCardDisplayData[]{
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get(homeMessageKey),
+                            R.color.white,
+                            R.drawable.start,
+                            R.color.cc_attention_positive_color,
+                            getStartButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
+                            R.drawable.home_training, R.color.cc_dark_cool_accent_color,
+                            getTrainingButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.forms.saved"),
+                            R.color.white,
+                            R.drawable.home_saved,
+                            R.color.cc_light_cool_accent_color,
+                            getViewOldFormsListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithDynamicText(Localization.get("home.forms.incomplete"), R.color.white,
+                            R.drawable.home_incomplete,
+                            R.color.solid_dark_orange,
+                            getIncompleteButtonListener(activity),
+                            null,
+                            getIncompleteButtonTextSetter(activity)),
+//                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+//                            R.drawable.baseline_save_24, R.color.orange_500,
+//                            getConnectButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
+                            R.color.white,
+                            R.drawable.sync,
+                            R.color.cc_brand_color,
+                            R.color.cc_brand_text,
+                            getSyncButtonListener(activity),
+                            getSyncButtonSubTextListener(activity),
+                            getSyncButtonTextSetter(activity)),
+                    HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
+                            R.drawable.home_report, R.color.cc_attention_negative_color,
+                            getReportButtonListener(activity)),
+                    HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
+                            R.color.white,
+                            R.drawable.logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
+                            getLogoutButtonListener(activity),
+                            null,
+                            getLogoutButtonTextSetter(activity)),
+            };
+            return getVisibleButtons(allButtons, buttonsToHide);
+        }
     }
 
     private static HomeCardDisplayData[] getVisibleButtons(HomeCardDisplayData[] allButtons,
