@@ -65,14 +65,7 @@ public class ApiConnectId {
         params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
         params.put("password", connectToken);
 
-        String host;
-        try {
-            host = (new URL(ServerUrls.getKeyServer())).getHost();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        String url = "https://" + host + "/oauth/token/";
+        String url = ServerUrls.buildEndpoint("oauth/token/");
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
