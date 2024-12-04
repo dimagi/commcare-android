@@ -36,16 +36,6 @@ public class ConnectJobPaymentRecordV3 extends Persisted implements Serializable
 
     public ConnectJobPaymentRecordV3() {}
 
-    public static ConnectJobPaymentRecordV3 fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
-        ConnectJobPaymentRecordV3 payment = new ConnectJobPaymentRecordV3();
-
-        payment.jobId = jobId;
-        payment.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
-        payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
-
-        return payment;
-    }
-
     public int getJobId() { return jobId; }
 
     public Date getDate() { return date;}

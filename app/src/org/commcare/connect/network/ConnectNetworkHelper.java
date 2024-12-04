@@ -80,32 +80,6 @@ public class ConnectNetworkHelper {
         return Loader.INSTANCE;
     }
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    public static Date parseDate(String dateStr) throws ParseException {
-        Date issueDate=dateFormat.parse(dateStr);
-        return issueDate;
-    }
-
-    private static final SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-
-    public static Date convertUTCToDate(String utcDateString) throws ParseException {
-        utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        return utcFormat.parse(utcDateString);
-    }
-
-    public static Date convertDateToLocal(Date utcDate) {
-        utcFormat.setTimeZone(TimeZone.getDefault());
-
-        try {
-            String localDateString = utcFormat.format(utcDate);
-            return utcFormat.parse(localDateString);
-        }
-        catch (ParseException e) {
-            return utcDate;
-        }
-    }
-
     public static String getCallInProgress() {
         return getInstance().callInProgress;
     }
