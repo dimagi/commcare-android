@@ -67,17 +67,72 @@ public class ImageCaptureProcessing {
         // Encrypt the scaled or original image to final path
         if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
             finalFilePath = finalFilePath + MediaWidget.AES_EXTENSION;
+            File sourceFile = new File(sourcePath);
+            File destFile = new File(finalFilePath);
+            
             try {
+                // Extract EXIF data before encryption
+                ExifInterface sourceExif = null;
+                String mimeType = FileUtil.getMimeType(sourcePath);
+                if (mimeType != null && mimeType.startsWith("image/")) {
+                    sourceExif = new ExifInterface(sourcePath);
+                }
+                
+                // Perform encryption
                 EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey());
+                
+                // If we had EXIF data, store it in a companion file
+                if (sourceExif != null) {
+                    String exifPath = finalFilePath + ".exif";
+                    ExifInterface destExif = new ExifInterface(exifPath);
+                    
+                    // Copy all EXIF tags
+                    String[] tagsToPreserve = {
+                        ExifInterface.TAG_GPS_LATITUDE,
+                        ExifInterface.TAG_GPS_LATITUDE_REF,
+                        ExifInterface.TAG_GPS_LONGITUDE,
+                        ExifInterface.TAG_GPS_LONGITUDE_REF,
+                        ExifInterface.TAG_GPS_TIMESTAMP,
+                        ExifInterface.TAG_GPS_DATESTAMP,
+                        ExifInterface.TAG_GPS_ALTITUDE,
+                        ExifInterface.TAG_GPS_ALTITUDE_REF,
+                        ExifInterface.TAG_GPS_AREA_INFORMATION,
+                        ExifInterface.TAG_DATETIME,
+                        ExifInterface.TAG_DATETIME_DIGITIZED,
+                        ExifInterface.TAG_DATETIME_ORIGINAL,
+                        ExifInterface.TAG_OFFSET_TIME,
+                        ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+                        ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
+                        ExifInterface.TAG_COPYRIGHT,
+                        ExifInterface.TAG_IMAGE_DESCRIPTION,
+                        ExifInterface.TAG_EXIF_VERSION,
+                        ExifInterface.TAG_ORIENTATION
+                    };
+                    
+                    for (String tag : tagsToPreserve) {
+                        String value = sourceExif.getAttribute(tag);
+                        if (value != null) {
+                            destExif.setAttribute(tag, value);
+                        }
+                    }
+                    destExif.saveAttributes();
+                    
+                    // Encrypt the EXIF data file as well
+                    EncryptionIO.encryptFile(exifPath, exifPath + MediaWidget.AES_EXTENSION, 
+                            formEntryActivity.getSymetricKey());
+                    // Delete the unencrypted EXIF file
+                    new File(exifPath).delete();
+                }
             } catch (Exception e) {
-                throw new IOException("Failed to encrypt " + sourcePath +
-                        " to " + finalFilePath, e);
+                throw new IOException("Failed to encrypt image and preserve EXIF data from " + 
+                        sourcePath + " to " + finalFilePath, e);
             }
         } else {
             try {
-                FileUtil.copyFile(sourcePath, finalFilePath);
+                FileUtil.copyFileWithExifData(new File(sourcePath), new File(finalFilePath));
             } catch (Exception e) {
-                throw new IOException("Failed to rename " + sourcePath + " to " + finalFilePath);
+                throw new IOException("Failed to copy image with EXIF data from " + 
+                        sourcePath + " to " + finalFilePath);
             }
         }
 
@@ -95,8 +150,8 @@ public class ImageCaptureProcessing {
         try {
             FileUtil.copyFileWithExifData(originalImage, rawImageFile);
         } catch (Exception e) {
-            throw new IOException("Failed to rename " + originalImage.getAbsolutePath() +
-                    " to " + rawImageFile.getAbsolutePath());
+            throw new IOException("Failed to copy image with EXIF data from " + 
+                    originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
         }
         return rawImageFile;
     }

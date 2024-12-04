@@ -878,7 +878,7 @@ public class FileUtil {
         }
     }
 
-    private static void copyExifData(String sourcePath, String destPath) throws IOException {
+    private static void copyExifData(String sourcePath, String destPath) {
         try {
             ExifInterface source = new ExifInterface(sourcePath);
             ExifInterface dest = new ExifInterface(destPath);
@@ -928,12 +928,16 @@ public class FileUtil {
     public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) throws IOException {
         // First scale the image
         boolean scaled = scaleAndSaveImage(sourceFile, destFile.getAbsolutePath(), maxDimen);
-        
-        if (scaled) {
+
+        if (!scaled) {
+            // If scaling was not needed, copy the source file to destination with EXIF data
+            copyFileWithExifData(sourceFile, destFile);
+            return true;
+        } else {
             // Copy EXIF data from source to scaled image
             copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
         }
-        
-        return scaled;
+
+        return true;
     }
 }
