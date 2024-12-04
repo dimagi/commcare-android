@@ -29,9 +29,10 @@ class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
                     Result.retry()
                 }
                 else -> {
-                    Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                            "Encountered unexpected exception during heartbeat communications: "
-                                    + e.message + ". Stopping the heartbeat thread.")
+                    Logger.exception(
+                        "Encountered unexpected exception during heartbeat communications, stopping the heartbeat thread.",
+                        e
+                    )
                     Result.failure()
                 }
             }

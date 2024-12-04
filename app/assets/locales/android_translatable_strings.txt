@@ -167,7 +167,9 @@ form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact CommCare Support to look into the issue.
 form.entry.save.invalid.unicode=Could not save '${0}' text in form.
 form.entry.finish.button=FINISH
+form.entry.exit.button=EXIT
 form.entry.restart.after.expiration=You were logged out due to session expiration. The form you were in the middle of has been saved and resumed.
+form.entry.restart.after.session.pause=CommCare was closed and the form you were in the middle of has been saved and resumed.
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
@@ -896,8 +898,8 @@ repeat.dialog.go.back=Go Back
 repeat.dialog.leave=Do Not Add
 repeat.dialog.exit=Do Not Add. I'm Finished.
 repeat.dialog.add=Add Group
-repeat.dialog.add.another=Add another "${0}" group?
-repeat.dialog.add.new=Add a new "${0}" group?
+repeat.dialog.add.another=Add another ${0}?
+repeat.dialog.add.new=Add a new ${0}?
 lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exists and this user has access to it.
 
 ethiopian_months=Mäskäräm,T’ïk’ïmt,Hïdar,Tahsas,T’ïr,Yäkatit,Mägabit,Miyaziya,Gïnbot,Säne,Hämle,Nähäse,P’agume

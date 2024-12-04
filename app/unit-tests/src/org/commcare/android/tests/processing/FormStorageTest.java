@@ -376,6 +376,10 @@ public class FormStorageTest {
             , "org.commcare.android.database.global.models.ConnectKeyRecord"
             , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
             , "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord"
+
+            // Added in 2.55
+            , "org.javarosa.core.model.FormIndex"
+            , "org.commcare.models.database.InterruptedFormState"
     );
 
 
