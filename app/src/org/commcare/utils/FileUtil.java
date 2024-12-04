@@ -941,8 +941,9 @@ public class FileUtil {
             dest.saveAttributes();
         } catch (IOException e) {
             // Log but don't fail if EXIF copying fails
-            Logger.log(LogTypes.TYPE_WARNING_NETWORK, 
-                "Failed to copy EXIF data from " + sourcePath + " to " + destPath + ": " + e.getMessage());
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+            String.format("Failed to copy EXIF data from %s to %s: %s (Error: %s)", 
+            sourcePath, destPath, e.getMessage(), e.getClass().getSimpleName()));
         }
     }
 
