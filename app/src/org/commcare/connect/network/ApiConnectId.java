@@ -41,9 +41,7 @@ public class ApiConnectId {
         try {
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
-            if(postResult.e != null) {
-                Logger.exception("Network error linking HQ worker", postResult.e);
-            } else if (postResult.responseCode == 200) {
+            if (postResult.responseCode == 200) {
                 postResult.responseStream.close();
 
                 //Remember that we linked the user successfully

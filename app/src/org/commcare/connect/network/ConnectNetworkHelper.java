@@ -138,23 +138,7 @@ public class ConnectNetworkHelper {
 
         try {
             HashMap<String, String> headers = new HashMap<>();
-            RequestBody requestBody;
-
-            if (useFormEncoding) {
-                Multimap<String, String> multimap = ArrayListMultimap.create();
-                for (Map.Entry<String, String> entry : params.entrySet()) {
-                    multimap.put(entry.getKey(), entry.getValue());
-                }
-
-                requestBody = ModernHttpRequester.getPostBody(multimap);
-                headers = getContentHeadersForXFormPost(requestBody);
-            } else {
-                Gson gson = new Gson();
-                String json = gson.toJson(params);
-                requestBody = RequestBody.create(MediaType.parse("application/json"), json);
-            }
-
-            addVersionHeader(headers, version);
+            RequestBody requestBody = buildPostFormHeaders(params, useFormEncoding, version, headers);
 
             ModernHttpRequester requester = CommCareApplication.instance().buildHttpRequester(
                     context,
@@ -182,6 +166,7 @@ public class ConnectNetworkHelper {
                 }
             } catch (IOException e) {
                 exception = e;
+                Logger.exception("Exception during POST", e);
             }
 
             instance.onFinishProcessing(context, background);
@@ -192,7 +177,7 @@ public class ConnectNetworkHelper {
             if(!background) {
                 setCallInProgress(null);
             }
-            return new PostResult(-1, null, null);
+            return new PostResult(-1, null, e);
         }
     }
 
@@ -209,23 +194,7 @@ public class ConnectNetworkHelper {
         }
 
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody;
-
-        if (useFormEncoding) {
-            Multimap<String, String> multimap = ArrayListMultimap.create();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                multimap.put(entry.getKey(), entry.getValue());
-            }
-
-            requestBody = ModernHttpRequester.getPostBody(multimap);
-            headers = getContentHeadersForXFormPost(requestBody);
-        } else {
-            Gson gson = new Gson();
-            String json = gson.toJson(params);
-            requestBody = RequestBody.create(MediaType.parse("application/json"), json);
-        }
-
-        addVersionHeader(headers, version);
+        RequestBody requestBody = buildPostFormHeaders(params, useFormEncoding, version, headers);
 
         ModernHttpTask postTask =
                 new ModernHttpTask(context, url,
@@ -239,6 +208,28 @@ public class ConnectNetworkHelper {
         postTask.executeParallel();
 
         return true;
+    }
+
+    private static RequestBody buildPostFormHeaders(HashMap<String, String> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
+        RequestBody requestBody;
+
+        if (useFormEncoding) {
+            Multimap<String, String> multimap = ArrayListMultimap.create();
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                multimap.put(entry.getKey(), entry.getValue());
+            }
+
+            requestBody = ModernHttpRequester.getPostBody(multimap);
+            outputHeaders = getContentHeadersForXFormPost(requestBody);
+        } else {
+            Gson gson = new Gson();
+            String json = gson.toJson(params);
+            requestBody = RequestBody.create(MediaType.parse("application/json"), json);
+        }
+
+        addVersionHeader(outputHeaders, version);
+
+        return requestBody;
     }
 
     private static HashMap<String, String> getContentHeadersForXFormPost(RequestBody postBody) {
