@@ -128,7 +128,7 @@ public class ImageCaptureProcessing {
         try {
             return scaleAndSaveImage(originalImage, isImage, instanceFolder, activity);
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.exception("Error while trying to save captured image", e);
             Toast.makeText(activity, Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG).show();
             return false;
         }
@@ -178,12 +178,9 @@ public class ImageCaptureProcessing {
         } catch (FileExtensionNotFoundException e) {
             Logger.exception("Error while processing chosen image ", e);
             Toast.makeText(activity, Localization.get("image.selection.invalid.extension"), Toast.LENGTH_LONG).show();
-            return;
         } catch (IOException e) {
-            e.printStackTrace();
             Logger.exception("Error while processing chosen image ", e);
             Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
-            return;
         }
     }
 
@@ -199,7 +196,7 @@ public class ImageCaptureProcessing {
             try {
                 scaleAndSaveImage(originalImage, true, instanceFolder, activity);
             } catch (IOException e) {
-                e.printStackTrace();
+                Logger.exception("Error while saving chosen image ", e);
                 Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             }
         } else {
