@@ -70,7 +70,7 @@ public class HomeButtons {
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
-                        R.color.button_background_color,
+                        R.color.start_sync_button,
                         R.color.start_sync_dark_button,
                         getSyncButtonListener(activity),
                         getSyncButtonSubTextListener(activity),

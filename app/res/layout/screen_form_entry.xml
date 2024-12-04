@@ -56,7 +56,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_badge"
-        android:background="@color/start_sync_button"
+        android:background="@color/cc_brand_color"
         android:minHeight="@dimen/new_progressbar_minheight"
         android:paddingLeft="@dimen/content_start"
         android:paddingRight="@dimen/content_start"

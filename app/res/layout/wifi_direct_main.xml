@@ -138,7 +138,7 @@
                     android:layout_margin="4dp"
                     android:layout_weight="1"
                     android:padding="@dimen/content_min_margin"
-                    SquareButtonWithText:backgroundColor="@color/button_background_color"
+                    SquareButtonWithText:backgroundColor="@color/cc_brand_color"
                     SquareButtonWithText:img="@drawable/wifi_direct_change_mode"
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>

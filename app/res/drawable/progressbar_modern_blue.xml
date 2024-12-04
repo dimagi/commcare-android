@@ -14,8 +14,8 @@
             <shape>
                 <corners android:radius="4dp" />
                 <gradient
-                    android:startColor="@color/start_sync_button"
-                    android:endColor="@color/start_sync_button"
+                    android:startColor="@color/cc_brand_color"
+                    android:endColor="@color/cc_brand_color"
                     />
             </shape>
         </scale>
