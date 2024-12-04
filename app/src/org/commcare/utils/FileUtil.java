@@ -739,7 +739,7 @@ public class FileUtil {
      */
     public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
         if (inputStream == null) {
-            return;
+            throw new IOException("InputStream is null. Cannot copy file.");
         }
         OutputStream outputStream = new FileOutputStream(dstFile);
         StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
@@ -875,8 +875,14 @@ public class FileUtil {
                 return false;
             }
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-            returnCursor.moveToFirst();
-            return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
+            if (sizeIndex == -1) {
+                return false;
+            }
+            if (returnCursor.moveToFirst()) {
+                return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -895,7 +901,11 @@ public class FileUtil {
         // Only try to copy EXIF data for image files
         String mimeType = getMimeType(sourceFile.getAbsolutePath());
         if (mimeType != null && mimeType.startsWith("image/")) {
-            copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+            try {
+                copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+            } catch (IOException e) {
+                throw new IOException("Failed to copy EXIF data", e);
+            }
         }
     }
 

@@ -132,7 +132,7 @@ public class ImageCaptureProcessing {
                 FileUtil.copyFileWithExifData(new File(sourcePath), new File(finalFilePath));
             } catch (Exception e) {
                 throw new IOException("Failed to copy image with EXIF data from " + 
-                        sourcePath + " to " + finalFilePath);
+                        sourcePath + " to " + finalFilePath, e);
             }
         }
 
@@ -150,8 +150,8 @@ public class ImageCaptureProcessing {
         try {
             FileUtil.copyFileWithExifData(originalImage, rawImageFile);
         } catch (Exception e) {
-            throw new IOException("Failed to copy image with EXIF data from " + 
-                    originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath());
+            throw new IOException("Failed to copy image with EXIF data from " +  
+                    originalImage.getAbsolutePath() + " to " + rawImageFile.getAbsolutePath(), e);
         }
         return rawImageFile;
     }
