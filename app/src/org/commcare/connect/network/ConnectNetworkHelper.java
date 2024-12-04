@@ -30,14 +30,9 @@ import org.javarosa.core.services.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -57,9 +52,9 @@ public class ConnectNetworkHelper {
     public static class PostResult {
         public final int responseCode;
         public final InputStream responseStream;
-        public final IOException e;
+        public final Exception e;
 
-        public PostResult(int responseCode, InputStream responseStream, IOException e) {
+        public PostResult(int responseCode, InputStream responseStream, Exception e) {
             this.responseCode = responseCode;
             this.responseStream = responseStream;
             this.e = e;

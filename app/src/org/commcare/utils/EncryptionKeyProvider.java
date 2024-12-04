@@ -7,6 +7,8 @@ import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
+import org.javarosa.core.services.Logger;
+
 import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
@@ -42,16 +44,24 @@ public class EncryptionKeyProvider {
     private static final String BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC;
     @RequiresApi(api = Build.VERSION_CODES.M)
     private static final String PADDING = KeyProperties.ENCRYPTION_PADDING_PKCS7;
-    private static KeyStore keystoreSingleton = null;
 
-    private static KeyStore getKeystore() throws KeyStoreException, CertificateException,
-            IOException, NoSuchAlgorithmException {
-        if (keystoreSingleton == null) {
-            keystoreSingleton = KeyStore.getInstance(KEYSTORE_NAME);
-            keystoreSingleton.load(null);
+    private static class KeyStoreLoader {
+        static final KeyStore INSTANCE;
+
+        static {
+            try {
+                INSTANCE = KeyStore.getInstance(KEYSTORE_NAME);
+                INSTANCE.load(null);
+            } catch (KeyStoreException | CertificateException | IOException |
+                     NoSuchAlgorithmException e) {
+                Logger.exception("Initiating KeyStore", e);
+                throw new RuntimeException(e);
+            }
         }
+    }
 
-        return keystoreSingleton;
+    private static KeyStore getKeystore() {
+        return KeyStoreLoader.INSTANCE;
     }
 
     public EncryptionKeyAndTransform getKey(Context context, boolean trueForEncrypt)
@@ -62,8 +72,8 @@ public class EncryptionKeyProvider {
 
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
     private static EncryptionKeyAndTransform getKey(Context context, KeyStore keystore, boolean trueForEncrypt)
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException,
-            UnrecoverableEntryException, InvalidAlgorithmParameterException, NoSuchProviderException {
+            throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException,
+            InvalidAlgorithmParameterException, NoSuchProviderException {
 
         if (doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
@@ -81,8 +91,7 @@ public class EncryptionKeyProvider {
         }
     }
 
-    private static boolean doesKeystoreContainEncryptionKey() throws CertificateException,
-            KeyStoreException, IOException, NoSuchAlgorithmException {
+    private static boolean doesKeystoreContainEncryptionKey() throws KeyStoreException {
         KeyStore keystore = getKeystore();
 
         return keystore.containsAlias(SECRET_NAME);
