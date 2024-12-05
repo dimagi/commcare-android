@@ -5,6 +5,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,12 +72,12 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
         payment.jobId = jobId;
-        payment.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
+        payment.date = json.has(META_DATE) ? DateUtils.parseDateTime(json.getString(META_DATE)) : new Date();
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
         payment.paymentId = json.has("id") ? json.getString("id") : "";
         payment.confirmed = json.has(META_CONFIRMED) && json.getBoolean(META_CONFIRMED);
-        payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
+        payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ? DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
 
         return payment;
     }
