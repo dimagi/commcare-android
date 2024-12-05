@@ -37,7 +37,7 @@ class EntityLoaderHelper(
 
     fun loadEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
         val references = factory.expandReferenceList(nodeset)
-        val full: MutableList<Entity<TreeReference>> = ArrayList()
+        val entities: MutableList<Entity<TreeReference>> = ArrayList()
         focusTargetIndex = -1
         var indexInFullList = 0
         for (ref in references) {
@@ -46,7 +46,7 @@ class EntityLoaderHelper(
             }
             val e = factory.getEntity(ref)
             if (e != null) {
-                full.add(e)
+                entities.add(e)
                 if (e.shouldReceiveFocus()) {
                     focusTargetIndex = indexInFullList
                 }
@@ -54,9 +54,9 @@ class EntityLoaderHelper(
             }
         }
 
-        factory.prepareEntities(full)
+        factory.prepareEntities(entities)
         factory.printAndClearTraces("build")
-        return Pair<List<Entity<TreeReference>>, List<TreeReference>>(full, references)
+        return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
     }
 
     override fun cancel() {
