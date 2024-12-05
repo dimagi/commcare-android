@@ -151,7 +151,7 @@ public class ConnectJobIntroFragment extends Fragment {
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDeliveryDetailsFragment(false));
+            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
         tvJobTitle.setText(job.getTitle());

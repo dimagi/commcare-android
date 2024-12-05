@@ -528,7 +528,7 @@
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
     <string name="connect_job_info_visit">%d ዝለዓለ ምብጻሕ</string>
     <string name="connect_job_info_days">%d መዓልታት ንምዝዛም</string>
-    <string name="connect_job_info_max_visit">ዝለዓለ ምጉብናይ ኣብ መዓልቲ %መ</string>
+    <string name="connect_job_info_max_visit">ዝለዓለ ምጉብናይ ኣብ መዓልቲ %d</string>
     <string name="connect_job_info_visit_charge">ንምጉብናይ ክሳብ %s ኣታዊ ምርካብ</string>
     <string name="connect_job_info_per_visit">ኣብ ነፍሲ ወከፍ ምብጻሕ</string>
     <string name="connect_job_info_delivery_hours">ሰዓታት ምብጻሕ</string>
