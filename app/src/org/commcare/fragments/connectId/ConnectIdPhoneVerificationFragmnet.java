@@ -207,15 +207,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (allowChange) {
-            binding.connectPhoneVerifyChange.setVisibility(View.VISIBLE);
-        }
+        binding.connectPhoneVerifyChange.setVisibility(allowChange ? View.VISIBLE : View.GONE);
         requestInputFocus();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        stopHandler();
     }
 
     @Override
@@ -534,19 +533,22 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
-
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
-                    ConnectIdActivity.recoveryAltPhone = secondaryPhone;
-                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(false);
-                    if (ConnectIdActivity.forgotPin) {
-                        if (ConnectIdActivity.forgotPassword) {
-                            directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, username, password);
+                    if (changeNumber) {
+                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+                    }else{
+                        ConnectIdActivity.recoveryAltPhone = secondaryPhone;
+                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(false);
+                        if (ConnectIdActivity.forgotPin) {
+                            if (ConnectIdActivity.forgotPassword) {
+                                directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, username, password);
 
-                        } else {
-                            directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                            } else {
+                                directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                            }
                         }
                     }
                 }

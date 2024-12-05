@@ -150,7 +150,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             requestCode = PASSWORD_LOCK;
             message = R.string.connect_password_recovery_message;
         }
-        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, getString(R.string.connect_recovery_success_button), null, phone, secretKey);
+        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD, getString(R.string.connect_recovery_success_button), null, phone, secretKey);
 
         Navigation.findNavController(binding.connectPasswordVerifyButton).navigate(directions);
 
