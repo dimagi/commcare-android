@@ -35,8 +35,22 @@ class EntityLoaderHelper(
         }
     }
 
-    fun loadEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
+    /**
+     * Loads and prepares a list of entities derived from the given nodeset
+     */
+    fun loadEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
         val references = factory.expandReferenceList(nodeset)
+        val entities = loadEntitiesWithReferences(references)
+        factory.prepareEntities(entities)
+        factory.printAndClearTraces("build")
+        return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+    }
+
+
+    /**
+     * Loads a list of entities corresponding to the given references
+     */
+    private fun loadEntitiesWithReferences(references: List<TreeReference>): MutableList<Entity<TreeReference>>? {
         val entities: MutableList<Entity<TreeReference>> = ArrayList()
         focusTargetIndex = -1
         var indexInFullList = 0
@@ -53,10 +67,7 @@ class EntityLoaderHelper(
                 indexInFullList++
             }
         }
-
-        factory.prepareEntities(entities)
-        factory.printAndClearTraces("build")
-        return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+        return entities
     }
 
     override fun cancel() {
