@@ -8,6 +8,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.utils.CrashUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
@@ -182,8 +183,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
         job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        job.projectEndDate = json.has(META_END_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_END_DATE)) : new Date();
-        job.projectStartDate = json.has(META_START_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_START_DATE)) : new Date();
+        job.projectEndDate = json.has(META_END_DATE) ? DateUtils.parseDate(json.getString(META_END_DATE)) : new Date();
+        job.projectStartDate = json.has(META_START_DATE) ? DateUtils.parseDate(json.getString(META_START_DATE)) : new Date();
         job.maxVisits = json.has(META_MAX_VISITS_PER_USER) ? json.getInt(META_MAX_VISITS_PER_USER) : -1;
         job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
         job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
@@ -237,12 +238,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
             key = META_END_DATE;
             if (claim.has(key)) {
-                job.projectEndDate = ConnectNetworkHelper.parseDate(claim.getString(key));
+                job.projectEndDate = DateUtils.parseDate(claim.getString(key));
             }
 
             key = META_CLAIM_DATE;
             if (claim.has(key)) {
-                job.dateClaimed = ConnectNetworkHelper.parseDate(claim.getString(key));
+                job.dateClaimed = DateUtils.parseDate(claim.getString(key));
             }
 
             key = META_PAYMENT_UNITS;

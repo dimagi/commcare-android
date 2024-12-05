@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<ConnectDeliveryProgressReportAdapter.ProgressBarViewHolder> {
 
-    private Context context;
+    private final Context context;
     List<ConnectDeliveryDetails> deliveryProgressList;
     DeliveryItemOnClickListener deliveryItemOnClickListener;
 
@@ -39,12 +39,15 @@ public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<C
     @Override
     public void onBindViewHolder(@NonNull ProgressBarViewHolder holder, int position) {
         ConnectDeliveryDetails connectDeliveryDetails = deliveryProgressList.get(position);
-        holder.binding.linearProgressBar.setProgress(Float.parseFloat(String.valueOf(connectDeliveryDetails.getApprovedPercentage())));
+        holder.binding.linearProgressBar.setProgress(Float.parseFloat(
+                String.valueOf(connectDeliveryDetails.getApprovedPercentage())));
         holder.binding.linearProgressBar.setProgressColor(ContextCompat.getColor(context, R.color.connect_green));
         holder.binding.tvDeliveryTitle.setText(String.valueOf(connectDeliveryDetails.getDeliveryName()));
         holder.binding.tvApproved.setText(String.valueOf(connectDeliveryDetails.getApprovedCount()));
         holder.binding.tvDeliveryTotalAmount.setText(String.valueOf(connectDeliveryDetails.getTotalAmount()));
-        holder.binding.tvRemaining.setText(connectDeliveryDetails.getPendingCount() + " in " + connectDeliveryDetails.getRemainingDays() + " days");
+        String remaining = context.getString(R.string.connect_results_summary_remaining_days,
+                connectDeliveryDetails.getPendingCount(), connectDeliveryDetails.getRemainingDays());
+        holder.binding.tvRemaining.setText(remaining);
         holder.binding.imgArrowForward.setOnClickListener(view -> {
             deliveryItemOnClickListener.onClick(connectDeliveryDetails.getDeliveryName());
         });

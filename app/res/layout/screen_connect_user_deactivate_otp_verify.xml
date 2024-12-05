@@ -135,7 +135,7 @@
                 android:layout_gravity="end"
                 android:gravity="center"
                 android:visibility="gone"
-                android:text="Resend OTP"
+                android:text="@string/connect_verify_phone_resend_code"
                 app:roundButtonBackgroundColor="@color/white"
                 app:roundButtonBorderRadius="@dimen/dp48"
                 app:roundButtonIconLeftAlign="false"

@@ -56,7 +56,7 @@
            android:id="@+id/menu_icon"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:src="@drawable/ic_action_overflow"
+           android:src="@drawable/ic_connect_action_overflow"
            android:background="?attr/selectableItemBackground"
            android:padding="16dp"/>
 

@@ -433,7 +433,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                     message = e.toString();
                 }
                 logRecoveryResult(false);
-                setErrorMessage("Error verifying SMS code");
+                setErrorMessage(getString(R.string.connect_verify_phone_error));
             }
 
             @Override
