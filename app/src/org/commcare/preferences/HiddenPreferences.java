@@ -310,7 +310,6 @@ public class HiddenPreferences {
     }
 
     public static void clearInterruptedSSD() {
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing interrupted state");
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, -1).apply();
