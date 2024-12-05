@@ -9,8 +9,6 @@ import android.security.keystore.KeyProperties;
 
 import org.javarosa.core.services.Logger;
 
-import androidx.annotation.RequiresApi;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -28,6 +26,8 @@ import java.util.GregorianCalendar;
 
 import javax.crypto.KeyGenerator;
 import javax.security.auth.x500.X500Principal;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * Class for providing encryption keys backed by Android Keystore
@@ -79,8 +79,7 @@ public class EncryptionKeyProvider {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
             if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
                 return new EncryptionKeyAndTransform(entry.getSecretKey(), getTransformationString(false));
-            }
-            if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
+            } else if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
                 Key key = trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
                 return new EncryptionKeyAndTransform(key, getTransformationString(true));
             } else {
