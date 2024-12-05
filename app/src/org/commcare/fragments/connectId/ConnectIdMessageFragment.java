@@ -149,6 +149,11 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                             ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, null, null,false).setAllowChange(false);
                 }
                 break;
+            case ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD:
+                if (success) {
+                    directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                }
+                break;
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
