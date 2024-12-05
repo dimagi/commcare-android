@@ -59,6 +59,10 @@ public class EntityLoaderTask
                         return;
                     }
 
+                    if (result == null) {
+                        return;
+                    }
+
                     listener.deliverLoadResult(result.first, result.second, entityLoaderHelper.getFactory(),
                             entityLoaderHelper.getFocusTargetIndex());
                     return;

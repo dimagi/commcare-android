@@ -38,12 +38,15 @@ class EntityLoaderHelper(
     /**
      * Loads and prepares a list of entities derived from the given nodeset
      */
-    fun loadEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
+    fun loadEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
         val references = factory.expandReferenceList(nodeset)
         val entities = loadEntitiesWithReferences(references)
-        factory.prepareEntities(entities)
-        factory.printAndClearTraces("build")
-        return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+        entities?.let {
+            factory.prepareEntities(entities)
+            factory.printAndClearTraces("build")
+            return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+        }
+        return null
     }
 
 
