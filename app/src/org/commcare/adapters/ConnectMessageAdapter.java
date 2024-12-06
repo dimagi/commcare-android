@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.dalvik.databinding.ItemChatLeftViewBinding;
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding;
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData;
+import org.javarosa.core.model.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public void bind(ConnectMessageChatData chat) {
             binding.tvChatMessage.setText(chat.getMessage());
-            //binding.tvUserName.setText();
+            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
         }
     }
 
@@ -52,7 +53,7 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
         public void bind(ConnectMessageChatData chat) {
             binding.tvChatMessage.setText(chat.getMessage());
-            //binding.tvUserName.setText();
+            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
         }
     }
 

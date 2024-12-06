@@ -1,18 +1,22 @@
 package org.commcare.fragments.connectMessaging;
 
+import java.util.Date;
+
 public class ConnectMessageChatData {
 
     private int type;
     private String message;
     private String userName;
+    private Date timestamp;
     private int countUnread;
     private boolean isMessageRead;
 
     // Constructor with parameters
-    public ConnectMessageChatData(int type, String message, String userName, boolean isMessageRead) {
+    public ConnectMessageChatData(int type, String message, String userName, Date timestamp, boolean isMessageRead) {
         this.type = type;
         this.message = message;
         this.userName = userName;
+        this.timestamp = timestamp;
         this.isMessageRead = isMessageRead;
     }
 
@@ -24,6 +28,7 @@ public class ConnectMessageChatData {
     public void setType(int type) {
         this.type = type;
     }
+    public Date getTimestamp() { return timestamp; }
 
     public String getMessage() {
         return message;

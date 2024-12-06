@@ -11,6 +11,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -64,6 +65,12 @@ public class MessageManager {
 
                     ConnectDatabaseHelper.storeMessagingChannels(context, channels, true);
                     ConnectDatabaseHelper.storeMessagingMessages(context, messages, false);
+
+                    for(ConnectMessagingChannelRecord channel : channels) {
+                        if(channel.getConsented() && channel.getKey().length() == 0) {
+                            getChannelEncryptionKey(context, channel, null);
+                        }
+                    }
 
                     if(messages.size() > 0) {
                         MessageManager.updateReceivedMessages(context, success -> {
@@ -188,29 +195,39 @@ public class MessageManager {
                         ConnectDatabaseHelper.storeMessagingChannel(context, channel);
                     }
 
-                    listener.connectActivityComplete(true);
+                    if(listener != null) {
+                        listener.connectActivityComplete(true);
+                    }
                 } catch(Exception e) {
                     Log.e("Error", "Oops", e);
-                    listener.connectActivityComplete(false);
+                    if(listener != null) {
+                        listener.connectActivityComplete(false);
+                    }
                 }
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
                 Log.d("DEBUG", "Chcek");
-                listener.connectActivityComplete(false);
+                if(listener != null) {
+                    listener.connectActivityComplete(false);
+                }
             }
 
             @Override
             public void processNetworkFailure() {
                 Log.d("DEBUG", "Chcek");
-                listener.connectActivityComplete(false);
+                if(listener != null) {
+                    listener.connectActivityComplete(false);
+                }
             }
 
             @Override
             public void processOldApiError() {
                 Log.d("DEBUG", "Chcek");
-                listener.connectActivityComplete(false);
+                if(listener != null) {
+                    listener.connectActivityComplete(false);
+                }
             }
         });
     }
@@ -273,29 +290,33 @@ public class MessageManager {
         ConnectDatabaseHelper.storeMessagingMessage(context, message);
         ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(context, message.getChannelId());
 
-        ConnectUserRecord user = ConnectManager.getUser(context);
-        ApiConnectId.sendMessagingMessage(context, user.getUserId(), user.getPassword(), message, channel.getKey(), new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                message.setConfirmed(true);
-                ConnectDatabaseHelper.storeMessagingMessage(context, message);
-                listener.connectActivityComplete(true);
-            }
+        if(channel.getKey().length() > 0) {
+            ConnectUserRecord user = ConnectManager.getUser(context);
+            ApiConnectId.sendMessagingMessage(context, user.getUserId(), user.getPassword(), message, channel.getKey(), new IApiCallback() {
+                @Override
+                public void processSuccess(int responseCode, InputStream responseData) {
+                    message.setConfirmed(true);
+                    ConnectDatabaseHelper.storeMessagingMessage(context, message);
+                    listener.connectActivityComplete(true);
+                }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                listener.connectActivityComplete(false);
-            }
+                @Override
+                public void processFailure(int responseCode, IOException e) {
+                    listener.connectActivityComplete(false);
+                }
 
-            @Override
-            public void processNetworkFailure() {
-                listener.connectActivityComplete(false);
-            }
+                @Override
+                public void processNetworkFailure() {
+                    listener.connectActivityComplete(false);
+                }
 
-            @Override
-            public void processOldApiError() {
-                listener.connectActivityComplete(false);
-            }
-        });
+                @Override
+                public void processOldApiError() {
+                    listener.connectActivityComplete(false);
+                }
+            });
+        } else {
+            Logger.log("Messaging", "Tried to send message but no encryption key");
+        }
     }
 }

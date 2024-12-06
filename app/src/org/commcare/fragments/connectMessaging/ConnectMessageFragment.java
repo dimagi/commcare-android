@@ -33,13 +33,6 @@ public class ConnectMessageFragment extends Fragment {
     private FragmentConnectMessageBinding binding;
     private ConnectMessageAdapter adapter;
 
-    public static ConnectMessageFragment newInstance(String channelId) {
-        ConnectMessageFragment fragment = new ConnectMessageFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -84,6 +77,7 @@ public class ConnectMessageFragment extends Fragment {
             message.setTimeStamp(new Date());
             message.setIsOutgoing(true);
             message.setConfirmed(false);
+            message.setUserViewed(true);
 
             binding.etMessage.setText("");
 
@@ -111,7 +105,13 @@ public class ConnectMessageFragment extends Fragment {
             chats.add(new ConnectMessageChatData(viewType,
                     message.getMessage(),
                     message.getIsOutgoing() ? "You" : "Them",
+                    message.getTimeStamp(),
                     message.getConfirmed()));
+
+            if(!message.getUserViewed()) {
+                message.setUserViewed(true);
+                ConnectDatabaseHelper.storeMessagingMessage(requireContext(), message);
+            }
         }
 
         adapter.updateData(chats);
