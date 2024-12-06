@@ -319,7 +319,7 @@
             <item name="android:gravity">center</item>
             <item name="android:padding">12dp</item>
             <item name="height">40dp</item>
-            <item name="cornerRadius">22dp</item>
+            <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
             <item name="iconPadding">8dp</item>
             <item name="android:textAllCaps">false</item>
             <item name="android:textStyle">bold</item>
@@ -334,7 +334,7 @@
         <item name="cornerFamilyBottomLeft">rounded</item>
         <item name="cornerFamilyTopRight">rounded</item>
         <item name="cornerFamilyBottomRight">rounded</item>
-        <item name="cornerSize">22dp</item>
+        <item name="cornerSize">@dimen/rounded_button_corner_radius</item>
         <item name="strokeColor">@color/cc_brand_color</item>
         <item name="strokeWidth">2dp</item>
         <item name="textColor">@color/cc_brand_color</item>
