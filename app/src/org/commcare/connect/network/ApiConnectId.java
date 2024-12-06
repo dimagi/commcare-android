@@ -488,7 +488,7 @@ public class ApiConnectId {
             Logger.exception("Sending message", e);
         }
         params.put("content", content);
-        params.put("timestamp", DateUtils.formatTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
+        params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
         params.put("message_id", message.getMessageId());
 
         return ConnectNetworkHelper.post(context,

@@ -828,8 +828,19 @@ public class ConnectDatabaseHelper {
     }
 
     public static List<ConnectMessagingChannelRecord> getMessagingChannels(Context context) {
-        return getConnectStorage(context, ConnectMessagingChannelRecord.class)
+        List<ConnectMessagingChannelRecord> channels = getConnectStorage(context, ConnectMessagingChannelRecord.class)
                 .getRecordsForValues(new String[]{}, new Object[]{});
+
+        for(ConnectMessagingMessageRecord message : getMessagingMessagesAll(context)) {
+            for(ConnectMessagingChannelRecord searchChannel : channels) {
+                if(message.getChannelId().equals(searchChannel.getChannelId())) {
+                    searchChannel.getMessages().add(message);
+                    break;
+                }
+            }
+        }
+
+        return channels;
     }
 
     public static ConnectMessagingChannelRecord getMessagingChannel(Context context, String channelId) {
@@ -865,10 +876,17 @@ public class ConnectDatabaseHelper {
             for (ConnectMessagingChannelRecord incoming : channels) {
                 if (existing.getChannelId().equals(incoming.getChannelId())) {
                     incoming.setID(existing.getID());
+
+                    incoming.setChannelCreated(existing.getChannelCreated());
+
+                    if(!incoming.getAnsweredConsent()) {
+                        incoming.setAnsweredConsent(existing.getAnsweredConsent());
+                    }
+
                     if(existing.getKey().length() > 0) {
                         incoming.setKey(existing.getKey());
-
                     }
+
                     stillExists = true;
                     break;
                 }

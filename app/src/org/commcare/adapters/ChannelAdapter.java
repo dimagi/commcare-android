@@ -8,8 +8,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ItemChannelBinding;
+import org.javarosa.core.model.utils.DateUtils;
 
+import java.util.Date;
 import java.util.List;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
@@ -61,8 +65,29 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 binding.tvChannelDescription.setVisibility(View.GONE);
             }
 
-            //binding.tvLastChatTime.setText("");
-            //binding.tvUnreadCount.setText("");
+            Date lastDate = null;
+            int unread = 0;
+            for(ConnectMessagingMessageRecord message : channel.getMessages()) {
+                if(lastDate == null || lastDate.before(message.getTimeStamp())) {
+                    lastDate = message.getTimeStamp();
+                }
+
+                if(!message.getUserViewed()) {
+                    unread++;
+                }
+            }
+
+            boolean showDate = lastDate != null;
+            binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);
+            if(showDate) {
+                binding.tvLastChatTime.setText(DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+            }
+
+            boolean showUnread = unread > 0;
+            binding.tvUnreadCount.setVisibility(showUnread ? View.VISIBLE : View.GONE);
+            if(showUnread) {
+                binding.tvUnreadCount.setText(String.valueOf(unread));
+            }
 
             binding.itemRootLayout.setOnClickListener(view -> {
                 if (clickListener != null) {

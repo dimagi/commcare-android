@@ -9,7 +9,9 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Table(ConnectMessagingChannelRecord.STORAGE_KEY)
 public class ConnectMessagingChannelRecord extends Persisted implements Serializable {
@@ -22,7 +24,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public static final String META_CHANNEL_ID = "channel_id";
     public static final String META_CHANNEL_CREATED = "created";
     public static final String META_ANSWERED_CONSENT = "answered_consent";
-    public static final String META_CONSENTED = "consented";
+    public static final String META_CONSENT = "consent";
     public static final String META_CHANNEL_NAME = "channel_source";
     public static final String META_KEY_URL = "key_url";
     public static final String META_KEY = "key";
@@ -44,7 +46,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     private boolean answeredConsent;
 
     @Persisting(4)
-    @MetaField(META_CONSENTED)
+    @MetaField(META_CONSENT)
     private boolean consented;
 
     @Persisting(5)
@@ -59,16 +61,19 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     @MetaField(META_KEY)
     private String key;
 
+    private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
+
     public static ConnectMessagingChannelRecord fromJson(JSONObject json) throws JSONException, ParseException {
         ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
 
         connectMessagingChannelRecord.channelId = json.getString(META_CHANNEL_ID);
-        connectMessagingChannelRecord.channelCreated = new Date();// json.getString(META_CHANNEL_CREATED);
-        connectMessagingChannelRecord.answeredConsent = false;//json.getString(META_ANSWERED_CONSENT);
-        connectMessagingChannelRecord.consented = false;//json.getString(META_CONSENTED);
+        connectMessagingChannelRecord.consented = json.getBoolean(META_CONSENT);
         connectMessagingChannelRecord.channelName = json.getString(META_CHANNEL_NAME);
         connectMessagingChannelRecord.keyUrl = json.getString(META_KEY_URL);
-        connectMessagingChannelRecord.key = "";//json.getString(META_KEY);
+
+        connectMessagingChannelRecord.channelCreated = new Date();
+        connectMessagingChannelRecord.answeredConsent = false;
+        connectMessagingChannelRecord.key = "";
 
         return connectMessagingChannelRecord;
     }
@@ -128,4 +133,5 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public void setKey(String key) {
         this.key = key;
     }
+    public List<ConnectMessagingMessageRecord> getMessages() { return messages; }
 }
