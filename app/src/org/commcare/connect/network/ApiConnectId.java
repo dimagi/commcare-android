@@ -50,7 +50,7 @@ public class ApiConnectId {
                 ConnectDatabaseHelper.storeApp(context, appRecord);
             }
         } catch (IOException e) {
-            //Don't care for now
+            Logger.exception("Linking HQ worker", e);
         }
     }
 
