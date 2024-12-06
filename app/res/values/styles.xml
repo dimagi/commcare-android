@@ -306,6 +306,12 @@
         <item name="android:navigationBarColor">@color/black</item>
     </style>
 
+    <style name="AlertDialogButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:background">@drawable/rounded_button_shape</item>
+        <item name="android:minWidth">@dimen/min_button_width</item>
+        <item name="backgroundTint">@color/cc_brand_color</item>
+    </style>
+
         <style name="CustomButtonStyle" parent="Widget.MaterialComponents.Button">
             <item name="backgroundTint">@color/cc_brand_color</item>
             <item name="android:textColor">@color/white</item>
