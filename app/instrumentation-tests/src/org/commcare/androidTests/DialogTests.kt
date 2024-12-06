@@ -2,6 +2,7 @@ package org.commcare.androidTests
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -44,15 +45,16 @@ class DialogTests: BaseTest() {
         onView(withId(R.id.nav_btn_next))
                 .perform(click())
 
-        withText("Add a new \"Error on add\" group?").isDisplayed()
+        onView(withId(R.id.choice_dialog_panel_2)).check(matches(withText("Add a new Error on add?")))
 
         InstrumentationUtility.rotateLeft()
         //TODO Expect dialog to not persist due to a activity lifecycle bug in our dialog framework.
-        withText("Add a new \"Error on add\" group?").doesNotExist()
+        withText(R.id.choice_dialog_panel_2).doesNotExist()
+
         InstrumentationUtility.rotatePortrait()
         onView(withId(R.id.nav_btn_next))
                 .perform(click())
-        onView(withText("ADD GROUP"))
+        onView(withId(R.id.choice_dialog_panel_2))
                 .perform(click())
 
         checkDialogExistence_withRotation("Error Occurred")

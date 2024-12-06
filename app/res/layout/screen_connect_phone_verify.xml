@@ -1,72 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/cc_core_bg"
-    android:orientation="vertical"
-    android:layout_marginStart="@dimen/content_start"
-    android:layout_marginEnd="@dimen/content_start">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/connect_phone_verify_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_margin="@dimen/content_min_margin"
-        android:textColor="@color/cc_neutral_color"
-        android:textSize="@dimen/text_larger"
-        android:text="@string/connect_verify_phone_title2"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/connect_phone_verify_label"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"/>
-    <AutoCompleteTextView
-        android:id="@+id/connect_phone_verify_code"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"/>
+        <LinearLayout
+            android:id="@+id/llTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/connect_phone_verify_error"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:textColor="@color/red"
-        android:visibility="gone"/>
+            <include
+                android:id="@+id/commonAppBar"
+                layout="@layout/connectid_common_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/connect_phone_verify_change"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:textColor="@color/blue"
-        android:text="@string/connect_verify_phone_change"
-        android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/company_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_dimagi_logo" />
 
-    <TextView
-        android:id="@+id/connect_phone_verify_resend"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/content_min_margin"
-        android:gravity="start"
-        android:textSize="@dimen/text_medium"
-        android:textColor="@color/blue"
-        android:text="@string/connect_verify_phone_resend"/>
+        <View
+            android:id="@+id/divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="40dp"
+            android:background="@color/connect_light_grey" />
 
-    <Button
-        android:id="@+id/connect_phone_verify_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/content_start"
-        android:paddingTop="@dimen/content_start"
-        android:text="@string/connect_verify_phone_verify"/>
+        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            android:id="@+id/connect_phone_verify_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/roboto_medium"
+            android:text="@string/enter_otp"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="16sp" />
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="end"
+            android:layout_marginStart="16dp"
+            android:gravity="center"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal">
+
+            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                android:id="@+id/connect_phone_verify_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/connect_secondary_text"
+                android:textSize="16sp"
+                tools:text="+91 7748962888" />
+
+            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                android:id="@+id/connect_phone_verify_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:gravity="end"
+                android:text="@string/connect_verify_phone_change"
+                android:textColor="@color/connect_blue_color"
+                android:textSize="16sp"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/otp_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="start"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/connect_side_icon_bg"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="1dp"
+                    android:src="@drawable/ic_outline_lock_24" />
+
+            </LinearLayout>
+
+            <org.commcare.views.connect.CustomOtpView
+                android:id="@+id/customOtpView"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                app:otpViewDigitCount="6"
+                android:layout_marginStart="16dp"
+                app:otpViewTextColor="@color/connect_blue_color"
+                app:otpViewBorderColor="@color/connect_blue_color"
+                app:otpViewBorderRadius="4dp"
+                app:otpViewBorderWidth="0.5dp"
+                app:otpViewErrorTextColor="@color/connect_red"
+                app:otpViewErrorBorderColor="@color/connect_red"
+                app:otpViewTextSize="6sp" />
+
+        </LinearLayout>
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connect_phone_verify_error"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/content_min_margin"
+            android:gravity="start"
+            android:textColor="@color/red"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connect_phone_verify_resend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/roboto_medium"
+            android:text="Resend OTP in 60s"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="12sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_deactivate_button"
+                android:layout_width="150dp"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:text="@string/connect_deactivate_account"
+                app:roundButtonBackgroundColor="@color/white"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonBorderWidth="0.5dp"
+                android:visibility="gone"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonTextSize="6.5sp" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_resend_button"
+                android:layout_width="150dp"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="@string/connect_verify_phone_resend_code"
+                app:roundButtonBackgroundColor="@color/white"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonBorderWidth="0.5dp"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonTextSize="6.5sp" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_phone_verify_button"
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:gravity="start|center"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:text="@string/connect_verify_phone_verify"
+                app:roundButtonBackgroundColor="@color/connect_blue_color"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="6.5sp" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+</layout>

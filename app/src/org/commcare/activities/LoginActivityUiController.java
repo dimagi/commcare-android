@@ -17,17 +17,12 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.preference.PreferenceManager;
-
-import java.util.ArrayList;
-import java.util.Vector;
-
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -42,10 +37,17 @@ import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
+import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.annotation.Nullable;
+
+import androidx.preference.PreferenceManager;
 
 /**
  * Handles login activity UI
@@ -62,16 +64,16 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private View notificationButtonView;
 
     @UiElement(value = R.id.screen_login_bad_password)
-    private TextView errorTextView;
+    private ConnectRegularTextView errorTextView;
 
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
 
     @UiElement(value = R.id.connect_login_button)
-    private Button connectLoginButton;
+    private RoundedButton connectLoginButton;
 
     @UiElement(value = R.id.login_or)
-    private TextView orLabel;
+    private ConnectMediumTextView orLabel;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
@@ -86,7 +88,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private View banner;
 
     @UiElement(value = R.id.login_button)
-    private Button loginButton;
+    private RoundedButton loginButton;
 
     @UiElement(value = R.id.restore_session_checkbox)
     private CheckBox restoreSessionCheckbox;
@@ -95,10 +97,10 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private Spinner spinner;
 
     @UiElement(R.id.welcome_msg)
-    private TextView welcomeMessage;
+    private ConnectMediumTextView welcomeMessage;
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
-    private TextView loginPrimedMessage;
+    private ConnectRegularTextView loginPrimedMessage;
 
     protected final LoginActivity activity;
 
@@ -224,7 +226,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         setLoginInputsVisibility(!noApps);
-        if (!ConnectManager.isConnectIdIntroduced() && (readyApps.size() == 1 || presetAppRecord != null)) {
+        if (!ConnectManager.isConnectIdConfigured() && (readyApps.size() == 1 || presetAppRecord != null)) {
             setLoginInputsVisibility(true);
 
             // Set this app as the last selected app, for use in choosing what app to initialize
@@ -269,7 +271,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     public void updateConnectLoginState() {
         setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
 
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectDatabaseHelper.getUser(activity).getName());
 

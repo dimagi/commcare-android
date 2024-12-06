@@ -58,7 +58,7 @@ public class ConnectSsoHelper {
     }
 
     public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
-        if (!ConnectManager.isUnlocked()) {
+        if (!ConnectManager.isConnectIdConfigured()) {
             return null;
         }
 
@@ -79,8 +79,7 @@ public class ConnectSsoHelper {
             if (connectIdToken != null) {
                 if(!appRecord.getWorkerLinked()) {
                     //Link user if necessary
-                    ApiConnectId.linkHqWorker(context, hqUsername,
-                            appRecord.getPassword(), connectIdToken.bearerToken);
+                    ApiConnectId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
                 }
 
                 //Retrieve HQ token

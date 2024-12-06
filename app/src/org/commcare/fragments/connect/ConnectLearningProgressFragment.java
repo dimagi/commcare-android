@@ -5,38 +5,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.activities.CommCareActivity;
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -48,6 +35,9 @@ import androidx.navigation.Navigation;
  */
 public class ConnectLearningProgressFragment extends Fragment {
     boolean showAppLaunch = true;
+
+    TextView viewMore;
+    TextView jobDiscription;
     public ConnectLearningProgressFragment() {
         // Required empty public constructor
     }
@@ -67,23 +57,24 @@ public class ConnectLearningProgressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        getActivity().setTitle(getString(R.string.connect_learn_title));
+
 
         if(getArguments() != null) {
             showAppLaunch = getArguments().getBoolean("showLaunch", true);
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
-
-        ImageView refreshButton = view.findViewById(R.id.connect_learning_refresh);
+        RoundedButton refreshButton = view.findViewById(R.id.btnSync);
         refreshButton.setOnClickListener(v -> {
             refreshData();
         });
 
-        updateUpdatedDate(job.getLastLearnUpdate());
+//        updateUpdatedDate(job.getLastLearnUpdate());
         updateUi(view);
         refreshData();
 
+        jobCardDataHandle(view, job);
         return view;
     }
 
@@ -91,7 +82,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectManager.isUnlocked()) {
+        if(ConnectManager.isConnectIdConfigured()) {
             refreshData();
         }
     }
@@ -101,7 +92,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectManager.updateLearningProgress(getContext(), job, success -> {
             if(success) {
                 try {
-                    updateUpdatedDate(new Date());
+//                    updateUpdatedDate(new Date());
                     updateUi(null);
                 }
                 catch(Exception e) {
@@ -135,7 +126,11 @@ public class ConnectLearningProgressFragment extends Fragment {
                 showReviewLearningButton = true;
 
                 if(assessmentPassed) {
+                    TextView textView = view.findViewById(R.id.connect_learn_cert_score);
+                    String text=getString(R.string.your_score, job.getAssessmentScore());
+                    textView.setText(text);
                     status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
+
                     buttonText = getString(R.string.connect_learn_view_details);
                 }
                 else {
@@ -160,18 +155,20 @@ public class ConnectLearningProgressFragment extends Fragment {
         ProgressBar progressBar = view.findViewById(R.id.connect_learning_progress_bar);
         LinearLayout progressBarTextContainer = view.findViewById(R.id.connect_learn_progress_bar_text_container);
 
-        progressText.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        progressBar.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        progressBarTextContainer.setVisibility(learningFinished ? View.GONE : View.VISIBLE);
-        if(!learningFinished) {
+        progressText.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        progressBarTextContainer.setVisibility(assessmentPassed ? View.GONE : View.VISIBLE);
+        if(!assessmentPassed) {
             progressBar.setProgress(percent);
             progressBar.setMax(100);
-
             progressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
         }
 
-        LinearLayout certContainer = view.findViewById(R.id.connect_learning_certificate_container);
+        CardView certContainer = view.findViewById(R.id.connect_learning_certificate_container);
         certContainer.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
+
+        CardView learningContainer = view.findViewById(R.id.learning_card);
+        learningContainer.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         int titleResource;
         if(learningFinished) {
@@ -194,30 +191,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         TextView textView = view.findViewById(R.id.connect_learn_progress_title);
         textView.setText(getString(titleResource));
 
-        textView = view.findViewById(R.id.connect_learning_claim_label);
-        textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
-
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
-
-        TextView completeByText = view.findViewById(R.id.connect_learning_complete_by_text);
-        completeByText.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
         textView.setVisibility(finished ? View.VISIBLE : View.GONE);
-
-        textView = view.findViewById(R.id.connect_learning_warning_learn_text);
-        textView.setOnClickListener(v -> {
-            StandardAlertDialog dialog = new StandardAlertDialog(
-                    getContext(),
-                    getString(R.string.connect_progress_warning),
-                    getString(R.string.connect_progress_warning_full));
-            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
-                dialog1.dismiss();
-            });
-            ((CommCareActivity<?>)getActivity()).showAlertDialog(dialog);
-        });
 
         if(learningFinished) {
             textView = view.findViewById(R.id.connect_learn_cert_subject);
@@ -249,7 +228,6 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            completeByText.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
@@ -258,11 +236,10 @@ public class ConnectLearningProgressFragment extends Fragment {
         reviewButton.setOnClickListener(v -> {
             NavDirections directions = null;
             if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-                getActivity().finish();
+                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
 
             if(directions != null) {
@@ -276,13 +253,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         button.setOnClickListener(v -> {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment();
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(true);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-                ConnectManager.launchApp(getContext(), true, job.getLearnAppInfo().getAppId());
-                getActivity().finish();
+                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
                 String title = getString(R.string.connect_downloading_learn);
-                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true, true);
+                directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
 
             if(directions != null) {
@@ -291,13 +267,41 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
     }
 
-    private void updateUpdatedDate(Date lastUpdate) {
-        View view = getView();
-        if(view == null) {
-            return;
-        }
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
-        TextView updateText = view.findViewById(R.id.connect_learning_last_update);
-        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(workingHours);
+        }
     }
+
+//    private void updateUpdatedDate(Date lastUpdate) {
+//        View view = getView();
+//        if(view == null) {
+//            return;
+//        }
+//
+//        TextView updateText = view.findViewById(R.id.connect_learning_last_update);
+//        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
+//    }
 }

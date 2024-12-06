@@ -50,7 +50,7 @@ public class CrashUtil {
     }
 
     public static void registerConnectUser() {
-        if (crashlyticsEnabled && ConnectManager.isUnlocked()) {
+        if (crashlyticsEnabled && ConnectManager.isConnectIdConfigured()) {
             FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, ConnectManager.getUser(CommCareApplication.instance()).getUserId());
         }
     }
