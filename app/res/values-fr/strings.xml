@@ -189,11 +189,8 @@ License.
     <string name="connect_progress_title">Progression de livraison</string>
     <string name="connect_progress_status">Vous avez complété %d sur %d visites.</string>
     <string name="connect_progress_complete_by">Terminez la livraison d\'ici le %s</string>
-    <string name="connect_results_payment_description">%s</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
-    <string name="connect_results_payment_date">%s</string>
-
 
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_job_none_available">Il n\'y a aucune opportunité disponible pour le moment</string>

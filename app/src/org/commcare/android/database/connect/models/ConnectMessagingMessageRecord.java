@@ -1,24 +1,20 @@
 package org.commcare.android.database.connect.models;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.util.Base64;
-import org.commcare.util.Base64DecoderException;
 import org.commcare.util.EncryptionUtils;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.simpleframework.xml.core.PersistenceException;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
-
-import kotlinx.coroutines.channels.ChannelResult;
 
 @Table(ConnectMessagingMessageRecord.STORAGE_KEY)
 public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
@@ -80,7 +76,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         }
 
         String dateString = json.getString(META_MESSAGE_TIMESTAMP);
-        connectMessagingMessageRecord.timeStamp = ConnectNetworkHelper.convertUTCToDate(dateString);
+        connectMessagingMessageRecord.timeStamp = DateUtils.parseDateTime(dateString);
 
         String tag = json.getString("tag");
         String nonce = json.getString("nonce");

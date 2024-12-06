@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
@@ -43,6 +42,7 @@ import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -855,7 +855,7 @@ public class ConnectManager {
 
                         key = "end_date";
                         if (json.has(key)) {
-                            job.setProjectEndDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                            job.setProjectEndDate(DateUtils.parseDate(json.getString(key)));
                             updatedJob = true;
                         }
 

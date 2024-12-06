@@ -7,19 +7,18 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +27,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,29 +34,25 @@ public class ApiConnectId {
     private static final String API_VERSION_NONE = null;
     private static final String API_VERSION_CONNECT_ID = "1.0";
 
-    public static void linkHqWorker(Context context, String hqUsername, String hqPassword, String connectToken) {
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
-        if (appRecord != null && !appRecord.getWorkerLinked()) {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("token", connectToken);
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", connectToken);
 
-            String url = ServerUrls.getKeyServer().replace("phone/keys/",
-                    "settings/users/commcare/link_connectid_user/");
+        String url = ServerUrls.getKeyServer().replace("phone/keys/",
+                "settings/users/commcare/link_connectid_user/");
 
-            try {
-                ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, false);
-                if (postResult.e == null && postResult.responseCode == 200) {
-                    postResult.responseStream.close();
+        try {
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            if (postResult.e == null && postResult.responseCode == 200) {
+                postResult.responseStream.close();
 
-                    //Remember that we linked the user successfully
-                    appRecord.setWorkerLinked(true);
-                    ConnectDatabaseHelper.storeApp(context, appRecord);
-                }
-            } catch (IOException e) {
-                //Don't care for now
+                //Remember that we linked the user successfully
+                appRecord.setWorkerLinked(true);
+                ConnectDatabaseHelper.storeApp(context, appRecord);
             }
+        } catch (IOException e) {
+            Logger.exception("Linking HQ worker", e);
         }
     }
 
@@ -494,7 +488,7 @@ public class ApiConnectId {
             Logger.exception("Sending message", e);
         }
         params.put("content", content);
-        params.put("timestamp", ConnectNetworkHelper.dateToUtcString(message.getTimeStamp()));
+        params.put("timestamp", DateUtils.formatTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
         params.put("message_id", message.getMessageId());
 
         return ConnectNetworkHelper.post(context,

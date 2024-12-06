@@ -125,6 +125,10 @@
             app:destination="@id/connectid_pin"
             app:popUpTo="@id/connectid_message" />
         <action
+            android:id="@+id/action_connectid_message_to_connectid_password"
+            app:destination="@id/connectid_password"
+            app:popUpTo="@id/connectid_message" />
+        <action
             android:id="@+id/action_connectid_message_to_connectid_phone_verify"
             app:destination="@id/connectid_phone_verify"
             app:popUpTo="@id/connectid_message" />

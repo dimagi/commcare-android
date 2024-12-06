@@ -619,11 +619,16 @@
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
+    <string name="connect_downloading_status">%d%% Complete</string>
+    <string name="connect_results_summary_all">All</string>
+    <string name="connect_results_summary_pending">Pending</string>
+    <string name="connect_results_summary_rejected">Rejected</string>
+    <string name="connect_results_summary_approved">Approved</string>
     <string name="connect_results_summary_earned">Earned</string>
+    <string name="connect_results_summary_remaining">Remaining</string>
+    <string name="connect_results_summary_remaining_days">%d in %d days</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
-    <string name="connect_results_payment_date">%s</string>
-    <string name="connect_results_payment_description">%s</string>
 
     <string name="connect_results_payment_confirm">Confirm</string>
     <string name="connect_results_payment_confirm_undo">Undo confirm</string>
@@ -774,7 +779,6 @@
     <string name="connect_learn">Learn</string>
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
-    <string name="connect_job_tile_price">%s</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
