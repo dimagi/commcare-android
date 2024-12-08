@@ -124,7 +124,7 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.7.1'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
-    implementation 'com.google.android.play:core:1.10.3'
+    implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
 
@@ -184,7 +184,7 @@ afterEvaluate {
  * https://discuss.gradle.org/t/gradle-7-0-seems-to-take-an-overzealous-approach-to-inter-task-dependencies/39656/2
  * Gradle 7.0 treats any copy tasks as having an implicit dependencies with each other.
  */
-task injectPropertiesIntoFirebaseConfigFile {
+tasks.register('injectPropertiesIntoFirebaseConfigFile') {
     description = 'Injects properties into the google-services.json file at runtime'
 
     copy {
@@ -222,7 +222,7 @@ static def getDate() {
 
 android {
     namespace 'org.commcare.dalvik'
-    compileSdk 33
+    compileSdk 34
 
     lintOptions {
         abortOnError false
@@ -249,7 +249,8 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
+
         applicationId 'org.commcare.dalvik'
         testNamespace 'org.commcare.dalvik.test'
 
@@ -491,7 +492,7 @@ android {
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
  */
-task downloadCCApp(type: Exec)
+tasks.register('downloadCCApp', Exec)
 
 // task configuration phase
 downloadCCApp {
@@ -521,7 +522,7 @@ downloadCCApp {
 }
 
 
-task downloadRestoreFile(type: Exec)
+tasks.register('downloadRestoreFile', Exec)
 
 // task configuration phase
 downloadRestoreFile {
@@ -551,7 +552,7 @@ downloadRestoreFile {
 }
 
 // dynamically inject commcare app download into standalone build process
-tasks.whenTaskAdded { task ->
+tasks.configureEach { task ->
     if ((task.name == 'processStandaloneDebugResources' ||
             task.name == 'processStandaloneReleaseResources') && 'true' == runDownloadScripts) {
         task.dependsOn downloadCCApp
