@@ -5,9 +5,9 @@
         android:width="512dp"
         xmlns:android="http://schemas.android.com/apk/res/android">
     <path
-        android:fillColor="#FF000000"
+        android:fillColor="#FFFFFFFF"
         android:pathData="M10,12 L6,12 6,6 2,6 8,0 14,6 10,6z"/>
     <path
-        android:fillColor="#000"
+        android:fillColor="#FFF"
         android:pathData="m0,11 l0,5 16,0 0,-5 -2,0 0,3 -12,0 0,-3z"/>
 </vector>

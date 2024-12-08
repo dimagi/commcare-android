@@ -49,7 +49,7 @@ public class PinnedNotificationWithProgress<R>
                 .setContentText(getProgressText(0, 0))
                 .setContentTitle(Localization.get(titleText))
                 .setProgress(100, 0, false)
-                .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                .setSmallIcon(org.commcare.dalvik.R.drawable.commcare_actionbar_logo)
                 .setLargeIcon(largeIcon)
                 .setContentIntent(contentIntent)
                 .setWhen(System.currentTimeMillis())
