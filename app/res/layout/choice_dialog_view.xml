@@ -35,7 +35,6 @@
             android:padding="@dimen/standard_spacer"
             android:layout_gravity="end"
             android:layout_marginRight="@dimen/standard_spacer"
-            android:textSize="@dimen/font_size_dp_medium"
             android:visibility="gone"
         android:layout_marginEnd="@dimen/standard_spacer"/>
 

@@ -80,7 +80,6 @@
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="@dimen/standard_spacer"
                     android:layout_marginLeft="@dimen/standard_spacer"
-                    android:textSize="@dimen/font_size_dp_medium"
                     android:visibility="gone"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="@dimen/standard_spacer"/>
@@ -93,7 +92,6 @@
                 android:padding="@dimen/standard_spacer"
                 android:layout_marginRight="@dimen/standard_spacer"
                 android:layout_toLeftOf="@id/positive_button"
-                android:textSize="@dimen/font_size_dp_medium"
                 android:visibility="gone"
                 android:layout_toStartOf="@id/positive_button"/>
 
@@ -107,7 +105,6 @@
                 android:layout_toLeftOf="@id/neutral_button"
                 android:layout_marginRight="@dimen/standard_spacer"
                 android:layout_marginLeft="@dimen/standard_spacer"
-                android:textSize="@dimen/font_size_dp_medium"
                 android:visibility="gone"
                 android:layout_marginStart="@dimen/standard_spacer"
                 android:layout_marginEnd="@dimen/standard_spacer"

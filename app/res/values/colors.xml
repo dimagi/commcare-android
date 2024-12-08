@@ -157,6 +157,6 @@
     <color name="url_button_color">#8EA1FF</color>
 
     <!-- Progress bar colors -->
-    <color name="progress_bar_bg">#33000000</color>
+    <color name="progress_bar_bg">#66000000</color>
 
 </resources>
