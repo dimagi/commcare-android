@@ -328,7 +328,7 @@
     <style name="CustomButtonStyleOutline" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="shapeAppearanceOverlay">@style/RoundedButtonStyle</item>
     </style>
-    <style name="RoundedButtonStyle" parent="">
+    <style name="RoundedButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:background">@drawable/button_background_white</item>
         <item name="cornerFamilyTopLeft">rounded</item>
         <item name="cornerFamilyBottomLeft">rounded</item>
