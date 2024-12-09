@@ -49,6 +49,15 @@ class EntityLoaderHelper(
         return null
     }
 
+    /**
+     *  Primes the entity cache
+     */
+    fun cacheEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
+        val references = factory.expandReferenceList(nodeset)
+        val entities = loadEntitiesWithReferences(references)
+        factory.cacheEntities(entities)
+        return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+    }
 
     /**
      * Loads a list of entities corresponding to the given references
