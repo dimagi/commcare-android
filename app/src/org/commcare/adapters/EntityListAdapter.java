@@ -16,6 +16,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.AndroidSortableEntityAdapter;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
@@ -429,7 +430,10 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            CommCareApplication.instance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+            SessionWrapper session = CommCareApplication.instance().getCurrentSession();
+            session.removeExtraFromCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
+            session.addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA,
+                    calloutResponseData);
         }
     }
 

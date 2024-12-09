@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -27,8 +29,8 @@ import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
-import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
@@ -82,8 +84,12 @@ public class CommCareSessionService extends Service {
      */
     public static final ReentrantLock sessionAliveLock = new ReentrantLock();
 
+    /**
+     * 2h time in Milliseconds to extend the session if needed
+     */
+    private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
+
     private Timer maintenanceTimer;
-    private CipherPool pool;
 
     private byte[] key = null;
 
@@ -141,7 +147,6 @@ public class CommCareSessionService extends Service {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
-        createCipherPool();
     }
 
     @Override
@@ -152,27 +157,6 @@ public class CommCareSessionService extends Service {
             Log.e(LogTypes.SOFT_ASSERT,
                     "Trying to wipe uninitialized session in session service tear-down");
         }
-    }
-
-    public void createCipherPool() {
-        pool = new CipherPool() {
-            @Override
-            public Cipher generateNewCipher() {
-                synchronized (lock) {
-                    try {
-                        SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                        Cipher decrypter = Cipher.getInstance("AES");
-                        decrypter.init(Cipher.DECRYPT_MODE, spec);
-
-                        return decrypter;
-                    } catch (NoSuchPaddingException | NoSuchAlgorithmException |
-                             InvalidKeyException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
-        };
     }
 
     @Override
@@ -202,44 +186,9 @@ public class CommCareSessionService extends Service {
      */
     @SuppressLint("UnspecifiedImmutableFlag")
     public void showLoggedInNotification(@Nullable User user) {
-        //We always want this click to simply bring the live stack back to the top
-        Intent callable = new Intent(this, DispatchActivity.class);
-        callable.setAction("android.intent.action.MAIN");
-        callable.addCategory("android.intent.category.LAUNCHER");
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-        else
-            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
-
-        String notificationText;
-        if (AppUtils.getInstalledAppRecords().size() > 1) {
-            try {
-                notificationText = Localization.get("notification.logged.in",
-                        new String[]{Localization.get("app.display.name")});
-            } catch (NoLocalizedTextException e) {
-                notificationText = getString(NOTIFICATION);
-            }
-        } else {
-            notificationText = getString(NOTIFICATION);
-        }
-
-        // Set the icon, scrolling text and timestamp
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
-                .setContentTitle(notificationText)
-                .setSmallIcon(R.drawable.notification)
-                .setContentIntent(contentIntent);
-
-        if (user != null) {
-            String contentText = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
-            notificationBuilder.setContentText(contentText);
-        }
-
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
-        this.startForeground(NOTIFICATION, notificationBuilder.build());
+        this.startForeground(NOTIFICATION, createSessionNotification());
     }
 
     /**
@@ -286,7 +235,6 @@ public class CommCareSessionService extends Service {
         synchronized (lock) {
             this.userKeyRecordUUID = record.getUuid();
             this.key = symetricKey;
-            pool.init();
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
@@ -309,7 +257,7 @@ public class CommCareSessionService extends Service {
 
                 //Let anyone who is listening know!
                 Intent i = new Intent("org.commcare.dalvik.api.action.session.login");
-                this.sendBroadcast(i);
+                sendBroadcastFailSafe(this, i, null);
             }
 
             this.user = user;
@@ -361,6 +309,7 @@ public class CommCareSessionService extends Service {
                 return;
             }
             try {
+                Logger.log(LogTypes.TYPE_USER, "Expiring user session forcefully due to session timeout");
                 CommCareApplication.instance().expireUserSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
@@ -382,6 +331,7 @@ public class CommCareSessionService extends Service {
             }
 
             try {
+                Logger.log(LogTypes.TYPE_USER, "Expiring user session due to session timeout");
                 saveFormAndCloseSession();
             } finally {
                 CommCareSessionService.sessionAliveLock.unlock();
@@ -406,7 +356,7 @@ public class CommCareSessionService extends Service {
         // save form progress, if any
         synchronized (lock) {
             if (formSaver != null) {
-                formSaver.formSaveCallback(() -> {
+                formSaver.formSaveCallback(true, false, () -> {
                     CommCareApplication.instance().expireUserSession();
                 });
             } else {
@@ -425,7 +375,7 @@ public class CommCareSessionService extends Service {
             if (formSaver != null) {
                 Toast.makeText(CommCareApplication.instance(),
                         "Suspending existing form entry session...", Toast.LENGTH_LONG).show();
-                formSaver.formSaveCallback(callback);
+                formSaver.formSaveCallback(true, false, callback);
                 formSaver = null;
                 return;
             }
@@ -469,7 +419,7 @@ public class CommCareSessionService extends Service {
 
             // Let anyone who is listening know!
             Intent i = new Intent("org.commcare.dalvik.api.action.session.logout");
-            this.sendBroadcast(i);
+            sendBroadcastFailSafe(this, i, null);
 
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Logging out service login");
 
@@ -488,8 +438,6 @@ public class CommCareSessionService extends Service {
                 maintenanceTimer.cancel();
             }
             logoutStartedAt = -1;
-
-            pool.expire();
             endHeartbeatLifecycle();
         }
     }
@@ -708,5 +656,54 @@ public class CommCareSessionService extends Service {
 
     public boolean shouldShowInAppUpdate() {
         return this.showInAppUpdate;
+    }
+
+    public void extendUserSessionIfNeeded(){
+        long currentTime = new Date().getTime();
+
+        if (sessionExpireDate.getTime() < currentTime + SESSION_EXTENSION_TIME) {
+            sessionExpireDate.setTime(sessionExpireDate.getTime() + SESSION_EXTENSION_TIME);
+            sessionLength += SESSION_EXTENSION_TIME;
+
+            mNM.notify(NOTIFICATION, createSessionNotification());
+        }
+    }
+
+    private Notification createSessionNotification(){
+        //We always want this click to simply bring the live stack back to the top
+        Intent callable = new Intent(this, DispatchActivity.class);
+        callable.setAction("android.intent.action.MAIN");
+        callable.addCategory("android.intent.category.LAUNCHER");
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
+        else
+            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
+
+        String notificationText;
+        if (AppUtils.getInstalledAppRecords().size() > 1) {
+            try {
+                notificationText = Localization.get("notification.logged.in",
+                        new String[]{Localization.get("app.display.name")});
+            } catch (NoLocalizedTextException e) {
+                notificationText = getString(NOTIFICATION);
+            }
+        } else {
+            notificationText = getString(NOTIFICATION);
+        }
+
+        // Set the icon, scrolling text and timestamp
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
+                .setContentTitle(notificationText)
+                .setSmallIcon(R.drawable.notification)
+                .setContentIntent(contentIntent);
+
+        if (user != null) {
+            String contentText = "Session Expires: " + DateFormat.format("MMM dd h:mmaa", sessionExpireDate);
+            notificationBuilder.setContentText(contentText);
+        }
+        return notificationBuilder.build();
     }
 }
