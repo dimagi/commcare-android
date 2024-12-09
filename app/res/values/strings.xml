@@ -42,6 +42,8 @@
     <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
     <string name="ConnectInitiateUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/initiate_deactivation</string>
     <string name="ConnectConfirmUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/confirm_deactivation</string>
+    <string name="ConnectPaymentPhoneNumberURL">https://connectid.dimagi.com/users/profile/payment_phone_number</string>
+    <string name="ConnectConfirmPaymentOtpURL">https://connectid.dimagi.com/users/profile/confirm_payment_otp</string>
 
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
@@ -876,6 +878,8 @@
     <string name="connect_commcare_app">CommCare App</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
+    <string name="connect_payment_info">Payment Info</string>
+    <string name="connect_payment_info_resend_otp">Resend OTP</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
     <string name="connect_appbar_title_password_verification">Password Verification</string>
