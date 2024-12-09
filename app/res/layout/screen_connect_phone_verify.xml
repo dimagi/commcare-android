@@ -9,12 +9,26 @@
         android:background="@color/white"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:id="@+id/llTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <include
+                android:id="@+id/commonAppBar"
+                layout="@layout/connectid_common_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
         <ImageView
             android:id="@+id/company_logo"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="40dp"
             android:contentDescription="@null"
             android:src="@drawable/ic_dimagi_logo" />
 
@@ -38,16 +52,36 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/connect_phone_verify_label"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:layout_gravity="end"
             android:layout_marginStart="16dp"
+            android:gravity="center"
             android:layout_marginEnd="16dp"
-            android:textColor="@color/connect_secondary_text"
-            android:textSize="16sp"
-            tools:text="+91 7748962888" />
+            android:orientation="horizontal">
+
+            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                android:id="@+id/connect_phone_verify_label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/connect_secondary_text"
+                android:textSize="16sp"
+                tools:text="+91 7748962888" />
+
+            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                android:id="@+id/connect_phone_verify_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:gravity="end"
+                android:text="@string/connect_verify_phone_change"
+                android:textColor="@color/connect_blue_color"
+                android:textSize="16sp"
+                android:visibility="visible" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/otp_layout"
@@ -73,18 +107,19 @@
 
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/connect_phone_verify_code"
+            <org.commcare.views.connect.CustomOtpView
+                android:id="@+id/customOtpView"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
+                app:otpViewDigitCount="6"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/connect_edit_text_bg"
-                android:hint="OTP"
-                android:imeOptions="actionNext"
-                android:inputType="numberDecimal"
-                android:paddingStart="16dp"
-                android:textColorHint="@color/connect_grey"
-                tools:ignore="RtlSymmetry" />
+                app:otpViewTextColor="@color/connect_blue_color"
+                app:otpViewBorderColor="@color/connect_blue_color"
+                app:otpViewBorderRadius="4dp"
+                app:otpViewBorderWidth="0.5dp"
+                app:otpViewErrorTextColor="@color/connect_red"
+                app:otpViewErrorBorderColor="@color/connect_red"
+                app:otpViewTextSize="6sp" />
 
         </LinearLayout>
 
@@ -96,17 +131,6 @@
             android:gravity="start"
             android:textColor="@color/red"
             android:textSize="14sp"
-            android:visibility="gone" />
-
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/connect_phone_verify_change"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
-            android:gravity="start"
-            android:text="@string/connect_verify_phone_change"
-            android:textColor="@color/blue"
-            android:textSize="16sp"
             android:visibility="gone" />
 
         <org.commcare.views.connect.connecttextview.ConnectMediumTextView
@@ -136,6 +160,27 @@
                 android:layout_gravity="end"
                 android:gravity="center"
                 android:text="@string/connect_deactivate_account"
+                app:roundButtonBackgroundColor="@color/white"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonBorderWidth="0.5dp"
+                android:visibility="gone"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonTextSize="6.5sp" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_resend_button"
+                android:layout_width="150dp"
+                android:layout_height="45dp"
+                android:layout_gravity="end"
+                android:gravity="center"
+                android:visibility="gone"
+                android:text="@string/connect_verify_phone_resend_code"
                 app:roundButtonBackgroundColor="@color/white"
                 app:roundButtonBorderRadius="@dimen/dp48"
                 app:roundButtonIconLeftAlign="false"

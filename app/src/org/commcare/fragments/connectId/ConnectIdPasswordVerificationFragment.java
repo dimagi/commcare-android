@@ -26,8 +26,10 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPasswordVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,8 +79,16 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         failureCount = 0;
         binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> handleForgotPress());
         binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> handleButtonPress());
-
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_appbar_title_password_verification));
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     @Override
@@ -141,7 +151,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             requestCode = PASSWORD_LOCK;
             message = R.string.connect_password_recovery_message;
         }
-        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD, getString(R.string.connect_recovery_success_button), null, phone, secretKey);
+        NavDirections directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_password_fail_title), getString(message), ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD, getString(R.string.connect_recovery_success_button), null, phone, secretKey);
 
         Navigation.findNavController(binding.connectPasswordVerifyButton).navigate(directions);
 
@@ -207,13 +217,13 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                             key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
                             user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
                             if (!user.getSecondaryPhoneVerified()) {
-                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
                             }
 
                             //TODO: Need to get secondary phone from server
                             ConnectDatabaseHelper.storeUser(context, user);
                         }
-                    } catch (IOException | JSONException | ParseException e) {
+                    } catch (IOException | JSONException e) {
                         Logger.exception("Parsing return from OTP request", e);
                     }
 

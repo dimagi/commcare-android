@@ -52,7 +52,7 @@
                         android:id="@+id/tvFilterAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All"
+                        android:text="@string/connect_results_summary_all"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp" />
 
@@ -84,7 +84,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterApproved"
-                        android:text="Approved"
+                        android:text="@string/connect_results_summary_approved"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp" />
 
@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterRejected"
-                        android:text="Rejected"
+                        android:text="@string/connect_results_summary_rejected"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp" />
 
@@ -148,7 +148,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterPending"
-                        android:text="Pending"
+                        android:text="@string/connect_results_summary_pending"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp" />
 

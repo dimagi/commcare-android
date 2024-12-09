@@ -2,7 +2,6 @@ package org.commcare.fragments.connect;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,8 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectDeliveryListFragment extends Fragment {
+    private static final String ALL_IDENTIFIER = "all";
+    private static final String APPROVED_IDENTIFIER = "approved";
+    private static final String REJECTED_IDENTIFIER = "rejected";
+    private static final String PENDING_IDENTIFIER = "pending";
 
-    private static final String[] FILTERS = {"All", "Approved", "Rejected", "Pending"};
+    private static final String[] FILTERS = {ALL_IDENTIFIER, APPROVED_IDENTIFIER,
+            REJECTED_IDENTIFIER, PENDING_IDENTIFIER};
 
     private String currentFilter = FILTERS[0];
     private String unitName;
@@ -54,8 +57,7 @@ public class ConnectDeliveryListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ConnectDeliveryListFragmentArgs args = ConnectDeliveryListFragmentArgs.fromBundle(getArguments());
         unitName = args.getUnitId();
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(job.getTitle());
+        requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_list, container, false);
         setupRecyclerView(view);
@@ -105,9 +107,9 @@ public class ConnectDeliveryListFragment extends Fragment {
 
     private int getFilterId(String filter) {
         return switch (filter) {
-            case "Approved" -> R.id.llFilterApproved;
-            case "Rejected" -> R.id.llFilterRejected;
-            case "Pending" -> R.id.llFilterPending;
+            case APPROVED_IDENTIFIER -> R.id.llFilterApproved;
+            case REJECTED_IDENTIFIER -> R.id.llFilterRejected;
+            case PENDING_IDENTIFIER -> R.id.llFilterPending;
             default -> R.id.llFilterAll;
         };
     }
@@ -118,11 +120,22 @@ public class ConnectDeliveryListFragment extends Fragment {
     }
 
     private List<ConnectJobDeliveryRecord> getFilteredDeliveries() {
-        return new DeliveryFilter(ConnectManager.getActiveJob()).filterDeliveries(unitName, currentFilter);
+        List<ConnectJobDeliveryRecord> deliveryProgressList = new ArrayList<>();
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        if (job != null) {
+            for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+                if (delivery.getUnitName().equalsIgnoreCase(unitName) &&
+                        (currentFilter.equals(ALL_IDENTIFIER) ||
+                                delivery.getStatus().equalsIgnoreCase(currentFilter))) {
+                    deliveryProgressList.add(delivery);
+                }
+            }
+        }
+        return deliveryProgressList;
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {
-        private List<ConnectJobDeliveryRecord> filteredDeliveries;
+        private final List<ConnectJobDeliveryRecord> filteredDeliveries;
         Context context;
 
         public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> filteredDeliveries) {
@@ -181,50 +194,25 @@ public class ConnectDeliveryListFragment extends Fragment {
 
             public void handleUI(Context context, String status) {
                 switch (status) {
-                    case "pending": {
+                    case PENDING_IDENTIFIER: {
                         llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_pending);
                         imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_pending));
                         break;
                     }
 
-                    case "approved": {
+                    case APPROVED_IDENTIFIER: {
                         llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_approved);
                         imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_approved));
                         break;
                     }
 
-                    case "rejected": {
+                    case REJECTED_IDENTIFIER: {
                         llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_rejected);
                         imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_rejected));
                         break;
                     }
                 }
             }
-        }
-    }
-
-    private static class DeliveryFilter {
-        private final ConnectJobRecord job;
-
-        public DeliveryFilter(ConnectJobRecord job) {
-            this.job = job;
-        }
-
-        public List<ConnectJobDeliveryRecord> filterDeliveries(String unitName, String filterType) {
-            List<ConnectJobDeliveryRecord> deliveryProgressList = new ArrayList<>();
-            if (job != null) {
-                for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
-                    if (isMatchingDelivery(delivery, unitName, filterType)) {
-                        deliveryProgressList.add(delivery);
-                    }
-                }
-            }
-            return deliveryProgressList;
-        }
-
-        private boolean isMatchingDelivery(ConnectJobDeliveryRecord delivery, String unitName, String filterType) {
-            return delivery != null && delivery.getUnitName().equalsIgnoreCase(unitName) &&
-                    (delivery.getStatus().equalsIgnoreCase(filterType) || filterType.equalsIgnoreCase("All"));
         }
     }
 }

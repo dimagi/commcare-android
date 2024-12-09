@@ -56,7 +56,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="per visit"
+                android:text="@string/connect_job_info_per_visit"
                 android:textColor="@color/connect_subtext_color"
                 android:textSize="14sp" />
         </LinearLayout>
@@ -66,10 +66,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="View More"
+            android:text="@string/connect_job_info_view_more"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout6" />
 
@@ -78,11 +77,11 @@
             android:id="@+id/tvDailyVisitTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delivery Hours"
+            android:text="@string/connect_job_info_delivery_hours"
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/linearLayout6"
+            app:layout_constraintBottom_toTopOf="@+id/tv_job_time"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/linearLayout6"
             tools:visibility="visible" />
@@ -96,7 +95,7 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle" />
+            app:layout_constraintBottom_toBottomOf="@+id/tv_view_more" />
 
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView

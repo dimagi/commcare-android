@@ -5,6 +5,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,7 +55,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         record.lastUpdate = new Date();
 
         record.jobId = jobId;
-        record.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
+        record.date = json.has(META_DATE) ? DateUtils.parseDate(json.getString(META_DATE)) : new Date();
         record.moduleId = json.has(META_MODULE) ? json.getInt(META_MODULE) : -1;
         record.duration = json.has(META_DURATION) ? json.getString(META_DURATION) : "";
 

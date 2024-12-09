@@ -5,6 +5,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,7 +41,7 @@ public class ConnectJobPaymentRecordV3 extends Persisted implements Serializable
         ConnectJobPaymentRecordV3 payment = new ConnectJobPaymentRecordV3();
 
         payment.jobId = jobId;
-        payment.date = json.has(META_DATE) ? ConnectNetworkHelper.parseDate(json.getString(META_DATE)) : new Date();
+        payment.date = json.has(META_DATE) ? DateUtils.parseDate(json.getString(META_DATE)) : new Date();
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
         return payment;
