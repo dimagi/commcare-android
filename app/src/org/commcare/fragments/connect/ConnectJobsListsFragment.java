@@ -21,16 +21,15 @@ import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
@@ -96,12 +95,12 @@ public class ConnectJobsListsFragment extends Fragment {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
         };
 
-        view.findViewById(R.id.connect_jobs_last_update).setOnClickListener(new View.OnClickListener() {
+       /* view.findViewById(R.id.connect_jobs_last_update).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
             }
-        });
+        });*/
 
         refreshUi();
         refreshData();
@@ -198,10 +197,15 @@ public class ConnectJobsListsFragment extends Fragment {
         noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
-            if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
-                launchJobInfo(job);
+            ConnectUserRecord user = ConnectManager.getUser(getActivity());
+            if (user.getPaymentName().isEmpty() && user.getPaymentPhone().isEmpty() && job.getPaymentInfoRequired()) {
+                Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
             } else {
-                launchAppForJob(job, isLearning);
+                if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
+                    launchJobInfo(job);
+                } else {
+                    launchAppForJob(job, isLearning);
+                }
             }
         });
 
@@ -235,37 +239,37 @@ public class ConnectJobsListsFragment extends Fragment {
         ArrayList<ConnectLoginJobListModel> otherJobs = new ArrayList<>();
 
         for (ConnectJobRecord job : jobs) {
-                int jobStatus = job.getStatus();
-                boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
-                boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
+            int jobStatus = job.getStatus();
+            boolean isLearnAppInstalled = isAppInstalled(job.getLearnAppInfo().getAppId());
+            boolean isDeliverAppInstalled = isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
-                switch (jobStatus) {
-                    case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
-                        if(!job.isFinished()) {
-                            availableNewJobs.add(createJobModel(
-                                    job, JOB_NEW_OPPORTUNITY, NEW_APP, true, true, false, false
-                            ));
-                        }
-                        break;
-
-                    case STATUS_LEARNING:
-                        otherJobs.add(createJobModel(
-                                job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+            switch (jobStatus) {
+                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                    if (!job.isFinished()) {
+                        availableNewJobs.add(createJobModel(
+                                job, JOB_NEW_OPPORTUNITY, NEW_APP, true, true, false, false
                         ));
-                        break;
+                    }
+                    break;
 
-                    case STATUS_DELIVERING:
-                        otherJobs.add(createJobModel(
-                                job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
-                        ));
-                        otherJobs.add(createJobModel(
-                                job, JOB_DELIVERY, DELIVERY_APP, isDeliverAppInstalled, false, false, true
-                        ));
-                        break;
+                case STATUS_LEARNING:
+                    otherJobs.add(createJobModel(
+                            job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+                    ));
+                    break;
 
-                    default:
-                        break;
-                }
+                case STATUS_DELIVERING:
+                    otherJobs.add(createJobModel(
+                            job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
+                    ));
+                    otherJobs.add(createJobModel(
+                            job, JOB_DELIVERY, DELIVERY_APP, isDeliverAppInstalled, false, false, true
+                    ));
+                    break;
+
+                default:
+                    break;
+            }
 
         }
 

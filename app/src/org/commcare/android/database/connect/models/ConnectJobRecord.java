@@ -66,6 +66,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_MAX_VISITS = "max_visits";
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
+    public static final String META_PAYMENT_INFO_REQUIRED = "payment_info_required";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -145,6 +146,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
     private List<ConnectPaymentUnitRecord> paymentUnits;
+
+    @Persisting(24)
+    @MetaField(META_PAYMENT_INFO_REQUIRED)
+    private Boolean isPaymentInfoRequired;
 
     private boolean claimed;
 
@@ -287,6 +292,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public ConnectAppRecord getDeliveryAppInfo() { return deliveryAppInfo; }
     public void setDeliveryAppInfo(ConnectAppRecord appInfo) { this.deliveryAppInfo = appInfo; }
     public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
+
+    public Boolean getPaymentInfoRequired() {
+        return isPaymentInfoRequired;
+    }
+
+    public void setPaymentInfoRequired(Boolean paymentInfoRequired) {
+        isPaymentInfoRequired = paymentInfoRequired;
+    }
+
     public void setDeliveries(List<ConnectJobDeliveryRecord> deliveries) {
         this.deliveries = deliveries;
         if(deliveries.size() > 0) {

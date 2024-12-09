@@ -26,7 +26,7 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_TOKEN = "access_token";
     public static final String CONNECT_KEY_EXPIRES = "expires_in";
     public static final String CONNECT_KEY_USERNAME = "username";
-    public static final String CONNECT_PAYMENT_INFO = "payment_info";
+    public static final String CONNECT_PAYMENT_INFO = "payment_profile";
     public static final String CONNECT_KEY_NAME = "name";
     public static final String CONNECT_KEY_SECRET = "secret";
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";

@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -435,7 +436,15 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                                 ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                             }
 
-                            resetPassword(context, phone, password, username, displayName,"","");
+                            key = ConnectConstants.CONNECT_PAYMENT_INFO;
+                            String paymentName = "",paymentPhone = "";
+                            if(json.has(key)){
+                                JSONObject paymentJson = json.getJSONObject(key);
+                                paymentName = paymentJson.getString("owner_name");
+                                paymentPhone = paymentJson.getString("phone_number");
+                            }
+
+                            resetPassword(context, phone, password, username, displayName,paymentName,paymentPhone);
                         }
                     }
                 } catch (Exception e) {

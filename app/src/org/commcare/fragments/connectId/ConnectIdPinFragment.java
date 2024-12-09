@@ -207,7 +207,6 @@ public class ConnectIdPinFragment extends Fragment {
 
         boolean isBusy = false;
         final Context context = getActivity();
-        Log.e("DEBUG_TESTING12", "handleButtonPress: " + secret);
         if (isChanging) {
             //Change PIN
             isBusy = !ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
@@ -248,10 +247,8 @@ public class ConnectIdPinFragment extends Fragment {
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 ConnectManager.setFailureAttempt(0);
-                                Log.e("DEBUG_TESTING12", "responseAsString: " + responseAsString);
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
-                                    Log.e("DEBUG_TESTING12", "json: " + json.toString());
                                     String key = ConnectConstants.CONNECT_KEY_USERNAME;
                                     if (json.has(key)) {
                                         username = json.getString(key);
@@ -269,15 +266,16 @@ public class ConnectIdPinFragment extends Fragment {
 
                                     key = ConnectConstants.CONNECT_PAYMENT_INFO;
                                     String paymentName = "",paymentPhone = "";
-//                                    if(json.has(key)){
-//                                        JSONObject paymentJson = json.getJSONObject(key);
-//                                        paymentName = paymentJson.getString("");
-//                                        paymentPhone = paymentJson.getString("");
-//                                    }
+                                    if(json.has(key)){
+                                        JSONObject paymentJson = json.getJSONObject(key);
+                                        paymentName = paymentJson.getString("owner_name");
+                                        paymentPhone = paymentJson.getString("phone_number");
+                                    }
 
                                     ConnectUserRecord user = new ConnectUserRecord(phone, username,
                                             "", name, "",paymentName,paymentPhone);
                                     user.setPin(pin);
+
                                     user.setLastPinDate(new Date());
 
                                     key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
@@ -338,6 +336,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                 finish(true, false, user.getPin());
             }
+
 
             @Override
             public void processFailure(int responseCode, IOException e) {

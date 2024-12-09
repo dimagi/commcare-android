@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -192,8 +193,16 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                                 ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                             }
 
+                            key = ConnectConstants.CONNECT_PAYMENT_INFO;
+                            String paymentName = "",paymentPhone = "";
+                            if(json.has(key)){
+                                JSONObject paymentJson = json.getJSONObject(key);
+                                paymentName = paymentJson.getString("owner_name");
+                                paymentPhone = paymentJson.getString("phone_number");
+                            }
+
                             ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                    password, name, "","","");
+                                    password, name, "",paymentName,paymentPhone);
 
                             key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
                             user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));

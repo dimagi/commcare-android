@@ -171,6 +171,22 @@ public class ConnectUserRecord extends Persisted {
     }
     public void setSecondaryPhoneVerifyByDate(Date date) { verifySecondaryPhoneByDate = date; }
 
+    public String getPaymentName() {
+        return paymentName;
+    }
+
+    public void setPaymentName(String paymentName) {
+        this.paymentName = paymentName;
+    }
+
+    public String getPaymentPhone() {
+        return paymentPhone;
+    }
+
+    public void setPaymentPhone(String paymentPhone) {
+        this.paymentPhone = paymentPhone;
+    }
+
     public boolean shouldForcePin() {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
     }
