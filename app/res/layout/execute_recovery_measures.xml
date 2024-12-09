@@ -17,9 +17,9 @@
         <ImageView
             android:id="@+id/screen_login_top_banner"
             android:layout_centerHorizontal="true"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            app:srcCompat="@drawable/icon_color"/>
+            android:layout_height="136dp"
+            android:layout_width="136dp"
+            app:srcCompat="@mipmap/commcare_launcher"/>
 
         <TextView
             android:gravity="center"
@@ -53,7 +53,7 @@
             android:visibility="gone"
             tools:text="2 out of 5 done"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/retry_button"
             android:layout_below="@id/status_tv"
             android:layout_centerHorizontal="true"
@@ -63,7 +63,7 @@
             android:text="@string/recovery_measure_retry"
             android:visibility="gone"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/reinstall_button"
             android:layout_below="@id/retry_button"
             android:layout_centerHorizontal="true"
@@ -73,7 +73,7 @@
             android:text="@string/recovery_measure_reinstall"
             android:visibility="gone"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/select_ccz_button"
             android:layout_below="@id/reinstall_button"
             android:layout_centerHorizontal="true"

@@ -24,6 +24,8 @@
     <dimen name="standard_spacer_large">24dp</dimen>
     <dimen name="standard_title_margin_bottom">20dp</dimen>
     <dimen name="min_button_height">52dp</dimen>
+    <dimen name="min_button_width">88dp</dimen>
+    <dimen name="rounded_button_corner_radius">22dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
     <dimen name="action_icon_size">60dp</dimen>
@@ -103,6 +105,7 @@
     <dimen name="new_progressbar_button_minheight">48dp</dimen>
     <dimen name="new_progressbar_button_minwidth">32dp</dimen>
     <dimen name="new_progressbar_button_padding">24dp</dimen>
+    <dimen name="modern_progressbar_radius">4dp</dimen>
 
     <dimen name="submission_progressbar_height">10dp</dimen>
 

@@ -46,10 +46,10 @@ the License.
             android:layout_height="wrap_content"
             android:text="@string/jump_to_previous"
             android:padding="12dp"
-            android:textSize="@dimen/text_medium"
             android:textColor="@color/cc_brand_color"
             android:background="@color/cc_core_bg"
             style="@style/CommCare.Button.Default"
+            android:textSize="@dimen/text_medium"
             android:layout_weight="1"/>
 
         <Button

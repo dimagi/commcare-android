@@ -77,7 +77,7 @@ public class CommCareNoficationManager {
                 Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
                         .setContentTitle(title)
                         .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                        .setSmallIcon(R.drawable.notification)
+                        .setSmallIcon(R.drawable.commcare_actionbar_logo)
                         .setNumber(pendingMessages.size())
                         .setContentIntent(contentIntent)
                         .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))

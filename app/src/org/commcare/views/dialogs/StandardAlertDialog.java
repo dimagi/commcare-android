@@ -88,7 +88,17 @@ public class StandardAlertDialog extends CommCareAlertDialog {
     }
 
     public void setNegativeButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
+        setNegativeButton(displayText, buttonListener, false);
+    }
+
+    public void setNegativeButton(CharSequence displayText,
+                                  final DialogInterface.OnClickListener buttonListener,
+                                  boolean usePositiveButtonStyle) {
         Button negativeButton = this.view.findViewById(R.id.negative_button);
+        if (usePositiveButtonStyle) {
+            negativeButton.setTextAppearance(this.view.getContext(), R.style.Commcare_Button_Primary_Rounded);
+            negativeButton.setBackgroundColor(this.view.getResources().getColor(R.color.cc_brand_color));
+        }
         negativeButton.setText(displayText);
         negativeButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEGATIVE));
         negativeButton.setVisibility(View.VISIBLE);

@@ -211,7 +211,7 @@ public class CommCareSessionService extends Service {
             Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
                     .setContentTitle(this.getString(R.string.expirenotification))
                     .setContentText("Click here to log back into your session")
-                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setSmallIcon(R.drawable.commcare_actionbar_logo)
                     .setContentIntent(contentIntent)
                     .build();
 
@@ -519,7 +519,7 @@ public class CommCareSessionService extends Service {
                         .setContentTitle(getString(notificationId))
                         .setContentInfo(getSubmittedFormCount(1, totalItems))
                         .setContentText("0b transmitted")
-                        .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                        .setSmallIcon(org.commcare.dalvik.R.drawable.commcare_actionbar_logo)
                         .setContentIntent(contentIntent)
                         .setOngoing(true)
                         .setWhen(System.currentTimeMillis())
@@ -697,7 +697,7 @@ public class CommCareSessionService extends Service {
         // Set the icon, scrolling text and timestamp
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
                 .setContentTitle(notificationText)
-                .setSmallIcon(R.drawable.notification)
+                .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setContentIntent(contentIntent);
 
         if (user != null) {
