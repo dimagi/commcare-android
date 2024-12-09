@@ -303,7 +303,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         if (shouldListenToSyncComplete() && isBackgroundSyncEnabled()) {
             dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(
                         dataSyncCompleteBroadcastReceiver,
                         new IntentFilter(COMMCARE_DATA_UPDATE_ACTION), Context.RECEIVER_NOT_EXPORTED);

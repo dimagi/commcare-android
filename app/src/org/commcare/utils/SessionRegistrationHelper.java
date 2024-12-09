@@ -54,7 +54,7 @@ public class SessionRegistrationHelper {
     }
 
     public static void registerSessionExpirationReceiver(AppCompatActivity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity.registerReceiver(userSessionExpiredReceiver, expirationFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
             activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
