@@ -12,6 +12,27 @@
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
 
+    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
+    <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
+    <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
+    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
+    <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
+    <string name="ConnectSetPinURL">https://connectid.dimagi.com/users/set_recovery_pin</string>
+    <string name="ConnectConfirmPinURL">https://connectid.dimagi.com/users/recover/confirm_pin</string>
+    <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
+    <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
+    <string name="ConnectPhoneAvailableURL">https://connectid.dimagi.com/users/phone_available</string>
+    <string name="ConnectRecoverURL">https://connectid.dimagi.com/users/recover</string>
+    <string name="ConnectRecoverSecondaryURL">https://connectid.dimagi.com/users/recover/secondary</string>
+    <string name="ConnectVerifySecondaryURL">https://connectid.dimagi.com/users/validate_secondary_phone</string>
+    <string name="ConnectValidatePhoneURL">https://connectid.dimagi.com/users/validate_phone</string>
+    <string name="ConnectRecoverConfirmOTPURL">https://connectid.dimagi.com/users/recover/confirm_otp</string>
+    <string name="ConnectRecoverConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/recover/confirm_secondary_otp</string>
+    <string name="ConnectVerifyConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/confirm_secondary_otp</string>
+    <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
+    <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
+
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
@@ -384,6 +405,7 @@
     <string name="recovery_forms_send_error" cc:translatable="true">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
@@ -456,4 +478,6 @@
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
+
+    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 </resources>
