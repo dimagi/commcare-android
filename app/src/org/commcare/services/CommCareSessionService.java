@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -184,11 +185,14 @@ public class CommCareSessionService extends Service {
     /**
      * Show a notification while this service is running.
      */
-    @SuppressLint("UnspecifiedImmutableFlag")
     public void showLoggedInNotification(@Nullable User user) {
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
-        this.startForeground(NOTIFICATION, createSessionNotification());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.startForeground(NOTIFICATION, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            this.startForeground(NOTIFICATION, createSessionNotification());
+        }
     }
 
     /**
@@ -675,12 +679,11 @@ public class CommCareSessionService extends Service {
         callable.setAction("android.intent.action.MAIN");
         callable.addCategory("android.intent.category.LAUNCHER");
 
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-        else
-            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, pendingIntentFlags);
 
         String notificationText;
         if (AppUtils.getInstalledAppRecords().size() > 1) {
