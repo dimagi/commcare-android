@@ -276,18 +276,25 @@
 
     <style name="MapButtonColored" parent="MapButton">
         <item name="android:textColor">@color/button_colored_text</item>
+        <item name="android:background">@drawable/map_button_base_background</item>
     </style>
 
     <style name="MapButtonGreen" parent="MapButtonColored">
-        <item name="android:background">@drawable/button_green_background</item>
+        <item name="buttonDisabledColor">@color/green_700</item>
+        <item name="buttonPressedColor">@color/green_900</item>
+        <item name="buttonDefaultColor">@color/green_500</item>
     </style>
 
     <style name="MapButtonRed" parent="MapButtonColored">
-        <item name="android:background">@drawable/button_red_background</item>
+        <item name="buttonDisabledColor">@color/red_700</item>
+        <item name="buttonPressedColor">@color/red_900</item>
+        <item name="buttonDefaultColor">@color/red_500</item>
     </style>
 
     <style name="MapButtonOrange" parent="MapButtonColored">
-        <item name="android:background">@drawable/button_orange_background</item>
+        <item name="buttonDisabledColor">@color/orange_700</item>
+        <item name="buttonPressedColor">@color/orange_900</item>
+        <item name="buttonDefaultColor">@color/orange_500</item>
     </style>
 
     <color name="login_edit_text_color">@color/cc_core_text</color>
