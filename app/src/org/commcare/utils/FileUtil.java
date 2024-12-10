@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -64,6 +65,12 @@ public class FileUtil {
 
     private static final String LOG_TOKEN = "cc-file-util";
 
+    /**
+     * Deletes a file or directory.
+     *
+     * @param path The path to the file or directory to delete
+     * @return true if the file and all of its contents were deleted successfully, false otherwise
+     */
     public static boolean deleteFileOrDir(String path) {
         return deleteFileOrDir(new File(path));
     }
@@ -83,6 +90,13 @@ public class FileUtil {
         return f.delete();
     }
 
+    /**
+     * Cleans up file paths.
+     *
+     * @param fullPath The full path to the file
+     * @param extendedPath The extended path to stop at
+     * @return true if the file path was cleaned up successfully, false otherwise
+     */
     public static boolean cleanFilePath(String fullPath, String extendedPath) {
         //There are actually a few things that can go wrong here, should be careful
 
@@ -397,7 +411,6 @@ public class FileUtil {
      * if we are on KitKat we need use the new API to find the mounted roots, then append our application
      * specific path that we're allowed to write to
      */
-    @SuppressLint("NewApi")
     private static String getExternalDirectoryKitKat(Context c) {
         File[] extMounts = c.getExternalFilesDirs(null);
         // first entry is emualted storage. Second if it exists is secondary (real) SD.
@@ -494,8 +507,9 @@ public class FileUtil {
 
             BigInteger number = new BigInteger(1, messageDigest);
             String md5 = number.toString(16);
-            while (md5.length() < 32)
+            while (md5.length() < 32) {
                 md5 = "0" + md5;
+            }
             is.close();
             return md5;
 
@@ -612,7 +626,8 @@ public class FileUtil {
         Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
         if (bitmapAndScaledBool.second) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
-                    "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
+                    "An image captured during form entry was too large to be processed at its original size, " +
+                    "and had to be downsized");
         }
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
         if (scaledBitmap != null) {
@@ -723,7 +738,9 @@ public class FileUtil {
      * @param dstFile     destination File where we need to copy the inputStream
      */
     public static void copyFile(InputStream inputStream, File dstFile) throws IOException {
-        if (inputStream == null) return;
+        if (inputStream == null) {
+            throw new IOException("InputStream is null. Cannot copy file.");
+        }
         OutputStream outputStream = new FileOutputStream(dstFile);
         StreamsUtil.writeFromInputToOutputUnmanaged(inputStream, outputStream);
         inputStream.close();
@@ -844,8 +861,13 @@ public class FileUtil {
     }
 
     /**
-     * Returns true only when we're certain that the file size is too large.
-     * <p> https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
+     * Checks if a file referenced by a content URI exceeds the maximum allowed upload size
+     * <p>
+     * @param contentResolver ContentResolver to query the file size
+     * @param uri Content URI of the file to check
+     * @return true if the file size exceeds FormUploadUtil.MAX_BYTES, false otherwise or if size cannot be determined
+     * @see FormUploadUtil#MAX_BYTES
+     * @see <a href="https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo">Android docs</a>
      */
     public static boolean isFileTooLargeToUpload(ContentResolver contentResolver, Uri uri) {
         try (Cursor returnCursor = contentResolver.query(uri, null, null, null, null)) {
@@ -853,8 +875,112 @@ public class FileUtil {
                 return false;
             }
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-            returnCursor.moveToFirst();
-            return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
+            if (sizeIndex == -1) {
+                return false;
+            }
+            if (returnCursor.moveToFirst()) {
+                return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
+            } else {
+                return false;
+            }
         }
+    }
+
+    /**
+     * Copies a file from source to destination while preserving EXIF metadata for image files.
+     * For non-image files, performs a regular file copy.
+     *
+     * @param sourceFile The source file to copy from
+     * @param destFile The destination file to copy to
+     * @throws IOException If there is an error during file copying or EXIF data transfer
+     */
+    public static void copyFileWithExifData(File sourceFile, File destFile) throws IOException {
+        // First copy the file normally
+        copyFile(sourceFile, destFile);
+        
+        // Only try to copy EXIF data for image files
+        String mimeType = getMimeType(sourceFile.getAbsolutePath());
+        if (mimeType != null && mimeType.startsWith("image/")) {
+            try {
+                copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+            } catch (IOException e) {
+                throw new IOException("Failed to copy EXIF data", e);
+            }
+        }
+    }
+
+    private static void copyExifData(String sourcePath, String destPath) {
+        try {
+            ExifInterface source = new ExifInterface(sourcePath);
+            ExifInterface dest = new ExifInterface(destPath);
+            
+            String[] tagsToPreserve = {
+                // GPS data
+                ExifInterface.TAG_GPS_LATITUDE,
+                ExifInterface.TAG_GPS_LATITUDE_REF,
+                ExifInterface.TAG_GPS_LONGITUDE,
+                ExifInterface.TAG_GPS_LONGITUDE_REF,
+                ExifInterface.TAG_GPS_TIMESTAMP,
+                ExifInterface.TAG_GPS_DATESTAMP,
+                ExifInterface.TAG_GPS_ALTITUDE,
+                ExifInterface.TAG_GPS_ALTITUDE_REF,
+                ExifInterface.TAG_GPS_AREA_INFORMATION,
+                
+                // Timestamp data
+                ExifInterface.TAG_DATETIME,
+                ExifInterface.TAG_DATETIME_DIGITIZED,
+                ExifInterface.TAG_DATETIME_ORIGINAL,
+                ExifInterface.TAG_OFFSET_TIME,
+                ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+                ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
+                
+                // Image metadata
+                ExifInterface.TAG_COPYRIGHT,
+                ExifInterface.TAG_IMAGE_DESCRIPTION,
+                ExifInterface.TAG_EXIF_VERSION,
+                ExifInterface.TAG_ORIENTATION
+            };
+            
+            for (String tag : tagsToPreserve) {
+                String value = source.getAttribute(tag);
+                if (value != null) {
+                    dest.setAttribute(tag, value);
+                }
+            }
+            
+            dest.saveAttributes();
+        } catch (IOException e) {
+            // Log but don't fail if EXIF copying fails
+            Logger.log(LogTypes.TYPE_WARNING_NETWORK,
+            String.format("Failed to copy EXIF data from %s to %s: %s (Error: %s)", 
+            sourcePath, destPath, e.getMessage(), e.getClass().getSimpleName()));
+        }
+    }
+
+    /**
+     * Scales an image if needed and preserves its EXIF metadata in the process.
+     * 
+     * @param sourceFile The original image file
+     * @param destFile The destination file where the scaled image will be saved
+     * @param maxDimen The maximum dimension (width or height) allowed for the scaled image
+     * @return true if the operation was successful (either scaled with EXIF preserved or 
+     *         copied with EXIF if scaling wasn't needed)
+     * @throws IOException If there is an error during scaling, file operations or EXIF data transfer
+     */
+    public static boolean scaleAndSaveImageWithExif(File sourceFile, File destFile, int maxDimen) 
+            throws IOException {
+        // First scale the image
+        boolean scaled = scaleAndSaveImage(sourceFile, destFile.getAbsolutePath(), maxDimen);
+
+        if (!scaled) {
+            // If scaling was not needed, copy the source file to destination with EXIF data
+            copyFileWithExifData(sourceFile, destFile);
+            return true;
+        } else {
+            // Copy EXIF data from source to scaled image
+            copyExifData(sourceFile.getAbsolutePath(), destFile.getAbsolutePath());
+        }
+
+        return true;
     }
 }
