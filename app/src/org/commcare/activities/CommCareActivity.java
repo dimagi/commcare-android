@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
@@ -302,7 +303,14 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         if (shouldListenToSyncComplete() && isBackgroundSyncEnabled()) {
             dataSyncCompleteBroadcastReceiver = new DataSyncCompleteBroadcastReceiver();
-            registerReceiver(dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(
+                        dataSyncCompleteBroadcastReceiver,
+                        new IntentFilter(COMMCARE_DATA_UPDATE_ACTION), Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(
+                        dataSyncCompleteBroadcastReceiver, new IntentFilter(COMMCARE_DATA_UPDATE_ACTION));
+            }
         }
     }
 
