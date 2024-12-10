@@ -15,16 +15,16 @@
             android:id="@+id/screen_bulk_image1"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:paddingLeft="20px"
-            android:layout_marginRight="20px"
-            android:paddingTop="20px"
-            android:paddingBottom="0px"
+            android:paddingLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="0dp"
             android:scaleType="fitStart"
-            android:maxHeight="125px"
-            android:maxWidth="663px"
+            android:maxHeight="83dp"
+            android:maxWidth="442dp"
             app:srcCompat="@drawable/commcare_by_dimagi"
-            android:layout_marginEnd="20px"
-            android:paddingStart="20px"></ImageView>
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp"></ImageView>
 
         <RelativeLayout
             android:id="@+id/screen_bulk_form_frame_location"
