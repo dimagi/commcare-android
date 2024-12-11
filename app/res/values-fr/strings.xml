@@ -180,7 +180,6 @@ License.
     <string name="connect_jobs_all">Tous les emplois</string>
     <string name="connect_jobs_mine">Mes emplois</string>
     <string name="connect_job_visits">Couvrez %d ménages en %d jours</string>
-    <string name="connect_job_full_description">%s\nGagnez jusqu\'à %s</string>
     <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
     <string name="connect_job_start_training">Commencez la formation pour ce travail</string>
     <string name="connect_job_learn_summary">%d modules, %d heures</string>
@@ -203,11 +202,8 @@ License.
     <string name="connect_results_summary_verifications_title">Statut de vérification</string>
     <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
     <string name="connect_results_summary_payments_title">Statut de paiement</string>
-    <string name="connect_results_payment_description">%s</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
-    <string name="connect_results_payment_date">%s</string>
-
 
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_job_none_training">Vous ne suivez aucune formation pour un emploi pour le moment</string>

@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -447,9 +448,13 @@ public class FirebaseAnalyticsUtil {
 
     public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
         return (navController, navDestination, args) -> {
+            String currentFragmentClassName = "UnknownDestination";
+            NavDestination destination = navController.getCurrentDestination();
+            if (destination instanceof FragmentNavigator.Destination) {
+                currentFragmentClassName = ((FragmentNavigator.Destination)destination).getClassName();
+            }
+
             Bundle bundle = new Bundle();
-            var currentFragmentClassName = ((FragmentNavigator.Destination) navController.getCurrentDestination())
-                    .getClassName();
             bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
             bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
             reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);

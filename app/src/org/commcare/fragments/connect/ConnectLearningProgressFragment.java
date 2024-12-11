@@ -278,12 +278,12 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();

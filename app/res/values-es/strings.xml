@@ -110,7 +110,7 @@
     <string name="replace_location">Reemplazar la Ubicacion</string>
     <string name="replace_video">Reemplazar el Video</string>
     <string name="required_answer_error">Esta respuesta es obligatoria!</string>
-    <string name="review">continar</string>
+    <string name="review">Continuar</string>
     <string name="review_data">Editar Formulario Guardado</string>
     <string name="review_data_button">Editar Formulario Guardado</string>
     <string name="saved_data">Incompleto (%s)</string>

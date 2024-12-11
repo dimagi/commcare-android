@@ -39,7 +39,6 @@
     <string name="install_from_list_prompt">ከም ተጠቃሚ ሞባይል ወይ መርበብ ሓበሬታ ብምእታው ዝርዝር ናይቶም ክፅዕንዎም ዝኽእሉ ኣፕስ ምርኣይ</string>
     <string name="legacy_failure">CommCare ካብቲ ቅድሚ ሕጂ ትጥቀሙሉ ዝነበርኩም CommCare ስርሒት ምዕባይ ኣይድግፍን እዩ። ነዚ ጸገም ንምፍታሕ፡ በጃኹም CommCare ካብ መሳርሒኹም ኣውፅእዎ እሞ ዳግማይ ይፅዓኑ።</string>
     <string name="legacy_failure_title">ዘይስማዕማዕ ኮምኬር ምዕባይ</string>
-    <string name="app_version_string">version.id.long ዝብል ጽሑፍ ኣሎ።</string>
     <string name="notificationtitle">ናብ ኮምኬር ኣትዩም</string>
     <string name="expirenotification">መእተዊ ኮምኬር ግዜኡ ኣኺሉ።</string>
     <string name="submission_notification_title">ዳታ ምቕራብ/ምርካብ</string>
@@ -430,6 +429,8 @@
     <string name="connect_verify_phone_label">ብ %s ዝውዳእ መልአኽቲ ( SMS ) ክንሰደልኩም ፈቲንና።</string>
     <string name="connect_verify_phone_label_secondary">ኣብ ካልኣይ ደረጃ ቁፅሪ ተሌፎንኩም መልእኽቲ ( SMS ) ክንሰደልኩም ፈቲንና።</string>
     <string name="connect_verify_phone_resend">ኮድካ ኣይተቐበልካን ዲኻ? ዳግማይ ስደድ</string>
+    <string name="connect_verify_phone_error">ኮድ ኤስኤምኤስ ኣብ ምርግጋጽ ጌጋ</string>
+    <string name="connect_verify_phone_resend_code">ዳግማይ ምልኣኽ ኮድ</string>
     <string name="connect_verify_phone_resend_wait">ኮድካ ኣይተቐበልካን ዲኻ? ኣብ %d s ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_change">ቁፅሪ ተሌፎን ቐይር።</string>
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
@@ -438,6 +439,7 @@
     <string name="connect_no_jobs">ኣብ ዝኾነ ንጡፍ ዕድላት ኣይተዓደምኩምን። በይዛኹም ፀኒሕኹም ተመለሱ።</string>
     <string name="connect_job_intro_title">ዕድል</string>
     <string name="connect_job_none_available">ኣብዚ ኸዚ እዋን ዝረኽብዎ ዕድላት የለዉን።</string>
+    <string name="connect_job_learn_details">ዝርዝር ትምህርቲ</string>
     <string name="connect_job_you_will_learn">እዞም ዝስዕቡ ናይ ትምህርቲ ሞጁላት መሊእካ ምስክር ወረቐት ውሰድ</string>
     <string name="connect_job_no_learning_required">ትምህርቲ ኣየድልን።</string>
     <string name="connect_job_go_to_learn_app">ናብ Learn App ኪድ</string>
@@ -484,8 +486,9 @@
     <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
     <string name="connect_results_summary_earned">ዝረኸበ</string>
     <string name="connect_results_summary_transferred">ተሰጋጊሩ</string>
-    <string name="connect_results_payment_date">%s</string>
-    <string name="connect_results_payment_description">%s</string>
+    <string name="connect_results_summary_all">ኩሎም</string>
+    <string name="connect_results_summary_remaining">ዝተረፈ</string>
+    <string name="connect_results_summary_remaining_days">%d ኣብ ውሽጢ %d መዓልቲ</string>
     <string name="connect_results_payment_confirm">ኣረጋግፅ</string>
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
@@ -525,8 +528,11 @@
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
     <string name="connect_job_info_visit">%d ዝለዓለ ምብጻሕ</string>
     <string name="connect_job_info_days">%d መዓልታት ንምዝዛም</string>
-    <string name="connect_job_info_max_visit">ዝለዓለ ምጉብናይ ኣብ መዓልቲ %መ</string>
+    <string name="connect_job_info_max_visit">ዝለዓለ ምጉብናይ ኣብ መዓልቲ %d</string>
     <string name="connect_job_info_visit_charge">ንምጉብናይ ክሳብ %s ኣታዊ ምርካብ</string>
+    <string name="connect_job_info_per_visit">ኣብ ነፍሲ ወከፍ ምብጻሕ</string>
+    <string name="connect_job_info_delivery_hours">ሰዓታት ምብጻሕ</string>
+    <string name="connect_job_info_view_more">ተወሳኺ ርአ</string>
     <string name="connect_job_info_start_visit">ምብጻሕ (ምጉብንይ) ጀምር</string>
     <string name="connect_job_info_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_job_info_download">ዳውንሎድ</string>
@@ -553,7 +559,6 @@
     <string name="connect_learn">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
     <string name="connect_delivery">ንሓዋሩ ኣካውንትካ ክትዓጽዎ ትደሊ?</string>
     <string name="connect_expired">ኣገልግሎቱ ዝወደአ</string>
-    <string name="connect_job_tile_price">₹ %s</string>
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_job_tile_daily_limit">ልዕሊ (ገደብ) ደረት</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>

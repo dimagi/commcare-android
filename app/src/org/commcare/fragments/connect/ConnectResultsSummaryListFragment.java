@@ -120,9 +120,9 @@ public class ConnectResultsSummaryListFragment extends Fragment {
                 final ConnectJobPaymentRecord payment = job.getPayments().get(position);
 
                 String money = job.getMoneyString(Integer.parseInt(payment.getAmount()));
-                paymentHolder.nameText.setText(parentContext.getString(R.string.connect_results_payment_description, money));
+                paymentHolder.nameText.setText(job.getMoneyString(Integer.parseInt(payment.getAmount())));
 
-                paymentHolder.dateText.setText(parentContext.getString(R.string.connect_results_payment_date, ConnectManager.paymentDateFormat(payment.getDate())));
+                paymentHolder.dateText.setText(ConnectManager.paymentDateFormat(payment.getDate()));
 
                 boolean enabled = paymentHolder.updateConfirmedText(parentContext, payment);
 

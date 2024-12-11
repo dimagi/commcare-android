@@ -35,6 +35,7 @@ import org.commcare.dalvik.databinding.FragmentSignupBinding;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -278,6 +279,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                         public void processSuccess(int responseCode, InputStream responseData) {
                                             skipPhoneNumberCheck = false;
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
+                                                binding.errorTextView.setVisibility(View.GONE);
                                                 updateButtonEnabled();
                                                 createAccount();
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
@@ -370,7 +372,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
                             user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
                             if (!user.getSecondaryPhoneVerified()) {
-                                user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
                             }
 
                             ConnectDatabaseHelper.storeUser(context, user);
@@ -379,7 +381,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
-                        } catch (IOException | JSONException | ParseException e) {
+                        } catch (IOException | JSONException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
                         }
 

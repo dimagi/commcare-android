@@ -36,7 +36,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Learn Details"
+                    android:text="@string/connect_job_learn_details"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />

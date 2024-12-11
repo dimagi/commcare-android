@@ -122,7 +122,7 @@
     </style>
 
     <style name="OverflowButton" parent="Widget.AppCompat.Light.ActionButton.Overflow">
-        <item name="android:src">@drawable/ic_action_overflow</item>
+        <item name="android:src">@drawable/ic_connect_action_overflow</item>
     </style>
 
     <style name="Theme.LightSliding" parent="@android:style/Theme.Light">
