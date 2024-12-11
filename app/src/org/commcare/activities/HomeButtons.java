@@ -217,7 +217,7 @@ public class HomeButtons {
     private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
         return v -> {
             reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
-            ConnectManager.goToActiveInfoForJob(activity, false);
+            activity.userPressedOpportunityStatus();
         };
     }
 

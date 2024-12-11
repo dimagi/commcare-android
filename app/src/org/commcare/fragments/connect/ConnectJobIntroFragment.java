@@ -103,15 +103,13 @@ public class ConnectJobIntroFragment extends Fragment {
                         job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                         ConnectDatabaseHelper.upsertJob(getContext(), job);
 
-                        NavDirections directions;
                         if (appInstalled) {
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
+                            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true);
+                            Navigation.findNavController(button).navigate(ConnectJobIntroFragmentDirections.
+                                    actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true));
                         }
-
-                        Navigation.findNavController(button).navigate(directions);
                     }
 
                     @Override

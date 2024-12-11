@@ -46,7 +46,6 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     private Date lastUpdate;
 
     public ConnectJobLearningRecord() {
-
     }
 
     public static ConnectJobLearningRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
@@ -55,7 +54,7 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         record.lastUpdate = new Date();
 
         record.jobId = jobId;
-        record.date = json.has(META_DATE) ? DateUtils.parseDate(json.getString(META_DATE)) : new Date();
+        record.date = json.has(META_DATE) ? DateUtils.parseDateTime(json.getString(META_DATE)) : new Date();
         record.moduleId = json.has(META_MODULE) ? json.getInt(META_MODULE) : -1;
         record.duration = json.has(META_DURATION) ? json.getString(META_DURATION) : "";
 

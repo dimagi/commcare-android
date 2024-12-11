@@ -91,6 +91,11 @@ public class ConnectManager {
 //    public static final int MethodRecoveryAlternate = 3;
 //    public static final int MethodVerifyAlternate = 4;
 
+    public static final int PENDING_ACTION_NONE = 0;
+    public static final int PENDING_ACTION_CONNECT_HOME = 1;
+    public static final int PENDING_ACTION_OPP_STATUS = 2;
+    public static final int PENDING_ACTION_DELIVERY_DETAILS = 3;
+
     private BiometricManager biometricManager;
 
 
@@ -124,6 +129,8 @@ public class ConnectManager {
     private Context parentActivity;
 
     private String primedAppIdForAutoLogin = null;
+
+    private int pendingAction = PENDING_ACTION_NONE;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -164,6 +171,16 @@ public class ConnectManager {
                 ConnectDatabaseHelper.handleCorruptDb(parent);
             }
         }
+    }
+
+    public static void setPendingAction(int action) {
+        getInstance().pendingAction = action;
+    }
+
+    public static int getPendingAction() {
+        int action = getInstance().pendingAction;
+        getInstance().pendingAction = PENDING_ACTION_NONE;
+        return action;
     }
 
     public static BiometricManager getBiometricManager(CommCareActivity<?> parent){
