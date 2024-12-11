@@ -1,13 +1,12 @@
 package org.commcare.connect;
 
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
 import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
+import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -27,6 +26,7 @@ import androidx.work.WorkManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -986,11 +986,10 @@ public class ConnectManager {
         return password.toString();
     }
 
-    public static boolean shouldShowJobStatus() {
+    public static boolean shouldShowJobStatus(Activity activity) {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        int jobStatus = job.getStatus();
-        boolean passedAssessment = job.passedAssessment();
-        Log.e("DEBUG_TESTING", "passedAssessment: " + passedAssessment + "   jobStatus: " + jobStatus);
-        return jobStatus == STATUS_DELIVERING && passedAssessment;
+        return job.getStatus() == STATUS_DELIVERING && record.getIsLearning();
     }
 }
