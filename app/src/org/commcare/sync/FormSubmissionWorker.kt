@@ -29,7 +29,7 @@ class FormSubmissionWorker(appContext: Context, workerParams: WorkerParameters)
         var notificationBuilder = NotificationCompat.Builder(context,
             CommCareNoficationManager.NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID)
             .setContentTitle(context.getString(notificationId))
-            .setSmallIcon(R.drawable.notification)
+            .setSmallIcon(R.drawable.commcare_actionbar_logo)
 
         return ForegroundInfo(notificationId, notificationBuilder.build())
     }

@@ -17,6 +17,9 @@
             android:id="@+id/dayupbtn"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
+            style="@style/CommCare.Button.Default"
+            android:backgroundTint="@color/cc_brand_color"
+            android:textColor="@color/white"
             android:background="@drawable/date_button_top"
             android:text="+"
             android:textSize="@dimen/text_largest"/>
@@ -37,6 +40,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/daytxt"
             android:background="@drawable/date_button_bottom"
+            style="@style/CommCare.Button.Default"
+            android:backgroundTint="@color/cc_brand_color"
+            android:textColor="@color/white"
             android:text="-"
             android:textSize="@dimen/text_largest"/>
 
@@ -49,6 +55,9 @@
             android:background="@drawable/date_button_top"
             android:text="+"
             android:textSize="@dimen/text_largest"
+            style="@style/CommCare.Button.Default"
+            android:backgroundTint="@color/cc_brand_color"
+            android:textColor="@color/white"
             android:layout_toEndOf="@id/dayupbtn"
             android:layout_marginStart="5dp" />
 
@@ -76,6 +85,9 @@
             android:background="@drawable/date_button_bottom"
             android:text="-"
             android:textSize="@dimen/text_largest"
+            style="@style/CommCare.Button.Default"
+            android:backgroundTint="@color/cc_brand_color"
+            android:textColor="@color/white"
             android:layout_toEndOf="@id/daydownbtn"
             android:layout_marginStart="5dp" />
 
@@ -88,6 +100,9 @@
             android:background="@drawable/date_button_top"
             android:text="+"
             android:textSize="@dimen/text_largest"
+            style="@style/CommCare.Button.Default"
+            android:backgroundTint="@color/cc_brand_color"
+            android:textColor="@color/white"
             android:layout_toEndOf="@id/monthupbtn"
             android:layout_marginStart="5dp" />
 
@@ -115,6 +130,9 @@
             android:background="@drawable/date_button_bottom"
             android:text="-"
             android:textSize="@dimen/text_largest"
+            style="@style/CommCare.Button.Default"
+            android:backgroundTint="@color/cc_brand_color"
+            android:textColor="@color/white"
             android:layout_toEndOf="@id/monthdownbtn"
             android:layout_marginStart="5dp" />
     </RelativeLayout>

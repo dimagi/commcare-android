@@ -341,14 +341,12 @@
         <activity android:name="org.commcare.gis.EntityMapActivity">
         </activity>
 
-        <activity android:name="org.commcare.gis.EntityMapboxActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name="org.commcare.gis.EntityMapboxActivity">
         </activity>
 
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
 
@@ -364,8 +362,7 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
-        <activity android:name="org.commcare.gis.MapboxLocationPickerActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name="org.commcare.gis.MapboxLocationPickerActivity" />
 
         <uses-library
             android:name="com.google.android.maps"
