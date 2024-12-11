@@ -22,7 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
@@ -58,6 +57,7 @@ import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -166,6 +166,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
             new LocationNotificationHandler(this);
+    private AdapterView visibleView;
+    private TextView progressTv;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -254,7 +256,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             setContentView(R.layout.entity_select_layout);
         }
 
-        AdapterView visibleView;
         GridView gridView = this.findViewById(R.id.screen_entity_select_grid);
         ListView listView = this.findViewById(R.id.screen_entity_select_list);
         if (shortSelect.shouldBeLaidOutInGrid()) {
@@ -268,6 +269,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             gridView.setVisibility(View.GONE);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
         }
+        progressTv = findViewById(R.id.progress_text);
         RxAdapterView.itemClickEvents(visibleView)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .throttleFirst(CLICK_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
@@ -356,7 +358,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (view instanceof ListView) {
             EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
         }
-        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        findViewById(R.id.progress_container).setVisibility(View.GONE);
         entitySelectSearchUI.setSearchBannerState();
     }
 
@@ -476,6 +478,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext());
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
@@ -852,16 +855,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
-
-        AdapterView visibleView;
-        if (shortSelect.shouldBeLaidOutInGrid()) {
-            visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
-        } else {
-            ListView listView = this.findViewById(R.id.screen_entity_select_list);
-            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
-            visibleView = listView;
-        }
-
+        setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_finalizing));
         adapter = new EntityListAdapter(this, shortSelect, references, entities, factory,
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
@@ -883,7 +877,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        findViewById(R.id.progress_container).setVisibility(View.GONE);
 
         if (adapter != null) {
             // filter by additional session data (search string, callout result data)
@@ -905,6 +899,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             locationChangedWhileLoading = false;
             loadEntities();
         }
+    }
+
+    private void setProgressText(String message) {
+        progressTv.setText(message);
     }
 
     private void restoreAdapterStateFromSession() {
@@ -933,7 +931,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void attachLoader(EntityLoaderTask task) {
-        findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
+        findViewById(R.id.progress_container).setVisibility(View.VISIBLE);
         this.loader = task;
     }
 
@@ -993,6 +991,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverLoadError(Exception e) {
         displayCaseListLoadException(e);
+    }
+
+    @Override
+    public void deliverProgress(Integer[] values) {
+        // throttle to not update text too frequently
+        if (values[0] % 100 == 0) {
+            setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_processing,
+                    new String[]{String.valueOf(values[0]), String.valueOf(values[1])}));
+        }
     }
 
     @Override

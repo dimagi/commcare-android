@@ -38,9 +38,12 @@ class EntityLoaderHelper(
     /**
      * Loads and prepares a list of entities derived from the given nodeset
      */
-    fun loadEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
+    fun loadEntities(
+        nodeset: TreeReference,
+        progressListener: EntityLoadingProgressListener
+    ): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
         val references = factory.expandReferenceList(nodeset)
-        val entities = loadEntitiesWithReferences(references)
+        val entities = loadEntitiesWithReferences(references, progressListener)
         entities?.let {
             factory.prepareEntities(entities)
             factory.printAndClearTraces("build")
@@ -54,7 +57,7 @@ class EntityLoaderHelper(
      */
     fun cacheEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
         val references = factory.expandReferenceList(nodeset)
-        val entities = loadEntitiesWithReferences(references)
+        val entities = loadEntitiesWithReferences(references, null)
         factory.cacheEntities(entities)
         return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
     }
@@ -62,11 +65,15 @@ class EntityLoaderHelper(
     /**
      * Loads a list of entities corresponding to the given references
      */
-    private fun loadEntitiesWithReferences(references: List<TreeReference>): MutableList<Entity<TreeReference>>? {
+    private fun loadEntitiesWithReferences(
+        references: List<TreeReference>,
+        progressListener: EntityLoadingProgressListener?
+    ): MutableList<Entity<TreeReference>>? {
         val entities: MutableList<Entity<TreeReference>> = ArrayList()
         focusTargetIndex = -1
         var indexInFullList = 0
-        for (ref in references) {
+        for ((index, ref) in references.withIndex()) {
+            progressListener?.publishEntityLoadingProgress(index, references.size)
             if (stopLoading) {
                 return null
             }
