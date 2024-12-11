@@ -105,6 +105,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
+    implementation 'com.getkeepsafe.relinker:relinker:1.4.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
