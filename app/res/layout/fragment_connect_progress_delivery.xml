@@ -142,7 +142,19 @@
                         android:background="@color/connect_blue_color_10"
                         android:padding="16dp">
 
+                        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            android:id="@+id/connectRegularTextView2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/connect_progress"
+                            android:textColor="@color/connect_dark_blue_color"
+                            android:textSize="15sp"
+                            app:layout_constraintBottom_toTopOf="@+id/connectRegularTextView"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
                         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                            android:id="@+id/connectRegularTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/connect_click_to_sync_progress"
@@ -150,7 +162,7 @@
                             android:textSize="15sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toBottomOf="@+id/connectRegularTextView2" />
 
                         <org.commcare.views.connect.RoundedButton
                             android:id="@+id/btnSync"
