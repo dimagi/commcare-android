@@ -74,15 +74,13 @@
             <com.google.android.material.button.MaterialButton
                 app:strokeColor="@color/cc_brand_color"
                 android:id="@+id/positive_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/min_button_height"
-                    android:padding="@dimen/standard_spacer"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="@dimen/standard_spacer"
-                    android:layout_marginLeft="@dimen/standard_spacer"
-                    android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/min_button_height"
+                android:padding="@dimen/standard_spacer"
+                android:visibility="gone"
                 android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/standard_spacer"/>
+                android:layout_marginEnd="@dimen/standard_spacer"
+                android:layout_marginStart="@dimen/standard_spacer"/>
 
             <com.google.android.material.button.MaterialButton
                 app:strokeColor="@color/cc_brand_color"
@@ -90,8 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/min_button_height"
                 android:padding="@dimen/standard_spacer"
-                android:layout_marginRight="@dimen/standard_spacer"
-                android:layout_toLeftOf="@id/positive_button"
+                android:layout_marginEnd="@dimen/standard_spacer"
                 android:visibility="gone"
                 android:layout_toStartOf="@id/positive_button"/>
 
@@ -102,9 +99,6 @@
                 android:layout_height="@dimen/min_button_height"
                 android:padding="@dimen/standard_spacer"
                 app:strokeColor="@color/cc_brand_color"
-                android:layout_toLeftOf="@id/neutral_button"
-                android:layout_marginRight="@dimen/standard_spacer"
-                android:layout_marginLeft="@dimen/standard_spacer"
                 android:visibility="gone"
                 android:layout_marginStart="@dimen/standard_spacer"
                 android:layout_marginEnd="@dimen/standard_spacer"
