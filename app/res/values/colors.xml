@@ -145,8 +145,8 @@
     <color name="red_900">#B71C1C</color>
     
     <!-- Button colors -->
-    <color name="button_disabled">#d0e3ff</color>
-    <color name="button_primary_color"> #3A42C7</color>
+    <color name="button_disabled">@color/cc_neutral_bg</color>
+    <color name="button_primary_color">@color/cc_brand_color</color>
 
     <!-- Square button colours -->
     <color name="start_home_button">#6AB849</color>
