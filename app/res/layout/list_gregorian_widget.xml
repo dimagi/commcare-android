@@ -52,6 +52,8 @@
                 android:textSize="@dimen/text_largest"
                 android:textColor="@color/white"
                 android:background="@drawable/date_button_top"
+                style="@style/CommCare.Button.Default"
+                android:backgroundTint="@color/cc_brand_color"
                 android:elevation="@dimen/button_elevation"/>
 
             <EditText
@@ -72,6 +74,8 @@
                 android:layout_height="wrap_content"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
+                android:backgroundTint="@color/cc_brand_color"
                 android:textColor="@color/white"
                 android:background="@drawable/date_button_bottom"
                 android:elevation="@dimen/button_elevation" />
@@ -95,6 +99,8 @@
                 android:text="+"
                 android:textSize="@dimen/text_largest"
                 android:textColor="@color/white"
+                style="@style/CommCare.Button.Default"
+                android:backgroundTint="@color/cc_brand_color"
                 android:background="@drawable/date_button_top"
                 android:elevation="@dimen/button_elevation"
                 android:layout_marginStart="5dp" />
@@ -115,6 +121,8 @@
                 android:background="@drawable/date_button_bottom"
                 android:textColor="@color/white"
                 android:elevation="@dimen/button_elevation"
+                style="@style/CommCare.Button.Default"
+                android:backgroundTint="@color/cc_brand_color"
                 android:layout_marginStart="5dp" />
 
         </LinearLayout>
@@ -137,6 +145,8 @@
                 android:background="@drawable/date_button_top"
                 android:textColor="@color/white"
                 android:elevation="@dimen/button_elevation"
+                style="@style/CommCare.Button.Default"
+                android:backgroundTint="@color/cc_brand_color"
                 android:layout_marginStart="5dp" />
 
             <EditText
@@ -160,6 +170,8 @@
                 android:layout_marginLeft="5dp"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
+                style="@style/CommCare.Button.Default"
+                android:backgroundTint="@color/cc_brand_color"
                 android:textColor="@color/white"
                 android:background="@drawable/date_button_bottom"
                 android:elevation="@dimen/button_elevation"
