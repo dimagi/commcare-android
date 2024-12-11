@@ -52,7 +52,5 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string"/>
     </declare-styleable>
-    <attr name="buttonDisabledColor" format="reference|color"/>
-    <attr name="buttonPressedColor" format="reference|color"/>
-    <attr name="buttonDefaultColor" format="reference|color"/>
+
 </resources>
