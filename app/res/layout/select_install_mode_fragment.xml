@@ -92,7 +92,7 @@
                             android:layout_height="match_parent"
                             android:background="@drawable/tile_drop_shadow_small_margins"
                             android:gravity="end"
-                            SquareButtonWithText:backgroundColor="@color/url_button_color"
+                            SquareButtonWithText:backgroundColor="@color/barcode_button_color"
                             SquareButtonWithText:img="@drawable/startup_url"
                             SquareButtonWithText:subtitle="Enter Code"
                             SquareButtonWithText:textColor="@color/white"/>

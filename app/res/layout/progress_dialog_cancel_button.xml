@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.button.MaterialButton
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/NegativeButtonStyle"
+    app:strokeColor="@color/cc_brand_color"
     android:layout_width="wrap_content"
     android:layout_height="@dimen/min_button_height"
     android:layout_below="@+id/main_content_holder"
@@ -12,5 +14,5 @@
     android:layout_marginBottom="@dimen/standard_spacer"
     android:padding="@dimen/standard_spacer"
     android:text="STOP"
-    android:visibility="gone"
-    tools:viewBindingIgnore="true"/>
+    android:visibility="visible"
+    tools:viewBindingIgnore="true" />
