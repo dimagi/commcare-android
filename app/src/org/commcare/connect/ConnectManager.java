@@ -988,10 +988,14 @@ public class ConnectManager {
         return password.toString();
     }
 
-    public static boolean shouldShowJobStatus(Context context) {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectManager.getAppRecord(context, appId);
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        return (job.getStatus() == STATUS_LEARNING && record.getIsLearning()) || (job.getStatus() == STATUS_DELIVERING && !record.getIsLearning());
+    public static boolean shouldShowJobStatus(Context context, String appId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        ConnectJobRecord job = getActiveJob();
+        if(record == null || job == null) {
+            return false;
+        }
+
+        return (job.getStatus() == STATUS_LEARNING && record.getIsLearning()) ||
+                (job.getStatus() == STATUS_DELIVERING && !record.getIsLearning());
     }
 }

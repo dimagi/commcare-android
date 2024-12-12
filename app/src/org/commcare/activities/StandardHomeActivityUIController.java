@@ -195,7 +195,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
-        if (job.getStatus() == STATUS_DELIVERING && job.isFinished()) {
+        if (job == null || job.getStatus() == STATUS_DELIVERING && job.isFinished()) {
             recyclerView.setVisibility(View.GONE);
         }
 
@@ -238,7 +238,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null || !ConnectManager.shouldShowJobStatus(context)) {
+        if (!ConnectManager.shouldShowJobStatus(context, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
 
