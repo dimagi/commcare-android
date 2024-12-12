@@ -1,6 +1,7 @@
 package org.commcare.connect;
 
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
 import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
 import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 
@@ -987,10 +988,10 @@ public class ConnectManager {
         return password.toString();
     }
 
-    public static boolean shouldShowJobStatus(Activity activity) {
+    public static boolean shouldShowJobStatus(Context context) {
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectManager.getAppRecord(context, appId);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        return job.getStatus() == STATUS_DELIVERING && record.getIsLearning();
+        return (job.getStatus() == STATUS_LEARNING && record.getIsLearning()) || (job.getStatus() == STATUS_DELIVERING && !record.getIsLearning());
     }
 }

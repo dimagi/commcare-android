@@ -4,6 +4,7 @@ import static org.commcare.android.database.connect.models.ConnectJobRecord.STAT
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
@@ -237,7 +238,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null) {
+        if (ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null || !ConnectManager.shouldShowJobStatus(context)) {
             hiddenButtons.add("connect");
         }
 
