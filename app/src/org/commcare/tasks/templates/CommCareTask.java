@@ -39,17 +39,15 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         try {
             return doTaskBackground(params);
         } catch (Exception e) {
-            Logger.log(TAG, "Error during task execution: " + e.getMessage());
-            e.printStackTrace();
-
             if (!(e instanceof UserCausedRuntimeException)) {
                 // Report crashes we know weren't caused by user misconfiguration
-                CrashUtil.reportException(e);
+                Logger.exception("Error during task execution: ", e);
+            } else {
+                Logger.log(TAG, "Error during task execution: " + e.getMessage());
             }
 
             // Save error for reporting during post-execute
             unknownError = e;
-
             return null;
         }
     }

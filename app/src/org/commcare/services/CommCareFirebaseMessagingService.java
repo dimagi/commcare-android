@@ -57,7 +57,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " + remoteMessage.getData());
+        Logger.log(LogTypes.TYPE_FCM, "Message received: " + remoteMessage.getMessageId());
         Map<String, String> payloadData = remoteMessage.getData();
 
         // Check if the message contains a data object, there is no further action if not
@@ -108,6 +108,10 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
+        }
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
@@ -120,7 +124,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentText(notificationText)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
-                .setSmallIcon(R.drawable.notification)
+                .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(System.currentTimeMillis());
 
@@ -160,3 +164,4 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 }
+

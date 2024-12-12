@@ -51,7 +51,7 @@
         android:orientation="horizontal"
         android:layout_weight="1">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/geoOK"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
             android:text="Record Location"
             android:layout_margin="@dimen/standard_spacer"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/geoCancel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

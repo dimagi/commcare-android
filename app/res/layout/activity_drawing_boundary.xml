@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             style="@style/MapButtonGreen"
             android:id="@+id/start_tracking_button"
             android:layout_height="wrap_content"
@@ -52,15 +52,15 @@
             android:visibility="gone"
             android:layout_width="0dp" />
 
-        <Button
-            style="@style/MapButtonRed"
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/stop_tracking_button"
+            style="@style/MapButtonRed"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:visibility="gone" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             style="@style/MapButtonOrange"
             android:id="@+id/redo_tracking_button"
             android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
             android:layout_width="0dp"
             android:visibility="gone" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             style="@style/MapButtonGreen"
             android:id="@+id/ok_tracking_button"
             android:layout_height="wrap_content"

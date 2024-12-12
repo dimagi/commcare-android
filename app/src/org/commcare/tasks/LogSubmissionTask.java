@@ -355,7 +355,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         if (submittedSuccesfully.size() == numberOfLogsToSubmit) {
             return LogSubmitOutcomes.SUBMITTED;
         } else {
-            Logger.log(LogTypes.TYPE_MAINTENANCE, numberOfLogsToSubmit - submittedSuccesfully.size() + " logs remain on phone.");
             //Some remain unsent
             return LogSubmitOutcomes.SERIALIZED;
         }
