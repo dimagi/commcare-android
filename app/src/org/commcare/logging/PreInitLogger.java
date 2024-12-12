@@ -1,6 +1,7 @@
 package org.commcare.logging;
 
 import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.StreamLogSerializer;
@@ -71,5 +72,10 @@ public class PreInitLogger implements ILogger {
     @Override
     public void halt() {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void logException(Throwable e) {
+        Logger.exception(LogTypes.TYPE_USER, e);
     }
 }

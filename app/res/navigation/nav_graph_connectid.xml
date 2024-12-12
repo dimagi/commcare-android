@@ -357,8 +357,7 @@
         tools:layout="@layout/screen_connect_user_deactivate_otp_verify">
         <action
             android:id="@+id/action_connectid_user_deactivate_otp_verify_to_connectid_message"
-            app:destination="@id/connectid_message"
-            app:popUpTo="@id/connectid_phone_verify" />
+            app:destination="@id/connectid_message" />
         <argument
             android:name="callingClass"
             app:argType="integer"
