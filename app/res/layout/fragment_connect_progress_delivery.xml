@@ -143,6 +143,7 @@
                         android:padding="16dp">
 
                         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                            android:id="@+id/connectRegularTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/connect_click_to_sync_progress"
