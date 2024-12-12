@@ -1,10 +1,12 @@
 package org.commcare.activities;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -35,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
 
 /**
@@ -78,8 +79,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         boolean show = record != null && !record.getIsLearning();
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if(show) {
+        if (show) {
             ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
@@ -98,7 +98,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             boolean showHours = workingHours != null;
             tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
             hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-            if(showHours) {
+            if (showHours) {
                 tv_job_time.setText(workingHours);
             }
 
@@ -111,7 +111,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
         boolean show = record != null && !record.getIsLearning();
-        if(show) {
+        if (show) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
             if (job.isFinished()) {
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
@@ -147,14 +147,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
                     }
                 }
 
-                if(totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
+                if (totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
                     warningText = "";
-                    if(totalMaxes.size() > 0) {
+                    if (totalMaxes.size() > 0) {
                         String maxes = String.join(", ", totalMaxes);
                         warningText = activity.getString(R.string.connect_progress_warning_max_reached_multi, maxes);
                     }
 
-                    if(dailyMaxes.size() > 0) {
+                    if (dailyMaxes.size() > 0) {
                         String maxes = String.join(", ", dailyMaxes);
                         warningText += activity.getString(R.string.connect_progress_warning_daily_max_reached_multi, maxes);
                     }
@@ -169,7 +169,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
 
         connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-        if(warningText != null) {
+        if (warningText != null) {
             TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
             tv.setText(warningText);
         }
@@ -195,11 +195,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
+        if (job == null || job.getStatus() == STATUS_DELIVERING && job.isFinished()) {
+            recyclerView.setVisibility(View.GONE);
+        }
+
         updateOpportunityMessage();
 
         deliveryPaymentInfoList.clear();
 
-        if(job != null) {
+        if (job != null) {
             //Note: Only showing a single daily progress bar for now
             //Adding more entries to the list would show multiple progress bars
             //(i.e. one for each payment type)
@@ -234,7 +238,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null) {
+        if (!ConnectManager.shouldShowJobStatus(context, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
 
