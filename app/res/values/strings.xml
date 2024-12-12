@@ -49,7 +49,7 @@
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
     <string name="manager_activity_name">App Manager</string>
-    <string name="install_app">Install An App</string>
+    <string name="install_app">Install an App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>

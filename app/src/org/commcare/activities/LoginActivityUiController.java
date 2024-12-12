@@ -571,7 +571,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ImageView topBannerImageView =
                 banner.findViewById(R.id.main_top_banner);
         if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView, CustomBanner.Banner.LOGIN)) {
-            topBannerImageView.setImageResource(R.drawable.commcare_logo);
+            topBannerImageView.setImageResource(R.drawable.commcare_by_dimagi);
         }
     }
 
