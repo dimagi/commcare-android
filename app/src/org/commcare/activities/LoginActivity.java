@@ -466,7 +466,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void setResultAndFinish(boolean goToJobInfo) {
         if(goToJobInfo) {
-            CommCareApplication.instance().closeUserSession();
             ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_OPP_STATUS);
         }
 
