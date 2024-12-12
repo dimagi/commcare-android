@@ -1,15 +1,33 @@
 package org.commcare.connect;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
+import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
+import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -60,21 +78,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
-import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
-
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
  *
@@ -92,7 +95,6 @@ public class ConnectManager {
 //    public static final int MethodVerifyAlternate = 4;
 
     private BiometricManager biometricManager;
-
 
 
     public static int getFailureAttempt() {
@@ -166,7 +168,7 @@ public class ConnectManager {
         }
     }
 
-    public static BiometricManager getBiometricManager(CommCareActivity<?> parent){
+    public static BiometricManager getBiometricManager(CommCareActivity<?> parent) {
         ConnectManager instance = getInstance();
         if (instance.biometricManager == null) {
             instance.biometricManager = BiometricManager.from(parent);
@@ -266,7 +268,7 @@ public class ConnectManager {
     public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
 
-        if(isConnectIdConfigured()) {
+        if (isConnectIdConfigured()) {
             ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
@@ -413,7 +415,7 @@ public class ConnectManager {
 
     public static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
         ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(activity, appId, username);
-        if(record != null) {
+        if (record != null) {
             record.setLastAccessed(new Date());
             ConnectDatabaseHelper.storeApp(activity, record);
         }
@@ -670,9 +672,9 @@ public class ConnectManager {
     }
 
     public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
-                                                    String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
+                                                           String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
         if (isConnectIdConfigured()) {
-            if(appLaunchedFromConnect) {
+            if (appLaunchedFromConnect) {
                 //Configure some things if we haven't already
                 ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context,
                         appId, username);
@@ -687,7 +689,7 @@ public class ConnectManager {
                         username);
                 passwordOrPin = record != null ? record.getPassword() : null;
 
-                if(record != null && record.isUsingLocalPassphrase()) {
+                if (record != null && record.isUsingLocalPassphrase()) {
                     //Report to analytics so we know when this stops happening
                     FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(seatedAppId);
                 }
@@ -775,7 +777,7 @@ public class ConnectManager {
                         JSONArray modules = json.getJSONArray(key);
                         List<ConnectJobLearningRecord> learningRecords = new ArrayList<>(modules.length());
                         for (int i = 0; i < modules.length(); i++) {
-                            JSONObject obj = (JSONObject)modules.get(i);
+                            JSONObject obj = (JSONObject) modules.get(i);
                             ConnectJobLearningRecord record = ConnectJobLearningRecord.fromJson(obj, job.getJobId());
                             learningRecords.add(record);
                         }
@@ -786,7 +788,7 @@ public class ConnectManager {
                         JSONArray assessments = json.getJSONArray(key);
                         List<ConnectJobAssessmentRecord> assessmentRecords = new ArrayList<>(assessments.length());
                         for (int i = 0; i < assessments.length(); i++) {
-                            JSONObject obj = (JSONObject)assessments.get(i);
+                            JSONObject obj = (JSONObject) assessments.get(i);
                             ConnectJobAssessmentRecord record = ConnectJobAssessmentRecord.fromJson(obj, job.getJobId());
                             assessmentRecords.add(record);
                         }
@@ -875,9 +877,9 @@ public class ConnectManager {
                         if (json.has(key)) {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
-                                JSONObject obj = (JSONObject)array.get(i);
+                                JSONObject obj = (JSONObject) array.get(i);
                                 ConnectJobDeliveryRecord delivery = ConnectJobDeliveryRecord.fromJson(obj, job.getJobId());
-                                if(delivery != null) {
+                                if (delivery != null) {
                                     //Note: Ignoring faulty deliveries (non-fatal exception logged)
                                     deliveries.add(delivery);
                                 }
@@ -894,7 +896,7 @@ public class ConnectManager {
                         if (json.has(key)) {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
-                                JSONObject obj = (JSONObject)array.get(i);
+                                JSONObject obj = (JSONObject) array.get(i);
                                 payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
                             }
 
@@ -984,5 +986,16 @@ public class ConnectManager {
         }
 
         return password.toString();
+    }
+
+    public static boolean shouldShowJobStatus(Context context, String appId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        ConnectJobRecord job = getActiveJob();
+        if(record == null || job == null) {
+            return false;
+        }
+
+        return (job.getStatus() == STATUS_LEARNING && record.getIsLearning()) ||
+                (job.getStatus() == STATUS_DELIVERING && !record.getIsLearning());
     }
 }
