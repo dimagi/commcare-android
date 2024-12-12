@@ -312,6 +312,6 @@ License.
     <string name="connect_hq_invitation_accept">Accepter</string>
     <string name="connect_hq_invitation_denied">Refusé</string>
     <string name="connect_hq_invitation_go_to_recovery">Aller à la récupération</string>
-    <string name="connect_hq_invitation_connectId_not_configure">Vous n\'avez pas configuré votre ConnectID. Pour accepter cette invitation, veuillez d\'abord configurer votre ConnectID. Une fois configuré, vous pourrez accepter l'invitation.</string>
+    <string name="connect_hq_invitation_connectId_not_configure">Vous n\'avez pas configuré votre ConnectID. Pour accepter cette invitation, veuillez dabord configurer votre ConnectID. Une fois configuré, vous pourrez accepter invitation.</string>
     <string name="connect_hq_invitation_wrong_user">Oups ! Il semble que l’invitation ait été envoyée à la mauvaise personne.</string>
 </resources>

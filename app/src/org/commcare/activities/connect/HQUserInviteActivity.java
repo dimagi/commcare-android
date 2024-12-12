@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -19,7 +20,6 @@ import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Locale;
 
 public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity> {
@@ -53,7 +53,10 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
         ConnectUserRecord user = ConnectManager.getUser(this);
         boolean isTokenPresent = ConnectManager.isConnectIdConfigured();
-        boolean isCorrectUser = user.getUserId().equals(connectUserName);
+        boolean isCorrectUser = true;
+        if (user != null) {
+            isCorrectUser = user.getUserId().equals(connectUserName);
+        }
 
         if (isCorrectUser) {
             binding.tvHqInvitationHeaderTitle.setText(isTokenPresent
