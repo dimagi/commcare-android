@@ -339,7 +339,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                 try {
                     stopHandler();
                     Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(
-                            ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(
+                            ConnectIdUserDeactivateOTPVerificationFragmentDirections.actionConnectidUserDeactivateOtpVerifyToConnectidMessage(
                                     getString(R.string.connect_deactivate_account),
                                     getString(R.string.connect_deactivate_account_deactivated),
                                     ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS,
