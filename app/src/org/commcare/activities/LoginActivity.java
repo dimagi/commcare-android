@@ -500,7 +500,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
                 //Update job status
                 ConnectManager.updateJobProgress(this, job, success -> {
-                    setResultAndFinish(job.getIsUserSuspended() || job.readyToTransitionToDelivery());
+                    setResultAndFinish(job.getIsUserSuspended());// || job.readyToTransitionToDelivery());
                 });
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login

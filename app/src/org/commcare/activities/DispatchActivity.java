@@ -203,12 +203,7 @@ public class DispatchActivity extends AppCompatActivity {
                             ConnectManager.goToConnectJobsList(this);
                         }
                         case ConnectManager.PENDING_ACTION_OPP_STATUS -> {
-                            CommCareApplication.instance().closeUserSession();
                             ConnectManager.goToActiveInfoForJob(this, true);
-                        }
-                        case ConnectManager.PENDING_ACTION_DELIVERY_DETAILS -> {
-                            CommCareApplication.instance().closeUserSession();
-                            //TODO
                         }
                         default -> launchHomeScreen();
                     }
