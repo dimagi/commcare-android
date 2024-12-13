@@ -254,9 +254,6 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
 
     private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
             Hashtable<String, AsyncEntity> entitySet) {
-        //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation.
-        //Should probably split this up SQL LIMIT based looped
-        //For reference the current limitation is about 10k rows with 1 field each.
         Cursor walker = db.rawQuery(sqlStatement, args);
         while (walker.moveToNext()) {
             String entityId = walker.getString(walker.getColumnIndex("entity_key"));

@@ -15,16 +15,16 @@
             android:id="@+id/screen_bulk_image1"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:paddingLeft="20px"
-            android:layout_marginRight="20px"
-            android:paddingTop="20px"
-            android:paddingBottom="0px"
+            android:paddingLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="0dp"
             android:scaleType="fitStart"
-            android:maxHeight="135px"
-            android:maxWidth="663px"
-            app:srcCompat="@drawable/ccbanner"
-            android:layout_marginEnd="20px"
-            android:paddingStart="20px"></ImageView>
+            android:maxHeight="83dp"
+            android:maxWidth="442dp"
+            app:srcCompat="@drawable/commcare_by_dimagi"
+            android:layout_marginEnd="8dp"
+            android:paddingStart="8dp"></ImageView>
 
         <RelativeLayout
             android:id="@+id/screen_bulk_form_frame_location"
@@ -43,20 +43,19 @@
                 android:layout_centerHorizontal="true"
                 android:layout_margin="10dp"
                 android:gravity="center"
-                android:layout_below="@+id/screen_multimedia_inflater_filefetch"
                 android:text="From here you can dump your forms to an SD card or submit the forms on your SD card"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/screen_bulk_form_dump"
-                style="@style/ButtonBottom"
                 android:layout_width="match_parent"
+                android:layout_margin="10dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/screen_bulk_form_prompt"
                 android:text="Dump Forms"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/screen_bulk_form_submit"
-                style="@style/ButtonBottom"
+                android:layout_margin="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/screen_bulk_form_dump"

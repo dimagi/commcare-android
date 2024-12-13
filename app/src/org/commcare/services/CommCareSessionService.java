@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -29,7 +30,6 @@ import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
-import org.commcare.models.encryption.CipherPool;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.sync.FormSubmissionHelper;
@@ -91,7 +91,6 @@ public class CommCareSessionService extends Service {
     private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
 
     private Timer maintenanceTimer;
-    private CipherPool pool;
 
     private byte[] key = null;
 
@@ -149,7 +148,6 @@ public class CommCareSessionService extends Service {
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         setSessionLength();
-        createCipherPool();
     }
 
     @Override
@@ -160,27 +158,6 @@ public class CommCareSessionService extends Service {
             Log.e(LogTypes.SOFT_ASSERT,
                     "Trying to wipe uninitialized session in session service tear-down");
         }
-    }
-
-    public void createCipherPool() {
-        pool = new CipherPool() {
-            @Override
-            public Cipher generateNewCipher() {
-                synchronized (lock) {
-                    try {
-                        SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                        Cipher decrypter = Cipher.getInstance("AES");
-                        decrypter.init(Cipher.DECRYPT_MODE, spec);
-
-                        return decrypter;
-                    } catch (NoSuchPaddingException | NoSuchAlgorithmException |
-                             InvalidKeyException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return null;
-            }
-        };
     }
 
     @Override
@@ -208,11 +185,14 @@ public class CommCareSessionService extends Service {
     /**
      * Show a notification while this service is running.
      */
-    @SuppressLint("UnspecifiedImmutableFlag")
     public void showLoggedInNotification(@Nullable User user) {
         // Send the notification. This will cause error messages if CommCare doesn't have
         // permission to post notifications
-        this.startForeground(NOTIFICATION, createSessionNotification());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.startForeground(NOTIFICATION, createSessionNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            this.startForeground(NOTIFICATION, createSessionNotification());
+        }
     }
 
     /**
@@ -235,7 +215,7 @@ public class CommCareSessionService extends Service {
             Notification notification = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_USER_SESSION_ID)
                     .setContentTitle(this.getString(R.string.expirenotification))
                     .setContentText("Click here to log back into your session")
-                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setSmallIcon(R.drawable.commcare_actionbar_logo)
                     .setContentIntent(contentIntent)
                     .build();
 
@@ -259,7 +239,6 @@ public class CommCareSessionService extends Service {
         synchronized (lock) {
             this.userKeyRecordUUID = record.getUuid();
             this.key = symetricKey;
-            pool.init();
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
@@ -463,8 +442,6 @@ public class CommCareSessionService extends Service {
                 maintenanceTimer.cancel();
             }
             logoutStartedAt = -1;
-
-            pool.expire();
             endHeartbeatLifecycle();
         }
     }
@@ -546,7 +523,7 @@ public class CommCareSessionService extends Service {
                         .setContentTitle(getString(notificationId))
                         .setContentInfo(getSubmittedFormCount(1, totalItems))
                         .setContentText("0b transmitted")
-                        .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                        .setSmallIcon(org.commcare.dalvik.R.drawable.commcare_actionbar_logo)
                         .setContentIntent(contentIntent)
                         .setOngoing(true)
                         .setWhen(System.currentTimeMillis())
@@ -702,12 +679,11 @@ public class CommCareSessionService extends Service {
         callable.setAction("android.intent.action.MAIN");
         callable.addCategory("android.intent.category.LAUNCHER");
 
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            contentIntent = PendingIntent.getActivity(this, 0, callable, PendingIntent.FLAG_IMMUTABLE);
-        else
-            contentIntent = PendingIntent.getActivity(this, 0, callable, 0);
+        int pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntentFlags = pendingIntentFlags | PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, callable, pendingIntentFlags);
 
         String notificationText;
         if (AppUtils.getInstalledAppRecords().size() > 1) {
@@ -724,7 +700,7 @@ public class CommCareSessionService extends Service {
         // Set the icon, scrolling text and timestamp
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_ERRORS_ID)
                 .setContentTitle(notificationText)
-                .setSmallIcon(R.drawable.notification)
+                .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setContentIntent(contentIntent);
 
         if (user != null) {
