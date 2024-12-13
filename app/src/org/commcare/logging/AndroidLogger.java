@@ -87,6 +87,6 @@ public class AndroidLogger implements ILogger {
 
     @Override
     public void logException(Throwable e) {
-        Logger.exception(LogTypes.TYPE_USER, e);
+        CrashUtil.reportException(e);
     }
 }
