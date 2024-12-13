@@ -127,10 +127,6 @@ public class CustomOtpView extends LinearLayout {
 
             @Override
             public void afterTextChanged(Editable s) {
-                // If backspace is pressed, focus on previous EditText if the current is empty
-                if (s.length() == 0 && index > 0) {
-                    getChildAt(index - 1).requestFocus();
-                }
             }
         });
 
