@@ -132,8 +132,8 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
                 setErrorMessage(getString(R.string.recovery_network_outdated));
             }
         };
-
-        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this, callBackUrl, inviteCode, callback);
+        ConnectUserRecord user = ConnectManager.getUser(this);
+        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this,user.getUserId(),user.getPassword(), callBackUrl, inviteCode, callback);
         if (isBusy) {
             Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
