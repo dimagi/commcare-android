@@ -68,9 +68,8 @@
         android:layout_height="wrap_content"
         android:visibility="invisible" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/action_button"
-        style="@style/Commcare.Button.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
