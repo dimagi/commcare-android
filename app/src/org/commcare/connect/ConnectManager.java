@@ -1,5 +1,6 @@
 package org.commcare.connect;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
 import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
@@ -94,6 +95,10 @@ public class ConnectManager {
 //    public static final int MethodRecoveryAlternate = 3;
 //    public static final int MethodVerifyAlternate = 4;
 
+    public static final int PENDING_ACTION_NONE = 0;
+    public static final int PENDING_ACTION_CONNECT_HOME = 1;
+    public static final int PENDING_ACTION_OPP_STATUS = 2;
+
     private BiometricManager biometricManager;
 
 
@@ -126,6 +131,8 @@ public class ConnectManager {
     private Context parentActivity;
 
     private String primedAppIdForAutoLogin = null;
+
+    private int pendingAction = PENDING_ACTION_NONE;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -168,7 +175,17 @@ public class ConnectManager {
         }
     }
 
-    public static BiometricManager getBiometricManager(CommCareActivity<?> parent) {
+    public static void setPendingAction(int action) {
+        getInstance().pendingAction = action;
+    }
+
+    public static int getPendingAction() {
+        int action = getInstance().pendingAction;
+        getInstance().pendingAction = PENDING_ACTION_NONE;
+        return action;
+    }
+
+    public static BiometricManager getBiometricManager(CommCareActivity<?> parent){
         ConnectManager instance = getInstance();
         if (instance.biometricManager == null) {
             instance.biometricManager = BiometricManager.from(parent);
@@ -995,7 +1012,7 @@ public class ConnectManager {
             return false;
         }
 
-        return (job.getStatus() == STATUS_LEARNING && record.getIsLearning()) ||
-                (job.getStatus() == STATUS_DELIVERING && !record.getIsLearning());
+        //Only time not to show is when we're in learn app but job is in delivery state
+        return !record.getIsLearning() || job.getStatus() != STATUS_DELIVERING;
     }
 }

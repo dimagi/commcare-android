@@ -46,7 +46,6 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
     private Date lastUpdate;
 
     public ConnectJobLearningRecord() {
-
     }
 
     public static ConnectJobLearningRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
