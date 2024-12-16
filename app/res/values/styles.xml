@@ -343,8 +343,8 @@
         <item name="textColor">@color/cc_brand_color</item>
     </style>
 
-    <style name="CustomTabStyle">
-        <item name="android:activatedBackgroundIndicator"/>
+    <style name="DetailViewTabStyle">
+        <item name="android:textColor">@color/cc_brand_text</item>
     </style>
 
 </resources>

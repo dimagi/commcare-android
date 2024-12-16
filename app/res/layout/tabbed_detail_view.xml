@@ -9,31 +9,30 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_gravity="top"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/content_min_margin"
-            android:paddingBottom="@dimen/content_min_margin"
-            app:tabMode="scrollable"
-            app:tabGravity="center"
-            android:layout_weight="1"
-            app:tabPaddingStart="24dp"
-            app:tabPaddingEnd="24dp"
-            app:tabIndicatorGravity="bottom"
-            app:tabIndicatorColor="@color/blue_grey"
-            android:background="@color/cc_brand_bg"
-            app:tabTextAppearance="@style/CustomTabStyle" />
-
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/tabbed_detail_pager_wrapper"
-        android:layout_below="@id/tabbed_detail_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/cc_brand_bg"
+            android:paddingTop="@dimen/dp6"
+            app:tabMode="scrollable"
+            app:tabGravity="center"
+            app:tabIndicatorGravity="bottom"
+            app:tabIndicatorHeight="2dp"
+            app:tabIndicatorColor="@color/cc_brand_text"
+            app:tabPaddingStart="24dp"
+            app:tabPaddingEnd="24dp"
+            app:tabTextAppearance="@style/DetailViewTabStyle" />
+
         <!--  NOTE: In order to deal with annoying issues of multiplicity,
         this ID shouldn't be considered static for layouts, etc. DO NOT REFER
         to the tabbed_detail_pager ID in any xml, and only within the pager
@@ -41,8 +40,8 @@
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/tabbed_detail_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
 </merge>
