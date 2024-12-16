@@ -93,7 +93,13 @@ public class TabbedDetailView extends RelativeLayout {
         EntityDetailPagerAdapter entityDetailPagerAdapter = new EntityDetailPagerAdapter(mContext.getSupportFragmentManager(), mContext.getLifecycle(), detail, index, reference, new ListItemViewStriper(this.mOddColor, this.mEvenColor));
         mViewPager.setAdapter(entityDetailPagerAdapter);
 
-        new TabLayoutMediator(mTabLayout, mViewPager, (tab, position) -> tab.setText(detail.getDetails()[position].getTitle().getText().evaluate())).attach();
+        if (detail.isCompound()) {
+            new TabLayoutMediator(mTabLayout, mViewPager,
+                    (tab, position) -> tab.setText(detail.getDetails()[position].getTitle().getText().evaluate()))
+                    .attach();
+        } else {
+            mTabLayout.setVisibility(GONE);
+        }
     }
 
     /**
