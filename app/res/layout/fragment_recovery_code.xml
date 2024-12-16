@@ -196,7 +196,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="start|center"
-            android:text="Continue"
+            android:text="@string/review"
             app:roundButtonBackgroundColor="@color/connect_blue_color"
             app:roundButtonBorderRadius="@dimen/dp48"
             app:roundButtonIcon="@drawable/connect_right_arrow"

@@ -83,7 +83,6 @@
             android:visibility="visible"
             app:layout_constraintBottom_toTopOf="@+id/tv_job_time"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/linearLayout6"
             tools:visibility="visible" />
 
         <org.commcare.views.connect.connecttextview.ConnectBoldTextView
