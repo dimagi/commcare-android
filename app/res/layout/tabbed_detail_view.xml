@@ -5,13 +5,6 @@
     tools:viewBindingIgnore="true">
 
     <LinearLayout
-        android:id="@+id/tabbed_detail_menu"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/tabbed_detail_pager_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

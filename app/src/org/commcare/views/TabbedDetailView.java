@@ -6,8 +6,13 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import org.commcare.adapters.EntityDetailPagerAdapter;
 import org.commcare.adapters.ListItemViewStriper;
@@ -15,12 +20,6 @@ import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
 import org.javarosa.core.model.instance.TreeReference;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager2.widget.ViewPager2;
-
-import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.Objects;
 
@@ -32,8 +31,6 @@ import java.util.Objects;
  */
 public class TabbedDetailView extends RelativeLayout {
     private AppCompatActivity mContext;
-
-    private LinearLayout mMenu;
     private TabLayout mTabLayout;
     private ViewPager2 mViewPager;
 
@@ -75,15 +72,9 @@ public class TabbedDetailView extends RelativeLayout {
 
         inflater.inflate(R.layout.tabbed_detail_view, root, true);
 
-        mMenu = root.findViewById(R.id.tabbed_detail_menu);
         mViewPager = root.findViewById(R.id.tabbed_detail_pager);
         mViewPager.setId(AndroidUtil.generateViewId());
-
         mTabLayout = root.findViewById(R.id.tab_layout);
-    }
-
-    public void showMenu() {
-        mMenu.setVisibility(VISIBLE);
     }
 
     /**
@@ -100,20 +91,6 @@ public class TabbedDetailView extends RelativeLayout {
         } else {
             mTabLayout.setVisibility(GONE);
         }
-    }
-
-    /**
-     * Style one tab as "selected".
-     */
-    private void markSelectedTab(int position) {
-        if (mMenu.getChildCount() <= position) {
-            return;
-        }
-
-        for (int i = 0; i < mMenu.getChildCount(); i++) {
-            mMenu.getChildAt(i).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_neutral_tab_vertical));
-        }
-        mMenu.getChildAt(position).setBackgroundDrawable(getResources().getDrawable(R.drawable.title_case_tab_vertical));
     }
 
     public int getCurrentTab() {
