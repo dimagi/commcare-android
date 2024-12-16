@@ -8,6 +8,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -415,7 +419,15 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                                 ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                             }
 
-                            resetPassword(context, phone, password, username, displayName);
+                            key = ConnectConstants.CONNECT_PAYMENT_INFO;
+                            String paymentName = "",paymentPhone = "";
+                            if(json.has(key)){
+                                JSONObject paymentJson = json.getJSONObject(key);
+                                paymentName = paymentJson.getString("owner_name");
+                                paymentPhone = paymentJson.getString("phone_number");
+                            }
+
+                            resetPassword(context, phone, password, username, displayName,paymentName,paymentPhone);
                         }
                     }
                 } catch (Exception e) {
@@ -467,14 +479,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         }
     }
 
-    private void resetPassword(Context context, String phone, String secret, String username, String name) {
+    private void resetPassword(Context context, String phone, String secret, String username, String name,String paymentName,String paymentPhone) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                        password, name, recoveryPhone);
+                        password, name, recoveryPhone,paymentName,paymentPhone);
                 user.setSecondaryPhoneVerified(true);
                 ConnectDatabaseHelper.storeUser(context, user);
 
