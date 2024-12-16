@@ -21,7 +21,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  * @author jschweers
  */
-public class EntityDetailPagerAdapter extends FragmentStateAdapter {
+public class EntityDetailPagerAdapter extends FragmentStateAdapter{
 
     private final ListItemViewModifier modifier;
     private final Detail detail;
