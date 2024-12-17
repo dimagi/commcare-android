@@ -29,7 +29,6 @@
     <string name="ConnectVerifyConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/confirm_secondary_otp</string>
     <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
     <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
-
     <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
     <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
     <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
@@ -41,29 +40,7 @@
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
 
-    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
-    <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
-    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
-    <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
-    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
-    <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
-    <string name="ConnectSetPinURL">https://connectid.dimagi.com/users/set_recovery_pin</string>
-    <string name="ConnectConfirmPinURL">https://connectid.dimagi.com/users/recover/confirm_pin</string>
-    <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
-    <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
-    <string name="ConnectPhoneAvailableURL">https://connectid.dimagi.com/users/phone_available</string>
-    <string name="ConnectRecoverURL">https://connectid.dimagi.com/users/recover</string>
-    <string name="ConnectRecoverSecondaryURL">https://connectid.dimagi.com/users/recover/secondary</string>
-    <string name="ConnectVerifySecondaryURL">https://connectid.dimagi.com/users/validate_secondary_phone</string>
-    <string name="ConnectValidatePhoneURL">https://connectid.dimagi.com/users/validate_phone</string>
-    <string name="ConnectRecoverConfirmOTPURL">https://connectid.dimagi.com/users/recover/confirm_otp</string>
-    <string name="ConnectRecoverConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/recover/confirm_secondary_otp</string>
-    <string name="ConnectVerifyConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/confirm_secondary_otp</string>
-    <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
-    <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
-
     <!-- region: All strings for multiple apps and app-agnostic properties -->
-
     <string name="manager_activity_name">App Manager</string>
     <string name="install_app">Install an App</string>
     <string name="uninstall_app">Uninstall</string>
@@ -523,7 +500,6 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
-    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 
     <string name="connect_consent_title">Consent</string>
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>

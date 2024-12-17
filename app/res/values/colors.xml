@@ -158,18 +158,7 @@
     <color name="url_button_color">#8EA1FF</color>
     <color name="square_button_icon_color">#FFFFFF</color>
 
-
     <!-- Progress bar colors -->
     <color name="progress_bar_bg">#66000000</color>
-
-
-    <color name="start_home_button">#6AB849</color>
-    <color name="start_save_button">#1B998B</color>
-    <color name="start_sync_button">#5D70D2</color>
-    <color name="start_sync_dark_button">#3b4fb6</color>
-    <color name="start_logout_button">#373534</color>
-
-    <!-- Progress bar colors -->
-    <color name="progress_bar_bg">#33000000</color>
 
 </resources>
