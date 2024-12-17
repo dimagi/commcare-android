@@ -27,6 +27,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -46,7 +47,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private TextView updateText;
 
     private ConstraintLayout paymentAlertTile;
-    private TextView paymentAlertText;
+    private ConnectRegularTextView paymentAlertText;
     private ConnectJobPaymentRecord paymentToConfirm = null;
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
@@ -93,13 +94,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         paymentAlertTile = view.findViewById(R.id.connect_delivery_progress_alert_tile);
         paymentAlertText = view.findViewById(R.id.connect_payment_confirm_label);
-        TextView paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
+        RoundedButton paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
         paymentAlertNoButton.setOnClickListener(v -> {
             updatePaymentConfirmationTile(getContext(), true);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
         });
 
-        TextView paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
+        RoundedButton paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
         paymentAlertYesButton.setOnClickListener(v -> {
             final ConnectJobPaymentRecord payment = paymentToConfirm;
             //Dismiss the tile
