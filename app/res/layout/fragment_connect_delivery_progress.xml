@@ -49,55 +49,89 @@
                     app:layout_constraintEnd_toStartOf="@id/connect_delivery_refresh"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+
+                <androidx.cardview.widget.CardView
                     android:id="@+id/connect_delivery_progress_alert_tile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginEnd="5dp"
-                    android:background="@drawable/dots_rect_back"
-                    android:visibility="gone"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="2dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:shadowColor="@color/connect_light_grey_transparent"
+                    android:shadowDx="30"
+                    android:shadowDy="30"
+                    android:shadowRadius="50"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="5dp"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_refresh">
 
-                    <ImageView
-                        android:id="@+id/connect_payment_confirm_icon"
-                        android:layout_width="wrap_content"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/monetary_support"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="5dp"
+                        android:visibility="visible"
+                        app:layout_constraintTop_toBottomOf="@id/connect_delivery_refresh">
 
-                    <TextView
-                        android:id="@+id/connect_payment_confirm_label"
-                        android:layout_width="0dp"
-                        android:textColor="@color/black"
-                        android:layout_height="match_parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/connect_payment_confirm_icon"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        <ImageView
+                            android:id="@+id/connect_payment_confirm_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/monetary_support"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/connect_payment_confirm_yes_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="10dp"
-                        android:text="@string/connect_payment_confirm_yes"
-                        android:textColor="@color/blue"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label" />
+                        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                            android:id="@+id/connect_payment_confirm_label"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:textColor="@color/black"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@id/connect_payment_confirm_icon"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/connect_payment_confirm_no_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="40dp"
-                        android:text="@string/connect_payment_confirm_no"
-                        android:textColor="@color/blue"
-                        app:layout_constraintEnd_toStartOf="@id/connect_payment_confirm_yes_button"
-                        app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        <org.commcare.views.connect.RoundedButton
+                            android:id="@+id/connect_payment_confirm_yes_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="35dp"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/connect_payment_confirm_yes"
+                            android:textColor="@color/blue"
+                            android:textSize="18sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label"
+                            app:roundButtonBackgroundColor="@color/connect_blue_color"
+                            app:roundButtonBorderRadius="@dimen/dp48"
+                            app:roundButtonIconLeftAlign="false"
+                            app:roundButtonTextColor="@color/white"
+                            app:roundButtonTextSize="5.0sp" />
+
+                        <org.commcare.views.connect.RoundedButton
+                            android:id="@+id/connect_payment_confirm_no_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="35dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:text="@string/connect_payment_confirm_no"
+                            android:textColor="@color/blue"
+                            android:textSize="18sp"
+                            app:layout_constraintEnd_toStartOf="@id/connect_payment_confirm_yes_button"
+                            app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label"
+                            app:roundButtonBorderColor="@color/connect_blue_color"
+                            app:roundButtonBorderVisible="true"
+                            app:roundButtonBorderWidth="0.5dp"
+                            app:roundButtonIconTintColor="@color/white"
+                            app:roundButtonTextColor="@color/connect_blue_color"
+                            app:roundButtonTextSize="5.0sp" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -119,18 +153,18 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:layout_marginBottom="15dp"
                             android:orientation="horizontal"
                             android:paddingStart="15dp"
                             android:paddingTop="35dp"
-                            android:layout_marginBottom="15dp"
                             android:paddingEnd="15dp">
 
                             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                                 android:id="@+id/tvConnectMessage"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="@string/connect_job_tile_daily_limit_description"
                                 android:layout_marginEnd="10dp"
+                                android:text="@string/connect_job_tile_daily_limit_description"
                                 android:textColor="@color/connect_warning_color"
                                 android:textSize="14sp"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -153,10 +187,10 @@
                         layout="@layout/view_job_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginEnd="10dp"
                         android:layout_marginStart="10dp"
-                        android:layout_marginTop="10dp" />
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="10dp" />
                 </RelativeLayout>
             </LinearLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -165,11 +199,11 @@
             android:id="@+id/connect_delivery_progress_tabs"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
+            android:background="@color/connect_background_color"
             app:tabGravity="fill"
             app:tabIndicator="@drawable/ic_connect_pager_indicator"
             app:tabIndicatorColor="@color/connect_blue_color"
             app:tabInlineLabel="true"
-            android:background="@color/connect_background_color"
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/connect_blue_color"
             app:tabTextAppearance="@style/TabTextStyle"
