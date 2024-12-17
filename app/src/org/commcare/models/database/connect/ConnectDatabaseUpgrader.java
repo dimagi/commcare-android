@@ -21,6 +21,8 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
@@ -86,6 +88,11 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 10) {
             upgradeTenEleven(db);
             oldVersion = 11;
+        }
+
+        if (oldVersion == 11) {
+            upgradeElevenTwelve(db);
+            oldVersion = 12;
         }
     }
 
@@ -494,6 +501,11 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeElevenTwelve(SQLiteDatabase db) {
+        addTableForNewModel(db, ConnectMessagingChannelRecord.STORAGE_KEY, new ConnectMessagingChannelRecord());
+        addTableForNewModel(db, ConnectMessagingMessageRecord.STORAGE_KEY, new ConnectMessagingMessageRecord());
     }
 
     private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
