@@ -152,7 +152,6 @@ public abstract class DataPullTask<R>
 
         publishProgress(PROGRESS_STARTED);
         HiddenPreferences.setPostUpdateSyncNeeded(false);
-        Logger.log(LogTypes.TYPE_USER, "Starting Sync");
         determineIfLoginNeeded();
 
         AndroidTransactionParserFactory factory = getTransactionParserFactory();

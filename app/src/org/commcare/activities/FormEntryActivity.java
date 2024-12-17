@@ -297,7 +297,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         IntentFilter filter = new IntentFilter();
         filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
         filter.addAction(GeoUtils.ACTION_LOCATION_ERROR);
-        registerReceiver(mLocationServiceIssueReceiver, filter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(mLocationServiceIssueReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(mLocationServiceIssueReceiver, filter);
+        }
     }
 
     @Override
@@ -997,7 +1001,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         reportVideoUsageIfAny();
 
         IntentFilter intentFilter = new IntentFilter(PENGING_SYNC_ALERT_ACTION);
-        registerReceiver(pendingSyncAlertBroadcastReceiver, intentFilter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(pendingSyncAlertBroadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(pendingSyncAlertBroadcastReceiver, intentFilter);
+        }
 
         // Flag that a background sync shouldn't be triggered when this activity is in the foreground
         CommCareApplication.instance().setBackgroundSyncSafe(false);

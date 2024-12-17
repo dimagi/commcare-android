@@ -17,9 +17,10 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:layout_alignParentBottom="true">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnFinishDraw"
             android:layout_width="wrap_content"
             android:enabled="false"
@@ -31,12 +32,13 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnResetDraw"
                 android:layout_width="wrap_content"
+                android:layout_marginHorizontal="16dp"
                 android:layout_height="wrap_content"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancelDraw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
