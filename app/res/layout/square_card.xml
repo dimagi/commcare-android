@@ -24,7 +24,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="wrap_content"
-            android:layout_height="170dp">
+            android:layout_height="match_parent">
 
             <org.commcare.views.SquareImageView
                 android:id="@+id/card_image"
@@ -43,8 +43,8 @@
                 android:paddingBottom="@dimen/standard_spacer"
                 android:paddingLeft="@dimen/standard_spacer"
                 android:paddingRight="@dimen/standard_spacer"
-                android:textSize="@dimen/font_size_xlarger"
-                app:text_size_small="@dimen/font_size_xlargest"
+                android:textSize="@dimen/font_size_xlarge"
+                app:text_size_small="@dimen/font_size_large"
                 android:paddingStart="@dimen/standard_spacer"
                 android:paddingEnd="@dimen/standard_spacer" />
         </RelativeLayout>
@@ -56,6 +56,6 @@
             android:layout_below="@+id/card"
             android:layout_gravity="end"
             android:padding="@dimen/help_text_padding"
-            android:textSize="@dimen/font_size_small"/>
+            android:textSize="@dimen/font_size_medium"/>
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

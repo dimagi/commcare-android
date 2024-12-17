@@ -253,7 +253,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
     private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
-                                          Hashtable<String, AsyncEntity> entitySet) {
+            Hashtable<String, AsyncEntity> entitySet) {
         Cursor walker = db.rawQuery(sqlStatement, args);
         while (walker.moveToNext()) {
             String entityId = walker.getString(walker.getColumnIndex("entity_key"));

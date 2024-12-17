@@ -31,9 +31,5 @@ public class CommCareGraphActivity extends CommCareActivity {
     protected void onDestroy() {
         super.onDestroy();
         FirebaseAnalyticsUtil.reportGraphViewFullScreenClosed();
-
-        String title = getTitle() == null || getTitle().length() == 0 ? "(no title)" : getTitle().toString();
-        Logger.log(LogTypes.TYPE_GRAPHING,
-                String.format("End viewing full screen graph for %s", title));
     }
 }
