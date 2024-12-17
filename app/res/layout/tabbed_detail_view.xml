@@ -20,10 +20,10 @@
             app:tabMode="scrollable"
             app:tabGravity="center"
             app:tabIndicatorGravity="bottom"
-            app:tabIndicatorHeight="2dp"
+            app:tabIndicatorHeight="@dimen/detail_view_tab_indicator_height"
             app:tabIndicatorColor="@color/cc_brand_text"
-            app:tabPaddingStart="24dp"
-            app:tabPaddingEnd="24dp"
+            app:tabPaddingStart="@dimen/detail_view_tab_padding_horizontal"
+            app:tabPaddingEnd="@dimen/detail_view_tab_padding_horizontal"
             app:tabTextAppearance="@style/DetailViewTabStyle" />
 
         <!--  NOTE: In order to deal with annoying issues of multiplicity,
