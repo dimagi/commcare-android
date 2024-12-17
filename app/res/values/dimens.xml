@@ -16,6 +16,8 @@
     <dimen name="title_padding">10dp</dimen>
     <dimen name="title_paddingLeft">20dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
+    <dimen name="detail_view_tab_indicator_height">3dp</dimen>
+    <dimen name="detail_view_tab_padding_horizontal">24dp</dimen>
 
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="standard_spacer_half">4dp</dimen>
