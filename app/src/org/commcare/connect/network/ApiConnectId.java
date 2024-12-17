@@ -9,7 +9,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -22,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -31,29 +31,28 @@ public class ApiConnectId {
     private static final String API_VERSION_NONE = null;
     private static final String API_VERSION_CONNECT_ID = "1.0";
 
-    public static void linkHqWorker(Context context, String hqUsername, String hqPassword, String connectToken) {
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
-        if (appRecord != null && !appRecord.getWorkerLinked()) {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("token", connectToken);
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", connectToken);
 
-            String url = ServerUrls.getKeyServer().replace("phone/keys/",
-                    "settings/users/commcare/link_connectid_user/");
+        String url = ServerUrls.getKeyServer().replace("phone/keys/",
+                "settings/users/commcare/link_connectid_user/");
 
-            try {
-                ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, false);
-                if (postResult.e == null && postResult.responseCode == 200) {
-                    postResult.responseStream.close();
+        try {
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            if (postResult.responseCode == 200) {
+                postResult.responseStream.close();
 
-                    //Remember that we linked the user successfully
-                    appRecord.setWorkerLinked(true);
-                    ConnectDatabaseHelper.storeApp(context, appRecord);
-                }
-            } catch (IOException e) {
-                //Don't care for now
+                //Remember that we linked the user successfully
+                appRecord.setWorkerLinked(true);
+                ConnectDatabaseHelper.storeApp(context, appRecord);
+            } else {
+                Logger.log("API Error", "API call to link HQ worker failed with code " + postResult.responseCode);
             }
+        } catch (IOException e) {
+            //Don't care for now
+            Logger.exception("Error linking HQ worker", e);
         }
     }
 
@@ -65,35 +64,18 @@ public class ApiConnectId {
         params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
         params.put("password", connectToken);
 
-        String host;
-        try {
-            host = (new URL(ServerUrls.getKeyServer())).getHost();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        String url = "https://" + host + "/oauth/token/";
+        String url = ServerUrls.buildEndpoint("oauth/token/");
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         if (postResult.responseCode == 200) {
             try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                if (json.has(key)) {
-                    String token = json.getString(key);
-                    Date expiration = new Date();
-                    key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                    int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token);
 
-                    return new AuthInfo.TokenAuth(token);
-                }
+                return new AuthInfo.TokenAuth(token.token);
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from HQ OIDC call", e);
             }
@@ -116,14 +98,14 @@ public class ApiConnectId {
     }
 
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
-        AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
-        if (connectToken != null) {
-            return connectToken;
-        }
-
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(context);
 
         if (user != null) {
+            AuthInfo.TokenAuth connectToken = user.getConnectToken();
+            if (connectToken != null) {
+                return connectToken;
+            }
+
             HashMap<String, String> params = new HashMap<>();
             params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
             params.put("scope", "openid");
@@ -137,22 +119,12 @@ public class ApiConnectId {
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
             if (postResult.responseCode == 200) {
                 try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                            postResult.responseStream));
-                    postResult.responseStream.close();
-                    JSONObject json = new JSONObject(responseAsString);
-                    String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                    if (json.has(key)) {
-                        String token = json.getString(key);
-                        Date expiration = new Date();
-                        key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                        int seconds = json.has(key) ? json.getInt(key) : 0;
-                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-                        user.updateConnectToken(token, expiration);
-                        ConnectDatabaseHelper.storeUser(context, user);
+                    SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
-                        return new AuthInfo.TokenAuth(token);
-                    }
+                    user.updateConnectToken(token);
+                    ConnectDatabaseHelper.storeUser(context, user);
+
+                    return new AuthInfo.TokenAuth(token.token);
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from Connect OIDC call", e);
                 }

@@ -44,31 +44,31 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
                 when {
                     exception is CancellationException -> handleUpdateResult(ResultAndError(AppInstallStatus.Cancelled))
                     exception != null -> {
-                        Logger.exception("Unknown error while app update", exception);
-                        handleUpdateResult(ResultAndError(AppInstallStatus.UnknownFailure))
+                        Logger.exception("Unknown error while app update", exception)
+                        Result.failure()
                     }
                 }
             }
 
             job.await()
         }
-
     }
 
     private fun doUpdateWork(): Result {
-        val updateResult: ResultAndError<AppInstallStatus>
-
-        // skip if - An update task is already running | no app is seated | user session is not active
-        if (UpdateTask.getRunningInstance() == null &&
-                CommCareApplication.instance().currentApp != null &&
-                CommCareApplication.instance().session.isActive) {
-
-            updateHelper.startPinnedNotification(CommCareApplication.instance())
-            updateResult = updateHelper.update(ResourceInstallUtils.getDefaultProfileRef(),
-                    ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
-        } else {
+        if (UpdateTask.getRunningInstance() != null) {
+            // there is already an update running, lets just skip this run
             return Result.success()
         }
+
+        if (CommCareApplication.instance().currentApp == null) {
+            // we need a seated app to update
+            return Result.failure()
+        }
+
+        updateHelper.startPinnedNotification(CommCareApplication.instance())
+        val updateResult: ResultAndError<AppInstallStatus> = updateHelper.update(
+            ResourceInstallUtils.getDefaultProfileRef(),
+            ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
         return handleUpdateResult(updateResult)
     }
 
@@ -82,6 +82,7 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
         return when {
             updateResult.data == AppInstallStatus.UpdateStaged -> Result.success()
+            updateResult.data == AppInstallStatus.UpToDate -> Result.success()
             updateResult.data.shouldRetryUpdate() -> Result.retry()
             else -> Result.failure()
         }

@@ -356,7 +356,13 @@ public class FormStorageTest {
             , "org.commcare.suite.model.EndpointArgument"
             , "org.commcare.suite.model.EndpointAction"
             , "org.commcare.suite.model.QueryGroup"
+
+            // Added in 2.55
+            , "org.javarosa.core.model.FormIndex"
+            , "org.commcare.models.database.InterruptedFormState"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3"
+            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8"
+            , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecord"
             , "org.commcare.android.database.connect.models.ConnectUserRecordV5"
             , "org.commcare.android.database.connect.models.ConnectUserRecord"

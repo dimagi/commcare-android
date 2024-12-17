@@ -41,8 +41,11 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.5 - Added projectStartDate and isActive to ConnectJobRecord
      * V.6 - Added pin,secondaryPhoneVerified, and registrationDate fields to ConnectUserRecord
      * V.7 - Added ConnectPaymentUnitRecord table
+     * V.8 - Added is_user_suspended to ConnectJobRecord
+     * V.9 - Added using_local_passphrase to ConnectLinkedAppRecord
+     * V.10 - Added last_accessed column to ConnectLinkedAppRecord
      */
-    private static final int CONNECT_DB_VERSION = 8;
+    private static final int CONNECT_DB_VERSION = 10;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 

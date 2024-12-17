@@ -22,7 +22,7 @@
             android:paddingLeft="@dimen/content_min_margin"
             android:paddingTop="@dimen/content_min_margin"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/commcare_logo"
+            app:srcCompat="@drawable/commcare_by_dimagi"
             android:layout_marginEnd="@dimen/content_min_margin"
             android:paddingStart="@dimen/content_min_margin" />
 

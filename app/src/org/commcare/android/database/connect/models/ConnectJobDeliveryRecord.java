@@ -1,18 +1,19 @@
 package org.commcare.android.database.connect.models;
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Locale;
-
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.utils.CrashUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Data class for holding info related to a Connect job delivery
@@ -83,7 +84,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
             deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
             delivery.deliveryId = deliveryId;
             dateString = json.getString(META_DATE);
-            delivery.date = ConnectNetworkHelper.convertUTCToDate(dateString);
+            delivery.date = DateUtils.parseDateTime(dateString);
             delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
             delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
             delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
@@ -102,7 +103,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public int getDeliveryId() { return deliveryId; }
-    public Date getDate() { return ConnectNetworkHelper.convertDateToLocal(date); }
+    public Date getDate() { return date; }
     public String getStatus() { return status; }
     public String getEntityName() { return entityName; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
