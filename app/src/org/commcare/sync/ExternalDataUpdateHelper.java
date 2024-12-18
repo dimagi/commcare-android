@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.CommCareApplication;
+import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
 
@@ -32,12 +33,12 @@ public class ExternalDataUpdateHelper {
         if (CommCareApplication.instance().getSession().isActive()) {
             i.putExtra("cc-logged-in-user-id", CommCareApplication.instance().getCurrentUserId());
         }
-        c.sendBroadcast(i, COMMCARE_CASE_READ_PERMISSION);
+        sendBroadcastFailSafe(c, i, COMMCARE_CASE_READ_PERMISSION);
 
         // send explicit broadcast to CommCare Reminders App
         i.setComponent(new ComponentName("org.commcare.dalvik.reminders",
                 "org.commcare.dalvik.reminders.CommCareReceiver"));
-        c.sendBroadcast(i);
+        sendBroadcastFailSafe(c, i, null);
 
         // Broadcast to CommCare, there is the option to handle the permission required by the
         // broadcast above
@@ -48,6 +49,14 @@ public class ExternalDataUpdateHelper {
     private static void broadcastDataUpdateToCommCare(Context c){
         Intent i = new Intent(COMMCARE_DATA_UPDATE_ACTION);
         i.setPackage(c.getPackageName());
-        c.sendBroadcast(i);
+        sendBroadcastFailSafe(c, i, null);
+    }
+
+    public static void sendBroadcastFailSafe(Context context, Intent intent, @Nullable String receiverPermission) {
+        try {
+            context.sendBroadcast(intent, receiverPermission);
+        } catch (Exception e) {
+            Logger.exception("Exception when sending a broadcast with intent " + intent, e);
+        }
     }
 }

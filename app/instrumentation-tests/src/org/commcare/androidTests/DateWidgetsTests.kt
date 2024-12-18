@@ -29,7 +29,6 @@ import kotlin.math.absoluteValue
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@BrowserstackTests
 class DateWidgetsTests : BaseTest() {
     companion object {
         const val CCZ_NAME = "date_widgets_tests.ccz"

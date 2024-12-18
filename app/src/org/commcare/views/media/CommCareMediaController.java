@@ -11,8 +11,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import org.commcare.activities.FullscreenVideoViewActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
@@ -20,6 +18,8 @@ import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
 
 import java.io.File;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Custom MediaController which provides a workaround to the issue where hide and show aren't

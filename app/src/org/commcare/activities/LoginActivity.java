@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,23 +17,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
-
 import com.scottyab.rootbeer.RootBeer;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -67,6 +59,15 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Date;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
 /**
  * @author ctsims
  */
@@ -96,8 +97,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public static final String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
-    public static final String CONNECTID_MANAGED_LOGIN = "cid-managed-login";
-    public static final String GO_TO_CONNECT_JOB_STATUS = "go-to-connect-job-status";
+    public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
+    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -127,11 +128,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.setupUI();
+
+        ColorDrawable colorDrawable
+                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+        getSupportActionBar().setBackgroundDrawable(colorDrawable);
+
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectManager.init(this);
         uiController.updateConnectLoginState();
-
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
@@ -206,7 +211,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if(isConnectJobsSelected()) {
             ConnectManager.unlockConnect(this, success -> {
                 if(success) {
-                    ConnectManager.goToConnectJobsList();
+                    ConnectManager.goToConnectJobsList(this);
                 }
             });
         } else {
@@ -389,7 +394,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private String getUniformUsername() {
         String username = uiController.getEnteredUsername();
-        if (ConnectManager.isUnlocked() && appLaunchedFromConnect) {
+        if (ConnectManager.isConnectIdConfigured() && appLaunchedFromConnect) {
             username = ConnectManager.getUser(this).getUserId();
         }
         return username.toLowerCase().trim();
@@ -460,11 +465,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void setResultAndFinish(boolean goToJobInfo) {
+        if(goToJobInfo) {
+            ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_OPP_STATUS);
+        }
+
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
-        i.putExtra(GO_TO_CONNECT_JOB_STATUS, goToJobInfo);
         i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || uiController.loginManagedByConnectId());
+        i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
         setResult(RESULT_OK, i);
         finish();
     }
@@ -473,7 +482,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         ConnectManager.unlockConnect(this, success -> {
             if(success) {
-                ConnectManager.goToConnectJobsList();
+                ConnectManager.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
             }
@@ -481,21 +490,26 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     public boolean handleConnectSignIn() {
-        if(ConnectManager.isConnectIdIntroduced()) {
+        if(ConnectManager.isConnectIdConfigured()) {
+            ConnectManager.completeSignin();
+
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(this, appId);
             if(job != null) {
+                ConnectManager.updateAppAccess(this, appId, getUniformUsername());
+
                 //Update job status
                 ConnectManager.updateJobProgress(this, job, success -> {
-                    setResultAndFinish(job.getIsUserSuspended() || job.readyToTransitionToDelivery());
+                    setResultAndFinish(job.getIsUserSuspended());// || job.readyToTransitionToDelivery());
                 });
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login
                 ConnectManager.checkConnectIdLink(this,
                         uiController.loginManagedByConnectId(), appId,
-                        uiController.getEnteredUsername(),
+                        getUniformUsername(),
                         uiController.getEnteredPasswordOrPin(), success -> {
-                    setResultAndFinish(false);
+                            ConnectManager.updateAppAccess(this, appId, getUniformUsername());
+                            setResultAndFinish(false);
                 });
             }
 
@@ -525,7 +539,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void checkForSavedCredentials() {
         boolean loginWithConnectIDVisible = false;
-        if (ConnectManager.isConnectIdIntroduced()) {
+        if (ConnectManager.isConnectIdConfigured()) {
             if (appLaunchedFromConnect && !connectLaunchPerformed) {
                 loginWithConnectIDVisible = true;
                 uiController.setConnectButtonVisible(false);
@@ -713,7 +727,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeConnect = ConnectManager.isConnectIdIntroduced();
+        boolean includeConnect = ConnectManager.isConnectIdConfigured();
         if (includeConnect) {
             appNames.add(Localization.get("login.app.connect"));
             appIdDropdownList.add("");
@@ -737,7 +751,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean isConnectJobsSelected() {
-        return ConnectManager.isConnectIdIntroduced() && uiController.getSelectedAppIndex() == 0;
+        return ConnectManager.isConnectIdConfigured() && uiController.getSelectedAppIndex() == 0;
     }
 
     @Override
