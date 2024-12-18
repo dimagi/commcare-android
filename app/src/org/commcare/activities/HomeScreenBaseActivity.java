@@ -416,6 +416,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (existing != null) {
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
+
+            FormRecord formRecord = state.getFormRecord();
+            //TODO: Temporary for GD, to remove
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Restoring form from expired Session |" +
+                    (formRecord.getInstanceID() == null ? "" : formRecord.getInstanceID() + "|") +
+                    formRecord.getFormNamespace());
             formEntry(CommCareApplication.instance().getCommCarePlatform()
                             .getFormDefId(state.getSession().getForm()), state.getFormRecord(),
                     null, true);
@@ -639,6 +645,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
                         AndroidCommCarePlatform platform =
                                 CommCareApplication.instance().getCommCarePlatform();
+
+                        //TODO: Temporary for GD, to remove
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Loading an incomplete form |" +
+                                (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
+                                r.getFormNamespace());
                         formEntry(platform.getFormDefId(r.getFormNamespace()), r);
                         return;
                     }

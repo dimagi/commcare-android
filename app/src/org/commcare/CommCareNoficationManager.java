@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 
 /**
  * Handles displaying and clearing pinned notifications for CommCare
@@ -112,7 +113,7 @@ public class CommCareNoficationManager {
 
     public ArrayList<NotificationMessage> purgeNotifications() {
         synchronized (pendingMessages) {
-            context.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
+            sendBroadcastFailSafe(context, new Intent(ACTION_PURGE_NOTIFICATIONS), null);
             ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
             clearNotifications(null);
             return cloned;

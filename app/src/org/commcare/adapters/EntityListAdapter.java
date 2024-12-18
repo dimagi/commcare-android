@@ -16,6 +16,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.AndroidSortableEntityAdapter;
+import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
@@ -235,7 +236,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (tile == null) {
             tile = EntityViewTile.createTileForEntitySelectDisplay(commCareActivity, detail, entity,
-                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
+                    currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
         } else {
             tile.setSearchTerms(currentSearchTerms);
             tile.addFieldViews(commCareActivity, detail, entity);
@@ -429,7 +430,10 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            CommCareApplication.instance().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+            SessionWrapper session = CommCareApplication.instance().getCurrentSession();
+            session.removeExtraFromCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
+            session.addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA,
+                    calloutResponseData);
         }
     }
 
