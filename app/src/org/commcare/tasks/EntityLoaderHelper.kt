@@ -7,6 +7,7 @@ import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityStorageCache
 import org.commcare.cases.entity.NodeEntityFactory
+import org.commcare.entity.AndroidAsyncNodeEntityFactory
 import org.commcare.models.database.user.models.CommCareEntityStorageCache
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.suite.model.Detail
@@ -26,7 +27,7 @@ class EntityLoaderHelper(
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
         if (detail.useAsyncStrategy()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
+            factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
         } else {
             factory = NodeEntityFactory(detail, evalCtx)
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
@@ -58,8 +59,12 @@ class EntityLoaderHelper(
     fun cacheEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
         val references = factory.expandReferenceList(nodeset)
         val entities = loadEntitiesWithReferences(references, null)
-        factory.cacheEntities(entities)
+        cacheEntities(entities)
         return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+    }
+
+    fun cacheEntities(entities: MutableList<Entity<TreeReference>>?) {
+        factory.cacheEntities(entities)
     }
 
     /**
