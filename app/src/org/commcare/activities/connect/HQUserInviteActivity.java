@@ -30,6 +30,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
     String username;
     String callBackURL;
     String connectUserName;
+    boolean isProgressVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +101,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                binding.progressBar.setVisibility(View.GONE);
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
@@ -113,6 +115,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
             @Override
             public void processFailure(int responseCode, IOException e) {
+                binding.progressBar.setVisibility(View.GONE);
                 String message = "";
                 if (responseCode > 0) {
                     message = String.format(Locale.getDefault(), "(%d)", responseCode);
@@ -124,15 +127,18 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
             @Override
             public void processNetworkFailure() {
+                binding.progressBar.setVisibility(View.GONE);
                 setErrorMessage(getString(R.string.recovery_network_unavailable));
             }
 
             @Override
             public void processOldApiError() {
+                binding.progressBar.setVisibility(View.GONE);
                 setErrorMessage(getString(R.string.recovery_network_outdated));
             }
         };
         ConnectUserRecord user = ConnectManager.getUser(this);
+        binding.progressBar.setVisibility(View.VISIBLE);
         boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this,user.getUserId(),user.getPassword(), callBackUrl, inviteCode, callback);
         if (isBusy) {
             Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
