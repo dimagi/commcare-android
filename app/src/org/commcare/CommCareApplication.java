@@ -97,6 +97,8 @@ import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
+import org.commcare.tasks.PrimeEntityCache;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
@@ -387,6 +389,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+            PrimeEntityCacheHelper.cancelWork();
         }
     }
 
@@ -796,7 +799,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
                         purgeLogs();
                         cleanRawMedia();
-
+                        PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
                     TimedStatsTracker.registerStartSession();
