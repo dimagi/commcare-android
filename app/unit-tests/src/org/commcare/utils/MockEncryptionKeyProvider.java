@@ -21,9 +21,8 @@ public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
             //Create an RSA keypair that we can use to encrypt and decrypt
             keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         }
-        String transformation = EncryptionKeyProvider.getTransformationString(true);
 
         return new EncryptionKeyAndTransform(trueForEncrypt ? keyPair.getPrivate() : keyPair.getPublic(),
-                transformation);
+                "RSA/ECB/PKCS1Padding");
     }
 }

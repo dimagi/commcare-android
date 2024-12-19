@@ -7,24 +7,19 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectAppDatabseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.utils.FirebaseMessagingUtil;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Date;
 import java.util.HashMap;
 
 public class ApiConnectId {
@@ -46,7 +41,7 @@ public class ApiConnectId {
 
                 //Remember that we linked the user successfully
                 appRecord.setWorkerLinked(true);
-                ConnectDatabaseHelper.storeApp(context, appRecord);
+                ConnectAppDatabseUtil.storeApp(context, appRecord);
             } else {
                 Logger.log("API Error", "API call to link HQ worker failed with code " + postResult.responseCode);
             }
@@ -98,7 +93,7 @@ public class ApiConnectId {
     }
 
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
 
         if (user != null) {
             AuthInfo.TokenAuth connectToken = user.getConnectToken();
@@ -122,7 +117,7 @@ public class ApiConnectId {
                     SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
                     user.updateConnectToken(token);
-                    ConnectDatabaseHelper.storeUser(context, user);
+                    ConnectUserDatabaseUtil.storeUser(context, user);
 
                     return new AuthInfo.TokenAuth(token.token);
                 } catch (IOException | JSONException e) {

@@ -51,6 +51,8 @@ public class EncryptionUtils {
         }
 
         byte[] result = new byte[PASSPHRASE_LENGTH];
+        int maxAttempts = 100; // Safety limit
+        int attempts = 0;
 
         while (true) {
             random.nextBytes(result);
@@ -67,9 +69,13 @@ public class EncryptionUtils {
                 }
             }
 
-            if (!containsZero) {
+            if (!containsZero || ++attempts >= maxAttempts) {
                 break;
             }
+        }
+
+            if (attempts >= maxAttempts) {
+                throw new IllegalStateException("Failed to generate a passphrase without zeros after " + maxAttempts + " attempts");
         }
 
         return result;

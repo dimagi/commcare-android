@@ -71,6 +71,7 @@ public class EncryptionKeyProvider {
     }
 
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
+    @SuppressLint("InlinedApi") //Suppressing since we check the API version elsewhere
     private static EncryptionKeyAndTransform getKey(Context context, KeyStore keystore, boolean trueForEncrypt)
             throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException,
             InvalidAlgorithmParameterException, NoSuchProviderException {
@@ -78,10 +79,10 @@ public class EncryptionKeyProvider {
         if (doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
             if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
-                return new EncryptionKeyAndTransform(entry.getSecretKey(), getTransformationString(false));
+                return new EncryptionKeyAndTransform(entry.getSecretKey(), String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING));
             } else if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
                 Key key = trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
-                return new EncryptionKeyAndTransform(key, getTransformationString(true));
+                return new EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding");
             } else {
                 throw new RuntimeException("Unrecognized key type retrieved from KeyStore");
             }
@@ -108,7 +109,7 @@ public class EncryptionKeyProvider {
                     .build();
 
             keyGenerator.init(keySpec);
-            return new EncryptionKeyAndTransform(keyGenerator.generateKey(), getTransformationString(false));
+            return new EncryptionKeyAndTransform(keyGenerator.generateKey(), String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING));
         } else {
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", KEYSTORE_NAME);
 
@@ -132,19 +133,8 @@ public class EncryptionKeyProvider {
             KeyPair pair = generator.generateKeyPair();
 
             Key key = trueForEncrypt ? pair.getPublic() : pair.getPrivate();
-            return new EncryptionKeyAndTransform(key, getTransformationString(true));
+            return new EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding");
         }
     }
 
-    @SuppressLint("InlinedApi") //Suppressing since we check the API version elsewhere
-    public static String getTransformationString(boolean useRsa) {
-        String transformation;
-        if (useRsa) {
-            transformation = "RSA/ECB/PKCS1Padding";
-        } else {
-            transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
-        }
-
-        return transformation;
-    }
 }
