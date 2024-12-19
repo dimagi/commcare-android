@@ -361,10 +361,14 @@ public class FormUploadUtil {
                 }
             }
         }
-        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Attempted to add "
-                + numAttachmentsInInstanceFolder + " attachments to submission entity");
-        Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Successfully added "
-                + numAttachmentsSuccessfullyAdded + " attachments to submission entity");
+        if (numAttachmentsInInstanceFolder > 0) {
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Attempted to add "
+                    + numAttachmentsInInstanceFolder + " attachments to submission entity");
+        }
+        if (numAttachmentsSuccessfullyAdded > 0) {
+            Logger.log(LogTypes.TYPE_FORM_SUBMISSION, "Successfully added "
+                    + numAttachmentsSuccessfullyAdded + " attachments to submission entity");
+        }
         return true;
     }
 
