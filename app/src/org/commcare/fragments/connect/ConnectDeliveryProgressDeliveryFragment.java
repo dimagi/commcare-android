@@ -1,13 +1,11 @@
 package org.commcare.fragments.connect;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -76,6 +74,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             if (parentFragment != null) {
                 parentFragment.refreshData();
             }
+            setDeliveriesData();
         });
 
         RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
@@ -85,9 +84,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         });
 
         updateView();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            updateView12();
-        }
+        setDeliveriesData();
         return view;
     }
 
@@ -152,85 +149,9 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         }
 
         textView.setText(completedText);
-
-        int totalVisitCount = job.getDeliveries().size();
-        int dailyVisitCount = job.numberOfDeliveriesToday();
-        boolean finished = job.isFinished();
-
-        String warningText = null;
-        if (finished) {
-            warningText = getString(R.string.connect_progress_warning_ended);
-        } else if (job.getProjectStartDate().after(new Date())) {
-            warningText = getString(R.string.connect_progress_warning_not_started);
-        } else if (job.isMultiPayment()) {
-            List<String> warnings = new ArrayList<>();
-            Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
-            Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
-            for (int i = 0; i < job.getPaymentUnits().size(); i++) {
-                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
-                String stringKey = Integer.toString(unit.getUnitId());
-
-                int totalCount = 0;
-                if (totalPaymentCounts.containsKey(stringKey)) {
-                    totalCount = totalPaymentCounts.get(stringKey);
-                }
-
-                if (totalCount >= unit.getMaxTotal()) {
-                    //Reached max total for this type
-                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
-                } else {
-                    int todayCount = 0;
-                    if (todayPaymentCounts.containsKey(stringKey)) {
-                        todayCount = todayPaymentCounts.get(stringKey);
-                    }
-
-                    if (todayCount >= unit.getMaxDaily()) {
-                        //Reached daily max for this type
-                        warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                                unit.getName()));
-                    }
-                }
-            }
-
-            if (warnings.size() > 0) {
-                warningText = String.join("\n", warnings);
-            }
-        } else {
-            if (totalVisitCount >= job.getMaxVisits()) {
-                warningText = getString(R.string.connect_progress_warning_max_reached_single);
-            } else if (dailyVisitCount >= job.getMaxDailyVisits()) {
-                warningText = getString(R.string.connect_progress_warning_daily_max_reached_single);
-            }
-        }
-
-        textView = view.findViewById(R.id.connect_progress_delivery_warning_text);
-        textView.setVisibility(warningText != null ? View.VISIBLE : View.GONE);
-        if (warningText != null) {
-            textView.setText(warningText);
-        }
-
-        textView = view.findViewById(R.id.connect_progress_complete_by_text);
-        String endText = ConnectManager.formatDate(job.getProjectEndDate());
-        String text;
-        if (finished) {
-            //Project ended
-            text = getString(R.string.connect_progress_ended, endText);
-        } else if (job.getProjectStartDate() != null && job.getProjectStartDate().after(new Date())) {
-            //Project hasn't started yet
-            text = getString(R.string.connect_progress_begin_date, ConnectManager.formatDate(job.getProjectStartDate()), endText);
-        } else if (job.getIsUserSuspended()) {
-            text = getString(R.string.user_suspended);
-        } else {
-            text = getString(R.string.connect_progress_complete_by, endText);
-        }
-        textView.setText(text);
-        int color = job.getIsUserSuspended() ? R.color.red : R.color.black;
-        textView.setTextColor(getResources().getColor(color));
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public void updateView12() {
+    public void setDeliveriesData() {
         ConnectDeliveryDetails connectDeliveryDetails = null;
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (job != null) {
@@ -258,7 +179,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                     HashMap<String, Integer> typeCounts = paymentTypeAndStatusCounts.get(deliverySlug);
                     String status = delivery.getStatus();
 
-                    int count = typeCounts.getOrDefault(status, 0);
+                    int count = typeCounts.containsKey(status) ? typeCounts.get(status) : 0;
                     typeCounts.put(status, count + 1);
                 }
 
@@ -269,11 +190,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                     }
 
                     String unitIdKey = Integer.toString(unit.getUnitId());
-                    HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.getOrDefault(unitIdKey, new HashMap<>());
+                    HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.containsKey(unitIdKey) ? paymentTypeAndStatusCounts.get(unitIdKey) : new HashMap<>();
 
                     // Get pending and approved counts
-                    totalPending = statusCounts.getOrDefault("pending", 0);
-                    totalApproved = statusCounts.getOrDefault("approved", 0);
+                    totalPending = statusCounts.containsKey("pending") ? statusCounts.get("pending") : 0;
+                    totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
 
                     // Calculate the total amount for this delivery (numApproved * unit amount)
                     totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
@@ -304,7 +225,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             }
         }
     }
-
 
     private long calculateDaysPending(ConnectJobDeliveryRecord delivery) {
         Date dueDate = delivery.getDate();

@@ -1,9 +1,6 @@
 package org.commcare.fragments.connect;
 
-import android.animation.LayoutTransition;
 import android.os.Bundle;
-import android.transition.AutoTransition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -20,6 +18,7 @@ import org.commcare.dalvik.R;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.Date;
 import java.util.List;
@@ -67,7 +66,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
-        RoundedButton refreshButton = view.findViewById(R.id.connect_learning_refresh);
+        RoundedButton refreshButton = view.findViewById(R.id.btnSync);
         refreshButton.setOnClickListener(v -> {
             refreshData();
         });
@@ -76,6 +75,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         updateUi(view);
         refreshData();
 
+        jobCardDataHandle(view, job);
         return view;
     }
 
@@ -120,12 +120,11 @@ public class ConnectLearningProgressFragment extends Fragment {
         boolean assessmentPassed = job.passedAssessment();
 
         boolean showReviewLearningButton = false;
+        boolean showProceedButton = false;
         String status;
         String buttonText;
         if (learningFinished) {
             if(assessmentAttempted) {
-                showReviewLearningButton = true;
-
                 if(assessmentPassed) {
                     TextView textView = view.findViewById(R.id.connect_learn_cert_score);
                     String text=getString(R.string.your_score, job.getAssessmentScore());
@@ -133,6 +132,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                     status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
 
                     buttonText = getString(R.string.connect_learn_view_details);
+                    showProceedButton = true;
                 }
                 else {
                     status = getString(R.string.connect_learn_failed, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
@@ -192,23 +192,8 @@ public class ConnectLearningProgressFragment extends Fragment {
         TextView textView = view.findViewById(R.id.connect_learn_progress_title);
         textView.setText(getString(titleResource));
 
-        textView = view.findViewById(R.id.connect_learning_claim_label);
-        textView.setVisibility(learningFinished && assessmentPassed ? View.VISIBLE : View.GONE);
-        textView.setText(R.string.connect_learn_claim_label);
-
         textView = view.findViewById(R.id.connect_learning_status_text);
         textView.setText(status);
-
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobIntroFragment(false));
-        });
-
-        tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setVisibility(learningFinished && assessmentPassed ? View.GONE : View.VISIBLE);
 
         boolean finished = job.isFinished();
         textView = view.findViewById(R.id.connect_learning_ended_text);
@@ -244,9 +229,11 @@ public class ConnectLearningProgressFragment extends Fragment {
             textView = view.findViewById(R.id.connect_learn_cert_date);
             textView.setText(getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
         } else {
-            tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
         }
 
+        //NOTE: Currently always hiding this button since we only ever get to learning progress from the learn app home
+        //In other words, they can just backup to the previous page if they want to review learning
+        //Keeping the code for now in case we change this in the near future
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
         reviewButton.setVisibility(showAppLaunch && showReviewLearningButton ? View.VISIBLE : View.GONE);
         reviewButton.setText(R.string.connect_learn_review);
@@ -265,15 +252,17 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
 
         final Button button = view.findViewById(R.id.connect_learning_button);
-        button.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
+        button.setVisibility(showAppLaunch && showProceedButton ? View.VISIBLE : View.GONE);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(true);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+                CommCareApplication.instance().closeUserSession();
                 ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
+                CommCareApplication.instance().closeUserSession();
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
@@ -282,6 +271,32 @@ public class ConnectLearningProgressFragment extends Fragment {
                 Navigation.findNavController(button).navigate(directions);
             }
         });
+    }
+
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setVisibility(View.GONE);
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(workingHours);
+        }
     }
 
 //    private void updateUpdatedDate(Date lastUpdate) {

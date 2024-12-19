@@ -7,6 +7,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -19,15 +25,12 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.connect.RoundedButton;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 /**
  * Fragment for showing delivery details for a Connect job
@@ -71,15 +74,15 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         textView = view.findViewById(R.id.connect_delivery_budget_text);
         String paymentText = "";
-        if(job.isMultiPayment()) {
+        if (job.isMultiPayment()) {
             //List payment units
             paymentText = getString(R.string.connect_delivery_earn_multi);
-            for(int i=0; i<job.getPaymentUnits().size(); i++) {
+            for (int i = 0; i < job.getPaymentUnits().size(); i++) {
                 ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
                 paymentText = String.format("%s\n\u2022 %s: %s", paymentText, unit.getName(),
                         job.getMoneyString(unit.getAmount()));
             }
-        } else if(job.getPaymentUnits().size() > 0) {
+        } else if (job.getPaymentUnits().size() > 0) {
             //Single payment unit
             String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());
             paymentText = getString(R.string.connect_job_info_visit_charge, moneyValue);
@@ -114,7 +117,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         button.setText(buttonTextId);
 //        button.setEnabled(!expired);
         button.setOnClickListener(v -> {
-            if(jobClaimed) {
+            if (jobClaimed) {
                 proceedAfterJobClaimed(button, job, appInstalled);
             } else {
                 //Claim job
@@ -146,7 +149,36 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
             }
         });
 
+//        jobCardDataHandle(view, job);
         return view;
+    }
+
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(workingHours);
+        }
     }
 
     private void reportApiCall(boolean success) {
@@ -156,6 +188,8 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {
         job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
         ConnectDatabaseHelper.upsertJob(getContext(), job);
+
+        CommCareApplication.instance().closeUserSession();
 
         NavDirections directions;
         if (installed) {

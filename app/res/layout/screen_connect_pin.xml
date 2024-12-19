@@ -60,15 +60,6 @@
             android:textSize="@dimen/text_medium"
             android:textColor="@color/red"/>
 
-        <TextView
-            android:id="@+id/connect_pin_verify_forgot"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
-            android:gravity="start"
-            android:textSize="@dimen/text_medium"
-            android:text="@string/connect_pin_verify_forgot"/>
-
         <Button
             android:id="@+id/connect_pin_button"
             android:layout_width="fill_parent"

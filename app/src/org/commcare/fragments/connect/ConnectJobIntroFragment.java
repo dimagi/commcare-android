@@ -8,6 +8,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -17,17 +22,16 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.LinearProgressBar;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 /**
  * Fragment for showing detailed info about an available job
@@ -36,6 +40,7 @@ import androidx.navigation.Navigation;
  */
 public class ConnectJobIntroFragment extends Fragment {
     private boolean showLaunchButton = true;
+
     public ConnectJobIntroFragment() {
         // Required empty public constructor
     }
@@ -61,18 +66,6 @@ public class ConnectJobIntroFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
 
-        TextView textView = view.findViewById(R.id.connect_job_intro_title);
-        TextView payText = view.findViewById(R.id.connect_job_pay_title);
-        TextView endDate = view.findViewById(R.id.connect_job_end_date);
-        textView.setText(job.getTitle());
-        endDate.setText( String.format(Locale.getDefault(), getString(R.string.connect_end_date), ConnectNetworkHelper.convertDateToLocalFormat(job.getProjectEndDate())));
-
-        String visitPayment = job.getMoneyString(job.getTotalBudget());
-        String fullDescription =  job.getDescription();
-
-        textView = view.findViewById(R.id.connect_job_intro_description);
-        payText.setText(job.getCurrency()+" "+job.getBudgetPerVisit());
-        textView.setText(fullDescription);
 
         int totalHours = 0;
         List<String> lines = new ArrayList<>();
@@ -84,7 +77,7 @@ public class ConnectJobIntroFragment extends Fragment {
 
         String toLearn = modules.size() > 0 ? String.join("\r\n\r\n", lines) : getString(R.string.connect_job_no_learning_required);
 
-        textView = view.findViewById(R.id.connect_job_intro_learning);
+        TextView textView = view.findViewById(R.id.connect_job_intro_learning);
         textView.setText(toLearn);
 
         textView = view.findViewById(R.id.connect_job_intro_learning_summary);
@@ -97,7 +90,7 @@ public class ConnectJobIntroFragment extends Fragment {
 
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setVisibility(showLaunchButton ? View.VISIBLE : View.GONE);
-        if(showLaunchButton) {
+        if (showLaunchButton) {
             button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.download_app));
             button.setOnClickListener(v -> {
                 //First, need to tell Connect we're starting learning so it can create a user on HQ
@@ -110,15 +103,13 @@ public class ConnectJobIntroFragment extends Fragment {
                         job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                         ConnectDatabaseHelper.upsertJob(getContext(), job);
 
-                        NavDirections directions;
                         if (appInstalled) {
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
+                            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true);
+                            Navigation.findNavController(button).navigate(ConnectJobIntroFragmentDirections.
+                                    actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true));
                         }
-
-                        Navigation.findNavController(button).navigate(directions);
                     }
 
                     @Override
@@ -143,7 +134,48 @@ public class ConnectJobIntroFragment extends Fragment {
             });
         }
 
+        jobCardDataHandle(view, job);
         return view;
+    }
+
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
+        });
+
+        tvJobTitle.setText(job.getTitle());
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(workingHours);
+        }
+    }
+
+    private <T extends View> T findView(View parent, int id) {
+        return parent.findViewById(id);
+    }
+
+    private void setText(TextView textView, String text) {
+        textView.setText(text);
+    }
+
+    private void setVisibility(View view, int visibility) {
+        view.setVisibility(visibility);
     }
 
     private void reportApiCall(boolean success) {

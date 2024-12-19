@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
@@ -54,7 +55,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
@@ -118,7 +119,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                                 ConnectIdActivity.recoverPhone,
                                 ConnectIdActivity.recoverSecret,
                                 ConnectIdActivity.recoveryAltPhone,
-                                true
+                                false
                         ).setAllowChange(false);
                     }
                 }
@@ -147,6 +148,12 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                     directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
                             ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, null, null,false).setAllowChange(false);
                 }
+                break;
+            case ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD:
+                if (success) {
+                    directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                }
+                break;
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (success) {
                     if (secondButton) {
@@ -191,13 +198,13 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION:
                 if (success) {
                     if (!secondButton) {
-                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(
+                        directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidUserDeactivateOtpVerify(
                                 ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE,
                                 String.format(Locale.getDefault(), "%d", ConnectIdPhoneVerificationFragmnet.MethodUserDeactivate),
-                                null,
+                                ConnectIdActivity.recoverPhone,
                                 userName,
                                 password,
-                                null,false).setAllowChange(false);
+                                null,true).setAllowChange(false);
                     } else {
                         NavHostFragment.findNavController(this).popBackStack();
                     }

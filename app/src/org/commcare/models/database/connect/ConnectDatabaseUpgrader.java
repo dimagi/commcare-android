@@ -12,6 +12,7 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecordV3;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecordV10;
 import org.commcare.android.database.connect.models.ConnectJobRecordV2;
 import org.commcare.android.database.connect.models.ConnectJobRecordV4;
 import org.commcare.android.database.connect.models.ConnectJobRecordV7;
@@ -81,6 +82,11 @@ public class ConnectDatabaseUpgrader {
             upgradeNineTen(db);
             oldVersion = 10;
         }
+
+        if (oldVersion == 10) {
+            upgradeTenEleven(db);
+            oldVersion = 11;
+        }
     }
 
     private void upgradeOneTwo(SQLiteDatabase db) {
@@ -99,8 +105,8 @@ public class ConnectDatabaseUpgrader {
 
         try {
             db.execSQL(DbUtil.addColumnToTable(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.META_CLAIM_DATE,
+                    ConnectJobRecordV2.STORAGE_KEY,
+                    ConnectJobRecordV4.META_CLAIM_DATE,
                     "TEXT"));
 
             db.execSQL(DbUtil.addColumnToTable(
@@ -109,13 +115,13 @@ public class ConnectDatabaseUpgrader {
                     "TEXT"));
             //First, migrate the old ConnectJobRecord in storage to the new version
             SqlStorage<Persistable> oldStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecordV2.STORAGE_KEY,
                     ConnectJobRecordV2.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.class,
+                    ConnectJobRecordV4.STORAGE_KEY,
+                    ConnectJobRecordV4.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
@@ -245,24 +251,24 @@ public class ConnectDatabaseUpgrader {
         try {
             //First, migrate the old ConnectJobRecord in storage to the new version
             db.execSQL(DbUtil.addColumnToTable(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.META_START_DATE,
+                    ConnectJobRecordV4.STORAGE_KEY,
+                    ConnectJobRecordV7.META_START_DATE,
                     "TEXT"));
 
             db.execSQL(DbUtil.addColumnToTable(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.META_IS_ACTIVE,
+                    ConnectJobRecordV7.STORAGE_KEY,
+                    ConnectJobRecordV7.META_IS_ACTIVE,
                     "TEXT"));
 
 
             SqlStorage<Persistable> oldStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecordV4.STORAGE_KEY,
                     ConnectJobRecordV4.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.class,
+                    ConnectJobRecordV7.STORAGE_KEY,
+                    ConnectJobRecordV7.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
@@ -333,24 +339,24 @@ public class ConnectDatabaseUpgrader {
         try {
             //First, migrate the old ConnectJobRecord in storage to the new version
             db.execSQL(DbUtil.addColumnToTable(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.META_USER_SUSPENDED,
+                    ConnectJobRecordV7.STORAGE_KEY,
+                    ConnectJobRecordV10.META_USER_SUSPENDED,
                     "TEXT"));
 
 
             SqlStorage<Persistable> oldStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecordV7.STORAGE_KEY,
                     ConnectJobRecordV7.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectJobRecord.STORAGE_KEY,
-                    ConnectJobRecord.class,
+                    ConnectJobRecordV10.STORAGE_KEY,
+                    ConnectJobRecordV10.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
                 ConnectJobRecordV7 oldRecord = (ConnectJobRecordV7)r;
-                ConnectJobRecord newRecord = ConnectJobRecord.fromV7(oldRecord);
+                ConnectJobRecordV10 newRecord = ConnectJobRecordV10.fromV7(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -421,6 +427,64 @@ public class ConnectDatabaseUpgrader {
             for (Persistable r : oldStorage) {
                 ConnectLinkedAppRecordV9 oldRecord = (ConnectLinkedAppRecordV9)r;
                 ConnectLinkedAppRecord newRecord = ConnectLinkedAppRecord.fromV9(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTenEleven(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.META_DAILY_START_TIME,
+                    "TEXT"));
+
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.META_DAILY_FINISH_TIME,
+                    "TEXT"));
+
+            //First, migrate the old ConnectJobRecord in storage to the new version
+            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
+                    ConnectJobRecordV10.STORAGE_KEY,
+                    ConnectJobRecordV10.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectJobRecordV10 oldRecord = (ConnectJobRecordV10)r;
+                ConnectJobRecord newRecord = ConnectJobRecord.fromV10(oldRecord);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            //Next, migrate the old ConnectJobDeliveryRecord in storage to the new version
+            oldStorage = new SqlStorage<>(
+                    ConnectJobDeliveryRecord.STORAGE_KEY,
+                    ConnectJobDeliveryRecordV2.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            newStorage = new SqlStorage<>(
+                    ConnectJobDeliveryRecord.STORAGE_KEY,
+                    ConnectJobDeliveryRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (Persistable r : oldStorage) {
+                ConnectJobDeliveryRecordV2 oldRecord = (ConnectJobDeliveryRecordV2)r;
+                ConnectJobDeliveryRecord newRecord = ConnectJobDeliveryRecord.fromV2(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);

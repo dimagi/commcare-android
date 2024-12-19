@@ -48,6 +48,9 @@
         <argument
             android:name="isButtonVisible"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
+            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
     </fragment>
 
     <fragment
@@ -55,6 +58,10 @@
         android:name="org.commcare.fragments.connect.ConnectLearningProgressFragment"
         android:label="fragment_connect_learning_progess"
         tools:layout="@layout/fragment_connect_learning_progress">
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
+            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
         <action
             android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_delivery_details_fragment"
             app:destination="@id/connect_job_delivery_details_fragment"
@@ -103,8 +110,8 @@
             android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_delivery_fragment"
             app:destination="@id/connect_delivery_fragment" />
         <action
-            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_job_delivery_details_fragment"
-            app:destination="@id/connect_job_delivery_details_fragment" />
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
+            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
     </fragment>
 
     <fragment
@@ -147,5 +154,13 @@
             android:name="unitId"
             app:argType="string" />
     </fragment>
+    <dialog
+        android:id="@+id/connect_job_detail_bottom_sheet_dialog_fragment"
+        android:name="org.commcare.fragments.connect.ConnectJobDetailBottomSheetDialogFragment"
+        tools:layout="@layout/fragment_connect_job_detail_bottom_sheet_dialog"
+        android:label="ConnectJobDetailBottomSheetDialogFragment">
+
+
+    </dialog>
 
 </navigation>

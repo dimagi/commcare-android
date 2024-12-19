@@ -440,7 +440,7 @@
     <string name="connect_registration_title">ConnectID Signup</string>
     <string name="connect_signup">Signup</string>
     <string name="connect_recover">Recover</string>
-    <string name="connect_registration_have_account">Already have\nConnectID?</string>
+    <string name="connect_registration_have_account">Already have\nan Account?</string>
     <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
@@ -478,20 +478,19 @@
     <string name="connect_password_mismatch">Passwords must match</string>
     <string name="connect_password_weak">Please choose a stronger password</string>
     <string name="connect_password_error">Error changing password</string>
-    <string name="connect_pin_title_set">Choose PIN</string>
-    <string name="connect_pin_title_confirm">Confirm PIN</string>
-    <string name="connect_pin_message_set">Please choose a 6-digit PIN for account recovery</string>
 
-    <string name="connect_pin_message_repeat">Please enter the recovery PIN that you previously entered</string>
-    <string name="connect_pin_message_confirm">Please enter your recovery PIN</string>
-    <string name="connect_pin">Enter PIN</string>
-    <string name="connect_pin_repeat">Confirm PIN</string>
+    <string name="connect_pin_title_set">Recovery Code</string>
+    <string name="connect_pin_title_confirm">Confirm Recovery Code</string>
+    <string name="connect_pin_message_title">ConnectID Recovery Code</string>
+    <string name="connect_pin_message">Enter your 6-digit Recovery Code</string>
+    <string name="connect_pin">Enter Recovery Code</string>
+    <string name="connect_pin_repeat">Confirm Recovery Code</string>
     <string name="connect_pin_length">Code must be %d digits</string>
-    <string name="connect_pin_mismatch">PINs must match</string>
+    <string name="connect_pin_mismatch">Codes must match</string>
+
     <string name="connect_password_verify_title">Enter Your Password</string>
     <string name="connect_password_verify_message">Please enter your recovery password to continue.</string>
     <string name="connect_password_verify">Enter Password</string>
-
     <string name="connect_password_verify_forgot">Don\'t have or forgot your password?</string>
     <string name="connect_password_verify_button">Submit</string>
     <string name="connect_password_fail_title">Wrong Password</string>
@@ -503,10 +502,12 @@
     <string name="connect_pin_recovery_message">You entered the wrong Code too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
 
     <string name="connect_pin_confirm_message">You entered the wrong Code too many times, you will have to configure the code again.\n On the next screen, we\'ll redirect you to the configure code page.</string>
-    <string name="connect_pin_verify_forgot">Don\'t have or forgot your Code?</string>
     <string name="connect_pin_fail_button">OK</string>
+    <string name="connect_pin_verify_forgot">Forgot Code</string>
     <string name="connect_recovery_title">ConnectID Recovery</string>
     <string name="connect_recovery_title2">Identify Existing Account</string>
+
+
 
     <string name="connect_recovery_decision_new">Choose a step below</string>
     <string name="connect_recovery_button_new">Create New ConnectID Account</string>
@@ -580,10 +581,13 @@
     <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
     <string name="connect_verify_phone_label_secondary">We attempted to send you a SMS on your secondary phone number.</string>
     <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
+    <string name="connect_verify_phone_label_deactivate">In order to deactivate your account, please enter the code sent by SMS to your primary phone number.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
+    <string name="connect_verify_phone_error">Error verifying SMS code</string>
+    <string name="connect_verify_phone_resend_code">Resend Code</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
-    <string name="connect_verify_phone_change">Change phone number</string>
+    <string name="connect_verify_phone_change">Change</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>
 
@@ -592,6 +596,7 @@
     <string name="connect_jobs_all">ALL JOBS</string>
     <string name="connect_jobs_mine">MY JOBS</string>
     <string name="connect_job_new">NEW</string>
+    <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
     <string name="connect_job_visits">Cover %d Households in %d Days</string>
 
     <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
@@ -616,10 +621,10 @@
     <string name="connect_job_claimed">Jobs In Delivery</string>
     <string name="connect_job_ended">Ended Jobs</string>
     <string name="connect_job_completed">Ended %s</string>
+    <string name="connect_job_learn_details">Learn Details</string>
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_start_training">Start Training for this Job</string>
     <string name="connect_job_no_learning_required">No learning required</string>
-    <string name="connect_job_full_description">%s</string>
     <string name="connect_end_date">Complete Project by %s</string>
     <string name="connect_job_go_to_learn_app">Go to Learn App</string>
 
@@ -687,9 +692,10 @@
     <string name="connect_progress_warning_learn">Learn why</string>
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
@@ -700,14 +706,15 @@
     <string name="connect_results_summary_view_deliveries">View Deliveries</string>
     <string name="connect_results_summary_payments_title">Payments</string>
     <string name="connect_results_summary_view_payments">View Payments</string>
+    <string name="connect_results_summary_all">All</string>
     <string name="connect_results_summary_pending">Pending</string>
     <string name="connect_results_summary_rejected">Rejected</string>
     <string name="connect_results_summary_approved">Approved</string>
     <string name="connect_results_summary_earned">Earned</string>
+    <string name="connect_results_summary_remaining">Remaining</string>
+    <string name="connect_results_summary_remaining_days">%d in %d days</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
-    <string name="connect_results_payment_date">%s</string>
-    <string name="connect_results_payment_description">%s</string>
 
     <string name="connect_results_payment_confirm">Confirm</string>
     <string name="connect_results_payment_confirm_undo">Undo confirm</string>
@@ -746,7 +753,7 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
-    <string name="enter_otp">Enter SMS Code</string>
+    <string name="enter_otp">Enter OTP</string>
     <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
     <string name="confirm_code">Confirm Code</string>
@@ -833,6 +840,9 @@
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
+    <string name="connect_job_info_per_visit">per visit</string>
+    <string name="connect_job_info_delivery_hours">Delivery Hours</string>
+    <string name="connect_job_info_view_more">View More</string>
     <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_download">Download</string>
@@ -842,6 +852,7 @@
     <string name="connect_payment">Payment</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
+    <string name="connect_visit_type_title">%s Visits</string>
 
     <string name="connect_payment_received">Received</string>
     <string name="connect_payment_transferred">Transferred</string>
@@ -852,8 +863,8 @@
     <string name="connect_payment_revert">Revert</string>
 
     <string name="connect_deactivate_account">Deactivate Account</string>
-    <string name="connect_deactivate_account_message">You are about to permanently deactivate this account…</string>
-    <string name="connect_deactivate_account_delete">Delete Account</string>
+    <string name="connect_deactivate_account_message">Are you sure you want to permanently deactivate this account? Once finished, you will need to register a new account for this phone number.</string>
+    <string name="connect_deactivate_account_delete">Deactivate Account</string>
     <string name="connect_deactivate_account_go_back">Go Back</string>
     <string name="connect_deactivate_account_deactivated">Account deactivated, you may now register a new account with your primary phone number</string>
     <string name="connect_deactivate_account_creation">Ok</string>
@@ -872,4 +883,9 @@
     <string name="connect_hq_invitation_go_to_recovery">Go To Recovery</string>
     <string name="connect_hq_invitation_connectId_not_configure">You have not configured your ConnectID. To accept this invitation, please configure your ConnectID first. Once configured, you\'ll be able to accept the invitation.</string>
     <string name="connect_hq_invitation_wrong_user">Oops! It seems like the invitation was sent to the wrong person.</string>
+    <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
+    <string name="connect_job_tile_daily_limit">Over Limit</string>
+    <string name="connect_job_tile_daily_visits">Daily Visits</string>
+    <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_appbar_title_password_verification">Password Verification</string>
 </resources>

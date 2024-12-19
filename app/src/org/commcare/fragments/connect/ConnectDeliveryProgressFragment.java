@@ -8,20 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.tabs.TabLayout;
-
-import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-
-import java.util.Date;
-
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -29,6 +17,24 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.ConnectManager;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
+import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * Fragment for showing delivery progress for a Connect job
@@ -69,7 +75,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectJobRecord job = ConnectManager.getActiveJob();
 //        getActivity().setTitle(job.getTitle());
         getActivity().setTitle(R.string.connect_progress_delivery);
- 
+
 
         if (getArguments() != null) {
             showLearningLaunch = getArguments().getBoolean("showLaunch", true);
@@ -159,20 +165,39 @@ public class ConnectDeliveryProgressFragment extends Fragment {
             }
         });
 
+        updateConnectWarningMessage(view);
         updatePaymentConfirmationTile(getContext(), false);
 
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tvViewMore);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tvJobTitle);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tvJobDiscrepation);
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDeliveryDetailsFragment(false));
+        jobCardDataHandle(view,job);
+        return view;
+    }
 
+    private void jobCardDataHandle(View view, ConnectJobRecord job) {
+        View viewJobCard = view.findViewById(R.id.viewJobCard);
+        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
+        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+
+        viewMore.setOnClickListener(view1 -> {
+            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
         tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
-        return view;
+        tvJobDiscrepation.setText(job.getDescription());
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
+        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean showHours = workingHours != null;
+        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        if(showHours) {
+            tv_job_time.setText(workingHours);
+        }
     }
 
     @Override
@@ -184,12 +209,77 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         }
     }
 
+    public void updateConnectWarningMessage(View cardView) {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+
+        int totalVisitCount = job.getDeliveries().size();
+        int dailyVisitCount = job.numberOfDeliveriesToday();
+        boolean finished = job.isFinished();
+        String warningText = null;
+        if (finished) {
+            warningText = getString(R.string.connect_progress_warning_ended);
+        } else if (job.getProjectStartDate().after(new Date())) {
+            warningText = getString(R.string.connect_progress_warning_not_started);
+        } else if (job.getIsUserSuspended()) {
+            warningText = getString(R.string.user_suspended);
+        } else if (job.isMultiPayment()) {
+            List<String> warnings = new ArrayList<>();
+            Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+            Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+            for (int i = 0; i < job.getPaymentUnits().size(); i++) {
+                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+                String stringKey = Integer.toString(unit.getUnitId());
+
+                int totalCount = 0;
+                if (totalPaymentCounts.containsKey(stringKey)) {
+                    totalCount = totalPaymentCounts.get(stringKey);
+                }
+
+                if (totalCount >= unit.getMaxTotal()) {
+                    //Reached max total for this type
+                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
+                } else {
+                    int todayCount = 0;
+                    if (todayPaymentCounts.containsKey(stringKey)) {
+                        todayCount = todayPaymentCounts.get(stringKey);
+                    }
+
+                    if (todayCount >= unit.getMaxDaily()) {
+                        //Reached daily max for this type
+                        warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi,
+                                unit.getName()));
+                    }
+                }
+            }
+
+            if (warnings.size() > 0) {
+                warningText = String.join("\n", warnings);
+            }
+        } else {
+            if (totalVisitCount >= job.getMaxVisits()) {
+                warningText = getString(R.string.connect_progress_warning_max_reached_single);
+            } else if (dailyVisitCount >= job.getMaxDailyVisits()) {
+                warningText = getString(R.string.connect_progress_warning_daily_max_reached_single);
+            }
+        }
+
+        CardView connectMessageCard = cardView.findViewById(R.id.cvConnectMessage);
+        if(connectMessageCard != null) {
+            connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+            if (warningText != null) {
+                TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
+                tv.setText(warningText);
+            }
+        }
+    }
+
     public void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 try {
                     updateUpdatedDate(new Date());
+                    updateConnectWarningMessage(getView());
                     updatePaymentConfirmationTile(getContext(), false);
                     viewStateAdapter.refresh();
                 } catch (Exception e) {

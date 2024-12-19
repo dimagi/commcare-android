@@ -106,6 +106,9 @@
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_phoneNo"
             app:destination="@id/connectid_phoneNo" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_user_deactivate_otp_verify"
+            app:destination="@id/connectid_user_deactivate_otp_verify" />
     </fragment>
 
     <dialog
@@ -122,8 +125,16 @@
             app:destination="@id/connectid_pin"
             app:popUpTo="@id/connectid_message" />
         <action
+            android:id="@+id/action_connectid_message_to_connectid_password"
+            app:destination="@id/connectid_password"
+            app:popUpTo="@id/connectid_message" />
+        <action
             android:id="@+id/action_connectid_message_to_connectid_phone_verify"
             app:destination="@id/connectid_phone_verify"
+            app:popUpTo="@id/connectid_message" />
+        <action
+            android:id="@+id/action_connectid_message_to_connectid_user_deactivate_otp_verify"
+            app:destination="@id/connectid_user_deactivate_otp_verify"
             app:popUpTo="@id/connectid_message" />
         <action
             android:id="@+id/action_connectid_message_self"
@@ -337,5 +348,46 @@
             android:name="callingClass"
             app:argType="integer"
             app:nullable="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_user_deactivate_otp_verify"
+        android:name="org.commcare.fragments.connectId.ConnectIdUserDeactivateOTPVerificationFragment"
+        android:label="fragment_connectid_user_deactivate_otp_verify"
+        tools:layout="@layout/screen_connect_user_deactivate_otp_verify">
+        <action
+            android:id="@+id/action_connectid_user_deactivate_otp_verify_to_connectid_message"
+            app:destination="@id/connectid_message" />
+        <argument
+            android:name="callingClass"
+            app:argType="integer"
+            app:nullable="false" />
+        <argument
+            android:name="method"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="primaryPhone"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="allowChange"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="username"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="password"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="secondaryPhone"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="deactivateButton"
+            app:argType="boolean" />
     </fragment>
 </navigation>

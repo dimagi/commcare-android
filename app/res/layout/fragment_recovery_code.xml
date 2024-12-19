@@ -8,12 +8,28 @@
         android:background="@color/white"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:id="@+id/llTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <include
+                android:id="@+id/commonAppBar"
+                layout="@layout/connectid_common_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
         <ImageView
             android:id="@+id/company_logo"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="40dp"
+            android:layout_below="@+id/llTopBar"
             android:layout_centerHorizontal="true"
+            android:contentDescription="@null"
             android:src="@drawable/ic_dimagi_logo" />
 
         <View
@@ -152,32 +168,18 @@
             android:textColor="@color/red"
             android:textSize="16sp" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/connect_pin_verify_forgot"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/connect_pin_error_message"
-            android:layout_marginStart="@dimen/content_min_margin"
-            android:layout_marginTop="@dimen/content_min_margin"
-            android:layout_marginEnd="@dimen/content_min_margin"
-            android:layout_marginBottom="@dimen/content_min_margin"
-            android:gravity="start"
-            android:text="@string/connect_pin_verify_forgot"
-            android:textSize="16sp" />
-
         <org.commcare.views.connect.RoundedButton
-            android:id="@+id/back_button"
+            android:id="@+id/forgot_button"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_below="@id/connect_pin_verify_forgot"
+            android:layout_below="@id/connect_pin_error_message"
             android:layout_alignParentLeft="true"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="start|center"
-            android:text="Learn More"
-            android:visibility="gone"
+            android:text="@string/connect_pin_verify_forgot"
             app:roundButtonBorderColor="@color/border_grey"
             app:roundButtonBorderVisible="true"
             app:roundButtonTextColor="@color/connect_blue_color" />
@@ -186,7 +188,7 @@
             android:id="@+id/connect_pin_button"
             android:layout_width="wrap_content"
             android:layout_height="45dp"
-            android:layout_below="@id/connect_pin_verify_forgot"
+            android:layout_below="@id/connect_pin_error_message"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="16dp"
             app:roundButtonTextSize="6.5sp"
@@ -194,7 +196,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="start|center"
-            android:text="Continue"
+            android:text="@string/review"
             app:roundButtonBackgroundColor="@color/connect_blue_color"
             app:roundButtonBorderRadius="@dimen/dp48"
             app:roundButtonIcon="@drawable/connect_right_arrow"

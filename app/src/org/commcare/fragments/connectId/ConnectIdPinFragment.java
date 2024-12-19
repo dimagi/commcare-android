@@ -28,8 +28,10 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,6 +61,7 @@ public class ConnectIdPinFragment extends Fragment {
     private int callingClass;
 
     private FragmentRecoveryCodeBinding binding;
+    int titleId;
 
     TextWatcher watcher = new TextWatcher() {
         @Override
@@ -107,7 +110,7 @@ public class ConnectIdPinFragment extends Fragment {
         View view = binding.getRoot();
         checkPin();
         binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
-        binding.connectPinVerifyForgot.setOnClickListener(v -> handleForgotPress());
+        binding.forgotButton.setOnClickListener(v -> handleForgotPress());
         binding.connectPinInput.addTextChangedListener(watcher);
         binding.connectPinInput.addTextChangedListener(watcher);
         clearPinFields();
@@ -118,23 +121,22 @@ public class ConnectIdPinFragment extends Fragment {
             isRecovery = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getRecover();
             isChanging = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getChange();
         }
-        int titleId = isChanging ? R.string.connect_pin_title_set :
+        titleId = isChanging ? R.string.connect_pin_title_set :
                 R.string.connect_pin_title_confirm;
-        requireActivity().setTitle(getString(titleId));
         setPinLength(pinLength);
         if (callingClass == ConnectConstants.CONNECT_UNLOCK_PIN ||
                 callingClass == ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN ||
                 callingClass == ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN
         ) {
             binding.confirmCodeLayout.setVisibility(View.GONE);
-            binding.recoveryCodeTilte.setText("Enter the recovery code");
-            binding.phoneTitle.setText("Enter the 6 digit recovery code entered at the time of registration");
+            binding.recoveryCodeTilte.setText(R.string.connect_pin_message_title);
+            binding.phoneTitle.setText(R.string.connect_pin_message);
 
         } else {
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
         }
 
-        binding.connectPinVerifyForgot.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
+        binding.forgotButton.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
         TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -154,9 +156,16 @@ public class ConnectIdPinFragment extends Fragment {
 
         binding.connectPinInput.addTextChangedListener(watcher);
         binding.connectPinRepeatInput.addTextChangedListener(watcher);
-
-
+        handleAppBar(view);
         return view;
+    }
+
+    private void handleAppBar(View view) {
+        View appBarView = view.findViewById(R.id.commonAppBar);
+        ConnectIdAppBarUtils.setTitle(appBarView, getString(titleId));
+        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+            Navigation.findNavController(appBarView).popBackStack();
+        });
     }
 
     public void setPinLength(int length) {
@@ -271,14 +280,14 @@ public class ConnectIdPinFragment extends Fragment {
                                     key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
                                     user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
                                     if (!user.getSecondaryPhoneVerified()) {
-                                        user.setSecondaryPhoneVerifyByDate(ConnectNetworkHelper.parseDate(json.getString(key)));
+                                        user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
                                     }
 
                                     resetPassword(context, phone, secret, user);
                                 } else {
                                     //TODO: Show toast about error
                                 }
-                            } catch (IOException | JSONException | ParseException e) {
+                            } catch (IOException | JSONException e) {
                                 Logger.exception("Parsing return from OTP request", e);
                                 //TODO: Show toast about error
                             }
@@ -382,7 +391,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null, false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
@@ -397,7 +406,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(),false).setAllowChange(true);
+                            ConnectManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(), false).setAllowChange(true);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN -> {
@@ -447,7 +456,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone, false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {
