@@ -1,15 +1,20 @@
 package org.commcare.tasks
 
 import android.util.Pair
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import io.reactivex.functions.Cancellable
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
 import org.commcare.entity.PrimeEntityCacheListener
 import org.commcare.suite.model.Detail
 import org.commcare.suite.model.EntityDatum
+import org.commcare.sync.FormSubmissionHelper
 import org.commcare.utils.AndroidCommCarePlatform
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
+import org.javarosa.core.services.Logger
 
 /**
  * Helper to prime cache for all entity screens in the app
@@ -28,10 +33,33 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         @Volatile
         private var instance: PrimeEntityCacheHelper? = null
 
+        const val PRIME_ENTITY_CACHE_REQUEST = "prime-entity-cache-request"
+
+        @JvmStatic
         fun getInstance() =
             instance ?: synchronized(this) {
                 instance ?: PrimeEntityCacheHelper().also { instance = it }
             }
+
+        /**
+         * Schedules a background worker request to prime cache for all
+         * cache backed entity list screens in the current seated app
+         */
+        @JvmStatic
+        fun schedulePrimeEntityCacheWorker() {
+            val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java).build()
+            WorkManager.getInstance(CommCareApplication.instance())
+                .enqueueUniqueWork(
+                    PRIME_ENTITY_CACHE_REQUEST,
+                    ExistingWorkPolicy.KEEP,
+                    primeEntityCacheRequest
+                )
+        }
+
+        @JvmStatic
+        fun cancelWork() {
+            WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(PRIME_ENTITY_CACHE_REQUEST)
+        }
     }
 
     /**
@@ -59,6 +87,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
 
     /**
      * Cancel any current cache prime process to expedite cache calculations for given [detail]
+     * Reschedules the work again in background afterwards
      */
     fun expediteDetailWithId(detail: Detail, entities: MutableList<Entity<TreeReference>>) {
         cancel()
@@ -89,7 +118,6 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
 
     private fun primeCacheForDetail(detail: Detail, sessionDatum: EntityDatum? = null, entities: MutableList<Entity<TreeReference>>? = null) {
         if (!detail.shouldCache()) return
-
         currentDetailInProgress = detail.id
         entityLoaderHelper = EntityLoaderHelper(detail, evalCtx())
 

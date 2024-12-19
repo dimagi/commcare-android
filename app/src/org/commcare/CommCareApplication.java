@@ -98,6 +98,7 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PrimeEntityCache;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
@@ -160,7 +161,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
     private static final String DELETE_LOGS_REQUEST = "delete-logs-request";
     private static final String CLEAN_RAW_MEDIA_REQUEST = "clean-raw-media-request";
-    private static final String PRIME_ENTITY_CACHE_REQUEST = "prime-entity-cache-request";
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
@@ -389,6 +389,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+            PrimeEntityCacheHelper.cancelWork();
         }
     }
 
@@ -798,7 +799,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
                         purgeLogs();
                         cleanRawMedia();
-                        primeEntityCache();
+                        PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -827,12 +828,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
         bindService(new Intent(this, CommCareSessionService.class), mConnection, Context.BIND_AUTO_CREATE);
         sessionServiceIsBinding = true;
-    }
-
-    public void primeEntityCache() {
-        OneTimeWorkRequest primeEntityCacheRequest = new OneTimeWorkRequest.Builder(PrimeEntityCache.class).build();
-        WorkManager.getInstance(CommCareApplication.instance())
-                .enqueueUniqueWork(PRIME_ENTITY_CACHE_REQUEST, ExistingWorkPolicy.KEEP, primeEntityCacheRequest);
     }
 
     private void cleanRawMedia() {
