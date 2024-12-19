@@ -92,6 +92,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     fun expediteDetailWithId(detail: Detail, entities: MutableList<Entity<TreeReference>>) {
         cancel()
         primeEntityCacheForDetail(detail, entities)
+        schedulePrimeEntityCacheWorker()
     }
 
     fun isDetailInProgress(detailId: String): Boolean {
