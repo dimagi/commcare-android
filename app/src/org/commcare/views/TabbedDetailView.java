@@ -98,6 +98,9 @@ public class TabbedDetailView extends RelativeLayout {
     }
 
     public int getTabCount() {
-        return Objects.requireNonNull(mViewPager.getAdapter()).getItemCount();
+        if (mViewPager.getAdapter() == null) {
+            return 0;
+        }
+        return mViewPager.getAdapter().getItemCount();
     }
 }
