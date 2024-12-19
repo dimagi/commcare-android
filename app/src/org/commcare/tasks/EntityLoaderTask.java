@@ -18,7 +18,8 @@ import java.util.List;
  * @author ctsims
  */
 public class EntityLoaderTask
-        extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> {
+        extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> implements
+        EntityLoadingProgressListener {
 
     private final static Object lock = new Object();
     private static EntityLoaderTask pendingTask = null;
@@ -34,7 +35,7 @@ public class EntityLoaderTask
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
         try {
-            return entityLoaderHelper.loadEntities(nodeset[0]);
+            return entityLoaderHelper.loadEntities(nodeset[0], this);
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
             Logger.exception("Error during EntityLoaderTask: " + ForceCloseLogger.getStackTrace(xe), xe);
@@ -111,5 +112,15 @@ public class EntityLoaderTask
     protected void onCancelled() {
         super.onCancelled();
         entityLoaderHelper.cancel();
+    }
+
+    @Override
+    public void publishEntityLoadingProgress(int progress, int total) {
+        publishProgress(progress, total);
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+        listener.deliverProgress(values);
     }
 }

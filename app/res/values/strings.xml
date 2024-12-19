@@ -456,4 +456,7 @@
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
+    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
+    <string name="entity_list_processing" cc:translatable="true">Processing %1s out of %2s</string>
+    <string name="entity_list_finalizing" cc:translatable="true">Finalizing list…</string>
 </resources>

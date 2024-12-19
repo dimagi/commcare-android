@@ -13,4 +13,6 @@ public interface EntityLoaderListener {
                            NodeEntityFactory factory, int focusTargetIndex);
 
     void deliverLoadError(Exception e);
+
+    void deliverProgress(Integer... values);
 }

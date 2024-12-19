@@ -103,4 +103,9 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     public void deliverLoadError(Exception e) {
         ((CommCareActivity)getActivity()).displayCaseListLoadException(e);
     }
+
+    @Override
+    public void deliverProgress(Integer[] values) {
+        // nothing to do
+    }
 }
