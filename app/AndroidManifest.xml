@@ -346,7 +346,7 @@
 
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
 
@@ -399,7 +399,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="false"
+            android:exported="true"
             android:name="org.commcare.android.nfc.NfcWriteActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
@@ -408,7 +408,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="false"
+            android:exported="true"
             android:name="org.commcare.android.nfc.NfcReadActivity">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
@@ -438,7 +438,7 @@
 
         <receiver
             android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
 
@@ -503,7 +503,7 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
