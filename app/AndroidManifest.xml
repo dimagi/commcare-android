@@ -503,8 +503,7 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Dialog.NoTitle">
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
 
