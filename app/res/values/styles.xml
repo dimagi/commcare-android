@@ -208,8 +208,8 @@
     </style>
 
     <style name="DetailDrawerPulldown">
-        <item name="even_row_color">@color/cc_brand_bg</item>
-        <item name="odd_row_color">@color/drawer_pulldown_odd_row_color</item>
+        <item name="even_row_color">@color/transparent</item>
+        <item name="odd_row_color">@color/cc_neutral_bg</item>
     </style>
 
     <style name="ScreenPinnedButtonBase">
@@ -341,6 +341,10 @@
         <item name="strokeColor">@color/cc_brand_color</item>
         <item name="strokeWidth">2dp</item>
         <item name="textColor">@color/cc_brand_color</item>
+    </style>
+
+    <style name="DetailViewTabStyle">
+        <item name="android:textColor">@color/cc_brand_text</item>
     </style>
 
 </resources>
