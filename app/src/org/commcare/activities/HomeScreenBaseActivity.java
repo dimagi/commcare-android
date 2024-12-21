@@ -32,7 +32,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -40,6 +39,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
+import org.commcare.connect.ConnectManager;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -576,6 +576,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         finish();
     }
 
+    protected void userPressedOpportunityStatus() {
+        ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_OPP_STATUS);
+        setResult(RESULT_OK);
+        finish();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -585,9 +591,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
-        if(ConnectManager.isConnectTask(requestCode)) {
-            ConnectManager.handleFinishedActivity(this, requestCode, resultCode, intent);
-        } else if (resultCode == RESULT_RESTART) {
+        if (resultCode == RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
 

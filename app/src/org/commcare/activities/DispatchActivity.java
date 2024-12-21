@@ -65,8 +65,7 @@ public class DispatchActivity extends AppCompatActivity {
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
     private boolean connectIdManagedLogin;
-    private boolean shouldGoToConnectJobStatus;
-
+    private boolean connectManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
@@ -196,12 +195,18 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                } else if(shouldGoToConnectJobStatus) {
-                    CommCareApplication.instance().closeUserSession();
-                    ConnectManager.goToActiveInfoForJob(this, true);
-                    shouldGoToConnectJobStatus = false;
                 } else {
-                    launchHomeScreen();
+                    int connectAction = ConnectManager.getPendingAction();
+                    switch(connectAction) {
+                        case ConnectManager.PENDING_ACTION_CONNECT_HOME -> {
+                            CommCareApplication.instance().closeUserSession();
+                            ConnectManager.goToConnectJobsList(this);
+                        }
+                        case ConnectManager.PENDING_ACTION_OPP_STATUS -> {
+                            ConnectManager.goToActiveInfoForJob(this, true);
+                        }
+                        default -> launchHomeScreen();
+                    }
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
@@ -465,14 +470,17 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    shouldGoToConnectJobStatus = intent.getBooleanExtra(LoginActivity.GO_TO_CONNECT_JOB_STATUS, false);
                     connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false);
+                    connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    shouldFinish = true;
+                    shouldFinish = !connectManagedLogin;
+                    if(connectManagedLogin) {
+                        ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_CONNECT_HOME);
+                    }
                     return;
                 } else {
                     userTriggeredLogout = true;

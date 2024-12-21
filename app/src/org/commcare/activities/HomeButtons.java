@@ -69,7 +69,7 @@ public class HomeButtons {
                         null,
                         getIncompleteButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
-                        R.drawable.home_saved, R.color.orange_500,
+                        R.drawable.baseline_save_24, R.color.orange_500,
                         getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
@@ -217,7 +217,7 @@ public class HomeButtons {
     private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
         return v -> {
             reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
-            ConnectManager.goToActiveInfoForJob(activity, false);
+            activity.userPressedOpportunityStatus();
         };
     }
 

@@ -67,8 +67,8 @@ class UpdateWorker(appContext: Context, workerParams: WorkerParameters)
 
         updateHelper.startPinnedNotification(CommCareApplication.instance())
         val updateResult: ResultAndError<AppInstallStatus> = updateHelper.update(
-            ResourceInstallUtils.getDefaultProfileRef(),
-            ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
+                ResourceInstallUtils.getDefaultProfileRef(),
+                ResourceInstallContext(InstallRequestSource.BACKGROUND_UPDATE))
         return handleUpdateResult(updateResult)
     }
 

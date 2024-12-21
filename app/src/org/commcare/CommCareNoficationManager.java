@@ -12,9 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-
 import org.commcare.activities.MessageActivity;
 import org.commcare.dalvik.R;
 import org.commcare.utils.PopupHandler;
@@ -25,8 +22,10 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Vector;
 
-import static android.content.Context.NOTIFICATION_SERVICE;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 
 /**

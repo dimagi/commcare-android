@@ -180,7 +180,6 @@ License.
     <string name="connect_jobs_all">Tous les emplois</string>
     <string name="connect_jobs_mine">Mes emplois</string>
     <string name="connect_job_visits">Couvrez %d ménages en %d jours</string>
-    <string name="connect_job_full_description">%s\nGagnez jusqu\'à %s</string>
     <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
     <string name="connect_job_start_training">Commencez la formation pour ce travail</string>
     <string name="connect_job_learn_summary">%d modules, %d heures</string>
@@ -196,19 +195,15 @@ License.
 
     <string name="connect_learn_start">Commencez à apprendre</string>
     <string name="connect_progress_delivery">Livraison</string>
-    <string name="connect_progress_title">Votre progression de livraison</string>
+    <string name="connect_progress_title">Progression de livraison</string>
     <string name="connect_progress_status">Vous avez complété %d sur %d visites.</string>
     <string name="connect_progress_complete_by">Terminez la livraison d\'ici le %s</string>
     <string name="connect_progress_delivery_verification">Vérification et paiements</string>
     <string name="connect_results_summary_verifications_title">Statut de vérification</string>
     <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
     <string name="connect_results_summary_payments_title">Statut de paiement</string>
-    <string name="connect_results_summary_payments_description">Montant gagné: %s\nMontant transféré: %s</string>
-    <string name="connect_results_payment_description">Payé %s</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
-    <string name="connect_results_payment_date">Émis %s</string>
-
 
     <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_job_none_training">Vous ne suivez aucune formation pour un emploi pour le moment</string>
@@ -259,13 +254,56 @@ License.
     <string name="connect_progress_paid">PAYÉ</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne gagnerez aucun progrès pour le travail.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\’évaluation et êtes prêt à livrer. Affichez l\'état du travail pour continuer.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximum de visites. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximum de visites pour aujourd\'hui. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
-    <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
+    <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne pour %s.</string>
     <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
     <string name="connect_job_go_to_learn_app">Accédez à l\'application Apprendre</string>
     <string name="connect_button_logged_in">Allez dans le menu Connecter</string>
     <string name="connect_db_corrupt">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
+    <string name="connect_payment_acknowledge_notification_yes">Oui</string>
+    <string name="connect_payment_acknowledge_notification_no">Non</string>
+
+    <string name="connect_job_info_delivery_detail">Détails de livraison</string>
+    <string name="connect_job_info_review_delivery">Vérifiez les détails de la livraison</string>
+    <string name="connect_job_info_visit">%d Visites maximales</string>
+    <string name="connect_job_info_days">%d jours pour terminer</string>
+    <string name="connect_job_info_max_visit">Nombre maximum de visites par jour %d</string>
+    <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s pour une visite</string>
+    <string name="connect_job_info_start_visit">Commencer la visite</string>
+    <string name="connect_job_info_download_delivery">Télécharger la livraison</string>
+    <string name="connect_job_info_download">Télécharger</string>
+
+    <string name="connect_progress">Progrès</string>
+    <string name="connect_payment">Paiement</string>
+    <string name="connect_delivery_progress_description">Vous n’avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
+    <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
+    <string name="connect_visit_type_title">%s Visites</string>
+
+    <string name="connect_payment_received">Reçue</string>
+    <string name="connect_payment_transferred">Transféré</string>
+    <string name="connect_payment_confirm_transferred">Confirmer le paiement transféré</string>
+    <string name="connect_payment_revoke_transferred">Révoquer la confirmation de paiement</string>
+    <string name="connect_payment_dialog_no">Non</string>
+    <string name="connect_payment_dialog_yes">Oui</string>
+    <string name="connect_payment_revert">Revenir</string>
+
+    <string name="connect_deactivate_account">Désactiver le compte</string>
+    <string name="connect_deactivate_account_message">Vous êtes sur le point de désactiver définitivement ce compte…</string>
+    <string name="connect_deactivate_account_delete">Supprimer le compte</string>
+    <string name="connect_deactivate_account_go_back">Retourner</string>
+    <string name="connect_deactivate_account_deactivated">Compte désactivé, vous pouvez maintenant créer un nouveau compte avec votre numéro de téléphone principal</string>
+    <string name="connect_deactivate_account_creation">D\'accord</string>
+    <string name="connect_deactivate_dialog_title">Es-tu sûr?</string>
+    <string name="connect_deactivate_dialog_description">Vous souhaitez désactiver votre compte définitivement ?</string>
+
+    <string name="connect_new_opportunity">Nouvelle opportunité</string>
+    <string name="connect_learn">Apprendre</string>
+    <string name="connect_delivery">Livraison</string>
+    <string name="connect_commcare_app">Application CommCare</string>
+    <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
+    <string name="connect_appbar_title_password_verification">Vérification du mot de passe</string>
 </resources>

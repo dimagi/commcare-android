@@ -1,0 +1,208 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/llTopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <include
+                android:id="@+id/commonAppBar"
+                layout="@layout/connectid_common_title_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/company_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="40dp"
+            android:layout_below="@+id/llTopBar"
+            android:layout_centerHorizontal="true"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_dimagi_logo" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_below="@+id/company_logo"
+            android:layout_marginTop="40dp"
+            android:background="@android:color/darker_gray" />
+
+        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            android:id="@+id/recovery_code_tilte"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/create_a_new_recovery_code"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="18sp" />
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/phone_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recovery_code_tilte"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/choose_a_6_digit_recovery_code"
+            android:textColor="@color/connect_subtext"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:id="@+id/name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_below="@id/phone_title"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp">
+
+            <LinearLayout
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/connect_side_icon_bg"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@null"
+                    android:padding="1dp"
+                    android:src="@drawable/ic_outline_lock_24" />
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintEnabled="false"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/connect_pin_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginStart="16dp"
+                    android:background="@drawable/connect_edit_text_bg"
+                    android:textColorHint="@color/connect_grey"
+                    android:paddingHorizontal="16dp"
+                    android:hint="@string/code"
+                    android:imeOptions="actionNext"
+                    android:inputType="numberPassword"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/confirm_code_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_below="@id/name_layout" >
+
+            <LinearLayout
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:background="@drawable/connect_side_icon_bg"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@null"
+                    android:padding="1dp"
+                    android:src="@drawable/ic_outline_lock_24" />
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/connect_pin_repeat_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:hintEnabled="false"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/connect_pin_repeat_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginStart="16dp"
+                    android:background="@drawable/connect_edit_text_bg"
+                    android:imeOptions="actionDone"
+                    android:textColorHint="@color/connect_grey"
+                    android:paddingHorizontal="16dp"
+                    android:hint="@string/confirm_code"
+                    android:inputType="numberPassword"/>
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connect_pin_error_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/confirm_code_layout"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="start"
+            android:textColor="@color/red"
+            android:textSize="16sp" />
+
+        <org.commcare.views.connect.RoundedButton
+            android:id="@+id/forgot_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_below="@id/connect_pin_error_message"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="start|center"
+            android:text="@string/connect_pin_verify_forgot"
+            app:roundButtonBorderColor="@color/border_grey"
+            app:roundButtonBorderVisible="true"
+            app:roundButtonTextColor="@color/connect_blue_color" />
+
+        <org.commcare.views.connect.RoundedButton
+            android:id="@+id/connect_pin_button"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_below="@id/connect_pin_error_message"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="16dp"
+            app:roundButtonTextSize="6.5sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="start|center"
+            android:text="@string/review"
+            app:roundButtonBackgroundColor="@color/connect_blue_color"
+            app:roundButtonBorderRadius="@dimen/dp48"
+            app:roundButtonIcon="@drawable/connect_right_arrow"
+            app:roundButtonIconLeftAlign="false"
+            app:roundButtonTextColor="@color/white" />
+
+
+    </RelativeLayout>
+</layout>

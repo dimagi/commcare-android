@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context="org.commcare.fragments.connect.ConnectJobIntroFragment">
 
     <LinearLayout
@@ -11,75 +11,112 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/connect_job_intro_title"
+        <include
+            android:id="@+id/viewJobCard"
+            layout="@layout/view_job_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:textStyle="bold"
-            android:textSize="@dimen/text_large"/>
+            android:layout_margin="16dp" />
 
-        <TextView
-            android:id="@+id/connect_job_intro_description"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:textAlignment="center"
-            />
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:backgroundTint="@color/connect_blue_color"
+            android:elevation="5dp"
+            app:cardCornerRadius="16dp">
 
-        <View
-            android:id="@+id/connect_job_intro_divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/darker_grey" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-        <TextView
-            android:id="@+id/connect_job_intro_learning_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:textAlignment="center"
-            android:text="@string/connect_job_you_will_learn"
-            android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_job_learn_details"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/connect_job_intro_learning"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"/>
+                <TextView
+                    android:id="@+id/connect_job_intro_learning_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:paddingEnd="20dp"
+                    android:text="@string/connect_job_you_will_learn"
+                    android:textColor="@color/connect_subtext_color"
+                    android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/connect_job_intro_start_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_marginTop="30dp"
-            android:textStyle="bold"
-            android:text="@string/connect_job_start_training"/>
+                <TextView
+                    android:id="@+id/connect_job_intro_learning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="20dp"
+                    android:textColor="@color/white"
+                    android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/connect_job_intro_learning_summary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAlignment="center" />
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardButtonView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="#353ba6"
+                    android:elevation="2dp"
+                    android:padding="16dp"
+                    app:cardCornerRadius="24dp">
 
-        <Button
-            android:id="@+id/connect_job_intro_start_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/connect_job_intro_start_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_learn_start"
+                                android:textColor="@color/white"
+                                android:textSize="14sp" />
+
+                            <TextView
+                                android:id="@+id/connect_job_intro_learning_summary"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:textColor="@color/white"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <org.commcare.views.connect.RoundedButton
+                            android:id="@+id/connect_job_intro_start_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            app:roundButtonTextSize="5sp"
+                            android:layout_marginStart="20dp"
+                            android:gravity="center"
+                            android:text="Continue"
+                            app:roundButtonIcon="@drawable/connect_right_arrow"
+                            app:roundButtonIconTintColor="@color/connect_blue_color"
+                            app:roundButtonTextColor="@color/connect_blue_color" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
 </ScrollView>

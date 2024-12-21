@@ -103,7 +103,9 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public int getDeliveryId() { return deliveryId; }
-    public Date getDate() { return date; }
+    public Date getDate() {
+        return date;
+    }
     public String getStatus() { return status; }
     public String getEntityName() { return entityName; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
