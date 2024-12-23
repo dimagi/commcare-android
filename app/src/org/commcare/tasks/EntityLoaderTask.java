@@ -2,8 +2,11 @@ package org.commcare.tasks;
 
 import android.util.Pair;
 
+import androidx.lifecycle.LifecycleOwner;
+
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityLoadingProgressListener;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
@@ -28,8 +31,8 @@ public class EntityLoaderTask
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
 
-    public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
-        entityLoaderHelper = new EntityLoaderHelper(detail, evalCtx);
+    public EntityLoaderTask(Detail detail, EvaluationContext evalCtx, LifecycleOwner lifecycleOwner) {
+        entityLoaderHelper = new EntityLoaderHelper(detail, evalCtx, lifecycleOwner);
     }
 
     @Override
@@ -115,8 +118,8 @@ public class EntityLoaderTask
     }
 
     @Override
-    public void publishEntityLoadingProgress(int progress, int total) {
-        publishProgress(progress, total);
+    public void publishEntityLoadingProgress(EntityLoadingProgressPhase phase, int progress, int total) {
+        publishProgress(phase.getValue(), progress, total);
     }
 
     @Override

@@ -1,10 +1,13 @@
 package org.commcare.tasks
 
+import android.content.Context
 import android.util.Pair
+import androidx.lifecycle.LifecycleOwner
 import io.reactivex.functions.Cancellable
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
+import org.commcare.cases.entity.EntityLoadingProgressListener
 import org.commcare.cases.entity.EntityStorageCache
 import org.commcare.cases.entity.NodeEntityFactory
 import org.commcare.entity.AndroidAsyncNodeEntityFactory
@@ -16,7 +19,8 @@ import org.javarosa.core.model.instance.TreeReference
 
 class EntityLoaderHelper(
     detail: Detail,
-    evalCtx: EvaluationContext
+    evalCtx: EvaluationContext,
+    lifecycleOwner: LifecycleOwner? = null,
 ) : Cancellable {
 
     var focusTargetIndex: Int = -1
@@ -27,7 +31,7 @@ class EntityLoaderHelper(
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
         if (detail.useAsyncStrategy()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
+            factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache, lifecycleOwner)
         } else {
             factory = NodeEntityFactory(detail, evalCtx)
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
@@ -44,6 +48,7 @@ class EntityLoaderHelper(
         progressListener: EntityLoadingProgressListener
     ): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
         val references = factory.expandReferenceList(nodeset)
+        factory.setEntityProgressListener(progressListener)
         val entities = loadEntitiesWithReferences(references, progressListener)
         entities?.let {
             factory.prepareEntities(entities)
@@ -78,7 +83,11 @@ class EntityLoaderHelper(
         focusTargetIndex = -1
         var indexInFullList = 0
         for ((index, ref) in references.withIndex()) {
-            progressListener?.publishEntityLoadingProgress(index, references.size)
+            progressListener?.publishEntityLoadingProgress(
+                EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_PROCESSING,
+                index,
+                references.size
+            )
             if (stopLoading) {
                 return null
             }

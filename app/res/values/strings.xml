@@ -458,5 +458,7 @@
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
     <string name="entity_list_processing" cc:translatable="true">Processing %1s out of %2s</string>
+    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
+    <string name="entity_list_calculating" cc:translatable="true">Calculating %1s out of %2s</string>
     <string name="entity_list_finalizing" cc:translatable="true">Finalizing list…</string>
 </resources>

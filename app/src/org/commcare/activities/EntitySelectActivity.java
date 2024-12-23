@@ -34,6 +34,7 @@ import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityLoadingProgressListener;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
@@ -479,7 +480,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext());
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext(), this);
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
@@ -995,10 +996,20 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void deliverProgress(Integer[] values) {
+        EntityLoadingProgressListener.EntityLoadingProgressPhase phase =
+                EntityLoadingProgressListener.EntityLoadingProgressPhase.fromInt(values[0]);
         // throttle to not update text too frequently
-        if (values[0] % 100 == 0) {
-            setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_processing,
-                    new String[]{String.valueOf(values[0]), String.valueOf(values[1])}));
+        if (values[1] % 100 == 0) {
+            switch (phase) {
+                case PHASE_PROCESSING -> setProgressText(
+                        StringUtils.getStringRobust(this, R.string.entity_list_processing,
+                                new String[]{String.valueOf(values[1]), String.valueOf(values[2])}));
+                case PHASE_CACHING -> setProgressText(
+                        StringUtils.getStringRobust(this, R.string.entity_list_loading_cache));
+                case PHASE_UNCACHED_CALCULATION -> setProgressText(
+                        StringUtils.getStringRobust(this, R.string.entity_list_calculating,
+                                new String[]{String.valueOf(values[1]), String.valueOf(values[2])}));
+            }
         }
     }
 

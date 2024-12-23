@@ -53,7 +53,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
             EntityLoaderTask theLoader =
-                    new EntityLoaderTask(detailToDisplay, getFactoryContextForRef(referenceToDisplay));
+                    new EntityLoaderTask(detailToDisplay, getFactoryContextForRef(referenceToDisplay), getActivity());
             theLoader.attachListener(this);
             theLoader.executeParallel(detailToDisplay.getNodeset().contextualize(referenceToDisplay));
 

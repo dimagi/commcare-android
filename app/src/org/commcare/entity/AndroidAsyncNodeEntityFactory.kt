@@ -1,6 +1,6 @@
 package org.commcare.entity
 
-import android.util.Pair
+import androidx.lifecycle.LifecycleOwner
 import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityStorageCache
@@ -15,17 +15,22 @@ import org.javarosa.core.services.Logger
  * Android Specific Implementation of AsyncNodeEntityFactory
  * Uses [PrimeEntityCacheHelper] to prime entity cache blocking the user when required
  */
-class AndroidAsyncNodeEntityFactory(d: Detail, ec: EvaluationContext?, entityStorageCache: EntityStorageCache?) :
-    AsyncNodeEntityFactory(d, ec, entityStorageCache), PrimeEntityCacheListener {
+class AndroidAsyncNodeEntityFactory(
+    d: Detail,
+    ec: EvaluationContext?,
+    entityStorageCache: EntityStorageCache?,
+    private val lifecycleOwner: LifecycleOwner? = null
+) : AsyncNodeEntityFactory(d, ec, entityStorageCache) {
 
     companion object {
         const val TWO_MINUTES = 2 * 60 * 1000
     }
 
-    private var cachedEntities: List<Entity<TreeReference>>? = null
     private var completedCachePrime = false
 
-    override fun prepareEntitiesInternal(entities: MutableList<Entity<TreeReference>>) {
+    override fun prepareEntitiesInternal(
+        entities: MutableList<Entity<TreeReference>>
+    ) {
         if (detail.shouldCache()) {
             // we only want to block if lazy load is not enabled
             if (!detail.shouldLazyLoad()) {
@@ -33,20 +38,24 @@ class AndroidAsyncNodeEntityFactory(d: Detail, ec: EvaluationContext?, entitySto
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail
                     if (!primeEntityCacheHelper.isDetailInProgress(detail.id)) {
-                        primeEntityCacheHelper.expediteDetailWithId(detail, entities)
+                        primeEntityCacheHelper.expediteDetailWithId(detail, entities, progressListener)
                     } else {
-                        // otherwise wait for existing prime process to complete
-                        primeEntityCacheHelper.setListener(this)
-                        waitForCachePrimeWork(entities, primeEntityCacheHelper)
-                        if (cachedEntities != null) {
-                            entities.clear()
-                            entities.addAll(cachedEntities!!)
+                        primeEntityCacheHelper.setListener(progressListener)
+                        primeEntityCacheHelper.cachedEntitiesLiveData.observe(lifecycleOwner!!) { cachedEntities ->
+                            if (cachedEntities != null) {
+                                entities.clear()
+                                entities.addAll(cachedEntities)
+                                primeEntityCacheHelper.cachedEntitiesLiveData.removeObservers(lifecycleOwner)
+                            }
                         }
+
+                        // otherwise wait for existing prime process to complete
+                        waitForCachePrimeWork(entities, primeEntityCacheHelper)
                     }
                 } else {
                     // we either have not started priming or already completed. In both cases
                     // we want to re-prime to make sure we calculate any uncalculated data first
-                    primeEntityCacheHelper.primeEntityCacheForDetail(detail, entities)
+                    primeEntityCacheHelper.primeEntityCacheForDetail(detail, entities, progressListener)
                 }
             }
         } else {
@@ -56,7 +65,7 @@ class AndroidAsyncNodeEntityFactory(d: Detail, ec: EvaluationContext?, entitySto
 
     private fun waitForCachePrimeWork(
         entities: MutableList<Entity<TreeReference>>,
-        primeEntityCacheHelper: PrimeEntityCacheHelper
+        primeEntityCacheHelper: PrimeEntityCacheHelper,
     ) {
         val startTime = System.currentTimeMillis()
         while (!completedCachePrime && (System.currentTimeMillis() - startTime) < TWO_MINUTES) {
@@ -75,16 +84,6 @@ class AndroidAsyncNodeEntityFactory(d: Detail, ec: EvaluationContext?, entitySto
             } else {
                 prepareEntitiesInternal(entities)
             }
-        }
-    }
-
-    override fun onPrimeEntityCacheComplete(
-        currentDetailInProgress: String,
-        cachedEntitiesWithRefs: Pair<List<Entity<TreeReference>>, List<TreeReference>>
-    ) {
-        if (detail.id!!.contentEquals(currentDetailInProgress)) {
-            cachedEntities = cachedEntitiesWithRefs.first
-            completedCachePrime = true
         }
     }
 }
