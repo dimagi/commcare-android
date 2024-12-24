@@ -14,6 +14,8 @@ class PrimeEntityCache(appContext: Context, workerParams: WorkerParameters)
             return Result.success()
         } catch (e: Exception) {
             Logger.exception("Error while priming cache in worker", e)
+        } finally {
+            PrimeEntityCacheHelper.getInstance().clearState();
         }
         return Result.failure()
     }

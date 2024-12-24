@@ -156,7 +156,10 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         return CommCareApplication.instance().currentSessionWrapper.evaluationContext
     }
 
-    private fun clearState() {
+    /**
+     * Clears any volatile state and nullify the singleton instance
+     */
+    fun clearState() {
         entityLoaderHelper = null
         inProgress = false
         listener = null
