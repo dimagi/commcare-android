@@ -15,6 +15,7 @@ import org.commcare.utils.AndroidCommCarePlatform
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
+import org.javarosa.xpath.XPathException
 
 /**
  * Helper to prime cache for all entity screens in the app
@@ -83,12 +84,13 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
      * @throws IllegalStateException if a cache prime is already in progress or user session is not active
      */
     fun primeEntityCacheForDetail(
+        commandId: String,
         detail: Detail,
         entities: MutableList<Entity<TreeReference>>,
         progressListener: EntityLoadingProgressListener
     ) {
         checkPreConditions()
-        primeCacheForDetail(detail,null, entities, progressListener)
+        primeCacheForDetail(commandId, detail,null, entities, progressListener)
         clearState()
     }
 
@@ -97,12 +99,13 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
      * Reschedules the work again in background afterwards
      */
     fun expediteDetailWithId(
+        commandId: String,
         detail: Detail,
         entities: MutableList<Entity<TreeReference>>,
         progressListener: EntityLoadingProgressListener
     ) {
         cancel()
-        primeEntityCacheForDetail(detail, entities, progressListener)
+        primeEntityCacheForDetail(commandId, detail, entities, progressListener)
         schedulePrimeEntityCacheWorker()
     }
 
@@ -121,7 +124,16 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
                     val shortDetailId = sessionDatum.shortDetail
                     if (shortDetailId != null) {
                         val detail = commCarePlatform.getDetail(shortDetailId)
-                        primeCacheForDetail(detail, sessionDatum)
+                        try {
+                            primeCacheForDetail(entry.commandId, detail, sessionDatum)
+                        } catch (e: XPathException) {
+                            // Bury any xpath exceptions here as we don't want to hold off priming cache
+                            // for other datums because of an error with a particular detail.
+                            Logger.exception(
+                                "Xpath error on trying to prime cache for datum: " + sessionDatum.dataId,
+                                e
+                            )
+                        }
                     }
                 }
             }
@@ -129,6 +141,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     }
 
     private fun primeCacheForDetail(
+        commandId: String,
         detail: Detail,
         sessionDatum: EntityDatum? = null,
         entities: MutableList<Entity<TreeReference>>? = null,
@@ -136,7 +149,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     ) {
         if (!detail.shouldCache()) return
         currentDetailInProgress = detail.id
-        entityLoaderHelper = EntityLoaderHelper(detail, evalCtx()).also {
+        entityLoaderHelper = EntityLoaderHelper(detail, evalCtx(commandId)).also {
             it.factory.setEntityProgressListener(progressListener)
         }
         // Handle the cache operation based on the available input
@@ -152,8 +165,8 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         currentDetailInProgress = null
     }
 
-    private fun evalCtx(): EvaluationContext {
-        return CommCareApplication.instance().currentSessionWrapper.evaluationContext
+    private fun evalCtx(commandId: String): EvaluationContext {
+        return CommCareApplication.instance().currentSessionWrapper.getRestrictedEvaluationContext(commandId, null)
     }
 
     /**

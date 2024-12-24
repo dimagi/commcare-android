@@ -1,6 +1,7 @@
 package org.commcare.entity
 
 import androidx.lifecycle.LifecycleOwner
+import org.commcare.CommCareApplication
 import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityStorageCache
@@ -20,7 +21,8 @@ class AndroidAsyncNodeEntityFactory(
     ec: EvaluationContext?,
     entityStorageCache: EntityStorageCache?,
     private val lifecycleOwner: LifecycleOwner? = null
-) : AsyncNodeEntityFactory(d, ec, entityStorageCache) {
+) :
+    AsyncNodeEntityFactory(d, ec, entityStorageCache) {
 
     companion object {
         const val TWO_MINUTES = 2 * 60 * 1000
@@ -38,7 +40,7 @@ class AndroidAsyncNodeEntityFactory(
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail
                     if (!primeEntityCacheHelper.isDetailInProgress(detail.id)) {
-                        primeEntityCacheHelper.expediteDetailWithId(detail, entities, progressListener)
+                        primeEntityCacheHelper.expediteDetailWithId(getCurrentCommandId(), detail, entities, progressListener)
                     } else {
                         primeEntityCacheHelper.setListener(progressListener)
                         primeEntityCacheHelper.cachedEntitiesLiveData.observe(lifecycleOwner!!) { cachedEntities ->
@@ -55,12 +57,16 @@ class AndroidAsyncNodeEntityFactory(
                 } else {
                     // we either have not started priming or already completed. In both cases
                     // we want to re-prime to make sure we calculate any uncalculated data first
-                    primeEntityCacheHelper.primeEntityCacheForDetail(detail, entities, progressListener)
+                    primeEntityCacheHelper.primeEntityCacheForDetail(getCurrentCommandId(), detail, entities, progressListener)
                 }
             }
         } else {
             super.prepareEntitiesInternal(entities)
         }
+    }
+
+    private fun getCurrentCommandId(): String {
+        return CommCareApplication.instance().currentSession.command
     }
 
     private fun waitForCachePrimeWork(
