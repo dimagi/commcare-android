@@ -63,6 +63,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
 
         @JvmStatic
         fun cancelWork() {
+            instance?.cancel()
             WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(PRIME_ENTITY_CACHE_REQUEST)
         }
     }
