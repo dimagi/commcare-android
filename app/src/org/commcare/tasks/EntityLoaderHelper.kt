@@ -29,7 +29,7 @@ class EntityLoaderHelper(
 
     init {
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
-        if (detail.useAsyncStrategy()) {
+        if (detail.useAsyncStrategy() || detail.shouldCache()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
             factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache, lifecycleOwner)
         } else {
