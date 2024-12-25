@@ -1,11 +1,11 @@
 package org.commcare.tasks
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import io.reactivex.functions.Cancellable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityLoadingProgressListener
@@ -31,8 +31,8 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     private var currentDetailInProgress: String? = null
     private var listener: EntityLoadingProgressListener? = null
 
-    private val _cachedEntitiesLiveData = MutableLiveData<List<Entity<TreeReference>>>()
-    val cachedEntitiesLiveData: LiveData<List<Entity<TreeReference>>> get() = _cachedEntitiesLiveData
+    private val _cachedEntitiesState = MutableStateFlow<List<Entity<TreeReference>>?>(null)
+    val cachedEntitiesState: StateFlow<List<Entity<TreeReference>>?> get() = _cachedEntitiesState
 
 
     companion object {
@@ -161,7 +161,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
             }
             else -> return
         }
-        _cachedEntitiesLiveData.postValue(cachedEntities)
+        _cachedEntitiesState.value = cachedEntities
         currentDetailInProgress = null
     }
 

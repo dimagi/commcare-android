@@ -1,11 +1,8 @@
 package org.commcare.tasks
 
-import android.content.Context
 import android.util.Pair
-import androidx.lifecycle.LifecycleOwner
 import io.reactivex.functions.Cancellable
 import org.commcare.activities.EntitySelectActivity
-import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityLoadingProgressListener
 import org.commcare.cases.entity.EntityStorageCache
@@ -20,7 +17,6 @@ import org.javarosa.core.model.instance.TreeReference
 class EntityLoaderHelper(
     detail: Detail,
     evalCtx: EvaluationContext,
-    lifecycleOwner: LifecycleOwner? = null,
 ) : Cancellable {
 
     var focusTargetIndex: Int = -1
@@ -31,7 +27,7 @@ class EntityLoaderHelper(
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
         if (detail.useAsyncStrategy() || detail.shouldCache()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache, lifecycleOwner)
+            factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
         } else {
             factory = NodeEntityFactory(detail, evalCtx)
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
@@ -105,6 +101,6 @@ class EntityLoaderHelper(
 
     override fun cancel() {
         stopLoading = true
-        factory.cancel()
+        factory.cancelLoading()
     }
 }

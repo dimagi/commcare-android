@@ -2,8 +2,6 @@ package org.commcare.tasks;
 
 import android.util.Pair;
 
-import androidx.lifecycle.LifecycleOwner;
-
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
@@ -31,8 +29,8 @@ public class EntityLoaderTask
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
 
-    public EntityLoaderTask(Detail detail, EvaluationContext evalCtx, LifecycleOwner lifecycleOwner) {
-        entityLoaderHelper = new EntityLoaderHelper(detail, evalCtx, lifecycleOwner);
+    public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
+        entityLoaderHelper = new EntityLoaderHelper(detail, evalCtx);
     }
 
     @Override

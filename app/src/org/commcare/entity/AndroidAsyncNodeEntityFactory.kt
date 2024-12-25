@@ -1,6 +1,8 @@
 package org.commcare.entity
 
-import androidx.lifecycle.LifecycleOwner
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
@@ -19,16 +21,12 @@ import org.javarosa.core.services.Logger
 class AndroidAsyncNodeEntityFactory(
     d: Detail,
     ec: EvaluationContext?,
-    entityStorageCache: EntityStorageCache?,
-    private val lifecycleOwner: LifecycleOwner? = null
-) :
-    AsyncNodeEntityFactory(d, ec, entityStorageCache) {
+    entityStorageCache: EntityStorageCache?
+) : AsyncNodeEntityFactory(d, ec, entityStorageCache) {
 
     companion object {
-        const val TWO_MINUTES = 2 * 60 * 1000
+        const val TEN_MINUTES = 10 * 60 * 1000L
     }
-
-    private var completedCachePrime = false
 
     override fun prepareEntitiesInternal(
         entities: MutableList<Entity<TreeReference>>
@@ -40,24 +38,25 @@ class AndroidAsyncNodeEntityFactory(
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail
                     if (!primeEntityCacheHelper.isDetailInProgress(detail.id)) {
-                        primeEntityCacheHelper.expediteDetailWithId(getCurrentCommandId(), detail, entities, progressListener)
+                        primeEntityCacheHelper.expediteDetailWithId(
+                            getCurrentCommandId(),
+                            detail,
+                            entities,
+                            progressListener
+                        )
                     } else {
                         primeEntityCacheHelper.setListener(progressListener)
-                        primeEntityCacheHelper.cachedEntitiesLiveData.observe(lifecycleOwner!!) { cachedEntities ->
-                            if (cachedEntities != null) {
-                                entities.clear()
-                                entities.addAll(cachedEntities)
-                                primeEntityCacheHelper.cachedEntitiesLiveData.removeObservers(lifecycleOwner)
-                            }
-                        }
-
-                        // otherwise wait for existing prime process to complete
-                        waitForCachePrimeWork(entities, primeEntityCacheHelper)
+                        observePrimeCacheWork(primeEntityCacheHelper, entities)
                     }
                 } else {
                     // we either have not started priming or already completed. In both cases
                     // we want to re-prime to make sure we calculate any uncalculated data first
-                    primeEntityCacheHelper.primeEntityCacheForDetail(getCurrentCommandId(), detail, entities, progressListener)
+                    primeEntityCacheHelper.primeEntityCacheForDetail(
+                        getCurrentCommandId(),
+                        detail,
+                        entities,
+                        progressListener
+                    )
                 }
             }
         } else {
@@ -65,31 +64,39 @@ class AndroidAsyncNodeEntityFactory(
         }
     }
 
-    private fun getCurrentCommandId(): String {
-        return CommCareApplication.instance().currentSession.command
+    private fun observePrimeCacheWork(
+        primeEntityCacheHelper: PrimeEntityCacheHelper,
+        entities: MutableList<Entity<TreeReference>>
+    ) {
+        runBlocking {
+            try {
+                withTimeout(TEN_MINUTES) {
+                    primeEntityCacheHelper.cachedEntitiesState.collect { cachedEntities ->
+                        if (cachedEntities != null) {
+                            entities.clear()
+                            entities.addAll(cachedEntities)
+                            return@collect
+                        }
+                    }
+                }
+            } catch (e: TimeoutCancellationException) {
+                Logger.log(
+                    LogTypes.TYPE_MAINTENANCE,
+                    "Timeout while waiting for the prime cache worker to finish"
+                )
+                if (primeEntityCacheHelper.isInProgress() &&
+                    primeEntityCacheHelper.isDetailInProgress(detail.id)
+                ) {
+                    // keep observing
+                    observePrimeCacheWork(primeEntityCacheHelper, entities)
+                } else {
+                    prepareEntitiesInternal(entities)
+                }
+            }
+        }
     }
 
-    private fun waitForCachePrimeWork(
-        entities: MutableList<Entity<TreeReference>>,
-        primeEntityCacheHelper: PrimeEntityCacheHelper,
-    ) {
-        val startTime = System.currentTimeMillis()
-        while (!completedCachePrime && (System.currentTimeMillis() - startTime) < TWO_MINUTES) {
-            // wait for it to be completed
-            try {
-                Thread.sleep(100)
-            } catch (_: InterruptedException) {
-            }
-        }
-        if (!completedCachePrime) {
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Still Waiting for cache priming work to complete")
-            // confirm if we are still priming in the worker. If yes, wait more
-            // otherwise recall prepareEntitiesInternal to re-evaluate the best thing to do
-            if (primeEntityCacheHelper.isInProgress() && primeEntityCacheHelper.isDetailInProgress(detail.id)) {
-                waitForCachePrimeWork(entities, primeEntityCacheHelper)
-            } else {
-                prepareEntitiesInternal(entities)
-            }
-        }
+    private fun getCurrentCommandId(): String {
+        return CommCareApplication.instance().currentSession.command
     }
 }
