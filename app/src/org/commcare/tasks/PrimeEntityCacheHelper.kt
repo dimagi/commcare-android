@@ -27,7 +27,9 @@ import org.javarosa.xpath.XPathException
 class PrimeEntityCacheHelper private constructor() : Cancellable {
 
     private var entityLoaderHelper: EntityLoaderHelper? = null
+    @Volatile
     private var inProgress = false
+    @Volatile
     private var currentDatumInProgress: String? = null
     private var listener: EntityLoadingProgressListener? = null
 
@@ -73,16 +75,21 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
      * Primes cache for all entity screens in the app
      * @throws IllegalStateException if a cache prime is already in progress or user session is not active
      */
+    @Synchronized
     fun primeEntityCache() {
         checkPreConditions()
-        primeEntityCacheForApp(CommCareApplication.instance().commCarePlatform)
-        clearState()
+        try {
+            primeEntityCacheForApp(CommCareApplication.instance().commCarePlatform)
+        } finally {
+            clearState()
+        }
     }
 
     /**
      * Primes cache for given entities set against the [detail]
      * @throws IllegalStateException if a cache prime is already in progress or user session is not active
      */
+    @Synchronized
     fun primeEntityCacheForDetail(
         commandId: String,
         detail: Detail,
@@ -91,14 +98,18 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         progressListener: EntityLoadingProgressListener
     ) {
         checkPreConditions()
-        primeCacheForDetail(commandId, detail, entityDatum, entities, progressListener)
-        clearState()
+        try {
+            primeCacheForDetail(commandId, detail, entityDatum, entities, progressListener)
+        } finally {
+            clearState()
+        }
     }
 
     /**
      * Cancel any current cache prime process to expedite cache calculations for given [detail]
      * Reschedules the work again in background afterwards
      */
+    @Synchronized
     fun expediteDetailWithId(
         commandId: String,
         detail: Detail,
