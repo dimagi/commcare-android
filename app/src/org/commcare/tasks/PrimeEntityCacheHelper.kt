@@ -28,7 +28,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
 
     private var entityLoaderHelper: EntityLoaderHelper? = null
     private var inProgress = false
-    private var currentDetailInProgress: String? = null
+    private var currentDatumInProgress: String? = null
     private var listener: EntityLoadingProgressListener? = null
 
     private val _cachedEntitiesState = MutableStateFlow<List<Entity<TreeReference>>?>(null)
@@ -86,11 +86,12 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     fun primeEntityCacheForDetail(
         commandId: String,
         detail: Detail,
+        entityDatum: EntityDatum,
         entities: MutableList<Entity<TreeReference>>,
         progressListener: EntityLoadingProgressListener
     ) {
         checkPreConditions()
-        primeCacheForDetail(commandId, detail,null, entities, progressListener)
+        primeCacheForDetail(commandId, detail, entityDatum, entities, progressListener)
         clearState()
     }
 
@@ -101,16 +102,17 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     fun expediteDetailWithId(
         commandId: String,
         detail: Detail,
+        entityDatum: EntityDatum,
         entities: MutableList<Entity<TreeReference>>,
         progressListener: EntityLoadingProgressListener
     ) {
         cancel()
-        primeEntityCacheForDetail(commandId, detail, entities, progressListener)
+        primeEntityCacheForDetail(commandId, detail, entityDatum, entities, progressListener)
         schedulePrimeEntityCacheWorker()
     }
 
-    fun isDetailInProgress(detailId: String): Boolean {
-        return currentDetailInProgress?.contentEquals(detailId) ?: false
+    fun isDatumInProgress(datumId: String): Boolean {
+        return currentDatumInProgress?.contentEquals(datumId) ?: false
     }
 
     private fun primeEntityCacheForApp(commCarePlatform: AndroidCommCarePlatform) {
@@ -143,26 +145,25 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
     private fun primeCacheForDetail(
         commandId: String,
         detail: Detail,
-        sessionDatum: EntityDatum? = null,
+        entityDatum: EntityDatum,
         entities: MutableList<Entity<TreeReference>>? = null,
         progressListener: EntityLoadingProgressListener? = null
     ) {
         if (!detail.shouldCache()) return
-        currentDetailInProgress = detail.id
-        entityLoaderHelper = EntityLoaderHelper(detail, evalCtx(commandId)).also {
+        currentDatumInProgress = entityDatum.dataId
+        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId)).also {
             it.factory.setEntityProgressListener(progressListener)
         }
         // Handle the cache operation based on the available input
         val cachedEntities = when {
-            sessionDatum != null -> entityLoaderHelper!!.cacheEntities(sessionDatum.nodeset).first
             entities != null -> {
                 entityLoaderHelper!!.cacheEntities(entities)
                 entities
             }
-            else -> return
+            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset).first
         }
         _cachedEntitiesState.value = cachedEntities
-        currentDetailInProgress = null
+        currentDatumInProgress = null
     }
 
     private fun evalCtx(commandId: String): EvaluationContext {
@@ -176,7 +177,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         entityLoaderHelper = null
         inProgress = false
         listener = null
-        currentDetailInProgress = null
+        currentDatumInProgress = null
         instance = null
     }
 

@@ -480,7 +480,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext());
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, selectDatum, evalContext());
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
             return true;

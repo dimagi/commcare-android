@@ -8,6 +8,7 @@ import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityStorageCache
 import org.commcare.suite.model.Detail
+import org.commcare.suite.model.EntityDatum
 import org.commcare.tasks.PrimeEntityCacheHelper
 import org.commcare.util.LogTypes
 import org.javarosa.core.model.condition.EvaluationContext
@@ -20,6 +21,7 @@ import org.javarosa.core.services.Logger
  */
 class AndroidAsyncNodeEntityFactory(
     d: Detail,
+    private val entityDatum: EntityDatum?,
     ec: EvaluationContext?,
     entityStorageCache: EntityStorageCache?
 ) : AsyncNodeEntityFactory(d, ec, entityStorageCache) {
@@ -37,10 +39,11 @@ class AndroidAsyncNodeEntityFactory(
                 val primeEntityCacheHelper = PrimeEntityCacheHelper.getInstance()
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail
-                    if (!primeEntityCacheHelper.isDetailInProgress(detail.id)) {
+                    if (!primeEntityCacheHelper.isDatumInProgress(detail.id)) {
                         primeEntityCacheHelper.expediteDetailWithId(
                             getCurrentCommandId(),
                             detail,
+                            entityDatum!!,
                             entities,
                             progressListener
                         )
@@ -54,6 +57,7 @@ class AndroidAsyncNodeEntityFactory(
                     primeEntityCacheHelper.primeEntityCacheForDetail(
                         getCurrentCommandId(),
                         detail,
+                        entityDatum!!,
                         entities,
                         progressListener
                     )
@@ -85,7 +89,7 @@ class AndroidAsyncNodeEntityFactory(
                     "Timeout while waiting for the prime cache worker to finish"
                 )
                 if (primeEntityCacheHelper.isInProgress() &&
-                    primeEntityCacheHelper.isDetailInProgress(detail.id)
+                    primeEntityCacheHelper.isDatumInProgress(detail.id)
                 ) {
                     // keep observing
                     observePrimeCacheWork(primeEntityCacheHelper, entities)

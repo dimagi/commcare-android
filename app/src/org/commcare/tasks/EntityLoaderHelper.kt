@@ -11,11 +11,13 @@ import org.commcare.entity.AndroidAsyncNodeEntityFactory
 import org.commcare.models.database.user.models.CommCareEntityStorageCache
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.suite.model.Detail
+import org.commcare.suite.model.EntityDatum
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 
 class EntityLoaderHelper(
     detail: Detail,
+    sessionDatum: EntityDatum?,
     evalCtx: EvaluationContext,
 ) : Cancellable {
 
@@ -27,7 +29,7 @@ class EntityLoaderHelper(
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
         if (detail.useAsyncStrategy() || detail.shouldCache()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AndroidAsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
+            factory = AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache)
         } else {
             factory = NodeEntityFactory(detail, evalCtx)
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {

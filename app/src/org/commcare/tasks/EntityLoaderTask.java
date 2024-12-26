@@ -7,6 +7,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -14,6 +15,8 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * @author ctsims
@@ -29,8 +32,14 @@ public class EntityLoaderTask
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
 
-    public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
-        entityLoaderHelper = new EntityLoaderHelper(detail, evalCtx);
+    /**
+     * Creates a new instance
+     * @param detail detail we want to load
+     * @param entityDatum entity datum corresponding to the entity list, null for entity detail screens
+     * @param evalCtx evaluation context
+     */
+    public EntityLoaderTask(Detail detail, @Nullable EntityDatum entityDatum, EvaluationContext evalCtx) {
+        entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum , evalCtx);
     }
 
     @Override
