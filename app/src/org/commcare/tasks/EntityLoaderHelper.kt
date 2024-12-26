@@ -15,6 +15,9 @@ import org.commcare.suite.model.EntityDatum
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 
+/**
+ * Helper class to load entities for an entity screen
+ */
 class EntityLoaderHelper(
     detail: Detail,
     sessionDatum: EntityDatum?,

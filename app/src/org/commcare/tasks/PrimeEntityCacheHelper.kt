@@ -27,8 +27,10 @@ import org.javarosa.xpath.XPathException
 class PrimeEntityCacheHelper private constructor() : Cancellable {
 
     private var entityLoaderHelper: EntityLoaderHelper? = null
+
     @Volatile
     private var inProgress = false
+
     @Volatile
     private var currentDatumInProgress: String? = null
     private var listener: EntityLoadingProgressListener? = null
@@ -171,6 +173,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
                 entityLoaderHelper!!.cacheEntities(entities)
                 entities
             }
+
             else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset).first
         }
         _cachedEntitiesState.value = cachedEntities

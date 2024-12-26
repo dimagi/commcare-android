@@ -5,8 +5,10 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import org.javarosa.core.services.Logger
 
-class PrimeEntityCache(appContext: Context, workerParams: WorkerParameters)
-    : Worker(appContext, workerParams)  {
+/**
+ * Android Worker to prime cache for entity screens
+ */
+class PrimeEntityCache(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         try {

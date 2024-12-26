@@ -22,7 +22,8 @@ import javax.annotation.Nullable;
  * @author ctsims
  */
 public class EntityLoaderTask
-        extends ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> implements
+        extends
+        ManagedAsyncTask<TreeReference, Integer, Pair<List<Entity<TreeReference>>, List<TreeReference>>> implements
         EntityLoadingProgressListener {
 
     private final static Object lock = new Object();
@@ -34,12 +35,13 @@ public class EntityLoaderTask
 
     /**
      * Creates a new instance
-     * @param detail detail we want to load
+     *
+     * @param detail      detail we want to load
      * @param entityDatum entity datum corresponding to the entity list, null for entity detail screens
-     * @param evalCtx evaluation context
+     * @param evalCtx     evaluation context
      */
     public EntityLoaderTask(Detail detail, @Nullable EntityDatum entityDatum, EvaluationContext evalCtx) {
-        entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum , evalCtx);
+        entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx);
     }
 
     @Override
