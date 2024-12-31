@@ -1,16 +1,16 @@
 package org.commcare.utils;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.commcare.connect.ConnectConstants;
 
@@ -28,6 +28,7 @@ import io.michaelrocks.libphonenumber.android.Phonenumber;
  */
 public class PhoneNumberHelper {
     private static PhoneNumberUtil utilStatic = null;
+    public static ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher;
 
     //Private constructor, class should be used statically
     private PhoneNumberHelper() {
@@ -82,22 +83,37 @@ public class PhoneNumberHelper {
         return util.getCountryCodeForRegion(locale.getCountry());
     }
 
+    public static String setDefaultCountryCode(Context context) {
+        Locale locale = context.getResources().getConfiguration().locale;
+        PhoneNumberUtil util = getUtil(context);
+
+        int code = util.getCountryCodeForRegion(locale.getCountry());
+
+        String codeText = "";
+        if (code > 0) {
+            codeText = String.format(Locale.getDefault(), "%d", code);
+            if (!codeText.startsWith("+")) {
+                codeText = "+" + codeText;
+            }
+        }
+
+        return codeText;
+    }
+
     public static void requestPhoneNumberHint(Activity activity) {
         GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
         Identity.getSignInClient(activity).getPhoneNumberHintIntent(hintRequest)
-                .addOnSuccessListener(new OnSuccessListener<PendingIntent>() {
-                    @Override
-                    public void onSuccess(PendingIntent pendingIntent) {
-                        try {
-                            activity.startIntentSenderForResult(pendingIntent.getIntentSender(), ConnectConstants.CREDENTIAL_PICKER_REQUEST, null, 0, 0, 0);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
+                .addOnSuccessListener(pendingIntent -> {
+                    try {
+                        IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
+                        phoneNumberHintLauncher.launch(intentSenderRequest);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 });
     }
 
-    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity){
+    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity) {
 
         if (requestCode == ConnectConstants.CREDENTIAL_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
             SignInClient signInClient = Identity.getSignInClient(activity);

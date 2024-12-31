@@ -6,6 +6,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -31,29 +32,25 @@ public class ApiConnectId {
     private static final String API_VERSION_NONE = null;
     private static final String API_VERSION_CONNECT_ID = "1.0";
 
-    public static void linkHqWorker(Context context, String hqUsername, String hqPassword, String connectToken) {
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
-        if (appRecord != null && !appRecord.getWorkerLinked()) {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("token", connectToken);
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", connectToken);
 
-            String url = ServerUrls.getKeyServer().replace("phone/keys/",
-                    "settings/users/commcare/link_connectid_user/");
+        String url = ServerUrls.getKeyServer().replace("phone/keys/",
+                "settings/users/commcare/link_connectid_user/");
 
-            try {
-                ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, false);
-                if (postResult.e == null && postResult.responseCode == 200) {
-                    postResult.responseStream.close();
+        try {
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            if (postResult.e == null && postResult.responseCode == 200) {
+                postResult.responseStream.close();
 
-                    //Remember that we linked the user successfully
-                    appRecord.setWorkerLinked(true);
-                    ConnectDatabaseHelper.storeApp(context, appRecord);
-                }
-            } catch (IOException e) {
-                //Don't care for now
+                //Remember that we linked the user successfully
+                appRecord.setWorkerLinked(true);
+                ConnectDatabaseHelper.storeApp(context, appRecord);
             }
+        } catch (IOException e) {
+            Logger.exception("Linking HQ worker", e);
         }
     }
 
@@ -90,7 +87,8 @@ public class ApiConnectId {
                     expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                    SsoToken ssoToken = new SsoToken(token, expiration);
+                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
                 }
@@ -337,7 +335,7 @@ public class ApiConnectId {
     }
 
     public static boolean requestVerificationOtpSecondary(Context context, String username, String password,
-                                                      IApiCallback callback) {
+                                                          IApiCallback callback) {
         int urlId = R.string.ConnectVerifySecondaryURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
@@ -388,11 +386,37 @@ public class ApiConnectId {
     }
 
     public static boolean confirmVerificationOtpSecondary(Context context, String username, String password,
-                                                      String token, IApiCallback callback) {
+                                                          String token, IApiCallback callback) {
         int urlId = R.string.ConnectVerifyConfirmSecondaryOTPURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
         HashMap<String, String> params = new HashMap<>();
+        params.put("token", token);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static boolean requestInitiateAccountDeactivation(Context context, String phone,String secretKey, IApiCallback callback) {
+        int urlId = R.string.ConnectInitiateUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("secret_key", secretKey);
+        params.put("phone_number", phone);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static boolean confirmUserDeactivation(Context context, String phone, String secret,
+                                                  String token, IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmUserAccountDeactivationURL;
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("phone_number", phone);
+        params.put("secret_key", secret);
         params.put("token", token);
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),

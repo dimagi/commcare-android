@@ -33,13 +33,13 @@
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/screen_permission_request_button_grant"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Grant Access"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/screen_permission_request_button_deny"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

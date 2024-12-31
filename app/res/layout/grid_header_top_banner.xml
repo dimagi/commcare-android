@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:background="@color/cc_core_bg"
+              android:background="@color/white"
               android:orientation="vertical"
     tools:viewBindingIgnore="true"
     >
@@ -19,7 +19,7 @@
         android:paddingLeft="@dimen/standard_spacer"
         android:paddingRight="@dimen/standard_spacer"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/commcare_logo"
+        app:srcCompat="@drawable/commcare_by_dimagi"
         android:visibility="visible"
         android:paddingStart="@dimen/standard_spacer"
         android:paddingEnd="@dimen/standard_spacer" />

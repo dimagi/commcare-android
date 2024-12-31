@@ -1,24 +1,21 @@
 package org.commcare.views.widgets;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.google.android.material.button.MaterialButton;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
@@ -93,7 +90,7 @@ public class IntentWidget extends QuestionWidget {
         } else {
             mStringAnswer = new TextView(getContext());
         }
-        launchIntentButton = new AppCompatButton(getContext());
+        launchIntentButton = new MaterialButton(getContext());
         setupTextView();
         setupButton();
     }

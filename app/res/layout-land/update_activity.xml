@@ -62,7 +62,7 @@
             <ProgressBar
                 android:id="@+id/update_progress_bar"
                 style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                android:progressDrawable="@drawable/progressbar_modern"
+                android:progressDrawable="@drawable/progressbar_modern_blue"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/content_min_margin"

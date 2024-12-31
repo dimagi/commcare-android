@@ -111,7 +111,7 @@
     <string name="replace_location">Replace Location</string>
     <string name="replace_video">Replace Video</string>
     <string name="required_answer_error">Sorry, this response is required!</string>
-    <string name="review">continue</string>
+    <string name="review">Continue</string>
     <string name="review_data">Edit Saved Form</string>
     <string name="review_data_button">Edit Saved Form</string>
     <string name="saved_data">Incomplete (%s)</string>

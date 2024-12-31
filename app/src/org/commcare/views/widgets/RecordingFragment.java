@@ -194,6 +194,10 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.setBase(SystemClock.elapsedRealtime());
         recordingInProgress();
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
+
+        // Extend the user extension if about to expire, this is to prevent the session from expiring in the
+        // middle of a recording
+        CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
     }
 
     private void recordingInProgress() {

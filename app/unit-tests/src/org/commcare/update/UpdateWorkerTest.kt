@@ -41,9 +41,8 @@ class UpdateWorkerTest {
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        TestAppInstaller.installAppAndLogin(
-                UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr"),
-                "test", "123")
+        TestAppInstaller.installApp(
+                UpdateUtils.buildResourceRef(REF_BASE_DIR, "base_app", "profile.ccpr"))
     }
 
     @Test

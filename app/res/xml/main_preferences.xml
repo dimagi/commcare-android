@@ -54,6 +54,13 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-tts"
         android:title="Enable Text To Speech"/>
+    <androidx.preference.ListPreference
+        android:defaultValue="no"
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-auto-form-save-on-pause"
+        android:title="Auto Save Form on Pause"/>
     <Preference
         android:key="disable-analytics-button"/>
     <Preference
