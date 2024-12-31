@@ -254,6 +254,7 @@ License.
     <string name="connect_progress_paid">PAYÉ</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne gagnerez aucun progrès pour le travail.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\’évaluation et êtes prêt à livrer. Affichez l\'état du travail pour continuer.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximum de visites. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximum de visites pour aujourd\'hui. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s. </string>

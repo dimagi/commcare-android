@@ -76,7 +76,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        boolean show = record != null && !record.getIsLearning();
+        boolean show = record != null;
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show) {
@@ -110,13 +110,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String warningText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
-        boolean show = record != null && !record.getIsLearning();
-        if (show) {
+        if (record != null) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
             if (job.isFinished()) {
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
             } else if (job.getProjectStartDate().after(new Date())) {
                 warningText = activity.getString(R.string.connect_progress_warning_not_started);
+            } else if(job.readyToTransitionToDelivery()) {
+                warningText = activity.getString(R.string.connect_progress_ready_for_transition_to_delivery);
             } else if (job.isMultiPayment()) {
                 Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
                 Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
@@ -195,7 +196,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
-        if (job == null || job.getStatus() == STATUS_DELIVERING && job.isFinished()) {
+        if (job == null || job.getStatus() != STATUS_DELIVERING || job.isFinished()) {
             recyclerView.setVisibility(View.GONE);
         }
 

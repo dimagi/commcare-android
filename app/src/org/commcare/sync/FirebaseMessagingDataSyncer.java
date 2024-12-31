@@ -195,7 +195,7 @@ public class FirebaseMessagingDataSyncer implements CommCareTaskConnector {
         b.putSerializable(FCM_MESSAGE_DATA, FirebaseMessagingUtil.serializeFCMMessageData(fcmMessageData));
         intent.putExtra(FCM_MESSAGE_DATA_KEY, b);
 
-        context.sendBroadcast(intent);
+        ExternalDataUpdateHelper.sendBroadcastFailSafe(context, intent, null);
     }
 
     @Override

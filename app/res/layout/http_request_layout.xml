@@ -38,16 +38,14 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/request_button"
-                style="@style/ButtonBottom"
+                android:layout_margin="10dp"
                 android:layout_width="wrap_content"
                 android:layout_gravity="center"
                 android:layout_height="wrap_content"
-                android:background="@color/cc_brand_color"
                 android:paddingBottom="@dimen/content_start"
-                android:paddingTop="@dimen/content_start"
-                android:textColor="@color/cc_neutral_bg"/>
+                android:paddingTop="@dimen/content_start" />
 
         </LinearLayout>
     </ScrollView>
