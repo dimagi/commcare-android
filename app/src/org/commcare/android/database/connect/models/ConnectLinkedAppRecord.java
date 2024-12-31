@@ -1,6 +1,7 @@
 package org.commcare.android.database.connect.models;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.network.SsoToken;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -111,9 +112,9 @@ public class ConnectLinkedAppRecord extends Persisted {
         return hqTokenExpiration;
     }
 
-    public void updateHqToken(String token, Date expirationDate) {
-        hqToken = token;
-        hqTokenExpiration = expirationDate;
+    public void updateHqToken(SsoToken token) {
+        hqToken = token.token;
+        hqTokenExpiration = token.expiration;
     }
 
     public boolean getConnectIdLinked() { return connectIdLinked; }

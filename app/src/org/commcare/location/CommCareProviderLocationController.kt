@@ -7,7 +7,9 @@ import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import org.commcare.utils.GeoUtils
 
 /**
@@ -47,7 +49,12 @@ class CommCareProviderLocationController(private var mContext: Context?,
             mListener?.missingPermissions()
             return
         }
-        mContext?.registerReceiver(mReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
+        val intentFilter = IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mContext?.registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED)
+        } else {
+            mContext?.registerReceiver(mReceiver, intentFilter)
+        }
         checkProviderAndRequestLocation()
     }
 

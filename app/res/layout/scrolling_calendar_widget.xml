@@ -134,12 +134,10 @@
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/lightest_grey"
             android:text="Today"
-            android:textStyle="bold"
             android:id="@+id/today"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/standard_spacer"

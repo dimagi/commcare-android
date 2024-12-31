@@ -21,6 +21,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get changed files
+        id: files
+        uses: octokit/request-action@v2.4.0
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Lint Code Base
         uses: super-linter/super-linter@v5
         env:
@@ -29,3 +37,5 @@ jobs:
           IGNORE_GITIGNORED_FILES: true
           VALIDATE_JSCPD: false
           JAVA_FILE_NAME: checkstyle.xml
+        with:
+          changed_files: ${{ steps.files.outputs.files }}
