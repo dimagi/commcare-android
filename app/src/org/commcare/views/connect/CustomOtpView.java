@@ -80,7 +80,6 @@ public class CustomOtpView extends LinearLayout {
         editText.setGravity(Gravity.CENTER);
         editText.setTextColor(isErrorState ? errorTextColor : textColor);
         editText.setTextSize(textSize);
-//        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackground(createBackgroundDrawable());
         editText.setId(index);
@@ -99,13 +98,11 @@ public class CustomOtpView extends LinearLayout {
 
         editText.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
-                EditText edt = (EditText) getChildAt(index);
-                if (index > 0) {
-                    edt.setText("");
-                    getChildAt(index - 1).requestFocus();
-                } else {
-                    edt.setText("");
-                }
+                int edtIndex = index > 0 ? index - 1 : 0;
+
+                EditText edt = (EditText)getChildAt(edtIndex);
+                edt.setText("");
+                edt.requestFocus();
                 return true; // Consume the event
             }
             return false;
@@ -120,9 +117,12 @@ public class CustomOtpView extends LinearLayout {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isSelfTriggered) return;
+                if (isSelfTriggered) {
+                    return;
+                }
 
                 setErrorState(false);
+
                 if (s.length() == 1) {
                     // Overwrite the existing value and move to the next EditText
                     if (index < digitCount - 1) {
@@ -138,13 +138,15 @@ public class CustomOtpView extends LinearLayout {
                     }
                 } else if (s.length() > 1) {
                     // If more than one character, replace with the latest input
-                    editText.setText(String.valueOf(s.charAt(s.length() - 1)));
-                    // editText.setSelection(1); // Move cursor to the end
-                } else {
-                    if (otpChangedListener != null) {
-                        String otp = getOtpValue();
-                        otpChangedListener.onOtpChanged(otp);
+                    char lastChar = s.charAt(s.length() - 1);
+                    String text = "";
+                    if(Character.isDigit(lastChar)) {
+                        text = String.valueOf(lastChar);
                     }
+                    editText.setText(text);
+                } else if (otpChangedListener != null) {
+                    String otp = getOtpValue();
+                    otpChangedListener.onOtpChanged(otp);
                 }
             }
 
