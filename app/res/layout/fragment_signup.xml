@@ -216,21 +216,17 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/continue_button"
                 android:layout_width="wrap_content"
-                android:layout_height="45dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:gravity="start|center"
                 android:text="@string/review"
-                app:roundButtonBackgroundColor="@color/connect_blue_color"
-                app:roundButtonBorderRadius="@dimen/dp48"
-                app:roundButtonIcon="@drawable/connect_right_arrow"
-                app:roundButtonIconLeftAlign="false"
-                app:roundButtonTextColor="@color/white"
-                app:roundButtonTextSize="6.5sp" />
+                android:drawableRight="@drawable/connect_right_arrow"
+                />
 
         </LinearLayout>
 
@@ -266,22 +262,13 @@
                     android:text="@string/connect_registration_have_account"
                     android:textSize="14sp" />
 
-                <org.commcare.views.connect.RoundedButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/recover_button"
+                    style="@style/NegativeButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="45dp"
-                    android:layout_below="@+id/connect_consent_check"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="start|center"
-                    android:padding="1dp"
+                    android:layout_height="wrap_content"
                     android:text="Recover"
-                    app:roundButtonBorderColor="@color/connect_border_color"
-                    app:roundButtonBorderRadius="@dimen/dp48"
-                    app:roundButtonBorderVisible="true"
-                    app:roundButtonIconLeftAlign="false"
-                    app:roundButtonTextColor="@color/connect_blue_color"
-                    app:roundButtonTextSize="6.5sp" />
+                    />
 
 
             </LinearLayout>

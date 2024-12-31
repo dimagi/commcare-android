@@ -15,7 +15,6 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -66,7 +65,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         }
 
         View view = inflater.inflate(R.layout.fragment_connect_learning_progress, container, false);
-        RoundedButton refreshButton = view.findViewById(R.id.btnSync);
+        Button refreshButton = view.findViewById(R.id.btnSync);
         refreshButton.setOnClickListener(v -> {
             refreshData();
         });
