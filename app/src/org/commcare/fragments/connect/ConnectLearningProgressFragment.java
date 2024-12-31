@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -119,12 +120,11 @@ public class ConnectLearningProgressFragment extends Fragment {
         boolean assessmentPassed = job.passedAssessment();
 
         boolean showReviewLearningButton = false;
+        boolean showProceedButton = false;
         String status;
         String buttonText;
         if (learningFinished) {
             if(assessmentAttempted) {
-                showReviewLearningButton = true;
-
                 if(assessmentPassed) {
                     TextView textView = view.findViewById(R.id.connect_learn_cert_score);
                     String text=getString(R.string.your_score, job.getAssessmentScore());
@@ -132,6 +132,7 @@ public class ConnectLearningProgressFragment extends Fragment {
                     status = getString(R.string.connect_learn_finished, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
 
                     buttonText = getString(R.string.connect_learn_view_details);
+                    showProceedButton = true;
                 }
                 else {
                     status = getString(R.string.connect_learn_failed, job.getAssessmentScore(), job.getLearnAppInfo().getPassingScore());
@@ -230,6 +231,9 @@ public class ConnectLearningProgressFragment extends Fragment {
         } else {
         }
 
+        //NOTE: Currently always hiding this button since we only ever get to learning progress from the learn app home
+        //In other words, they can just backup to the previous page if they want to review learning
+        //Keeping the code for now in case we change this in the near future
         final Button reviewButton = view.findViewById(R.id.connect_learning_review_button);
         reviewButton.setVisibility(showAppLaunch && showReviewLearningButton ? View.VISIBLE : View.GONE);
         reviewButton.setText(R.string.connect_learn_review);
@@ -248,15 +252,17 @@ public class ConnectLearningProgressFragment extends Fragment {
         });
 
         final Button button = view.findViewById(R.id.connect_learning_button);
-        button.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
+        button.setVisibility(showAppLaunch && showProceedButton ? View.VISIBLE : View.GONE);
         button.setText(buttonText);
         button.setOnClickListener(v -> {
             NavDirections directions = null;
             if(learningFinished && assessmentPassed) {
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(true);
             } else if(ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+                CommCareApplication.instance().closeUserSession();
                 ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             } else {
+                CommCareApplication.instance().closeUserSession();
                 String title = getString(R.string.connect_downloading_learn);
                 directions = ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(title, true);
             }
@@ -277,9 +283,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
-        });
+        viewMore.setVisibility(View.GONE);
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());

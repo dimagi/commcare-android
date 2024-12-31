@@ -184,7 +184,7 @@
                                 android:textSize="16dp"
                                 android:visibility="gone" />
 
-                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                            <TextView
                                 android:id="@+id/primed_password_message"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
@@ -192,19 +192,14 @@
                                 android:textSize="@dimen/font_size_medium"
                                 android:visibility="gone" />
 
-                            <org.commcare.views.connect.RoundedButton
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"
-                                android:layout_height="45dp"
+                                android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
-                                android:layout_marginTop="30dp"
+                                android:textAllCaps="true"
                                 android:nextFocusUp="@+id/edit_password"
-                                android:paddingTop="@dimen/content_start"
-                                android:paddingBottom="@dimen/content_start"
-                                RectangleButtonWithText:roundButtonBackgroundColor="@color/connect_blue_color"
-                                RectangleButtonWithText:roundButtonTextColor="@color/white"
-                                RectangleButtonWithText:roundButtonTextSize="6.0sp" />
-
+                               />
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
                                 android:layout_width="match_parent"
@@ -214,7 +209,7 @@
                                 android:orientation="vertical"
                                 android:visibility="gone">
 
-                                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                                <TextView
                                     android:id="@+id/screen_login_bad_password"
                                     android:layout_width="fill_parent"
                                     android:layout_height="wrap_content"
@@ -233,7 +228,6 @@
                                         android:id="@+id/btn_view_notifications"
                                         android:layout_width="match_parent"
                                         android:layout_height="@dimen/rectangle_button_height"
-
                                         RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
                                         RectangleButtonWithText:img="@drawable/ic_list_error"
                                         RectangleButtonWithText:textColor="@color/cc_attention_negative_text" />

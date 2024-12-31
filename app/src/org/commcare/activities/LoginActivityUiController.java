@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -64,7 +66,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private View notificationButtonView;
 
     @UiElement(value = R.id.screen_login_bad_password)
-    private ConnectRegularTextView errorTextView;
+    private TextView errorTextView;
 
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
@@ -88,7 +90,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private View banner;
 
     @UiElement(value = R.id.login_button)
-    private RoundedButton loginButton;
+    private MaterialButton loginButton;
 
     @UiElement(value = R.id.restore_session_checkbox)
     private CheckBox restoreSessionCheckbox;
@@ -100,7 +102,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private ConnectMediumTextView welcomeMessage;
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
-    private ConnectRegularTextView loginPrimedMessage;
+    private TextView loginPrimedMessage;
 
     protected final LoginActivity activity;
 
@@ -571,7 +573,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
         ImageView topBannerImageView =
                 banner.findViewById(R.id.main_top_banner);
         if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView, CustomBanner.Banner.LOGIN)) {
-            topBannerImageView.setImageResource(R.drawable.commcare_logo);
+            topBannerImageView.setImageResource(R.drawable.commcare_by_dimagi);
         }
     }
 

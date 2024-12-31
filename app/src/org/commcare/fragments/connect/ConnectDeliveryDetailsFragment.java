@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -187,6 +188,8 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {
         job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
         ConnectDatabaseHelper.upsertJob(getContext(), job);
+
+        CommCareApplication.instance().closeUserSession();
 
         NavDirections directions;
         if (installed) {

@@ -271,10 +271,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.learnAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_LEARN_APP), job.jobId, true);
         job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
 
-        //In JSON but not in model
-        //job.? = json.has(META_DATE_CREATED) ? df.parse(json.getString(META_DATE_CREATED)) : null;
-        //job.? = json.has(META_DATE_MODIFIED) ? df.parse(json.getString(META_DATE_MODIFIED)) : null;
-
         job.status = STATUS_AVAILABLE;
         if(job.getLearningCompletePercentage() > 0) {
             job.status = STATUS_LEARNING;

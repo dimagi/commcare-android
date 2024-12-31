@@ -4,5 +4,5 @@
         android:state_pressed="true"
         android:drawable="@color/cc_attention_positive_text"/>
     <item
-        android:drawable="@color/cc_attention_positive_color"/>
+        android:drawable="@color/start_home_button"/>
 </selector>

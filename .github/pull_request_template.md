@@ -10,11 +10,12 @@
 ## Product Description
 <!-- For non-invisible changes, describe user-facing effects. Would be good to add screenshots/videos for any major user facing changes -->
 
-## Safety Assurance
+## PR Checklist
 
-- [ ] If the PR is high risk, "High Risk" label is set
+- [ ] If I think the PR is high risk, "High Risk" label is set
 - [ ] I have confidence that this PR will not introduce a regression for the reasons below
 - [ ] Do we need to enhance manual QA test coverage ? If yes, "QA Note" label is set correctly
+- [ ] Does the PR introduce any major changes worth communicating ? If yes, "Release Note" label is set and a "Release Note" is specified in PR description.
 
 ### Automated test coverage
 

@@ -490,6 +490,7 @@
     <string name="connect_progress_launch">Iniciar App</string>
     <string name="connect_progress_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_progress_warning_not_started">O trabalho ainda não começou. Você não ganhará nenhum progresso para o trabalho.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">Você passou na avaliação e está pronto para entregar. Veja o status do trabalho para continuar.</string>
     <string name="connect_progress_warning_max_reached_single">Completou o número máximo de visitas. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_progress_warning_daily_max_reached_single">Atingiu o número máximo de visitas para hoje. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_progress_warning_max_reached_multi">Você atingiu o número máximo de visitas para %s. </string>

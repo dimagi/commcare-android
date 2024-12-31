@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/progress_dialog_message"
-            android:progressDrawable="@drawable/progressbar_modern"
+            android:progressDrawable="@drawable/progressbar_modern_blue"
             android:indeterminate="false"
             android:indeterminateOnly="false"/>
 
