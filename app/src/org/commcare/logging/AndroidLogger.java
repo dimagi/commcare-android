@@ -2,13 +2,11 @@ package org.commcare.logging;
 
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
-import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;

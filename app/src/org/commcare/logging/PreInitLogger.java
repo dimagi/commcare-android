@@ -1,7 +1,6 @@
 package org.commcare.logging;
 
 import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
