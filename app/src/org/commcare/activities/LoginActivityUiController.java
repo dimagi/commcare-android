@@ -39,9 +39,7 @@ import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
-import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -72,7 +70,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
     private RectangleButtonWithText notificationButton;
 
     @UiElement(value = R.id.connect_login_button)
-    private RoundedButton connectLoginButton;
+    private Button connectLoginButton;
 
     @UiElement(value = R.id.login_or)
     private ConnectMediumTextView orLabel;
