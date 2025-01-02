@@ -351,22 +351,22 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         boolean isBusy;
         switch (method) {
             case MethodRecoveryPrimary -> {
-                isBusy = !ApiConnectId.requestRecoveryOtpPrimary(requireActivity(), username, callback);
+               ApiConnectId.requestRecoveryOtpPrimary(requireActivity(), username, callback);
             }
             case MethodRecoveryAlternate -> {
-                isBusy = !ApiConnectId.requestRecoveryOtpSecondary(requireActivity(), username, password, callback);
+             ApiConnectId.requestRecoveryOtpSecondary(requireActivity(), username, password, callback);
             }
             case MethodVerifyAlternate -> {
-                isBusy = !ApiConnectId.requestVerificationOtpSecondary(requireActivity(), username, password, callback);
+                ApiConnectId.requestVerificationOtpSecondary(requireActivity(), username, password, callback);
             }
             default -> {
-                isBusy = !ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
+               ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
             }
         }
 
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+//        if (isBusy) {
+//            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
+//        }
     }
 
     public void verifySmsCode() {
@@ -452,24 +452,19 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
         };
 
-        boolean isBusy;
         switch (method) {
             case MethodRecoveryPrimary -> {
-                isBusy = !ApiConnectId.confirmRecoveryOtpPrimary(getActivity(), username, password, token, callback);
+                ApiConnectId.confirmRecoveryOtpPrimary(getActivity(), username, password, token, callback);
             }
             case MethodRecoveryAlternate -> {
-                isBusy = !ApiConnectId.confirmRecoveryOtpSecondary(requireActivity(), username, password, token, callback);
+                ApiConnectId.confirmRecoveryOtpSecondary(requireActivity(), username, password, token, callback);
             }
             case MethodVerifyAlternate -> {
-                isBusy = !ApiConnectId.confirmVerificationOtpSecondary(requireActivity(), username, password, token, callback);
+              ApiConnectId.confirmVerificationOtpSecondary(requireActivity(), username, password, token, callback);
             }
             default -> {
-                isBusy = !ApiConnectId.confirmRegistrationOtpPrimary(requireActivity(), username, password, token, callback);
+                ApiConnectId.confirmRegistrationOtpPrimary(requireActivity(), username, password, token, callback);
             }
-        }
-
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
 
