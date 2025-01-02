@@ -201,7 +201,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // manually create/setup session service because robolectric doesn't
         // really support services
         CommCareSessionService ccService = startRoboCommCareService();
-        ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
         User user = getUserFromDb(ccService, record);
         if (user == null && cachedUserPassword != null) {

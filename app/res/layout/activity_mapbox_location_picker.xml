@@ -56,21 +56,19 @@
             android:maxLines="3"
             android:minLines="3" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/confirm_location_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:enabled="false"
-            style="@style/Commcare.Button.Primary"
             android:text="@string/confirm_location" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/cancel_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            style="@style/Commcare.Button.Primary"
             android:text="@string/cancel" />
 
     </LinearLayout>
