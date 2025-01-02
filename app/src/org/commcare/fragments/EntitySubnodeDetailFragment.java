@@ -53,7 +53,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         if (this.adapter == null && this.loader == null && !EntityLoaderTask.attachToActivity(this)) {
             // Set up task to fetch entity data
             EntityLoaderTask theLoader =
-                    new EntityLoaderTask(detailToDisplay, getFactoryContextForRef(referenceToDisplay));
+                    new EntityLoaderTask(detailToDisplay, null, getFactoryContextForRef(referenceToDisplay));
             theLoader.attachListener(this);
             theLoader.executeParallel(detailToDisplay.getNodeset().contextualize(referenceToDisplay));
 
@@ -79,9 +79,8 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     }
 
     @Override
-    public void deliverLoadResult(List<Entity<TreeReference>> entities,
-                                  List<TreeReference> references,
-                                  NodeEntityFactory factory, int focusTargetIndex) {
+    public void deliverLoadResult(List<Entity<TreeReference>> entities, List<TreeReference> references,
+            NodeEntityFactory factory, int focusTargetIndex) {
         Bundle args = getArguments();
         Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
@@ -102,5 +101,10 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     @Override
     public void deliverLoadError(Exception e) {
         ((CommCareActivity)getActivity()).displayCaseListLoadException(e);
+    }
+
+    @Override
+    public void deliverProgress(Integer[] values) {
+        // nothing to do
     }
 }
