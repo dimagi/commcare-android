@@ -23,7 +23,6 @@ public class ApiEndPoints {
     public static final String confirmPIN = "/users/recover/confirm_pin";
     public static final String resetPassword = "/users/recover/reset_password";
     public static final String changePassword = "/users/change_password";
-    public static final String checkPassword = "/users/recover/confirm_password";
-    public static final String confirmPassword = "//users/recover/confirm_password";
+    public static final String confirmPassword = "/users/recover/confirm_password";
 
 }
