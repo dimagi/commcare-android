@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -128,7 +129,10 @@ import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
 import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -146,7 +150,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class CommCareApplication extends MultiDexApplication {
+public class CommCareApplication extends Application implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
@@ -263,6 +267,8 @@ public class CommCareApplication extends MultiDexApplication {
         customiseOkHttp();
 
         setRxJavaGlobalHandler();
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
     protected void loadSqliteLibs() {
@@ -560,7 +566,6 @@ public class CommCareApplication extends MultiDexApplication {
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
-//            e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
@@ -932,7 +937,6 @@ public class CommCareApplication extends MultiDexApplication {
 
     /**
      * Whether the current login is a "demo" mode login.
-     * <p>
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {
@@ -1246,5 +1250,14 @@ public class CommCareApplication extends MultiDexApplication {
 
             Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
         });
+    }
+
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        switch (event) {
+            case ON_DESTROY:
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
+                break;
+        }
     }
 }

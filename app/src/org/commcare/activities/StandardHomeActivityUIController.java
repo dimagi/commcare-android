@@ -1,10 +1,12 @@
 package org.commcare.activities;
 
+import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -32,9 +34,9 @@ import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
 
 /**
@@ -46,7 +48,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private final StandardHomeActivity activity;
     private View viewJobCard;
-    private CardView cvDailyLimitView;
+    private CardView connectMessageCard;
 
     private ConstraintLayout connectTile;
 
@@ -61,8 +63,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
         connectTile = activity.findViewById(R.id.connect_alert_tile);
+        connectTile.setVisibility(View.GONE);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
-        cvDailyLimitView = activity.findViewById(R.id.cvDailyLimitView);
+        connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
         updateConnectProgress();
         updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
@@ -73,12 +76,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        boolean show = record != null && !record.getIsLearning() && job != null && !job.isFinished();
+        boolean show = record != null;
 
-        cvDailyLimitView.setVisibility(show && job.getDaysRemaining() == 0 ? View.VISIBLE : View.GONE);
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if(show) {
+        if (show) {
             ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
@@ -90,18 +91,88 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
             tvJobDiscrepation.setText(job.getDescription());
-            connectJobPay.setText(activity.getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
+            connectJobPay.setText(job.getMoneyString(job.getBudgetPerVisit()));
             connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
             String workingHours = job.getWorkingHours();
             boolean showHours = workingHours != null;
             tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
             hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-            if(showHours) {
+            if (showHours) {
                 tv_job_time.setText(workingHours);
             }
 
             updateConnectProgress();
+        }
+    }
+
+    private void updateOpportunityMessage() {
+        String warningText = null;
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        if (record != null) {
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            if (job.isFinished()) {
+                warningText = activity.getString(R.string.connect_progress_warning_ended);
+            } else if (job.getProjectStartDate().after(new Date())) {
+                warningText = activity.getString(R.string.connect_progress_warning_not_started);
+            } else if(job.readyToTransitionToDelivery()) {
+                warningText = activity.getString(R.string.connect_progress_ready_for_transition_to_delivery);
+            } else if (job.isMultiPayment()) {
+                Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+                Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+                List<String> dailyMaxes = new ArrayList<>();
+                List<String> totalMaxes = new ArrayList<>();
+                for (int i = 0; i < job.getPaymentUnits().size(); i++) {
+                    ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+                    String stringKey = Integer.toString(unit.getUnitId());
+
+                    int totalCount = 0;
+                    if (totalPaymentCounts.containsKey(stringKey)) {
+                        totalCount = totalPaymentCounts.get(stringKey);
+                    }
+
+                    if (totalCount >= unit.getMaxTotal()) {
+                        //Reached max total for this type
+                        totalMaxes.add(unit.getName());
+                    } else {
+                        int todayCount = 0;
+                        if (todayPaymentCounts.containsKey(stringKey)) {
+                            todayCount = todayPaymentCounts.get(stringKey);
+                        }
+
+                        if (todayCount >= unit.getMaxDaily()) {
+                            //Reached daily max for this type
+                            dailyMaxes.add(unit.getName());
+                        }
+                    }
+                }
+
+                if (totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
+                    warningText = "";
+                    if (totalMaxes.size() > 0) {
+                        String maxes = String.join(", ", totalMaxes);
+                        warningText = activity.getString(R.string.connect_progress_warning_max_reached_multi, maxes);
+                    }
+
+                    if (dailyMaxes.size() > 0) {
+                        String maxes = String.join(", ", dailyMaxes);
+                        warningText += activity.getString(R.string.connect_progress_warning_daily_max_reached_multi, maxes);
+                    }
+                }
+            } else {
+                if (job.getDeliveries().size() >= job.getMaxVisits()) {
+                    warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
+                } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
+                    warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
+                }
+            }
+        }
+
+        connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+        if (warningText != null) {
+            TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
+            tv.setText(warningText);
         }
     }
 
@@ -125,23 +196,23 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectManager.getActiveJob();
 
+        if (job == null || job.getStatus() != STATUS_DELIVERING || job.isFinished()) {
+            recyclerView.setVisibility(View.GONE);
+        }
+
+        updateOpportunityMessage();
+
         deliveryPaymentInfoList.clear();
 
-        if(job != null) {
-            Hashtable<String, Integer> todayDeliveryCounts = job.getDeliveryCountsPerPaymentUnit(true);
-            for (int j = 0; j < job.getPaymentUnits().size(); j++) {
-                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(j);
-                String stringKey = Integer.toString(unit.getUnitId());
-                int amount = 0;
-                if (todayDeliveryCounts.containsKey(stringKey)) {
-                    amount = todayDeliveryCounts.get(stringKey);
-                }
-                deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
-                        unit.getName(),
-                        amount,
-                        unit.getMaxDaily()
-                ));
-            }
+        if (job != null) {
+            //Note: Only showing a single daily progress bar for now
+            //Adding more entries to the list would show multiple progress bars
+            //(i.e. one for each payment type)
+            deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
+                    activity.getString(R.string.connect_job_tile_daily_visits),
+                    job.numberOfDeliveriesToday(),
+                    job.getMaxDailyVisits()
+            ));
         }
 
         ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);
@@ -168,7 +239,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (ConnectManager.getAppRecord(context, ccApp.getUniqueId()) == null) {
+        if (!ConnectManager.shouldShowJobStatus(context, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
 

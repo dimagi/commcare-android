@@ -1,17 +1,16 @@
 package org.commcare.logic;
 
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.commcare.google.services.analytics.FormAnalyticsHelper;
-import org.commcare.utils.FileUtil;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormController;
 import org.javarosa.form.api.FormEntryController;
-
-import java.io.File;
-import java.util.Date;
 
 /**
  * Wrapper around FormController to handle Android-specific form entry actions
@@ -23,12 +22,18 @@ public class AndroidFormController extends FormController implements PendingCall
     private boolean wasPendingCalloutCancelled;
     private FormIndex formIndexToReturnTo = null;
     private boolean formCompleteAndSaved = false;
+    @Nullable
+    private InterruptedFormState interruptedFormState;
 
     private FormAnalyticsHelper formAnalyticsHelper;
 
-    public AndroidFormController(FormEntryController fec, boolean readOnly) {
+    public AndroidFormController(FormEntryController fec, boolean readOnly, @Nullable InterruptedFormState interruptedFormState) {
         super(fec, readOnly);
         formAnalyticsHelper = new FormAnalyticsHelper();
+        this.interruptedFormState = interruptedFormState;
+        if (interruptedFormState !=null) {
+            formIndexToReturnTo = interruptedFormState.getFormIndex();
+        }
     }
 
     @Override
@@ -87,5 +92,9 @@ public class AndroidFormController extends FormController implements PendingCall
 
     public FormDef getFormDef() {
         return mFormEntryController.getModel().getForm();
+    }
+
+    public InterruptedFormState getInterruptedFormState(){
+        return interruptedFormState;
     }
 }

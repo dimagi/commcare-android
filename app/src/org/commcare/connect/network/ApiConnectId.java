@@ -7,6 +7,7 @@ import com.google.common.collect.ArrayListMultimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -62,7 +63,7 @@ public class ApiConnectId {
 
             try {
                 ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, hqPassword), params, true, false);
+                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
                 if (postResult.e == null && postResult.responseCode == 200) {
                     postResult.responseStream.close();
 
@@ -71,7 +72,7 @@ public class ApiConnectId {
                     ConnectDatabaseHelper.storeApp(context, appRecord);
                 }
             } catch (IOException e) {
-                //Don't care for now
+                Logger.exception("Linking HQ worker", e);
             }
         }
     }
@@ -109,7 +110,8 @@ public class ApiConnectId {
                     expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                    SsoToken ssoToken = new SsoToken(token, expiration);
+                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
                 }

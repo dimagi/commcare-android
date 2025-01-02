@@ -103,15 +103,13 @@ public class ConnectJobIntroFragment extends Fragment {
                         job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                         ConnectDatabaseHelper.upsertJob(getContext(), job);
 
-                        NavDirections directions;
                         if (appInstalled) {
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobLearningProgressFragment();
+                            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            directions = ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true);
+                            Navigation.findNavController(button).navigate(ConnectJobIntroFragmentDirections.
+                                    actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true));
                         }
-
-                        Navigation.findNavController(button).navigate(directions);
                     }
 
                     @Override
@@ -151,12 +149,12 @@ public class ConnectJobIntroFragment extends Fragment {
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDeliveryDetailsFragment(false));
+            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(getString(R.string.connect_job_tile_price, job.getMoneyString(job.getBudgetPerVisit())));
+        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();

@@ -5,8 +5,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 
 /**
  * Unit test for the encryption and decryption of a string

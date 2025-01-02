@@ -185,7 +185,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE);
                 }
                 directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragmnet.MethodRegistrationPrimary), phone, user.getUserId(), user.getPassword(), null,false).setAllowChange(true);
+                        ConnectIdPhoneVerificationFragmnet.MethodRegistrationPrimary), phone, user.getUserId(), user.getPassword(), null, false).setAllowChange(true);
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {
@@ -195,13 +195,13 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                 directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                        ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false).setAllowChange(false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false).setAllowChange(false);
                 } else {
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
@@ -314,9 +314,14 @@ public class ConnectIdPhoneFragment extends Fragment {
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                             ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
+                                        private void completeCall() {
+                                            skipPhoneNumberCheck = false;
+                                            binding.connectPrimaryPhoneAvailability.setText("");
+                                        }
+
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             binding.errorTextView.setText(getString(R.string.connect_phone_available));
                                             binding.connectPrimaryPhoneButton.setEnabled(true);
 
@@ -324,7 +329,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
                                         @Override
                                         public void processFailure(int responseCode, IOException e) {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             if (e != null) {
                                                 Logger.exception("Checking phone number", e);
                                             }
@@ -334,13 +339,13 @@ public class ConnectIdPhoneFragment extends Fragment {
 
                                         @Override
                                         public void processNetworkFailure() {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
                                         }
 
                                         @Override
                                         public void processOldApiError() {
-                                            skipPhoneNumberCheck = false;
+                                            completeCall();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });

@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="CommonTheme" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
         <item name="colorPrimary">@color/cc_brand_color</item>
         <item name="colorPrimaryDark">@color/cc_brand_text</item>
         <item name="colorAccent">@color/cc_dark_cool_accent_color</item>
-        <item name="colorControlActivated">@color/cc_dark_cool_accent_color</item>
+        <item name="colorControlActivated">@color/cc_brand_color</item>
         <item name="android:textColorSecondary">@color/cc_neutral_text</item>
         <item name="android:textColorPrimary">@color/cc_core_text</item>
         <item name="buttonStyle">@style/Commcare.Button.Primary</item>
-        <item name="buttonBarButtonStyle">@style/Commcare.Button.Primary</item>
+        <item name="materialButtonStyle">@style/Commcare.Button.Primary.Rounded</item>
+        <item name="buttonBarButtonStyle">@style/AlertDialogButtonStyle</item>
         <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Medium</item>
         <item name="android:colorBackground">@color/cc_core_bg</item>
         <item name="detail_odd_row_color">@color/cc_neutral_bg</item>
@@ -100,8 +101,7 @@
         <item name="background">@color/cc_brand_color</item>
         <item name="titleTextStyle">@style/ActionBar.TitleTextStyle</item>
         <item name="subtitleTextStyle">@style/ActionBarSubtitleTextStyle</item>
-        <item name="logo">@drawable/actionbar_modern_spacing</item>
-        <item name="actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="logo">@drawable/commcare_actionbar_logo_spacing</item>
     </style>
 
     <style name="dropDownListView" parent="Widget.AppCompat.ListView.DropDown">
@@ -110,7 +110,8 @@
 
     <style name="ActionBar.TitleTextStyle">
         <item name="android:textColor">@color/white</item>
-        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:textSize">22sp</item>
     </style>
 
     <style name="ActionBarSubtitleTextStyle">
@@ -122,7 +123,7 @@
     </style>
 
     <style name="OverflowButton" parent="Widget.AppCompat.Light.ActionButton.Overflow">
-        <item name="android:src">@drawable/ic_action_overflow</item>
+        <item name="android:src">@drawable/ic_connect_action_overflow</item>
     </style>
 
     <style name="Theme.LightSliding" parent="@android:style/Theme.Light">
@@ -172,6 +173,8 @@
     </style>
 
     <style name="Commcare.Button.Primary" parent="commcare_primary_button" />
+
+    <style name="Commcare.Button.Primary.Rounded" parent="CustomButtonStyle" />
 
     <style name="CommCare.Button.Default" parent="Widget.AppCompat.Button">
         <item name="textAllCaps">true</item>
