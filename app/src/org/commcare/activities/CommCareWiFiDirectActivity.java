@@ -225,7 +225,11 @@ public class CommCareWiFiDirectActivity
                 .findFragmentById(R.id.wifi_manager_fragment);
 
         mReceiver = new WiFiDirectBroadcastReceiver(mManager, fragment);
-        registerReceiver(mReceiver, mIntentFilter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(mReceiver, mIntentFilter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(mReceiver, mIntentFilter);
+        }
 
         fragment.startReceiver(mManager, mChannel);
 
@@ -283,7 +287,7 @@ public class CommCareWiFiDirectActivity
             dismissAlertDialog();
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
-        d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
+        d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener, true);
         d.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
         showAlertDialog(d);
     }

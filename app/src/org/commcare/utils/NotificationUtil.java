@@ -34,7 +34,7 @@ public class NotificationUtil {
                         .setContentTitle(notificationTitle)
                         .setContentText(notificationText)
                         .setContentIntent(contentIntent)
-                        .setSmallIcon(R.drawable.notification)
+                        .setSmallIcon(R.drawable.commcare_actionbar_logo)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
                         .setWhen(System.currentTimeMillis());
         ((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE))
