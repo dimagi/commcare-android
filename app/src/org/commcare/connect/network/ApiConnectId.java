@@ -35,7 +35,7 @@ public class ApiConnectId {
     private static final String API_VERSION_CONNECT_ID = "1.0";
 
     public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("token", connectToken);
 
         String url = ServerUrls.getKeyServer().replace("phone/keys/",
@@ -57,7 +57,7 @@ public class ApiConnectId {
     }
 
     public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
         params.put("scope", "mobile_access sync");
         params.put("grant_type", "password");
@@ -89,7 +89,8 @@ public class ApiConnectId {
                     expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                    SsoToken ssoToken = new SsoToken(token, expiration);
+                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
                 }
@@ -103,7 +104,7 @@ public class ApiConnectId {
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
         String url = context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if(token != null) {
             params.put("fcm_token", token);
@@ -123,7 +124,7 @@ public class ApiConnectId {
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(context);
 
         if (user != null) {
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
             params.put("scope", "openid");
             params.put("grant_type", "password");
@@ -336,7 +337,7 @@ public class ApiConnectId {
     }
 
     public static boolean requestVerificationOtpSecondary(Context context, String username, String password,
-                                                      IApiCallback callback) {
+                                                          IApiCallback callback) {
         int urlId = R.string.ConnectVerifySecondaryURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
@@ -387,7 +388,7 @@ public class ApiConnectId {
     }
 
     public static boolean confirmVerificationOtpSecondary(Context context, String username, String password,
-                                                      String token, IApiCallback callback) {
+                                                          String token, IApiCallback callback) {
         int urlId = R.string.ConnectVerifyConfirmSecondaryOTPURL;
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 

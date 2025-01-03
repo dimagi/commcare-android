@@ -8,6 +8,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_margin="16dp"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -20,7 +21,7 @@
             android:paddingTop="@dimen/content_min_margin"
             android:scaleType="fitCenter"
             android:adjustViewBounds="true"
-            app:srcCompat="@drawable/commcare_logo"
+            app:srcCompat="@drawable/commcare_by_dimagi"
             android:layout_marginEnd="@dimen/content_min_margin"
             android:paddingStart="@dimen/content_min_margin"></ImageView>
 
@@ -46,7 +47,7 @@
             android:lines="5"
             android:textColor="@color/black"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ReportButton01"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -5,12 +5,11 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -81,7 +80,6 @@ public class CustomOtpView extends LinearLayout {
         editText.setGravity(Gravity.CENTER);
         editText.setTextColor(isErrorState ? errorTextColor : textColor);
         editText.setTextSize(textSize);
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(1)});
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackground(createBackgroundDrawable());
         editText.setId(index);
@@ -98,18 +96,39 @@ public class CustomOtpView extends LinearLayout {
             }
         });
 
+        editText.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                int edtIndex = index > 0 ? index - 1 : 0;
+
+                EditText edt = (EditText)getChildAt(edtIndex);
+                edt.setText("");
+                edt.requestFocus();
+                return true; // Consume the event
+            }
+            return false;
+        });
+
         editText.addTextChangedListener(new TextWatcher() {
+            private boolean isSelfTriggered = false;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isSelfTriggered) {
+                    return;
+                }
+
                 setErrorState(false);
+
                 if (s.length() == 1) {
-                    // Automatically move to the next EditText if current is filled
+                    // Overwrite the existing value and move to the next EditText
                     if (index < digitCount - 1) {
-                        getChildAt(index + 1).requestFocus();
+                        EditText nextEditText = (EditText) getChildAt(index + 1);
+                        nextEditText.setText(""); // Clear next field
+                        nextEditText.requestFocus();
                     } else {
                         checkOtpCompletion();
                     }
@@ -117,18 +136,34 @@ public class CustomOtpView extends LinearLayout {
                         String otp = getOtpValue();
                         otpChangedListener.onOtpChanged(otp);
                     }
-                } else {
-                    if (otpChangedListener != null) {
-                        String otp = getOtpValue();
-                        otpChangedListener.onOtpChanged(otp);
+                } else if (s.length() > 1) {
+                    // If more than one character, replace with the latest input
+                    char lastChar = s.charAt(s.length() - 1);
+                    String text = "";
+                    if(Character.isDigit(lastChar)) {
+                        text = String.valueOf(lastChar);
                     }
+                    editText.setText(text);
+                } else if (otpChangedListener != null) {
+                    String otp = getOtpValue();
+                    otpChangedListener.onOtpChanged(otp);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (isSelfTriggered) return;
+
+                if (s.length() > 1) {
+                    // Ensure only the last character is preserved
+                    isSelfTriggered = true;
+                    editText.setText(s.subSequence(s.length() - 1, s.length()));
+                    editText.setSelection(1); // Place cursor after the character
+                    isSelfTriggered = false;
+                }
             }
         });
+
 
         return editText;
     }
@@ -200,8 +235,9 @@ public class CustomOtpView extends LinearLayout {
             if (i < otp.length()) {
                 editText.setText(String.valueOf(otp.charAt(i)));
             } else {
-                editText.setText(""); // Clear remaining fields if OTP is shorter
+                editText.setText("");
             }
+            editText.clearFocus(); // Ensure no field remains focused
         }
     }
 }

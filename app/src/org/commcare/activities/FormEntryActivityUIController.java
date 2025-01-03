@@ -83,6 +83,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private boolean formRelevanciesUpdateInProgress = false;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
+    private TextView finishText;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -104,7 +105,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         View finishButton = activity.findViewById(R.id.nav_btn_finish);
 
-        TextView finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
+        finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
         nextButton.setOnClickListener(v -> {
@@ -199,6 +200,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         } else {
             QuestionsView current = createView();
             showView(current, AnimationType.FADE, animateLastView);
+        }
+
+        if (finishText != null && FormEntryActivity.mFormController.isFormReadOnly()) {
+            finishText.setText(Localization.get("form.entry.exit.button").toUpperCase());
         }
     }
 
@@ -322,7 +327,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
                 //Did we jump at all? (not sure how we could have, but there might be a mismatch)
                 if (lastValidIndex.equals(startIndex)) {
-                    //If not, don't even bother changing the view. 
+                    //If not, don't even bother changing the view.
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
                     activity.triggerUserQuitInput();

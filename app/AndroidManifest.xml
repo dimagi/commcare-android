@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="org.commcare.dalvik"
-    android:versionCode="106"
-    android:versionName="2.55">
+          xmlns:tools="http://schemas.android.com/tools"
+          android:versionCode="106"
+          android:versionName="2.56">
 
     <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,     ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer,     com.google.firebase.crashlytics, com.google.firebase.iid, com.appmattus.certificatetransparency" />
 
@@ -38,6 +37,7 @@
         android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -308,11 +308,14 @@
         <activity
             android:name="org.commcare.activities.FormRecordListActivity"
             android:windowSoftInputMode="adjustResize" />
-
         <service
-            android:name="org.commcare.services.CommCareSessionService"
-            android:enabled="true" />
-
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:name="org.commcare.services.CommCareSessionService">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Service that maintains an encryption key in memory to securely submit data to the server" />
+        </service>
         <activity
             android:name="org.commcare.activities.FormEntryActivity"
             android:launchMode="singleTop"
@@ -333,26 +336,28 @@
             android:name="org.commcare.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity android:name="org.commcare.gis.EntityMapActivity" />
-        <activity
-            android:name="org.commcare.gis.EntityMapboxActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name="org.commcare.gis.EntityMapboxActivity">
+        </activity>
+
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity" />
-        <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity" />
-        <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity" />
-        <activity android:name="org.commcare.activities.InstallFromListActivity" />
-        <activity
-            android:name="org.commcare.gis.MapboxLocationPickerActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.InstallFromListActivity">
+        </activity>
+        <activity android:name="org.commcare.gis.MapboxLocationPickerActivity" />
 
         <uses-library
             android:name="com.google.android.maps"
@@ -360,7 +365,10 @@
 
         <activity android:name="org.commcare.activities.MessageActivity" />
 
-        <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver" />
+        <receiver
+            android:exported="false"
+            android:name="org.commcare.views.notifications.NotificationClearReceiver">
+        </receiver>
 
         <activity
             android:name="org.commcare.activities.ReportProblemActivity"
@@ -531,9 +539,9 @@
             IllegalStateException while trying to start map downloader service from background.
             Below code removes this receiver's entry from Manifest.
         -->
-        <receiver
-            android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
-            tools:node="remove" />
+        <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
+            android:exported="false"
+            tools:node="remove"/>
         <!--
  The zebra-print-android library is not yet targeting Android 12 and at least one
             Activity doesn't have the required attribute exported. The entry below adds the

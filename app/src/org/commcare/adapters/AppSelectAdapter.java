@@ -29,7 +29,7 @@ public class AppSelectAdapter extends SquareButtonAdapter {
         for (ApplicationRecord record : MultipleAppsUtil.getUsableAppRecords()) {
             HomeCardDisplayData card = HomeCardDisplayData.homeCardDataWithStaticText(record.getDisplayName(),
                     R.color.white,
-                    R.drawable.commcare_logo,
+                    R.drawable.ic_dimagi_logo,
                     R.color.cc_dark_cool_accent_color,
                     v -> {
                         //TODO: Handle button press

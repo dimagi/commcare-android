@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
@@ -84,9 +85,9 @@ public class ConnectDatabaseHelper {
 
     public static String getConnectDbEncodedPassphrase(Context context, boolean local) {
         try {
-            ConnectKeyRecord record = getKeyRecord(local);
-            if (record != null) {
-                return Base64.encode(EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase()));
+            byte[] passBytes = getConnectDbPassphrase(context);
+            if (passBytes != null) {
+                return Base64.encode(passBytes);
             }
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);
@@ -96,13 +97,11 @@ public class ConnectDatabaseHelper {
     }
 
     private static ConnectKeyRecord getKeyRecord(boolean local) {
-        for (ConnectKeyRecord r : CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class)) {
-            if (r.getIsLocal() == local) {
-                return r;
-            }
-        }
+        Vector<ConnectKeyRecord> records = CommCareApplication.instance()
+                .getGlobalStorage(ConnectKeyRecord.class)
+                .getRecordsForValue(ConnectKeyRecord.IS_LOCAL, local);
 
-        return null;
+        return records.size() > 0 ? records.firstElement() : null;
     }
 
     public static void storeConnectDbPassphrase(Context context, String base64EncodedPassphrase, boolean isLocal) {
@@ -164,7 +163,7 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            Logger.log("DB ERROR", "Connect DB is corrupt");
+                            Logger.exception("Corrupt Connect DB", e);
                         }
                     }
                     return connectDatabase;
@@ -196,6 +195,7 @@ public class ConnectDatabaseHelper {
                     break;
                 }
             } catch (Exception e) {
+                Logger.exception("Corrupt Connect DB trying to get user", e);
                 dbBroken = true;
             }
         }
@@ -251,13 +251,13 @@ public class ConnectDatabaseHelper {
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 
-    public static void storeHqToken(Context context, String appId, String userId, String token, Date expiration) {
+    public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
         ConnectLinkedAppRecord record = getAppData(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, false, "");
         }
 
-        record.updateHqToken(token, expiration);
+        record.updateHqToken(token);
 
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
