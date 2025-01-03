@@ -425,13 +425,13 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
-    public static boolean retrieveMessages(Context context, String username, String password,IApiCallback callback) {
+    public static void retrieveMessages(Context context, String username, String password,IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
         Multimap<String, String> params = ArrayListMultimap.create();
-        return ConnectNetworkHelper.get(context,
+        ConnectNetworkHelper.get(context,
                 context.getString(R.string.ConnectMessageRetrieveMessagesURL),
-                API_VERSION_CONNECT_ID, authInfo, params, false, callback);
+                API_VERSION_CONNECT_ID, authInfo, params, true, callback);
     }
 
     public static boolean updateChannelConsent(Context context, String username, String password,

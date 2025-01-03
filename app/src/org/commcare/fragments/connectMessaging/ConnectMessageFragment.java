@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import org.commcare.adapters.ConnectMessageAdapter;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -40,6 +41,9 @@ public class ConnectMessageFragment extends Fragment {
 
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
+
+        ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+        getActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
         setChatAdapter();
@@ -81,6 +85,9 @@ public class ConnectMessageFragment extends Fragment {
 
             binding.etMessage.setText("");
 
+            ConnectDatabaseHelper.storeMessagingMessage(requireContext(), message);
+            refreshUi();
+
             MessageManager.sendMessage(requireContext(), message, success -> {
                 refreshUi();
             });
@@ -115,6 +122,7 @@ public class ConnectMessageFragment extends Fragment {
         }
 
         adapter.updateData(chats);
+        binding.rvChat.scrollToPosition(messages.size() - 1);
     }
 }
 

@@ -112,11 +112,7 @@ public class MessageManager {
         };
 
         ConnectUserRecord user = ConnectManager.getUser(context);
-        boolean isBusy = !ApiConnectId.retrieveMessages(context, user.getUserId(), user.getPassword(), callback);
-
-        if (isBusy) {
-            Toast.makeText(context, R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+        ApiConnectId.retrieveMessages(context, user.getUserId(), user.getPassword(), callback);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
@@ -287,7 +283,6 @@ public class MessageManager {
 
     public static void sendMessage(Context context, ConnectMessagingMessageRecord message,
                                    ConnectManager.ConnectActivityCompleteListener listener) {
-        ConnectDatabaseHelper.storeMessagingMessage(context, message);
         ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(context, message.getChannelId());
 
         if(channel.getKey().length() > 0) {

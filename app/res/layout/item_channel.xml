@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="45dp"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,18 +24,20 @@
             app:cardCornerRadius="7dp"
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/>
 
         <org.commcare.views.connect.connecttextview.ConnectMediumTextView
             android:id="@+id/tvChannelName"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="16dp"
             android:text="Channel Name"
             android:textColor="@color/black"
             android:textSize="15sp"
             app:layout_constraintStart_toEndOf="@+id/imgChannel"
-            app:layout_constraintTop_toTopOf="@+id/imgChannel" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
             android:id="@+id/tvChannelDescription"

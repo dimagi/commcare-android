@@ -80,7 +80,14 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             boolean showDate = lastDate != null;
             binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);
             if(showDate) {
-                binding.tvLastChatTime.setText(DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+                String lastText;
+                if(DateUtils.dateDiff(new Date(), lastDate) == 0) {
+                    lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
+                } else {
+                    lastText = DateUtils.formatDate(lastDate, DateUtils.FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY);
+                }
+
+                binding.tvLastChatTime.setText(lastText);
             }
 
             boolean showUnread = unread > 0;

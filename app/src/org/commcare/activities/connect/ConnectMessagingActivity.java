@@ -36,12 +36,18 @@ public class ConnectMessagingActivity extends AppCompatActivity {
         ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
         getSupportActionBar().setBackgroundDrawable(colorDrawable);
         setTitle("Messaging");
-         getSupportActionBar().setTitle("Messaging");
+         //getSupportActionBar().setTitle("Messaging");
 
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect_messaging);
         controller = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, controller);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        getSupportActionBar().setTitle(title);
     }
 
     @Override

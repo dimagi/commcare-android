@@ -40,7 +40,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<ConnectMessagingChannelRecord> channels = new ArrayList<>();
+        List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(getContext());
 
         channelAdapter = new ChannelAdapter(channels, channel -> {
             NavDirections directions;
