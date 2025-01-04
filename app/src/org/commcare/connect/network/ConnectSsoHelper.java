@@ -79,7 +79,7 @@ public class ConnectSsoHelper {
             if (connectIdToken != null) {
                 if(!appRecord.getWorkerLinked()) {
                     //Link user if necessary
-                    ApiConnectId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
+                    ApiConnectId.linkHqWorker(context, hqUsername, appRecord.getPassword(), connectIdToken.bearerToken);
                 }
 
                 //Retrieve HQ token
