@@ -17,7 +17,6 @@ import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectMessageChannelListFragment extends Fragment {
@@ -42,20 +41,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(getContext());
 
-        channelAdapter = new ChannelAdapter(channels, channel -> {
-            NavDirections directions;
-            if(channel.getConsented()) {
-                directions = ConnectMessageChannelListFragmentDirections
-                        .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
-            } else {
-                //Get consent for channel
-                directions = ConnectMessageChannelListFragmentDirections
-                        .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
-                                channel.getChannelName());
-            }
-
-            Navigation.findNavController(binding.rvChannel).navigate(directions);
-        });
+        channelAdapter = new ChannelAdapter(channels, this::selectChannel);
 
         binding.rvChannel.setAdapter(channelAdapter);
 
@@ -65,7 +51,28 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         MessageManager.sendUnsentMessages(requireActivity());
 
+        String channelId = getArguments().getString("channel_id");
+        if(channelId != null) {
+            ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+            selectChannel(channel);
+        }
+
         return view;
+    }
+
+    private void selectChannel(ConnectMessagingChannelRecord channel) {
+        NavDirections directions;
+        if(channel.getConsented()) {
+            directions = ConnectMessageChannelListFragmentDirections
+                    .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
+        } else {
+            //Get consent for channel
+            directions = ConnectMessageChannelListFragmentDirections
+                    .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
+                            channel.getChannelName());
+        }
+
+        Navigation.findNavController(binding.rvChannel).navigate(directions);
     }
 
     @Override

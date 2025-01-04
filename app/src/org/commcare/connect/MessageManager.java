@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class MessageManager {
 
@@ -31,6 +32,29 @@ public class MessageManager {
         }
 
         return manager;
+    }
+
+    public static ConnectMessagingMessageRecord handleReceivedMessage(Context context, Map<String, String> payloadData) {
+        ConnectMessagingMessageRecord message = null;
+        String channelId = payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
+
+        //Make sure we know and have consented to the channel
+        ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(context, channelId);
+        if(channel != null && channel.getConsented()) {
+            message = ConnectMessagingMessageRecord.fromMessagePayload(payloadData, channel.getKey());
+            if(message != null) {
+                ConnectDatabaseHelper.storeMessagingMessage(context, message);
+            }
+        }
+
+        return message;
+    }
+
+    public static ConnectMessagingChannelRecord handleReceivedChannel(Context context, Map<String, String> payloadData) {
+        ConnectMessagingChannelRecord channel = ConnectMessagingChannelRecord.fromMessagePayload(payloadData);
+        ConnectDatabaseHelper.storeMessagingChannel(context, channel);
+
+        return channel;
     }
 
     public static void retrieveMessages(Context context, ConnectManager.ConnectActivityCompleteListener listener) {

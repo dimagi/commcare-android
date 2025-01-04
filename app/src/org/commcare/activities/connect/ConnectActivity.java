@@ -52,7 +52,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private static final String CCC_OPPORTUNITY_SUMMARY_PAGE = "ccc_opportunity_summary_page";
     private static final String CCC_LEARN_PROGRESS = "ccc_learn_progress";
     private static final String CCC_DELIVERY_PROGRESS = "ccc_delivery_progress";
-    private static final String CCC_PAYMENTS = "ccc_payment";
+    public static final String CCC_PAYMENTS = "ccc_payment";
 
     NavController.OnDestinationChangedListener destinationListener = null;
 

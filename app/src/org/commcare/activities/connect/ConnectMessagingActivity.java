@@ -11,43 +11,96 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import org.commcare.activities.CommCareActivity;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
-public class ConnectMessagingActivity extends AppCompatActivity {
+public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingActivity> {
+    public static final String CCC_MESSAGE = "ccc_message";
 
     public NavController controller;
+    NavController.OnDestinationChangedListener destinationListener = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_messaging);
+        setTitle("Messaging");
         Window window = getWindow();
         window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
         ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
         getSupportActionBar().setBackgroundDrawable(colorDrawable);
-        setTitle("Messaging");
-         //getSupportActionBar().setTitle("Messaging");
+
+        destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect_messaging);
         controller = navHostFragment.getNavController();
+        controller.addOnDestinationChangedListener(destinationListener);
         NavigationUI.setupActionBarWithNavController(this, controller);
+
+        String action = getIntent().getStringExtra("action");
+        if(action != null) {
+            handleRedirect(action);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (destinationListener != null) {
+            NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.nav_host_fragment_connect_messaging);
+            if (navHostFragment != null) {
+                NavController navController = navHostFragment.getNavController();
+                navController.removeOnDestinationChangedListener(destinationListener);
+            }
+            destinationListener = null;
+        }
+
+        super.onDestroy();
     }
 
     @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
+    }
+
+    private void handleRedirect(String action) {
+        if(action.equals(CCC_MESSAGE)) {
+            ConnectManager.init(this);
+            ConnectManager.unlockConnect(this, success -> {
+                if (success) {
+                    String channelId = getIntent().getStringExtra(
+                            ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
+                    ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(this, channelId);
+
+                    int fragmentId = channel.getConsented() ? R.id.connectMessageFragment : R.id.channelListFragment;
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("channel_id", channelId);
+
+                    NavOptions options = new NavOptions.Builder()
+                            .setPopUpTo(controller.getGraph().getStartDestinationId(), true)
+                            .build();
+                    controller.navigate(fragmentId, bundle, options);
+                }
+            });
+        }
     }
 
     @Override
@@ -58,12 +111,7 @@ public class ConnectMessagingActivity extends AppCompatActivity {
         if (searchItem != null) {
             SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
 
-            searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-                @Override
-                public boolean onClose() {
-                    return false;
-                }
-            });
+            searchView.setOnCloseListener(() -> false);
 
             EditText searchPlate = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
             searchPlate.setHint("Search");

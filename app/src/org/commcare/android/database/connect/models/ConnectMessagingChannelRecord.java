@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Table(ConnectMessagingChannelRecord.STORAGE_KEY)
 public class ConnectMessagingChannelRecord extends Persisted implements Serializable {
@@ -70,6 +71,21 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         connectMessagingChannelRecord.consented = json.getBoolean(META_CONSENT);
         connectMessagingChannelRecord.channelName = json.getString(META_CHANNEL_NAME);
         connectMessagingChannelRecord.keyUrl = json.getString(META_KEY_URL);
+
+        connectMessagingChannelRecord.channelCreated = new Date();
+        connectMessagingChannelRecord.answeredConsent = false;
+        connectMessagingChannelRecord.key = "";
+
+        return connectMessagingChannelRecord;
+    }
+
+    public static ConnectMessagingChannelRecord fromMessagePayload(Map<String, String> payloadData) {
+        ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
+
+        connectMessagingChannelRecord.channelId = payloadData.get(META_CHANNEL_ID);
+        connectMessagingChannelRecord.consented = payloadData.get(META_CONSENT).equals("true");
+        connectMessagingChannelRecord.channelName = payloadData.get(META_CHANNEL_NAME);
+        connectMessagingChannelRecord.keyUrl = payloadData.get(META_KEY_URL);
 
         connectMessagingChannelRecord.channelCreated = new Date();
         connectMessagingChannelRecord.answeredConsent = false;

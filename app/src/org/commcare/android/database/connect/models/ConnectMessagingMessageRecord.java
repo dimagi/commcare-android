@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Table(ConnectMessagingMessageRecord.STORAGE_KEY)
 public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
@@ -95,6 +96,29 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         connectMessagingMessageRecord.userViewed = false;
 
         return connectMessagingMessageRecord;
+    }
+
+    public static ConnectMessagingMessageRecord fromMessagePayload(Map<String, String> payloadData, String encryptionKey) {
+        String channel = payloadData.get(META_MESSAGE_CHANNEL_ID);
+        String cipher = payloadData.get("ciphertext");
+        String tag = payloadData.get("tag");
+        String nonce = payloadData.get("nonce");
+        String decrypted = decrypt(cipher, nonce, tag, encryptionKey);
+
+        if(decrypted == null) {
+            return null;
+        }
+
+        ConnectMessagingMessageRecord record = new ConnectMessagingMessageRecord();
+        record.setMessageId(payloadData.get(META_MESSAGE_ID));
+        record.setTimeStamp(DateUtils.parseDateTime(payloadData.get(META_MESSAGE_TIMESTAMP)));
+        record.setChannelId(channel);
+        record.setConfirmed(false);
+        record.setMessage(decrypted);
+        record.setUserViewed(false);
+        record.setIsOutgoing(false);
+
+        return record;
     }
 
     private static ConnectMessagingChannelRecord getChannel(List<ConnectMessagingChannelRecord> channels, String channelId) {
