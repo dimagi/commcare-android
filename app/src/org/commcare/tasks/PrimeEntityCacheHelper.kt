@@ -162,7 +162,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         entities: MutableList<Entity<TreeReference>>? = null,
         progressListener: EntityLoadingProgressListener? = null
     ) {
-        if (!detail.shouldCache()) return
+        if (!detail.isCacheEnabled()) return
         currentDatumInProgress = entityDatum.dataId
         entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId)).also {
             it.factory.setEntityProgressListener(progressListener)

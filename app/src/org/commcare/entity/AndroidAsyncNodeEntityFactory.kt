@@ -33,9 +33,9 @@ class AndroidAsyncNodeEntityFactory(
     override fun prepareEntitiesInternal(
         entities: MutableList<Entity<TreeReference>>
     ) {
-        if (detail.shouldCache()) {
+        if (detail.shouldOptimize() && detail.isCacheEnabled) {
             // we only want to block if lazy load is not enabled
-            if (!detail.shouldLazyLoad()) {
+            if (!detail.isLazyLoading) {
                 val primeEntityCacheHelper = PrimeEntityCacheHelper.getInstance()
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail

@@ -3,6 +3,7 @@ package org.commcare.tasks
 import android.util.Pair
 import io.reactivex.functions.Cancellable
 import org.commcare.activities.EntitySelectActivity
+import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityLoadingProgressListener
 import org.commcare.cases.entity.EntityStorageCache
@@ -30,9 +31,13 @@ class EntityLoaderHelper(
 
     init {
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
-        if (detail.useAsyncStrategy() || detail.shouldCache()) {
+        if (detail.shouldOptimize()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
             factory = AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache)
+        } else if (detail.useAsyncStrategy()) {
+            // legacy cache and index
+            val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
+            factory = AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
         } else {
             factory = NodeEntityFactory(detail, evalCtx)
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
