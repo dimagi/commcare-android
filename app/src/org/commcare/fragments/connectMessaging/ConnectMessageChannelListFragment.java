@@ -51,7 +51,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         MessageManager.sendUnsentMessages(requireActivity());
 
-        String channelId = getArguments().getString("channel_id");
+        String channelId =getArguments()!=null? getArguments().getString("channel_id"):null;
         if(channelId != null) {
             ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);

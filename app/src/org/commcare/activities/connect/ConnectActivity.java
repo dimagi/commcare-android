@@ -1,10 +1,17 @@
 package org.commcare.activities.connect;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
@@ -17,6 +24,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
+import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -38,6 +46,9 @@ import javax.annotation.Nullable;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -110,6 +121,32 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         }
     }
 
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        getSupportActionBar().setTitle(title);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_connect, menu);
+        MenuItem notification = menu.findItem(R.id.action_sync);
+        notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        getCurrentFragment().onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
+    }
+
+    private Fragment getCurrentFragment() {
+        NavHostFragment navHostFragment =
+                (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
+        Fragment currentFragment =
+                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
+       return  currentFragment;
+    }
     /**
      * Returns the fragment ID based on the redirection action.
      * <p>

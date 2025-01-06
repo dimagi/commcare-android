@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect;
 
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
@@ -12,14 +13,25 @@ import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 import static org.commcare.connect.ConnectManager.isAppInstalled;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -83,14 +95,12 @@ public class ConnectJobsListsFragment extends Fragment {
         getActivity().setTitle(R.string.connect_title);
 
         view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
-
         connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
         updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
-
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
-        refreshButton.setOnClickListener(v -> ConnectManager.goToMessaging(getActivity()));
+        refreshButton.setOnClickListener(v -> refreshData());
 
         launcher = (appId, isLearning) -> {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
@@ -98,8 +108,19 @@ public class ConnectJobsListsFragment extends Fragment {
 
         refreshUi();
         refreshData();
-
         return view;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_notification) {
+            ConnectManager.goToMessaging(requireActivity());
+            return true;
+        } else if (item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return onOptionsItemSelected(item);
     }
 
     public void refreshData() {

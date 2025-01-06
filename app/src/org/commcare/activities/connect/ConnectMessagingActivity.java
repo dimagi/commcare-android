@@ -42,8 +42,8 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
         setTitle("Messaging");
         Window window = getWindow();
         window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
-        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-        getSupportActionBar().setBackgroundDrawable(colorDrawable);
+//        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
+//        getSupportActionBar().setBackgroundDrawable(colorDrawable);
 
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
