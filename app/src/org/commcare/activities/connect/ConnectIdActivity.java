@@ -20,9 +20,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
-public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
+import static androidx.navigation.ui.NavigationUI.setupActionBarWithNavController;
+
+public class ConnectIdActivity extends CommCareActivity<ResourceEngineListener> {
 
     public static boolean forgotPassword = false;
     public static boolean forgotPin = false;
@@ -44,14 +47,34 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         }
     }
 
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_id);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         NavHostFragment host2 = (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         controller = host2.getNavController();
         handleRedirection(getIntent());
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() > 0 ) {
+            getFragmentManager().popBackStack();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected String getActivityTitle() {
+        return super.getActivityTitle();
     }
 
     private void handleRedirection(Intent intent) {

@@ -88,13 +88,12 @@ public class ConnectIdPhoneFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for getContext() fragment
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
-
-        requireActivity().setTitle(getString(R.string.connect_phone_page_title));
         if (getArguments() != null) {
             method = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getMethod();
             existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
         }
+        requireActivity().setTitle("Enter Phone Number");
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
@@ -139,11 +138,12 @@ public class ConnectIdPhoneFragment extends Fragment {
     }
 
     private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_phone_title_primary));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            Navigation.findNavController(appBarView).popBackStack();
-        });
+        requireActivity().setTitle(getString(R.string.connect_phone_title_primary));
+//        View appBarView = view.findViewById(R.id.commonAppBar);
+//        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_phone_title_primary));
+//        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+//            Navigation.findNavController(appBarView).popBackStack();
+//        });
     }
 
     @Override

@@ -75,6 +75,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
         secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
         callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+
         failureCount = 0;
         binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> handleForgotPress());
         binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> handleButtonPress());
@@ -83,11 +84,12 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_appbar_title_password_verification));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            Navigation.findNavController(appBarView).popBackStack();
-        });
+        requireActivity().setTitle(getString(R.string.connect_appbar_title_password_verification));
+//        View appBarView = view.findViewById(R.id.commonAppBar);
+//        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_appbar_title_password_verification));
+//        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+//            Navigation.findNavController(appBarView).popBackStack();
+//        });
     }
 
     @Override

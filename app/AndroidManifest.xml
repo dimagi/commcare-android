@@ -171,7 +171,6 @@
 
         <activity
             android:name="org.commcare.activities.connect.ConnectIdActivity"
-            android:theme="@style/NoAppBarTheme"
             android:exported="true" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"

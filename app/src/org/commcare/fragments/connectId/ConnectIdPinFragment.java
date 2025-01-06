@@ -161,11 +161,12 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
     private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(titleId));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            Navigation.findNavController(appBarView).popBackStack();
-        });
+        requireActivity().setTitle(getString(titleId));
+//        View appBarView = view.findViewById(R.id.commonAppBar);
+//        ConnectIdAppBarUtils.setTitle(appBarView, getString(titleId));
+//        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+//            Navigation.findNavController(appBarView).popBackStack();
+//        });
     }
 
     public void setPinLength(int length) {

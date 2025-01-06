@@ -14,19 +14,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/llTopBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
 
-                <include
-                    android:id="@+id/commonAppBar"
-                    layout="@layout/connectid_common_title_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
 
             <ImageView
                 android:id="@+id/company_logo"

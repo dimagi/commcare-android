@@ -62,6 +62,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         }
         String code = "+" + String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
         binding.countryCode.setText(code);
+
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -109,11 +110,12 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_phone_title_alternate));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            Navigation.findNavController(appBarView).popBackStack();
-        });
+        requireActivity().setTitle( getString(R.string.connect_phone_title_alternate));
+//        View appBarView = view.findViewById(R.id.commonAppBar);
+//        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_phone_title_alternate));
+//        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+//            Navigation.findNavController(appBarView).popBackStack();
+//        });
     }
 
     public void updateButtonEnabled() {

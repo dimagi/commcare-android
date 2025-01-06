@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -156,11 +157,11 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_registration_title));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            getActivity().finish();
-        });
+//        View appBarView = view.findViewById(R.id.commonAppBar);
+//        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_registration_title));
+//        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+//            getActivity().finish();
+//        });
     }
 
     void setupUi() {
@@ -171,6 +172,7 @@ public class ConnectIDSignupFragment extends Fragment {
             binding.recoverButton.setText(R.string.connect_signup);
             binding.connectConsentCheck.setVisibility(View.GONE);
             binding.checkText.setVisibility(View.GONE);
+            requireActivity().setTitle(getString(R.string.connect_recovery_title));
             binding.recoverButton.setOnClickListener(v -> handleSignupButtonPress());
             binding.phoneSubText.setVisibility(View.GONE);
             binding.continueButton.setOnClickListener(v -> handleContinueButtonPress());
@@ -181,6 +183,7 @@ public class ConnectIDSignupFragment extends Fragment {
             binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
             binding.buttonTitle.setText(R.string.connect_registration_have_account);
             binding.recoverButton.setText(R.string.connect_recover);
+            requireActivity().setTitle(getString(R.string.connect_registration_title));
             binding.phoneSubText.setVisibility(View.GONE);
             binding.connectConsentCheck.setVisibility(View.VISIBLE);
             binding.recoverButton.setOnClickListener(v -> handleRecoverButtonPress());

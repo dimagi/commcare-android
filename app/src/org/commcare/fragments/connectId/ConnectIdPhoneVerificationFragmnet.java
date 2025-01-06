@@ -165,11 +165,12 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_verify_phone_title));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            Navigation.findNavController(appBarView).popBackStack();
-        });
+        requireActivity().setTitle(getString(R.string.connect_verify_phone_title));
+//        View appBarView = view.findViewById(R.id.commonAppBar);
+//        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_verify_phone_title));
+//        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
+//            Navigation.findNavController(appBarView).popBackStack();
+//        });
     }
 
     private void handleDeactivateButton() {
