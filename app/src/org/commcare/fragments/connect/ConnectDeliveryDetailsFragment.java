@@ -24,7 +24,6 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -113,7 +112,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         CardView cardButtonLayout = view.findViewById(R.id.cardButtonLayout);
         cardButtonLayout.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
 
-        RoundedButton button = view.findViewById(R.id.connect_delivery_button);
+        Button button = view.findViewById(R.id.connect_delivery_button);
         button.setText(buttonTextId);
 //        button.setEnabled(!expired);
         button.setOnClickListener(v -> {

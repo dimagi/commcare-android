@@ -159,40 +159,25 @@
                         android:layout_marginHorizontal="10dp"
                         android:layout_marginVertical="16dp">
 
-                        <org.commcare.views.connect.RoundedButton
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/NegativeButtonStyle"
                             android:id="@+id/back_button"
                             android:layout_width="wrap_content"
-                            android:layout_height="45dp"
+                            android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_margin="16dp"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
                             android:gravity="start|center"
                             android:text="Learn More"
-                            android:visibility="gone"
-                            app:roundButtonBorderColor="@color/border_grey"
-                            app:roundButtonBorderVisible="true"
-                            app:roundButtonTextColor="@color/connect_blue_color"
-                            app:roundButtonTextSize="6.5sp" />
+                            android:visibility="gone" />
 
-                        <org.commcare.views.connect.RoundedButton
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/continueButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="45dp"
+                            android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_marginStart="16dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginEnd="16dp"
-                            android:layout_marginBottom="16dp"
-                            android:gravity="start|center"
+                            android:layout_margin="16dp"
                             android:text="@string/review"
-                            app:roundButtonBackgroundColor="@color/connect_blue_color"
-                            app:roundButtonBorderRadius="@dimen/dp48"
-                            app:roundButtonIcon="@drawable/connect_right_arrow"
-                            app:roundButtonIconLeftAlign="false"
-                            app:roundButtonTextColor="@color/white"
-                            app:roundButtonTextSize="6.5sp" />
+                           android:drawableRight="@drawable/connect_right_arrow" />
                     </RelativeLayout>
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>

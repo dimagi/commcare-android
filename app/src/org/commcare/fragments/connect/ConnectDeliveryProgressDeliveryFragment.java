@@ -20,7 +20,6 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.CircleProgressBar;
-import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private boolean showLearningLaunch = true;
     private boolean showDeliveryLaunch = true;
 
-    private RoundedButton launchButton;
+    private Button launchButton;
     private RecyclerView recyclerView;
     private ConnectDeliveryProgressReportAdapter adapter;
 
@@ -68,7 +67,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             launchDeliveryApp(launchButton);
         });
 
-        RoundedButton btnSync = view.findViewById(R.id.btnSync);
+        Button btnSync = view.findViewById(R.id.btnSync);
         btnSync.setOnClickListener(view -> {
             ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment) getParentFragment();
             if (parentFragment != null) {
@@ -77,7 +76,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             setDeliveriesData();
         });
 
-        RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
+        Button reviewButton = view.findViewById(R.id.connect_progress_review_button);
         reviewButton.setVisibility(showLearningLaunch ? View.VISIBLE : View.GONE);
         reviewButton.setOnClickListener(v -> {
             launchLearningApp(reviewButton);

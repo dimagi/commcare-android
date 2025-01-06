@@ -141,19 +141,14 @@
             android:textColor="@color/connect_subtext"
             android:textSize="16sp" />
 
-        <org.commcare.views.connect.RoundedButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_primary_phone_button"
             android:layout_width="120dp"
-            android:layout_height="45dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:paddingTop="@dimen/content_start"
-            android:paddingBottom="@dimen/content_start"
-            android:text="@string/connect_phone_button"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonTextColor="@color/white"
-            app:roundButtonTextSize="6.5sp" />
+            android:text="@string/connect_phone_button" />
     </LinearLayout>
 
 </layout>

@@ -32,30 +32,25 @@
                 android:gravity="start"
                 android:textSize="16sp" />
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_message_button"
                 android:layout_width="fill_parent"
-                android:layout_height="45dp"
+                android:layout_height="wrap_content"
                 android:paddingTop="@dimen/content_start"
                 android:paddingBottom="@dimen/content_start"
-                android:text="Back"
-                app:roundButtonBackgroundColor="@color/connect_blue_color"
-                app:roundButtonTextColor="@color/white"
-                app:roundButtonTextSize="6.5sp" />
+                android:text="Back" />
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_message_button2"
                 android:layout_width="fill_parent"
-                android:layout_height="45dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:paddingTop="@dimen/content_start"
                 android:paddingBottom="@dimen/content_start"
                 android:text="Back"
                 android:visibility="gone"
-                app:roundButtonBackgroundColor="@color/connect_blue_color"
-                app:roundButtonTextColor="@color/white"
-                app:roundButtonTextSize="6.5sp" />
+                />
 
         </LinearLayout>
     </FrameLayout>
