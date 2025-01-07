@@ -286,6 +286,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        LocalePreferences.saveDeviceLocale(newConfig.locale);
     }
 
     private void initNotifications() {
