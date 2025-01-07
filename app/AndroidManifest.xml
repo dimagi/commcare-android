@@ -71,6 +71,11 @@
         android:label="@string/permission_external_action_label"
         />
 
+    <permission-group
+        android:name="commcare.permission-group.INTERNAL_ACTION"
+        android:label="@string/permission_group_internal_action_label"
+        />
+
     <permission
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
@@ -85,6 +90,20 @@
         android:label="@string/permission_commcare_logout_label"
         android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
         android:protectionLevel="dangerous">
+    </permission>
+
+    <permission
+        android:name="${applicationId}.permission.READ_NFC_DATA"
+        android:label="@string/permission_read_nfc_data_label"
+        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:protectionLevel="signature">
+    </permission>
+
+    <permission
+        android:name="${applicationId}.permission.WRITE_NFC_DATA"
+        android:label="@string/permission_write_nfc_data_label"
+        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:protectionLevel="signature">
     </permission>
 
     <queries>
@@ -400,7 +419,8 @@
         </activity>
         <activity
             android:exported="true"
-            android:name="org.commcare.android.nfc.NfcWriteActivity">
+            android:name="org.commcare.android.nfc.NfcWriteActivity"
+            android:permission="org.commcare.dalvik.permission.WRITE_NFC_DATA">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
 
@@ -409,7 +429,8 @@
         </activity>
         <activity
             android:exported="true"
-            android:name="org.commcare.android.nfc.NfcReadActivity">
+            android:name="org.commcare.android.nfc.NfcReadActivity"
+            android:permission="org.commcare.dalvik.permission.READ_NFC_DATA">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
 
