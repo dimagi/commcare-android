@@ -7,6 +7,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -86,7 +88,17 @@ public class StandardAlertDialog extends CommCareAlertDialog {
     }
 
     public void setNegativeButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
+        setNegativeButton(displayText, buttonListener, false);
+    }
+
+    public void setNegativeButton(CharSequence displayText,
+                                  final DialogInterface.OnClickListener buttonListener,
+                                  boolean usePositiveButtonStyle) {
         Button negativeButton = this.view.findViewById(R.id.negative_button);
+        if (usePositiveButtonStyle) {
+            negativeButton.setTextAppearance(this.view.getContext(), R.style.Commcare_Button_Primary_Rounded);
+            negativeButton.setBackgroundColor(this.view.getResources().getColor(R.color.cc_brand_color));
+        }
         negativeButton.setText(displayText);
         negativeButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEGATIVE));
         negativeButton.setVisibility(View.VISIBLE);
@@ -112,5 +124,20 @@ public class StandardAlertDialog extends CommCareAlertDialog {
             }
             return true;
         });
+    }
+
+    public void setCheckbox(CharSequence displayText, CompoundButton.OnCheckedChangeListener checkboxListener) {
+        CheckBox checkbox = this.view.findViewById(R.id.dialog_checkbox);
+        checkbox.setText(displayText);
+        if(checkboxListener != null) {
+            checkbox.setOnCheckedChangeListener(checkboxListener);
+        }
+        checkbox.setVisibility(View.VISIBLE);
+    }
+    public static StandardAlertDialog getBasicAlertDialogWithDisablingCheckbox(Context context, String title, String msg,
+                                                                               CompoundButton.OnCheckedChangeListener checkboxListener){
+        StandardAlertDialog d = new StandardAlertDialog(context, title, msg);
+        d.setCheckbox(Localization.get("dialog.do.not.show"), checkboxListener);
+        return d;
     }
 }

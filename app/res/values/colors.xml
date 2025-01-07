@@ -61,6 +61,7 @@
     <color name="very_light_blue">#AAE3ECFF</color>
     <color name="solid_dark_red">#BF3D3D</color>
     <color name="solid_dark_orange">#F57E20</color>
+    <color name="red_incomplete">#E44434</color>
 
     <color name="dark_brown">#5C4033</color>
 
@@ -78,7 +79,7 @@
     <color name="cc_core_text">#181715</color>
 
     <!-- Brand -->
-    <color name="cc_brand_color">#004EBC</color>
+    <color name="cc_brand_color">#5D70D2</color>
     <color name="cc_brand_bg">#BCDEFF</color>
     <color name="cc_brand_text">#002C5F</color>
 
@@ -108,7 +109,7 @@
     <color name="cc_light_cool_accent_text">#00799A</color>
 
     <!-- Dark Warm Accent -->
-    <color name="cc_dark_warm_accent_color">#FF8400</color>
+    <color name="cc_dark_warm_accent_color">#FEAF31</color>
     <color name="cc_dark_warm_accent_bg">#FFE3C2</color>
     <color name="cc_dark_warm_accent_text">#994f00</color>
 
@@ -144,6 +145,21 @@
     <color name="red_900">#B71C1C</color>
     
     <!-- Button colors -->
-    <color name="button_primary">#005ab2</color>
-    <color name="button_disabled">#d0e3ff</color>
+    <color name="button_disabled">@color/cc_neutral_bg</color>
+    <color name="button_primary_color">@color/cc_brand_color</color>
+
+    <!-- Square button colours -->
+    <color name="start_home_button">#6AB849</color>
+    <color name="start_save_button">#1B998B</color>
+    <color name="start_sync_button">@color/cc_brand_color</color>
+    <color name="start_sync_dark_button">#3b4fb6</color>
+    <color name="start_logout_button">#373534</color>
+    <color name="barcode_button_color">#3843D0</color>
+    <color name="url_button_color">#8EA1FF</color>
+    <color name="square_button_icon_color">#FFFFFF</color>
+
+
+    <!-- Progress bar colors -->
+    <color name="progress_bar_bg">#66000000</color>
+
 </resources>

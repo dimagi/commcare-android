@@ -133,7 +133,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             }
         };
 
-        mProcess.addSubmissionListener(CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mProcess.addSubmissionListener(
+                    CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
+        }
         mProcess.connect(dummyconnector);
         mProcess.execute();
     }
@@ -148,7 +151,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 u.getCachedPwd(),
                 u.getUniqueId(),
                 ServerUrls.getDataServerKey(),
-                context) {
+                context,
+                false) {
 
             @Override
             protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {

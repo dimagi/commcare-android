@@ -27,6 +27,8 @@ import java.util.Vector;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
+import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+
 /**
  * Handles displaying and clearing pinned notifications for CommCare
  */
@@ -38,6 +40,7 @@ public class CommCareNoficationManager {
     public static final String NOTIFICATION_CHANNEL_ERRORS_ID = "notification-channel-errors";
     public static final String NOTIFICATION_CHANNEL_USER_SESSION_ID = "notification-channel-user-session";
     public static final String NOTIFICATION_CHANNEL_SERVER_COMMUNICATIONS_ID = "notification-channel-server-communications";
+    public static final String NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID = "notification-channel-push-notifications";
 
     /**
      * Handler to receive notifications and show them the user using toast.
@@ -59,29 +62,31 @@ public class CommCareNoficationManager {
                 return;
             }
 
-            String title = pendingMessages.get(0).getTitle();
+            if (areNotificationsEnabled()) {
+                String title = pendingMessages.get(0).getTitle();
 
-            // The PendingIntent to launch our activity if the user selects this notification
-            Intent i = new Intent(context, MessageActivity.class);
+                // The PendingIntent to launch our activity if the user selects this notification
+                Intent i = new Intent(context, MessageActivity.class);
 
-            int intentFlags = 0;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                intentFlags = PendingIntent.FLAG_IMMUTABLE;
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, intentFlags);
+                int intentFlags = 0;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    intentFlags = PendingIntent.FLAG_IMMUTABLE;
+                PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, intentFlags);
 
-            String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-            Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
-                    .setContentTitle(title)
-                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
-                    .setSmallIcon(R.drawable.notification)
-                    .setNumber(pendingMessages.size())
-                    .setContentIntent(contentIntent)
-                    .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))
-                    .setOngoing(true)
-                    .setWhen(System.currentTimeMillis())
-                    .build();
+                String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
+                Notification messageNotification = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ERRORS_ID)
+                        .setContentTitle(title)
+                        .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
+                        .setSmallIcon(R.drawable.commcare_actionbar_logo)
+                        .setNumber(pendingMessages.size())
+                        .setContentIntent(contentIntent)
+                        .setDeleteIntent(PendingIntent.getBroadcast(context, 0, new Intent(context, NotificationClearReceiver.class), intentFlags))
+                        .setOngoing(true)
+                        .setWhen(System.currentTimeMillis())
+                        .build();
 
-            mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+                mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
+            }
         }
     }
 
@@ -98,6 +103,7 @@ public class CommCareNoficationManager {
             for (NotificationMessage message : toRemove) {
                 pendingMessages.remove(message);
             }
+
             if (pendingMessages.size() == 0) {
                 mNM.cancel(MESSAGE_NOTIFICATION);
             } else {
@@ -108,7 +114,7 @@ public class CommCareNoficationManager {
 
     public ArrayList<NotificationMessage> purgeNotifications() {
         synchronized (pendingMessages) {
-            context.sendBroadcast(new Intent(ACTION_PURGE_NOTIFICATIONS));
+            sendBroadcastFailSafe(context, new Intent(ACTION_PURGE_NOTIFICATIONS), null);
             ArrayList<NotificationMessage> cloned = (ArrayList<NotificationMessage>)pendingMessages.clone();
             clearNotifications(null);
             return cloned;
@@ -139,6 +145,15 @@ public class CommCareNoficationManager {
             // Otherwise, add it to the queue, and update the notification
             pendingMessages.add(message);
             updateMessageNotification();
+        }
+    }
+
+    public boolean areNotificationsEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return ((NotificationManager)context.getSystemService(NOTIFICATION_SERVICE))
+                    .areNotificationsEnabled();
+        } else {
+            return true;
         }
     }
 
@@ -176,6 +191,11 @@ public class CommCareNoficationManager {
                 R.string.notification_channel_server_communication_title,
                 R.string.notification_channel_server_communication_description,
                 NotificationManager.IMPORTANCE_LOW);
+
+        createNotificationChannel(NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID,
+                R.string.notification_channel_push_notfications_title,
+                R.string.notification_channel_push_notfications_description,
+                NotificationManager.IMPORTANCE_DEFAULT);
     }
 
     @TargetApi(Build.VERSION_CODES.O)

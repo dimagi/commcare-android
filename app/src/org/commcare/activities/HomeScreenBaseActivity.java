@@ -9,13 +9,13 @@ import static org.commcare.activities.DriftHelper.getCurrentDrift;
 import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
 import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
+import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.widget.AdapterView;
@@ -42,7 +42,6 @@ import org.commcare.appupdate.FlexibleAppUpdateController;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.UpdatePromptHelper;
@@ -55,6 +54,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
+import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
@@ -69,6 +69,7 @@ import org.commcare.suite.model.RemoteRequestEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
+import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -107,6 +108,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
@@ -168,12 +170,26 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected boolean showCommCareUpdateMenu = false;
     private static final int MAX_CC_UPDATE_CANCELLATION = 3;
 
+    // This is to trigger a background sync after a form submission,
+    private boolean shouldTriggerBackgroundSync = true;
+
+    // This is to restore the selected entity when restarting EntityDetailActivity after a
+    // background sync
+    private String selectedEntityPostSync = null;
+
+    private FirebaseMessagingDataSyncer dataSyncer;
+
+    {
+        dataSyncer = new FirebaseMessagingDataSyncer(this);
+
+    }
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         loadInstanceState(savedInstanceState);
         CrashUtil.registerAppData();
-        AdMobManager.initAdsForCurrentConsumerApp(getApplicationContext());
+
         updateLastSuccessfulCommCareVersion();
         sessionNavigator = new SessionNavigator(this);
 
@@ -335,6 +351,15 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
+        // In case a sync request from FCM was made while the user was logged out, this will
+        // trigger a blocking sync
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        if (HiddenPreferences.isPendingSyncRequest(username)) {
+            sendFormsOrSync(false);
+
+            return true;
+        }
+
         if (UpdatePromptHelper.promptForUpdateIfNeeded(this)) {
             return true;
         }
@@ -380,6 +405,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void clearOneTimeLoginActionFlags() {
         HiddenPreferences.setPostUpdateSyncNeeded(false);
         HiddenPreferences.clearInterruptedSSD();
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        HiddenPreferences.clearPendingSyncRequest(username);
     }
 
     private boolean tryRestoringFormFromSessionExpiration() {
@@ -388,6 +415,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (existing != null) {
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
+
+            FormRecord formRecord = state.getFormRecord();
+            //TODO: Temporary for GD, to remove
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Restoring form from expired Session |" +
+                    (formRecord.getInstanceID() == null ? "" : formRecord.getInstanceID() + "|") +
+                    formRecord.getFormNamespace());
             formEntry(CommCareApplication.instance().getCommCarePlatform()
                             .getFormDefId(state.getSession().getForm()), state.getFormRecord(),
                     null, true);
@@ -533,6 +566,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void userTriggeredLogout() {
+        if (CommCareSessionService.sessionAliveLock.isLocked()) {
+            Toast.makeText(this, Localization.get("background.sync.logout.attempt.during.sync"), Toast.LENGTH_LONG).show();
+            return;
+        }
         CommCareApplication.instance().closeUserSession();
         setResult(RESULT_OK);
         finish();
@@ -548,6 +585,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_RESTART) {
+            if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
+                selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
+
+            // Reset the AndroidInstanceInitializer to force the eval context to be rebuilt
+            // during restart
+            CommCareApplication.instance().getCurrentSessionWrapper().cleanVolatiles();
+
             startNextSessionStepSafe();
         } else {
             // if handling new return code (want to return to home screen) but a return at the
@@ -594,6 +638,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
                         AndroidCommCarePlatform platform =
                                 CommCareApplication.instance().getCommCarePlatform();
+
+                        //TODO: Temporary for GD, to remove
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Loading an incomplete form |" +
+                                (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
+                                r.getFormNamespace());
                         formEntry(platform.getFormDefId(r.getFormNamespace()), r);
                         return;
                     }
@@ -1006,7 +1055,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 FirebaseAnalyticsUtil.reportFeatureUsage(
                         AnalyticsParamValue.FEATURE_CASE_AUTOSELECT);
                 break;
+            case SessionNavigator.FORM_ENTRY_ATTEMPT_DURING_SYNC:
+                handleFormEntryAttemptDuringSync(asw);
+                break;
         }
+    }
+
+    private void handleFormEntryAttemptDuringSync(AndroidSessionWrapper asw) {
+        sessionNavigator.stepBack();
+        sessionNavigator.startNextSessionStep();
+        Toast.makeText(this, Localization.get("background.sync.form.entry.attempt.during.sync"), Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -1083,7 +1141,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
         StackFrameStep lastPopped = session.getPoppedStep();
         if (lastPopped != null && SessionFrame.STATE_DATUM_VAL.equals(lastPopped.getType())) {
-            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, lastPopped.getValue());
+            i.putExtra(EXTRA_ENTITY_KEY, lastPopped.getValue());
+        }
+        if (selectedEntityPostSync != null) {
+            i.putExtra(EXTRA_ENTITY_KEY, selectedEntityPostSync);
+            selectedEntityPostSync = null;
         }
         addPendingDataExtra(i, session);
         addPendingDatumIdExtra(i, session);
@@ -1117,7 +1179,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 Intent i = getSelectIntent(session);
                 String caseId = DatumUtil.getReturnValueFromSelection(
                         contextRef, entityDatum, asw.getEvaluationContext());
-                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
+                i.putExtra(EXTRA_ENTITY_KEY, caseId);
                 startActivityForResult(i, GET_CASE);
             } else {
                 // Launch entity detail activity
@@ -1182,7 +1244,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void formEntry(int formDefId, FormRecord r, String headerTitle,
-            boolean isRestartAfterSessionExpiration) {
+                           boolean isRestartAfterSessionExpiration) {
+
+        // Block any background syncs during a form entry
+        shouldTriggerBackgroundSync = false;
+
         Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
                 (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
                 r.getFormNamespace());
@@ -1249,9 +1315,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             attemptDispatchHomeScreen();
         }
 
+        // In case a Sync was blocked because of a form entry, trigger now if it's safe
+        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
+        if (HiddenPreferences.isPendingSyncRequest(username) && shouldTriggerBackgroundSync) {
+            dataSyncer.syncData(HiddenPreferences.getPendingSyncRequest(username));
+        }
+
         // reset these
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
+        shouldTriggerBackgroundSync = true;
     }
 
     private void attemptDispatchHomeScreen() {
@@ -1300,7 +1373,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
-            boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
+                                     boolean userTriggeredSync, boolean formsToSend, boolean usingRemoteKeyManagement) {
         super.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend,
                 usingRemoteKeyManagement);
         if (UpdateActivity.sBlockedUpdateWorkflowInProgress) {
@@ -1324,7 +1397,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state,
-            final SessionStateDescriptor existing) {
+                                       final SessionStateDescriptor existing) {
         final AndroidCommCarePlatform platform =
                 CommCareApplication.instance().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
@@ -1524,5 +1597,10 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 FirebaseAnalyticsUtil.reportInAppUpdateResult(false, errorReason);
                 break;
         }
+    }
+
+    @Override
+    public ReentrantLock getBackgroundSyncLock() {
+        return CommCareSessionService.sessionAliveLock;
     }
 }

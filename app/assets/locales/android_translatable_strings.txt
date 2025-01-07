@@ -2,6 +2,7 @@ option.yes=YES
 option.no=NO
 option.cancel=CANCEL
 dialog.ok=OK
+dialog.do.not.show=Don't show again
 
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=App is up to date
@@ -166,7 +167,9 @@ form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact CommCare Support to look into the issue.
 form.entry.save.invalid.unicode=Could not save '${0}' text in form.
 form.entry.finish.button=FINISH
+form.entry.exit.button=EXIT
 form.entry.restart.after.expiration=You were logged out due to session expiration. The form you were in the middle of has been saved and resumed.
+form.entry.restart.after.session.pause=CommCare was closed and the form you were in the middle of has been saved and resumed.
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
@@ -443,20 +446,24 @@ custom.restore.file.not.set=Custom restore file path is not set in preferences
 custom.restore.error=Error loading custom sync
 
 start.recording=Start Recording
+start.recording.failed=Unable to start recording while another application is using the microphone!
 stop.recording=Stop Recording
 recording.header=Record a sound
 before.recording=Tap to start recording
 before.overwrite.recording=Tap to start a new recording
-during.recording=Tap to stop recording
+during.recording=Recording is in progress, avoid navigating away from CommCare. Tap to stop recording
 after.recording=Recording complete.
 delete.recording=Tap to delete recording
 pause.recording=Recording paused, tap to continue recording
+pause.recording.because.no.sound.captured=Recording paused because another app started recording, tap to continue recording
 save=Save
 recording.cancel=Cancel
 recording.clear=Clear
 recording.prompt.with.file.chooser=Record or choose sound below
 recording.prompt.without.file.chooser=Record sound below
 recording.custom=Recorded Sound
+recording.paused.due.another.app.recording.title=CommCare Audio Recording
+recording.paused.due.another.app.recording.message=Recording paused as another app started recording. Click here to resume the recording!
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
@@ -814,6 +821,9 @@ wifi.direct.status.receive.message=This will allow you to receive forms on this 
 wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
+wifi.direct.permission.nearby.wifi.title=Permission to access nearby Wi-Fi Devices
+wifi.direct.permission.nearby.wifi.message=In order to exchange data with nearby devices via Wi-Fi, CommCare needs access to Wi-Fi capabilities.
+wifi.direct.permission.nearby.wifi.denial=CommCare doesn't have permission to connect with nearby devices via Wi-Fi. Please enable via Android's settings.
 
 form.transfer.no.forms=No forms to send.
 
@@ -830,11 +840,13 @@ image.capture.not.saved=The image you have taken was not able to be saved proper
 image.selection.not.saved=The image you have chosen was not able to be saved properly. Please select another image.
 image.selection.invalid.extension=The image you have chosen doesn't have an extension. Please select another image.
 
+upload.clear.title=Clear
+
 odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
 
 permission.all.title=CommCare Permissions
-permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, and provide location data during form entry.
+permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, provide location data during form entry and notify the user about important events.
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via Android's settings.
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
@@ -864,6 +876,9 @@ intent.callout.unable.to.process=Unable to process callout result
 intent.callout.activity.missing=Couldn't find intent for callout!
 intent.callout.not.supported=This intent callout is not supported on this device
 fingerprints.scanned=Fingerprints scanned: ${0}
+intent.callout.biometrics.capture.result.success=All data stored successfully
+intent.callout.biometrics.capture.result.fail=No data was stored
+intent.callout.biometrics.capture.result.partialfail=Failed to store some data
 
 settings.developer.options=Developer Options
 settings.developer.title=Developer Options
@@ -883,8 +898,8 @@ repeat.dialog.go.back=Go Back
 repeat.dialog.leave=Do Not Add
 repeat.dialog.exit=Do Not Add. I'm Finished.
 repeat.dialog.add=Add Group
-repeat.dialog.add.another=Add another "${0}" group?
-repeat.dialog.add.new=Add a new "${0}" group?
+repeat.dialog.add.another=Add another ${0}?
+repeat.dialog.add.new=Add a new ${0}?
 lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exists and this user has access to it.
 
 ethiopian_months=Mäskäräm,T’ïk’ïmt,Hïdar,Tahsas,T’ïr,Yäkatit,Mägabit,Miyaziya,Gïnbot,Säne,Hämle,Nähäse,P’agume
@@ -966,6 +981,13 @@ tts.speak.failed=Couldn't speak now. Please try again!
 
 file.oversize.error.title=File Too Large
 file.oversize.error.message=Selected file exceeds the file size limit of 15 MB. Please select a file whose size is less than 15 MB.
+
+background.sync.pending.form.entry.title=Pending Sync
+background.sync.pending.form.entry.detail=There are new cases available but the Sync can't run while a form is open. A Sync will be triggered upon form submission!
+background.sync.logout.attempt.during.sync=Can't log out while a Sync is underway!
+background.sync.user.sync.attempt.during.sync=Can't trigger a Sync while another is underway!
+background.sync.form.entry.attempt.during.sync=A Form can't be open while a Sync is underway!
+background.sync.fail=Background sync failed. Please try to trigger a normal Sync
 
 android.package.name.org.commcare.dalvik.reminders=CommCare Reminders
 android.package.name.callout.commcare.org.sendussd=Commcare USSD

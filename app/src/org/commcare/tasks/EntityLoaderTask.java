@@ -2,22 +2,16 @@ package org.commcare.tasks;
 
 import android.util.Pair;
 
-import org.commcare.activities.EntitySelectActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.cases.entity.Entity;
-import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.models.AsyncNodeEntityFactory;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
-import org.commcare.util.LogTypes;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,52 +23,20 @@ public class EntityLoaderTask
     private final static Object lock = new Object();
     private static EntityLoaderTask pendingTask = null;
 
-    private final NodeEntityFactory factory;
     private EntityLoaderListener listener;
+    private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
-    private int focusTargetIndex;
 
     public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
-        evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
-        if (detail.useAsyncStrategy()) {
-            this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
-        } else {
-            this.factory = new NodeEntityFactory(detail, evalCtx);
-            if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
-                this.factory.activateDebugTraceOutput();
-            }
-        }
+        entityLoaderHelper = new EntityLoaderHelper(detail, evalCtx);
     }
 
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
         try {
-            List<TreeReference> references = factory.expandReferenceList(nodeset[0]);
-
-            List<Entity<TreeReference>> full = new ArrayList<>();
-            focusTargetIndex = -1;
-            int indexInFullList = 0;
-            for (TreeReference ref : references) {
-                if (this.isCancelled()) {
-                    return null;
-                }
-
-                Entity<TreeReference> e = factory.getEntity(ref);
-                if (e != null) {
-                    full.add(e);
-                    if (e.shouldReceiveFocus()) {
-                        focusTargetIndex = indexInFullList;
-                    }
-                    indexInFullList++;
-                }
-            }
-
-            factory.prepareEntities(full);
-            factory.printAndClearTraces("build");
-            return new Pair<>(full, references);
+            return entityLoaderHelper.loadEntities(nodeset[0]);
         } catch (XPathException xe) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
-            xe.printStackTrace();
             Logger.exception("Error during EntityLoaderTask: " + ForceCloseLogger.getStackTrace(xe), xe);
             mException = xe;
             return null;
@@ -97,8 +59,12 @@ public class EntityLoaderTask
                         return;
                     }
 
-                    listener.deliverLoadResult(result.first, result.second, factory, focusTargetIndex);
+                    if (result == null) {
+                        return;
+                    }
 
+                    listener.deliverLoadResult(result.first, result.second, entityLoaderHelper.getFactory(),
+                            entityLoaderHelper.getFocusTargetIndex());
                     return;
                 }
             }
@@ -139,5 +105,11 @@ public class EntityLoaderTask
     public void attachListener(EntityLoaderListener listener) {
         this.listener = listener;
         listener.attachLoader(this);
+    }
+
+    @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        entityLoaderHelper.cancel();
     }
 }

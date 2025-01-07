@@ -15,7 +15,7 @@
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
-    <string name="install_app">Install An App</string>
+    <string name="install_app">Install an App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
@@ -393,6 +393,8 @@
     <string name="notification_channel_user_session_description" cc:translatable="true">Notification containing information around current user session like when the current session is scheduled to expire</string>
     <string name="notification_channel_server_communication_title" cc:translatable="true">Server Communications</string>
     <string name="notification_channel_server_communication_description" cc:translatable="true">Notifications for status of any background server communication happening at the moment like CommCare App updates, log submission etc.</string>
+    <string name="notification_channel_push_notfications_title" cc:translatable="true">Priority notifications from Server</string>
+    <string name="notification_channel_push_notfications_description" cc:translatable="true">Notifications sent from server directly to notify user of priority tasks</string>
 
     <!--Recovery Measures-->
     <string name="recovery_measure_reinstall_method" cc:translatable="true">Choose Reinstall Method</string>
@@ -451,5 +453,7 @@
     <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
     <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
     <string name="fcm_notification">FCM Notification</string>
-    <string name="fcm_default_notification_channel">notification-channel-server-communications</string>
+    <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
+    <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
+    <string name="audio_recording_notification">Audio Recording Notification</string>
 </resources>

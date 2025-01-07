@@ -1,5 +1,8 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
+
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -37,8 +40,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.gis.EntityMapActivity;
 import org.commcare.gis.EntityMapboxActivity;
-import org.commcare.google.services.ads.AdLocation;
-import org.commcare.google.services.ads.AdMobManager;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
@@ -279,8 +280,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         persistAdapterState(visibleView);
         setUpCalloutClickListener();
         setupMapNav();
-        AdMobManager.requestBannerAdForView(this, findViewById(R.id.ad_container),
-                AdLocation.EntitySelect);
     }
 
     private void setUpCalloutClickListener() {
@@ -304,6 +303,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         TextView message = findViewById(R.id.screen_compound_select_prompt);
         //use the old method here because some Android versions don't like Spannables for titles
         message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+    }
+
+    @Override
+    public boolean shouldListenToSyncComplete() {
+        return true;
     }
 
     private void restoreExistingSelection(boolean isOrientationChange) {
@@ -573,6 +577,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
+                } else if (resultCode == RESULT_RESTART) {
+                    this.setResult(RESULT_RESTART, intent);
+                    this.finish();
                 } else {
                     //Did we enter the detail from mapping mode? If so, go back to that
                     if (mResultIsMap) {
