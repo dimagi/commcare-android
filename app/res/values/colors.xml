@@ -167,7 +167,7 @@
     <color name="connect_status_bar_color">#5c70d1</color>
     <color name="connect_dark_blue_color">#3942C7</color>
     <color name="connect_darker_blue_color">#353BA8</color>
-    <color name="connect_blue_color">#3A42C7</color>
+    <color name="connect_blue_color">#5c70d1</color>
     <color name="connect_blue_color_50">#803A42C7</color>
     <color name="connect_blue_color_10">#1A3A42C7</color>
     <color name="connect_blackist_dark_blue_color">#141859</color>

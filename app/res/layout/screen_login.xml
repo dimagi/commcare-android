@@ -87,10 +87,8 @@
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
-                                android:paddingTop="@dimen/content_start"
-                                android:paddingBottom="@dimen/content_start"
                                 android:text="@string/connect_button_logged_in"
-                                android:visibility="gone"/>
+                                android:visibility="gone" />
 
                             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                                 android:id="@+id/login_or"
