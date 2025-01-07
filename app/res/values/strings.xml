@@ -158,6 +158,8 @@
 
     <string name="permission_group_internal_action_label">Permission group for CommCare Internal Actions</string>
 
+    <string name="permission_draw_boundary_area_label">Draw boundary area</string>
+
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
     <string name="panes">one</string>

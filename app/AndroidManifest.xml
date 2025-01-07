@@ -106,6 +106,13 @@
         android:protectionLevel="signature">
     </permission>
 
+    <permission
+        android:name="${applicationId}.permission.DRAW_BOUNDARY_AREA"
+        android:label="@string/permission_draw_boundary_area_label"
+        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:protectionLevel="signature">
+    </permission>
+
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -365,6 +372,7 @@
 
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
+            android:permission="org.commcare.dalvik.permission.DRAW_BOUNDARY_AREA"
             android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
