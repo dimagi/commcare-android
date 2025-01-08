@@ -157,8 +157,8 @@
     <string name="permission_write_nfc_data_label">Write NFC Data</string>
 
     <string name="permission_group_internal_action_label">Permission group for CommCare Internal Actions</string>
-
     <string name="permission_draw_boundary_area_label">Draw boundary area</string>
+    <string name="permission_print_label">Print documents</string>
     <string name="permission_update_to_latest_build_label">Allow App Update to the latest version</string>
     <string name="permission_update_to_latest_build_description">Makes it possible to update an app to the latest version even if it has not been released</string>
 

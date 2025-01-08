@@ -121,6 +121,13 @@
         android:protectionLevel="dangerous">
     </permission>
 
+    <permission
+        android:name="${applicationId}.permission.PRINT"
+        android:label="@string/permission_print_label"
+        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:protectionLevel="signature">
+    </permission>
+
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -541,6 +548,7 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
+            android:permission="org.commcare.dalvik.permission.PRINT"
             android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
