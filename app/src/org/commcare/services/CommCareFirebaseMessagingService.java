@@ -120,7 +120,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentText(notificationText)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
-                .setSmallIcon(R.drawable.notification)
+                .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(System.currentTimeMillis());
 

@@ -88,7 +88,8 @@ public class ApiConnectId {
                     expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                    SsoToken ssoToken = new SsoToken(token, expiration);
+                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
                 }
@@ -423,13 +424,16 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
-    public static boolean hqUserInvitation(Context context,String username,String password, String callBackUrl, String invitationCode, IApiCallback callback) {
+
+    public static boolean hqUserInvitation(Context context, String username, String password, String callBackUrl,
+            String invitationCode, IApiCallback callback) {
         int urlId = R.string.ConnectConfirmUserInvitation;
         AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context);
         HashMap<String, String> params = new HashMap<>();
         params.put("callback_url", callBackUrl);
         params.put("invite_code", invitationCode);
         params.put("user_token", connectIdToken.toString());
-        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID, new AuthInfo.ProvidedAuth(username, password, false), params, false, false, callback);
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
+                new AuthInfo.ProvidedAuth(username, password, false), params, false, false, callback);
     }
 }

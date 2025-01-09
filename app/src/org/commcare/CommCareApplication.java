@@ -566,7 +566,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
-//            e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
@@ -938,7 +937,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     /**
      * Whether the current login is a "demo" mode login.
-     * <p>
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {

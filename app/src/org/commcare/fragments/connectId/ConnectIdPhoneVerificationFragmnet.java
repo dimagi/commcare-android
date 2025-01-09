@@ -1,11 +1,13 @@
 package org.commcare.fragments.connectId;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -239,7 +241,11 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         };
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter,RECEIVER_NOT_EXPORTED);
+        }else{
+            requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
+        }
     }
 
     public void setErrorMessage(String message) {
