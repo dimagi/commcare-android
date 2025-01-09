@@ -6,7 +6,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
@@ -445,5 +444,17 @@ public class ApiConnectId {
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static boolean hqUserInvitation(Context context, String username, String password, String callBackUrl,
+            String invitationCode, IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmUserInvitation;
+        AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("callback_url", callBackUrl);
+        params.put("invite_code", invitationCode);
+        params.put("user_token", connectIdToken.toString());
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
+                new AuthInfo.ProvidedAuth(username, password, false), params, false, false, callback);
     }
 }
