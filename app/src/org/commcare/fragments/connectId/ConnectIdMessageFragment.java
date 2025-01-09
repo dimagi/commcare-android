@@ -119,7 +119,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                                 ConnectIdActivity.recoverPhone,
                                 ConnectIdActivity.recoverSecret,
                                 ConnectIdActivity.recoveryAltPhone,
-                                true
+                                false
                         ).setAllowChange(false);
                     }
                 }
@@ -201,10 +201,10 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidUserDeactivateOtpVerify(
                                 ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE,
                                 String.format(Locale.getDefault(), "%d", ConnectIdPhoneVerificationFragmnet.MethodUserDeactivate),
-                                null,
+                                ConnectIdActivity.recoverPhone,
                                 userName,
                                 password,
-                                null,false).setAllowChange(false);
+                                null,true).setAllowChange(false);
                     } else {
                         NavHostFragment.findNavController(this).popBackStack();
                     }

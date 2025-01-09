@@ -453,7 +453,7 @@
     <string name="connect_learn_status">%d ናይ %d ትምህርቲ ወዲእካ ኣለኻ።\nምስክር ወረቐትካ ንምርካብ ትምህርቲ ወድእ።</string>
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>
     <string name="connect_learn_finished">ነዚ ስራሕ ምስክር ወረቐት ረኺብካ ነቲ ስራሕ ክትሓትትን ክንክን ከተቕርብ ክትጅምርን ብቑዕ ኢኻ።\nነጥብኻ: %d\nናይ ምሕላፍ ነጥቢ: %d</string>
-    <string name="your_score">ነጥቢ፡ %መ</string>
+    <string name="your_score">ነጥቢ፡ %d</string>
     <string name="connect_learn_need_assessment">ስልጠና ንምውዳእ ነቲ ገምጋም ወድእ።</string>
     <string name="connect_learn_failed">ይቕሬታ ኣብ ገምጋምካ ናይ ምሕላፍ ነጥቢ ኣይረኸብካን። በጃኻ ደጊምካ ፈትን።\nነጥብኻ: %d\nነጥቢ ምሕላፍ: %d</string>
     <string name="connect_learn_complete">ውዱእ</string>
@@ -477,7 +477,8 @@
     <string name="connect_progress_review">ትምህርቲ ዳግመ ግምት</string>
     <string name="connect_progress_launch">ምጅማር ኣፕ</string>
     <string name="connect_progress_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
-    <string name="connect_progress_warning_not_started">እቲ ስራሕ ገና ኣይተጀመረን። ንስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
+    <string name="connect_progress_warning_not_started">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
     <string name="connect_progress_warning_max_reached_single">ዝለዓለ ቁፅሪ ምብፃሕ ፈፂምካ ኣለኻ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>

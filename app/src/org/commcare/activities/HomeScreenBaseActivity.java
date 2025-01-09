@@ -39,6 +39,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
+import org.commcare.connect.ConnectManager;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -415,6 +416,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (existing != null) {
             AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
             state.loadFromStateDescription(existing);
+
+            FormRecord formRecord = state.getFormRecord();
+            //TODO: Temporary for GD, to remove
+            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Restoring form from expired Session |" +
+                    (formRecord.getInstanceID() == null ? "" : formRecord.getInstanceID() + "|") +
+                    formRecord.getFormNamespace());
             formEntry(CommCareApplication.instance().getCommCarePlatform()
                             .getFormDefId(state.getSession().getForm()), state.getFormRecord(),
                     null, true);
@@ -569,6 +576,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         finish();
     }
 
+    protected void userPressedOpportunityStatus() {
+        ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_OPP_STATUS);
+        setResult(RESULT_OK);
+        finish();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -632,6 +645,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
                         AndroidCommCarePlatform platform =
                                 CommCareApplication.instance().getCommCarePlatform();
+
+                        //TODO: Temporary for GD, to remove
+                        Logger.log(LogTypes.TYPE_FORM_ENTRY, "Loading an incomplete form |" +
+                                (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
+                                r.getFormNamespace());
                         formEntry(platform.getFormDefId(r.getFormNamespace()), r);
                         return;
                     }

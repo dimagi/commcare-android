@@ -87,7 +87,8 @@ public class ApiConnectId {
                     expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token, expiration);
+                    SsoToken ssoToken = new SsoToken(token, expiration);
+                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
                 }

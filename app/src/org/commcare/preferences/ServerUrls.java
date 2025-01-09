@@ -6,6 +6,9 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * Created by amstone326 on 11/14/17.
  */
@@ -29,6 +32,15 @@ public class ServerUrls {
     public static String getDataServerKey() {
         return getServerProperty(PREFS_DATA_SERVER_KEY, CommCareApplication.instance()
                 .getString(R.string.ota_restore_url)) ;
+    }
+
+    public static String buildEndpoint(String path) {
+        try {
+            URL originalUrl = new URL(getKeyServer());
+            return new URL(originalUrl, path).toString();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String getKeyServer() {

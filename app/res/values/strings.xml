@@ -51,7 +51,7 @@
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
     <string name="manager_activity_name">App Manager</string>
-    <string name="install_app">Install An App</string>
+    <string name="install_app">Install an App</string>
     <string name="uninstall_app">Uninstall</string>
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
@@ -433,7 +433,6 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
-    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 
     <string name="connect_consent_title">Consent</string>
 
@@ -693,6 +692,7 @@
     <string name="connect_progress_warning_learn">Learn why</string>
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
@@ -883,4 +883,6 @@
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
     <string name="connect_appbar_title_password_verification">Password Verification</string>
+
+    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 </resources>

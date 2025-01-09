@@ -107,6 +107,7 @@ public class ConnectIDSignupFragment extends Fragment {
                 }
         );
 
+        binding.countryCode.setText(PhoneNumberHelper.setDefaultCountryCode(getContext()));
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
 
@@ -237,6 +238,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void handleRecoverButtonPress() {
+        ConnectDatabaseHelper.forgetUser(requireContext());
         directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }

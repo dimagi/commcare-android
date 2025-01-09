@@ -42,7 +42,7 @@
         android:text="What to do about it"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/layout_note_msg_action_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

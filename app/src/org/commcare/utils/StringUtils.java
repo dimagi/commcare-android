@@ -1,18 +1,12 @@
 package org.commcare.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.text.Spannable;
 
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.text.Normalizer;
-import java.util.regex.Pattern;
-
 import androidx.annotation.NonNull;
-import androidx.collection.LruCache;
 
 /**
  * @author ctsims
