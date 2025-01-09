@@ -93,22 +93,9 @@
     </permission>
 
     <permission
-        android:name="${applicationId}.permission.READ_NFC_DATA"
-        android:label="@string/permission_read_nfc_data_label"
-        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
-        android:protectionLevel="signature">
-    </permission>
-
-    <permission
-        android:name="${applicationId}.permission.WRITE_NFC_DATA"
-        android:label="@string/permission_write_nfc_data_label"
-        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
-        android:protectionLevel="signature">
-    </permission>
-
-    <permission
-        android:name="${applicationId}.permission.DRAW_BOUNDARY_AREA"
-        android:label="@string/permission_draw_boundary_area_label"
+        android:name="${applicationId}.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+        android:label="@string/permission_protect_falsely_exposed_components_label"
+        android:description="@string/permission_protect_falsely_exposed_components_description"
         android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
         android:protectionLevel="signature">
     </permission>
@@ -119,13 +106,6 @@
         android:description="@string/permission_update_to_latest_build_description"
         android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
         android:protectionLevel="dangerous">
-    </permission>
-
-    <permission
-        android:name="${applicationId}.permission.PRINT"
-        android:label="@string/permission_print_label"
-        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
-        android:protectionLevel="signature">
     </permission>
 
     <queries>
@@ -387,7 +367,7 @@
 
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:permission="org.commcare.dalvik.permission.DRAW_BOUNDARY_AREA"
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
             android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
@@ -443,7 +423,7 @@
         <activity
             android:exported="true"
             android:name="org.commcare.android.nfc.NfcWriteActivity"
-            android:permission="org.commcare.dalvik.permission.WRITE_NFC_DATA">
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
 
@@ -453,7 +433,7 @@
         <activity
             android:exported="true"
             android:name="org.commcare.android.nfc.NfcReadActivity"
-            android:permission="org.commcare.dalvik.permission.READ_NFC_DATA">
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
 
@@ -548,7 +528,7 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
-            android:permission="org.commcare.dalvik.permission.PRINT"
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
             android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
