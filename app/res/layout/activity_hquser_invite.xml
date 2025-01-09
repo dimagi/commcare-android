@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
         android:adjustViewBounds="true"
-        android:src="@drawable/commcare_logo"
+        android:src="@drawable/commcare_by_dimagi"
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
