@@ -84,7 +84,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 if(DateUtils.dateDiff(new Date(), lastDate) == 0) {
                     lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
                 } else {
-                    lastText = DateUtils.formatDate(lastDate, DateUtils.FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY);
+//                    lastText = DateUtils.formatDate(lastDate, DateUtils.FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY);
+                    lastText ="1";
                 }
 
                 binding.tvLastChatTime.setText(lastText);

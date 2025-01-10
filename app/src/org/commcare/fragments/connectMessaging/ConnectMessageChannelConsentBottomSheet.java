@@ -41,7 +41,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                             .actionChannelConsentToConnectMessageFragment(channel.getChannelId());
                     NavHostFragment.findNavController(this).navigate(directions);
                 } else {
-                    Toast.makeText(requireContext(), "Failed to grant consent to channel", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), "Failed to grant consent to channel", Toast.LENGTH_SHORT).show();
                     NavHostFragment.findNavController(this).popBackStack();
                 }
             });
