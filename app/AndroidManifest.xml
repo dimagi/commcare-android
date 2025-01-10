@@ -100,14 +100,6 @@
         android:protectionLevel="signature">
     </permission>
 
-    <permission
-        android:name="${applicationId}.permission.UPDATE_TO_LATEST_BUILD"
-        android:label="@string/permission_update_to_latest_build_label"
-        android:description="@string/permission_update_to_latest_build_description"
-        android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
-        android:protectionLevel="dangerous">
-    </permission>
-
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
@@ -462,8 +454,7 @@
 
         <receiver
             android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
-            android:permission="org.commcare.dalvik.permission.UPDATE_TO_LATEST_BUILD"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.RefreshToLatestBuildAction"/>
 
