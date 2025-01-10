@@ -52,11 +52,16 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
         controller = navHostFragment.getNavController();
         controller.addOnDestinationChangedListener(destinationListener);
         NavigationUI.setupActionBarWithNavController(this, controller);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         String action = getIntent().getStringExtra("action");
         if(action != null) {
             handleRedirect(action);
         }
+    }
+
+    @Override
+    protected boolean shouldShowBreadcrumbBar() {
+        return false;
     }
 
     @Override

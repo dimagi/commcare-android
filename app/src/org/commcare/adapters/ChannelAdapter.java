@@ -13,8 +13,11 @@ import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ItemChannelBinding;
 import org.javarosa.core.model.utils.DateUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
@@ -84,8 +87,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 if(DateUtils.dateDiff(new Date(), lastDate) == 0) {
                     lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
                 } else {
-//                    lastText = DateUtils.formatDate(lastDate, DateUtils.FORMAT_HUMAN_READABLE_DAYS_FROM_TODAY);
-                    lastText ="1";
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+                    lastText = outputFormat.format(lastDate);
                 }
 
                 binding.tvLastChatTime.setText(lastText);
@@ -102,6 +105,18 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     clickListener.onChannelClick(channel);
                 }
             });
+        }
+    }
+
+    private static String formatDate(String dateStr) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+            Date date = inputFormat.parse(dateStr);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

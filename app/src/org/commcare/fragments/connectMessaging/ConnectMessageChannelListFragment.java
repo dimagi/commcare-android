@@ -46,11 +46,6 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setAdapter(channelAdapter);
 
-        binding.pullToRefresh.setOnRefreshListener(() -> {
-            MessageManager.retrieveMessages(requireActivity(), success -> {
-                refreshUi();
-            }); // your code
-        });
 
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();

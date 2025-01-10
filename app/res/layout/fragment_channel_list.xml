@@ -5,16 +5,12 @@
     android:layout_width="match_parent"
     android:padding="10dp"
     tools:context="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment">
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:layout_width="match_parent"
-        android:id="@+id/pullToRefresh"
-        android:layout_height="match_parent">
+
         <androidx.recyclerview.widget.RecyclerView
             android:clipToPadding="false"
             android:id="@+id/rvChannel"
             android:layout_height="match_parent"
             android:layout_width="match_parent" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
 
