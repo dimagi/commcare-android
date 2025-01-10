@@ -98,9 +98,11 @@ public class ConnectJobsListsFragment extends Fragment {
         connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
+        updateText.setVisibility(View.GONE);
         updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
+        refreshButton.setVisibility(View.GONE);
 
         launcher = (appId, isLearning) -> {
             ConnectManager.launchApp(getActivity(), isLearning, appId);

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
@@ -45,6 +46,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setAdapter(channelAdapter);
 
+
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();
         });
@@ -58,6 +60,14 @@ public class ConnectMessageChannelListFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MessageManager.retrieveMessages(requireActivity(), success -> {
+            refreshUi();
+        });
     }
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {

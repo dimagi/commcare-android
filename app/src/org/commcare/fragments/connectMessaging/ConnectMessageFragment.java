@@ -1,6 +1,7 @@
 package org.commcare.fragments.connectMessaging;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -33,6 +34,10 @@ public class ConnectMessageFragment extends Fragment {
     private String channelId;
     private FragmentConnectMessageBinding binding;
     private ConnectMessageAdapter adapter;
+    private Runnable apiCallRunnable; // The task to run periodically
+    private static final int INTERVAL = 60000;
+    private Handler handler = new Handler(); // To post periodic tasks
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -47,8 +52,35 @@ public class ConnectMessageFragment extends Fragment {
 
         handleSendButtonListener();
         setChatAdapter();
+        apiCallRunnable = new Runnable() {
+            @Override
+            public void run() {
+                makeApiCall(); // Perform the API call
+                handler.postDelayed(this, INTERVAL); // Schedule the next call
+            }
+        };
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Start periodic API calls
+        handler.post(apiCallRunnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Stop the periodic API calls when the screen is not active
+        handler.removeCallbacks(apiCallRunnable);
+    }
+
+    private void makeApiCall() {
+        MessageManager.retrieveMessages(requireActivity(), success -> {
+            refreshUi();
+        });
     }
 
     private void handleSendButtonListener() {
