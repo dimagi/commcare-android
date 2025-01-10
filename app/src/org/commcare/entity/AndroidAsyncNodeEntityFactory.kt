@@ -14,6 +14,7 @@ import org.commcare.util.LogTypes
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
 import org.javarosa.core.services.Logger
+import java.lang.RuntimeException
 
 /**
  * Android Specific Implementation of AsyncNodeEntityFactory
@@ -36,6 +37,9 @@ class AndroidAsyncNodeEntityFactory(
         if (detail.shouldOptimize() && detail.isCacheEnabled) {
             // we only want to block if lazy load is not enabled
             if (!detail.isLazyLoading) {
+                if (entityDatum == null) {
+                    throw RuntimeException("Entity Datum must be defined for an async entity factory");
+                }
                 val primeEntityCacheHelper = PrimeEntityCacheHelper.getInstance()
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail
@@ -43,7 +47,7 @@ class AndroidAsyncNodeEntityFactory(
                         primeEntityCacheHelper.expediteDetailWithId(
                             getCurrentCommandId(),
                             detail,
-                            entityDatum!!,
+                            entityDatum,
                             entities,
                             progressListener
                         )
@@ -57,7 +61,7 @@ class AndroidAsyncNodeEntityFactory(
                     primeEntityCacheHelper.primeEntityCacheForDetail(
                         getCurrentCommandId(),
                         detail,
-                        entityDatum!!,
+                        entityDatum,
                         entities,
                         progressListener
                     )
@@ -72,31 +76,37 @@ class AndroidAsyncNodeEntityFactory(
         primeEntityCacheHelper: PrimeEntityCacheHelper,
         entities: MutableList<Entity<TreeReference>>
     ) {
-        runBlocking {
-            try {
-                withTimeout(TEN_MINUTES) {
-                    primeEntityCacheHelper.cachedEntitiesState.collect { cachedEntities ->
-                        if (cachedEntities != null) {
-                            entities.clear()
-                            entities.addAll(cachedEntities)
-                            return@collect
+        var resultRegistered = false
+        while (primeEntityCacheHelper.isInProgress() &&
+            primeEntityCacheHelper.isDatumInProgress(detail.id)
+        ) {
+            runBlocking {
+                try {
+                    withTimeout(TEN_MINUTES) {
+                        primeEntityCacheHelper.cachedEntitiesState.collect { cachedEntities ->
+                            resultRegistered = true
+                            if (cachedEntities != null) {
+                                entities.clear()
+                                entities.addAll(cachedEntities)
+                                return@collect
+                            }
                         }
                     }
-                }
-            } catch (e: TimeoutCancellationException) {
-                Logger.log(
-                    LogTypes.TYPE_MAINTENANCE,
-                    "Timeout while waiting for the prime cache worker to finish"
-                )
-                if (primeEntityCacheHelper.isInProgress() &&
-                    primeEntityCacheHelper.isDatumInProgress(detail.id)
-                ) {
-                    // keep observing
-                    observePrimeCacheWork(primeEntityCacheHelper, entities)
-                } else {
-                    prepareEntitiesInternal(entities)
+                } catch (e: TimeoutCancellationException) {
+                    Logger.log(
+                        LogTypes.TYPE_MAINTENANCE,
+                        "Timeout while waiting for the prime cache worker to finish"
+                    )
                 }
             }
+        }
+        if (!resultRegistered) {
+            Logger.log(
+                LogTypes.TYPE_ERROR_ASSERTION,
+                "Result not conveyed from Cache Prime worker to the current thread"
+            )
+            // re-evaluate
+            prepareEntitiesInternal(entities);
         }
     }
 

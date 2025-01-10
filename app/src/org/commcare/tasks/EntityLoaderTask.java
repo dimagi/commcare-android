@@ -133,6 +133,8 @@ public class EntityLoaderTask
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        listener.deliverProgress(values);
+        if (listener != null) {
+            listener.deliverProgress(values);
+        }
     }
 }

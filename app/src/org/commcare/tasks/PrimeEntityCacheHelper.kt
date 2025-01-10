@@ -47,7 +47,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
 
         @JvmStatic
         fun getInstance() =
-            instance ?: synchronized(this) {
+            instance ?: synchronized(PrimeEntityCacheHelper::class) {
                 instance ?: PrimeEntityCacheHelper().also { instance = it }
             }
 
