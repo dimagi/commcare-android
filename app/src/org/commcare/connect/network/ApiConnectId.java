@@ -1,6 +1,7 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -8,10 +9,10 @@ import com.google.common.collect.Multimap;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
@@ -84,7 +85,7 @@ public class ApiConnectId {
                     Date expiration = new Date();
                     key = ConnectConstants.CONNECT_KEY_EXPIRES;
                     int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                    expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                     SsoToken ssoToken = new SsoToken(token, expiration);
@@ -104,7 +105,7 @@ public class ApiConnectId {
         String url = context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, String> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
-        if(token != null) {
+        if (token != null) {
             params.put("fcm_token", token);
             boolean useFormEncoding = true;
             return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, retrieveConnectIdTokenSync(context), params, useFormEncoding, true);
@@ -145,7 +146,7 @@ public class ApiConnectId {
                         Date expiration = new Date();
                         key = ConnectConstants.CONNECT_KEY_EXPIRES;
                         int seconds = json.has(key) ? json.getInt(key) : 0;
-                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                        expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
                         user.updateConnectToken(token, expiration);
                         ConnectDatabaseHelper.storeUser(context, user);
 
@@ -286,11 +287,11 @@ public class ApiConnectId {
         int urlId = R.string.ConnectUpdateProfileURL;
 
         HashMap<String, String> params = new HashMap<>();
-        if(secondaryPhone != null) {
+        if (secondaryPhone != null) {
             params.put("secondary_phone", secondaryPhone);
         }
 
-        if(displayName != null) {
+        if (displayName != null) {
             params.put("name", displayName);
         }
 
@@ -397,7 +398,7 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
-    public static boolean requestInitiateAccountDeactivation(Context context, String phone,String secretKey, IApiCallback callback) {
+    public static boolean requestInitiateAccountDeactivation(Context context, String phone, String secretKey, IApiCallback callback) {
         int urlId = R.string.ConnectInitiateUserAccountDeactivationURL;
         AuthInfo authInfo = new AuthInfo.NoAuth();
 
@@ -421,5 +422,18 @@ public class ApiConnectId {
 
         return ConnectNetworkHelper.post(context, context.getString(urlId),
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+
+    public static boolean hqUserInvitation(Context context, String username, String password, String callBackUrl,
+            String invitationCode, IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmUserInvitation;
+        AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("callback_url", callBackUrl);
+        params.put("invite_code", invitationCode);
+        params.put("user_token", connectIdToken.toString());
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
+                new AuthInfo.ProvidedAuth(username, password, false), params, false, false, callback);
     }
 }
