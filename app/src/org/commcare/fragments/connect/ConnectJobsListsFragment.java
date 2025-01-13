@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -61,7 +62,7 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
-    private ConstraintLayout connectTile;
+    private CardView connectTile;
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
