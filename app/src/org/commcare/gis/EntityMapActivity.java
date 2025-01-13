@@ -101,37 +101,32 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             final LatLngBounds bounds = builder.build();
 
             // Move camera to be include all markers
-            mMap.setOnMapLoadedCallback(() -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
+            mMap.setOnMapLoadedCallback(
+                    () -> mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING)));
         }
 
         mMap.setOnInfoWindowClickListener(this);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-        }
+        setMapLocationEnabled(true);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (mMap != null && (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-            mMap.setMyLocationEnabled(true);
-        }
+        setMapLocationEnabled(true);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        setMapLocationEnabled(false);
+    }
 
-        if (mMap != null) {
-            mMap.setOnMapLoadedCallback(null);  // Avoid memory leak in callback
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mMap.setMyLocationEnabled(false);
-            }
+    private void setMapLocationEnabled(boolean enabled) {
+        if (mMap != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(enabled);
         }
     }
 
