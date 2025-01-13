@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -233,6 +234,7 @@ public class ConnectIdPinFragment extends Fragment {
                         }
 
                         @Override
+
                         public void processNetworkFailure() {
                             ConnectNetworkHelper.showNetworkError(getActivity());
                         }
@@ -256,7 +258,6 @@ public class ConnectIdPinFragment extends Fragment {
                                 ConnectManager.setFailureAttempt(0);
                                 if (responseAsString.length() > 0) {
                                     JSONObject json = new JSONObject(responseAsString);
-
                                     String key = ConnectConstants.CONNECT_KEY_USERNAME;
                                     if (json.has(key)) {
                                         username = json.getString(key);
@@ -272,9 +273,18 @@ public class ConnectIdPinFragment extends Fragment {
                                         ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                                     }
 
+                                    key = ConnectConstants.CONNECT_PAYMENT_INFO;
+                                    String paymentName = "",paymentPhone = "";
+                                    if(json.has(key)){
+                                        JSONObject paymentJson = json.getJSONObject(key);
+                                        paymentName = paymentJson.getString("owner_name");
+                                        paymentPhone = paymentJson.getString("phone_number");
+                                    }
+
                                     ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                            "", name, "");
+                                            "", name, "",paymentName,paymentPhone);
                                     user.setPin(pin);
+
                                     user.setLastPinDate(new Date());
 
                                     key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
@@ -335,6 +345,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                 finish(true, false, user.getPin());
             }
+
 
             @Override
             public void processFailure(int responseCode, IOException e) {

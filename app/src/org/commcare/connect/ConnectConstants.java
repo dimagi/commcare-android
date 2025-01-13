@@ -15,6 +15,8 @@ public class ConnectConstants {
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
     public static final String ALT_PHONE = "ALT_PHONE";
+    public static final String PAYMENT_NAME = "PAYMENT_NAME";
+    public static final String PAYMENT_PHONE = "PAYMENT_PHONE";
     public static final String BEGIN_REGISTRATION = "BEGIN_REGISTRATION";
     public static final String VERIFY_PHONE = "VERIFY_PHONE";
     public static final String METHOD_REGISTER_PRIMARY = "REGISTER_PRIMARY";
@@ -24,6 +26,7 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_TOKEN = "access_token";
     public static final String CONNECT_KEY_EXPIRES = "expires_in";
     public static final String CONNECT_KEY_USERNAME = "username";
+    public static final String CONNECT_PAYMENT_INFO = "payment_profile";
     public static final String CONNECT_KEY_NAME = "name";
     public static final String CONNECT_KEY_SECRET = "secret";
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
@@ -72,5 +75,6 @@ public class ConnectConstants {
     public final static int CONNECT_USER_DEACTIVATE_CONFIRMATION = ConnectConstants.ConnectIdTaskIdOffset + 40;
     public final static int CONNECT_VERIFY_USER_DEACTIVATE = ConnectConstants.ConnectIdTaskIdOffset + 41;
     public final static int CONNECT_USER_DEACTIVATE_SUCCESS = ConnectConstants.ConnectIdTaskIdOffset + 42;
+    public final static int CONNECT_PAYMENT_SETUP = ConnectConstants.ConnectIdTaskIdOffset + 43;
     public final static int CONNECT_RECOVERY_WRONG_PASSWORD = ConnectConstants.ConnectIdTaskIdOffset + 43;
 }
