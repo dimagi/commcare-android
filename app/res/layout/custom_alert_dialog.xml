@@ -80,7 +80,8 @@
                 android:visibility="gone"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="@dimen/standard_spacer"
-                android:layout_marginStart="@dimen/standard_spacer"/>
+                android:layout_marginStart="@dimen/spacer_small"
+                android:textSize="@dimen/font_size_medium"/>
 
             <com.google.android.material.button.MaterialButton
                 app:strokeColor="@color/cc_brand_color"
@@ -89,8 +90,10 @@
                 android:layout_height="@dimen/min_button_height"
                 android:padding="@dimen/standard_spacer"
                 android:layout_marginEnd="@dimen/standard_spacer"
+                android:layout_marginStart="@dimen/spacer_small"
                 android:visibility="gone"
-                android:layout_toStartOf="@id/positive_button"/>
+                android:layout_toStartOf="@id/positive_button"
+                android:textSize="@dimen/font_size_medium"/>
 
             <com.google.android.material.button.MaterialButton
                 style="@style/NegativeButtonStyle"
@@ -100,9 +103,10 @@
                 android:padding="@dimen/standard_spacer"
                 app:strokeColor="@color/cc_brand_color"
                 android:visibility="gone"
-                android:layout_marginStart="@dimen/standard_spacer"
+                android:layout_marginStart="@dimen/spacer_small"
                 android:layout_marginEnd="@dimen/standard_spacer"
-                android:layout_toStartOf="@id/neutral_button"/>
+                android:layout_toStartOf="@id/neutral_button"
+                android:textSize="@dimen/font_size_medium"/>
         </RelativeLayout>
     </LinearLayout>
 </LinearLayout>
