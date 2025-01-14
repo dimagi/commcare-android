@@ -109,7 +109,7 @@ public class ConnectJobsListsFragment extends Fragment {
             return true;
         }
 
-        return onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     public void refreshData() {

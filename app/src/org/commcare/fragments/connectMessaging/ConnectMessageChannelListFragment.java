@@ -46,14 +46,13 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setAdapter(channelAdapter);
 
-
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();
         });
 
         MessageManager.sendUnsentMessages(requireActivity());
 
-        String channelId =getArguments()!=null? getArguments().getString("channel_id"):null;
+        String channelId = getArguments() != null ? getArguments().getString("channel_id") : null;
         if(channelId != null) {
             ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
@@ -94,8 +93,5 @@ public class ConnectMessageChannelListFragment extends Fragment {
     public void refreshUi() {
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(requireActivity());
         channelAdapter.setChannels(channels);
-    }
-
-    public void onSearchQueryReceived(String query) {
     }
 }

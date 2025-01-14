@@ -1,20 +1,7 @@
 package org.commcare.activities.connect;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuItemCompat;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
@@ -26,7 +13,6 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
 public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingActivity> {
@@ -39,11 +25,7 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_messaging);
-        setTitle("Messaging");
-//        Window window = getWindow();
-//        window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
-//        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-//        getSupportActionBar().setBackgroundDrawable(colorDrawable);
+        setTitle(R.string.connect_messaging_title);
 
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 

@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectMessaging;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -136,25 +137,28 @@ public class ConnectMessageFragment extends Fragment {
     }
 
     public void refreshUi() {
-        List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesForChannel(requireContext(), channelId);
+        Context context = getContext();
+        if(context != null) {
+            List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesForChannel(context, channelId);
 
-        List<ConnectMessageChatData> chats = new ArrayList<>();
-        for(ConnectMessagingMessageRecord message : messages) {
-            int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
-            chats.add(new ConnectMessageChatData(viewType,
-                    message.getMessage(),
-                    message.getIsOutgoing() ? "You" : "Them",
-                    message.getTimeStamp(),
-                    message.getConfirmed()));
+            List<ConnectMessageChatData> chats = new ArrayList<>();
+            for (ConnectMessagingMessageRecord message : messages) {
+                int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
+                chats.add(new ConnectMessageChatData(viewType,
+                        message.getMessage(),
+                        message.getIsOutgoing() ? "You" : "Them",
+                        message.getTimeStamp(),
+                        message.getConfirmed()));
 
-            if(!message.getUserViewed()) {
-                message.setUserViewed(true);
-                ConnectDatabaseHelper.storeMessagingMessage(requireContext(), message);
+                if (!message.getUserViewed()) {
+                    message.setUserViewed(true);
+                    ConnectDatabaseHelper.storeMessagingMessage(context, message);
+                }
             }
-        }
 
-        adapter.updateData(chats);
-        binding.rvChat.scrollToPosition(messages.size() - 1);
+            adapter.updateData(chats);
+            binding.rvChat.scrollToPosition(messages.size() - 1);
+        }
     }
 }
 

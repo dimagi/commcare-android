@@ -23,7 +23,7 @@
     <fragment
         android:id="@+id/channelListFragment"
         android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment"
-        android:label="Message"
+        android:label="@string/connect_messaging_title"
         tools:layout="@layout/fragment_channel_list" >
         <action
             android:id="@+id/action_channelListFragment_to_channelConsentBottomSheet"
