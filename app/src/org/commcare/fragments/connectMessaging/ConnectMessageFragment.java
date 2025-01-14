@@ -11,20 +11,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,7 +32,7 @@ public class ConnectMessageFragment extends Fragment {
     private ConnectMessageAdapter adapter;
     private Runnable apiCallRunnable; // The task to run periodically
     private static final int INTERVAL = 60000;
-    private Handler handler = new Handler(); // To post periodic tasks
+    private final Handler handler = new Handler(); // To post periodic tasks
 
 
     @Override
@@ -94,15 +89,23 @@ public class ConnectMessageFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() > 0) {
                     binding.imgSendMessage.setVisibility(View.VISIBLE);
-//                    binding.etMessage.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0); // Remove drawableEnd
                 } else {
                     binding.imgSendMessage.setVisibility(View.GONE);
-//                    binding.etMessage.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_connect_message_photo_camera, 0); // Add back drawableEnd
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+            }
+        });
+
+        binding.etMessage.setOnFocusChangeListener((x, y) -> {
+            RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
+            if(adapter != null) {
+                int numItems = adapter.getItemCount();
+                if (numItems > 0) {
+                    binding.rvChat.scrollToPosition(numItems - 1);
+                }
             }
         });
 

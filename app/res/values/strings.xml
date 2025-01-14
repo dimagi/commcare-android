@@ -562,10 +562,9 @@
     <string name="connect_messaging_channel_consent_decline">Decline</string>
 
     <string name="connect_messaging_message_notification_title">New Message</string>
-    <string name="connect_messaging_message_notification_message">You received a new message, press here to view.</string>
+    <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
     <string name="connect_messaging_channel_notification_title">New Channel</string>
-    <string name="connect_messaging_channel_notification_message">A new messaging channel is available, press here to view</string>
-
+    <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
 
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
