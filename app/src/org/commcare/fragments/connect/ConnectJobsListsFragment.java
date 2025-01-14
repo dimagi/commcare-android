@@ -1,6 +1,5 @@
 package org.commcare.fragments.connect;
 
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
@@ -13,34 +12,22 @@ import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 import static org.commcare.connect.ConnectManager.isAppInstalled;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.MenuItemCompat;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -73,7 +60,7 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
-    private ConstraintLayout connectTile;
+    private CardView connectTile;
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
