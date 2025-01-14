@@ -47,6 +47,7 @@
         <attr name="clip_start_y" format="reference|float"/>
         <attr name="clip_width" format="reference|float"/>
         <attr name="clip_height" format="reference|float"/>
+        <attr name="clip_corner_radius" format="dimension|reference"/>
     </declare-styleable>
 
     <declare-styleable name="FilePreference">
