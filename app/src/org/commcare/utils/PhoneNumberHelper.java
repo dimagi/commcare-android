@@ -1,11 +1,8 @@
 package org.commcare.utils;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -14,18 +11,9 @@ import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.IApiCallback;
-import org.commcare.dalvik.R;
-import org.javarosa.core.services.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 
 import io.michaelrocks.libphonenumber.android.NumberParseException;
@@ -95,6 +83,23 @@ public class PhoneNumberHelper {
         return util.getCountryCodeForRegion(locale.getCountry());
     }
 
+    public static String setDefaultCountryCode(Context context) {
+        Locale locale = context.getResources().getConfiguration().locale;
+        PhoneNumberUtil util = getUtil(context);
+
+        int code = util.getCountryCodeForRegion(locale.getCountry());
+
+        String codeText = "";
+        if (code > 0) {
+            codeText = String.format(Locale.getDefault(), "%d", code);
+            if (!codeText.startsWith("+")) {
+                codeText = "+" + codeText;
+            }
+        }
+
+        return codeText;
+    }
+
     public static void requestPhoneNumberHint(Activity activity) {
         GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
         Identity.getSignInClient(activity).getPhoneNumberHintIntent(hintRequest)
@@ -102,13 +107,13 @@ public class PhoneNumberHelper {
                     try {
                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
                         phoneNumberHintLauncher.launch(intentSenderRequest);
-                    } catch (Exception  e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
     }
 
-    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity){
+    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity) {
 
         if (requestCode == ConnectConstants.CREDENTIAL_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
             SignInClient signInClient = Identity.getSignInClient(activity);

@@ -107,6 +107,7 @@ public class ConnectIDSignupFragment extends Fragment {
                 }
         );
 
+        binding.countryCode.setText(PhoneNumberHelper.setDefaultCountryCode(getContext()));
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
 
