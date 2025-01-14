@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_connect_messaging"
+    app:startDestination="@+id/channelListFragment">
+    <dialog
+        android:id="@+id/connect_messaging_channel_consent"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelConsentBottomSheet"
+        android:label="fragment_connect_messaging_consent_fragment"
+        tools:layout="@layout/fragment_channel_consent_bottom_sheet">
+        <argument
+            android:name="channelId"
+            app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_channelConsent_to_connectMessageFragment"
+            app:destination="@id/connectMessageFragment" />
+    </dialog>
+
+    <fragment
+        android:id="@+id/channelListFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment"
+        android:label="Message"
+        tools:layout="@layout/fragment_channel_list" >
+        <action
+            android:id="@+id/action_channelListFragment_to_channelConsentBottomSheet"
+            app:destination="@id/connect_messaging_channel_consent" />
+        <action
+            android:id="@+id/action_channelListFragment_to_connectMessageFragment"
+            app:destination="@id/connectMessageFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectMessageFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageFragment"
+        android:label="Channel Name"
+        tools:layout="@layout/fragment_connect_message">
+        <argument
+            android:name="channel_id"
+            app:argType="string"
+            app:nullable="false"/>
+    </fragment>
+</navigation>

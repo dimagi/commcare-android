@@ -14,6 +14,11 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
+import org.commcare.activities.connect.ConnectMessagingActivity;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
@@ -31,7 +36,6 @@ import java.util.Map;
 public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
     private final static int FCM_NOTIFICATION = R.string.fcm_notification;
-    private static final String CCC_PAYMENTS = "ccc_payment";
     public static final String OPPORTUNITY_ID = "opportunity_id";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_STATUS = "payment_status";
@@ -66,9 +70,9 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         showNotification(payloadData);
-        FCMMessageData fcmMessageData;
-        if (!hasCccAction(payloadData)) {
-            fcmMessageData = new FCMMessageData(payloadData);
+
+        if (!hasCccAction(payloadData.get("action"))) {
+            FCMMessageData fcmMessageData = new FCMMessageData(payloadData);
 
             switch (fcmMessageData.getAction()) {
                 case SYNC -> dataSyncer.syncData(fcmMessageData);
@@ -84,7 +88,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 
-
     /**
      * This method purpose is to show notifications to the user when the app is in the foreground.
      * When the app is in the background, FCM is responsible for notifying the user
@@ -95,12 +98,53 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         Intent intent;
+        String action = payloadData.get("action");
 
-        if (hasCccAction(payloadData)) {
-            FirebaseAnalyticsUtil.reportNotificationType(payloadData.get("action"));
-            intent = new Intent(getApplicationContext(), ConnectActivity.class);
-            intent.putExtra("action", payloadData.get("action"));
-            intent.putExtra("opportunity_id", payloadData.get("opportunity_id"));
+        if (hasCccAction(action)) {
+            FirebaseAnalyticsUtil.reportNotificationType(action);
+
+            if(action.equals(ConnectMessagingActivity.CCC_MESSAGE)) {
+                boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
+
+                intent = new Intent(getApplicationContext(), ConnectMessagingActivity.class);
+                intent.putExtra("action", action);
+
+                int notificationTitleId;
+                int notificationMessageId;
+                String channelId;
+                if(isMessage) {
+                    notificationTitleId = R.string.connect_messaging_message_notification_title;
+                    notificationMessageId = R.string.connect_messaging_message_notification_message;
+
+                    ConnectMessagingMessageRecord message = MessageManager.handleReceivedMessage(this, payloadData);
+
+                    if(message == null) {
+                        Logger.log(LogTypes.TYPE_FCM, "Ignoring message without known consented channel: " +
+                                payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_ID));
+                        //End now to avoid showing a notification
+                        return;
+                    }
+
+                    channelId = message.getChannelId();
+                } else {
+                    //Channel
+                    notificationTitleId = R.string.connect_messaging_channel_notification_title;
+                    notificationMessageId = R.string.connect_messaging_channel_notification_message;
+
+                    ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(this, payloadData);
+
+                    channelId = channel.getChannelId();
+                }
+
+                notificationTitle = getString(notificationTitleId);
+                notificationText = getString(notificationMessageId);
+
+                intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
+            } else {
+                //Intent for ConnectActivity
+                intent = new Intent(getApplicationContext(), ConnectActivity.class);
+                intent.putExtra("action", action);
+            }
         } else {
             intent = new Intent(this, DispatchActivity.class);
             intent.setAction(Intent.ACTION_MAIN);
@@ -124,8 +168,8 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setWhen(System.currentTimeMillis());
 
-        // Check if the payload data contains a CCC action and if the action is CCC_PAYMENTS
-        if (hasCccAction(payloadData) && payloadData.get("action").equals(CCC_PAYMENTS)) {
+        // Check if the payload action is CCC_PAYMENTS
+        if (action.equals(ConnectActivity.CCC_PAYMENTS)) {
             // Yes button intent with payment_id from payload
             Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
             yesIntent.putExtra(OPPORTUNITY_ID,payloadData.get(OPPORTUNITY_ID));
@@ -148,8 +192,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
     }
 
-    private boolean hasCccAction(Map<String, String> payloadData) {
-        String action = payloadData.get("action");
+    private boolean hasCccAction(String action) {
         return action != null && action.contains("ccc_");
     }
 

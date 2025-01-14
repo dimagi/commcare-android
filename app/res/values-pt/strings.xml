@@ -446,6 +446,10 @@
     <string name="connect_verify_phone_resend_wait">Não recebeu o seu código? Reenviar em %d s</string>
     <string name="connect_verify_phone_change">mudar</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
+    <string name="connect_messaging_channel_consent_title">Consentimento para canal</string>
+    <string name="connect_messaging_channel_consent_description">Você concorda em abrir um tópico de mensagens neste canal?</string>
+    <string name="connect_messaging_channel_consent_accept">Aceitar</string>
+    <string name="connect_messaging_channel_consent_decline">Recusar</string>
     <string name="connect_last_update">Atualizado: %s</string>
     <string name="connect_title">Ligar</string>
     <string name="connect_no_jobs">Você não foi convidado para nenhuma oportunidade ativa. Por favor, volte mais tarde.</string>
