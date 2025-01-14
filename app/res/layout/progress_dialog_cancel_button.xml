@@ -13,6 +13,7 @@
     android:layout_marginRight="@dimen/standard_spacer_large"
     android:layout_marginBottom="@dimen/standard_spacer"
     android:padding="@dimen/standard_spacer"
+    android:textSize="@dimen/font_size_medium"
     android:text="STOP"
     android:visibility="gone"
     tools:viewBindingIgnore="true" />
