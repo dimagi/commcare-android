@@ -132,6 +132,7 @@
             android:background="@drawable/btn_finish_background"
             android:visibility="gone"
             app:clip_start_x="0.42"
+            app:clip_corner_radius="@dimen/rounded_button_corner_radius"
             android:clickable="true"
             android:focusable="true"
             android:layout_toEndOf="@+id/nav_btn_prev"

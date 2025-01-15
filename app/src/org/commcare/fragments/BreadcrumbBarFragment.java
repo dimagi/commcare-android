@@ -257,7 +257,6 @@ public class BreadcrumbBarFragment extends Fragment {
             CommCareSession session = asw.getSession();
 
             Detail detail = session.getDetail(inlineDetailId);
-            mInternalDetailView.showMenu();
             mInternalDetailView.refresh(detail, tileData.second, 0);
         }
         expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
