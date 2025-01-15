@@ -99,18 +99,17 @@
                                 android:textSize="12sp" />
                         </LinearLayout>
 
-                        <org.commcare.views.connect.RoundedButton
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/connect_job_intro_start_button"
                             android:layout_width="wrap_content"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            app:roundButtonTextSize="5sp"
                             android:layout_marginStart="20dp"
                             android:gravity="center"
-                            android:text="Continue"
-                            app:roundButtonIcon="@drawable/connect_right_arrow"
-                            app:roundButtonIconTintColor="@color/connect_blue_color"
-                            app:roundButtonTextColor="@color/connect_blue_color" />
+                            android:text="@string/connect_recovery_button_phone"
+                            android:drawableRight= "@drawable/ic_connect_arrow_forward_24px"
+                            android:backgroundTint= "@color/white"
+                            android:textColor= "@color/cc_brand_color" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

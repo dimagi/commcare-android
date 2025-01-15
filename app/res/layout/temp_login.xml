@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
@@ -268,26 +269,17 @@
                                     android:textSize="@dimen/font_size_medium"
                                     android:visibility="gone" />
 
-                                <org.commcare.views.connect.RoundedButton
+                                <com.google.android.material.button.MaterialButton
                                     android:id="@+id/login_button"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="end"
                                     android:layout_marginVertical="24dp"
                                     android:text="Login with Connect ID"
-                                    RectangleButtonWithText:roundButtonBackgroundColor="@color/connect_blue_color"
-                                    RectangleButtonWithText:roundButtonIcon="@drawable/connect_right_arrow"
-                                    RectangleButtonWithText:roundButtonTextColor="@color/white"
-                                    RectangleButtonWithText:roundButtonTextSize="6sp"
+                                    app:icon="@drawable/connect_right_arrow"
+                                    app:iconGravity="end"
                                     />
-                                <!--<Button
-                                    android:id="@+id/login_button"
-                                    android:layout_width="fill_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_gravity="bottom"
-                                    android:nextFocusUp="@+id/edit_password"
-                                    android:paddingTop="@dimen/content_start"
-                                    android:paddingBottom="@dimen/content_start" />-->
+
 
                                 <LinearLayout
                                     android:id="@+id/screen_login_error_view"

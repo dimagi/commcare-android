@@ -185,21 +185,20 @@
 
                         </LinearLayout>
 
-                        <org.commcare.views.connect.RoundedButton
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/connect_delivery_button"
                             android:layout_width="wrap_content"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:text="@string/connect_job_info_download"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:roundButtonBackgroundColor="@color/white"
-                            app:roundButtonFontFamily="@font/roboto_medium"
-                            app:roundButtonIcon="@drawable/ic_connect_arrow_forward_24px"
-                            app:roundButtonIconLeftAlign="false"
-                            app:roundButtonIconTintColor="@color/connect_dark_blue_color"
-                            app:roundButtonTextColor="@color/connect_blue_color"
-                            app:roundButtonTextSize="5sp" />
+                            android:backgroundTint= "@color/white"
+                            android:fontFamily= "@font/roboto_medium"
+                            android:drawableRight= "@drawable/ic_connect_arrow_forward_24px"
+                            android:textColor= "@color/cc_brand_color"
+                            app:iconTint="@color/cc_brand_color"
+                            />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
             </androidx.constraintlayout.widget.ConstraintLayout>

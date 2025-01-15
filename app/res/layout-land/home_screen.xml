@@ -144,15 +144,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <!--                    <org.commcare.views.connect.RoundedButton-->
-                    <!--                        android:id="@+id/btnOverLimit"-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="30dp"-->
-                    <!--                        android:text="@string/connect_job_tile_daily_limit"-->
-                    <!--                        app:layout_constraintBottom_toBottomOf="parent"-->
-                    <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-                    <!--                        app:layout_constraintTop_toTopOf="parent"-->
-                    <!--                        app:roundButtonTextSize="4sp" />-->
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 

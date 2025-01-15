@@ -40,20 +40,14 @@
                     android:textSize="@dimen/text_small"
                     android:textStyle="bold" />
 
-                <org.commcare.views.connect.RoundedButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_login_button"
                     android:layout_width="fill_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:layout_gravity="bottom"
                     android:layout_marginHorizontal="30dp"
-                    android:paddingTop="@dimen/content_start"
-                    android:paddingBottom="@dimen/content_start"
                     android:text="@string/connect_button_logged_in"
-                    android:visibility="gone"
-                    SquareButtonWithText:roundButtonTextSize="6sp"
-                    SquareButtonWithText:roundButtonBackgroundColor="@color/connect_blue_color"
-                    SquareButtonWithText:roundButtonTextColor="@color/white" />
+                    android:visibility="gone" />
 
                 <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                     android:id="@+id/login_or"
