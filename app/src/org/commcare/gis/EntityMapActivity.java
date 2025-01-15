@@ -25,6 +25,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.cases.entity.Entity;
 import org.commcare.dalvik.R;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
@@ -110,14 +111,18 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         mMap = map;
 
         if (entityLocations.size() > 0) {
+            boolean showCustomMapMarker = HiddenPreferences.shouldShowCustomMapMarker();
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             // Add markers to map and find bounding region
             for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
-                Marker marker = mMap.addMarker(new MarkerOptions()
+                MarkerOptions markerOptions = new MarkerOptions()
                         .position(entityLocation.second)
                         .title(entityLocation.first.getFieldString(0))
-                        .snippet(entityLocation.first.getFieldString(1))
-                        .icon(getEntityIcon(entityLocation.first)));
+                        .snippet(entityLocation.first.getFieldString(1));
+                if (showCustomMapMarker) {
+                    markerOptions.icon(getEntityIcon(entityLocation.first));
+                }
+                Marker marker = mMap.addMarker(markerOptions);
                 markerReferences.put(marker, entityLocation.first.getElement());
                 builder.include(entityLocation.second);
             }
