@@ -34,7 +34,7 @@ git clone https://github.com/dimagi/commcare-core.git
 
 - Open Android Studio
 - If this is your first time using Android Studio, click "Config" and setup the Android SDK.
-- Download the Android 12 (API 31) SDK Platform and the Google APIs for 31.
+- Download the Android 14 (API 34) SDK Platform and the Google APIs for 34.
 - Now go back to the Android Studio Welcome dashboard and click "Import project (Eclipse ADT, Gradle, etc.)"
 - Select AndroidStudioProjects > CommCare > commcare-android and hit OK
 - Click "OK" to use the Gradle wrapper
