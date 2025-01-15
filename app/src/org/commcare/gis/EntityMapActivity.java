@@ -157,11 +157,14 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     private void setMapLocationEnabled(boolean enabled) {
-        if (mMap != null && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(enabled);
+        if (mMap != null) {
+            boolean fineLocationPermission = ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            boolean coarseLocationPermission = ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+            if (fineLocationPermission || coarseLocationPermission) {
+                mMap.setMyLocationEnabled(enabled);
+            }
         }
     }
 
