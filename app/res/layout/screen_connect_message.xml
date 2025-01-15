@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/content_start"
                 android:paddingBottom="@dimen/content_start"
-                android:text="Back" />
+                android:text="@string/back" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_message_button2"
@@ -48,7 +48,7 @@
                 android:layout_marginBottom="16dp"
                 android:paddingTop="@dimen/content_start"
                 android:paddingBottom="@dimen/content_start"
-                android:text="Back"
+                android:text="@string/back"
                 android:visibility="gone"
                 />
 

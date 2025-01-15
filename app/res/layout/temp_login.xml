@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
@@ -275,7 +276,8 @@
                                     android:layout_gravity="end"
                                     android:layout_marginVertical="24dp"
                                     android:text="Login with Connect ID"
-                                    android:drawableRight="@drawable/connect_right_arrow"
+                                    app:icon="@drawable/connect_right_arrow"
+                                    app:iconGravity="end"
                                     />
 
 

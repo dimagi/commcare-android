@@ -176,7 +176,8 @@
                             app:layout_constraintTop_toTopOf="parent"
                             android:fontFamily= "@font/roboto_medium"
                             app:iconSize="24dp"
-                            android:drawableRight="@drawable/ic_connect_directory_sync"
+                            app:icon="@drawable/ic_connect_directory_sync"
+                            app:iconGravity="end"
                             />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
