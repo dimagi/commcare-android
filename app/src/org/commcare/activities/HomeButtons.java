@@ -84,7 +84,7 @@ public class HomeButtons {
                         getReportButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
-                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_neutral_text,
+                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_core_text,
                         getLogoutButtonListener(activity),
                         null,
                         getLogoutButtonTextSetter(activity)),
