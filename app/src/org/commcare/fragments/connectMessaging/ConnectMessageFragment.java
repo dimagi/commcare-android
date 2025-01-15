@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -99,13 +100,18 @@ public class ConnectMessageFragment extends Fragment {
             }
         });
 
-        binding.etMessage.setOnFocusChangeListener((x, y) -> {
-            RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
-            if(adapter != null) {
-                int numItems = adapter.getItemCount();
-                if (numItems > 0) {
-                    binding.rvChat.scrollToPosition(numItems - 1);
-                }
+        binding.etMessage.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus) {
+
+                binding.rvChat.postDelayed(() -> {
+                    RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
+                    if (adapter != null) {
+                        int numItems = adapter.getItemCount();
+                        if (numItems > 0) {
+                            binding.rvChat.scrollToPosition(numItems - 1);
+                        }
+                    }
+                }, 250);
             }
         });
 
