@@ -78,19 +78,19 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
-                    android:text="Back" />
+                    android:text="@string/back" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/recover_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
                     android:gravity="start|center"
-                    android:text="Recover"
+                    android:text="@string/recover"
                     android:drawableRight="@drawable/connect_right_arrow" />
             </RelativeLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
