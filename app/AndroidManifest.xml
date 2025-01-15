@@ -436,6 +436,7 @@
         </receiver>
         <receiver
             android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT"
+            android:name="org.commcare.provider.CommCareLogoutReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.CommCareLogoutAction" />
