@@ -106,16 +106,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             if(action.equals(ConnectMessagingActivity.CCC_MESSAGE)) {
                 boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
 
+                //Don't show a notification in some cases:
+                //Can't decrypt message (no key)
+                //On channels page (just update the page)
+                //On message page for the active channel
+
                 intent = new Intent(getApplicationContext(), ConnectMessagingActivity.class);
                 intent.putExtra("action", action);
 
                 int notificationTitleId;
-                int notificationMessageId;
+                String notificationMessage;
                 String channelId;
                 if(isMessage) {
-                    notificationTitleId = R.string.connect_messaging_message_notification_title;
-                    notificationMessageId = R.string.connect_messaging_message_notification_message;
-
                     ConnectMessagingMessageRecord message = MessageManager.handleReceivedMessage(this, payloadData);
 
                     if(message == null) {
@@ -125,19 +127,24 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                         return;
                     }
 
+                    ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(this, message.getChannelId());
+
+                    notificationTitleId = R.string.connect_messaging_message_notification_title;
+                    notificationMessage = getString(R.string.connect_messaging_message_notification_message, channel.getChannelName());
+
                     channelId = message.getChannelId();
                 } else {
                     //Channel
-                    notificationTitleId = R.string.connect_messaging_channel_notification_title;
-                    notificationMessageId = R.string.connect_messaging_channel_notification_message;
-
                     ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(this, payloadData);
+
+                    notificationTitleId = R.string.connect_messaging_channel_notification_title;
+                    notificationMessage = getString(R.string.connect_messaging_channel_notification_message, channel.getChannelName());
 
                     channelId = channel.getChannelId();
                 }
 
                 notificationTitle = getString(notificationTitleId);
-                notificationText = getString(notificationMessageId);
+                notificationText = notificationMessage;
 
                 intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
             } else {

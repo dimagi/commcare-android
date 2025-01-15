@@ -50,7 +50,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private View viewJobCard;
     private CardView connectMessageCard;
 
-    private ConstraintLayout connectTile;
+    private CardView connectTile;
 
     private HomeScreenAdapter adapter;
     List<ConnectDeliveryPaymentSummaryInfo> deliveryPaymentInfoList = new ArrayList<>();
