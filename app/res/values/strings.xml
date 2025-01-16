@@ -767,6 +767,8 @@
     <string name="progress">Progress</string>
     <string name="click_to_sync">Click to sync progress</string>
     <string name="sync">Sync</string>
+    <string name="back">Back</string>
+    <string name="recover">Recover</string>
 
     <string-array name="frequency_vals">
         <item>freq-never</item>

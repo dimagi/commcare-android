@@ -66,17 +66,13 @@
                     android:src="@drawable/fingerprint"
                     app:tint="@color/connect_blue_color" />
 
-                <org.commcare.views.connect.RoundedButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_verify_fingerprint_button"
-                    android:layout_width="fill_parent"
-                    android:layout_height="45dp"
-                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/connect_verify_configure_fingerprint"
-                    app:roundButtonBackgroundColor="@color/connect_blue_color"
-                    app:roundButtonTextColor="@color/white"
-                    app:roundButtonTextSize="6sp" />
+                    android:text="@string/connect_verify_configure_fingerprint" />
 
             </LinearLayout>
 
@@ -104,17 +100,13 @@
                     android:src="@drawable/pattern"
                     app:tint="@color/connect_blue_color" />
 
-                <org.commcare.views.connect.RoundedButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_verify_pin_button"
-                    android:layout_width="fill_parent"
-                    android:layout_height="45dp"
-                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/connect_verify_configure_pin"
-                    app:roundButtonBackgroundColor="@color/connect_blue_color"
-                    app:roundButtonTextColor="@color/white"
-                    app:roundButtonTextSize="6sp" />
+                    android:text="@string/connect_verify_configure_pin" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
