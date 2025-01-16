@@ -85,7 +85,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public final static String KEY_LAST_APP = "id-last-seated-app";
     public final static String KEY_ENTERED_USER = "entered-username";
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
-
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
