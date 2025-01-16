@@ -374,7 +374,13 @@ public class ConnectDatabaseHelper {
             }
 
             //Now insert/update the job
-            jobStorage.write(incomingJob);
+            try {
+                jobStorage.write(incomingJob);
+            } catch (Exception e) {
+                Logger.exception("Job storage", new Exception("Job " + incomingJob.getTitle() +
+                        ", " + incomingJob.getJobId()));
+                throw e;
+            }
 
             //Next, store the learn and delivery app info
             incomingJob.getLearnAppInfo().setJobId(incomingJob.getJobId());
