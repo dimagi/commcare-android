@@ -157,6 +157,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_primary_phone_button"
+            style="@style/CustomButtonStyle"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
