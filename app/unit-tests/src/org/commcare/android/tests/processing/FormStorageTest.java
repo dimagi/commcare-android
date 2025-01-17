@@ -361,6 +361,8 @@ public class FormStorageTest {
             // Added in 2.55
             , "org.javarosa.core.model.FormIndex"
             , "org.commcare.models.database.InterruptedFormState"
+            , "org.javarosa.xpath.expr.XPathClosestPolygonPointFunc"
+            , "org.javarosa.xpath.expr.XPathPointInsidePolygon"
     );
 
 
