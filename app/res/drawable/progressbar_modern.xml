@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape>
-            <corners android:radius="4dp" />
+            <corners android:radius="@dimen/modern_progressbar_radius" />
             <gradient
                 android:startColor="@color/progress_bar_bg"
                 android:endColor="@color/progress_bar_bg"
@@ -12,7 +12,7 @@
     <item android:id="@android:id/progress">
         <scale android:scaleWidth="100%">
             <shape>
-                <corners android:radius="4dp" />
+                <corners android:radius="@dimen/modern_progressbar_radius" />
                 <gradient
                     android:startColor="@color/white"
                     android:endColor="@color/white"
