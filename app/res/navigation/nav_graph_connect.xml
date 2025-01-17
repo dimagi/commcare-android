@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_connect"
+    app:startDestination="@id/connect_jobs_list_fragment">
+
+    <fragment
+        android:id="@+id/connect_jobs_list_fragment"
+        android:name="org.commcare.fragments.connect.ConnectJobsListsFragment"
+        android:label="fragment_connect_jobs_list"
+        tools:layout="@layout/fragment_connect_jobs_list">
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_intro_fragment"
+            app:destination="@id/connect_job_intro_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_learning_progress_fragment"
+            app:destination="@id/connect_job_learning_progress_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_delivery_details_fragment"
+            app:destination="@id/connect_job_delivery_details_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_delivery_progress_fragment"
+            app:destination="@id/connect_job_delivery_progress_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_jobs_list_fragment_to_connect_downloading_fragment2"
+            app:destination="@id/connect_downloading_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_job_intro_fragment"
+        android:name="org.commcare.fragments.connect.ConnectJobIntroFragment"
+        android:label="fragment_connect_job_intro"
+        tools:layout="@layout/fragment_connect_job_intro">
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_learning_progress_fragment"
+            app:destination="@id/connect_job_learning_progress_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+
+        <argument
+            android:name="isButtonVisible"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
+            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_job_learning_progress_fragment"
+        android:name="org.commcare.fragments.connect.ConnectLearningProgressFragment"
+        android:label="fragment_connect_learning_progess"
+        tools:layout="@layout/fragment_connect_learning_progress">
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
+            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_delivery_details_fragment"
+            app:destination="@id/connect_job_delivery_details_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_intro_fragment"
+            app:destination="@id/connect_job_intro_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_job_delivery_details_fragment"
+        android:name="org.commcare.fragments.connect.ConnectDeliveryDetailsFragment"
+        android:label="fragment_connect_delivery_details"
+        tools:layout="@layout/fragment_connect_delivery_details">
+        <action
+            android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_details_fragment_to_connect_job_delivery_progress_fragment"
+            app:destination="@id/connect_job_delivery_progress_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+
+        <argument
+            android:name="isButtonVisible"
+            app:argType="boolean" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_job_delivery_progress_fragment"
+        android:name="org.commcare.fragments.connect.ConnectDeliveryProgressFragment"
+        android:label="fragment_connect_delivery_progress"
+        tools:layout="@layout/fragment_connect_delivery_progress">
+        <action
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_downloading_fragment"
+            app:destination="@id/connect_downloading_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_results_fragment"
+            app:destination="@id/connect_results_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_delivery_fragment"
+            app:destination="@id/connect_delivery_fragment" />
+        <action
+            android:id="@+id/action_connect_job_delivery_progress_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
+            app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_downloading_fragment"
+        android:name="org.commcare.fragments.connect.ConnectDownloadingFragment"
+        android:label="fragment_connect_downloading"
+        tools:layout="@layout/fragment_connect_downloading">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="learning"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_connect_downloading_fragment_to_connect_job_learning_progress_fragment"
+            app:destination="@id/connect_job_learning_progress_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+        <action
+            android:id="@+id/action_connect_downloading_fragment_to_connect_job_delivery_progress_fragment"
+            app:destination="@id/connect_job_delivery_progress_fragment"
+            app:popUpTo="@id/connect_jobs_list_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_results_fragment"
+        android:name="org.commcare.fragments.connect.ConnectResultsListFragment"
+        android:label="fragment_connect_results_list"
+        tools:layout="@layout/fragment_connect_results_list">
+        <argument
+            android:name="showPayments"
+            app:argType="boolean" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connect_delivery_fragment"
+        android:name="org.commcare.fragments.connect.ConnectDeliveryListFragment"
+        android:label="fragment_connect_delivery_list"
+        tools:layout="@layout/fragment_connect_delivery_list">
+        <argument
+            android:name="unitId"
+            app:argType="string" />
+    </fragment>
+    <dialog
+        android:id="@+id/connect_job_detail_bottom_sheet_dialog_fragment"
+        android:name="org.commcare.fragments.connect.ConnectJobDetailBottomSheetDialogFragment"
+        tools:layout="@layout/fragment_connect_job_detail_bottom_sheet_dialog"
+        android:label="ConnectJobDetailBottomSheetDialogFragment">
+
+
+    </dialog>
+
+</navigation>

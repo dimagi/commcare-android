@@ -298,7 +298,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
             }
         };
         d.setPositiveButton(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_online_method), listener);
-        d.setNegativeButton(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_offline_method), listener);
+        d.setNegativeButton(StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_offline_method), listener, true);
         mActivity.showAlertDialog(d);
     }
 

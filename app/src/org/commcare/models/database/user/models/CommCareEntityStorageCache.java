@@ -184,7 +184,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
     public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
-            Detail detail) {
+                           Detail detail) {
         Vector<Integer> sortKeys = new Vector<>();
         String validKeys = buildValidKeys(sortKeys, detail.getFields());
         if ("".equals(validKeys)) {

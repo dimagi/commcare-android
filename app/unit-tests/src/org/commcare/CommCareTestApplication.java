@@ -6,6 +6,9 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.work.Configuration;
+
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -17,7 +20,6 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -27,6 +29,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
+import org.commcare.utils.MockEncryptionKeyProvider;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -43,10 +46,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -74,6 +78,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
         super.onCreate();
 
+        setEncryptionKeyProvider(new MockEncryptionKeyProvider());
+
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
 
@@ -81,11 +87,21 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+
+        Configuration config = new Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .setExecutor(new SynchronousExecutor())
+                .build();
+
+        // Initialize WorkManager for instrumentation tests.
+        WorkManagerTestInitHelper.initializeTestWorkManager(
+                this, config);
     }
 
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
     }
+
     @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -142,11 +158,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String[] baseODK = new String[]{BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
-                        , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
+                    , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
-            for(String variant : baseODK) {
+            for (String variant : baseODK) {
                 addExternalizableClassesFromDir(variant.replace("/", File.separator), factoryClassNames);
             }
             addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
@@ -252,6 +268,13 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void afterTest(Method method) {
+        CommCareApp app = getCurrentApp();
+        if(app != null) {
+            app.teardownSandbox();
+        }
+
+        ConnectDatabaseHelper.teardown();
+
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
                 throwable.printStackTrace();

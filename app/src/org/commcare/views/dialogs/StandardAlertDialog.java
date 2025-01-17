@@ -3,6 +3,7 @@ package org.commcare.views.dialogs;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -97,6 +98,7 @@ public class StandardAlertDialog extends CommCareAlertDialog {
         Button negativeButton = this.view.findViewById(R.id.negative_button);
         if (usePositiveButtonStyle) {
             negativeButton.setTextAppearance(this.view.getContext(), R.style.Commcare_Button_Primary_Rounded);
+            negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_PX,this.getDialog().getContext().getResources().getDimensionPixelSize(R.dimen.font_size_medium));
             negativeButton.setBackgroundColor(this.view.getResources().getColor(R.color.cc_brand_color));
         }
         negativeButton.setText(displayText);

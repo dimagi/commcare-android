@@ -6,6 +6,7 @@ import android.text.Spannable;
 import android.view.View;
 import android.widget.Toast;
 
+import org.commcare.connect.ConnectManager;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
@@ -27,7 +28,7 @@ import java.util.Vector;
 public class HomeButtons {
 
     private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+            new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -67,6 +68,9 @@ public class HomeButtons {
                         getIncompleteButtonListener(activity),
                         null,
                         getIncompleteButtonTextSetter(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+                        R.drawable.baseline_save_24, R.color.orange_500,
+                        getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
@@ -80,7 +84,7 @@ public class HomeButtons {
                         getReportButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
-                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_neutral_text,
+                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_core_text,
                         getLogoutButtonListener(activity),
                         null,
                         getLogoutButtonTextSetter(activity)),
@@ -208,6 +212,13 @@ public class HomeButtons {
 
     private static void reportButtonClick(String buttonLabel) {
         FirebaseAnalyticsUtil.reportHomeButtonClick(buttonLabel);
+    }
+
+    private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
+            activity.userPressedOpportunityStatus();
+        };
     }
 
     public interface TextSetter {

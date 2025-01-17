@@ -1,0 +1,201 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/grey_light"
+        android:backgroundTint="@color/connect_blue_color">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/llTopBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <include
+                    android:id="@+id/commonAppBar"
+                    layout="@layout/connectid_common_title_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="16dp"
+                app:cardCornerRadius="10dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:orientation="vertical">
+
+
+                    <ImageView
+                        android:id="@+id/company_logo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="40dp"
+                        android:src="@drawable/ic_dimagi_logo" />
+
+                    <View
+                        android:id="@+id/divider"
+                        android:layout_width="fill_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/company_logo"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginTop="40dp"
+                        android:background="@android:color/darker_gray" />
+
+                    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                        android:id="@+id/secondary_phone_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/divider"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/roboto_bold"
+                        android:text="Add Secondary Phone Number"
+                        android:textColor="@color/connect_dark_blue_color"
+                        android:textSize="18sp" />
+
+                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                        android:id="@+id/secondary_phone_sub_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/secondary_phone_title"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/roboto_bold"
+                        android:text="Add secondary phone number to reset your Recovery Code."
+                        android:textColor="@color/connect_subtext_80"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:id="@+id/phone_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/secondary_phone_sub_title"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/connect_side_icon_bg"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:contentDescription="@null"
+                                android:padding="1dp"
+                                android:src="@drawable/ic_outline_phone_24" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="16dp"
+                                android:background="@drawable/connect_edit_text_bg"
+                                android:padding="0dp">
+
+                                <EditText
+                                    android:id="@+id/countryCode"
+                                    android:layout_width="64dp"
+                                    android:layout_height="55dp"
+                                    android:background="@null"
+                                    android:gravity="center"
+                                    android:hint="@string/connect_phone_country_code_default"
+                                    android:inputType="number"
+                                    android:text="@string/connect_phone_country_code_default"
+                                    android:textColorHint="@color/connect_grey" />
+
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginVertical="10dp"
+                                    android:background="@color/connect_blue_color_10" />
+
+                                <AutoCompleteTextView
+                                    android:id="@+id/connect_primary_phone_input"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="55dp"
+                                    android:background="@null"
+                                    android:digits="1234567890"
+                                    android:focusable="true"
+                                    android:focusableInTouchMode="true"
+                                    android:hint="@string/connect_phone_number_hint"
+                                    android:inputType="numberDecimal"
+                                    android:paddingLeft="16dp"
+                                    android:textAlignment="textStart"
+                                    android:textColorHint="@color/connect_grey" />
+                            </LinearLayout>
+
+                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                android:id="@+id/errorTextView"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingStart="16dp"
+                                android:paddingTop="4dp"
+                                android:textColor="@android:color/holo_red_light"
+                                android:textSize="14sp"
+                                android:visibility="gone" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/relativeLayout1"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/phone_layout"
+                        android:layout_marginHorizontal="10dp"
+                        android:layout_marginVertical="16dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            style="@style/NegativeButtonStyle"
+                            android:id="@+id/back_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_margin="16dp"
+                            android:gravity="start|center"
+                            android:text="Learn More"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/continueButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_margin="16dp"
+                            android:text="@string/review"
+                           android:drawableRight="@drawable/connect_right_arrow" />
+                    </RelativeLayout>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+    </FrameLayout>
+</layout>

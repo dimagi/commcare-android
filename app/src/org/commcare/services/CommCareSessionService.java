@@ -1,7 +1,5 @@
 package org.commcare.services;
 
-import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
-
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -31,7 +29,6 @@ import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
@@ -57,6 +54,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
+
+import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -89,7 +88,6 @@ public class CommCareSessionService extends Service {
      * 2h time in Milliseconds to extend the session if needed
      */
     private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
-
     private Timer maintenanceTimer;
 
     private byte[] key = null;

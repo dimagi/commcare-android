@@ -3,7 +3,7 @@ package org.commcare.views;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Path;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
@@ -18,12 +18,13 @@ import org.commcare.dalvik.R;
  */
 public class ClippingFrame extends FrameLayout {
 
-    final private Rect mClipBounds= new Rect(0,0,1,1);
+    final private Path mClipPath = new Path();
 
     private float startX;
     private float startY;
     private float clipWidth;
     private float clipHeight;
+    private int clipCornerRadius;
 
     public ClippingFrame(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -44,6 +45,7 @@ public class ClippingFrame extends FrameLayout {
             startY = typedArray.getFloat(R.styleable.ClippingView_clip_start_y, 0.5f);
             clipWidth = typedArray.getFloat(R.styleable.ClippingView_clip_width, 1);
             clipHeight = typedArray.getFloat(R.styleable.ClippingView_clip_height, 1);
+            clipCornerRadius = typedArray.getDimensionPixelSize(R.styleable.ClippingView_clip_corner_radius, 0);
         }
     }
 
@@ -95,7 +97,9 @@ public class ClippingFrame extends FrameLayout {
         int topStart = Math.max(0, centerY - topCoverage);
         int bottomEnd = Math.min(height, centerY + bottomCoverage);
 
-        mClipBounds.set(leftStart, topStart, rightEnd, bottomEnd);
+        mClipPath.reset();
+
+        mClipPath.addRoundRect(leftStart, topStart, rightEnd, bottomEnd, clipCornerRadius, clipCornerRadius, Path.Direction.CCW);
     }
 
     @Override
@@ -108,8 +112,8 @@ public class ClippingFrame extends FrameLayout {
     @Override
     public void draw(Canvas canvas) {
         //Clip boundary implementaiton, since we're targeting pre-jellybean.
-        if (mClipBounds != null) {
-            canvas.clipRect(mClipBounds);
+        if (mClipPath != null) {
+            canvas.clipPath(mClipPath);
         }
         super.draw(canvas);
     }

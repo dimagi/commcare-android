@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
+import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -123,7 +124,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             }
 
             int getDaysSinceSync = SyncDetailCalculations.getDaysSinceLastSync();
-            if(getDaysSinceSync != -1) {
+            if (getDaysSinceSync != -1) {
                 params.put("days_since_last_sync", Integer.toString(getDaysSinceSync));
             }
         }
@@ -148,7 +149,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 getHeaders(syncToken),
-                new AuthInfo.ProvidedAuth(username, password),
+                buildAuth(),
                 null);
 
         return requester.makeRequest();
@@ -163,6 +164,27 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         headers.put(X_OPENROSA_DEVICEID, CommCareApplication.instance().getPhoneId());
         headers.put(X_OPENROSA_COMMCARE_VERSION, BuildConfig.VERSION_NAME);
         return headers;
+    }
+
+    private AuthInfo buildAuth() {
+        AuthInfo authInfo = new AuthInfo.NoAuth();
+        if (username != null) {
+            try {
+                AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), username, false);
+                if (tokenAuth != null) {
+                    authInfo = tokenAuth;
+                } else {
+                    CommCareApplication.instance().getSession().getLoggedInUser();
+                    //Use CurrentAuth (possibly token) if we have an active session and logged in user
+                    authInfo = new AuthInfo.CurrentAuth();
+                }
+            } catch (Exception e) {
+                //No token if no session
+                authInfo = new AuthInfo.ProvidedAuth(username, password);
+            }
+        }
+
+        return authInfo;
     }
 
     @Override
@@ -181,7 +203,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 baseUri,
                 params,
                 new HashMap(),
-                new AuthInfo.ProvidedAuth(username, password),
+                buildAuth(),
                 null);
 
         return requester.makeRequest();
@@ -235,7 +257,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                new AuthInfo.ProvidedAuth(username, password),
+                buildAuth(),
                 null,
                 false);
 
@@ -257,7 +279,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 uri,
                 httpParams,
                 headers,
-                new AuthInfo.ProvidedAuth(username, password),
+                buildAuth(),
                 null);
 
         Response<ResponseBody> response = requester.makeRequest();

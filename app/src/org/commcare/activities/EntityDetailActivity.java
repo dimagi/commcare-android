@@ -140,7 +140,6 @@ public class EntityDetailActivity
         mDetailView.setRoot(container.findViewById(R.id.entity_detail_tabs));
         mDetailView.refresh(detail, mTreeReference, detailIndex);
 
-        mDetailView.showMenu();
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
     }
 

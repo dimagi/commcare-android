@@ -503,7 +503,9 @@ public class RecordingFragment extends DialogFragment {
                     .findAny();
             return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
         } else {
-            // TODO: Add logic to check if the recording has gone silent for Android 9 and prior
+            if (recorder.getMaxAmplitude() == 0) {
+                return true;
+            }
             return false;
         }
     }

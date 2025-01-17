@@ -35,7 +35,7 @@ public class SerializationUtil {
             t = type.newInstance();
             t.readExternal(new DataInputStream(new ByteArrayInputStream(bytes)), CommCareApplication.instance().getPrototypeFactory(CommCareApplication.instance()));
         } catch (IOException | InstantiationException
-                | DeserializationException | IllegalAccessException e1) {
+                 | DeserializationException | IllegalAccessException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
         }
@@ -54,12 +54,12 @@ public class SerializationUtil {
         byte[] decodedData = Base64.decode(data, Base64.DEFAULT);
         return deserialize(decodedData, type);
     }
-    
+
     public static <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
         if(!i.hasExtra(name)) { return null;}
         return deserialize(i.getByteArrayExtra(name), type);
     }
-    
+
     public static void serializeToBundle(Bundle b, String name, Externalizable data) {
         b.putByteArray(name, serialize(data));
     }
