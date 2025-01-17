@@ -21,14 +21,12 @@ import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -100,6 +98,12 @@ public class ConnectJobsListsFragment extends Fragment {
         refreshData();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshUi();
     }
 
     public void refreshData() {

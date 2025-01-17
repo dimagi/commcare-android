@@ -69,7 +69,7 @@ public class HomeButtons {
                         null,
                         getIncompleteButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
-                        R.drawable.baseline_save_24, R.color.orange_500,
+                        R.drawable.home_incomplete, R.color.orange_500,
                         getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
