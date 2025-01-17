@@ -363,12 +363,14 @@ select.detail.bypass=Done
 select.address.show=Show Address
 select.menu.sort=Sort By...
 select.menu.map=View on Map
+select.menu.scan=Scan Barcode
 select.menu.settings=Settings
 select.detail.title=Details
 select.list.title=Select
 select.detail.callout.title=Select phone number action
 select.detail.callout.call=Call
 select.detail.callout.sms=Send SMS
+
 
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
