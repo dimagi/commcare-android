@@ -743,7 +743,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
         if(isMappingEnabled) {
-            menu.findItem(R.id.barcode_scan_action_bar).setIcon(R.drawable.ic_marker);
+            menu.findItem(R.id.highlight_action_bar).setIcon(R.drawable.ic_marker);
         }
 
         if (menu.findItem(R.id.menu_settings) != null) {
@@ -769,7 +769,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 return true;
             // handling click on the barcode scanner's actionbar
             // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
-            case R.id.barcode_scan_action_bar:
+            case R.id.highlight_action_bar:
                 if(isMappingEnabled){
                     Intent intent = new Intent(this,
                             HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
