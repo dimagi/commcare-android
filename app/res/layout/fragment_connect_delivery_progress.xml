@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#e1e0e0"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/connect_background_color"
+        android:fitsSystemWindows="true"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/connect_background_color"
+            app:expandedTitleMarginEnd="64dp"
+            app:expandedTitleMarginStart="48dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/connect_delivery_refresh"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/refresh"
+                    android:src="@drawable/cloud_backup"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/connect_delivery_last_update"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toStartOf="@id/connect_delivery_refresh"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/connect_delivery_progress_alert_tile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginEnd="5dp"
+                    android:background="@drawable/dots_rect_back"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/connect_delivery_refresh">
+
+                    <ImageView
+                        android:id="@+id/connect_payment_confirm_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/monetary_support"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/connect_payment_confirm_label"
+                        android:layout_width="0dp"
+                        android:textColor="@color/black"
+                        android:layout_height="match_parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/connect_payment_confirm_icon"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/connect_payment_confirm_yes_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:text="@string/connect_payment_confirm_yes"
+                        android:textColor="@color/blue"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label" />
+
+                    <TextView
+                        android:id="@+id/connect_payment_confirm_no_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="40dp"
+                        android:text="@string/connect_payment_confirm_no"
+                        android:textColor="@color/blue"
+                        app:layout_constraintEnd_toStartOf="@id/connect_payment_confirm_yes_button"
+                        app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cvConnectMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/viewJobCard"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="-35dp"
+                        android:layout_marginRight="10dp"
+                        app:cardBackgroundColor="@color/connect_light_orange_color"
+                        app:cardCornerRadius="15dp"
+                        app:cardElevation="10dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:paddingStart="15dp"
+                            android:paddingTop="35dp"
+                            android:layout_marginBottom="15dp"
+                            android:paddingEnd="15dp">
+
+                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                android:id="@+id/tvConnectMessage"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_job_tile_daily_limit_description"
+                                android:layout_marginEnd="10dp"
+                                android:textColor="@color/connect_warning_color"
+                                android:textSize="14sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.cardview.widget.CardView>
+
+                    <include
+                        android:id="@+id/viewJobCard"
+                        layout="@layout/view_job_card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp" />
+                </RelativeLayout>
+            </LinearLayout>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/connect_delivery_progress_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            app:tabGravity="fill"
+            app:tabIndicator="@drawable/ic_connect_pager_indicator"
+            app:tabIndicatorColor="@color/connect_blue_color"
+            app:tabInlineLabel="true"
+            android:background="@color/connect_background_color"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/connect_blue_color"
+            app:tabTextAppearance="@style/TabTextStyle"
+            app:tabTextColor="@color/connect_grey" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/connect_divider_color" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/layoutNestedScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/connect_background_color"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:descendantFocusability="blocksDescendants"
+            android:orientation="vertical">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/connect_delivery_progress_view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/connect_fragment_jobs_list"
+    android:layout_width="match_parent"
+    android:background="@color/connect_background_color"
+    android:layout_height="match_parent"
+    tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
+
+    <ImageView
+        android:id="@+id/connect_jobs_refresh"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:contentDescription="@string/refresh"
+        android:src="@drawable/cloud_backup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:id="@+id/connect_jobs_last_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/connect_jobs_refresh"
+        app:layout_constraintEnd_toStartOf="@id/connect_jobs_refresh"
+        app:layout_constraintTop_toTopOf="@+id/connect_jobs_refresh" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/connect_alert_tile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:padding="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/dots_rect_back"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update">
+
+        <ImageView
+            android:id="@+id/connect_secondary_phone_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/phone_heart"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            android:id="@+id/connect_phone_label"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connect_phone_yes_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/connect_payment_confirm_yes"
+            android:textSize="18sp"
+            android:textColor="@color/blue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/connect_phone_no_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginEnd="40dp"
+            android:text="@string/connect_payment_confirm_no"
+            android:textColor="@color/blue"
+            app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
+            app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:id="@+id/connect_no_jobs_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:layout_margin="40dp"
+        android:text="@string/connect_no_jobs"
+        android:textColor="@color/blue"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvJobList"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        tools:listitem="@layout/item_login_connect_home_apps"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile" />
+</androidx.constraintlayout.widget.ConstraintLayout>

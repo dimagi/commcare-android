@@ -6,12 +6,13 @@ package org.commcare.google.services.analytics;
 
 public class CCAnalyticsParam {
 
-
+    static final String BUILD_NUMBER = "build_number";
     static final String CC_APP_ID = "cc_app_id";
     static final String CC_APP_BUILD_PROFILE_ID = "cc_app_build_profile_id";
     static final String CCHQ_DOMAIN = "cchq_domain";
     static final String SERVER = "server";
     static final String FREE_DISK = "free_disk";
+    static final String CCC_ENABLED = "ccc_enabled";
 
     static final String ACTION_TYPE = "action_type";
     static final String DIRECTION = "direction";
@@ -22,5 +23,6 @@ public class CCAnalyticsParam {
     static final String USERNAME = "username";
 
     static final String USER_RETURNED = "user_returned";
+    static final String NOTIFICATION_TYPE = "notification_type";
 
 }

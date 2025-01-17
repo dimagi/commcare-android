@@ -88,6 +88,7 @@ public class AnalyticsParamValue {
     public static final String SYNC_BUTTON = "sync";
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
+    public static final String CONNECT_BUTTON = "connect_info";
 
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";
@@ -105,6 +106,7 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+    public static final String ENABLE_CONNECT_ID = "enable_connect_id";
     public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
     public static final String ENABLE_MANUAL_FORM_QUARANTINE = "enable_manual_form_quarantine";
     public static final String APP_MANAGER_DEVELOPER_OPTIONS = "app_manager_developer_options";
@@ -139,4 +141,16 @@ public class AnalyticsParamValue {
 
     public static final String IN_APP_UPDATE_SUCCESS = "success";
 
+    // Param values for connect signin
+    public static final String CCC_SIGN_IN_METHOD_PIN = "pin";
+    public static final String CCC_SIGN_IN_METHOD_FINGERPRINT = "fingerprint";
+    public static final String CCC_SIGN_IN_METHOD_PASSWORD = "password";
+
+
+    // Param values for connect recovery
+    public static final String CCC_RECOVERY_METHOD_PRIMARY_OTP = "primary_otp";
+    public static final String CCC_RECOVERY_METHOD_ALTERNATE_OTP = "alternate_otp";
+    public static final String CCC_RECOVERY_METHOD_USER_DEACTIVATE_OTP = "user_deactivate_otp";
+    public static final String CCC_RECOVERY_METHOD_PASSWORD = "password";
+    public static final String CCC_RECOVERY_METHOD_PIN = "pin";
 }

@@ -10,7 +10,7 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for
 the specific language governing permissions and limitations under the
 License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="accept_location">Enregistrer lieu</string>
     <string name="accuracy">Précision</string>
     <string name="activity_not_found">Pas d\'activité pour gérer: %s</string>
@@ -41,7 +41,7 @@ License.
     <string name="discard_image">Enlever la image</string>
     <string name="download">Obtenez celle sélectionnée</string>
     <string name="download_forms_result">Resultat du téléchargement</string>
-    <string name="downloading_data">Connection au serveur...</string>
+    <string name="downloading_data">Connection au serveur…</string>
     <string name="download_all_successful">Tous formulaires téléchargés avec succès.</string>
     <string name="download_complete">Téléchargement fini</string>
     <string name="download_failed_with_error">Formulaire \"%1$s\" a échoué. %2$s.</string>
@@ -76,7 +76,7 @@ License.
     <string name="leaving_repeat">Ajouter un groupe</string>
     <string name="leaving_repeat_ask">" Nouveau groupe?"</string>
     <string name="list_failed_with_error">La liste a echoué. %s.</string>
-    <string name="loading_form">Chargement du formulaire ...</string>
+    <string name="loading_form">Chargement du formulaire …</string>
     <string name="load_remote_form_error">Erreur de récupération de la liste</string>
     <string name="location_provider_accuracy">La précision est de %1$s m.</string>
     <string name="location_provider">Utilisation de %1$s. Attendre une meilleure précision.</string>
@@ -117,7 +117,7 @@ License.
     <string name="save_all_answers">Sauvegarder formulaire</string>
     <string name="save_data_message">Merci de sauvegarder le formulaire. Afin de sauvegarder vos réponses.</string>
     <string name="save_enter_data_description">Vouse êtes à la fin de \"%s\".</string>
-    <string name="saving_form">Sauvegarde du Formulaire ...</string>
+    <string name="saving_form">Sauvegarde du Formulaire …</string>
     <string name="send">Envoyer</string>
     <string name="sending_items">Envoi de %1$s de %2$s formulaire(s)</string>
     <string name="send_data">Envoyer Formulaire Finalisé</string>
@@ -129,7 +129,7 @@ License.
     <string name="server_preferences">Serveur</string>
     <string name="toggle_selected">Basculer tous</string>
     <string name="trigger">OK. Continuer.</string>
-    <string name="uploading_data">Envoi du formulaire ...</string>
+    <string name="uploading_data">Envoi du formulaire …</string>
     <string name="upload_all_successful">%s formulaires envoyés avec succès.</string>
     <string name="upload_some_failed">Désolé, l\'envoi de %s formulaire(s) ont échoué.</string>
     <string name="url_error">URL non valable!</string>
@@ -144,11 +144,11 @@ License.
     <string name="go_to_location">Aller au Lieu</string>
     <string name="font_size">Taille de la Police</string>
     <string name="change_font_size">Taille de la Police</string>
-    <string name="form_scan_starting">Recherche de formulaires...</string>
+    <string name="form_scan_starting">Recherche de formulaires…</string>
     <string name="form_scan_finished">Recherche terminée</string>
     <string name="access_error">"Erreur lors de l\'accès à %s: "</string>
-    <string name="manifest_server_error">Réponse Manifest ne fourni pas une version OpenRosa -- Serveur défaillant?</string>
-    <string name="root_element_error">L\'élément à la racine n\'est pas &amp;lt;manifest\&gt; -- c\'était %s</string>
+    <string name="manifest_server_error">Réponse Manifest ne fourni pas une version OpenRosa — Serveur défaillant?</string>
+    <string name="root_element_error">L\'élément à la racine n\'est pas &amp;lt;manifest\&gt; — c\'était %s</string>
     <string name="root_namespace_error">" L\'élément Root de Namespace est incorrect: %s"</string>
     <string name="manifest_tag_error">L\'entrée Manifest %s manqué un ou plus tags: nom de fichier, hash, ou telécharger Url</string>
     <string name="form_download_progress">%1$s. Obtention de fichiers multimédia : %2$s de %3$s</string>
@@ -161,7 +161,7 @@ License.
     <string name="choose_sound">Choisissez le Son</string>
     <string name="choose_video">Choisissez la Vidéo</string>
     <string name="choose_image">Choisissez l\'Image</string>
-    <string name="selected">"Sélectioné: "</string>
+    <string name="selected" tools:ignore="PrivateResource">"Sélectioné: "</string>
     <string name="select_answer">Sélectionnez la Réponse</string>
     <string name="save_form_as">Nommer le formulaire :</string>
     <string name="save_as_error">Le nom ne peut pas être vide!</string>
@@ -172,4 +172,138 @@ License.
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
+
+    <string name="login_welcome_connect_signed_in">Bienvenue %s!</string>
+    <string name="login_button_connectid">Connectez-vous avec ConnectID</string>
+    <string name="login_menu_connect_sign_in">Inscrivez-vous pour ConnectID</string>
+
+    <string name="connect_jobs_all">Tous les emplois</string>
+    <string name="connect_jobs_mine">Mes emplois</string>
+    <string name="connect_job_visits">Couvrez %d ménages en %d jours</string>
+    <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
+    <string name="connect_job_start_training">Commencez la formation pour ce travail</string>
+    <string name="connect_job_learn_summary">%d modules, %d heures</string>
+    <string name="connect_job_download_learn_app">Télécharger l\'application Learn</string>
+    <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
+    <string name="connect_learn_progress_title">Votre progression d\'apprentissage</string>
+    <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
+    <string name="connect_downloading_status">%d%% Complet</string>
+    <string name="connect_learn_complete_by">Terminez le projet d\'ici le %s</string>
+    <string name="connect_progress_warning">Vous ne voyez pas vos progrès attendus?</string>
+    <string name="connect_progress_warning_learn">Découvrez pourquoi</string>
+    <string name="connect_progress_warning_full">Vous pouvez ne pas voir vos progrès attendus si votre nombre de visites dépasse le maximum pour la journée OU si vos formulaires n\'ont pas été téléchargés. Vous pouvez synchroniser à nouveau lorsque vous avez une meilleure connexion et vérifier à nouveau.</string>
+
+    <string name="connect_learn_start">Commencez à apprendre</string>
+    <string name="connect_progress_delivery">Livraison</string>
+    <string name="connect_progress_title">Progression de livraison</string>
+    <string name="connect_progress_status">Vous avez complété %d sur %d visites.</string>
+    <string name="connect_progress_complete_by">Terminez la livraison d\'ici le %s</string>
+    <string name="connect_progress_delivery_verification">Vérification et paiements</string>
+    <string name="connect_results_summary_verifications_title">Statut de vérification</string>
+    <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
+    <string name="connect_results_summary_payments_title">Statut de paiement</string>
+    <string name="connect_results_payment_confirmed">Confirmé</string>
+    <string name="connect_results_payment_not_confirmed">Non confirmé</string>
+
+    <string name="connect_last_update">Mis à jour: %s</string>
+    <string name="connect_job_none_training">Vous ne suivez aucune formation pour un emploi pour le moment</string>
+    <string name="connect_job_none_active">Vous n\'avez aucun emploi actif pour le moment</string>
+    <string name="connect_job_none_available">Il n\'y a aucune opportunité disponible pour le moment</string>
+    <string name="connect_job_training">Emplois pour lesquels je m\'entraîne</string>
+    <string name="connect_job_claimed">Emplois en livraison</string>
+    <string name="connect_job_ended">Emplois terminés</string>
+    <string name="connect_job_completed">Terminé %s</string>
+    <string name="connect_title">Connecter</string>
+    <string name="connect_job_new">NOUVELLE</string>
+    <string name="connect_job_training_complete">Apprentissage terminé &amp; Agréé</string>
+    <string name="connect_job_needs_assessment">Évaluation requise</string>
+    <string name="connect_job_passed_assessment">Évaluation terminée</string>
+    <string name="connect_job_training_progress">%s %d%% Complète</string>
+    <string name="connect_job_visits_completed">Complété %d visites</string>
+    <string name="connect_job_remaining">%d Jours restant%s</string>
+    <string name="connect_job_remaining_from"> depuis %s</string>
+    <string name="connect_job_learning">Apprentissage</string>
+    <string name="connect_job_learning_not_completed">Apprentissage non terminé</string>
+    <string name="connect_job_assessment_not_completed">Évaluation non terminée</string>
+    <string name="connect_job">Emploi</string>
+    <string name="connect_learn_complete">Complète</string>
+    <string name="connect_learn_complete_title">Formation terminée !</string>
+    <string name="connect_learn_need_assessment_title">Formation en attente</string>
+    <string name="connect_learn_failed_title">Échec de la formation</string>
+    <string name="connect_learn_status">Vous avez terminé %d de %d cours.\nTerminez votre apprentissage pour obtenir votre certificat.</string>
+    <string name="connect_learn_finished">Vous avez obtenu un certificat pour cet emploi et êtes éligible pour réclamer l\'emploi et commencer à prodiguer des soins..\nTon score: %d\nNote de passage: %d</string>
+    <string name="connect_learn_need_assessment">Complétez l’évaluation pour terminer la formation.</string>
+    <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nTon score: %d\nNote de passage: %d</string>
+    <string name="connect_learn_certificate">CERTIFICAT D\'ACHÈVEMENT</string>
+    <string name="connect_learn_completed">Terminé le: %s</string>
+    <string name="connect_learn_claim_label">Réclamez un emploi pour prodiguer des soins</string>
+    <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
+    <string name="connect_learn_review">Révision de l\'apprentissage</string>
+    <string name="connect_learn_view_details">Afficher les détails du travail</string>
+    <string name="connect_learn_go_to_assessment">Aller à l\'évaluation</string>
+    <string name="connect_learn_try_again">Essayer à nouveau</string>
+    <string name="connect_learn_continue">Continuer l\'apprentissage</string>
+    <string name="connect_progress_begin_date">Le projet commence %s\nLivraison complète par %s</string>
+    <string name="connect_progress_ended">Travail terminé %s</string>
+    <string name="connect_progress_expired_dialog_title">Projet expiré</string>
+    <string name="connect_progress_max_visits_dialog_title">Nombre maximal de visites atteint</string>
+    <string name="connect_progress_expired">La dernière date du projet est terminée et les visites ne compteront pas dans le paiement.</string>
+    <string name="connect_progress_visits_completed">Vous avez atteint le nombre maximum de visites, les visites supplémentaires ne compteront pas dans le paiement.</string>
+    <string name="connect_progress_review">Révision de l\'apprentissage</string>
+    <string name="connect_progress_launch">Démarrer l\'application</string>
+    <string name="connect_progress_paid">PAYÉ</string>
+    <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
+    <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne gagnerez aucun progrès pour le travail.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\’évaluation et êtes prêt à livrer. Affichez l\'état du travail pour continuer.</string>
+    <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximum de visites. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximum de visites pour aujourd\'hui. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
+    <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s. </string>
+    <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne pour %s.</string>
+    <string name="connect_job_no_learning_required">Aucun apprentissage requis</string>
+    <string name="connect_job_go_to_learn_app">Accédez à l\'application Apprendre</string>
+    <string name="connect_button_logged_in">Allez dans le menu Connecter</string>
+    <string name="connect_db_corrupt">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
+    <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
+    <string name="connect_payment_acknowledge_notification_yes">Oui</string>
+    <string name="connect_payment_acknowledge_notification_no">Non</string>
+
+    <string name="connect_job_info_delivery_detail">Détails de livraison</string>
+    <string name="connect_job_info_review_delivery">Vérifiez les détails de la livraison</string>
+    <string name="connect_job_info_visit">%d Visites maximales</string>
+    <string name="connect_job_info_days">%d jours pour terminer</string>
+    <string name="connect_job_info_max_visit">Nombre maximum de visites par jour %d</string>
+    <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s pour une visite</string>
+    <string name="connect_job_info_start_visit">Commencer la visite</string>
+    <string name="connect_job_info_download_delivery">Télécharger la livraison</string>
+    <string name="connect_job_info_download">Télécharger</string>
+
+    <string name="connect_progress">Progrès</string>
+    <string name="connect_payment">Paiement</string>
+    <string name="connect_delivery_progress_description">Vous n’avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
+    <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
+    <string name="connect_visit_type_title">%s Visites</string>
+
+    <string name="connect_payment_received">Reçue</string>
+    <string name="connect_payment_transferred">Transféré</string>
+    <string name="connect_payment_confirm_transferred">Confirmer le paiement transféré</string>
+    <string name="connect_payment_revoke_transferred">Révoquer la confirmation de paiement</string>
+    <string name="connect_payment_dialog_no">Non</string>
+    <string name="connect_payment_dialog_yes">Oui</string>
+    <string name="connect_payment_revert">Revenir</string>
+
+    <string name="connect_deactivate_account">Désactiver le compte</string>
+    <string name="connect_deactivate_account_message">Vous êtes sur le point de désactiver définitivement ce compte…</string>
+    <string name="connect_deactivate_account_delete">Supprimer le compte</string>
+    <string name="connect_deactivate_account_go_back">Retourner</string>
+    <string name="connect_deactivate_account_deactivated">Compte désactivé, vous pouvez maintenant créer un nouveau compte avec votre numéro de téléphone principal</string>
+    <string name="connect_deactivate_account_creation">D\'accord</string>
+    <string name="connect_deactivate_dialog_title">Es-tu sûr?</string>
+    <string name="connect_deactivate_dialog_description">Vous souhaitez désactiver votre compte définitivement ?</string>
+
+    <string name="connect_new_opportunity">Nouvelle opportunité</string>
+    <string name="connect_learn">Apprendre</string>
+    <string name="connect_delivery">Livraison</string>
+    <string name="connect_commcare_app">Application CommCare</string>
+    <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
+    <string name="connect_appbar_title_password_verification">Vérification du mot de passe</string>
 </resources>

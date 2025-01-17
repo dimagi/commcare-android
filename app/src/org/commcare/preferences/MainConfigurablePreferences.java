@@ -191,6 +191,7 @@ public class MainConfigurablePreferences
         return app.getAppPreferences().getString(AUTO_SAVE_FORM_ON_PAUSE, PrefValues.NO).equals(PrefValues.YES);
     }
 
+
     public static boolean isTTSEnabled() {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();
         if (app == null) {

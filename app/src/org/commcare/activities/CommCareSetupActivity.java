@@ -12,18 +12,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -64,6 +56,15 @@ import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 /**
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
@@ -95,6 +96,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
 
+
+
     /**
      * UI configuration states.
      */
@@ -114,6 +117,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
+    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -164,6 +169,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (checkForMultipleAppsViolation()) {
             return;
+        }
+
+        if(!fromManager) {
+            ConnectManager.init(this);
         }
 
         loadIntentAndInstanceState(savedInstanceState);
@@ -352,6 +361,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
+
+        updateConnectButton();
     }
 
     private Fragment restoreInstallSetupFragment() {
@@ -417,6 +428,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+            default:
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+                return;
 
         }
         if (result == null) {
@@ -475,6 +489,25 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
+        menu.add(0, MENU_CONNECT_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_CONNECT_FORGET, 3, getString(R.string.login_menu_connect_forget));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
+        if(item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+        }
+
+        item = menu.findItem(MENU_CONNECT_FORGET);
+        if(item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        }
+
         return true;
     }
 
@@ -596,8 +629,29 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
+            case MENU_CONNECT_SIGN_IN:
+                //Setup ConnectID and proceed to jobs page if successful
+                ConnectManager.registerUser(this, success -> {
+                    updateConnectButton();
+                    if(success) {
+                        ConnectManager.goToConnectJobsList(this);
+                    }
+                });
+                break;
+            case MENU_CONNECT_FORGET:
+                ConnectManager.forgetUser();
+                updateConnectButton();
+                break;
         }
         return true;
+    }
+
+    private void updateConnectButton() {
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
+            ConnectManager.unlockConnect(this, success -> {
+                ConnectManager.goToConnectJobsList(this);
+            });
+        });
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {
@@ -697,11 +751,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
-        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
-        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
-        startActivity(intent);
+        ResourceInstallUtils.showApkUpdatePrompt(this, versionRequired, versionAvailable);
     }
 
     @Override
@@ -737,8 +787,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failTargetMismatch() {
-        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
-        startActivity(intent);
+        ResourceInstallUtils.showTargetMismatchError(this);
     }
 
 

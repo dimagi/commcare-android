@@ -65,6 +65,7 @@ home.sync=Sync with Server
 home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
+home.connect=View Job Status
 # IMPORTANT: do NOT change the name of this key for any reason; HQ uses it for the training root menu
 training.root.title=Training
 
@@ -107,6 +108,7 @@ menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
+menu.enable.connect.id=Enable ConnectID
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -178,6 +180,7 @@ login.password=Password
 login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Log In
+login.app.connect=Go to Connect Jobs
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.
@@ -198,7 +201,7 @@ post.generic.error=An error occurred while preparing the HTTP request
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
-post.unknown.response=Received unknown resonse code (${0}) from server
+post.unknown.response=Received unknown response code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
