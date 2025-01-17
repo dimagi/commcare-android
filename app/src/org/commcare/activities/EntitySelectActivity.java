@@ -22,7 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
@@ -104,7 +103,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
-    private static final int MENU_MAP = Menu.FIRST + 2;
+    private static final int MENU_SCAN = Menu.FIRST + 2;
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
@@ -705,7 +704,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if (isMappingEnabled) {
-            menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.scan")).setIcon(
+            menu.add(0, MENU_SCAN, MENU_SCAN, Localization.get("select.menu.scan")).setIcon(
                    R.drawable.startup_barcode);
         }
 
@@ -765,7 +764,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             case MENU_SORT:
                 createSortMenu();
                 return true;
-            case MENU_MAP:
+            case MENU_SCAN:
                 barcodeScanOnClickListener.onClick(null);
                 return true;
             // handling click on the barcode scanner's actionbar
