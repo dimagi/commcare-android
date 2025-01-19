@@ -1,5 +1,8 @@
 package org.commcare.models.database.user.models;
 
+import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_NORMAL_FIELD;
+import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_FIELD;
+
 import android.content.ContentValues;
 import android.util.Log;
 
@@ -18,7 +21,8 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.utils.SessionUnavailableException;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 
 import java.io.Closeable;
 import java.util.Collection;
@@ -144,11 +148,14 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
 
-    public int getSortFieldIdFromCacheKey(String detailId, String cacheKey) {
+    public int getFieldIdFromCacheKey(String detailId, String cacheKey) {
+        cacheKey = cacheKey.replace(String.valueOf(TYPE_SORT_FIELD), "");
+        cacheKey = cacheKey.replace(String.valueOf(TYPE_NORMAL_FIELD), "");
         String intId = cacheKey.substring(detailId.length() + 1);
         try {
             return Integer.parseInt(intId);
         } catch (NumberFormatException nfe) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unable to parse cache key " + cacheKey);
             //TODO: Kill this cache key if this didn't work
             return -1;
         }
@@ -185,8 +192,52 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
 
     public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
             Detail detail) {
+        if (detail.isCacheEnabled()) {
+            Vector<String> cacheKeys = new Vector<>();
+            String validKeys = buildValidKeys(cacheKeys, detail);
+            if (validKeys.isEmpty()) {
+                return;
+            }
+
+            //Create our full args tree. We need the elements from the cache primer
+            //along with the specific keys we wanna pull out
+            String[] args = new String[cachePrimeKeys[1].length + 2 * cacheKeys.size()];
+            System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
+
+            for (int i = 0; i < cacheKeys.size(); ++i) {
+                args[cachePrimeKeys[1].length + i] = cacheKeys.get(i);
+            }
+
+            String[] names = cachePrimeKeys[0];
+            String whereClause = buildKeyNameWhereClause(names);
+            long now = System.currentTimeMillis();
+            String sqlStatement =
+                    "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache"
+                            + ".entity_key = AndroidCase.commcare_sql_id WHERE "
+                            +
+                            whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '"
+                            + AppUtils.getCurrentAppId() +
+                            "' AND cache_key IN " + validKeys;
+            SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+            if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+                DbUtil.explainSql(db, sqlStatement, args);
+            }
+
+            populateEntitySet(db, sqlStatement, args, entitySet);
+
+            if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+                Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
+            }
+        } else {
+            primeCacheOld(entitySet, cachePrimeKeys, detail);
+        }
+    }
+
+    @Deprecated
+    private void primeCacheOld(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
+            Detail detail) {
         Vector<Integer> sortKeys = new Vector<>();
-        String validKeys = buildValidKeys(sortKeys, detail.getFields());
+        String validKeys = buildValidSortKeys(sortKeys, detail.getFields());
         if ("".equals(validKeys)) {
             return;
         }
@@ -198,15 +249,19 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
 
         for (int i = 0; i < sortKeys.size(); ++i) {
-            args[cachePrimeKeys[1].length + i] = getCacheKey(detail.getId(), String.valueOf(sortKeys.get(i)));
+            args[cachePrimeKeys[1].length + i] = detail.getId() + "_" + sortKeys.get(i);
         }
 
         String[] names = cachePrimeKeys[0];
         String whereClause = buildKeyNameWhereClause(names);
         long now = System.currentTimeMillis();
-        String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " +
-                whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '" + AppUtils.getCurrentAppId() +
-                "' AND cache_key IN " + validKeys;
+        String sqlStatement =
+                "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache"
+                        + ".entity_key = AndroidCase.commcare_sql_id WHERE "
+                        +
+                        whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '"
+                        + AppUtils.getCurrentAppId() +
+                        "' AND cache_key IN " + validKeys;
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             DbUtil.explainSql(db, sqlStatement, args);
@@ -219,11 +274,12 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
-    public String getCacheKey(String detailId, String mFieldId) {
-        return detailId + "_" + mFieldId;
+    public String getCacheKey(String detailId, String mFieldId, ValueType valueType) {
+        return valueType + "_" + detailId + "_" + mFieldId;
     }
 
-    private static String buildValidKeys(Vector<Integer> sortKeys, DetailField[] fields) {
+    @Deprecated
+    private static String buildValidSortKeys(Vector<Integer> sortKeys, DetailField[] fields) {
         String validKeys = "(";
         boolean added = false;
         for (int i = 0; i < fields.length; ++i) {
@@ -241,6 +297,27 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
+    private String buildValidKeys(Vector<String> keys, Detail detail) {
+        StringBuilder validKeys = new StringBuilder("(");
+        DetailField[] fields = detail.getFields();
+        for (int i = 0; i < fields.length; ++i) {
+            if (fields[i].isOptimize()) {
+                keys.add(getCacheKey(detail.getId(), String.valueOf(i),
+                        TYPE_NORMAL_FIELD));
+                validKeys.append("?, ");
+                if (fields[i].getSort() != null) {
+                    keys.add(getCacheKey(detail.getId(), String.valueOf(i),
+                            ValueType.TYPE_SORT_FIELD));
+                    validKeys.append("?, ");
+                }
+            }
+        }
+        if (!keys.isEmpty()) {
+            return validKeys.substring(0, validKeys.length() - 2) + ")";
+        }
+        return "";
+    }
+
     private static String buildKeyNameWhereClause(String[] names) {
         String whereClause = "";
         for (int i = 0; i < names.length; ++i) {
@@ -256,11 +333,15 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             Hashtable<String, AsyncEntity> entitySet) {
         Cursor walker = db.rawQuery(sqlStatement, args);
         while (walker.moveToNext()) {
-            String entityId = walker.getString(walker.getColumnIndex("entity_key"));
-            String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
-            String val = walker.getString(walker.getColumnIndex("value"));
-            if (entitySet.containsKey(entityId)) {
-                entitySet.get(entityId).setSortData(cacheId, val);
+            String entityKey = walker.getString(walker.getColumnIndex("entity_key"));
+            if (entitySet.containsKey(entityKey)) {
+                String cacheKey = walker.getString(walker.getColumnIndex("cache_key"));
+                String value = walker.getString(walker.getColumnIndex("value"));
+                if (cacheKey.startsWith(TYPE_NORMAL_FIELD.toString())) {
+                    entitySet.get(entityKey).setFieldData(cacheKey, value);
+                } else {
+                    entitySet.get(entityKey).setSortData(cacheKey, value);
+                }
             }
         }
         walker.close();
