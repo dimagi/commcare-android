@@ -153,6 +153,11 @@
     <string name="permission_commcare_logout_label">Allow Auto CommCare Logout</string>
     <string name="permission_commcare_logout_description">Allows this app to logout a user from CommmCare App</string>
 
+    <string name="permission_protect_falsely_exposed_components_label">Protect internal components</string>
+    <string name="permission_protect_falsely_exposed_components_description">Restricts external apps from accessing internal components</string>
+
+    <string name="permission_group_internal_action_label">Permission group for CommCare Internal Actions</string>
+
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
     <string name="panes">one</string>
