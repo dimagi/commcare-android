@@ -19,6 +19,7 @@ import org.commcare.network.connectId.network.ApiClient;
 import org.commcare.network.connectId.network.ApiService;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -448,6 +449,7 @@ public class ApiConnectId {
     }
 
     private static void handleApiError(Response<?> response) {
+        CrashUtil.reportException(new Exception(response.message()));
         if (response.code() == 400) {
             // Bad request (e.g., validation failed)
             System.out.println("Bad Request: " + response.message());
