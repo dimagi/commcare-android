@@ -360,6 +360,8 @@ public class FormStorageTest {
             // Added in 2.55
             , "org.javarosa.core.model.FormIndex"
             , "org.commcare.models.database.InterruptedFormState"
+            , "org.javarosa.xpath.expr.XPathClosestPolygonPointFunc"
+            , "org.javarosa.xpath.expr.XPathPointInsidePolygon"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9"

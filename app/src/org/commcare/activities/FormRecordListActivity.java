@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.Editable;
@@ -580,7 +579,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
-            case R.id.barcode_scan_action_bar:
+            case R.id.highlight_action_bar:
                 barcodeScanOnClickListener.onClick(null);
                 return true;
             case R.id.menu_settings:

@@ -100,6 +100,14 @@ public class CustomOtpView extends LinearLayout {
             if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
                 int edtIndex = index > 0 ? index - 1 : 0;
 
+                if(index == 5) {
+                    //Check for special case where we need to delete last digit and stay in the cell
+                    EditText last = (EditText)getChildAt(index);
+                    if(last.getText().length() > 0) {
+                        edtIndex++;
+                    }
+                }
+
                 EditText edt = (EditText)getChildAt(edtIndex);
                 edt.setText("");
                 edt.requestFocus();
