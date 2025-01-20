@@ -166,21 +166,19 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <org.commcare.views.connect.RoundedButton
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnSync"
                             android:layout_width="wrap_content"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:text="@string/sync"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:roundButtonBackgroundColor="@color/connect_dark_blue_color"
-                            app:roundButtonFontFamily="@font/roboto_medium"
-                            app:roundButtonIcon="@drawable/ic_connect_directory_sync"
-                            app:roundButtonIconLeftAlign="false"
-                            app:roundButtonIconPadding="5dp"
-                            app:roundButtonTextColor="@color/white"
-                            app:roundButtonTextSize="5sp" />
+                            android:fontFamily= "@font/roboto_medium"
+                            app:iconSize="24dp"
+                            app:icon="@drawable/ic_connect_directory_sync"
+                            app:iconGravity="end"
+                            />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
@@ -317,25 +315,21 @@
             android:textColor="@color/red"
             android:visibility="visible" />
 
-        <org.commcare.views.connect.RoundedButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_learning_review_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginVertical="8dp"
             android:visibility="visible"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonTextColor="@color/white"
             tools:text="@string/connect_learn_review" />
 
-        <org.commcare.views.connect.RoundedButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_learning_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginVertical="8dp"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonTextColor="@color/white"
             tools:text="Button" />
 
     </LinearLayout>

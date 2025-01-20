@@ -59,6 +59,7 @@ public class StandardHomeActivity
         ColorDrawable colorDrawable
                 = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
         getSupportActionBar().setBackgroundDrawable(colorDrawable);
+        setTitle("dskljnldks");
 
         updateSecondaryPhoneConfirmationTile();
     }

@@ -14,6 +14,8 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
@@ -45,8 +47,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.9 - Added using_local_passphrase to ConnectLinkedAppRecord
      * V.10 - Added last_accessed column to ConnectLinkedAppRecord
      * V.11 - Added daily start and finish times to ConnectJobRecord
+     * V.12 - Added ConnectMessagingChannelRecord table and ConnectMessagingMessageRecord table
      */
-    private static final int CONNECT_DB_VERSION = 11;
+    private static final int CONNECT_DB_VERSION = 12;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -111,6 +114,12 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectPaymentUnitRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectMessagingChannelRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectMessagingMessageRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

@@ -177,55 +177,24 @@ License.
     <string name="login_button_connectid">Connectez-vous avec ConnectID</string>
     <string name="login_menu_connect_sign_in">Inscrivez-vous pour ConnectID</string>
 
-    <string name="connect_jobs_all">Tous les emplois</string>
-    <string name="connect_jobs_mine">Mes emplois</string>
-    <string name="connect_job_visits">Couvrez %d ménages en %d jours</string>
     <string name="connect_job_you_will_learn">Complétez les modules d\'apprentissage suivants et obtenez un certificat</string>
-    <string name="connect_job_start_training">Commencez la formation pour ce travail</string>
     <string name="connect_job_learn_summary">%d modules, %d heures</string>
-    <string name="connect_job_download_learn_app">Télécharger l\'application Learn</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
     <string name="connect_learn_progress_title">Votre progression d\'apprentissage</string>
     <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
-    <string name="connect_downloading_status">%d%% Complet</string>
     <string name="connect_learn_complete_by">Terminez le projet d\'ici le %s</string>
-    <string name="connect_progress_warning">Vous ne voyez pas vos progrès attendus?</string>
-    <string name="connect_progress_warning_learn">Découvrez pourquoi</string>
-    <string name="connect_progress_warning_full">Vous pouvez ne pas voir vos progrès attendus si votre nombre de visites dépasse le maximum pour la journée OU si vos formulaires n\'ont pas été téléchargés. Vous pouvez synchroniser à nouveau lorsque vous avez une meilleure connexion et vérifier à nouveau.</string>
 
     <string name="connect_learn_start">Commencez à apprendre</string>
     <string name="connect_progress_delivery">Livraison</string>
     <string name="connect_progress_title">Progression de livraison</string>
     <string name="connect_progress_status">Vous avez complété %d sur %d visites.</string>
     <string name="connect_progress_complete_by">Terminez la livraison d\'ici le %s</string>
-    <string name="connect_progress_delivery_verification">Vérification et paiements</string>
-    <string name="connect_results_summary_verifications_title">Statut de vérification</string>
-    <string name="connect_results_summary_verifications_description">Vérification en attente: %d\nNot Approved: %d\Approved: %d</string>
-    <string name="connect_results_summary_payments_title">Statut de paiement</string>
     <string name="connect_results_payment_confirmed">Confirmé</string>
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
 
     <string name="connect_last_update">Mis à jour: %s</string>
-    <string name="connect_job_none_training">Vous ne suivez aucune formation pour un emploi pour le moment</string>
-    <string name="connect_job_none_active">Vous n\'avez aucun emploi actif pour le moment</string>
     <string name="connect_job_none_available">Il n\'y a aucune opportunité disponible pour le moment</string>
-    <string name="connect_job_training">Emplois pour lesquels je m\'entraîne</string>
-    <string name="connect_job_claimed">Emplois en livraison</string>
-    <string name="connect_job_ended">Emplois terminés</string>
-    <string name="connect_job_completed">Terminé %s</string>
     <string name="connect_title">Connecter</string>
-    <string name="connect_job_new">NOUVELLE</string>
-    <string name="connect_job_training_complete">Apprentissage terminé &amp; Agréé</string>
-    <string name="connect_job_needs_assessment">Évaluation requise</string>
-    <string name="connect_job_passed_assessment">Évaluation terminée</string>
-    <string name="connect_job_training_progress">%s %d%% Complète</string>
-    <string name="connect_job_visits_completed">Complété %d visites</string>
-    <string name="connect_job_remaining">%d Jours restant%s</string>
-    <string name="connect_job_remaining_from"> depuis %s</string>
-    <string name="connect_job_learning">Apprentissage</string>
-    <string name="connect_job_learning_not_completed">Apprentissage non terminé</string>
-    <string name="connect_job_assessment_not_completed">Évaluation non terminée</string>
-    <string name="connect_job">Emploi</string>
     <string name="connect_learn_complete">Complète</string>
     <string name="connect_learn_complete_title">Formation terminée !</string>
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
@@ -236,7 +205,6 @@ License.
     <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nTon score: %d\nNote de passage: %d</string>
     <string name="connect_learn_certificate">CERTIFICAT D\'ACHÈVEMENT</string>
     <string name="connect_learn_completed">Terminé le: %s</string>
-    <string name="connect_learn_claim_label">Réclamez un emploi pour prodiguer des soins</string>
     <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_learn_review">Révision de l\'apprentissage</string>
     <string name="connect_learn_view_details">Afficher les détails du travail</string>
@@ -245,14 +213,8 @@ License.
     <string name="connect_learn_continue">Continuer l\'apprentissage</string>
     <string name="connect_progress_begin_date">Le projet commence %s\nLivraison complète par %s</string>
     <string name="connect_progress_ended">Travail terminé %s</string>
-    <string name="connect_progress_expired_dialog_title">Projet expiré</string>
-    <string name="connect_progress_max_visits_dialog_title">Nombre maximal de visites atteint</string>
-    <string name="connect_progress_expired">La dernière date du projet est terminée et les visites ne compteront pas dans le paiement.</string>
-    <string name="connect_progress_visits_completed">Vous avez atteint le nombre maximum de visites, les visites supplémentaires ne compteront pas dans le paiement.</string>
     <string name="connect_progress_review">Révision de l\'apprentissage</string>
     <string name="connect_progress_launch">Démarrer l\'application</string>
-    <string name="connect_progress_paid">PAYÉ</string>
-    <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne gagnerez aucun progrès pour le travail.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\’évaluation et êtes prêt à livrer. Affichez l\'état du travail pour continuer.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximum de visites. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>
@@ -303,7 +265,6 @@ License.
     <string name="connect_new_opportunity">Nouvelle opportunité</string>
     <string name="connect_learn">Apprendre</string>
     <string name="connect_delivery">Livraison</string>
-    <string name="connect_commcare_app">Application CommCare</string>
 
     <string name="connect_hq_invitation_heading">Vous êtes invité au domaine du projet CommCareHQ en tant que %s</string>
     <string name="connect_hq_invitation_accept">Accepter</string>

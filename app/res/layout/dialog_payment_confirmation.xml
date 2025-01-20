@@ -62,28 +62,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_payment_date">
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
+                style="@style/NegativeButtonStyle"
                 android:id="@+id/ri_no"
                 android:layout_width="wrap_content"
-                android:layout_height="35dp"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text="@string/connect_payment_dialog_no"
-                app:roundButtonBackgroundColor="@color/white"
-                app:roundButtonBorderVisible="true"
-                app:roundButtonBorderWidth="0.5dp"
-                app:roundButtonTextColor="@color/black"
-                app:roundButtonTextSize="5dp" />
+                 />
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/ri_yes"
                 android:layout_width="wrap_content"
-                android:layout_height="35dp"
+                android:layout_height="wrap_content"
                 android:text="@string/connect_payment_dialog_yes"
-                app:roundButtonBackgroundColor="@color/connect_blue_color"
-                app:roundButtonBorderVisible="false"
-                app:roundButtonBorderWidth="0.5dp"
-                app:roundButtonTextColor="@color/white"
-                app:roundButtonTextSize="5dp" />
+                android:textColor="@color/white"
+                />
 
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

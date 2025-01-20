@@ -31,6 +31,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -57,6 +58,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
+import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -293,7 +295,7 @@ public class ConnectManager {
         return show;
     }
 
-    public static void updateSecondaryPhoneConfirmationTile(Context context, ConstraintLayout tile, boolean show, View.OnClickListener listener) {
+    public static void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
@@ -304,10 +306,10 @@ public class ConnectManager {
             ConnectRegularTextView view = tile.findViewById(R.id.connect_phone_label);
             view.setText(message);
 
-            ConnectMediumTextView yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            RoundedButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
             yesButton.setOnClickListener(listener);
 
-            ConnectMediumTextView noButton = tile.findViewById(R.id.connect_phone_no_button);
+            RoundedButton noButton = tile.findViewById(R.id.connect_phone_no_button);
             noButton.setOnClickListener(v -> {
                 tile.setVisibility(View.GONE);
             });
@@ -412,6 +414,12 @@ public class ConnectManager {
         manager.parentActivity = parent;
         completeSignin();
         Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
+    }
+
+    public static void goToMessaging(Context parent) {
+        manager.parentActivity = parent;
+        Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
 
