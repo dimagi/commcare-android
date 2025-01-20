@@ -31,6 +31,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -413,6 +414,12 @@ public class ConnectManager {
         manager.parentActivity = parent;
         completeSignin();
         Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
+    }
+
+    public static void goToMessaging(Context parent) {
+        manager.parentActivity = parent;
+        Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
 

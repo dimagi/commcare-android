@@ -49,8 +49,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private ConstraintLayout paymentAlertTile;
     private ConnectRegularTextView paymentAlertText;
     private ConnectJobPaymentRecord paymentToConfirm = null;
-    private boolean showLearningLaunch = true;
-    private boolean showDeliveryLaunch = true;
     private String tabPosition = "";
     boolean isTabChange = false;
 
@@ -58,10 +56,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressFragment newInstance(boolean showLearningLaunch, boolean showDeliveryLaunch) {
+    public static ConnectDeliveryProgressFragment newInstance() {
         ConnectDeliveryProgressFragment fragment = new ConnectDeliveryProgressFragment();
-        fragment.showLearningLaunch = showLearningLaunch;
-        fragment.showDeliveryLaunch = showDeliveryLaunch;
         return fragment;
     }
 
@@ -74,13 +70,10 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-//        getActivity().setTitle(job.getTitle());
         getActivity().setTitle(R.string.connect_progress_delivery);
 
 
         if (getArguments() != null) {
-            showLearningLaunch = getArguments().getBoolean("showLaunch", true);
-            showDeliveryLaunch = getArguments().getBoolean("showLaunch", true);
             tabPosition = getArguments().getString("tabPosition", "0");
         }
 
@@ -117,7 +110,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         final ViewPager2 pager = view.findViewById(R.id.connect_delivery_progress_view_pager);
         viewStateAdapter = new ConnectDeliveryProgressFragment.ViewStateAdapter(getChildFragmentManager(),
-                getLifecycle(), showLearningLaunch, showDeliveryLaunch);
+                getLifecycle());
         pager.setAdapter(viewStateAdapter);
 
         final TabLayout tabLayout = view.findViewById(R.id.connect_delivery_progress_tabs);
@@ -326,20 +319,16 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private static class ViewStateAdapter extends FragmentStateAdapter {
         private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
         private static ConnectResultsSummaryListFragment verificationFragment = null;
-        private final boolean showLearningLaunch;
-        private final boolean showDeliveryLaunch;
 
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle, boolean showLearningLaunch, boolean showDeliveryLaunch) {
+        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
-            this.showLearningLaunch = showLearningLaunch;
-            this.showDeliveryLaunch = showDeliveryLaunch;
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance(showLearningLaunch, showDeliveryLaunch);
+                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance();
                 return deliveryFragment;
             }
 

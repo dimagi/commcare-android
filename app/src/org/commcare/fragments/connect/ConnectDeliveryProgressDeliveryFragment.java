@@ -20,7 +20,6 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.CircleProgressBar;
-import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
 import java.util.ArrayList;
@@ -33,22 +32,15 @@ import java.util.concurrent.TimeUnit;
 
 public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     private View view;
-    private boolean showLearningLaunch = true;
-    private boolean showDeliveryLaunch = true;
 
-    private RoundedButton launchButton;
     private RecyclerView recyclerView;
-    private ConnectDeliveryProgressReportAdapter adapter;
 
     public ConnectDeliveryProgressDeliveryFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectDeliveryProgressDeliveryFragment newInstance(boolean showLearningLaunch, boolean showDeliveryLaunch) {
-        ConnectDeliveryProgressDeliveryFragment fragment = new ConnectDeliveryProgressDeliveryFragment();
-        fragment.showLearningLaunch = showLearningLaunch;
-        fragment.showDeliveryLaunch = showDeliveryLaunch;
-        return fragment;
+    public static ConnectDeliveryProgressDeliveryFragment newInstance() {
+        return new ConnectDeliveryProgressDeliveryFragment();
     }
 
     @Override
@@ -61,14 +53,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_connect_progress_delivery, container, false);
 
-        launchButton = view.findViewById(R.id.connect_progress_button);
-        launchButton.setVisibility(showDeliveryLaunch ? View.VISIBLE : View.GONE);
-
-        launchButton.setOnClickListener(v -> {
-            launchDeliveryApp(launchButton);
-        });
-
-        RoundedButton btnSync = view.findViewById(R.id.btnSync);
+        Button btnSync = view.findViewById(R.id.btnSync);
         btnSync.setOnClickListener(view -> {
             ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment) getParentFragment();
             if (parentFragment != null) {
@@ -77,35 +62,9 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             setDeliveriesData();
         });
 
-        RoundedButton reviewButton = view.findViewById(R.id.connect_progress_review_button);
-        reviewButton.setVisibility(showLearningLaunch ? View.VISIBLE : View.GONE);
-        reviewButton.setOnClickListener(v -> {
-            launchLearningApp(reviewButton);
-        });
-
         updateView();
         setDeliveriesData();
         return view;
-    }
-
-    private void launchLearningApp(Button button) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
-        } else {
-            String title = getString(R.string.connect_downloading_learn);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, true));
-        }
-    }
-
-    private void launchDeliveryApp(Button button) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (ConnectManager.isAppInstalled(job.getDeliveryAppInfo().getAppId())) {
-            ConnectManager.launchApp(getActivity(), false, job.getDeliveryAppInfo().getAppId());
-        } else {
-            String title = getString(R.string.connect_downloading_delivery);
-            Navigation.findNavController(button).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(title, false));
-        }
     }
 
     public void updateView() {
@@ -120,14 +79,12 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
         CircleProgressBar progress = view.findViewById(R.id.connect_progress_progress_bar);
         progress.setStrokeWidth(15);
-        progress.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.connect_blackist_dark_blue_color));
-        progress.setProgressColor(ContextCompat.getColor(getContext(), R.color.connect_aquva));
+        progress.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.connect_blackist_dark_blue_color));
+        progress.setProgressColor(ContextCompat.getColor(requireContext(), R.color.connect_aquva));
         progress.setProgress(percent);
 
         ConnectMediumTextView textView = view.findViewById(R.id.connect_progress_progress_text);
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
-
-        launchButton.setEnabled(!job.getIsUserSuspended());
 
         textView = view.findViewById(R.id.connect_progress_status_text);
         String completedText = getString(R.string.connect_progress_status, completed, total);
@@ -152,7 +109,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     public void setDeliveriesData() {
-        ConnectDeliveryDetails connectDeliveryDetails = null;
+        ConnectDeliveryDetails connectDeliveryDetails;
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (job != null) {
             List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
@@ -217,7 +174,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
                 recyclerView = view.findViewById(R.id.rvDeliveryProgressReport);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                adapter = new ConnectDeliveryProgressReportAdapter(getContext(), deliveryProgressList, unitName -> {
+                ConnectDeliveryProgressReportAdapter adapter = new ConnectDeliveryProgressReportAdapter(getContext(), deliveryProgressList, unitName -> {
                     Navigation.findNavController(recyclerView).navigate(ConnectDeliveryProgressFragmentDirections
                             .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName));
                 });
