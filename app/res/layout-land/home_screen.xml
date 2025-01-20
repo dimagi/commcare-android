@@ -1,75 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    style="@style/MainPane"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/MainPane"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentTop="true"
-    android:background="@color/white"
-    android:paddingLeft="@dimen/content_start"
-    android:paddingRight="@dimen/content_start"
-    android:paddingStart="@dimen/content_start"
-    android:layout_alignParentEnd="true"
-    android:paddingEnd="@dimen/content_start"
     android:layout_alignParentStart="true"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentBottom="true"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/content_start"
+    android:paddingLeft="@dimen/content_start"
+    android:paddingEnd="@dimen/content_start"
+    android:paddingRight="@dimen/content_start"
     tools:viewBindingIgnore="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.cardview.widget.CardView
         android:id="@+id/connect_alert_tile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:layout_marginStart="5dp"
-        android:padding="10dp"
-        android:layout_marginEnd="5dp"
-        android:background="@drawable/dots_rect_back"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="2dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:shadowColor="@color/connect_light_grey_transparent"
+        android:shadowDx="30"
+        android:shadowDy="30"
+        android:shadowRadius="50"
         android:visibility="gone"
-        >
-        <ImageView
-            android:id="@+id/connect_secondary_phone_icon"
-            android:layout_width="wrap_content"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:src="@drawable/phone_heart"
-            />
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/connect_phone_label"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:textSize="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
-            app:layout_constraintEnd_toEndOf="parent"
-            />
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:id="@+id/connect_phone_yes_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="10dp"
-            android:textSize="18sp"
-            android:textColor="@color/blue"
-            android:text="@string/connect_payment_confirm_yes"/>
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-            android:id="@+id/connect_phone_no_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
-            app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
-            android:layout_marginEnd="40dp"
-            android:textColor="@color/blue"
-            android:text="@string/connect_payment_confirm_no"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/connect_secondary_phone_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/phone_heart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
+
+            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                android:id="@+id/connect_phone_label"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_phone_yes_button"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:text="@string/connect_payment_confirm_yes"
+                android:textColor="@color/blue"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
+                app:roundButtonBackgroundColor="@color/connect_blue_color"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="5.0sp" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_phone_no_button"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/connect_payment_confirm_no"
+                android:textColor="@color/blue"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderWidth="0.5dp"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonTextSize="5.0sp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -95,44 +127,35 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginBottom="15dp"
                     android:orientation="horizontal"
                     android:paddingStart="15dp"
                     android:paddingTop="35dp"
-                    android:layout_marginBottom="15dp"
                     android:paddingEnd="15dp">
 
                     <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                         android:id="@+id/tvConnectMessage"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/connect_job_tile_daily_limit_description"
                         android:layout_marginEnd="10dp"
+                        android:text="@string/connect_job_tile_daily_limit_description"
                         android:textColor="@color/connect_warning_color"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-<!--                    <org.commcare.views.connect.RoundedButton-->
-<!--                        android:id="@+id/btnOverLimit"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="30dp"-->
-<!--                        android:text="@string/connect_job_tile_daily_limit"-->
-<!--                        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                        app:layout_constraintEnd_toEndOf="parent"-->
-<!--                        app:layout_constraintTop_toTopOf="parent"-->
-<!--                        app:roundButtonTextSize="4sp" />-->
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
             <include
-                layout="@layout/view_progress_job_card"
                 android:id="@+id/viewJobCard"
+                layout="@layout/view_progress_job_card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
-                android:layout_width="match_parent" />
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/home_gridview_buttons"

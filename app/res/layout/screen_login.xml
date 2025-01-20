@@ -82,18 +82,15 @@
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium" />
 
-                            <org.commcare.views.connect.RoundedButton
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/connect_login_button"
                                 android:layout_width="fill_parent"
-                                android:layout_height="45dp"
+                                android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
                                 android:paddingTop="@dimen/content_start"
                                 android:paddingBottom="@dimen/content_start"
                                 android:text="@string/connect_button_logged_in"
-                                android:visibility="gone"
-                                RectangleButtonWithText:roundButtonBackgroundColor="@color/connect_blue_color"
-                                RectangleButtonWithText:roundButtonTextColor="@color/white"
-                                RectangleButtonWithText:roundButtonTextSize="6.0sp" />
+                                android:visibility="gone"/>
 
                             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                                 android:id="@+id/login_or"

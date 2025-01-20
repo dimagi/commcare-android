@@ -465,19 +465,12 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int dailyVisitCount = 0;
         Date today = new Date();
         for (ConnectJobDeliveryRecord record : deliveries) {
-            if(sameDay(today, record.getDate())) {
+            if(DateUtils.dateDiff(today, record.getDate()) == 0) {
                 dailyVisitCount++;
             }
         }
 
         return dailyVisitCount;
-    }
-
-    private static boolean sameDay(Date date1, Date date2) {
-        LocalDate dt1 = new LocalDate(date1);
-        LocalDate dt2 = new LocalDate(date2);
-
-        return dt1.equals(dt2);
     }
 
     public List<ConnectPaymentUnitRecord> getPaymentUnits() {
@@ -494,7 +487,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         Hashtable<String, Integer> paymentCounts = new Hashtable<>();
         for(int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
-            if(!todayOnly || sameDay(new Date(), delivery.getDate())) {
+            if(!todayOnly || DateUtils.dateDiff(new Date(), delivery.getDate()) == 0) {
                 int oldCount = 0;
                 if (paymentCounts.containsKey(delivery.getSlug())) {
                     oldCount = paymentCounts.get(delivery.getSlug());

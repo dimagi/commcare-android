@@ -14,12 +14,13 @@ import static org.commcare.connect.ConnectManager.isAppInstalled;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -60,7 +61,7 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
-    private ConstraintLayout connectTile;
+    private CardView connectTile;
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
@@ -82,14 +83,14 @@ public class ConnectJobsListsFragment extends Fragment {
         getActivity().setTitle(R.string.connect_title);
 
         view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
-
         connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
+        updateText.setVisibility(View.GONE);
         updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
-
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
+        refreshButton.setVisibility(View.GONE);
 
         launcher = (appId, isLearning) -> {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
@@ -104,8 +105,19 @@ public class ConnectJobsListsFragment extends Fragment {
 
         refreshUi();
         refreshData();
-
         return view;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_notification) {
+            ConnectManager.goToMessaging(requireActivity());
+            return true;
+        } else if (item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void refreshData() {

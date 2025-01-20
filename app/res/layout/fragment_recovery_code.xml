@@ -168,10 +168,11 @@
             android:textColor="@color/red"
             android:textSize="16sp" />
 
-        <org.commcare.views.connect.RoundedButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/forgot_button"
+            style="@style/NegativeButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_below="@id/connect_pin_error_message"
             android:layout_alignParentLeft="true"
             android:layout_marginStart="16dp"
@@ -179,29 +180,23 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="start|center"
-            android:text="@string/connect_pin_verify_forgot"
-            app:roundButtonBorderColor="@color/border_grey"
-            app:roundButtonBorderVisible="true"
-            app:roundButtonTextColor="@color/connect_blue_color" />
+            android:text="@string/connect_pin_verify_forgot" />
 
-        <org.commcare.views.connect.RoundedButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_pin_button"
+            style="@style/CustomButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
+            android:layout_height="wrap_content"
             android:layout_below="@id/connect_pin_error_message"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="16dp"
-            app:roundButtonTextSize="6.5sp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             android:gravity="start|center"
             android:text="@string/review"
-            app:roundButtonBackgroundColor="@color/connect_blue_color"
-            app:roundButtonBorderRadius="@dimen/dp48"
-            app:roundButtonIcon="@drawable/connect_right_arrow"
-            app:roundButtonIconLeftAlign="false"
-            app:roundButtonTextColor="@color/white" />
+            android:drawableRight="@drawable/connect_right_arrow"
+            />
 
 
     </RelativeLayout>
