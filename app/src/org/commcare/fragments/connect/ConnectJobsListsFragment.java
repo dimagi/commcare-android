@@ -108,6 +108,12 @@ public class ConnectJobsListsFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshUi();
+    }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_notification) {
             ConnectManager.goToMessaging(requireActivity());

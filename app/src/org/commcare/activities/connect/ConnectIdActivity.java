@@ -2,9 +2,7 @@ package org.commcare.activities.connect;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Window;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -43,7 +41,6 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
             finish();
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,8 +131,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         }
     }
 
-
-    public static void beginSecondaryPhoneVerification(Context parent) {
+    private void beginSecondaryPhoneVerification(Context parent) {
         NavDirections navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage
                 (parent.getString(R.string.connect_recovery_alt_title),
                         parent.getString(R.string.connect_recovery_alt_message),
@@ -143,7 +139,6 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                         parent.getString(R.string.connect_password_fail_button),
                         parent.getString(R.string.connect_recovery_alt_change_button),null,null);
         controller.navigate(navDirections);
-
     }
 
     public static void reset() {

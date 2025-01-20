@@ -111,7 +111,7 @@ public class ConnectIDSignupFragment extends Fragment {
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
 
-        binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
+        TextWatcher buttonUpdateWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -126,7 +126,11 @@ public class ConnectIDSignupFragment extends Fragment {
             public void afterTextChanged(Editable s) {
 
             }
-        });
+        };
+
+        binding.nameTextValue.addTextChangedListener(buttonUpdateWatcher);
+        binding.connectPrimaryPhoneInput.addTextChangedListener(buttonUpdateWatcher);
+
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
