@@ -73,7 +73,7 @@ public class ApiConnectId {
                 Logger.exception("Linking HQ worker", e);
             }
         }
-    }
+
 
     public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) {
         HashMap<String, Object> params = new HashMap<>();
@@ -255,7 +255,7 @@ public class ApiConnectId {
     public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
                                      String newPassword, IApiCallback callback) {
 
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("phone", phoneNumber);
         params.put("secret_key", recoverySecret);
         params.put("password", newPassword);
@@ -267,7 +267,7 @@ public class ApiConnectId {
     public static void checkPin(Context context, String phone, String secret,
                                 String pin, IApiCallback callback) {
 
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         params.put("recovery_pin", pin);
@@ -283,7 +283,7 @@ public class ApiConnectId {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
 
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", pin);
 
         apiService = ApiClient.getClient().create(ApiService.class);
@@ -297,9 +297,9 @@ public class ApiConnectId {
         callApi(context,call,callback);
     }
 
-    public static boolean registerUser(Context context, String username, String password, String displayName,
+    public static void registerUser(Context context, String username, String password, String displayName,
                                        String phone, IApiCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("username", username);
         params.put("password", password);
         params.put("name", displayName);
@@ -316,7 +316,7 @@ public class ApiConnectId {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("old_phone_number", oldPhone);
         params.put("new_phone_number", newPhone);
         apiService = ApiClient.getClient().create(ApiService.class);
@@ -330,7 +330,7 @@ public class ApiConnectId {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         if (secondaryPhone != null) {
             params.put("secondary_phone", secondaryPhone);
         }
@@ -347,14 +347,14 @@ public class ApiConnectId {
                                                      IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.validatePhone(token,params);
         callApi(context,call,callback);
     }
 
     public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("phone", phone);
         apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.requestOTPPrimary(params);
@@ -363,7 +363,7 @@ public class ApiConnectId {
 
     public static void requestRecoveryOtpSecondary(Context context, String phone, String secret,
                                                    IApiCallback callback) {
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         apiService = ApiClient.getClient().create(ApiService.class);
@@ -375,7 +375,7 @@ public class ApiConnectId {
                                                        IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String basicToken= HttpUtils.getCredential(authInfo);
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.validateSecondaryPhone(basicToken,params);
         callApi(context,call,callback);
@@ -385,7 +385,7 @@ public class ApiConnectId {
                                                         String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String basicToken= HttpUtils.getCredential(authInfo);
-        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> params = new HashMap<>();
         params.put("token", token);
 
         apiService = ApiClient.getClient().create(ApiService.class);
