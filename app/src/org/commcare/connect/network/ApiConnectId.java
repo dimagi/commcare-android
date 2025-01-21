@@ -44,6 +44,8 @@ public class ApiConnectId {
     private static final String API_VERSION_NONE = null;
     public static final String API_VERSION_CONNECT_ID = "1.0";
     private static final int NETWORK_ACTIVITY_ID = 7000;
+    private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
+    private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
     private static ApiService apiService;
 
@@ -77,7 +79,7 @@ public class ApiConnectId {
 
     public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) {
         HashMap<String, String> params = new HashMap<>();
-        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
+        params.put("client_id", HQ_CLIENT_ID);
         params.put("scope", "mobile_access sync");
         params.put("grant_type", "password");
         params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
@@ -140,7 +142,7 @@ public class ApiConnectId {
 
         if (user != null) {
             HashMap<String, String> params = new HashMap<>();
-            params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+            params.put("client_id", CONNECT_CLIENT_ID);
             params.put("scope", "openid");
             params.put("grant_type", "password");
             params.put("username", user.getUserId());
