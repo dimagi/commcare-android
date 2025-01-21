@@ -8,40 +8,20 @@
     <string name="title_bar_name">@string/application_name</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
+
     <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
     <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
     <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
-    <string name="ConnectChangePasswordURL">https://connectid.dimagi.com/users/change_password</string>
-    <string name="ConnectResetPasswordURL">https://connectid.dimagi.com/users/recover/reset_password</string>
-    <string name="ConnectConfirmPasswordURL">https://connectid.dimagi.com/users/recover/confirm_password</string>
-    <string name="ConnectSetPinURL">https://connectid.dimagi.com/users/set_recovery_pin</string>
-    <string name="ConnectConfirmPinURL">https://connectid.dimagi.com/users/recover/confirm_pin</string>
-    <string name="ConnectUpdateProfileURL">https://connectid.dimagi.com/users/update_profile</string>
-    <string name="ConnectChangePhoneURL">https://connectid.dimagi.com/users/change_phone</string>
-    <string name="ConnectPhoneAvailableURL">https://connectid.dimagi.com/users/phone_available</string>
-    <string name="ConnectRecoverURL">https://connectid.dimagi.com/users/recover</string>
-    <string name="ConnectRecoverSecondaryURL">https://connectid.dimagi.com/users/recover/secondary</string>
-    <string name="ConnectVerifySecondaryURL">https://connectid.dimagi.com/users/validate_secondary_phone</string>
-    <string name="ConnectValidatePhoneURL">https://connectid.dimagi.com/users/validate_phone</string>
-    <string name="ConnectRecoverConfirmOTPURL">https://connectid.dimagi.com/users/recover/confirm_otp</string>
-    <string name="ConnectRecoverConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/recover/confirm_secondary_otp</string>
 
-    <string name="ConnectVerifyConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/confirm_secondary_otp</string>
-    <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
-    <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
     <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
     <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
     <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
-
     <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
     <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
     <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
-    <string name="ConnectInitiateUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/initiate_deactivation</string>
-    <string name="ConnectConfirmUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/confirm_deactivation</string>
 
     <!--    Connect Messaging URLs-->
     <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
