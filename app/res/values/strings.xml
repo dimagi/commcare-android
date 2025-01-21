@@ -777,6 +777,9 @@
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
     <string name="connect_payment_info">Payment Info</string>
+    <string name="connect_payment_info_description">Please confirm your exact name and phone number to receive payment</string>
+    <string name="connect_payment_info_name_hint">Official Name</string>
+    <string name="connect_payment_info_save">Save</string>
     <string name="connect_payment_info_resend_otp">Resend OTP</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>

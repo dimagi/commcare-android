@@ -218,12 +218,10 @@ public class ConnectJobsListsFragment extends Fragment {
             ConnectUserRecord user = ConnectManager.getUser(getActivity());
             if (user.getPaymentName().isEmpty() && user.getPaymentPhone().isEmpty() && job.getPaymentInfoRequired()) {
                 Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
+            } else if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
+                launchJobInfo(job);
             } else {
-                if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
-                    launchJobInfo(job);
-                } else {
-                    launchAppForJob(job, isLearning);
-                }
+                launchAppForJob(job, isLearning);
             }
         });
 

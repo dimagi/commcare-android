@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
  * create an instance of requireActivity() fragment.
  */
 public class ConnectPaymentSetupPhoneVerificationFragment extends Fragment {
-    public static final int MethodUserDeactivate = 5;
     public static final int REQ_USER_CONSENT = 200;
     private String primaryPhone;
     private String paymentProfileName;
