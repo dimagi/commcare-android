@@ -26,46 +26,62 @@ public class ConnectUserRecord extends Persisted {
     public static final String META_SECONDARY_PHONE_VERIFIED = "secondary_phone_verified";
     public static final String META_VERIFY_SECONDARY_PHONE_DATE = "verify_secondary_phone_by_date";
 
+    /** The user's unique ConnectID */
     @Persisting(1)
     private String userId;
 
+    /** Auto-generated password used for communicating with the ConnectID server */
     @Persisting(2)
     private String password;
 
+    /** The user's display name */
     @Persisting(3)
     private String name;
 
+    /** The user's primary phone number */
     @Persisting(4)
     private String primaryPhone;
 
+    /** The user's alternate phone number (for account recovery purposes) */
     @Persisting(5)
     private String alternatePhone;
 
+    /** Stored phase during registration so the app can resume if interrupted (i.e. device restarted) */
     @Persisting(6)
     private int registrationPhase;
 
+    /** OBSOLETE: Date when the user's password was last set */
     @Persisting(7)
     private Date lastPasswordDate;
 
+    /** Token for authenticating with Connect server */
     @Persisting(value = 8, nullable = true)
     private String connectToken;
 
+    /** Date that the Conncet token expires and needs to be renewed */
     @Persisting(value = 9, nullable = true)
     private Date connectTokenExpiration;
+
+    /** The user's chosen 6-digit recovery code */
     @Persisting(value=10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
+
+    /** Whether the user has verified their secondary phone number */
     @Persisting(11)
     @MetaField(META_SECONDARY_PHONE_VERIFIED)
     private boolean secondaryPhoneVerified;
 
+    /** Date that the user needs to verify their secondary phone by (before being blocked) */
     @Persisting(12)
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
     private Date verifySecondaryPhoneByDate;
 
+    /** Official name of the user for their digital payment account */
     @Persisting(13)
     private String paymentName;
 
+    /** Phone number for the user's digital payment account */
     @Persisting(14)
     private String paymentPhone;
 
