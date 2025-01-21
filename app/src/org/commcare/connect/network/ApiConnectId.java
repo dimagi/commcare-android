@@ -64,12 +64,11 @@ public class ApiConnectId {
                 ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                         API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
                 if (postResult.e == null && postResult.responseCode == 200) {
-                    postResult.responseStream.close();
-
                     //Remember that we linked the user successfully
                     appRecord.setWorkerLinked(true);
                     ConnectAppDatabseUtil.storeApp(context, appRecord);
                 }
+                postResult.responseStream.close();
             } catch (IOException e) {
                 Logger.exception("Linking HQ worker", e);
             }
@@ -136,10 +135,6 @@ public class ApiConnectId {
     }
 
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
-//        AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
-//        if (connectToken != null) {
-//            return connectToken;
-//        }
 
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
 
@@ -159,7 +154,6 @@ public class ApiConnectId {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                             postResult.responseStream));
-                    postResult.responseStream.close();
                     JSONObject json = new JSONObject(responseAsString);
                     String key = ConnectConstants.CONNECT_KEY_TOKEN;
                     if (json.has(key)) {
@@ -173,10 +167,12 @@ public class ApiConnectId {
 
                         return new AuthInfo.TokenAuth(token);
                     }
+                    postResult.responseStream.close();
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from Connect OIDC call", e);
                 }
             }
+
         }
 
         return null;

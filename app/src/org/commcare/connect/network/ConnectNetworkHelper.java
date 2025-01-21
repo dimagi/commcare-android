@@ -87,22 +87,6 @@ public class ConnectNetworkHelper {
         getInstance().callInProgress = call;
     }
 
-    public static boolean isOnline(Context context) {
-        ConnectivityManager manager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network network = manager.getActiveNetwork();
-            if(network == null) {
-                return false;
-            }
-
-            NetworkCapabilities capabilities = manager.getNetworkCapabilities(network);
-            return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
-        } else {
-            NetworkInfo info = manager.getActiveNetworkInfo();
-            return info != null && info.isConnected();
-        }
-    }
-
     public static boolean post(Context context, String url, String version, AuthInfo authInfo,
                                HashMap<String, String> params, boolean useFormEncoding,
                                boolean background, IApiCallback handler) {
