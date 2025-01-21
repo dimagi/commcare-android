@@ -10,10 +10,6 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +36,6 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
@@ -383,8 +378,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                logRecoveryResult(true);
-
                 try {
                     switch (method) {
                         case MethodRegistrationPrimary -> {
@@ -398,6 +391,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                             finish(true, false, null);
                         }
                         case MethodRecoveryPrimary -> {
+                            ConnectManager.logRecoveryResult(
+                                    AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP, true);
                             String secondaryPhone = null;
                             String responseAsString = new String(
                                     StreamsUtil.inputStreamToByteArray(responseData));
@@ -410,46 +405,24 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                             finish(true, false, secondaryPhone);
                         }
                         case MethodRecoveryAlternate -> {
-                            String responseAsString = new String(
-                                    StreamsUtil.inputStreamToByteArray(responseData));
-                            JSONObject json = new JSONObject(responseAsString);
+                            ConnectUserRecord recovered = ConnectManager.handleRecoveryPackage(
+                                    context, AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP,
+                                    phone, password, responseData);
 
-                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                            String username = json.has(key) ? json.getString(key) : "";
-
-                            key = ConnectConstants.CONNECT_KEY_NAME;
-                            String displayName = json.has(key) ? json.getString(key) : "";
-
-                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                            if (json.has(key)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                            }
-
-                            key = ConnectConstants.CONNECT_PAYMENT_INFO;
-                            String paymentName = "",paymentPhone = "";
-                            if(json.has(key)){
-                                JSONObject paymentJson = json.getJSONObject(key);
-                                paymentName = paymentJson.getString("owner_name");
-                                paymentPhone = paymentJson.getString("phone_number");
-                            }
-
-                            resetPassword(context, phone, password, username, displayName,paymentName,paymentPhone);
+                            resetPassword(context, phone, password, recovered);
                         }
                     }
                 } catch (Exception e) {
-                    Logger.exception("Parsing return from OTP verification", e);
+                    throw new RuntimeException(e);
                 }
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                logRecoveryResult(false);
+                String methodParam = method == MethodRecoveryPrimary ?
+                        AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP :
+                        AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP;
+                ConnectManager.logRecoveryResult(methodParam, false);
                 setErrorMessage(getString(R.string.connect_verify_phone_error));
             }
 
@@ -480,14 +453,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         }
     }
 
-    private void resetPassword(Context context, String phone, String secret, String username, String name,String paymentName,String paymentPhone) {
+    private void resetPassword(Context context, String phone, String secret, ConnectUserRecord user) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                        password, name, recoveryPhone,paymentName,paymentPhone);
+                user.setPassword(password);
+                user.setAlternatePhone(recoveryPhone);
                 user.setSecondaryPhoneVerified(true);
                 ConnectDatabaseHelper.storeUser(context, user);
 
@@ -510,16 +483,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
             }
         });
-    }
-
-    private void logRecoveryResult(boolean success) {
-        if (method != MethodRegistrationPrimary) {
-            String methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP;
-            if (method == MethodRecoveryAlternate) {
-                methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP;
-            }
-            FirebaseAnalyticsUtil.reportCccRecovery(success, methodParam);
-        }
     }
 
     public void changeNumber() {

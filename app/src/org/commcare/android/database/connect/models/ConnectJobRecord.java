@@ -157,6 +157,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     @MetaField(META_DAILY_FINISH_TIME)
     private String dailyFinishTime;
 
+    @Persisting(27)
+    @MetaField(META_PAYMENT_INFO_REQUIRED)
+    private boolean isPaymentInfoRequired;
+
     private List<ConnectJobDeliveryRecord> deliveries;
     private List<ConnectJobPaymentRecord> payments;
     private List<ConnectJobLearningRecord> learnings;
@@ -165,9 +169,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private ConnectAppRecord deliveryAppInfo;
     private List<ConnectPaymentUnitRecord> paymentUnits;
 
-    @Persisting(24)
-    @MetaField(META_PAYMENT_INFO_REQUIRED)
-    private Boolean isPaymentInfoRequired;
+
 
     private boolean claimed;
 
@@ -198,6 +200,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.currency = json.has(META_CURRENCY) && !json.isNull(META_CURRENCY) ? json.getString(META_CURRENCY) : "";
         job.shortDescription = json.has(META_SHORT_DESCRIPTION) && !json.isNull(META_SHORT_DESCRIPTION) ?
                 json.getString(META_SHORT_DESCRIPTION) : "";
+        job.isPaymentInfoRequired = json.has(META_PAYMENT_INFO_REQUIRED) && json.getBoolean(META_PAYMENT_INFO_REQUIRED);
 
         job.paymentAccrued = "";
 

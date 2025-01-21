@@ -61,8 +61,7 @@ public class ConnectPaymentSetupFragment extends Fragment {
                             phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
                             displayNumber(phoneNumber);
                         } catch (ApiException e) {
-                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                            throw new RuntimeException(e);
+                            Logger.exception("Populating phone number from hint", e);
                         }
                     }
                 }

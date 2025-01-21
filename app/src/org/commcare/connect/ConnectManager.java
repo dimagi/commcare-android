@@ -1,10 +1,7 @@
 package org.commcare.connect;
 
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
 import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
-import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -28,7 +24,6 @@ import androidx.work.WorkManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
@@ -59,7 +54,6 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.connect.RoundedButton;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
@@ -92,10 +86,6 @@ public class ConnectManager {
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     private static final int APP_DOWNLOAD_TASK_ID = 4;
-    public static final int MethodRegistrationPrimary = 1;
-    public static final int MethodRecoveryPrimary = 2;
-//    public static final int MethodRecoveryAlternate = 3;
-//    public static final int MethodVerifyAlternate = 4;
 
     public static final int PENDING_ACTION_NONE = 0;
     public static final int PENDING_ACTION_CONNECT_HOME = 1;
@@ -404,6 +394,59 @@ public class ConnectManager {
 
     public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
         launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, callback);
+    }
+
+    public static ConnectUserRecord handleRecoveryPackage(Context context, String method, String phone, String password, InputStream responseData) {
+        try {
+            String responseAsString = new String(
+                    StreamsUtil.inputStreamToByteArray(responseData));
+            JSONObject json = new JSONObject(responseAsString);
+
+            String key = ConnectConstants.CONNECT_KEY_USERNAME;
+            String username = json.has(key) ? json.getString(key) : "";
+
+            key = ConnectConstants.CONNECT_KEY_NAME;
+            String name = json.has(key) ? json.getString(key) : "";
+
+            key = ConnectConstants.CONNECT_KEY_DB_KEY;
+            if (json.has(key)) {
+                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+            }
+
+            key = ConnectConstants.CONNECT_PAYMENT_INFO;
+            String paymentName = "";
+            String paymentPhone = "";
+            if (json.has(key)) {
+                JSONObject paymentJson = json.getJSONObject(key);
+                key = ConnectConstants.CONNECT_KEY_PAYMENT_NAME;
+                paymentName = paymentJson.has(key) ? paymentJson.getString(key) : "";
+
+                key = ConnectConstants.CONNECT_KEY_PAYMENT_PHONE;
+                paymentPhone = paymentJson.has(key) ? paymentJson.getString(key) : "";
+            }
+
+            ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                    password, name, "", paymentName, paymentPhone);
+
+            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+            if (!user.getSecondaryPhoneVerified()) {
+                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
+            }
+
+            //TODO: Need to get secondary phone from server
+            ConnectDatabaseHelper.storeUser(context, user);
+
+            logRecoveryResult(method, true);
+
+            return user;
+        } catch (IOException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void logRecoveryResult(String method, boolean success) {
+        FirebaseAnalyticsUtil.reportCccRecovery(success, method);
     }
 
     public static void beginSecondaryPhoneVerification(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
