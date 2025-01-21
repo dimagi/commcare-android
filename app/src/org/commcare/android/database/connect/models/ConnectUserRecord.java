@@ -1,12 +1,11 @@
 package org.commcare.android.database.connect.models;
 
-import android.content.Intent;
-
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -93,8 +92,10 @@ public class ConnectUserRecord extends Persisted {
         verifySecondaryPhoneByDate = new Date();
     }
 
-    public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
-                             String alternatePhone,String paymentName,String paymentPhone) {
+    public ConnectUserRecord(@NotNull String primaryPhone, @NotNull String userId,
+                             @NotNull String password, @NotNull String name,
+                             @NotNull String alternatePhone, @NotNull String paymentName,
+                             @NotNull String paymentPhone) {
         this();
         this.primaryPhone = primaryPhone;
         this.alternatePhone = alternatePhone;
@@ -105,26 +106,6 @@ public class ConnectUserRecord extends Persisted {
         this.paymentPhone = paymentPhone;
 
         connectTokenExpiration = new Date();
-    }
-
-    public static ConnectUserRecord getUserFromIntent(Intent intent) {
-        return new ConnectUserRecord(
-                intent.getStringExtra(ConnectConstants.PHONE),
-                intent.getStringExtra(ConnectConstants.USERNAME),
-                intent.getStringExtra(ConnectConstants.PASSWORD),
-                intent.getStringExtra(ConnectConstants.NAME),
-                intent.getStringExtra(ConnectConstants.ALT_PHONE),
-                intent.getStringExtra(ConnectConstants.PAYMENT_NAME),
-                intent.getStringExtra(ConnectConstants.PAYMENT_PHONE)
-        );
-    }
-
-    public void putUserInIntent(Intent intent) {
-        intent.putExtra(ConnectConstants.PHONE, primaryPhone);
-        intent.putExtra(ConnectConstants.USERNAME, userId);
-        intent.putExtra(ConnectConstants.PASSWORD, password);
-        intent.putExtra(ConnectConstants.NAME, name);
-        intent.putExtra(ConnectConstants.ALT_PHONE, alternatePhone);
     }
 
     public String getUserId() {
