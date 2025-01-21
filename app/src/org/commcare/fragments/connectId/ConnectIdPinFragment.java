@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,13 +32,11 @@ import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
@@ -209,16 +206,14 @@ public class ConnectIdPinFragment extends Fragment {
         binding.connectPinButton.setEnabled(buttonEnabled);
     }
 
-
     public void handleButtonPress() {
         String pin = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
 
-        boolean isBusy = false;
         final Context context = getActivity();
         if (isChanging) {
             //Change PIN
-            isBusy = !ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
+           ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
                     new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -246,7 +241,7 @@ public class ConnectIdPinFragment extends Fragment {
                     });
         } else if (isRecovery) {
             //Confirm PIN
-            isBusy = !ApiConnectId.checkPin(getActivity(), phone, secret, pin,
+            ApiConnectId.checkPin(getActivity(), phone, secret, pin,
                     new IApiCallback() {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -256,50 +251,47 @@ public class ConnectIdPinFragment extends Fragment {
                                 String responseAsString = new String(
                                         StreamsUtil.inputStreamToByteArray(responseData));
                                 ConnectManager.setFailureAttempt(0);
-                                if (responseAsString.length() > 0) {
-                                    JSONObject json = new JSONObject(responseAsString);
-                                    String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                                    if (json.has(key)) {
-                                        username = json.getString(key);
-                                    }
-
-                                    key = ConnectConstants.CONNECT_KEY_NAME;
-                                    if (json.has(key)) {
-                                        name = json.getString(key);
-                                    }
-
-                                    key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                                    if (json.has(key)) {
-                                        ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                                    }
-
-                                    key = ConnectConstants.CONNECT_PAYMENT_INFO;
-                                    String paymentName = "",paymentPhone = "";
-                                    if(json.has(key)){
-                                        JSONObject paymentJson = json.getJSONObject(key);
-                                        paymentName = paymentJson.getString("owner_name");
-                                        paymentPhone = paymentJson.getString("phone_number");
-                                    }
-
-                                    ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                            "", name, "",paymentName,paymentPhone);
-                                    user.setPin(pin);
-
-                                    user.setLastPinDate(new Date());
-
-                                    key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
-                                    user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
-                                    if (!user.getSecondaryPhoneVerified()) {
-                                        user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
-                                    }
-
-                                    resetPassword(context, phone, secret, user);
-                                } else {
-                                    //TODO: Show toast about error
+                                JSONObject json = new JSONObject(responseAsString);
+                                String key = ConnectConstants.CONNECT_KEY_USERNAME;
+                                if (json.has(key)) {
+                                    username = json.getString(key);
                                 }
+
+                                key = ConnectConstants.CONNECT_KEY_NAME;
+                                if (json.has(key)) {
+                                    name = json.getString(key);
+                                }
+
+                                key = ConnectConstants.CONNECT_KEY_DB_KEY;
+                                if (json.has(key)) {
+                                    ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                                }
+
+                                key = ConnectConstants.CONNECT_PAYMENT_INFO;
+                                String paymentName = "", paymentPhone = "";
+                                if (json.has(key)) {
+                                    JSONObject paymentJson = json.getJSONObject(key);
+                                    key = ConnectConstants.CONNECT_KEY_PAYMENT_NAME;
+                                    paymentName = paymentJson.has(key) ? paymentJson.getString(key) : "";
+                                    key = ConnectConstants.CONNECT_KEY_PAYMENT_PHONE;
+                                    paymentPhone = paymentJson.has(key) ? paymentJson.getString(key) : "";
+                                }
+
+                                ConnectUserRecord user = new ConnectUserRecord(phone, username,
+                                        "", name, "", paymentName, paymentPhone);
+                                user.setPin(pin);
+
+                                user.setLastPinDate(new Date());
+
+                                key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
+                                user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                                if (!user.getSecondaryPhoneVerified()) {
+                                    user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
+                                }
+
+                                resetPassword(context, phone, secret, user);
                             } catch (IOException | JSONException e) {
-                                Logger.exception("Parsing return from OTP request", e);
-                                //TODO: Show toast about error
+                                throw new RuntimeException(e);
                             }
                         }
 
@@ -326,10 +318,6 @@ public class ConnectIdPinFragment extends Fragment {
             //Local failure
             handleWrongPin();
         }
-
-        if (isBusy) {
-            Toast.makeText(getActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void resetPassword(Context context, String phone, String secret, ConnectUserRecord user) {
@@ -345,7 +333,6 @@ public class ConnectIdPinFragment extends Fragment {
 
                 finish(true, false, user.getPin());
             }
-
 
             @Override
             public void processFailure(int responseCode, IOException e) {
@@ -370,7 +357,6 @@ public class ConnectIdPinFragment extends Fragment {
         logRecoveryResult(false);
         clearPin();
         finish(false, ConnectManager.getFailureAttempt() >= MaxFailures, null);
-
     }
 
     public void handleForgotPress() {

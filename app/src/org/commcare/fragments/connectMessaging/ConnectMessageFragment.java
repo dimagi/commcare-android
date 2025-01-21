@@ -32,7 +32,7 @@ public class ConnectMessageFragment extends Fragment {
     private FragmentConnectMessageBinding binding;
     private ConnectMessageAdapter adapter;
     private Runnable apiCallRunnable; // The task to run periodically
-    private static final int INTERVAL = 60000;
+    private static final int INTERVAL = 30000;
     private final Handler handler = new Handler(); // To post periodic tasks
 
 

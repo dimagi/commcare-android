@@ -276,10 +276,11 @@ public class ConnectIDSignupFragment extends Fragment {
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
                             //Make sure the number isn't already in use
-                            phone = phone.replaceAll("\\+", "%2b");
+//                            phone = phone.replaceAll("\\+", "%2b");
                             binding.errorTextView.setVisibility(View.VISIBLE);
                             binding.errorTextView.setText(getString(R.string.connect_phone_checking));
-                            boolean isBusy = !ApiConnectId.checkPhoneAvailable(getContext(), phone,
+
+                                    ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -297,6 +298,12 @@ public class ConnectIDSignupFragment extends Fragment {
                                         @Override
                                         public void processFailure(int responseCode, IOException e) {
                                             skipPhoneNumberCheck = false;
+                                            if(responseCode==406){
+                                                skipPhoneNumberCheck = false;
+                                                updateButtonEnabled();
+                                                binding.errorTextView.setVisibility(View.VISIBLE);
+                                                binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
+                                            }
                                             if (e != null) {
                                                 Logger.exception("Checking phone number", e);
                                             }
@@ -331,9 +338,6 @@ public class ConnectIDSignupFragment extends Fragment {
                                         }
                                     });
 
-                            if (isBusy) {
-                                Toast.makeText(getContext(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-                            }
                         }
                     }
                     case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
@@ -361,7 +365,7 @@ public class ConnectIDSignupFragment extends Fragment {
                 binding.nameTextValue.getText().toString(), "","","");
 
         final Context context = getActivity();
-        boolean isBusy = !ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
+                ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
                 tempUser.getName(), phoneNo, new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
@@ -411,10 +415,6 @@ public class ConnectIDSignupFragment extends Fragment {
                         Toast.makeText(requireActivity(), R.string.recovery_network_outdated, Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
     }
 
     private String generateUserId() {

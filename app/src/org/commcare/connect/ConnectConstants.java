@@ -32,6 +32,8 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_SECONDARY_PHONE = "secondary_phone";
     public static final String CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY = "secondary_phone_validate_by";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
+    public static final String CONNECT_KEY_PAYMENT_NAME = "owner_name";
+    public static final String CONNECT_KEY_PAYMENT_PHONE = "phone_number";
     public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
     public static final String JOB_LEARNING = "job-learning";
     public static final String JOB_DELIVERY = "job-delivery";
