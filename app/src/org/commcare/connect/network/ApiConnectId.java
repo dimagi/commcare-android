@@ -59,8 +59,17 @@ public class ApiConnectId {
             HashMap<String, String> params = new HashMap<>();
             params.put("token", connectToken);
 
-            String url = ServerUrls.getKeyServer().replace("phone/keys/",
-                    "settings/users/commcare/link_connectid_user/");
+            String host;
+            String domain;
+            String url;
+            try {
+                host = (new URL(ServerUrls.getKeyServer())).getHost();
+                domain =  HiddenPreferences.getUserDomainWithoutServerUrl();
+                String myStr = "https://%s/a/%s/settings/users/commcare/link_connectid_user/";
+                url = String.format(myStr, host, domain);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
 
             try {
                 ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
