@@ -31,10 +31,16 @@ class AndroidAsyncNodeEntityFactory(
         const val TEN_MINUTES = 10 * 60 * 1000L
     }
 
+    init {
+        if (!detail.shouldOptimize()) {
+            throw RuntimeException(AndroidAsyncNodeEntityFactory::class.simpleName + " can only be used for optimizable case lists");
+        }
+    }
+
     override fun prepareEntitiesInternal(
         entities: MutableList<Entity<TreeReference>>
     ) {
-        if (detail.shouldOptimize() && detail.isCacheEnabled) {
+        if (detail.isCacheEnabled) {
             // we only want to block if lazy load is not enabled
             if (!detail.isLazyLoading) {
                 if (entityDatum == null) {
