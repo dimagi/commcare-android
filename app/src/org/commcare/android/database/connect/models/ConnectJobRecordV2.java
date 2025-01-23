@@ -4,9 +4,12 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.CrashUtil;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import static org.javarosa.core.services.Logger.log;
 
 /**
  * Data class for holding info related to a Connect job
@@ -36,7 +39,7 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
     public static final String META_LEARN_MODULES = "total_modules";
     public static final String META_COMPLETED_MODULES = "completed_modules";
 
-    public static final String META_DELIVERY_PROGRESS = "deliver_progress";
+    public static final String META_DELIVERY_PROGRESS = "delivery_progress";
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
@@ -114,7 +117,17 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
     public int getMaxDailyVisits() { return maxDailyVisits; }
     public int getBudgetPerVisit() { return budgetPerVisit; }
     public Date getProjectEndDate() { return projectEndDate; }
-    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
+    public int getPaymentAccrued() {
+        if (paymentAccrued == null || paymentAccrued.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(paymentAccrued);
+        } catch (NumberFormatException e) {
+            log("Invalid format for paymentAccrued: " + paymentAccrued, e.getMessage());
+            return 0;
+        }
+    }
     public String getCurrency() { return currency; }
     public int getNumLearningModules() { return numLearningModules; }
 

@@ -1,6 +1,7 @@
 package org.commcare.connect.network.connectId;
 
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.dalvik.BuildConfig;
 
 import java.io.IOException;
 import java.util.Map;
@@ -26,7 +27,9 @@ public class ApiClient {
     public static Retrofit getClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 // set your desired log level
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        logging.setLevel(BuildConfig.DEBUG ?
+                HttpLoggingInterceptor.Level.BODY :
+                HttpLoggingInterceptor.Level.NONE);
         if (retrofit == null) {
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
                     .addInterceptor(logging)

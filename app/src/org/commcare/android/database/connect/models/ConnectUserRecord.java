@@ -192,8 +192,8 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public void updateConnectToken(SsoToken token) {
-        connectToken = token.token;
-        connectTokenExpiration = token.expiration;
+        connectToken = token.getToken();
+        connectTokenExpiration = token.getExpiration();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {

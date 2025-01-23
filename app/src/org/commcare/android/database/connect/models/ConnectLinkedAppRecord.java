@@ -113,8 +113,8 @@ public class ConnectLinkedAppRecord extends Persisted {
     }
 
     public void updateHqToken(SsoToken token) {
-        hqToken = token.token;
-        hqTokenExpiration = token.expiration;
+        hqToken = token.getToken();
+        hqTokenExpiration = token.getExpiration();
     }
 
     public boolean getConnectIdLinked() { return connectIdLinked; }

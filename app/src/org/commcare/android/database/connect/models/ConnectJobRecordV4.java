@@ -146,7 +146,6 @@ public class ConnectJobRecordV4 extends Persisted implements Serializable {
         newRecord.projectEndDate = oldRecord.getProjectEndDate();
         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
         newRecord.organization = oldRecord.getOrganization();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
         newRecord.numLearningModules = oldRecord.getNumLearningModules();
         newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
         newRecord.currency = oldRecord.getCurrency();

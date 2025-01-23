@@ -376,7 +376,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public Date getDateClaimed() { return dateClaimed; }
     public boolean getIsActive() { return isActive; }
 
-    public boolean setIsUserSuspended(boolean isUserSuspended) { return this.isUserSuspended=isUserSuspended; }
+    public void setIsUserSuspended(boolean isUserSuspended) {  this.isUserSuspended=isUserSuspended; }
 
     public boolean getIsUserSuspended(){
         return isUserSuspended;

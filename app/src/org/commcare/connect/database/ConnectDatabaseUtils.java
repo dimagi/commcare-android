@@ -67,6 +67,9 @@ public class ConnectDatabaseUtils {
 
             //LEGACY: If we get here, the passphrase hasn't been created yet so use a local one
             byte[] passphrase = EncryptionUtils.generatePassphrase();
+            if (passphrase == null) {
+                throw new IllegalStateException("Generated passphrase is null");
+            }
             ConnectDatabaseUtils.storeConnectDbPassphrase(context, passphrase, true);
 
             return passphrase;

@@ -21,6 +21,10 @@ public class ConnectivityStatus {
 
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager conManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+         if (conManager == null) {
+                 Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logNotConnectedMessage);
+                 return false;
+         }
         NetworkInfo netInfo = conManager.getActiveNetworkInfo();
         boolean notInAirplaneMode = (netInfo != null && netInfo.isConnected());
 

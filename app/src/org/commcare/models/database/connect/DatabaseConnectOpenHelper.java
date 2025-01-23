@@ -23,6 +23,7 @@ import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.Base64;
 import org.commcare.util.Base64DecoderException;
+import org.commcare.utils.CrashUtil;
 
 import java.io.File;
 
@@ -73,7 +74,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             byte[] newBytes = Base64.decode(newPassphrase);
             String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
 
-            db.query("PRAGMA rekey = '" + newKeyEncoded + "';");
+            db.execSQL("PRAGMA rekey = '" + newKeyEncoded + "';");
             db.close();
         }
     }
@@ -128,7 +129,13 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             return super.getWritableDatabase(key);
         } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
-            return super.getWritableDatabase(key);
+            try {
+                return super.getWritableDatabase(key);
+            } catch (SQLiteException e) {
+                // Handle the exception, log the error, or inform the user
+                CrashUtil.log(e.getMessage());
+                return null;
+            }
         }
     }
 

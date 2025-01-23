@@ -97,7 +97,7 @@ public class ConnectDatabaseHelper {
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
-        ConnectLinkedAppRecord record = ConnectAppDatabseUtil.getAppData(context, appId, userId);
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, false, "");
         }

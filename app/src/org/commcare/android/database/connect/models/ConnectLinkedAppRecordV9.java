@@ -8,9 +8,13 @@ import org.commcare.modern.models.MetaField;
 import java.util.Date;
 
 /**
- * DB model holding info for an HQ app linked to ConnectID
+ * Migrates a V8 record to V9 format.
+ * New in V9:
+ * - Added usingLocalPassphrase field
+ * - Changed link offer date handling
  *
- * @author dviggiano
+ * @return A new V9 record with migrated data
+ * @throws IllegalArgumentException if oldRecord is null
  */
 @Table(ConnectLinkedAppRecordV9.STORAGE_KEY)
 public class ConnectLinkedAppRecordV9 extends Persisted {
@@ -119,7 +123,7 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         newRecord.linkOfferDate1 = newRecord.linkOffered1 ? oldRecord.getLinkOfferDate1() : new Date();
         newRecord.linkOffered2 = oldRecord.getLinkOfferDate2() != null;
         newRecord.linkOfferDate2 = newRecord.linkOffered2 ? oldRecord.getLinkOfferDate2() : new Date();
-
+        // Default to true for backward compatibility
         newRecord.usingLocalPassphrase = true;
 
         return newRecord;

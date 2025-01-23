@@ -86,8 +86,8 @@ public class EncryptionUtils {
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, CertificateException, KeyStoreException, IOException,
             NoSuchProviderException {
-        Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, keyAndTransform.key);
+        Cipher cipher = Cipher.getInstance(keyAndTransform.getTransformation());
+        cipher.init(Cipher.ENCRYPT_MODE, keyAndTransform.getKey());
         byte[] encrypted = cipher.doFinal(bytes);
         byte[] iv = cipher.getIV();
         int ivLength = iv == null ? 0 : iv.length;
@@ -136,9 +136,9 @@ public class EncryptionUtils {
         readIndex++;
         System.arraycopy(bytes, readIndex, encrypted, 0, encryptedLength);
 
-        Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
+        Cipher cipher = Cipher.getInstance(keyAndTransform.getTransformation());
 
-        cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.key, iv != null ? new IvParameterSpec(iv) : null);
+        cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.getKey(), iv != null ? new IvParameterSpec(iv) : null);
 
         return cipher.doFinal(encrypted);
     }

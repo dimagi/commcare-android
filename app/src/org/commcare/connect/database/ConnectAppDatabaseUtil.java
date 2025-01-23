@@ -7,7 +7,7 @@ import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
 
-public class ConnectAppDatabseUtil {
+public class ConnectAppDatabaseUtil {
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
         Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
                 .getRecordsForValues(
