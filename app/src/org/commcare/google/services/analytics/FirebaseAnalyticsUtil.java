@@ -387,10 +387,11 @@ public class FirebaseAnalyticsUtil {
                 new String[]{app});
     }
 
-    public static void reportCccApiJobs(boolean success, int newJobs) {
+    public static void reportCccApiJobs(boolean success, int totalJobs, int newJobs) {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
         b.putInt(CCAnalyticsEvent.PARAM_API_NEW_JOBS, newJobs);
+        b.putInt(CCAnalyticsEvent.PARAM_API_TOTAL_JOBS, totalJobs);
         reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
     }
 
