@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -46,7 +45,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private ConnectDeliveryProgressFragment.ViewStateAdapter viewStateAdapter;
     private TextView updateText;
 
-    private ConstraintLayout paymentAlertTile;
+    private CardView paymentAlertTile;
     private ConnectRegularTextView paymentAlertText;
     private ConnectJobPaymentRecord paymentToConfirm = null;
     private String tabPosition = "";
