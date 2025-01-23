@@ -78,12 +78,18 @@ public class EncryptionKeyProvider {
 
         if (doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
-            if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
-                return new EncryptionKeyAndTransform(entry.getSecretKey(), String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING));
-            } else if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
+            if (existingKey instanceof KeyStore.SecretKeyEntry) {
+                KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) existingKey;
+                return new EncryptionKeyAndTransform(
+                        entry.getSecretKey(),
+                        String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING)
+                );
+            } else if (existingKey instanceof KeyStore.PrivateKeyEntry) {
+                KeyStore.PrivateKeyEntry entry = (KeyStore.PrivateKeyEntry) existingKey;
                 Key key = trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
                 return new EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding");
-            } else {
+            }
+            else {
                 throw new RuntimeException("Unrecognized key type retrieved from KeyStore");
             }
         } else {

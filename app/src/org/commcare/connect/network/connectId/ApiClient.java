@@ -19,41 +19,43 @@ import retrofit2.converter.gson.GsonConverterFactory;
 ///Todo retry part of the api fails
 
 public class ApiClient {
-    private static final String BASE_URL = "https://connectid.dimagi.com";  // Replace with actual base URL
-    private static final String API_VERSION = ApiConnectId.API_VERSION_CONNECT_ID;  // Replace with actual version value
+    private static final String BASE_URL = BuildConfig.CONNECT_BASE_URL;  // Replace with actual base URL
+    private static final String API_VERSION = BuildConfig.API_VERSION_CONNECT_ID;  // Replace with actual version value
 
     private static Retrofit retrofit;
 
+    private ApiClient() {}
+    private static class RetrofitHolder {
+        private static final Retrofit INSTANCE = buildRetrofitClient();
+    }
     public static Retrofit getClient() {
+        return RetrofitHolder.INSTANCE;
+    }
+    private static Retrofit buildRetrofitClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-// set your desired log level
         logging.setLevel(BuildConfig.DEBUG ?
                 HttpLoggingInterceptor.Level.BODY :
                 HttpLoggingInterceptor.Level.NONE);
-        if (retrofit == null) {
-            OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                    .addInterceptor(logging)
-                    .addInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            Request originalRequest = chain.request();
-                            Request requestWithHeaders = originalRequest.newBuilder()
-                                    .header("Accept", "application/json;version=" + API_VERSION)
-                                    .build();
-                            return chain.proceed(requestWithHeaders);
-                        }
-                    })
-                    .connectTimeout(30, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .writeTimeout(30, TimeUnit.SECONDS)
-                    .build();
-
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(okHttpClient)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
-        return retrofit;
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request originalRequest = chain.request();
+                        Request requestWithHeaders = originalRequest.newBuilder()
+                                .header("Accept", "application/json;version=" + API_VERSION)
+                                .build();
+                        return chain.proceed(requestWithHeaders);
+                    }
+                })
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build();
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
     }
 }

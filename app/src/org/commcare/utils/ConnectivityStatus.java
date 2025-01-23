@@ -26,12 +26,12 @@ public class ConnectivityStatus {
                  return false;
          }
         NetworkInfo netInfo = conManager.getActiveNetworkInfo();
-        boolean notInAirplaneMode = (netInfo != null && netInfo.isConnected());
+        boolean isConnected = (netInfo != null && netInfo.isConnected());
 
         //if user is not online, log not connected. if online, log success
-        String logMessage = !notInAirplaneMode ? logNotConnectedMessage : logConnectionSuccessMessage;
+        String logMessage = !isConnected ? logNotConnectedMessage : logConnectionSuccessMessage;
         Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logMessage);
 
-        return notInAirplaneMode;
+        return isConnected;
     }
 }

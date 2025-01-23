@@ -10,11 +10,8 @@ import java.io.InputStream;
 import java.util.Date;
 
 public class SsoToken {
-
     private final String token;
-
     private final Date expiration;
-
     public SsoToken(String token, Date expiration) {
         if (token == null || expiration == null) {
             throw new IllegalArgumentException("Token and expiration must not be null");
@@ -25,13 +22,11 @@ public class SsoToken {
         this.token = token;
         this.expiration = new Date(expiration.getTime());
     }
-
     public static SsoToken fromResponseStream(InputStream stream) throws IOException, JSONException {
         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                 stream));
         JSONObject json = new JSONObject(responseAsString);
         String key = ConnectConstants.CONNECT_KEY_TOKEN;
-
         if (!json.has(key)) {
             throw new RuntimeException("SSO API response missing access token");
         }
@@ -40,7 +35,6 @@ public class SsoToken {
         key = ConnectConstants.CONNECT_KEY_EXPIRES;
         long seconds = json.has(key) ? json.getLong(key) : 0L;
         expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-
         return new SsoToken(token, expiration);
     }
     public String getToken() {
@@ -48,5 +42,9 @@ public class SsoToken {
     }
     public Date getExpiration() {
         return expiration;
+    }
+    @Override
+    public String toString() {
+        return "SsoToken{expiration=" + expiration + '}';
     }
 }

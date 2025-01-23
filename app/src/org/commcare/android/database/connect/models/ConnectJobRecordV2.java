@@ -35,6 +35,7 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
     public static final String META_BUDGET_PER_VISIT = "budget_per_visit";
     public static final String META_BUDGET_TOTAL = "total_budget";
     public static final String META_LAST_WORKED_DATE = "last_worked";
+
     public static final String META_STATUS = "status";
     public static final String META_LEARN_MODULES = "total_modules";
     public static final String META_COMPLETED_MODULES = "completed_modules";

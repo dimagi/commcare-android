@@ -134,7 +134,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             } catch (SQLiteException e) {
                 // Handle the exception, log the error, or inform the user
                 CrashUtil.log(e.getMessage());
-                return null;
+                throw e;
             }
         }
     }

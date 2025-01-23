@@ -9,9 +9,12 @@ import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.javarosa.core.services.Logger;
 
 public class ConnectUserDatabaseUtil {
-    private static final Object lock = new Object();
+    private static final Object LOCK = new Object();
     public static ConnectUserRecord getUser(Context context) {
-        synchronized (lock) {
+        if (context == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
+        synchronized (LOCK) {
             if (!ConnectDatabaseHelper.dbExists(context)) {
                 return null;
             }
@@ -31,10 +34,13 @@ public class ConnectUserDatabaseUtil {
     }
 
     public static void storeUser(Context context, ConnectUserRecord user) {
+        if (context == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-        synchronized (lock) {
+        synchronized (LOCK) {
             try {
                 ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
             } catch (Exception e) {
@@ -45,11 +51,20 @@ public class ConnectUserDatabaseUtil {
     }
 
     public static void forgetUser(Context context) {
-        synchronized (lock) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context must not be null");
+        }
+        synchronized (LOCK) {
             try {
                 DatabaseConnectOpenHelper.deleteDb(context);
                 CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
                 ConnectDatabaseHelper.dbBroken = false;
+            } catch (IllegalStateException e) {
+                Logger.exception("Database access error while forgetting user", e);
+                throw new RuntimeException("Failed to access database while cleaning up", e);
+            } catch (SecurityException e) {
+                Logger.exception("Permission denied while deleting database", e);
+                throw new RuntimeException("Failed to delete database due to permissions", e);
             } catch (Exception e) {
                 Logger.exception("Failed to forget user", e);
                 throw new RuntimeException("Failed to clean up Connect database", e);

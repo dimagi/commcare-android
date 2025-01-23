@@ -1,6 +1,8 @@
 package org.commcare.connect.database;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -32,7 +34,7 @@ public class ConnectDatabaseHelper {
         try {
             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
 
-            if (!remotePassphrase.equals(localPassphrase)) {
+            if (!remotePassphrase.equals(localPassphrase) && (connectDatabase == null || !connectDatabase.isOpen())) {
                 DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
                 ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
             }
@@ -93,7 +95,9 @@ public class ConnectDatabaseHelper {
 
     public static void handleCorruptDb(Context context) {
         ConnectUserDatabaseUtil.forgetUser(context);
-        Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show();
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show()
+        );
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {

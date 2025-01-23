@@ -171,6 +171,8 @@ ext {
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ''
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: 'debug'
     FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
+    API_VERSION_CONNECT_ID = project.properties['API_VERSION_CONNECT_ID'] ?: ''
+    CONNECT_BASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
 }
 
 afterEvaluate {
@@ -289,6 +291,8 @@ android {
 
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
 
+        buildConfigField 'String', 'CONNECT_BASE_URL', "\"https://connectid.dimagi.com\""
+        buildConfigField 'String', 'API_VERSION_CONNECT_ID', "\"1.0\""
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
 
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'

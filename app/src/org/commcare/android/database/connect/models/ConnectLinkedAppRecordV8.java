@@ -108,7 +108,7 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
         newRecord.linkOffered1 = true;
         newRecord.linkOfferDate1 = Date.from(Instant.now());
         newRecord.linkOffered2 = false;
-        newRecord.linkOfferDate2 = Date.from(Instant.now());;
+        newRecord.linkOfferDate2 = Date.from(Instant.now());
 
         return newRecord;
     }

@@ -513,7 +513,7 @@ public class ConnectJobUtils {
 
         if (existingJobs.size() > 0) {
             ConnectJobRecord existing = existingJobs.get(0);
-            existing.setComletedLearningModules(job.getCompletedLearningModules());
+            existing.setCompletedLearningModules(job.getCompletedLearningModules());
             existing.setLastUpdate(new Date());
             jobStorage.write(existing);
 

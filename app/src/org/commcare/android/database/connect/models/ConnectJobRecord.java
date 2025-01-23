@@ -275,10 +275,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public String getCurrency() { return currency; }
     public int getNumLearningModules() { return numLearningModules; }
     public int getCompletedLearningModules() { return learningModulesCompleted; }
-    public int getLearningPercentComplete() {
-        return numLearningModules > 0 ? (100 * learningModulesCompleted / numLearningModules) : 100;
-    }
-    public void setComletedLearningModules(int numCompleted) { this.learningModulesCompleted = numCompleted; }
+    public void setCompletedLearningModules(int numCompleted) { this.learningModulesCompleted = numCompleted; }
     public ConnectAppRecord getLearnAppInfo() { return learnAppInfo; }
     public void setLearnAppInfo(ConnectAppRecord appInfo) { this.learnAppInfo = appInfo; }
     public ConnectAppRecord getDeliveryAppInfo() { return deliveryAppInfo; }

@@ -1,6 +1,7 @@
 package org.commcare.models.database.connect;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -27,6 +28,7 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.TableBuilder;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.services.storage.Persistable;
 
 public class ConnectDatabaseUpgrader {
@@ -146,7 +148,10 @@ public class ConnectDatabaseUpgrader {
             }
 
             db.setTransactionSuccessful();
-        } finally {
+        } catch (Exception e){
+            CrashUtil.log(e.getMessage());
+        }
+        finally {
             db.endTransaction();
         }
     }

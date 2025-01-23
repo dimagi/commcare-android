@@ -6,7 +6,7 @@ public class ApiEndPoints {
     public static final String connectFetchDbKeyURL = "/users/fetch_db_key";
     public static final String connectChangePasswordURL = "/users/change_password";
     public static final String registerUser = "/users/register";
-    public static final String phoneAvailable = "/users/phone_available?";
+    public static final String phoneAvailable = "/users/phone_available";
     public static final String changePhoneNo = "/users/change_phone";
     public static final String updateProfile = "/users/update_profile";
     public static final String validatePhone = "/users/validate_phone";

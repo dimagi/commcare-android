@@ -1,5 +1,7 @@
 package org.commcare.android.database.connect.models;
 
+import android.util.Log;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -116,7 +118,17 @@ public class ConnectJobRecordV4 extends Persisted implements Serializable {
     public int getMaxDailyVisits() { return maxDailyVisits; }
     public int getBudgetPerVisit() { return budgetPerVisit; }
     public Date getProjectEndDate() { return projectEndDate; }
-    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
+    public int getPaymentAccrued() {
+        if (paymentAccrued == null || paymentAccrued.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(paymentAccrued);
+        } catch (NumberFormatException e) {
+            Log.e("ConnectJobRecordV4", "Failed to parse paymentAccrued: " + paymentAccrued, e);
+            return 0;
+        }
+    }
     public String getCurrency() { return currency; }
     public int getNumLearningModules() { return numLearningModules; }
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
