@@ -169,6 +169,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             new LocationNotificationHandler(this);
     private AdapterView visibleView;
     private TextView progressTv;
+    private int lastProgress = 0;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -998,17 +999,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void deliverProgress(Integer[] values) {
         EntityLoadingProgressListener.EntityLoadingProgressPhase phase =
                 EntityLoadingProgressListener.EntityLoadingProgressPhase.fromInt(values[0]);
-        // throttle to not update text too frequently
-        if (values[1] % 100 == 0) {
+        int progress = values[1] * 100 / values[2];
+        if (progress != lastProgress) {
+            lastProgress = progress;
+            String progressDisplay = progress + "%";
             switch (phase) {
                 case PHASE_PROCESSING -> setProgressText(
                         StringUtils.getStringRobust(this, R.string.entity_list_processing,
-                                new String[]{String.valueOf(values[1]), String.valueOf(values[2])}));
+                                new String[]{progressDisplay}));
                 case PHASE_CACHING -> setProgressText(
                         StringUtils.getStringRobust(this, R.string.entity_list_loading_cache));
                 case PHASE_UNCACHED_CALCULATION -> setProgressText(
                         StringUtils.getStringRobust(this, R.string.entity_list_calculating,
-                                new String[]{String.valueOf(values[1]), String.valueOf(values[2])}));
+                                new String[]{progressDisplay}));
             }
         }
     }
