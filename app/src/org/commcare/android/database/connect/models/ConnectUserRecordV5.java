@@ -7,29 +7,53 @@ import org.commcare.modern.database.Table;
 import java.util.Date;
 
 /**
- * DB model for a ConnectID user and their info
+ * Database model for storing ConnectID user information and authentication state.
+ * This V5 version includes support for connect tokens and registration phases.
+ * <p>
+ * This record is used by:
+ * - ApiConnectId for user authentication
+ * - Connect feature for user management
+ * - Database upgrade mechanisms for version migrations
  *
  * @author dviggiano
+ * @see org.commcare.connect.ConnectConstants
  */
-@Table(ConnectUserRecord.STORAGE_KEY)
+@Table(ConnectUserRecordV5.STORAGE_KEY)
 public class ConnectUserRecordV5 extends Persisted {
     /**
      * Name of database that stores Connect user records
      */
     public static final String STORAGE_KEY = "user_info";
-
+    /**
+     * Unique identifier for the ConnectID user.
+     * This ID is immutable and used as the primary key.
+     */
     @Persisting(1)
     private String userId;
-
+    /**
+     * User's password hash.
+     * Updated when password is changed or reset.
+     * @see #setPassword(String)
+     * @see #lastPasswordDate
+     */
     @Persisting(2)
     private String password;
-
+    /**
+     * User's display name.
+     * Can be updated by the user.
+     */
     @Persisting(3)
     private String name;
-
+    /**
+     * User's phone no.
+     *  Used for authentication and recovery
+     */
     @Persisting(4)
     private String primaryPhone;
-
+    /**
+     * User's secondary phone no.
+     * Used for authentication and recovery
+     */
     @Persisting(5)
     private String alternatePhone;
 

@@ -10,6 +10,8 @@ import org.commcare.modern.models.MetaField;
 import java.io.Serializable;
 import java.util.Date;
 
+import androidx.annotation.NonNull;
+
 /**
  * Data class for holding info related to a Connect job
  *
@@ -143,7 +145,7 @@ public class ConnectJobRecordV4 extends Persisted implements Serializable {
     /**
      * Used for app db migration only
      */
-    public static ConnectJobRecordV4 fromV2(ConnectJobRecordV2 oldRecord) {
+    public static ConnectJobRecordV4 fromV2(@NonNull ConnectJobRecordV2 oldRecord) {
         ConnectJobRecordV4 newRecord = new ConnectJobRecordV4();
 
         newRecord.jobId = oldRecord.getJobId();

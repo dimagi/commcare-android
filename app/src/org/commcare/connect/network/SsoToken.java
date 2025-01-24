@@ -41,7 +41,7 @@ public class SsoToken {
         return token;
     }
     public Date getExpiration() {
-        return expiration;
+        return new Date(expiration.getTime());
     }
     @Override
     public String toString() {

@@ -7,6 +7,8 @@ import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 
+import androidx.annotation.NonNull;
+
 /**
  * Migrates a V8 record to V9 format.
  * New in V9:
@@ -109,7 +111,7 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
 
     public boolean isUsingLocalPassphrase() { return usingLocalPassphrase; }
 
-    public static ConnectLinkedAppRecordV9 fromV8(ConnectLinkedAppRecordV8 oldRecord) {
+    public static ConnectLinkedAppRecordV9 fromV8(@NonNull ConnectLinkedAppRecordV8 oldRecord) {
         ConnectLinkedAppRecordV9 newRecord = new ConnectLinkedAppRecordV9();
 
         newRecord.appId = oldRecord.getAppId();
