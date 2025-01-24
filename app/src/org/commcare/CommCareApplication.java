@@ -389,7 +389,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
-            PrimeEntityCacheHelper.cancelWork();
+            currentApp.getPrimeEntityCacheHelper().cancelWork();
         }
     }
 

@@ -46,7 +46,7 @@ class AndroidAsyncNodeEntityFactory(
                 if (entityDatum == null) {
                     throw RuntimeException("Entity Datum must be defined for an async entity factory");
                 }
-                val primeEntityCacheHelper = PrimeEntityCacheHelper.getInstance()
+                val primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
                 if (primeEntityCacheHelper.isInProgress()) {
                     // if we are priming something else at the moment, expedite the current detail
                     if (!primeEntityCacheHelper.isDatumInProgress(detail.id)) {

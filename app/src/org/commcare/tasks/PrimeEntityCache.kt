@@ -3,6 +3,7 @@ package org.commcare.tasks
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import org.commcare.CommCareApplication
 import org.javarosa.core.services.Logger
 
 /**
@@ -10,19 +11,22 @@ import org.javarosa.core.services.Logger
  */
 class PrimeEntityCache(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
 
+    lateinit var primeEntityCacheHelper : PrimeEntityCacheHelper
+
     override fun doWork(): Result {
         try {
-            PrimeEntityCacheHelper.getInstance().primeEntityCache()
+            primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
+            primeEntityCacheHelper.primeEntityCache()
             return Result.success()
         } catch (e: Exception) {
             Logger.exception("Error while priming cache in worker", e)
         } finally {
-            PrimeEntityCacheHelper.getInstance().clearState();
+            primeEntityCacheHelper.clearState()
         }
         return Result.failure()
     }
 
     override fun onStopped() {
-        PrimeEntityCacheHelper.getInstance().cancel()
+        primeEntityCacheHelper.cancel()
     }
 }

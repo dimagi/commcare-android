@@ -24,7 +24,7 @@ import org.javarosa.xpath.XPathException
  * cache prime process if one is already in progress. Therefore it's advisable
  * to initiate all caching operations using this class
  */
-class PrimeEntityCacheHelper private constructor() : Cancellable {
+class PrimeEntityCacheHelper : Cancellable {
 
     private var entityLoaderHelper: EntityLoaderHelper? = null
 
@@ -40,16 +40,7 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
 
 
     companion object {
-        @Volatile
-        private var instance: PrimeEntityCacheHelper? = null
-
         private const val PRIME_ENTITY_CACHE_REQUEST = "prime-entity-cache-request"
-
-        @JvmStatic
-        fun getInstance() =
-            instance ?: synchronized(PrimeEntityCacheHelper::class) {
-                instance ?: PrimeEntityCacheHelper().also { instance = it }
-            }
 
         /**
          * Schedules a background worker request to prime cache for all
@@ -65,12 +56,11 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
                     primeEntityCacheRequest
                 )
         }
+    }
 
-        @JvmStatic
-        fun cancelWork() {
-            instance?.cancel()
-            WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(PRIME_ENTITY_CACHE_REQUEST)
-        }
+    fun cancelWork() {
+        cancel()
+        WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(PRIME_ENTITY_CACHE_REQUEST)
     }
 
     /**
@@ -192,7 +182,6 @@ class PrimeEntityCacheHelper private constructor() : Cancellable {
         inProgress = false
         listener = null
         currentDatumInProgress = null
-        instance = null
     }
 
     private fun checkPreConditions() {
