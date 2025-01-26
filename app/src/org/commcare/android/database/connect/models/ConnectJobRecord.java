@@ -19,6 +19,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+
 /**
  * Data class for holding info related to a Connect job
  *
@@ -161,27 +163,24 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
-        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
-        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
-        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        job.projectEndDate = json.has(META_END_DATE) ? DateUtils.parseDate(json.getString(META_END_DATE)) : new Date();
-        job.projectStartDate = json.has(META_START_DATE) ? DateUtils.parseDate(json.getString(META_START_DATE)) : new Date();
-        job.maxVisits = json.has(META_MAX_VISITS_PER_USER) ? json.getInt(META_MAX_VISITS_PER_USER) : -1;
-        job.maxDailyVisits = json.has(META_MAX_DAILY_VISITS) ? json.getInt(META_MAX_DAILY_VISITS) : -1;
-        job.budgetPerVisit = json.has(META_BUDGET_PER_VISIT) ? json.getInt(META_BUDGET_PER_VISIT) : -1;
+        job.title = json.getString(META_NAME);
+        job.description = json.getString(META_DESCRIPTION);
+        job.organization =  json.getString(META_ORGANIZATION);
+        job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
+        job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
+        job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
+        job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
+        job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
         String budgetPerUserKey = "budget_per_user";
-        job.totalBudget = json.has(budgetPerUserKey) ? json.getInt(budgetPerUserKey) : -1;
-        job.currency = json.has(META_CURRENCY) && !json.isNull(META_CURRENCY) ? json.getString(META_CURRENCY) : "";
-        job.shortDescription = json.has(META_SHORT_DESCRIPTION) && !json.isNull(META_SHORT_DESCRIPTION) ?
-                json.getString(META_SHORT_DESCRIPTION) : "";
-
+        job.totalBudget =  json.getInt(budgetPerUserKey);
+        job.currency =  json.getString(META_CURRENCY);
+        job.shortDescription = json.getString(META_SHORT_DESCRIPTION);
         job.paymentAccrued = "";
-
         job.deliveries = new ArrayList<>();
         job.payments = new ArrayList<>();
         job.learnings = new ArrayList<>();
         job.assessments = new ArrayList<>();
-        job.completedVisits = json.has(META_DELIVERY_PROGRESS) ? json.getInt(META_DELIVERY_PROGRESS) : -1;
+        job.completedVisits = json.getInt(META_DELIVERY_PROGRESS);
 
         job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
 

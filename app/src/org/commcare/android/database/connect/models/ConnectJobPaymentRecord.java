@@ -72,7 +72,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
 
         payment.jobId = jobId;
-        payment.date = json.has(META_DATE) ? DateUtils.parseDateTime(json.getString(META_DATE)) : new Date();
+        payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
         payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
 
         payment.paymentId = json.has("id") ? json.getString("id") : "";
