@@ -64,6 +64,8 @@ public class ConnectUnlockFragment extends Fragment {
         ConnectManager.unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
             if (success) {
                 retrieveOpportunities();
+            } else {
+                requireActivity().finish();
             }
         });
 
