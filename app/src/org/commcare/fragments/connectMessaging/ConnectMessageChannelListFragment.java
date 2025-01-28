@@ -1,5 +1,9 @@
 package org.commcare.fragments.connectMessaging;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,21 +11,23 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
+import org.commcare.services.CommCareFirebaseMessagingService;
 
 import java.util.List;
 
 public class ConnectMessageChannelListFragment extends Fragment {
 
+    public static boolean isActive;
     private FragmentChannelListBinding binding;
     private ChannelAdapter channelAdapter;
 
@@ -64,10 +70,29 @@ public class ConnectMessageChannelListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        isActive = true;
+
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
+                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();
         });
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isActive = false;
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(updateReceiver);
+    }
+
+    private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshUi();
+        }
+    };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
         NavDirections directions;
