@@ -1,9 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;

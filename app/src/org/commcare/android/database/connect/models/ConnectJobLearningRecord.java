@@ -15,7 +15,9 @@ import java.util.Date;
 
 /**
  * Data class for holding info related to the completion of a Connect job learning module
- *
+ * This version (V2) includes additional fields for learning modules and payment tracking
+ * compared to V1. Migration from V1 automatically copies existing fields and initializes
+ * new fields with default values.
  * @author dviggiano
  */
 @Table(ConnectJobLearningRecord.STORAGE_KEY)

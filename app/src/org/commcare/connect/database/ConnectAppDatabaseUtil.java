@@ -22,7 +22,7 @@ public class ConnectAppDatabaseUtil {
             SqlStorage<ConnectLinkedAppRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class);
             storage.remove(record);
         } catch (Exception e) {
-            Log.e("Fail to delete data ",e.getMessage());
+           Log.e("ConnectAppDatabaseUtil", "Failed to delete app data for record: " + record.getUserId(), e);
         }
     }
 
@@ -60,7 +60,7 @@ public class ConnectAppDatabaseUtil {
 
             return record;
         }catch (Exception e){
-            Log.e("Fail to delete data ",e.getMessage());
+            Log.e("ConnectAppDatabaseUtil", "Failed to store app data for appId: " + appId + ", userId: " + userId, e);
             return null;
         }
     }

@@ -8,7 +8,10 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Mock key provider, creates an RSA KeyPair but doesn't store it for future usage
- *
+ * Security considerations:
+ * - Reuses the same key pair across multiple calls
+ * - Keeps private key in memory
+ * - For testing purposes only, not suitable for production use
  * @author dviggiano
  */
 public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
@@ -19,10 +22,12 @@ public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
             throws NoSuchAlgorithmException {
         if (keyPair == null) {
             //Create an RSA keypair that we can use to encrypt and decrypt
-            keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048); // Standard key size for RSA
+            keyPair = keyGen.generateKeyPair();
         }
 
-        return new EncryptionKeyAndTransform(trueForEncrypt ? keyPair.getPrivate() : keyPair.getPublic(),
+        return new EncryptionKeyAndTransform(trueForEncrypt ? keyPair.getPublic() : keyPair.getPrivate(),
                 "RSA/ECB/PKCS1Padding");
     }
 }

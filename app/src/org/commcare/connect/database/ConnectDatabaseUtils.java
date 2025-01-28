@@ -5,13 +5,17 @@ import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.util.Base64;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Vector;
 
 public class ConnectDatabaseUtils {
-    public static void storeConnectDbPassphrase(Context context, byte[] passphrase, boolean isLocal) {
+    public static void storeConnectDbPassphrase(@NotNull Context context, byte[] passphrase, boolean isLocal) {
         try {
+            if (passphrase == null || passphrase.length == 0) {
+                throw new IllegalArgumentException("Passphrase must not be null or empty");
+            }
             String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
-
             ConnectKeyRecord record = getKeyRecord(isLocal);
             if (record == null) {
                 record = new ConnectKeyRecord(encoded, isLocal);

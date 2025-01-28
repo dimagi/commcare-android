@@ -36,6 +36,8 @@ public class ApiClient {
         logging.setLevel(BuildConfig.DEBUG ?
                 HttpLoggingInterceptor.Level.BODY :
                 HttpLoggingInterceptor.Level.NONE);
+        logging.redactHeader("Authorization");
+        logging.redactHeader("Cookie");
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(logging)
                 .addInterceptor(new Interceptor() {

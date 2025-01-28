@@ -56,7 +56,10 @@ public class ConnectUserRecordV5 extends Persisted {
      */
     @Persisting(5)
     private String alternatePhone;
-
+    /**
+     * it tells about the current position of registration of user
+     * Used for smoot registration
+     */
     @Persisting(6)
     private int registrationPhase;
 

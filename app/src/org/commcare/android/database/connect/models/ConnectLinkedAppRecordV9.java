@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
  * - Changed link offer date handling
  *
  * @return A new V9 record with migrated data
- * @throws IllegalArgumentException if oldRecord is null
  */
 @Table(ConnectLinkedAppRecordV9.STORAGE_KEY)
 public class ConnectLinkedAppRecordV9 extends Persisted {
