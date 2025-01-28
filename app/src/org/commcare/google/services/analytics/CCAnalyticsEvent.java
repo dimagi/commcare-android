@@ -43,6 +43,7 @@ public class CCAnalyticsEvent {
     static final String PARAM_CCC_APP_NAME = "ccc_app_name";
     static final String CCC_API_JOBS = "ccc_api_jobs";
     static final String PARAM_API_SUCCESS = "ccc_api_success";
+    static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
     static final String CCC_API_START_LEARNING = "ccc_api_start_learning";
     static final String CCC_API_LEARN_PROGRESS = "ccc_api_learn_progress";
