@@ -60,6 +60,7 @@ public class ConnectUnlockFragment extends Fragment {
         opportunityId = getArguments().getString("opportunity_id");
 
         view = inflater.inflate(R.layout.blank_activity, container, false);
+        view.setBackgroundColor(getResources().getColor(R.color.white));
 
         ConnectManager.unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
             if (success) {

@@ -168,6 +168,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 //Intent for ConnectActivity
                 intent = new Intent(getApplicationContext(), ConnectActivity.class);
                 intent.putExtra("action", action);
+                intent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
             }
         } else {
             intent = new Intent(this, DispatchActivity.class);
