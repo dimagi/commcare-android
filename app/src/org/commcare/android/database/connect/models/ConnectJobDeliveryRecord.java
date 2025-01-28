@@ -119,7 +119,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
 
         newRecord.jobId = oldRecord.getJobId();
         newRecord.deliveryId = oldRecord.getDeliveryId();
-        newRecord.date = oldRecord.date;
+        newRecord.date = oldRecord.getDate();
         newRecord.status = oldRecord.getStatus();
         newRecord.unitName = oldRecord.getUnitName();
         newRecord.slug = oldRecord.getSlug();
