@@ -35,7 +35,7 @@ In particular consider how existing data may be impacted by this change.
 
 ## Labels and Review
 
-- [ ] Do we need to enhance manual QA test coverage ? If yes, "QA Note" label is set correctly
-- [ ] Does the PR introduce any major changes worth communicating ? If yes, "Release Note" label is set and a "Release Note" is specified in PR description.
+- [ ] Do we need to enhance the manual QA test coverage ? If yes, the "QA Note" label is set correctly
+- [ ] Does the PR introduce any major changes worth communicating ? If yes, the "Release Note" label is set and a "Release Note" is specified in PR description.
 - [ ] Risk label is set correctly
 - [ ] The set of people pinged as reviewers is appropriate for the level of risk of the change
