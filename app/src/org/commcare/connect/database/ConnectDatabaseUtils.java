@@ -3,6 +3,7 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.util.Base64;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -67,16 +68,10 @@ public class ConnectDatabaseUtils {
             ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord(true);
             if (record != null) {
                 return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
+            }else{
+                CrashUtil.log("We dont find paraphrase in db");
+                throw new RuntimeException();
             }
-
-            //LEGACY: If we get here, the passphrase hasn't been created yet so use a local one
-            byte[] passphrase = EncryptionUtils.generatePassphrase();
-            if (passphrase == null) {
-                throw new IllegalStateException("Generated passphrase is null");
-            }
-            ConnectDatabaseUtils.storeConnectDbPassphrase(context, passphrase, true);
-
-            return passphrase;
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);
             throw new RuntimeException(e);
