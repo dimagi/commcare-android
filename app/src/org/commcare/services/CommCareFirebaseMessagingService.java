@@ -18,6 +18,7 @@ import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
@@ -195,7 +196,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     .setWhen(System.currentTimeMillis());
 
             // Check if the payload action is CCC_PAYMENTS
-            if (action.equals(ConnectActivity.CCC_PAYMENTS)) {
+            if (action.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
                 // Yes button intent with payment_id from payload
                 Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
                 yesIntent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
