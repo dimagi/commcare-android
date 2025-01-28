@@ -6,6 +6,13 @@
     app:startDestination="@id/connect_jobs_list_fragment">
 
     <fragment
+        android:id="@+id/connect_unlock_fragment"
+        android:name="org.commcare.fragments.connect.ConnectUnlockFragment"
+        android:label="fragment_connect_unlock"
+        tools:layout="@layout/fragment_connect_unlock">
+    </fragment>
+
+    <fragment
         android:id="@+id/connect_jobs_list_fragment"
         android:name="org.commcare.fragments.connect.ConnectJobsListsFragment"
         android:label="fragment_connect_jobs_list"
