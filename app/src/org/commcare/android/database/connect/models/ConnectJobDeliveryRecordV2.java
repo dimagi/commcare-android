@@ -53,7 +53,7 @@ public class ConnectJobDeliveryRecordV2 extends Persisted implements Serializabl
     private String entityId;
     @Persisting(8)
     @MetaField(META_ENTITY_NAME)
-    private String entityname;
+    private String entityName;
     @Persisting(9)
     private Date lastUpdate;
     /**
@@ -65,7 +65,7 @@ public class ConnectJobDeliveryRecordV2 extends Persisted implements Serializabl
     public int getDeliveryId() { return deliveryId; }
     public Date getDate() { return date; }
     public String getStatus() { return status; }
-    public String getEntityName() { return entityname; }
+    public String getEntityName() { return entityName; }
     public int getJobId() { return jobId; }
     public String getUnitName() { return unitName; }
     public String getSlug() { return slug; }

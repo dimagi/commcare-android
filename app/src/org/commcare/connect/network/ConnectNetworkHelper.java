@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import kotlin.jvm.Volatile;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -61,6 +62,7 @@ public class ConnectNetworkHelper {
         }
     }
 
+    @Volatile
     private String callInProgress = null;
 
     private ConnectNetworkHelper() {

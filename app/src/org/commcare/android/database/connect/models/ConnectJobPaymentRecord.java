@@ -28,6 +28,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_ID = "payment_id";
     public static final String META_CONFIRMED = "confirmed";
     public static final String META_CONFIRMED_DATE = "date_confirmed";
+    private static final long CONFIRMATION_WINDOW_DAYS = 7;
+    private static final long UNDO_WINDOW_DAYS = 1;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -77,8 +79,12 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
         payment.paymentId = json.has("id") ? json.getString("id") : "";
         payment.confirmed = json.has(META_CONFIRMED) && json.getBoolean(META_CONFIRMED);
-        payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?
-                DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
+        try {
+            payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?
+                    DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
+        } catch (Exception e) {
+            throw new JSONException("Error parsing confirmed date: " + e.getMessage());
+        }
 
         return payment;
     }
@@ -98,23 +104,36 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         }
     }
 
+    /**
+     * Checks if the payment can be confirmed based on business rules:
+     * - Payment must not be already confirmed
+     * - Payment must be within 7 days of the payment date
+     */
     public boolean allowConfirm() {
         if (confirmed) {
             return false;
         }
-
+        if (date == null) {
+            return false;
+        }
         long millis = (new Date()).getTime() - date.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-        return days < 7;
+        return days < CONFIRMATION_WINDOW_DAYS;
     }
-
+    /**
+     * Checks if a confirmed payment can have its confirmation undone:
+     * - Payment must be confirmed
+     * - Must be within 24 hours of confirmation
+     */
     public boolean allowConfirmUndo() {
         if (!confirmed) {
             return false;
         }
-
+        if (confirmedDate == null) {
+            return false;
+        }
         long millis = (new Date()).getTime() - confirmedDate.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-        return days < 1;
+        return days < UNDO_WINDOW_DAYS;
     }
 }

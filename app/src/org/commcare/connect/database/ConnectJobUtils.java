@@ -12,6 +12,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.models.database.SqlStorage;
+import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,186 +22,11 @@ import java.util.Objects;
 import java.util.Vector;
 
 public class ConnectJobUtils {
-    static Vector<Integer> jobIdsToDelete = new Vector<>();
-    static Vector<Integer> appInfoIdsToDelete = new Vector<>();
-    static Vector<Integer> moduleIdsToDelete = new Vector<>();
-    static Vector<Integer> paymentUnitIdsToDelete = new Vector<>();
-    static SqlStorage<ConnectJobRecord> jobStorage;
-    static SqlStorage<ConnectAppRecord> appInfoStorage;
-    static SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage;
-    static SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage;
-    static List<ConnectJobRecord> existingList;
 
     public static void upsertJob(Context context, ConnectJobRecord job) {
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
-        storeJobs(context, list, false);
-    }
-
-    public static int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
-        jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
-        appInfoStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class);
-        moduleStorage = ConnectDatabaseHelper.getConnectStorage(context,
-                ConnectLearnModuleSummaryRecord.class);
-        paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(context,
-                ConnectPaymentUnitRecord.class);
-
-        existingList = getJobs(context, -1, jobStorage);
-
-        //Delete jobs that are no longer available
-        deleteMissingJobs(jobs,pruneMissing);
-
-        //Note when jobs are found in the loop below, we retrieve the DB ID into the incoming job
-        //Now insert/update jobs
-        int newJobs = 0;
-        for (ConnectJobRecord incomingJob : jobs) {
-            incomingJob.setLastUpdate(new Date());
-
-            if (incomingJob.getID() <= 0) {
-                newJobs++;
-                if (incomingJob.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
-                    incomingJob.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
-                }
-            }
-
-            //Now insert/update the job
-            jobStorage.write(incomingJob);
-
-            //Next, store the learn and delivery app info
-            incomingJob.getLearnAppInfo().setJobId(incomingJob.getJobId());
-            incomingJob.getDeliveryAppInfo().setJobId(incomingJob.getJobId());
-            Vector<ConnectAppRecord> records = appInfoStorage.getRecordsForValues(
-                    new String[]{ConnectAppRecord.META_JOB_ID},
-                    new Object[]{incomingJob.getJobId()});
-
-            for (ConnectAppRecord existing : records) {
-                ConnectAppRecord incomingAppInfo = existing.getIsLearning() ? incomingJob.getLearnAppInfo() : incomingJob.getDeliveryAppInfo();
-                incomingAppInfo.setID(existing.getID());
-            }
-
-            incomingJob.getLearnAppInfo().setLastUpdate(new Date());
-            appInfoStorage.write(incomingJob.getLearnAppInfo());
-
-            incomingJob.getDeliveryAppInfo().setLastUpdate(new Date());
-            appInfoStorage.write(incomingJob.getDeliveryAppInfo());
-
-            //Store the info for the learn modules
-            //Delete modules that are no longer available
-            Vector<Integer> foundIndexes = new Vector<>();
-            //Note: Reusing this vector
-            moduleIdsToDelete.clear();
-            Vector<ConnectLearnModuleSummaryRecord> existingLearnModules =
-                    moduleStorage.getRecordsForValues(
-                            new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
-                            new Object[]{incomingJob.getJobId()});
-            for (ConnectLearnModuleSummaryRecord existing : existingLearnModules) {
-                boolean stillExists = false;
-                if (!foundIndexes.contains(existing.getModuleIndex())) {
-                    for (ConnectLearnModuleSummaryRecord incoming :
-                            incomingJob.getLearnAppInfo().getLearnModules()) {
-                        if (Objects.equals(existing.getModuleIndex(), incoming.getModuleIndex())) {
-                            incoming.setID(existing.getID());
-                            stillExists = true;
-                            foundIndexes.add(existing.getModuleIndex());
-
-                            break;
-                        }
-                    }
-                }
-
-                if (!stillExists) {
-                    moduleIdsToDelete.add(existing.getID());
-                }
-            }
-
-            moduleStorage.removeAll(moduleIdsToDelete);
-
-            for (ConnectLearnModuleSummaryRecord module : incomingJob.getLearnAppInfo().getLearnModules()) {
-                module.setJobId(incomingJob.getJobId());
-                module.setLastUpdate(new Date());
-                moduleStorage.write(module);
-            }
-
-            //Store the payment units
-            //Delete payment units that are no longer available
-            storePaymentUnits(incomingJob,foundIndexes);
-
-        }
-
-        return newJobs;
-    }
-
-    public static void deleteMissingJobs(List<ConnectJobRecord> jobs,boolean pruneMissing){
-        for (ConnectJobRecord existing : existingList) {
-            boolean stillExists = false;
-            for (ConnectJobRecord incoming : jobs) {
-                if (existing.getJobId() == incoming.getJobId()) {
-                    incoming.setID(existing.getID());
-                    stillExists = true;
-                    break;
-                }
-            }
-
-            if (!stillExists && pruneMissing) {
-                //Mark the job, learn/deliver app infos, and learn module infos for deletion
-                //Remember their IDs so we can delete them all at once after the loop
-                jobIdsToDelete.add(existing.getID());
-
-                appInfoIdsToDelete.add(existing.getLearnAppInfo().getID());
-                appInfoIdsToDelete.add(existing.getDeliveryAppInfo().getID());
-
-                for (ConnectLearnModuleSummaryRecord module : existing.getLearnAppInfo().getLearnModules()) {
-                    moduleIdsToDelete.add(module.getID());
-                }
-
-                for (ConnectPaymentUnitRecord record : existing.getPaymentUnits()) {
-                    paymentUnitIdsToDelete.add(record.getID());
-                }
-            }
-        }
-
-        if (pruneMissing) {
-            jobStorage.removeAll(jobIdsToDelete);
-            appInfoStorage.removeAll(appInfoIdsToDelete);
-            moduleStorage.removeAll(moduleIdsToDelete);
-            paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
-        }
-    }
-
-    public static void storePaymentUnits(ConnectJobRecord incomingJob,Vector<Integer> foundIndexes){
-        foundIndexes = new Vector<>();
-        //Note: Reusing this vector
-        paymentUnitIdsToDelete.clear();
-        Vector<ConnectPaymentUnitRecord> existingPaymentUnits =
-                paymentUnitStorage.getRecordsForValues(
-                        new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
-                        new Object[]{incomingJob.getJobId()});
-        for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
-            boolean stillExists = false;
-            if (!foundIndexes.contains(existing.getUnitId())) {
-                for (ConnectPaymentUnitRecord incoming :
-                        incomingJob.getPaymentUnits()) {
-                    if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
-                        incoming.setID(existing.getID());
-                        stillExists = true;
-                        foundIndexes.add(existing.getUnitId());
-
-                        break;
-                    }
-                }
-            }
-
-            if (!stillExists) {
-                paymentUnitIdsToDelete.add(existing.getID());
-            }
-        }
-
-        paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
-
-        for (ConnectPaymentUnitRecord record : incomingJob.getPaymentUnits()) {
-            record.setJobId(incomingJob.getJobId());
-            paymentUnitStorage.write(record);
-        }
+        new JobStoreManager(context).storeJobs(context,list,false);
     }
 
     public static ConnectJobRecord getJob(Context context, int jobId) {

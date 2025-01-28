@@ -12,7 +12,7 @@ public class ConnectUserDatabaseUtil {
     private static final Object LOCK = new Object();
     public static ConnectUserRecord getUser(Context context) {
         if (context == null) {
-            throw new IllegalArgumentException("User must not be null");
+            throw new IllegalArgumentException("Context must not be null");
         }
         synchronized (LOCK) {
             if (!ConnectDatabaseHelper.dbExists(context)) {

@@ -32,9 +32,7 @@ public class ConnectDatabaseHelper {
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
         ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, false);
         try {
-            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
-
-            if (!remotePassphrase.equals(localPassphrase) && (connectDatabase == null || !connectDatabase.isOpen())) {
+            if ((connectDatabase == null || !connectDatabase.isOpen())) {
                 DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
                 ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
             }

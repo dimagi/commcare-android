@@ -4,7 +4,6 @@ public class ApiEndPoints {
     public static final String connectTokenURL = "/o/token/";
     public static final String connectHeartbeatURL = "/users/heartbeat";
     public static final String connectFetchDbKeyURL = "/users/fetch_db_key";
-    public static final String connectChangePasswordURL = "/users/change_password";
     public static final String registerUser = "/users/register";
     public static final String phoneAvailable = "/users/phone_available";
     public static final String changePhoneNo = "/users/change_phone";
