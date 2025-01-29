@@ -168,7 +168,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                 //Intent for ConnectActivity
                 intent = new Intent(getApplicationContext(), ConnectActivity.class);
                 intent.putExtra("action", action);
-                intent.putExtra("isButtonVisible", action);
                 if(payloadData.containsKey(OPPORTUNITY_ID)) {
                     intent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
                 }

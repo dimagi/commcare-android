@@ -37,7 +37,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private boolean waitDialogEnabled = true;
     String redirectionAction = "";
     String opportunityId = "";
-    boolean showButton;
     NavController navController;
 
     NavController.OnDestinationChangedListener destinationListener = null;
@@ -61,7 +60,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
         redirectionAction = getIntent().getStringExtra("action");
         opportunityId = getIntent().getStringExtra("opportunity_id");
-        showButton = getIntent().getBooleanExtra("isButtonVisible", true);
         if(opportunityId == null) {
             opportunityId = "";
         }
@@ -105,7 +103,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             Bundle bundle = new Bundle();
             bundle.putString("action", redirectionAction);
             bundle.putString("opportunity_id", opportunityId);
-            bundle.putBoolean("isButtonVisible", showButton);
             bundle.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
             navController.navigate(R.id.connect_unlock_fragment, bundle, options);
         }

@@ -223,7 +223,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void launchJobInfo(ConnectJobRecord job) {
         ConnectManager.setActiveJob(job);
-        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true));
+        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
