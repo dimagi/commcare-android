@@ -32,6 +32,7 @@ public class EntityLoaderTask
     private EntityLoaderListener listener;
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
+    private boolean provideDetailProgressUpdates = true;
 
     /**
      * Creates a new instance
@@ -42,6 +43,8 @@ public class EntityLoaderTask
      */
     public EntityLoaderTask(Detail detail, @Nullable EntityDatum entityDatum, EvaluationContext evalCtx) {
         entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx);
+        // we only want to provide progress updates for the new caching config
+        provideDetailProgressUpdates = detail.shouldOptimize();
     }
 
     @Override
@@ -133,7 +136,7 @@ public class EntityLoaderTask
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        if (listener != null) {
+        if (listener != null && provideDetailProgressUpdates) {
             listener.deliverProgress(values);
         }
     }
