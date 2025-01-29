@@ -54,7 +54,8 @@
 
         <argument
             android:name="isButtonVisible"
-            app:argType="boolean" />
+            app:argType="boolean"
+            android:defaultValue="true" />
         <action
             android:id="@+id/action_connect_job_intro_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
             app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
