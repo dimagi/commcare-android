@@ -20,6 +20,7 @@ import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
 
 import javax.annotation.Nullable;
 
@@ -91,6 +92,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
                     .build();
             navController.navigate(fragmentId, bundle, options);
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
+            Logger.log("ConnectActivity", "Redirecting to unlock fragment");
             //Entering from a notification, so we may need to initialize
             ConnectManager.init(this);
 

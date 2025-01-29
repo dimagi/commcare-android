@@ -128,6 +128,7 @@ public class ConnectUnlockFragment extends Fragment {
      * prepares a bundle with additional data, and navigates to the appropriate fragment.
      */
     private void setFragmentRedirection() {
+        Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         boolean buttons = getArguments().getBoolean("buttons", true);
         Bundle bundle = new Bundle();
         bundle.putBoolean("showLaunch", buttons);
