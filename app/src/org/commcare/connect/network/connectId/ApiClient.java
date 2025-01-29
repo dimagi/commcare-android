@@ -19,8 +19,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 ///Todo retry part of the api fails
 
 public class ApiClient {
-    private static final String BASE_URL = BuildConfig.CONNECT_BASE_URL;  // Replace with actual base URL
-    private static final String API_VERSION = BuildConfig.API_VERSION_CONNECT_ID;  // Replace with actual version value
+    public static final String BASE_URL = "https://connectid.dimagi.com";  // Replace with actual base URL
+    private static final String API_VERSION = "1.0";  // Replace with actual version value
 
     private static Retrofit retrofit;
 

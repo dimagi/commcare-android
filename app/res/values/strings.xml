@@ -11,9 +11,9 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
-    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
-    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
-    <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">/users/fetch_db_key</string>
+    <string name="ConnectTokenURL">/o/token/</string>
+    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
@@ -460,5 +460,5 @@
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
 
-    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
+    <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
 </resources>

@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 
@@ -148,6 +149,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
     private List<ConnectPaymentUnitRecord> paymentUnits;
+    static Date startDate = new Date();
 
     private boolean claimed;
 
@@ -168,6 +170,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.organization =  json.getString(META_ORGANIZATION);
         job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
         job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
+        if(job.projectStartDate!=null && job.projectStartDate.after(startDate)){
+            startDate=job.projectStartDate;
+        }
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
@@ -184,9 +189,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
 
-        job.isActive = !json.has(META_IS_ACTIVE) || json.getBoolean(META_IS_ACTIVE);
+        job.isActive = !json.optBoolean(META_IS_ACTIVE,true);
 
-        job.isUserSuspended = json.has(META_USER_SUSPENDED) && json.getBoolean(META_USER_SUSPENDED);
+        job.isUserSuspended = json.optBoolean(META_USER_SUSPENDED,false);
 
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
@@ -198,23 +203,19 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         if(job.claimed) {
             JSONObject claim = json.getJSONObject(META_CLAIM);
 
-            String key = META_MAX_PAYMENTS;
-            if (claim.has(key)) {
-                job.maxVisits = claim.getInt(key);
+            if (claim.has(META_MAX_PAYMENTS)) {
+                job.maxVisits = claim.getInt(META_MAX_PAYMENTS);
             }
 
-            key = META_END_DATE;
-            if (claim.has(key)) {
-                job.projectEndDate = DateUtils.parseDate(claim.getString(key));
+            if (claim.has(META_END_DATE)) {
+                job.projectEndDate = DateUtils.parseDate(claim.getString(META_END_DATE));
             }
 
-            key = META_CLAIM_DATE;
-            if (claim.has(key)) {
-                job.dateClaimed = DateUtils.parseDate(claim.getString(key));
+            if (claim.has(META_CLAIM_DATE)) {
+                job.dateClaimed = DateUtils.parseDate(claim.getString(META_CLAIM_DATE));
             }
 
-            key = META_PAYMENT_UNITS;
-            if (claim.has(key)) {
+            if (claim.has(META_PAYMENT_UNITS)) {
                 //Update payment units
                 JSONArray unitsArray = claim.getJSONArray(META_PAYMENT_UNITS);
                 for(int i=0; i< unitsArray.length(); i++) {
@@ -307,14 +308,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 
     public int getDaysRemaining() {
-        Date startDate = new Date();
-        if(projectStartDate != null && projectStartDate.after(startDate)) {
-            startDate = projectStartDate;
-        }
-        double millis = projectEndDate.getTime() - (startDate).getTime();
-        //Ceiling means we'll get 0 within 24 hours of the end date
+        long millis = projectEndDate.getTime() - (startDate).getTime();
         //(since the end date has 00:00 time, but project is valid until midnight)
-        int days = (int)Math.ceil(millis / 1000 / 3600 / 24);
+        int days = (int)TimeUnit.MILLISECONDS.toDays(millis);
         //Now plus 1 so we report i.e. 1 day remaining on the last day
         return days >= 0 ? (days + 1) : 0;
     }

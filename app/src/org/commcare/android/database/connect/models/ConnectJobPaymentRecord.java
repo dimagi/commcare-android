@@ -75,10 +75,9 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
         payment.jobId = jobId;
         payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
-        payment.amount = String.format(Locale.ENGLISH, "%d", json.has(META_AMOUNT) ? json.getInt(META_AMOUNT) : 0);
-
-        payment.paymentId = json.has("id") ? json.getString("id") : "";
-        payment.confirmed = json.has(META_CONFIRMED) && json.getBoolean(META_CONFIRMED);
+        payment.amount = String.valueOf(json.getInt(META_AMOUNT));
+        payment.paymentId = json.getString("id");
+        payment.confirmed = json.optBoolean(META_CONFIRMED,false);
         try {
             payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?
                     DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
@@ -113,9 +112,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         if (confirmed) {
             return false;
         }
-        if (date == null) {
-            return false;
-        }
         long millis = (new Date()).getTime() - date.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
         return days < CONFIRMATION_WINDOW_DAYS;
@@ -127,9 +123,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
      */
     public boolean allowConfirmUndo() {
         if (!confirmed) {
-            return false;
-        }
-        if (confirmedDate == null) {
             return false;
         }
         long millis = (new Date()).getTime() - confirmedDate.getTime();

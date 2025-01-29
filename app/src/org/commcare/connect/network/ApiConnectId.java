@@ -133,7 +133,7 @@ public class ApiConnectId {
     }
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
-        String url = context.getString(R.string.ConnectHeartbeatURL);
+        String url = ApiClient.BASE_URL+context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, String> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
@@ -157,7 +157,7 @@ public class ApiConnectId {
             params.put("username", user.getUserId());
             params.put("password", user.getPassword());
 
-            String url = context.getString(R.string.ConnectTokenURL);
+            String url = ApiClient.BASE_URL+context.getString(R.string.ConnectTokenURL);
 
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
@@ -190,8 +190,9 @@ public class ApiConnectId {
     }
 
     public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
+        String url=ApiClient.BASE_URL+context.getString(R.string.ConnectFetchDbKeyURL);
         ConnectNetworkHelper.get(context,
-                context.getString(R.string.ConnectFetchDbKeyURL),
+                url,
                 API_VERSION_CONNECT_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
                 ArrayListMultimap.create(), true, callback);
     }
