@@ -35,6 +35,9 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_JOB_ID)
     private int jobId;
 
+    /**
+     * Date is used to tell when the payment is created
+     */
     @Persisting(2)
     @MetaField(META_DATE)
     private Date date;
@@ -49,7 +52,9 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @Persisting(5)
     @MetaField(META_CONFIRMED)
     private boolean confirmed;
-
+    /**
+     * Confirm Date is used to tell when the worker has confirmed this payment is done
+     */
     @Persisting(6)
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;

@@ -35,7 +35,7 @@ public class ConnectUserDatabaseUtil {
 
     public static void storeUser(Context context, ConnectUserRecord user) {
         if (context == null) {
-            throw new IllegalArgumentException("User must not be null");
+            throw new IllegalArgumentException("Context must not be null");
         }
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");

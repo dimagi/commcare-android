@@ -61,8 +61,8 @@ public class ConnectDatabaseHelper {
 
                             DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
 
-                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
-                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
+                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context);
+                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context);
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
                                 connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
@@ -100,12 +100,7 @@ public class ConnectDatabaseHelper {
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(context, appId, userId);
-        if (record == null) {
-            record = new ConnectLinkedAppRecord(appId, userId, false, "");
-        }
-
         record.updateHqToken(token);
-
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
 

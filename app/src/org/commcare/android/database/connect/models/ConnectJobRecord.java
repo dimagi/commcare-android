@@ -38,6 +38,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final int STATUS_AVAILABLE = 2;
     public static final int STATUS_LEARNING = 3;
     public static final int STATUS_DELIVERING = 4;
+    public static final int STATUS_ALL_JOBS = 5;
 
     public static final String META_JOB_ID = "id";
     public static final String META_NAME = "name";

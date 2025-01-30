@@ -793,4 +793,27 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public void deleteStorage() {
         dropTable(helper.getHandle(), table);
     }
+
+    public Vector<T> getSortedRecordsForValues(String[] fieldNames, Object[] values,String orderby) {
+        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
+
+        Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, orderby);
+        try {
+            if (c.getCount() == 0) {
+                return new Vector<>();
+            } else {
+                c.moveToFirst();
+                Vector<T> indices = new Vector<>();
+                int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                while (!c.isAfterLast()) {
+                    byte[] data = c.getBlob(index);
+                    indices.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                    c.moveToNext();
+                }
+                return indices;
+            }
+        } finally {
+            c.close();
+        }
+    }
 }
