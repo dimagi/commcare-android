@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
@@ -180,7 +181,8 @@ public class ConnectDatabaseHelper {
     }
 
     public static void handleCorruptDb(Context context) {
-        ConnectDatabaseHelper.forgetUser(context);
+        FirebaseAnalyticsUtil.reportCccDeconfigure("Corrupt DB");
+        forgetUser(context);
         Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show();
     }
 

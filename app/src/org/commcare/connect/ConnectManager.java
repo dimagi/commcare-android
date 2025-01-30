@@ -360,8 +360,12 @@ public class ConnectManager {
         return ConnectDatabaseHelper.getUser(context);
     }
 
-    public static void forgetUser() {
+    public static void forgetUser(String reason) {
         ConnectManager manager = getInstance();
+
+        if(ConnectDatabaseHelper.dbExists(manager.parentActivity)) {
+            FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
+        }
 
         ConnectDatabaseHelper.forgetUser(manager.parentActivity);
 
