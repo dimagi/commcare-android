@@ -620,7 +620,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerConnectIdUser();
                 return true;
             case MENU_CONNECT_FORGET:
-                ConnectManager.forgetUser();
+                ConnectManager.forgetUser("User initiated from login page");
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
                 uiController.setConnectIdLoginState(false);
