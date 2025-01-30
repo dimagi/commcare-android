@@ -1,6 +1,9 @@
 package org.commcare.fragments.connectMessaging;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -8,10 +11,10 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.adapters.ConnectMessageAdapter;
@@ -20,6 +23,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
+import org.commcare.services.CommCareFirebaseMessagingService;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,12 +31,12 @@ import java.util.List;
 import java.util.UUID;
 
 public class ConnectMessageFragment extends Fragment {
-
+    public static String activeChannel;
     private String channelId;
     private FragmentConnectMessageBinding binding;
     private ConnectMessageAdapter adapter;
     private Runnable apiCallRunnable; // The task to run periodically
-    private static final int INTERVAL = 60000;
+    private static final int INTERVAL = 30000;
     private final Handler handler = new Handler(); // To post periodic tasks
 
 
@@ -63,6 +67,11 @@ public class ConnectMessageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        activeChannel = channelId;
+
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
+                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+
         // Start periodic API calls
         handler.post(apiCallRunnable);
     }
@@ -70,9 +79,20 @@ public class ConnectMessageFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        activeChannel = null;
+
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(updateReceiver);
+
         // Stop the periodic API calls when the screen is not active
         handler.removeCallbacks(apiCallRunnable);
     }
+
+    private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            refreshUi();
+        }
+    };
 
     private void makeApiCall() {
         MessageManager.retrieveMessages(requireActivity(), success -> {
