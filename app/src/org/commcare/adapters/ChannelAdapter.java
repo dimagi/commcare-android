@@ -61,14 +61,12 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             this.binding = binding;
         }
 
-        public void bind(Context context, ItemChannelBinding binding, ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
+        public void bind(ItemChannelBinding binding, ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
             binding.tvChannelName.setText(channel.getChannelName());
 
             Date lastDate = null;
             int unread = 0;
-            ConnectMessagingMessageRecord lastMessage = null;
             for(ConnectMessagingMessageRecord message : channel.getMessages()) {
-                lastMessage = message;
                 if(lastDate == null || lastDate.before(message.getTimeStamp())) {
                     lastDate = message.getTimeStamp();
                 }
@@ -78,24 +76,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 }
             }
 
-            String text = "";
-            if(!channel.getConsented()) {
-                text = context.getString(R.string.connect_messaging_channel_list_unconsented);
-            } else if(lastMessage != null) {
-                int senderId = lastMessage.getIsOutgoing() ?
-                        R.string.connect_messaging_channel_preview_you :
-                        R.string.connect_messaging_channel_preview_them;
-                String sender = context.getString(senderId);
-
-                String trimmed = lastMessage.getMessage().split("\n")[0];
-                int maxLength = 25;
-                if(trimmed.length() > maxLength) {
-                    trimmed = trimmed.substring(0, maxLength - 3) + "...";
-                }
-
-                text = String.format("%s: %s", sender, trimmed);
-            }
-            binding.tvChannelDescription.setText(text);
+            binding.tvChannelDescription.setText(channel.getPreview());
 
             boolean showDate = lastDate != null;
             binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);

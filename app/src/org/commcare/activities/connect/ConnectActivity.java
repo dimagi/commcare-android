@@ -14,6 +14,7 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
@@ -27,6 +28,7 @@ import javax.annotation.Nullable;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -38,6 +40,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     String redirectionAction = "";
     String opportunityId = "";
     NavController navController;
+    MenuItem messagingMenuItem = null;
 
     NavController.OnDestinationChangedListener destinationListener = null;
 
@@ -109,6 +112,12 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        updateMessagingIcon();
+    }
+
+    @Override
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
@@ -123,14 +132,35 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_connect, menu);
+
         MenuItem notification = menu.findItem(R.id.action_sync);
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+
+        messagingMenuItem = menu.findItem(R.id.action_notification);
+        updateMessagingIcon();
+
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void updateMessagingIcon() {
+        if(messagingMenuItem != null) {
+            int icon = R.drawable.ic_connect_menu_notification_none;
+            if(ConnectDatabaseHelper.getUnviewedMessages(this).size() > 0) {
+                icon = R.drawable.ic_connect_menu_notification;
+            }
+            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_notification) {
+            ConnectManager.goToMessaging(this);
+            return true;
+        }
+
         getCurrentFragment().onOptionsItemSelected(item);
+
         return super.onOptionsItemSelected(item);
     }
 

@@ -848,6 +848,31 @@ public class ConnectDatabaseHelper {
             }
         }
 
+        for(ConnectMessagingChannelRecord channel : channels) {
+            List<ConnectMessagingMessageRecord> messages = channel.getMessages();
+            ConnectMessagingMessageRecord lastMessage = messages.size() > 0 ?
+                    messages.get(messages.size() - 1) : null;
+            String preview = "";
+            if(!channel.getConsented()) {
+                preview = context.getString(R.string.connect_messaging_channel_list_unconsented);
+            } else if(lastMessage != null) {
+                int senderId = lastMessage.getIsOutgoing() ?
+                        R.string.connect_messaging_channel_preview_you :
+                        R.string.connect_messaging_channel_preview_them;
+                String sender = context.getString(senderId);
+
+                String trimmed = lastMessage.getMessage().split("\n")[0];
+                int maxLength = 25;
+                if(trimmed.length() > maxLength) {
+                    trimmed = trimmed.substring(0, maxLength - 3) + "...";
+                }
+
+                preview = String.format("%s: %s", sender, trimmed);
+            }
+
+            channel.setPreview(preview);
+        }
+
         return channels;
     }
 
@@ -925,6 +950,11 @@ public class ConnectDatabaseHelper {
     public static List<ConnectMessagingMessageRecord> getMessagingMessagesForChannel(Context context, String channelId) {
         return getConnectStorage(context, ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(new String[]{ ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID }, new Object[]{channelId});
+    }
+
+    public static List<ConnectMessagingMessageRecord> getUnviewedMessages(Context context) {
+        return getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getRecordsForValues(new String[]{ ConnectMessagingMessageRecord.META_MESSAGE_USER_VIEWED }, new Object[]{false});
     }
 
     public static void storeMessagingMessage(Context context, ConnectMessagingMessageRecord message) {

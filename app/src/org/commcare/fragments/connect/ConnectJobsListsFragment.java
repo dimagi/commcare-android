@@ -107,10 +107,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_notification) {
-            ConnectManager.goToMessaging(requireActivity());
-            return true;
-        } else if (item.getItemId() == R.id.action_sync) {
+        if (item.getItemId() == R.id.action_sync) {
             refreshData();
             return true;
         }
