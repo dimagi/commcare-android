@@ -10,22 +10,30 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="65dp"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/imgChannel"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            app:cardBackgroundColor="@color/connect_light_grey"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:cardBackgroundColor="@color/connect_middle_grey"
             app:cardCornerRadius="7dp"
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:visibility="gone"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_contact_support_30"/>
+        </androidx.cardview.widget.CardView>
 
         <org.commcare.views.connect.connecttextview.ConnectMediumTextView
             android:id="@+id/tvChannelName"
@@ -36,8 +44,7 @@
             android:textColor="@color/black"
             android:textSize="15sp"
             app:layout_constraintStart_toEndOf="@+id/imgChannel"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
             android:id="@+id/tvChannelDescription"
@@ -64,17 +71,19 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <org.commcare.views.connect.connecttextview.ConnectRegularTextView
-            android:id="@+id/tvUnreadCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="10dp"
             android:background="@drawable/shape_border_10px_blue"
+            android:id="@+id/tvUnreadCount"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
             android:paddingHorizontal="8dp"
             android:paddingVertical="2dp"
             android:text="15"
             android:textColor="@color/white"
             android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvLastChatTime" />
 
