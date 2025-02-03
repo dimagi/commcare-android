@@ -74,11 +74,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         }
 
         updateBackButton();
-        Window window = getWindow();
-        window.setStatusBarColor(getResources().getColor(R.color.connect_status_bar_color));
-        ColorDrawable colorDrawable
-                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-        getSupportActionBar().setBackgroundDrawable(colorDrawable);
+
         destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
 
         NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
