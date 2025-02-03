@@ -22,8 +22,9 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
 
     private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
     private static final String DEVELOPER_PREFERENCES_ENABLED = "developer-preferences-enabled";
-
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
+    private static final String CONNECT_ID_ENABLED = "connect_id-enabled";
+
 
     static {
         keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privileges");
@@ -71,5 +72,17 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
 
     public static boolean isDeveloperPreferencesEnabled() {
         return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(DEVELOPER_PREFERENCES_ENABLED, false);
+    }
+
+    public static void setConnectIdEnabled(boolean enabled) {
+        GlobalPrivilegesManager.getGlobalPrefsRecord()
+                .edit()
+                .putBoolean(CONNECT_ID_ENABLED, enabled)
+                .apply();
+    }
+
+    public static boolean isConnectIdEnabled() {
+        //NOTE: Setting default case to true for initial user testing, but production should keep the default false
+        return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(CONNECT_ID_ENABLED, true);
     }
 }
