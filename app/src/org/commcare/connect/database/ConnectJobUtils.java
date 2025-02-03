@@ -29,7 +29,7 @@ public class ConnectJobUtils {
         new JobStoreManager(context).storeJobs(context,list,false);
     }
 
-    public static ConnectJobRecord getJob(Context context, int jobId) {
+    public static ConnectJobRecord getCompositeJob(Context context, int jobId) {
         Vector<ConnectJobRecord> jobs = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class).getRecordsForValues(
                 new String[]{ConnectJobRecord.META_JOB_ID},
                 new Object[]{jobId});
@@ -45,7 +45,7 @@ public class ConnectJobUtils {
         }
 
         Vector<ConnectJobRecord> jobs;
-        if (status > 0) {
+        if (status == ConnectJobRecord.STATUS_ALL_JOBS) {
             jobs = jobStorage.getRecordsForValues(
                     new String[]{ConnectJobRecord.META_STATUS},
                     new Object[]{status});
@@ -81,17 +81,12 @@ public class ConnectJobUtils {
             }
 
             //Retrieve learn modules
-            Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getRecordsForValues(
+            Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getSortedRecordsForValues(
                     new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()});
+                    new Object[]{job.getJobId()},
+                    ConnectLearnModuleSummaryRecord.META_INDEX+" DESC");
 
             List<ConnectLearnModuleSummaryRecord> modules = new ArrayList<>(existingModules);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
-            }
-            //else {
-            //TODO: Brute force sort
-            //}
 
             if (job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
@@ -167,7 +162,7 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, -1, jobStorage);
+        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for (ConnectJobRecord record : jobs) {
@@ -182,11 +177,11 @@ public class ConnectJobUtils {
     public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
         SqlStorage<ConnectJobDeliveryRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobDeliveryRecord.class);
 
-        List<ConnectJobDeliveryRecord> existingList = getDeliveries(context, jobId, storage);
+        List<ConnectJobDeliveryRecord> existingDeliveries = getDeliveries(context, jobId, storage);
 
         //Delete jobs that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();
-        for (ConnectJobDeliveryRecord existing : existingList) {
+        for (ConnectJobDeliveryRecord existing : existingDeliveries) {
             boolean stillExists = false;
             for (ConnectJobDeliveryRecord incoming : deliveries) {
                 if (existing.getDeliveryId() == incoming.getDeliveryId()) {
@@ -231,7 +226,7 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
-                if (existing.getDate() != null && existing.getDate().equals(incoming.getDate())) {
+                if (existing.getDate() != null && existing.getPaymentId().equals(incoming.getPaymentId())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
@@ -365,7 +360,7 @@ public class ConnectJobUtils {
 
     public static Date getLastJobsUpdate(Context context) {
         Date lastDate = null;
-        for (ConnectJobRecord job : getJobs(context, -1, null)) {
+        for (ConnectJobRecord job : getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)) {
             if (lastDate == null || lastDate.before(job.getLastUpdate())) {
                 lastDate = job.getLastUpdate();
             }

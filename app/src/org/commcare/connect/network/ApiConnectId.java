@@ -13,6 +13,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.connectId.ApiClient;
 import org.commcare.connect.network.connectId.ApiService;
 import org.commcare.core.network.AuthInfo;
@@ -21,6 +22,7 @@ import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -48,16 +50,9 @@ public class ApiConnectId {
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
-
-    public ApiConnectId() {
-    }
-
-    public static void linkHqWorker(Context context, String hqUsername, String hqPassword, String connectToken) {
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, hqUsername);
-        if (appRecord != null && !appRecord.getWorkerLinked()) {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("token", connectToken);
+    public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", connectToken);
 
             String host;
             String domain;
@@ -71,22 +66,23 @@ public class ApiConnectId {
                 throw new RuntimeException(e);
             }
 
-            try {
-                ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
-                if (postResult.e == null && postResult.responseCode == 200) {
-                    //Remember that we linked the user successfully
-                    appRecord.setWorkerLinked(true);
-                    ConnectAppDatabaseUtil.storeApp(context, appRecord);
-                }
+        try {
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            if (postResult.responseCode == 200) {
                 postResult.responseStream.close();
-            } catch (IOException e) {
-                Logger.exception("Linking HQ worker", e);
+                appRecord.setWorkerLinked(true);
+                ConnectAppDatabaseUtil.storeApp(context, appRecord);
+            } else {
+                Logger.log("API Error", "API call to link HQ worker failed with code " + postResult.responseCode);
             }
+        } catch (IOException e) {
+            CrashUtil.log("Linking HQ worker fails");
+            CrashUtil.reportException(e);
         }
     }
 
-    public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) {
+    public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) throws MalformedURLException {
         HashMap<String, String> params = new HashMap<>();
         params.put("client_id", HQ_CLIENT_ID);
         params.put("scope", "mobile_access sync");
@@ -94,38 +90,22 @@ public class ApiConnectId {
         params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
         params.put("password", connectToken);
 
-        String host;
-        try {
-            host = (new URL(ServerUrls.getKeyServer())).getHost();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-
-        String url = "https://" + host + "/oauth/token/";
+        String url = ServerUrls.buildEndpoint("oauth/token/");
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         if (postResult.responseCode == 200) {
-            try {
-                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                        postResult.responseStream));
-                JSONObject json = new JSONObject(responseAsString);
-                String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                if (json.has(key)) {
-                    String token = json.getString(key);
-                    Date expiration = new Date();
-                    key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                    int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+            try{
+                SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    SsoToken ssoToken = new SsoToken(token, expiration);
-                    ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token);
 
-                    return new AuthInfo.TokenAuth(token);
-                }
-            } catch (IOException | JSONException e) {
-                Logger.exception("Parsing return from HQ OIDC call", e);
+                return new AuthInfo.TokenAuth(token.getToken());
+            }
+            catch (IOException | JSONException e) {
+                CrashUtil.log("In retrieveHqTokenApi function");
+                CrashUtil.reportException(e);
             }
         }
 
@@ -133,7 +113,7 @@ public class ApiConnectId {
     }
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
-        String url = context.getString(R.string.ConnectHeartbeatURL);
+        String url = ApiClient.BASE_URL+context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, String> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
@@ -157,7 +137,7 @@ public class ApiConnectId {
             params.put("username", user.getUserId());
             params.put("password", user.getPassword());
 
-            String url = context.getString(R.string.ConnectTokenURL);
+            String url = ApiClient.BASE_URL+context.getString(R.string.ConnectTokenURL);
 
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
@@ -190,8 +170,9 @@ public class ApiConnectId {
     }
 
     public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
+        String url=ApiClient.BASE_URL+context.getString(R.string.ConnectFetchDbKeyURL);
         ConnectNetworkHelper.get(context,
-                context.getString(R.string.ConnectFetchDbKeyURL),
+                url,
                 API_VERSION_CONNECT_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
                 ArrayListMultimap.create(), true, callback);
     }

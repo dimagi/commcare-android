@@ -18,12 +18,8 @@ public class ConnectAppDatabaseUtil {
     }
 
     public static void deleteAppData(Context context, ConnectLinkedAppRecord record) {
-        try {
             SqlStorage<ConnectLinkedAppRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class);
             storage.remove(record);
-        } catch (Exception e) {
-           Log.e("ConnectAppDatabaseUtil", "Failed to delete app data for record: " + record.getUserId(), e);
-        }
     }
 
     /**
@@ -40,7 +36,7 @@ public class ConnectAppDatabaseUtil {
           * throw error if storage operations fail
           */
     public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked, boolean localPassphrase) {
-        try {
+
             ConnectLinkedAppRecord record = getAppData(context, appId, userId);
             if (record == null) {
                 record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
@@ -59,10 +55,6 @@ public class ConnectAppDatabaseUtil {
             storeApp(context, record);
 
             return record;
-        }catch (Exception e){
-            Log.e("ConnectAppDatabaseUtil", "Failed to store app data for appId: " + appId + ", userId: " + userId, e);
-            return null;
-        }
     }
 
     public static void storeApp(Context context, ConnectLinkedAppRecord record) {
