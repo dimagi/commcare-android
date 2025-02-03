@@ -521,12 +521,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleFailedConnectSignIn() {
         ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-        if(appLaunchedFromConnect) {
-            FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-        } else if(ConnectManager.isLoginManagedByConnectId(record.getUniqueId(), getUniformUsername())) {
-            //TODO: Display an additional message that the user will need to login with their password to restore CID login
-            //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
-            //checkForSavedCredentials();
+
+        ConnectManager.ConnectAppMangement appState = ConnectManager.getAppManagement(this,
+                record.getUniqueId(), getUniformUsername());
+
+        switch(appState) {
+            case Connect -> {
+                FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
+            }
+            case ConnectId -> {
+                //TODO: Display an additional message that the user will need to login with their password to restore CID login
+                //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
+                //checkForSavedCredentials();
+            }
         }
     }
 
@@ -538,34 +545,38 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkForSavedCredentials() {
-        boolean loginWithConnectIDVisible = false;
-        if (ConnectManager.isConnectIdConfigured()) {
-            if (appLaunchedFromConnect && !connectLaunchPerformed) {
-                loginWithConnectIDVisible = true;
-                uiController.setConnectButtonVisible(false);
-                uiController.setUsername(getString(R.string.login_input_auto));
-                uiController.setPasswordOrPin(getString(R.string.login_input_auto));
-                if(!seatAppIfNeeded(presetAppId)) {
-                    connectLaunchPerformed = true;
-                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectManager.ConnectAppMangement appState = ConnectManager.getAppManagement(this,
+                seatedAppId, uiController.getEnteredUsername());
+
+        switch(appState) {
+            case Connect -> {
+                if(appLaunchedFromConnect && presetAppId != null) {
+                    uiController.setConnectButtonVisible(false);
+                    uiController.setUsername(getString(R.string.login_input_auto));
+                    uiController.setPasswordOrPin(getString(R.string.login_input_auto));
+                    if (!seatAppIfNeeded(presetAppId)) {
+                        connectLaunchPerformed = true;
+                        initiateLoginAttempt(uiController.isRestoreSessionChecked());
+                    }
                 }
-            } else {
+            }
+            case ConnectId -> {
                 int selectorIndex = uiController.getSelectedAppIndex();
                 if(selectorIndex > 0) {
                     String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                        loginWithConnectIDVisible = ConnectManager.isLoginManagedByConnectId(seatedAppId,
-                                uiController.getEnteredUsername());
+
+                    if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                        appState = ConnectManager.ConnectAppMangement.Unmanaged;
                     }
                 } else {
                     //Connect jobs selected from dropdown
-                    loginWithConnectIDVisible = true;
+                    appState = ConnectManager.ConnectAppMangement.Connect;
                 }
             }
         }
 
-        uiController.setConnectIdLoginState(loginWithConnectIDVisible);
+        uiController.setConnectIdLoginState(appState);
     }
 
     @Override
@@ -623,7 +634,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 ConnectManager.forgetUser("User initiated from login page");
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
-                uiController.setConnectIdLoginState(false);
+                uiController.setConnectIdLoginState(ConnectManager.ConnectAppMangement.Unmanaged);
                 return true;
             default:
                 return otherResult;

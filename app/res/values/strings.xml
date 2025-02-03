@@ -436,6 +436,7 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="login_via_connect">Ready to login!</string>
 
     <string name="connect_consent_title">Consent</string>
 
