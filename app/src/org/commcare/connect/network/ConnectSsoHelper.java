@@ -9,8 +9,11 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -93,11 +96,16 @@ public class ConnectSsoHelper {
             if (connectIdToken != null) {
                 if(!appRecord.getWorkerLinked()) {
                     //Link user if necessary
-                    ApiConnectId.linkHqWorker(context, hqUsername, hqTokenAuth.password, connectIdToken.bearerToken);
+                    ApiConnectId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
                 }
 
                 //Retrieve HQ token
-                hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
+                try {
+                    hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
+                } catch (MalformedURLException e) {
+                    Logger.log(LogTypes.TYPE_EXCEPTION,e.toString());
+                    throw new RuntimeException(e);
+                }
             }
         }
 

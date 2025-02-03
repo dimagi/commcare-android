@@ -116,13 +116,13 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
 
 
         if (getArguments() != null) {
-            int method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getMethod()));
-            primaryPhone = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getPrimaryPhone();
-            boolean allowChange = (ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getAllowChange());
-            username = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getUsername();
-            password = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getPassword();
-            int callingClass = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getCallingClass();
-            boolean deactivateButton = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getDeactivateButton();
+            int method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
+            primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
+            boolean allowChange = (ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getAllowChange());
+            username = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
+            password = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
+            int callingClass = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            boolean deactivateButton = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
         }
 
         handleDeactivateButton();

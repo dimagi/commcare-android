@@ -378,7 +378,7 @@ public class ConnectManager {
 
         ConnectAppRecord appRecord = getAppRecord(context, appId);
         if (appRecord != null) {
-            job = ConnectJobUtils.getJob(context, appRecord.getJobId());
+            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
         }
 
         setActiveJob(job);
