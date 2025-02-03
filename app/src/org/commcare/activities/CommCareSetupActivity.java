@@ -24,6 +24,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -81,7 +82,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         RuntimePermissionRequester {
 
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
-
+    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
     private static final String KEY_UI_STATE = "current_install_ui_state";
     private static final String KEY_LAST_INSTALL_MODE = "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
@@ -165,7 +167,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (checkForMultipleAppsViolation()) {
             return;
         }
-
+        if(!fromManager) {
+            ConnectManager.init(this);
+        }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
 
@@ -417,6 +421,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+            default:
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+                return;
 
         }
         if (result == null) {
@@ -475,20 +482,41 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
+        menu.add(0, MENU_CONNECT_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_CONNECT_FORGET, 3, getString(R.string.login_menu_connect_forget));
         return true;
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
+        if (item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+        }
+
+        item = menu.findItem(MENU_CONNECT_FORGET);
+        if (item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        }
+        return true;
+    }
+
+
+
+
     /**
-     * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
-     * in response to Google play console policies for now. We are going to watch out for a while
-     * for any changes in policies in near future before completely removing the surrounding code
-     *
-     *
-     * Scan SMS messages for texts with profile references.
-     *
-     * @param installTriggeredManually if scan was triggered manually, then
-     *                                 install automatically if reference is found
-     */
+         * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
+         * in response to Google play console policies for now. We are going to watch out for a while
+         * for any changes in policies in near future before completely removing the surrounding code
+         *
+         *
+         * Scan SMS messages for texts with profile references.
+         *
+         * @param installTriggeredManually if scan was triggered manually, then
+         *                                 install automatically if reference is found
+         */
 
     private void performSMSInstall(boolean installTriggeredManually) {
         manualSMSInstall = installTriggeredManually;
@@ -596,8 +624,29 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
+            case MENU_CONNECT_SIGN_IN:
+                //Setup ConnectID and proceed to jobs page if successful
+                ConnectManager.registerUser(this, success -> {
+                    updateConnectButton();
+                    if(success) {
+//                        ConnectManager.goToConnectJobsList(this);
+                    }
+                });
+                break;
+            case MENU_CONNECT_FORGET:
+                ConnectManager.forgetUser("User initiated from setup page");
+                updateConnectButton();
+                break;
         }
         return true;
+    }
+
+    private void updateConnectButton() {
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
+            ConnectManager.unlockConnect(this, success -> {
+//                ConnectManager.goToConnectJobsList(this);
+            });
+        });
     }
 
     private void fail(NotificationMessage notificationMessage, boolean showAsPinnedNotifcation) {

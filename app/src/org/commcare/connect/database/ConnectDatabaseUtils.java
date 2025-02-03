@@ -50,7 +50,7 @@ public class ConnectDatabaseUtils {
         }
     }
 
-    public static String getConnectDbEncodedPassphrase(Context context) {
+    public static String getConnectDbEncodedPassphrase(Context context,boolean local) {
         try {
             byte[] passBytes = getConnectDbPassphrase(context);
             if (passBytes != null) {

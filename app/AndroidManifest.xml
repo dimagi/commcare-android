@@ -125,6 +125,14 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
+        <receiver
+            android:name="org.commcare.connect.SMSBroadcastReceiver"
+            android:exported="true"
+            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:label="@string/application_name"
@@ -150,6 +158,9 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:exported="true" />
         <activity
             android:label="@string/application_name"
             android:name="org.commcare.activities.LoginActivity"
