@@ -149,8 +149,8 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
 
 
     public int getFieldIdFromCacheKey(String detailId, String cacheKey) {
-        cacheKey = cacheKey.replace(String.valueOf(TYPE_SORT_FIELD), "");
-        cacheKey = cacheKey.replace(String.valueOf(TYPE_NORMAL_FIELD), "");
+        cacheKey = cacheKey.replace(String.valueOf(TYPE_SORT_FIELD) + "_", "");
+        cacheKey = cacheKey.replace(String.valueOf(TYPE_NORMAL_FIELD) + "_", "");
         String intId = cacheKey.substring(detailId.length() + 1);
         try {
             return Integer.parseInt(intId);
@@ -201,7 +201,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
 
             //Create our full args tree. We need the elements from the cache primer
             //along with the specific keys we wanna pull out
-            String[] args = new String[cachePrimeKeys[1].length + 2 * cacheKeys.size()];
+            String[] args = new String[cachePrimeKeys[1].length + cacheKeys.size()];
             System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
 
             for (int i = 0; i < cacheKeys.size(); ++i) {
@@ -222,9 +222,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
                 DbUtil.explainSql(db, sqlStatement, args);
             }
-
             populateEntitySet(db, sqlStatement, args, entitySet);
-
             if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
                 Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
             }

@@ -15,9 +15,11 @@ class PrimeEntityCache(appContext: Context, workerParams: WorkerParameters) : Wo
 
     override fun doWork(): Result {
         try {
-            primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
-            primeEntityCacheHelper.primeEntityCache()
-            return Result.success()
+            if (CommCareApplication.isSessionActive()) {
+                primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
+                primeEntityCacheHelper.primeEntityCache()
+                return Result.success()
+            }
         } catch (e: Exception) {
             Logger.exception("Error while priming cache in worker", e)
         } finally {

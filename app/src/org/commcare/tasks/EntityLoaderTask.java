@@ -32,7 +32,7 @@ public class EntityLoaderTask
     private EntityLoaderListener listener;
     private final EntityLoaderHelper entityLoaderHelper;
     private Exception mException = null;
-    private boolean provideDetailProgressUpdates = true;
+    private boolean provideDetailProgressUpdates;
 
     /**
      * Creates a new instance
