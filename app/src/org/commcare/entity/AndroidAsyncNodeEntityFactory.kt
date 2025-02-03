@@ -1,6 +1,7 @@
 package org.commcare.entity
 
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.commcare.CommCareApplication
@@ -10,6 +11,7 @@ import org.commcare.cases.entity.EntityStorageCache
 import org.commcare.suite.model.Detail
 import org.commcare.suite.model.EntityDatum
 import org.commcare.tasks.PrimeEntityCacheHelper
+import org.commcare.tasks.PrimeEntityCacheHelper.Companion.schedulePrimeEntityCacheWorker
 import org.commcare.util.LogTypes
 import org.javarosa.core.model.condition.EvaluationContext
 import org.javarosa.core.model.instance.TreeReference
@@ -29,12 +31,14 @@ class AndroidAsyncNodeEntityFactory(
 
     companion object {
         const val TEN_MINUTES = 10 * 60 * 1000L
+        const val THIRTY_SECONDS = 30 * 1000L
     }
 
     init {
         if (!detail.shouldOptimize()) {
             throw RuntimeException(AndroidAsyncNodeEntityFactory::class.simpleName + " can only be used for optimizable case lists");
         }
+
     }
 
     override fun prepareEntitiesInternal(
@@ -48,17 +52,17 @@ class AndroidAsyncNodeEntityFactory(
                 }
                 val primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
                 if (primeEntityCacheHelper.isInProgress()) {
-                    // if we are priming something else at the moment, expedite the current detail
-                    if (!primeEntityCacheHelper.isDatumInProgress(detail.id)) {
-                        primeEntityCacheHelper.expediteDetailWithId(
+                    // if we are priming something else at the moment, cancel it and expedite the current detail
+                    if (!primeEntityCacheHelper.isSelectDatumInProgress(entityDatum.dataId, detail.id)) {
+                        cancelExistingWorkWithWait(primeEntityCacheHelper)
+                        primeEntityCacheHelper.primeEntityCacheForDetail(
                             getCurrentCommandId(),
                             detail,
                             entityDatum,
-                            entities,
-                            progressListener
+                            entities
                         )
+                        schedulePrimeEntityCacheWorker()
                     } else {
-                        primeEntityCacheHelper.setListener(progressListener)
                         observePrimeCacheWork(primeEntityCacheHelper, entities)
                     }
                 } else {
@@ -68,51 +72,56 @@ class AndroidAsyncNodeEntityFactory(
                         getCurrentCommandId(),
                         detail,
                         entityDatum,
-                        entities,
-                        progressListener
+                        entities
                     )
                 }
             }
-        } else {
-            super.prepareEntitiesInternal(entities)
         }
     }
+
+    private fun cancelExistingWorkWithWait(primeEntityCacheHelper: PrimeEntityCacheHelper) {
+        runBlocking {
+            try {
+                withTimeout(THIRTY_SECONDS) {
+                    primeEntityCacheHelper.cancelWork()
+                    primeEntityCacheHelper.completionStatus.first { complete -> !complete }
+                }
+            } catch (_: TimeoutCancellationException) {
+                Logger.log(
+                    LogTypes.TYPE_MAINTENANCE,
+                    "Timeout while listening for cancellation status"
+                )
+            }
+        }
+    }
+
 
     private fun observePrimeCacheWork(
         primeEntityCacheHelper: PrimeEntityCacheHelper,
         entities: MutableList<Entity<TreeReference>>
     ) {
-        var resultRegistered = false
-        while (primeEntityCacheHelper.isInProgress() &&
-            primeEntityCacheHelper.isDatumInProgress(detail.id)
+        if (primeEntityCacheHelper.isInProgress() &&
+            primeEntityCacheHelper.isSelectDatumInProgress(entityDatum!!.dataId, detail.id)
         ) {
             runBlocking {
                 try {
                     withTimeout(TEN_MINUTES) {
-                        primeEntityCacheHelper.cachedEntitiesState.collect { cachedEntities ->
-                            resultRegistered = true
-                            if (cachedEntities != null) {
-                                entities.clear()
-                                entities.addAll(cachedEntities)
-                                return@collect
-                            }
-                        }
+                        val cachedEntities = primeEntityCacheHelper.cachedEntitiesState.first { triple ->
+                            triple != null && triple.first == entityDatum.dataId && triple.second == detail.id
+                        }!!.third
+                        entities.clear()
+                        entities.addAll(cachedEntities)
                     }
-                } catch (e: TimeoutCancellationException) {
+                } catch (_: TimeoutCancellationException) {
                     Logger.log(
                         LogTypes.TYPE_MAINTENANCE,
                         "Timeout while waiting for the prime cache worker to finish"
                     )
+                    prepareEntitiesInternal(entities)
                 }
             }
-        }
-        if (!resultRegistered) {
-            Logger.log(
-                LogTypes.TYPE_ERROR_ASSERTION,
-                "Result not conveyed from Cache Prime worker to the current thread"
-            )
-            // re-evaluate
-            prepareEntitiesInternal(entities);
+        } else {
+            prepareEntitiesInternal(entities)
         }
     }
 

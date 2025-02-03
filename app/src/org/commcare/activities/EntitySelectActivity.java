@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -22,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
@@ -53,6 +53,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
@@ -484,9 +485,21 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, selectDatum, evalContext());
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
+            observePrimeCacheWorker();
             return true;
         }
         return false;
+    }
+
+    private void observePrimeCacheWorker() {
+        PrimeEntityCacheHelper primeEntityCacheHelper =
+                CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
+        primeEntityCacheHelper.getProgressState().observe(this, triple -> {
+            if (triple.getFirst().contentEquals(selectDatum.getDataId()) &&
+                    triple.getSecond().contentEquals(shortSelect.getId())) {
+                deliverProgress(triple.getThird());
+            }
+        });
     }
 
     @Override

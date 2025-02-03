@@ -54,7 +54,6 @@ class EntityLoaderHelper(
         progressListener: EntityLoadingProgressListener
     ): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
         val references = factory.expandReferenceList(nodeset)
-        factory.setEntityProgressListener(progressListener)
         val entities = loadEntitiesWithReferences(references, progressListener)
         entities?.let {
             factory.prepareEntities(entities)
