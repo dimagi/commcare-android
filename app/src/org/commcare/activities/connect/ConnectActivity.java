@@ -1,7 +1,10 @@
 package org.commcare.activities.connect;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,9 +19,11 @@ import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
@@ -30,6 +35,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
@@ -115,7 +121,23 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     protected void onResume() {
         super.onResume();
         updateMessagingIcon();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
+                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+    }
+
+    private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateMessagingIcon();
+        }
+    };
 
     @Override
     public void setTitle(CharSequence title) {
