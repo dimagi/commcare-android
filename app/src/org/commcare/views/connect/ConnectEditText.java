@@ -168,14 +168,21 @@ public class ConnectEditText extends AppCompatEditText {
             int paddingRight,
             int drawablePadding
     ) {
+        if (drawableWidth <= 0 || drawableHeight <= 0) {
+            return;
+        }
         if (drawableStart != null && drawableStartVisible) {
             drawableStart.setBounds(paddingLeft, 0, drawableWidth + paddingLeft, drawableHeight);
-            drawableStart.setTint(tintColor);
+            if (drawableStart.mutate().getConstantState() != null) {
+                drawableStart.setTint(tintColor);
+            }
         }
 
         if (drawableEnd != null && drawableEndVisible) {
             drawableEnd.setBounds(-paddingRight, 0, drawableWidth - paddingRight, drawableHeight);
-            drawableEnd.setTint(tintColor);
+            if (drawableEnd.mutate().getConstantState() != null) {
+                drawableEnd.setTint(tintColor);
+            }
         }
 
         setCompoundDrawables(drawableStartVisible ? drawableStart : null, null, drawableEndVisible ? drawableEnd : null, null);

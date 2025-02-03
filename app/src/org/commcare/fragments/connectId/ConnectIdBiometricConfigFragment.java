@@ -123,7 +123,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Toast.makeText(requireActivity().getApplicationContext(), "Authentication failed",
+                Toast.makeText(requireActivity().getApplicationContext(), R.string.connect_biometric_error,
                                 Toast.LENGTH_SHORT)
                         .show();
             }

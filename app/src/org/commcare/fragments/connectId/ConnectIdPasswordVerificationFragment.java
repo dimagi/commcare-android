@@ -97,7 +97,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null,false).setAllowChange(false);
                 }
                 break;
             case ConnectConstants.CONNECT_UNLOCK_PASSWORD:

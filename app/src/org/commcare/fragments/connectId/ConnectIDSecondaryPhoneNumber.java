@@ -118,6 +118,10 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     public void handleButtonPress() {
+        if(getContext()==null){
+            return;
+        }
+        binding.continueButton.setEnabled(false);
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectManager.getUser(getContext());
@@ -130,12 +134,14 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     skipPhoneNumberCheck = false;
+                    binding.continueButton.setEnabled(true);
                     finish(true, phone);
                 }
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
                     skipPhoneNumberCheck = false;
+                    binding.continueButton.setEnabled(true);
                     Toast.makeText(getContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
                 }
@@ -143,18 +149,19 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 @Override
                 public void processNetworkFailure() {
                     skipPhoneNumberCheck = false;
+                    binding.continueButton.setEnabled(true);
                     ConnectNetworkHelper.showNetworkError(getContext());
                 }
 
                 @Override
                 public void processOldApiError() {
                     skipPhoneNumberCheck = false;
+                    binding.continueButton.setEnabled(true);
                     ConnectNetworkHelper.showOutdatedApiError(getContext());
                 }
             };
 
             //Update the phone number with the server
-            boolean isBusy;
             if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
                ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
                         null, phone, callback);
@@ -185,13 +192,13 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                 directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                        ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
                     directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
                 } else {
                     directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
@@ -200,7 +207,10 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             default -> {
             }
         }
-        assert directions != null;
+        if (directions == null) {
+            Toast.makeText(getContext(), R.string.connect_navigation_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 }

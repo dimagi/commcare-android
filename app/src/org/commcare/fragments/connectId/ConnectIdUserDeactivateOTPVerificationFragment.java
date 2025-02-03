@@ -210,6 +210,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         super.onPause();
         try {
             requireActivity().unregisterReceiver(smsBroadcastReceiver);
+            stopHandler();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -218,12 +219,12 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     public void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
-        smsBroadcastReceiver.smsListener = new SMSListener() {
+        smsBroadcastReceiver.setSmsListener(  new SMSListener() {
             @Override
             public void onSuccess(Intent intent) {
                 startActivityForResult(intent, REQ_USER_CONSENT);
             }
-        };
+        });
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
         requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);

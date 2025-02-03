@@ -101,19 +101,6 @@ public class BiometricsHelper {
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
         if (BiometricsHelper.isPinConfigured(activity, biometricManager)) {
-            //TODO: Won't get success callback when this is called as the fallback from fingerprint authentication. Why not?
-            //NOTE: Works as expected the first time...
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-//                BiometricPrompt prompt = new BiometricPrompt(activity,
-//                        ContextCompat.getMainExecutor(activity),
-//                        biometricPromptCallback);
-//
-//                prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
-//                        .setTitle(activity.getString(R.string.connect_unlock_pin_title))
-//                        .setSubtitle(activity.getString(R.string.connect_unlock_pin_message))
-//                        .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-//                        .build());
-//            } else {
                 biometricPromptCallbackHolder = biometricPromptCallback;
                 KeyguardManager manager = (KeyguardManager)activity.getSystemService(Context.KEYGUARD_SERVICE);
                 activity.startActivityForResult(
@@ -121,7 +108,6 @@ public class BiometricsHelper {
                                 activity.getString(R.string.connect_unlock_title),
                                 activity.getString(R.string.connect_unlock_message)),
                         ConnectConstants.CONNECT_UNLOCK_PIN);
-//            }
         }
     }
 

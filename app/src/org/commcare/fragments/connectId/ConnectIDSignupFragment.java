@@ -41,6 +41,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.Random;
 
@@ -89,7 +90,7 @@ public class ConnectIDSignupFragment extends Fragment {
         };
 
 
-        PhoneNumberHelper.phoneNumberHintLauncher = registerForActivityResult(
+        PhoneNumberHelper.setPhoneNumberHintLauncher(  registerForActivityResult(
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
@@ -105,7 +106,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
                     }
                 }
-        );
+        ));
 
         binding.countryCode.setText(PhoneNumberHelper.setDefaultCountryCode(getContext()));
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
@@ -413,8 +414,9 @@ public class ConnectIDSignupFragment extends Fragment {
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder userId = new StringBuilder();
+        SecureRandom secureRandom = new SecureRandom();
         for (int i = 0; i < idLength; i++) {
-            userId.append(charSet.charAt(new Random().nextInt(charSet.length())));
+            userId.append(charSet.charAt(secureRandom.nextInt(charSet.length())));
         }
 
         return userId.toString();

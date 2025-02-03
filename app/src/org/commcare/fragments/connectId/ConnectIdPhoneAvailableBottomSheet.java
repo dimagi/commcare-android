@@ -27,10 +27,8 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         // Required empty public constructor
     }
 
-    public static ConnectIdPhoneAvailableBottomSheet newInstance(String param1, String param2) {
+    public static ConnectIdPhoneAvailableBottomSheet newInstance() {
         ConnectIdPhoneAvailableBottomSheet fragment = new ConnectIdPhoneAvailableBottomSheet();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -50,7 +48,8 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         if (getArguments() != null) {
             phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }
-        phoneTextView.setText(phoneNumber);
+
+        phoneTextView.setText(phoneNumber != null ? phoneNumber : "");
 
         back.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
         recover.setOnClickListener(v -> {

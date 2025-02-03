@@ -77,7 +77,12 @@ public class CircleProgressBar extends View {
     }
 
     public void setProgress(float progress) {
-        this.progress = progress;
+        if (progress < 0f) {
+            progress = 0f;
+        } else if (progress > 100f) {
+            progress = 100f;
+        }
+        this.progress=progress;
         invalidate();
     }
 
@@ -95,7 +100,7 @@ public class CircleProgressBar extends View {
     }
 
     public void setProgressColor(int color) {
-        Log.e("CircleProgressBar", "Setting progress color to: " + color);
+        Log.d("CircleProgressBar", "Setting progress color to: " + color);
         this.progressColor = color;
         this.isGradient = false;
         progressPaint.setColor(color);

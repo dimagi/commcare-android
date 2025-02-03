@@ -22,6 +22,7 @@ import androidx.preference.PreferenceManager;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -545,8 +546,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
 
         if (ConnectManager.isConnectIdConfigured()) {
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
+            if (user == null || user.getName() == null) {
+                welcomeMessage.setText(activity.getString(R.string.default_welcome_message));
+                return;
+            }
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                    ConnectUserDatabaseUtil.getUser(activity).getName());
+                    user.getName());
 
             welcomeMessage.setText(welcomeText);
         }

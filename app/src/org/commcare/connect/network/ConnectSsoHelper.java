@@ -2,6 +2,7 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -26,6 +27,7 @@ public class ConnectSsoHelper {
         private final WeakReference<Context> weakContext;
         private final String hqUsername; //null for ConnectId
         private final boolean linkHqUser;
+        private final String TAG=TokenTask.class.getSimpleName();
         final TokenCallback callback;
         TokenTask(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
             super();
@@ -38,11 +40,23 @@ public class ConnectSsoHelper {
         @Override
         protected AuthInfo.TokenAuth doInBackground(Void... voids) {
             Context context = weakContext.get();
-            if(hqUsername == null) {
-                return ApiConnectId.retrieveConnectIdTokenSync(context);
+            if(context==null){
+                return null;
             }
-
-            return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
+            if(hqUsername == null) {
+                try {
+                    return ApiConnectId.retrieveConnectIdTokenSync(context);
+                }catch (Exception e){
+                    Log.e(TAG,e.toString());
+                    return null;
+                }
+            }
+            try {
+                return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
+            }catch (Exception e){
+                Log.e(TAG,e.toString());
+                return null;
+            }
         }
 
         @Override

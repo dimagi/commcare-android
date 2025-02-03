@@ -811,6 +811,9 @@
     <string name="login_password_by_connect">Via ConnectID (or press here)</string>
     <string name="login_welcome_connect_signed_out">Unlock ConnectID first and then enter your app.</string>
     <string name="login_welcome_connect_signed_in">Welcome %s!</string>
+    <string name="default_welcome_message">Welcome</string>
+    <string name="connect_navigation_error">Navigation issue</string>
+    <string name="connect_biometric_error">Authentication Failed</string>
     <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using ConnectID.</string>
     <string name="login_input_auto">AUTO</string>
     <string name="connect_button_logged_in">Go to Connect menu</string>

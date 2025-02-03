@@ -55,10 +55,10 @@ import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ConnectIdPhoneVerificationFragmnet#newInstance} factory method to
+ * Use the {@link ConnectIdPhoneVerificationFragment#newInstance} factory method to
  * create an instance of requireActivity() fragment.
  */
-public class ConnectIdPhoneVerificationFragmnet extends Fragment {
+public class ConnectIdPhoneVerificationFragment extends Fragment {
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
@@ -107,12 +107,12 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     };
 
 
-    public ConnectIdPhoneVerificationFragmnet() {
+    public ConnectIdPhoneVerificationFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectIdPhoneVerificationFragmnet newInstance() {
-        return new ConnectIdPhoneVerificationFragmnet();
+    public static ConnectIdPhoneVerificationFragment newInstance() {
+        return new ConnectIdPhoneVerificationFragment();
     }
 
     @Override
@@ -133,14 +133,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
 
 
         if (getArguments() != null) {
-            method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getMethod()));
-            primaryPhone = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getPrimaryPhone();
-            allowChange = (ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getAllowChange());
-            username = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getUsername();
-            password = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getPassword();
-            recoveryPhone = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getSecondaryPhone();
-            callingClass = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getCallingClass();
-            deactivateButton = ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getDeactivateButton();
+            method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
+            primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
+            allowChange = (ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getAllowChange());
+            username = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
+            password = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
+            recoveryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getSecondaryPhone();
+            callingClass = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            deactivateButton = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
         }
 
         handleDeactivateButton();
@@ -225,12 +225,12 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
-        smsBroadcastReceiver.smsListener = new SMSListener() {
+        smsBroadcastReceiver.setSmsListener (new SMSListener() {
             @Override
             public void onSuccess(Intent intent) {
                 startActivityForResult(intent, REQ_USER_CONSENT);
             }
-        };
+        });
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -520,27 +520,27 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY, primaryPhone, ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY, primaryPhone, ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
                     } else {
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password).setRecover(false).setChange(true);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password).setRecover(false).setChange(true);
                     }
                 } else {
-                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
+                    directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     }else{
                         ConnectIdActivity.recoveryAltPhone = secondaryPhone;
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(false);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(false);
                         if (ConnectIdActivity.forgotPin) {
                             if (ConnectIdActivity.forgotPassword) {
-                                directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, username, password);
+                                directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, username, password);
 
                             } else {
-                                directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                                directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPassword(ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
                             }
                         }
                     }
@@ -549,14 +549,14 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 if (success) {
                     if (!deactivateButton) {
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setRecover(true).setChange(true);
                     } else {
-                        directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify(ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragmnet.MethodUserDeactivate), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, password, "", false).setAllowChange(false);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify(ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE, String.format(Locale.getDefault(), "%d",
+                                ConnectIdPhoneVerificationFragment.MethodUserDeactivate), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, password, "", false).setAllowChange(false);
                     }
                 } else {
-                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", "", false).setAllowChange(false);
+                    directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", "", false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
@@ -579,7 +579,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
             case ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE -> {
                 if (success) {
-                    directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_deactivated), ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS, getString(R.string.connect_deactivate_account_creation), null, username, password);
+                    directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_deactivated), ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS, getString(R.string.connect_deactivate_account_creation), null, username, password);
                 }
             }
         }

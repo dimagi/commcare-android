@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -26,19 +27,25 @@ import io.michaelrocks.libphonenumber.android.Phonenumber;
  * @author dviggiano
  */
 public class PhoneNumberHelper {
-    private static PhoneNumberUtil utilStatic = null;
-    public static ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher;
+    private static final ThreadLocal<PhoneNumberUtil> utilStatic = new ThreadLocal<>();
+    private static ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher;
 
     //Private constructor, class should be used statically
     private PhoneNumberHelper() {
     }
 
+    public static void setPhoneNumberHintLauncher(ActivityResultLauncher<IntentSenderRequest> launcher) {
+        phoneNumberHintLauncher = launcher;
+    }
+
     private static PhoneNumberUtil getUtil(Context context) {
-        if (utilStatic == null) {
-            utilStatic = PhoneNumberUtil.createInstance(context);
+        PhoneNumberUtil util = utilStatic.get();
+        if (util == null) {
+            util = PhoneNumberUtil.createInstance(context);
+            utilStatic.set(util);
         }
 
-        return utilStatic;
+        return util;
     }
 
     public static String buildPhoneNumber(String countryCode, String phone) {
@@ -69,7 +76,7 @@ public class PhoneNumberHelper {
                 return phoneNumber.getCountryCode();
             }
         } catch (NumberParseException e) {
-            //Error parsing number means it isn't valid, fall-through to return false
+            Log.d("PhoneNumberHelper", "Failed to parse number: " + e.getMessage());
         }
 
         return -1;
@@ -106,6 +113,10 @@ public class PhoneNumberHelper {
                     try {
                         IntentSenderRequest intentSenderRequest = new IntentSenderRequest.Builder(pendingIntent).build();
                         phoneNumberHintLauncher.launch(intentSenderRequest);
+                    } catch (SecurityException e) {
+                        Log.e("PhoneNumberHelper", "Security permission denied", e);
+                    } catch (IllegalStateException e) {
+                        Log.e("PhoneNumberHelper", "Activity was destroyed", e);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -120,7 +131,9 @@ public class PhoneNumberHelper {
             try {
                 phoneNumber = signInClient.getPhoneNumberFromIntent(intent);
                 return phoneNumber;
-            } catch (ApiException ignored) {
+            } catch (ApiException e) {
+                Log.e("PhoneNumberHelper", "Failed to get phone number: " + e.getMessage(), e);
+                return null;
             }
 
         }

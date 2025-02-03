@@ -1,14 +1,17 @@
 package org.commcare.views.connect.connecttextview;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.res.ResourcesCompat;
 
 public class ConnectRegularTextView extends AppCompatTextView {
+    private static final String TAG = ConnectRegularTextView.class.getSimpleName();
 
     public ConnectRegularTextView(Context context) {
         super(context);
@@ -29,7 +32,9 @@ public class ConnectRegularTextView extends AppCompatTextView {
         try {
             setTypeface(ResourcesCompat.getFont(context, R.font.roboto_regular));
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.log(TAG, "Failed to load Roboto Regular font");
+            // Fallback to system bold font
+            setTypeface(Typeface.DEFAULT);
         }
     }
 }

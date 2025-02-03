@@ -46,7 +46,7 @@
 
     <fragment
         android:id="@+id/connectid_phone_verify"
-        android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragmnet"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragment"
         android:label="fragment_connectid_phone_verify"
         tools:layout="@layout/screen_connect_phone_verify">
         <action

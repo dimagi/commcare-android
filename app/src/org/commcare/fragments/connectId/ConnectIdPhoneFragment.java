@@ -102,7 +102,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
         };
 
-        PhoneNumberHelper.phoneNumberHintLauncher = registerForActivityResult(
+        PhoneNumberHelper.setPhoneNumberHintLauncher(registerForActivityResult(
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
@@ -113,12 +113,12 @@ public class ConnectIdPhoneFragment extends Fragment {
                             displayNumber(phoneNumber);
                         } catch (ApiException e) {
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                            throw new RuntimeException(e);
+                            Logger.exception("Retrieved phone hint but encountered an ApiException", e);
                         }
 
                     }
                 }
-        );
+        ));
 
         binding.countryCode.setOnFocusChangeListener(listener);
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
@@ -130,6 +130,9 @@ public class ConnectIdPhoneFragment extends Fragment {
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
+        if (user == null && existingPhone == null) {
+            Logger.log("Null Exception","User and existing phone cannot be null together");
+        }
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         binding.connectPrimaryPhoneTitle.setText(title);
         binding.connectPrimaryPhoneMessage.setText(message);
@@ -177,7 +180,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE);
                 }
                 directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragmnet.MethodRegistrationPrimary), phone, user.getUserId(), user.getPassword(), null, false).setAllowChange(true);
+                        ConnectIdPhoneVerificationFragment.MethodRegistrationPrimary), phone, user.getUserId(), user.getPassword(), null, false).setAllowChange(true);
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {
@@ -187,13 +190,13 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                 directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false).setAllowChange(false);
+                        ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false).setAllowChange(false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragmnet.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false).setAllowChange(false);
                 } else {
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
