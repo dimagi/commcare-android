@@ -19,18 +19,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 ///Todo retry part of the api fails
 
 public class ApiClient {
-    private static final String BASE_URL = BuildConfig.CONNECT_BASE_URL;  // Replace with actual base URL
-    private static final String API_VERSION = BuildConfig.API_VERSION_CONNECT_ID;  // Replace with actual version value
-
-    private static Retrofit retrofit;
-
+    public static final String BASE_URL = "https://connectid.dimagi.com";  // Replace with actual base URL
+    private static final String API_VERSION = "1.0";  // Replace with actual version value
+    private static volatile Retrofit retrofit;
     private ApiClient() {}
-    private static class RetrofitHolder {
-        private static final Retrofit INSTANCE = buildRetrofitClient();
-    }
+
     public static Retrofit getClient() {
-        return RetrofitHolder.INSTANCE;
+        if (retrofit == null) {
+            synchronized (ApiClient.class) { // Double-checked locking
+                if (retrofit == null) {
+                    retrofit = buildRetrofitClient();
+                }
+            }
+        }
+        return retrofit;
     }
+
     private static Retrofit buildRetrofitClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(BuildConfig.DEBUG ?
@@ -38,22 +42,21 @@ public class ApiClient {
                 HttpLoggingInterceptor.Level.NONE);
         logging.redactHeader("Authorization");
         logging.redactHeader("Cookie");
+
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(logging)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request originalRequest = chain.request();
-                        Request requestWithHeaders = originalRequest.newBuilder()
-                                .header("Accept", "application/json;version=" + API_VERSION)
-                                .build();
-                        return chain.proceed(requestWithHeaders);
-                    }
+                .addInterceptor(chain -> {
+                    Request originalRequest = chain.request();
+                    Request requestWithHeaders = originalRequest.newBuilder()
+                            .header("Accept", "application/json;version=" + API_VERSION)
+                            .build();
+                    return chain.proceed(requestWithHeaders);
                 })
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
+
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(okHttpClient)

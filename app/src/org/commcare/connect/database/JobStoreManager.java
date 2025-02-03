@@ -163,6 +163,6 @@ public class JobStoreManager {
 
     private List<ConnectJobRecord> getJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
         // Placeholder for job retrieval logic
-        return ConnectJobUtils.getJobs(context, -1, jobStorage);
+        return ConnectJobUtils.getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
     }
 }

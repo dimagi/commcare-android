@@ -50,7 +50,7 @@ public class ConnectDatabaseUtils {
         }
     }
 
-    public static String getConnectDbEncodedPassphrase(Context context, boolean local) {
+    public static String getConnectDbEncodedPassphrase(Context context) {
         try {
             byte[] passBytes = getConnectDbPassphrase(context);
             if (passBytes != null) {
@@ -70,7 +70,7 @@ public class ConnectDatabaseUtils {
                 return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
             }else{
                 CrashUtil.log("We dont find paraphrase in db");
-                throw new RuntimeException();
+                throw new RuntimeException("We dont find a record in db to get passphrase");
             }
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);

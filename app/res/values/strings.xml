@@ -11,9 +11,9 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
-    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
-    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
-    <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
+    <string name="ConnectFetchDbKeyURL">/users/fetch_db_key</string>
+    <string name="ConnectTokenURL">/o/token/</string>
+    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
@@ -459,9 +459,6 @@
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
-
-    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
-
     <!-- ConnectID strings -->
     <string name="choice_or">_____________    OR    _____________</string>
     <string name="connect_registration_title">ConnectID Signup</string>
@@ -818,7 +815,6 @@
     <string name="login_input_auto">AUTO</string>
     <string name="connect_button_logged_in">Go to Connect menu</string>
     <string name="connect_consent_title">Consent</string>
-<!--    CONNECT STRING-->
     <string name="ConnectVerifyConfirmSecondaryOTPURL">https://connectid.dimagi.com/users/confirm_secondary_otp</string>
     <string name="ConnectConfirmOTPURL">https://connectid.dimagi.com/users/confirm_otp</string>
     <string name="ConnectRegisterURL">https://connectid.dimagi.com/users/register</string>
@@ -830,4 +826,5 @@
     <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
     <string name="ConnectInitiateUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/initiate_deactivation</string>
     <string name="ConnectConfirmUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/confirm_deactivation</string>
+    <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
 </resources>

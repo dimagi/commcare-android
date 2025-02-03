@@ -81,7 +81,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
             delivery.jobId = jobId;
             delivery.lastUpdate = new Date();
 
-            deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
+            deliveryId =  json.getInt(META_ID);
             delivery.deliveryId = deliveryId;
             dateString = json.getString(META_DATE);
             delivery.date = DateUtils.parseDateTime(dateString);

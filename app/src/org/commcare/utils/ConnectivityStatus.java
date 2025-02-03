@@ -26,12 +26,7 @@ public class ConnectivityStatus {
                  return false;
          }
         NetworkInfo netInfo = conManager.getActiveNetworkInfo();
-        boolean isConnected = (netInfo != null && netInfo.isConnected());
 
-        //if user is not online, log not connected. if online, log success
-        String logMessage = !isConnected ? logNotConnectedMessage : logConnectionSuccessMessage;
-        Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logMessage);
-
-        return isConnected;
+        return (netInfo != null && netInfo.isConnected());
     }
 }
