@@ -8,9 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -22,7 +20,6 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.views.connect.LinearProgressBar;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -60,8 +57,6 @@ public class ConnectJobIntroFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        ConnectJobIntroFragmentArgs args = ConnectJobIntroFragmentArgs.fromBundle(getArguments());
-        boolean isButtonVisible = args.getIsButtonVisible();
         getActivity().setTitle(getString(R.string.connect_job_intro_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
@@ -84,9 +79,6 @@ public class ConnectJobIntroFragment extends Fragment {
         textView.setText(getString(R.string.connect_job_learn_summary, modules.size(), totalHours));
 
         final boolean appInstalled = ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId());
-
-        CardView buttonView = view.findViewById(R.id.cardButtonView);
-        buttonView.setVisibility(isButtonVisible ? View.VISIBLE : View.GONE);
 
         Button button = view.findViewById(R.id.connect_job_intro_start_button);
         button.setVisibility(showLaunchButton ? View.VISIBLE : View.GONE);

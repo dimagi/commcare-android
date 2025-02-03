@@ -242,7 +242,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void handleRecoverButtonPress() {
-        ConnectDatabaseHelper.forgetUser(requireContext());
+        ConnectManager.forgetUser("Initiating account recovery");
         directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }

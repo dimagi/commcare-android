@@ -29,21 +29,14 @@ public class CCAnalyticsEvent {
     static final String LOGIN_CLICK = "login_click";
 
     static final String CCC_SIGN_IN = "ccc_sign_in";
-    static final String PARAM_CCC_SIGN_IN_METHOD = "ccc_sign_in_method";
     static final String CCC_SIGN_OUT = "ccc_sign_out";
     static final String CCC_RECOVERY = "ccc_recovery";
-    static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
-    static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";
+    static final String CCC_DECONFIGURE = "ccc_deconfigure";
     static final String CCC_TAB_CHANGE = "ccc_tab_change";
-    static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";
     static final String CCC_LAUNCH_APP = "ccc_launch_app";
-    static final String PARAM_CCC_LAUNCH_APP_TYPE = "ccc_launch_app_type";
     static final String CCC_AUTO_LOGIN_FAILED = "ccc_auto_login_failed";
     static final String CCC_AUTO_LOGIN_LOCAL_PASSPHRASE = "ccc_auto_login_local_passphrase";
-    static final String PARAM_CCC_APP_NAME = "ccc_app_name";
     static final String CCC_API_JOBS = "ccc_api_jobs";
-    static final String PARAM_API_SUCCESS = "ccc_api_success";
-    static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
     static final String CCC_API_START_LEARNING = "ccc_api_start_learning";
     static final String CCC_API_LEARN_PROGRESS = "ccc_api_learn_progress";
     static final String CCC_API_CLAIM_JOB = "ccc_api_claim_job";

@@ -543,6 +543,10 @@
     <string name="connect_verify_phone_verify">Verify code</string>
 
     <string name="connect_messaging_title">Messaging</string>
+    <string name="connect_messaging_channel_list_title">Channels</string>
+    <string name="connect_messaging_channel_list_unconsented">Unconsented channel</string>
+    <string name="connect_messaging_channel_preview_you">You</string>
+    <string name="connect_messaging_channel_preview_them">Them</string>
     <string name="connect_messaging_channel_consent_title">Consent to channel</string>
     <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
     <string name="connect_messaging_channel_consent_accept">Accept</string>

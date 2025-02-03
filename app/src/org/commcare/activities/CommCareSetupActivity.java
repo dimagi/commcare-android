@@ -639,7 +639,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 });
                 break;
             case MENU_CONNECT_FORGET:
-                ConnectManager.forgetUser();
+                ConnectManager.forgetUser("User initiated from setup page");
                 updateConnectButton();
                 break;
         }
@@ -649,7 +649,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
             ConnectManager.unlockConnect(this, success -> {
-                ConnectManager.goToConnectJobsList(this);
+                if(success) {
+                    ConnectManager.goToConnectJobsList(this);
+                }
             });
         });
     }

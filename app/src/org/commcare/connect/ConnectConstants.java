@@ -40,6 +40,10 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
+    public static final String CCC_DEST_OPPORTUNITY_SUMMARY_PAGE = "ccc_opportunity_summary_page";
+    public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
+    public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
+    public static final String CCC_DEST_PAYMENTS = "ccc_payment";
 
     public final static int CONNECT_NO_ACTIVITY = ConnectConstants.ConnectIdTaskIdOffset;
     public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.ConnectIdTaskIdOffset + 2;

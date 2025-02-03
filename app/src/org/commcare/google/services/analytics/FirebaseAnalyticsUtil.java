@@ -358,75 +358,83 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportCccSignIn(String method) {
         reportEvent(CCAnalyticsEvent.CCC_SIGN_IN,
-                new String[]{CCAnalyticsEvent.PARAM_CCC_SIGN_IN_METHOD},
+                new String[]{CCAnalyticsParam.PARAM_CCC_SIGN_IN_METHOD},
                 new String[]{method});
     }
 
     public static void reportCccRecovery(boolean success, String method) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_CCC_RECOVERY_SUCCESS, success ? 1 : 0);
-        b.putString(CCAnalyticsEvent.PARAM_CCC_RECOVERY_METHOD, method);
+        b.putLong(CCAnalyticsParam.PARAM_CCC_RECOVERY_SUCCESS, success ? 1 : 0);
+        b.putString(CCAnalyticsParam.PARAM_CCC_RECOVERY_METHOD, method);
         reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
+    }
+
+    public static void reportCccDeconfigure(String reason) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REASON, reason);
+        reportEvent(CCAnalyticsEvent.CCC_DECONFIGURE, b);
     }
 
     public static void reportCccAppLaunch(String type, String appId) {
         reportEvent(CCAnalyticsEvent.CCC_LAUNCH_APP,
-                new String[]{CCAnalyticsEvent.PARAM_CCC_LAUNCH_APP_TYPE, CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{CCAnalyticsParam.PARAM_CCC_LAUNCH_APP_TYPE,
+                        CCAnalyticsParam.PARAM_CCC_APP_NAME},
                 new String[]{type, appId});
     }
 
     public static void reportCccAppAutoLoginWithLocalPassphrase(String app) {
         reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_LOCAL_PASSPHRASE,
-                new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{CCAnalyticsParam.PARAM_CCC_APP_NAME},
                 new String[]{app});
     }
 
     public static void reportCccAppFailedAutoLogin(String app) {
         reportEvent(CCAnalyticsEvent.CCC_AUTO_LOGIN_FAILED,
-                new String[]{CCAnalyticsEvent.PARAM_CCC_APP_NAME},
+                new String[]{CCAnalyticsParam.PARAM_CCC_APP_NAME},
                 new String[]{app});
     }
 
-    public static void reportCccApiJobs(boolean success, int newJobs) {
+    public static void reportCccApiJobs(boolean success, int totalJobs, int newJobs) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
-        b.putInt(CCAnalyticsEvent.PARAM_API_NEW_JOBS, newJobs);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putInt(CCAnalyticsParam.PARAM_API_NEW_JOBS, newJobs);
+        b.putInt(CCAnalyticsParam.PARAM_API_TOTAL_JOBS, totalJobs);
         reportEvent(CCAnalyticsEvent.CCC_API_JOBS, b);
     }
 
     public static void reportCccApiStartLearning(boolean success) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_API_START_LEARNING, b);
     }
 
     public static void reportCccApiLearnProgress(boolean success) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_API_LEARN_PROGRESS, b);
     }
 
     public static void reportCccApiClaimJob(boolean success) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_API_CLAIM_JOB, b);
     }
 
     public static void reportCccApiDeliveryProgress(boolean success) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_API_DELIVERY_PROGRESS, b);
     }
 
     public static void reportCccApiPaymentConfirmation(boolean success) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_API_PAYMENT_CONFIRMATION, b);
     }
 
     public static void reportCccPaymentConfirmationOnlineCheck(boolean success) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, success ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, success ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_CHECK, b);
     }
 
@@ -437,7 +445,7 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportCccPaymentConfirmationInteraction(boolean positive) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsEvent.PARAM_API_SUCCESS, positive ? 1 : 0);
+        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, positive ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
     }
 
@@ -466,7 +474,7 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportConnectTabChange(String tabName) {
         reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE,
-                new String[]{CCAnalyticsEvent.PARAM_CCC_TAB_CHANGE_NAME},
+                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME},
                 new String[]{tabName});
     }
 

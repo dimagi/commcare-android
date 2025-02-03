@@ -115,10 +115,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_notification) {
-            ConnectManager.goToMessaging(requireActivity());
-            return true;
-        } else if (item.getItemId() == R.id.action_sync) {
+        if (item.getItemId() == R.id.action_sync) {
             refreshData();
             return true;
         }
@@ -130,6 +127,7 @@ public class ConnectJobsListsFragment extends Fragment {
         ApiConnect.getConnectOpportunities(getContext(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                int totalJobs = 0;
                 int newJobs = 0;
                 //TODO: Sounds like we don't want a try-catch here, better to crash. Verify before changing
                 try {
@@ -144,6 +142,7 @@ public class ConnectJobsListsFragment extends Fragment {
                         }
 
                         //Store retrieved jobs
+                        totalJobs = jobs.size();
                         newJobs = ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
                         setJobListData(jobs);
                     }
@@ -151,7 +150,7 @@ public class ConnectJobsListsFragment extends Fragment {
                     Logger.exception("Parsing return from Opportunities request", e);
                 }
 
-                reportApiCall(true, newJobs);
+                reportApiCall(true, totalJobs, newJobs);
                 refreshUi();
             }
 
@@ -159,7 +158,7 @@ public class ConnectJobsListsFragment extends Fragment {
             public void processFailure(int responseCode, IOException e) {
                 setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
-                reportApiCall(false, 0);
+                reportApiCall(false, 0, 0);
                 refreshUi();
             }
 
@@ -167,7 +166,7 @@ public class ConnectJobsListsFragment extends Fragment {
             public void processNetworkFailure() {
                 setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
                 Logger.log("ERROR", "Failed (network)");
-                reportApiCall(false, 0);
+                reportApiCall(false, 0, 0);
                 refreshUi();
             }
 
@@ -175,14 +174,14 @@ public class ConnectJobsListsFragment extends Fragment {
             public void processOldApiError() {
                 setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
                 ConnectNetworkHelper.showOutdatedApiError(getContext());
-                reportApiCall(false, 0);
+                reportApiCall(false, 0, 0);
             }
         });
 
     }
 
-    private void reportApiCall(boolean success, int newJobs) {
-        FirebaseAnalyticsUtil.reportCccApiJobs(success, newJobs);
+    private void reportApiCall(boolean success, int totalJobs, int newJobs) {
+        FirebaseAnalyticsUtil.reportCccApiJobs(success, totalJobs, newJobs);
     }
 
     private void refreshUi() {
@@ -232,7 +231,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void launchJobInfo(ConnectJobRecord job) {
         ConnectManager.setActiveJob(job);
-        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true));
+        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {

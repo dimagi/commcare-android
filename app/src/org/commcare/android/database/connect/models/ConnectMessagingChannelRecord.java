@@ -62,6 +62,8 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     @MetaField(META_KEY)
     private String key;
 
+    private String preview;
+
     private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
 
     public static ConnectMessagingChannelRecord fromJson(JSONObject json) throws JSONException, ParseException {
@@ -150,4 +152,12 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         this.key = key;
     }
     public List<ConnectMessagingMessageRecord> getMessages() { return messages; }
+
+    public void setPreview(String preview) {
+        this.preview = preview;
+    }
+
+    public String getPreview() {
+        return preview;
+    }
 }
