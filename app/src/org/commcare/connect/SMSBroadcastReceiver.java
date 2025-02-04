@@ -16,7 +16,7 @@ import com.google.android.gms.common.api.Status;
  * SmsRetriever.SMS_RETRIEVED_ACTION.
  */
 public class SMSBroadcastReceiver extends BroadcastReceiver {
-    private   SMSListener smsListener;
+    private volatile  SMSListener smsListener;
 
     public void setSmsListener(SMSListener listener) {
         this.smsListener = listener;

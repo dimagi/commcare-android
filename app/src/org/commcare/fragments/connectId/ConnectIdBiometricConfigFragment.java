@@ -43,14 +43,22 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
     private boolean allowPassword = false;
     private boolean attemptingFingerprint = false;
     private BiometricPrompt.AuthenticationCallback biometricPromptCallbacks;
-
+    private static final String KEY_CALLING_ACTIVITY = "calling_activity";
+    private static final String KEY_ALLOW_PASSWORD = "allow_password";
+    private static final String KEY_ATTEMPTING_FINGERPRINT = "attempting_fingerprint";
     private ScreenConnectVerifyBinding binding;
 
 
     public ConnectIdBiometricConfigFragment() {
         // Required empty public constructor
     }
-
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_CALLING_ACTIVITY, callingActivity);
+        outState.putBoolean(KEY_ALLOW_PASSWORD, allowPassword);
+        outState.putBoolean(KEY_ATTEMPTING_FINGERPRINT, attemptingFingerprint);
+    }
     public static ConnectIdBiometricConfigFragment newInstance(String param1, String param2) {
         ConnectIdBiometricConfigFragment fragment = new ConnectIdBiometricConfigFragment();
         Bundle args = new Bundle();
@@ -61,6 +69,11 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            callingActivity = savedInstanceState.getInt(KEY_CALLING_ACTIVITY);
+            allowPassword = savedInstanceState.getBoolean(KEY_ALLOW_PASSWORD);
+            attemptingFingerprint = savedInstanceState.getBoolean(KEY_ATTEMPTING_FINGERPRINT);
+        }
     }
 
     @Override

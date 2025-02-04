@@ -100,9 +100,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
         binding.continueButton.setOnClickListener(v -> handleButtonPress());
         binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
-        requireActivity().setTitle(getString(R.string.connect_phone_title_alternate));
         binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
-
         updateButtonEnabled();
         requireActivity().setTitle(R.string.connect_phone_title_alternate);
         return view;

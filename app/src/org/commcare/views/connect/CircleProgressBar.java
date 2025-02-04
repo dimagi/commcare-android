@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -52,7 +54,35 @@ public class CircleProgressBar extends View {
         progressPaint.setAntiAlias(true);
         progressPaint.setStrokeCap(Paint.Cap.ROUND);
     }
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("superState", super.onSaveInstanceState());
+        bundle.putFloat("progress", progress);
+        bundle.putFloat("strokeWidth", strokeWidth);
+        bundle.putInt("startAngle", startAngle);
+        bundle.putInt("progressColor", progressColor);
+        bundle.putInt("backgroundColor", backgroundColor);
+        bundle.putBoolean("isGradient", isGradient);
+        bundle.putIntArray("gradientColors", gradientColors);
+        return bundle;
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            progress = bundle.getFloat("progress");
+            strokeWidth = bundle.getFloat("strokeWidth");
+            startAngle = bundle.getInt("startAngle");
+            progressColor = bundle.getInt("progressColor");
+            backgroundColor = bundle.getInt("backgroundColor");
+            isGradient = bundle.getBoolean("isGradient");
+            gradientColors = bundle.getIntArray("gradientColors");
+            state = bundle.getParcelable("superState");
+        }
+        super.onRestoreInstanceState(state);
+    }
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

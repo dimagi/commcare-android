@@ -103,8 +103,8 @@ public class ConnectSsoHelper {
                 try {
                     hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
                 } catch (MalformedURLException e) {
-                    Logger.log(LogTypes.TYPE_EXCEPTION,e.toString());
-                    throw new RuntimeException(e);
+                    Logger.log(LogTypes.TYPE_EXCEPTION, "Invalid HQ URL: " + e.getMessage());
+                    return null;
                 }
             }
         }

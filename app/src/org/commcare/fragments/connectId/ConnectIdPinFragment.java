@@ -165,18 +165,13 @@ public class ConnectIdPinFragment extends Fragment {
         binding.connectPinInput.setFilters(filter);
     }
 
-    public void clearPin() {
-        binding.connectPinInput.setText("");
-        binding.connectPinInput.setText("");
-    }
-
     public void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPinInput);
     }
 
     public void clearPinFields() {
         binding.connectPinInput.setText("");
-        binding.connectPinInput.setText("");
+        binding.connectPinRepeatInput.setText("");
     }
 
     public void checkPin() {
@@ -343,7 +338,7 @@ public class ConnectIdPinFragment extends Fragment {
     public void handleWrongPin() {
         ConnectManager.setFailureAttempt(ConnectManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
-        clearPin();
+        clearPinFields();
         finish(false, ConnectManager.getFailureAttempt() >= MaxFailures, null);
 
     }

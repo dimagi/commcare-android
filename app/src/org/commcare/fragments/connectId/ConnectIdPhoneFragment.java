@@ -205,8 +205,11 @@ public class ConnectIdPhoneFragment extends Fragment {
             default -> {
             }
         }
-        assert directions != null;
-        Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
+        if (directions == null) {
+            Logger.log("Error", "Navigation directions is null. Unable to navigate.");
+            return;
+        }
+            Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
 
     //8556
@@ -279,6 +282,10 @@ public class ConnectIdPhoneFragment extends Fragment {
                         existing, phone, callback);
             }
         } else {
+            if (phone.isEmpty()) {
+                Toast.makeText(getContext(), "Phone number is empty or invalid", Toast.LENGTH_SHORT).show();
+                return;
+            }
             finish(true, phone);
         }
     }
@@ -304,7 +311,6 @@ public class ConnectIdPhoneFragment extends Fragment {
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                         } else {
                             //Make sure the number isn't already in use
-//                            phone = phone.replaceAll("\\+", "%2b");
                             binding.connectPrimaryPhoneAvailability.setText(getString(R.string.connect_phone_checking));
                             binding.connectPrimaryPhoneButton.setEnabled(false);
                             ApiConnectId.checkPhoneAvailable(getContext(), phone,

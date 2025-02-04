@@ -135,7 +135,7 @@ public class ConnectEditText extends AppCompatEditText {
 
     // New method to set hint size directly
     public void setHintTextSize(float size) {
-        setTextSize(size);
+        setHintTextSize(size);
     }
 
     private void setBorder(int borderWidth, int cornerRadius, int borderColor) {

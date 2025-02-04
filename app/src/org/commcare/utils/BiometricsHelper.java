@@ -50,15 +50,15 @@ public class BiometricsHelper {
     public static void authenticateFingerprint(FragmentActivity activity,
                                                BiometricManager biometricManager,
                                                boolean allowExtraOptions,
-                                               BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
+                                               BiometricPrompt.AuthenticationCallback callback) {
         if (BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                 //For newer versions, PIN prompt will handle all unlock
-                authenticatePin(activity, biometricManager, biometricPromptCallback);
+                authenticatePin(activity, biometricManager, callback);
             } else {
                 BiometricPrompt prompt = new BiometricPrompt(activity,
                         ContextCompat.getMainExecutor(activity),
-                        biometricPromptCallback);
+                        callback);
 
                 BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
                         .setTitle(activity.getString(R.string.connect_unlock_fingerprint_title))

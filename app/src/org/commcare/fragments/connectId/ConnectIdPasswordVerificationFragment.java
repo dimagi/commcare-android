@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -46,11 +47,22 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     private String secretKey = null;
     private static final int MaxFailures = 3;
     private int failureCount = 0;
-
+    // Added keys for state restoration
+    private static final String KEY_FAILURE_COUNT = "failure_count";
+    private static final String KEY_PHONE = "phone";
+    private static final String KEY_SECRET_KEY = "secret_key";
     private ScreenConnectPasswordVerifyBinding binding;
 
     public ConnectIdPasswordVerificationFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_FAILURE_COUNT, failureCount);
+        outState.putString(KEY_PHONE, phone);
+        outState.putString(KEY_SECRET_KEY, secretKey);
     }
 
     public static ConnectIdPasswordVerificationFragment newInstance() {
@@ -58,10 +70,14 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         return fragment;
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            failureCount = savedInstanceState.getInt(KEY_FAILURE_COUNT);
+            phone = savedInstanceState.getString(KEY_PHONE);
+            secretKey = savedInstanceState.getString(KEY_SECRET_KEY);
+        }
     }
 
     @Override

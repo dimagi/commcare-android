@@ -39,7 +39,13 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private String userName;
     private String password;
     private int callingClass;
-
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_MESSAGE = "message";
+    private static final String KEY_BUTTON_TEXT = "button_text";
+    private static final String KEY_BUTTON2_TEXT = "button2_text";
+    private static final String KEY_USER_NAME = "user_name";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_CALLING_CLASS = "calling_class";
     private ScreenConnectMessageBinding binding;
 
 
@@ -47,13 +53,34 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         // Required empty public constructor
     }
 
-    public static ConnectIdMessageFragment newInstance() {
-        return new ConnectIdMessageFragment();
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_TITLE, title);
+        outState.putString(KEY_MESSAGE, message);
+        outState.putString(KEY_BUTTON_TEXT, buttonText);
+        outState.putString(KEY_BUTTON2_TEXT, button2Text);
+        outState.putString(KEY_USER_NAME, userName);
+        outState.putString(KEY_PASSWORD, password);
+        outState.putInt(KEY_CALLING_CLASS, callingClass);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            title = savedInstanceState.getString(KEY_TITLE);
+            message = savedInstanceState.getString(KEY_MESSAGE);
+            buttonText = savedInstanceState.getString(KEY_BUTTON_TEXT);
+            button2Text = savedInstanceState.getString(KEY_BUTTON2_TEXT);
+            userName = savedInstanceState.getString(KEY_USER_NAME);
+            password = savedInstanceState.getString(KEY_PASSWORD);
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+        }
+    }
+
+    public static ConnectIdMessageFragment newInstance() {
+        return new ConnectIdMessageFragment();
     }
 
     @Override

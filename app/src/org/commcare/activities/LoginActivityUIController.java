@@ -544,6 +544,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     public void updateConnectLoginState() {
         setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
+        if(activity==null){
+            return;
+        }
 
         if (ConnectManager.isConnectIdConfigured()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
