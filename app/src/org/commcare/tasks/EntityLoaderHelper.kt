@@ -66,15 +66,15 @@ class EntityLoaderHelper(
     /**
      *  Primes the entity cache
      */
-    fun cacheEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
+    fun cacheEntities(nodeset: TreeReference, skiplazyLoad : Boolean): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
         val references = factory.expandReferenceList(nodeset)
         val entities = loadEntitiesWithReferences(references, null)
-        cacheEntities(entities)
+        cacheEntities(entities, skiplazyLoad)
         return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
     }
 
-    fun cacheEntities(entities: MutableList<Entity<TreeReference>>?) {
-        factory.cacheEntities(entities)
+    fun cacheEntities(entities: MutableList<Entity<TreeReference>>?, skiplazyLoad: Boolean) {
+        factory.cacheEntities(entities, skiplazyLoad)
     }
 
     /**

@@ -130,7 +130,7 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
                     if (shortDetailId != null) {
                         val detail = commCarePlatform.getDetail(shortDetailId)
                         try {
-                            primeCacheForDetail(entry.commandId, detail, sessionDatum)
+                            primeCacheForDetail(entry.commandId, detail, sessionDatum, null, true)
                         } catch (e: XPathException) {
                             // Bury any xpath exceptions here as we don't want to hold off priming cache
                             // for other datums because of an error with a particular detail.
@@ -149,7 +149,8 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         commandId: String,
         detail: Detail,
         entityDatum: EntityDatum,
-        entities: MutableList<Entity<TreeReference>>? = null
+        entities: MutableList<Entity<TreeReference>>? = null,
+        skiplazyLoad: Boolean = false,
     ) {
         if (!detail.isCacheEnabled() || cancelled) return
         currentDatumInProgress = entityDatum.dataId
@@ -160,10 +161,10 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         // Handle the cache operation based on the available input
         val cachedEntities = when {
             entities != null -> {
-                entityLoaderHelper!!.cacheEntities(entities)
+                entityLoaderHelper!!.cacheEntities(entities, skiplazyLoad)
                 entities
             }
-            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset).first
+            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset, skiplazyLoad).first
         }
         _cachedEntitiesState.value = Triple(entityDatum.dataId, detail.id, cachedEntities)
         currentDatumInProgress = null

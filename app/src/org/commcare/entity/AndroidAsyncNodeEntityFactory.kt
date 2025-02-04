@@ -38,43 +38,39 @@ class AndroidAsyncNodeEntityFactory(
         if (!detail.shouldOptimize()) {
             throw RuntimeException(AndroidAsyncNodeEntityFactory::class.simpleName + " can only be used for optimizable case lists");
         }
-
     }
 
     override fun prepareEntitiesInternal(
         entities: MutableList<Entity<TreeReference>>
     ) {
         if (detail.isCacheEnabled) {
-            // we only want to block if lazy load is not enabled
-            if (!detail.isLazyLoading) {
-                if (entityDatum == null) {
-                    throw RuntimeException("Entity Datum must be defined for an async entity factory");
-                }
-                val primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
-                if (primeEntityCacheHelper.isInProgress()) {
-                    // if we are priming something else at the moment, cancel it and expedite the current detail
-                    if (!primeEntityCacheHelper.isSelectDatumInProgress(entityDatum.dataId, detail.id)) {
-                        cancelExistingWorkWithWait(primeEntityCacheHelper)
-                        primeEntityCacheHelper.primeEntityCacheForDetail(
-                            getCurrentCommandId(),
-                            detail,
-                            entityDatum,
-                            entities
-                        )
-                        schedulePrimeEntityCacheWorker()
-                    } else {
-                        observePrimeCacheWork(primeEntityCacheHelper, entities)
-                    }
-                } else {
-                    // we either have not started priming or already completed. In both cases
-                    // we want to re-prime to make sure we calculate any uncalculated data first
+            if (entityDatum == null) {
+                throw RuntimeException("Entity Datum must be defined for an async entity factory");
+            }
+            val primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
+            if (primeEntityCacheHelper.isInProgress()) {
+                // if we are priming something else at the moment, cancel it and expedite the current detail
+                if (!primeEntityCacheHelper.isSelectDatumInProgress(entityDatum.dataId, detail.id)) {
+                    cancelExistingWorkWithWait(primeEntityCacheHelper)
                     primeEntityCacheHelper.primeEntityCacheForDetail(
                         getCurrentCommandId(),
                         detail,
                         entityDatum,
                         entities
                     )
+                    schedulePrimeEntityCacheWorker()
+                } else {
+                    observePrimeCacheWork(primeEntityCacheHelper, entities)
                 }
+            } else {
+                // we either have not started priming or already completed. In both cases
+                // we want to re-prime to make sure we calculate any uncalculated data first
+                primeEntityCacheHelper.primeEntityCacheForDetail(
+                    getCurrentCommandId(),
+                    detail,
+                    entityDatum,
+                    entities
+                )
             }
         }
     }
