@@ -150,7 +150,7 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         detail: Detail,
         entityDatum: EntityDatum,
         entities: MutableList<Entity<TreeReference>>? = null,
-        skiplazyLoad: Boolean = false,
+        inBackground: Boolean = false,
     ) {
         if (!detail.isCacheEnabled() || cancelled) return
         currentDatumInProgress = entityDatum.dataId
@@ -161,10 +161,10 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         // Handle the cache operation based on the available input
         val cachedEntities = when {
             entities != null -> {
-                entityLoaderHelper!!.cacheEntities(entities, skiplazyLoad)
+                entityLoaderHelper!!.cacheEntities(entities, inBackground)
                 entities
             }
-            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset, skiplazyLoad).first
+            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset, inBackground).first
         }
         _cachedEntitiesState.value = Triple(entityDatum.dataId, detail.id, cachedEntities)
         currentDatumInProgress = null
