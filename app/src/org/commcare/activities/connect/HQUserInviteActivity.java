@@ -3,7 +3,6 @@ package org.commcare.activities.connect;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,12 +14,12 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ActivityHquserInviteBinding;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity> {
 
@@ -56,10 +55,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
         ConnectUserRecord user = ConnectManager.getUser(this);
         boolean isTokenPresent = ConnectManager.isConnectIdConfigured();
-        boolean isCorrectUser = true;
-        if (user != null) {
-            isCorrectUser = user.getUserId().equals(connectUserName);
-        }
+        boolean isCorrectUser = user == null || user.getUserId().equals(connectUserName);
 
         if (isCorrectUser) {
             binding.tvHqInvitationHeaderTitle.setText(isTokenPresent
@@ -95,6 +91,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
     private void handleInvitation(String callBackUrl, String inviteCode) {
         Logger.log("HQInvite", "User accepted invitation");
+
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -107,7 +104,8 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
                         finish();
                     }
                 } catch (IOException e) {
-                    Logger.exception("Parsing return from OTP request", e);
+                    CrashUtil.reportException(e);
+                    setErrorMessage(getString(R.string.connect_hq_invitation_accept_error));
                 }
             }
 
@@ -115,13 +113,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
             public void processFailure(int responseCode, IOException e) {
                 Logger.log("HQInvite", "Acceptance failed");
                 binding.progressBar.setVisibility(View.GONE);
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                setErrorMessage("Error requesting SMS code" + message);
+                setErrorMessage(getString(R.string.connect_hq_invitation_accept_error));
             }
 
             @Override
