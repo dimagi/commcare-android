@@ -30,11 +30,13 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
     String username;
     String callBackURL;
     String connectUserName;
-    boolean isProgressVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Logger.log("HQInvite", "Entering HQ user invite activity");
+
         binding = ActivityHquserInviteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Intent intent = getIntent();
@@ -67,20 +69,14 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
             setButtonListeners(isTokenPresent);
         } else {
             binding.tvHqInvitationHeaderTitle.setText(getString(R.string.connect_hq_invitation_wrong_user));
-            hideInvitationButtons();
+            setButtonVisibility(false);
         }
     }
 
-    private void setButtonVisibility(boolean isTokenPresent) {
-        binding.btnAcceptInvitation.setVisibility(isTokenPresent ? View.VISIBLE : View.GONE);
-        binding.btnDeniedInvitation.setVisibility(isTokenPresent ? View.VISIBLE : View.GONE);
-        binding.btnGoToRecovery.setVisibility(isTokenPresent ? View.GONE : View.VISIBLE);
-    }
-
-    private void hideInvitationButtons() {
-        binding.btnAcceptInvitation.setVisibility(View.GONE);
-        binding.btnDeniedInvitation.setVisibility(View.GONE);
-        binding.btnGoToRecovery.setVisibility(View.GONE);
+    private void setButtonVisibility(boolean visible) {
+        binding.btnAcceptInvitation.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.btnDeniedInvitation.setVisibility(visible ? View.VISIBLE : View.GONE);
+        binding.btnGoToRecovery.setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
     private void setButtonListeners(boolean isTokenPresent) {
@@ -98,9 +94,11 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
     }
 
     private void handleInvitation(String callBackUrl, String inviteCode) {
+        Logger.log("HQInvite", "User accepted invitation");
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                Logger.log("HQInvite", "Acceptance succeeded");
                 binding.progressBar.setVisibility(View.GONE);
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
@@ -115,6 +113,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
             @Override
             public void processFailure(int responseCode, IOException e) {
+                Logger.log("HQInvite", "Acceptance failed");
                 binding.progressBar.setVisibility(View.GONE);
                 String message = "";
                 if (responseCode > 0) {
@@ -141,15 +140,17 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         binding.progressBar.setVisibility(View.VISIBLE);
         boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this,user.getUserId(),user.getPassword(), callBackUrl, inviteCode, callback);
         if (isBusy) {
+            binding.progressBar.setVisibility(View.GONE);
             Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }
 
     public void setErrorMessage(String message) {
-        if (message == null) {
-            binding.connectPhoneVerifyError.setVisibility(View.GONE);
-        } else {
-            binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
+        boolean show = message != null;
+
+        binding.connectPhoneVerifyError.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        if (show) {
             binding.connectPhoneVerifyError.setText(message);
         }
     }
