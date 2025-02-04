@@ -45,7 +45,7 @@ public class ConnectJobUtils {
         }
 
         Vector<ConnectJobRecord> jobs;
-        if (status == ConnectJobRecord.STATUS_ALL_JOBS) {
+        if (status != ConnectJobRecord.STATUS_ALL_JOBS) {
             jobs = jobStorage.getRecordsForValues(
                     new String[]{ConnectJobRecord.META_STATUS},
                     new Object[]{status});
@@ -112,15 +112,7 @@ public class ConnectJobUtils {
     public static List<ConnectJobRecord> getAvailableJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
         jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
-
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (!record.isFinished()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
+        return getUnFinishedJobs(jobs);
     }
 
     public static List<ConnectJobRecord> getTrainingJobs(Context context) {
@@ -129,15 +121,7 @@ public class ConnectJobUtils {
 
     public static List<ConnectJobRecord> getTrainingJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
         List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
-
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (!record.isFinished()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
+        return getUnFinishedJobs(jobs);
     }
 
     public static List<ConnectJobRecord> getDeliveryJobs(Context context) {
@@ -157,8 +141,15 @@ public class ConnectJobUtils {
         return filtered;
     }
 
-    public static List<ConnectJobRecord> getFinishedJobs(Context context) {
-        return getFinishedJobs(context, null);
+    public static List<ConnectJobRecord> getUnFinishedJobs(List<ConnectJobRecord> jobs) {
+        List<ConnectJobRecord> filtered = new ArrayList<>();
+        for (ConnectJobRecord record : jobs) {
+            if (!record.isFinished()) {
+                filtered.add(record);
+            }
+        }
+
+        return filtered;
     }
 
     public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
@@ -226,7 +217,7 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
-                if (existing.getDate() != null && existing.getPaymentId().equals(incoming.getPaymentId())) {
+                if (existing.getPaymentId().equals(incoming.getPaymentId())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;

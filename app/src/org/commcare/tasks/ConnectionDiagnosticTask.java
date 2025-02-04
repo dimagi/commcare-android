@@ -43,6 +43,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String pingPrefix = "ping -c 1 ";
 
     private static final String logGoogleNullPointerMessage = "Google ping test: Process could not be started.";
+    private static final String noNetwork = "No internet connection";
     private static final String logGoogleIOErrorMessage = "Google ping test: Local error.";
     private static final String logGoogleInterruptedMessage = "Google ping test: Process was interrupted.";
     private static final String logGoogleSuccessMessage = "Google ping test: Success.";
@@ -65,6 +66,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         Test out = null;
         if (!ConnectivityStatus.isNetworkAvailable(this.c)) {
             out = Test.isOnline;
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, noNetwork);
         } else if (!pingSuccess(googleURL)) {
             out = Test.googlePing;
         } else if (!pingCC(commcareURL)) {

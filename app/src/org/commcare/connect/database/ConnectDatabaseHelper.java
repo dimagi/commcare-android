@@ -57,12 +57,12 @@ public class ConnectDatabaseHelper {
                 synchronized (connectDbHandleLock) {
                     if (!dbBroken && (connectDatabase == null || !connectDatabase.isOpen())) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
+                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context,true);
 
                             DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
 
-                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context);
-                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context);
+                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context,false);
+                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context,true);
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
                                 connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));

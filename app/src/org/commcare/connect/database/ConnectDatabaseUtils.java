@@ -50,9 +50,9 @@ public class ConnectDatabaseUtils {
         }
     }
 
-    public static String getConnectDbEncodedPassphrase(Context context) {
+    public static String getConnectDbEncodedPassphrase(Context context,boolean isLocal) {
         try {
-            byte[] passBytes = getConnectDbPassphrase(context);
+            byte[] passBytes = getConnectDbPassphrase(context,isLocal);
             if (passBytes != null) {
                 return Base64.encode(passBytes);
             }
@@ -63,9 +63,9 @@ public class ConnectDatabaseUtils {
         return null;
     }
 
-    public static byte[] getConnectDbPassphrase(Context context) {
+    public static byte[] getConnectDbPassphrase(Context context,boolean isLocal) {
         try {
-            ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord(true);
+            ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord(isLocal);
             if (record != null) {
                 return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
             }else{
