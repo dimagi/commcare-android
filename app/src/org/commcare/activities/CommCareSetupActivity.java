@@ -639,7 +639,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 });
                 break;
             case MENU_CONNECT_FORGET:
-                ConnectManager.forgetUser();
+                ConnectManager.forgetUser("User initiated from setup page");
                 updateConnectButton();
                 break;
         }

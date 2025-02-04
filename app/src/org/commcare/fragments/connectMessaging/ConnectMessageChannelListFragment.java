@@ -20,6 +20,7 @@ import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
 import org.commcare.services.CommCareFirebaseMessagingService;
 
@@ -43,6 +44,8 @@ public class ConnectMessageChannelListFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentChannelListBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+
+        requireActivity().setTitle(R.string.connect_messaging_channel_list_title);
 
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 

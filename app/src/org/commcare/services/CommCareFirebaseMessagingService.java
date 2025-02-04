@@ -150,12 +150,12 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     channelId = channel.getChannelId();
                 }
 
-                if(ConnectMessageChannelListFragment.isActive ||
-                        channelId.equals(ConnectMessageFragment.activeChannel)) {
-                    //Notify active page to update instead of showing notification
-                    Intent broadcastIntent = new Intent(MESSAGING_UPDATE_BROADCAST);
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-                } else {
+                //Send broadcast so any interested pages can update their UI
+                Intent broadcastIntent = new Intent(MESSAGING_UPDATE_BROADCAST);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+
+                if(!ConnectMessageChannelListFragment.isActive &&
+                        !channelId.equals(ConnectMessageFragment.activeChannel)) {
                     //Show push notification
                     notificationTitle = getString(notificationTitleId);
                     notificationText = notificationMessage;

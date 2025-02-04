@@ -3,14 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:padding="10dp"
+    android:background="@color/white"
     tools:context="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:clipToPadding="false"
             android:id="@+id/rvChannel"
             android:layout_height="match_parent"
-            android:layout_width="match_parent" />
+            android:layout_width="match_parent"
+            android:layout_marginTop="0dp"/>
 
 
 
