@@ -24,6 +24,7 @@ public class CCAnalyticsParam {
 
     static final String USER_RETURNED = "user_returned";
     static final String NOTIFICATION_TYPE = "notification_type";
+    static final String ACCEPTED = "accepted";
     static final String PARAM_CCC_SIGN_IN_METHOD = "ccc_sign_in_method";
     static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
     static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";

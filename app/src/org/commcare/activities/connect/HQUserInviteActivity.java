@@ -14,6 +14,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ActivityHquserInviteBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -49,6 +50,8 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
             connectUserName = data.getQueryParameter("connect_username");
         }
 
+        FirebaseAnalyticsUtil.reportHQInvitationDeepLink(domain);
+
         handleButtons();
     }
 
@@ -80,7 +83,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
     private void setButtonListeners(boolean isTokenPresent) {
         if (isTokenPresent) {
             binding.btnAcceptInvitation.setOnClickListener(view -> handleInvitation(callBackURL, inviteCode));
-            binding.btnDeniedInvitation.setOnClickListener(view -> finish());
+            binding.btnDeniedInvitation.setOnClickListener(view -> declineInvitation());
         } else {
             binding.btnGoToRecovery.setOnClickListener(view -> ConnectManager.registerUser(this, success -> {
                         if (success) {
@@ -91,12 +94,18 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         }
     }
 
+    private void declineInvitation() {
+        FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, false, "");
+        finish();
+    }
+
     private void handleInvitation(String callBackUrl, String inviteCode) {
         Logger.log("HQInvite", "User accepted invitation");
 
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
+                FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, true, "");
                 Logger.log("HQInvite", "Acceptance succeeded");
                 binding.progressBar.setVisibility(View.GONE);
                 try {
@@ -113,6 +122,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
             @Override
             public void processFailure(int responseCode, IOException e) {
+                FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, false, "API error");
                 Logger.log("HQInvite", "Acceptance failed");
                 binding.progressBar.setVisibility(View.GONE);
                 setErrorMessage(getString(R.string.connect_hq_invitation_accept_error));
@@ -134,7 +144,6 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
         binding.progressBar.setVisibility(View.VISIBLE);
         boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this,user.getUserId(),user.getPassword(), callBackUrl, inviteCode, callback);
         if (isBusy) {
-            binding.progressBar.setVisibility(View.GONE);
             Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
         }
     }

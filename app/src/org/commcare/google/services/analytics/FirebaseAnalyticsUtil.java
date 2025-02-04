@@ -482,4 +482,16 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
                 CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
     }
+
+    public static void reportHQInvitationDeepLink(String hqDomain) {
+        reportEvent(CCAnalyticsEvent.HQ_INVITE_LINK_RESPONSE,
+                CCAnalyticsParam.CCHQ_DOMAIN, hqDomain);
+    }
+
+    public static void reportHQInvitationResponse(String hqDomain, boolean accepted, String method) {
+        reportEvent(CCAnalyticsEvent.HQ_INVITE_LINK_RESPONSE,
+                new String[]{CCAnalyticsParam.CCHQ_DOMAIN, CCAnalyticsParam.ACCEPTED,
+                        CCAnalyticsParam.MODE},
+                new String[]{hqDomain, String.valueOf(accepted), method});
+    }
 }
