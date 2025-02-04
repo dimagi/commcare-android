@@ -115,7 +115,7 @@ public class EncryptionUtils {
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnrecoverableEntryException {
         int readIndex = 0;
-        int ivLength = bytes[readIndex];
+        int ivLength = bytes[readIndex] & 0xFF;
         readIndex++;
         if (ivLength < 0) {
             //Note: Early chance to catch decryption error
@@ -128,9 +128,9 @@ public class EncryptionUtils {
             readIndex += ivLength;
         }
 
-        int encryptedLength = bytes[readIndex] * 256;
+        int encryptedLength = (bytes[readIndex] & 0xFF) << 8;
         readIndex++;
-        encryptedLength += bytes[readIndex];
+        encryptedLength += (bytes[readIndex] & 0xFF);
 
         byte[] encrypted = new byte[encryptedLength];
         readIndex++;

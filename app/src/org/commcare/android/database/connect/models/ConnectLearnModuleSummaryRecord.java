@@ -57,9 +57,7 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
 
     public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex) throws JSONException {
         ConnectLearnModuleSummaryRecord info = new ConnectLearnModuleSummaryRecord();
-
         info.moduleIndex = moduleIndex;
-
         info.slug = json.getString(META_SLUG);
         info.name = json.getString(META_NAME);
         info.description = json.getString(META_DESCRIPTION);
