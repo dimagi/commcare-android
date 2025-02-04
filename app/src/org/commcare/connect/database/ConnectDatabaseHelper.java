@@ -55,7 +55,7 @@ public class ConnectDatabaseHelper {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
-                    if (!dbBroken && (connectDatabase == null || !connectDatabase.isOpen())) {
+                    if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context,true);
 
