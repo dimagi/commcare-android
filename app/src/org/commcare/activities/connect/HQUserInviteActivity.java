@@ -38,6 +38,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
         binding = ActivityHquserInviteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         Intent intent = getIntent();
         Uri data = intent.getData();
         if (data != null) {
@@ -47,6 +48,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
             domain = data.getQueryParameter("hq_domain");
             connectUserName = data.getQueryParameter("connect_username");
         }
+
         handleButtons();
     }
 

@@ -30,10 +30,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
-    <org.commcare.views.connect.RoundedButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_accept_invitation"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="30dp"
         android:text="@string/connect_hq_invitation_accept"
@@ -41,15 +41,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvHqInvitationHeaderTitle"
-        app:roundButtonBackgroundColor="@color/connect_blue_color"
-        app:roundButtonTextColor="@color/white"
-        app:roundButtonTextSize="6sp"
         tools:text="@string/connect_hq_invitation_accept" />
 
-    <org.commcare.views.connect.RoundedButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_denied_invitation"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="15dp"
         android:text="@string/connect_hq_invitation_denied"
@@ -57,15 +54,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_accept_invitation"
-        app:roundButtonBackgroundColor="@color/connect_blue_color"
-        app:roundButtonTextColor="@color/white"
-        app:roundButtonTextSize="6sp"
         tools:text="@string/connect_hq_invitation_denied" />
 
-    <org.commcare.views.connect.RoundedButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_go_to_recovery"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="15dp"
         android:text="@string/connect_hq_invitation_go_to_recovery"
@@ -73,9 +67,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_denied_invitation"
-        app:roundButtonBackgroundColor="@color/connect_blue_color"
-        app:roundButtonTextColor="@color/white"
-        app:roundButtonTextSize="6sp"
         tools:text="@string/connect_hq_invitation_go_to_recovery" />
 
     <org.commcare.views.connect.connecttextview.ConnectMediumTextView

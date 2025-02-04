@@ -576,11 +576,10 @@
     <string name="connect_new_opportunity">Nova oportunidade</string>
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
-    <string name="connect_commcare_app">Aplicativo CommCare</string>
 
     <string name="connect_hq_invitation_heading">Está convidado para o domínio do projeto CommCareHQ como %s</string>
     <string name="connect_hq_invitation_accept">Aceitar</string>
-    <string name="connect_hq_invitation_denied">Negado</string>
+    <string name="connect_hq_invitation_denied">Declínio</string>
     <string name="connect_hq_invitation_go_to_recovery">Vá para a recuperação</string>
     <string name="connect_hq_invitation_connectId_not_configure">Não configurou o seu ConnectID. Para aceitar este convite, configure primeiro o seu ConnectID. Depois de configurado, poderá aceitar o convite.</string>
     <string name="connect_hq_invitation_wrong_user">Ops! Parece que o convite foi enviado para a pessoa errada.</string>
@@ -590,5 +589,6 @@
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="connect_appbar_title_password_verification">Verificação de palavra-passe</string>
+    <string name="connect_hq_invitation_accept_error">Ocorreu um erro ao aceitar o convite. Entre em contato com o suporte.</string>
 
 </resources>
