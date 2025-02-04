@@ -1,5 +1,6 @@
 package org.commcare.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemChannelBinding;
 import org.javarosa.core.model.utils.DateUtils;
 
@@ -62,12 +64,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         public void bind(ItemChannelBinding binding, ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
             binding.tvChannelName.setText(channel.getChannelName());
 
-            if(!channel.getConsented()) {
-                binding.tvChannelDescription.setText("Unconsented channel");
-            } else {
-                binding.tvChannelDescription.setVisibility(View.GONE);
-            }
-
             Date lastDate = null;
             int unread = 0;
             for(ConnectMessagingMessageRecord message : channel.getMessages()) {
@@ -79,6 +75,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     unread++;
                 }
             }
+
+            binding.tvChannelDescription.setText(channel.getPreview());
 
             boolean showDate = lastDate != null;
             binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);

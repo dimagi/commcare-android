@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectMessaging;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,7 +42,11 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                             .actionChannelConsentToConnectMessageFragment(channel.getChannelId());
                     NavHostFragment.findNavController(this).navigate(directions);
                 } else {
-                    Toast.makeText(requireActivity(), "Failed to grant consent to channel", Toast.LENGTH_SHORT).show();
+                    Context context = getContext();
+                    if(context != null) {
+                        Toast.makeText(context, "Failed to grant consent to channel", Toast.LENGTH_SHORT).show();
+                    }
+
                     NavHostFragment.findNavController(this).popBackStack();
                 }
             });

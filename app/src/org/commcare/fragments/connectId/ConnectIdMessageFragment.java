@@ -213,7 +213,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS:
                 if (success) {
                     if (!secondButton) {
-                        ConnectDatabaseHelper.forgetUser(requireActivity());
+                        ConnectManager.forgetUser("Account deactivation");
                         requireActivity().finish();
                     }
                 }

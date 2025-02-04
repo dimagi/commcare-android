@@ -129,10 +129,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
 
-        ColorDrawable colorDrawable
-                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-        getSupportActionBar().setBackgroundDrawable(colorDrawable);
-
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectManager.init(this);
@@ -620,7 +616,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerConnectIdUser();
                 return true;
             case MENU_CONNECT_FORGET:
-                ConnectManager.forgetUser();
+                ConnectManager.forgetUser("User initiated from login page");
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
                 uiController.setConnectIdLoginState(false);
