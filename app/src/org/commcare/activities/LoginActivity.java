@@ -221,7 +221,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             String username = uiController.getEnteredUsername();
 
-            if(!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
+            if(appLaunchedFromConnect) {
+                //Auto login
+                doLogin(loginMode, restoreSession, "AUTO");
+            }
+            else if(uiController.loginManagedByConnectId()) {
+                //Unlock and then auto login
                 ConnectManager.unlockConnect(this, success -> {
                     if(success) {
                         String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
@@ -230,6 +235,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 });
             }
             else {
+                //Manual login
                 String passwordOrPin = uiController.getEnteredPasswordOrPin();
                 doLogin(loginMode, restoreSession, passwordOrPin);
             }
