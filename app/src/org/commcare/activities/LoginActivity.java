@@ -555,28 +555,27 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ConnectManager.ConnectAppMangement appState = ConnectManager.getAppManagement(this,
                 seatedAppId, uiController.getEnteredUsername());
 
-        switch(appState) {
-            case Connect -> {
-                if(appLaunchedFromConnect && presetAppId != null) {
-                    uiController.setConnectButtonVisible(false);
-                    if (!seatAppIfNeeded(presetAppId)) {
-                        connectLaunchPerformed = true;
-                        initiateLoginAttempt(uiController.isRestoreSessionChecked());
-                    }
-                }
-            }
-            case ConnectId -> {
-                int selectorIndex = uiController.getSelectedAppIndex();
-                if(selectorIndex > 0) {
-                    String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+        if(appLaunchedFromConnect && presetAppId != null) {
+            appState = ConnectManager.ConnectAppMangement.Connect;
 
-                    if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
-                        appState = ConnectManager.ConnectAppMangement.Unmanaged;
-                    }
-                } else {
-                    //Connect jobs selected from dropdown
-                    appState = ConnectManager.ConnectAppMangement.Connect;
+            uiController.setConnectButtonVisible(false);
+            if (!seatAppIfNeeded(presetAppId)) {
+                connectLaunchPerformed = true;
+                initiateLoginAttempt(uiController.isRestoreSessionChecked());
+            }
+        }
+
+        if(appState == ConnectManager.ConnectAppMangement.ConnectId) {
+            int selectorIndex = uiController.getSelectedAppIndex();
+            if (selectorIndex > 0) {
+                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+
+                if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                    appState = ConnectManager.ConnectAppMangement.Unmanaged;
                 }
+            } else {
+                //Connect jobs selected from dropdown
+                appState = ConnectManager.ConnectAppMangement.Connect;
             }
         }
 
@@ -758,9 +757,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         int position = 0;
         if (selectedAppIndex >= 0) {
             position = selectedAppIndex;
+
+            if(position >= appNames.size()) {
+                //Special case when user forgets ConnectID account and last app in the list is selected
+                position = appNames.size() - 1;
+            }
         } else if (appIdDropdownList.contains(currAppId)) {
             position = appIdDropdownList.indexOf(currAppId);
         }
+
         uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
     }
