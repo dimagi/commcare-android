@@ -431,7 +431,6 @@
     <string name="login_welcome_connect_signed_out">Unlock ConnectID first and then enter your app.</string>
     <string name="login_welcome_connect_signed_in">Welcome %s!</string>
     <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using ConnectID.</string>
-    <string name="login_input_auto">AUTO</string>
     <string name="choice_or">_____________    OR    _____________</string>
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 

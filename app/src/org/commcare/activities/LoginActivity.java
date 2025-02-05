@@ -553,8 +553,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case Connect -> {
                 if(appLaunchedFromConnect && presetAppId != null) {
                     uiController.setConnectButtonVisible(false);
-                    uiController.setUsername(getString(R.string.login_input_auto));
-                    uiController.setPasswordOrPin(getString(R.string.login_input_auto));
                     if (!seatAppIfNeeded(presetAppId)) {
                         connectLaunchPerformed = true;
                         initiateLoginAttempt(uiController.isRestoreSessionChecked());
