@@ -188,16 +188,24 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsParam.ACTION_TYPE, actionType);
     }
 
-    public static void reportFormNav(String direction, String method) {
+    public static void reportFormEntry(String formId) {
+        reportEvent(CCAnalyticsEvent.FORM_ENTRY_ATTEMPT,
+                new String[]{CCAnalyticsParam.FORM_ID},
+                new String[]{formId});
+    }
+
+    public static void reportFormNav(String direction, String method, String formId) {
         if (rateLimitReporting(.1)) {
             reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD},
-                    new String[]{direction, method});
+                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
+                    new String[]{direction, method, formId});
         }
     }
 
-    public static void reportFormQuitAttempt(String method) {
-        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT, FirebaseAnalytics.Param.METHOD, method);
+    public static void reportFormQuitAttempt(String method, String formId) {
+        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT,
+                new String[]{FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
+                new String[]{method, formId});
     }
 
     /**

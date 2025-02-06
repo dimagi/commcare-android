@@ -596,7 +596,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS, getCurrentFormXmlnsFailSafe());
                 triggerUserQuitInput();
                 return true;
 
@@ -1131,12 +1131,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
         HiddenPreferences.clearInterruptedFormState();
-
         if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
 
         mFormController = fc;
+        FirebaseAnalyticsUtil.reportFormEntry(getCurrentFormXmlnsFailSafe());
 
         // Newer menus may have already built the menu, before all data was ready
         invalidateOptionsMenu();
@@ -1217,7 +1217,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.BACK_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.BACK_BUTTON_PRESS, getCurrentFormXmlnsFailSafe());
                 triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1432,7 +1432,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected boolean onBackwardSwipe() {
         FirebaseAnalyticsUtil.reportFormNav(
                 AnalyticsParamValue.DIRECTION_BACKWARD,
-                AnalyticsParamValue.SWIPE);
+                AnalyticsParamValue.SWIPE, getCurrentFormXmlnsFailSafe());
 
         uiController.showPreviousView(true);
         return true;
@@ -1442,7 +1442,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected boolean onForwardSwipe() {
         FirebaseAnalyticsUtil.reportFormNav(
                 AnalyticsParamValue.DIRECTION_FORWARD,
-                AnalyticsParamValue.SWIPE);
+                AnalyticsParamValue.SWIPE, getCurrentFormXmlnsFailSafe());
 
         if (canNavigateForward()) {
             uiController.next();
@@ -1680,6 +1680,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private int getCurrentFormID() {
         return mFormController.getFormID();
+    }
+
+    public String getCurrentFormXmlnsFailSafe() {
+        try {
+            return mFormController.getFormEntryController().getModel().getForm().getMainInstance().schema;
+        } catch (Exception e) {
+            Logger.exception("Error trying to get form schema", e);
+        }
+        return null;
     }
 
     /**
