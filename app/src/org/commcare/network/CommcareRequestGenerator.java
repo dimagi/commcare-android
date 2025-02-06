@@ -185,7 +185,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                             ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(
                                     CommCareApplication.instance(), seatedAppId, username);
-                            if (appRecord != null) {
+                            if (appRecord != null && appRecord.getWorkerLinked()) {
                                 Logger.exception("Critical auth error for connect managed app",
                                         new Throwable("No token Auth available for a connect managed app"));
                             }

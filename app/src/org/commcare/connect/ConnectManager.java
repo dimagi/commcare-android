@@ -595,7 +595,7 @@ public class ConnectManager {
                                 " and record expiration date being " + user.getConnectTokenExpiration());
                 return new AuthInfo.TokenAuth(user.getConnectToken());
             } else if (user != null) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Found an existing Connect token");
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
         }
 
