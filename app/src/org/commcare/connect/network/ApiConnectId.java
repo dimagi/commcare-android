@@ -16,6 +16,8 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -42,6 +44,7 @@ public class ApiConnectId {
         try {
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Link Connect ID result " + postResult.responseCode );
             if (postResult.e == null && postResult.responseCode == 200) {
                 postResult.responseStream.close();
 
@@ -73,6 +76,7 @@ public class ApiConnectId {
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "OAuth Token Post Result " + postResult.responseCode);
         if (postResult.responseCode == 200) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
@@ -91,6 +95,8 @@ public class ApiConnectId {
                     ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
+                } else  {
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect access Token not present in oauth response");
                 }
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from HQ OIDC call", e);
@@ -133,6 +139,7 @@ public class ApiConnectId {
 
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
             if (postResult.responseCode == 200) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
@@ -150,6 +157,8 @@ public class ApiConnectId {
                         ConnectDatabaseHelper.storeUser(context, user);
 
                         return new AuthInfo.TokenAuth(token);
+                    } else {
+                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result doesn't have token");
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from Connect OIDC call", e);
