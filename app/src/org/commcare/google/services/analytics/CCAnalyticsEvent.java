@@ -13,6 +13,7 @@ public class CCAnalyticsEvent {
     static final String ENABLE_PRIVILEGE = "enable_privilege";
     static final String ENTITY_DETAIL_NAVIGATION = "entity_detail_navigation";
     static final String FEATURE_USAGE = "feature_usage";
+    static final String FORM_ENTRY_ATTEMPT = "form_entry_attempt";
     static final String FORM_EXIT_ATTEMPT = "form_exit_attempt";
     static final String FORM_NAVIGATION = "form_navigation";
     static final String GRAPH_ACTION = "graphing_action";
