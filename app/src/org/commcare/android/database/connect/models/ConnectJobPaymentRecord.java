@@ -99,7 +99,12 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public String getAmount() { return amount; }
 
     public boolean getConfirmed() {return confirmed; }
-    public Date getConfirmedDate() {return confirmedDate; }
+    public Date getConfirmedDate(){
+        if(!confirmed){
+            return null;
+        }
+        return confirmedDate;
+    }
 
     public void setConfirmed(boolean confirmed) {
         this.confirmed = confirmed;
