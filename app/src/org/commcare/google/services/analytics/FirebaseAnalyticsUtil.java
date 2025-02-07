@@ -484,7 +484,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportHQInvitationDeepLink(String hqDomain) {
-        reportEvent(CCAnalyticsEvent.HQ_INVITE_LINK_RESPONSE,
+        reportEvent(CCAnalyticsEvent.HQ_INVITE_LINK,
                 CCAnalyticsParam.CCHQ_DOMAIN, hqDomain);
     }
 
