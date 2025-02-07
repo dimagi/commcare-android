@@ -1,6 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -15,8 +14,6 @@ import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 import org.commcare.utils.FormUploadResult;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
@@ -195,10 +192,10 @@ public class FirebaseAnalyticsUtil {
                 new String[]{method, formId});
     }
 
-    public static void reportFormSubmission(String saveResult, String formId, boolean userTriggered) {
+    public static void reportFormFinishAttempt(String saveResult, String formId, boolean userTriggered) {
         String method = userTriggered ? AnalyticsParamValue.USER_TRIGGERED : AnalyticsParamValue.SYSTEM_TRIGGERED;
-        reportEvent(CCAnalyticsEvent.FORM_SUBMISSION_ATTEMPT,
-                new String[]{CCAnalyticsParam.FORM_ID, FirebaseAnalytics.Param.VALUE,
+        reportEvent(CCAnalyticsEvent.FORM_FINISH_ATTEMPT,
+                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT,
                         FirebaseAnalytics.Param.METHOD},
                 new String[]{formId, saveResult, method});
     }
