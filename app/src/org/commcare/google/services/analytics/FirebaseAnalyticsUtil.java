@@ -28,6 +28,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.FormUploadResult;
 
 import java.util.Date;
 
@@ -208,6 +209,14 @@ public class FirebaseAnalyticsUtil {
                 new String[]{method, formId});
     }
 
+    public static void reportFormFinishAttempt(String saveResult, String formId, boolean userTriggered) {
+        String method = userTriggered ? AnalyticsParamValue.USER_TRIGGERED : AnalyticsParamValue.SYSTEM_TRIGGERED;
+        reportEvent(CCAnalyticsEvent.FORM_FINISH_ATTEMPT,
+                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT,
+                        FirebaseAnalytics.Param.METHOD},
+                new String[]{formId, saveResult, method});
+    }
+
     /**
      * Report a user event of navigating backward out of the entity detail screen
      */
@@ -362,6 +371,18 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{quarantineReasonType});
+    }
+
+    public static void reportMenuItemClick(String commandId) {
+        reportEvent(CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{commandId});
+    }
+
+    public static void reportFormUploadAttempt(FormUploadResult first, Integer second) {
+        reportEvent(CCAnalyticsEvent.FORM_UPLOAD_ATTEMPT,
+                new String[]{CCAnalyticsParam.RESULT, FirebaseAnalytics.Param.VALUE},
+                new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
     public static void reportCccSignIn(String method) {

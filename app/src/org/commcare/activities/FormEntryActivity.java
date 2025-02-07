@@ -107,8 +107,6 @@ import javax.crypto.spec.SecretKeySpec;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
-import static org.commcare.activities.components.FormEntryConstants.DO_NOT_EXIT;
-import static org.commcare.activities.components.FormEntryConstants.EXIT;
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_RECORD_ERROR;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
@@ -1296,6 +1294,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else if (saveStatus != null) {
             String toastMessage = "";
+            FirebaseAnalyticsUtil.reportFormFinishAttempt(saveStatus.toString(), getCurrentFormXmlnsFailSafe(), userTriggered);
             switch (saveStatus) {
                 case SAVED_COMPLETE:
                     toastMessage = Localization.get("form.entry.complete.save.success");

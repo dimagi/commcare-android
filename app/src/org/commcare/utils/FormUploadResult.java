@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import org.commcare.modern.util.Pair;
 import org.commcare.views.notifications.MessageTag;
 
 /**
@@ -115,12 +116,20 @@ public enum FormUploadResult implements MessageTag {
     }
 
     public static FormUploadResult getWorstResult(FormUploadResult[] results) {
+        return getWorstResultWithSuccessCount(results).first;
+    }
+
+    public static Pair<FormUploadResult, Integer> getWorstResultWithSuccessCount(FormUploadResult[] results) {
+        int successCount = 0;
         FormUploadResult worstResult = FULL_SUCCESS;
         for (FormUploadResult result : results) {
+            if (result == FULL_SUCCESS) {
+                successCount++;
+            }
             if (result.orderVal > worstResult.orderVal) {
                 worstResult = result;
             }
         }
-        return worstResult;
+        return new Pair<>(worstResult, successCount);
     }
 }
