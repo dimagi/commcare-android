@@ -55,6 +55,7 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
@@ -602,8 +603,14 @@ public class ConnectManager {
     public static AuthInfo.TokenAuth getConnectToken() {
         if (isConnectIdConfigured()) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-            if (user != null && (new Date()).compareTo(user.getConnectTokenExpiration()) < 0) {
+            Date currentDate = new Date();
+            if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "Found a valid existing Connect Token with current date set to " + currentDate +
+                                " and record expiration date being " + user.getConnectTokenExpiration());
                 return new AuthInfo.TokenAuth(user.getConnectToken());
+            } else if (user != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
         }
 
@@ -614,11 +621,15 @@ public class ConnectManager {
         if (isConnectIdConfigured()) {
             ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
                     userId);
-            if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
+            Date currentDate = new Date();
+            if (record != null && currentDate.compareTo(record.getHqTokenExpiration()) < 0) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Found a valid existing HQ Token with current date set to " + currentDate +
+                        " and record expiration date being "  + record.getHqTokenExpiration());
                 return new AuthInfo.TokenAuth(record.getHqToken());
+            } else if (record != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing HQ Token is not valid");
             }
         }
-
         return null;
     }
 

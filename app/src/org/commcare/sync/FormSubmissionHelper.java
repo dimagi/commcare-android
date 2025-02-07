@@ -12,6 +12,7 @@ import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.modern.util.Pair;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
@@ -159,10 +160,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
         } catch (SessionUnavailableException sue) {
             return FormUploadResult.PROGRESS_LOGGED_OUT;
         } finally {
-            boolean success =
-                    FormUploadResult.FULL_SUCCESS.equals(FormUploadResult.getWorstResult(mResults));
+            Pair<FormUploadResult, Integer> resultWithSuccessCount =
+                    FormUploadResult.getWorstResultWithSuccessCount(mResults);
+            boolean success = FormUploadResult.FULL_SUCCESS.equals(resultWithSuccessCount.first);
             endSubmissionProcess(success);
-
+            FirebaseAnalyticsUtil.reportFormUploadAttempt(resultWithSuccessCount.first,
+                    resultWithSuccessCount.second);
             synchronized (processTasks) {
                 processTasks.remove(this);
             }
