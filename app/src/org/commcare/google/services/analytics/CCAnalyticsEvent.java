@@ -26,6 +26,7 @@ public class CCAnalyticsEvent {
     static final String VIEW_QUESTION_MEDIA = "view_question_media";
     static final String COMMON_COMMCARE_EVENT = "common_commcare_event";
     static final String FORM_QUARANTINE_EVENT = "form_quarantine_event";
+    static final String MENU_SCREEN_ITEM_CLICK = "menu_screen_item_click";
     static final String IN_APP_UPDATE_EVENT = "in_app_update_event";
 
 }

@@ -349,4 +349,10 @@ public class FirebaseAnalyticsUtil {
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{quarantineReasonType});
     }
+
+    public static void reportMenuItemClick(String commandId) {
+        reportEvent(CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{commandId});
+    }
 }
