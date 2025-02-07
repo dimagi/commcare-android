@@ -1296,6 +1296,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else if (saveStatus != null) {
             String toastMessage = "";
+            FirebaseAnalyticsUtil.reportFormSubmission(saveStatus.toString(), getCurrentFormXmlnsFailSafe(), userTriggered);
             switch (saveStatus) {
                 case SAVED_COMPLETE:
                     toastMessage = Localization.get("form.entry.complete.save.success");

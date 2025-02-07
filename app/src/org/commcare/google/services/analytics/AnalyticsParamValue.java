@@ -141,4 +141,10 @@ public class AnalyticsParamValue {
 
     public static final String IN_APP_UPDATE_SUCCESS = "success";
 
+    // Param values for Form Submission Event
+
+    public static final String USER_TRIGGERED = "user_triggered";
+    public static final String SYSTEM_TRIGGERED = "system_triggered";
+
+
 }

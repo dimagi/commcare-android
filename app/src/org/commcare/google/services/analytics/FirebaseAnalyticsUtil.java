@@ -194,6 +194,14 @@ public class FirebaseAnalyticsUtil {
                 new String[]{method, formId});
     }
 
+    public static void reportFormSubmission(String saveResult, String formId, boolean userTriggered) {
+        String method = userTriggered ? AnalyticsParamValue.USER_TRIGGERED : AnalyticsParamValue.SYSTEM_TRIGGERED;
+        reportEvent(CCAnalyticsEvent.FORM_SUBMISSION_ATTEMPT,
+                new String[]{CCAnalyticsParam.FORM_ID, FirebaseAnalytics.Param.VALUE,
+                        FirebaseAnalytics.Param.METHOD},
+                new String[]{formId, saveResult, method});
+    }
+
     /**
      * Report a user event of navigating backward out of the entity detail screen
      */
