@@ -16,6 +16,7 @@ public class CCAnalyticsEvent {
     static final String FORM_ENTRY_ATTEMPT = "form_entry_attempt";
     static final String FORM_EXIT_ATTEMPT = "form_exit_attempt";
     static final String FORM_SUBMISSION_ATTEMPT = "form_submission_attempt";
+    static final String FORM_UPLOAD_ATTEMPT = "form_upload_attempt";
     static final String FORM_NAVIGATION = "form_navigation";
     static final String GRAPH_ACTION = "graphing_action";
     static final String HOME_BUTTON_CLICK = "home_button_click";

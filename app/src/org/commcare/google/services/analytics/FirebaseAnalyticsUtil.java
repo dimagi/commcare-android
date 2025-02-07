@@ -13,6 +13,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.FormUploadResult;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -362,5 +363,11 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{commandId});
+    }
+
+    public static void reportFormUploadAttempt(FormUploadResult first, Integer second) {
+        reportEvent(CCAnalyticsEvent.FORM_UPLOAD_ATTEMPT,
+                new String[]{CCAnalyticsParam.RESULT, FirebaseAnalytics.Param.VALUE},
+                new String[]{String.valueOf(first), String.valueOf(second)});
     }
 }
