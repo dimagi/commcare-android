@@ -299,7 +299,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         StringBuilder validKeys = new StringBuilder("(");
         DetailField[] fields = detail.getFields();
         for (int i = 0; i < fields.length; ++i) {
-            if (fields[i].isOptimize()) {
+            if (fields[i].isCacheEnabled()) {
                 keys.add(getCacheKey(detail.getId(), String.valueOf(i),
                         TYPE_NORMAL_FIELD));
                 validKeys.append("?, ");
