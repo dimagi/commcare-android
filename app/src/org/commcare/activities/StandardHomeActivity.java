@@ -56,10 +56,6 @@ public class StandardHomeActivity
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
 
-        ColorDrawable colorDrawable
-                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-        getSupportActionBar().setBackgroundDrawable(colorDrawable);
-
         updateSecondaryPhoneConfirmationTile();
     }
 
