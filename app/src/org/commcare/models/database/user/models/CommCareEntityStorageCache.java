@@ -44,6 +44,8 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     private static final String COL_VALUE = "value";
     private static final String COL_TIMESTAMP = "timestamp";
     private static final String ENTITY_CACHE_WIPED_PREF_SUFFIX = "enity_cache_wiped";
+    private static final String COL_IS_DIRTY = "is_dirty";
+    private static final String COL_IS_SHALLOW = "is_shallow";
 
     private final SQLiteDatabase db;
     private final String mCacheName;
@@ -68,6 +70,8 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                 COL_CACHE_KEY + ", " +
                 COL_VALUE + ", " +
                 COL_TIMESTAMP + ", " +
+                COL_IS_DIRTY + " INTEGER NOT NULL DEFAULT 0, " +
+                COL_IS_SHALLOW + " INTEGER NOT NULL DEFAULT 0, " +
                 "UNIQUE (" + COL_CACHE_NAME + "," + COL_APP_ID + "," + COL_ENTITY_KEY + "," + COL_CACHE_KEY + ")" +
                 ")";
     }
@@ -123,27 +127,31 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
     /**
-     * Removes cache records associated with the provided ID
+     * Inserts a shallow record for the recordId to mark the record needing invalidation
      */
     public void invalidateCache(String recordId) {
-        int removed = db.delete(TABLE_NAME, COL_CACHE_NAME + " = ? AND " + COL_ENTITY_KEY + " = ?", new String[]{mCacheName, recordId});
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            Log.d(TAG, "Invalidated " + removed + " cached values for entity " + recordId);
-        }
+        ContentValues cv = new ContentValues();
+        cv.put(COL_CACHE_NAME, mCacheName);
+        cv.put(COL_APP_ID, mAppId);
+        cv.put(COL_ENTITY_KEY, recordId);
+        cv.put(COL_IS_DIRTY, 1);
+        cv.put(COL_IS_SHALLOW, 1);
+        cv.put(COL_TIMESTAMP, System.currentTimeMillis());
+        db.insertWithOnConflict(TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     /**
-     * Removes cache records associated with the provided IDs
+     * Inserts shallow records for the recordIds to signify the records needing invalidation
      */
     public void invalidateCaches(Collection<Integer> recordIds) {
-        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
-        int removed = 0;
-        for (Pair<String, String[]> querySet : whereParamList) {
-            removed += db.delete(TABLE_NAME, COL_CACHE_NAME + " = '" + mCacheName + "' AND " +
-                    COL_ENTITY_KEY + " IN " + querySet.first, querySet.second);
-        }
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            Log.d(TAG, "Invalidated " + removed + " cached values for bulk entities");
+        try {
+            db.beginTransaction();
+            for (Integer recordId : recordIds) {
+                invalidateCache(String.valueOf(recordId));
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 
