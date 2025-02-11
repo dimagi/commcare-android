@@ -73,6 +73,7 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
+                            handleCorruptDb(context);
                             Logger.exception("Corrupt Connect DB", e);
                         }
                     }
