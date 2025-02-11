@@ -112,6 +112,17 @@
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone" />
 
+                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                android:id="@+id/login_via_connect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="@dimen/content_min_margin"
+                                android:text="@string/login_via_connect"
+                                android:textColor="@color/cc_neutral_color"
+                                android:textSize="@dimen/text_medium"
+                                android:visibility="gone"/>
+
                             <AutoCompleteTextView
                                 android:id="@+id/edit_username"
                                 style="@style/LoginEditTextV2"
@@ -133,6 +144,7 @@
                             </AutoCompleteTextView>
 
                             <RelativeLayout
+                                android:id="@+id/password_wrapper"
                                 android:layout_width="wrap_content"
                                 android:layout_height="50dp"
                                 android:padding="0dp"

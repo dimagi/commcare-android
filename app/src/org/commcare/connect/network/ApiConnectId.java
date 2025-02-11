@@ -21,6 +21,7 @@ import org.commcare.network.connectId.network.ApiClient;
 import org.commcare.network.connectId.network.ApiService;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
@@ -37,6 +38,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,11 +61,12 @@ public class ApiConnectId {
             String url = ServerUrls.getKeyServer().replace("phone/keys/",
                     "settings/users/commcare/link_connectid_user/");
 
-            try {
-                ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                        API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
-                if (postResult.e == null && postResult.responseCode == 200) {
-                    postResult.responseStream.close();
+        try {
+            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                    API_VERSION_NONE, new AuthInfo.ProvidedAuth(hqUsername, appRecord.getPassword()), params, true, false);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Link Connect ID result " + postResult.responseCode );
+            if (postResult.e == null && postResult.responseCode == 200) {
+                postResult.responseStream.close();
 
                     //Remember that we linked the user successfully
                     appRecord.setWorkerLinked(true);
@@ -94,6 +97,7 @@ public class ApiConnectId {
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "OAuth Token Post Result " + postResult.responseCode);
         if (postResult.responseCode == 200) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
@@ -112,6 +116,8 @@ public class ApiConnectId {
                     ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
 
                     return new AuthInfo.TokenAuth(token);
+                } else  {
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect access Token not present in oauth response");
                 }
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from HQ OIDC call", e);
@@ -154,6 +160,7 @@ public class ApiConnectId {
 
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
             if (postResult.responseCode == 200) {
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
@@ -171,6 +178,8 @@ public class ApiConnectId {
                         ConnectDatabaseHelper.storeUser(context, user);
 
                         return new AuthInfo.TokenAuth(token);
+                    } else {
+                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result doesn't have token");
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from Connect OIDC call", e);
@@ -211,9 +220,9 @@ public class ApiConnectId {
     }
     static void callApi(Context context,Call<ResponseBody> call, IApiCallback callback) {
         showProgressDialog(context);
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 dismissProgressDialog(context);
                 if (response.isSuccessful() && response.body() != null) {
                     // Handle success
@@ -231,7 +240,7 @@ public class ApiConnectId {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 dismissProgressDialog(context);
                 // Handle network errors, etc.
                 handleNetworkError(t);
@@ -493,7 +502,7 @@ public class ApiConnectId {
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("channel", channel);
-        params.put("consent", Boolean.valueOf(consented));
+        params.put("consent", consented);
 
         return ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageChannelConsentURL),
@@ -502,7 +511,7 @@ public class ApiConnectId {
 
     public static void retrieveChannelEncryptionKey(Context context, String channelId, String channelUrl, IApiCallback callback) {
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            HashMap<String, Object> params = new HashMap();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("channel_id", channelId);
 
             ConnectNetworkHelper.post(context,
@@ -511,19 +520,19 @@ public class ApiConnectId {
         });
     }
 
-    public static boolean confirmReceivedMessages(Context context, String username, String password,
+    public static void confirmReceivedMessages(Context context, String username, String password,
                                                   List<String> messageIds, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("messages", messageIds);
 
-        return ConnectNetworkHelper.post(context,
+        ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageConfirmURL),
                 API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
     }
 
-    public static boolean sendMessagingMessage(Context context, String username, String password,
+    public static void sendMessagingMessage(Context context, String username, String password,
                                                ConnectMessagingMessageRecord message, String key, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
 
@@ -544,7 +553,7 @@ public class ApiConnectId {
         params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
         params.put("message_id", message.getMessageId());
 
-        return ConnectNetworkHelper.post(context,
+        ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
                 API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
     }

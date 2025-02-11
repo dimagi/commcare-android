@@ -342,7 +342,6 @@
     <string name="login_password_by_connect">ብመንገዲ ConnectID (ወይ ኣብዚ ጽቐጥ)</string>
     <string name="login_welcome_connect_signed_in">እንቋዕ ብደሓን መጻእኩም %s!</string>
     <string name="login_connect_secondary_phone_message">በጃኹም ካልኣይ ደረጃ ስልክኹም ብ %s ኣረጋግጹ ConnectID ምጥቃምም ክትቅጽል።</string>
-    <string name="login_input_auto">ኣውቶማቲክ</string>
     <string name="choice_or">_____________ ወይ _____________</string>
     <string name="busy_message">ሕጂ ውን ቅድሚ ሕጂ ዝገበርካዮ ሕቶ ኣብ ምስራሕ ተጸሚድና ኣለና። በጃኻ ድሕሪ ውሱን ግዜ ደጊምካ ፈትን።</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>

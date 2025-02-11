@@ -56,6 +56,7 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.connect.RoundedButton;
@@ -119,6 +120,10 @@ public class ConnectManager {
         NotIntroduced,
         Registering,
         LoggedIn
+    }
+
+    public enum ConnectAppMangement {
+        Unmanaged, ConnectId, Connect
     }
 
     /**
@@ -451,125 +456,136 @@ public class ConnectManager {
     }
 
     public static void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
-        if (isLoginManagedByConnectId(appId, username)) {
-            //ConnectID is configured
-            if (!autoLoggedIn) {
-                //See if user wishes to permanently sever the connection
-                StandardAlertDialog d = new StandardAlertDialog(activity,
-                        activity.getString(R.string.login_unlink_connectid_title),
-                        activity.getString(R.string.login_unlink_connectid_message));
+        switch(getAppManagement(activity, appId, username)) {
+            case Unmanaged -> {
+                //ConnectID is NOT configured
+                boolean offerToLink = true;
+                boolean isSecondOffer = false;
 
-                d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
-                    activity.dismissAlertDialog();
+                ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+                //See if we've offered to link already
+                Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
+                if (firstOffer != null) {
+                    isSecondOffer = true;
+                    //See if we've done the second offer
+                    Date secondOffer = linkedApp.getLinkOfferDate2();
+                    if (secondOffer != null) {
+                        //They've declined twice, we won't bug them again
+                        offerToLink = false;
+                    } else {
+                        //Determine whether to do second offer
+                        int daysToSecondOffer = 30;
+                        long millis = (new Date()).getTime() - firstOffer.getTime();
+                        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+                        offerToLink = days >= daysToSecondOffer;
+                    }
+                }
 
-                    unlockConnect(activity, success -> {
-                        if (success) {
-                            ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
-                            if (linkedApp != null) {
-                                linkedApp.severConnectIdLink();
-                                ConnectDatabaseHelper.storeApp(activity, linkedApp);
+                if (offerToLink) {
+                    if (linkedApp == null) {
+                        //Create the linked app record (even if just to remember that we offered)
+                        linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false, false);
+                    }
+
+                    //Update that we offered
+                    if (isSecondOffer) {
+                        linkedApp.setLinkOfferDate2(new Date());
+                    } else {
+                        linkedApp.setLinkOfferDate1(new Date());
+                    }
+
+                    final ConnectLinkedAppRecord appRecordFinal = linkedApp;
+                    StandardAlertDialog d = new StandardAlertDialog(activity,
+                            activity.getString(R.string.login_link_connectid_title),
+                            activity.getString(R.string.login_link_connectid_message));
+
+                    d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
+                        activity.dismissAlertDialog();
+
+                        unlockConnect(activity, success -> {
+                            if (success) {
+                                appRecordFinal.linkToConnectId(password);
+                                ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
+
+                                //Link the HQ user by aqcuiring the SSO token for the first time
+                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
+                                    if (auth == null) {
+                                        //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
+                                        //TODO: Re-enable when token working again
+                                        //ConnectManager.forgetAppCredentials(appId, username);
+                                    }
+
+                                    callback.connectActivityComplete(true);
+                                });
+                            } else {
+                                callback.connectActivityComplete(false);
                             }
-                        }
-
-                        callback.connectActivityComplete(success);
+                        });
                     });
-                });
 
-                d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
-                    activity.dismissAlertDialog();
+                    d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
+                        activity.dismissAlertDialog();
 
-                    callback.connectActivityComplete(false);
-                });
+                        //Save updated record indicating that we offered
+                        ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
 
-                activity.showAlertDialog(d);
-                return;
-            }
-        } else {
-            //ConnectID is NOT configured
-            boolean offerToLink = true;
-            boolean isSecondOffer = false;
+                        callback.connectActivityComplete(false);
+                    });
 
-            ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
-            //See if we've offered to link already
-            Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
-            if (firstOffer != null) {
-                isSecondOffer = true;
-                //See if we've done the second offer
-                Date secondOffer = linkedApp.getLinkOfferDate2();
-                if (secondOffer != null) {
-                    //They've declined twice, we won't bug them again
-                    offerToLink = false;
-                } else {
-                    //Determine whether to do second offer
-                    int daysToSecondOffer = 30;
-                    long millis = (new Date()).getTime() - firstOffer.getTime();
-                    long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-                    offerToLink = days >= daysToSecondOffer;
+                    activity.showAlertDialog(d);
+                    return;
                 }
             }
+            case ConnectId -> {
+                if (!autoLoggedIn) {
+                    //See if user wishes to permanently sever the connection
+                    StandardAlertDialog d = new StandardAlertDialog(activity,
+                            activity.getString(R.string.login_unlink_connectid_title),
+                            activity.getString(R.string.login_unlink_connectid_message));
 
-            if (offerToLink) {
-                if (linkedApp == null) {
-                    //Create the linked app record (even if just to remember that we offered)
-                    linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false, false);
-                }
+                    d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
+                        activity.dismissAlertDialog();
 
-                //Update that we offered
-                if (isSecondOffer) {
-                    linkedApp.setLinkOfferDate2(new Date());
-                } else {
-                    linkedApp.setLinkOfferDate1(new Date());
-                }
-
-                final ConnectLinkedAppRecord appRecordFinal = linkedApp;
-                StandardAlertDialog d = new StandardAlertDialog(activity,
-                        activity.getString(R.string.login_link_connectid_title),
-                        activity.getString(R.string.login_link_connectid_message));
-
-                d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
-                    activity.dismissAlertDialog();
-
-                    unlockConnect(activity, success -> {
-                        if (success) {
-                            appRecordFinal.linkToConnectId(password);
-                            ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
-
-                            //Link the HQ user by aqcuiring the SSO token for the first time
-                            ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
-                                if (auth == null) {
-                                    //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
-                                    //TODO: Re-enable when token working again
-                                    //ConnectManager.forgetAppCredentials(appId, username);
+                        unlockConnect(activity, success -> {
+                            if (success) {
+                                ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+                                if (linkedApp != null) {
+                                    linkedApp.severConnectIdLink();
+                                    ConnectDatabaseHelper.storeApp(activity, linkedApp);
                                 }
+                            }
 
-                                callback.connectActivityComplete(true);
-                            });
-                        } else {
-                            callback.connectActivityComplete(false);
-                        }
+                            callback.connectActivityComplete(success);
+                        });
                     });
-                });
 
-                d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
-                    activity.dismissAlertDialog();
+                    d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
+                        activity.dismissAlertDialog();
 
-                    //Save updated record indicating that we offered
-                    ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
+                        callback.connectActivityComplete(false);
+                    });
 
-                    callback.connectActivityComplete(false);
-                });
-
-                activity.showAlertDialog(d);
-                return;
+                    activity.showAlertDialog(d);
+                    return;
+                }
+            }
+            default -> {
+                //Connect managed app, nothing to do
             }
         }
 
         callback.connectActivityComplete(false);
     }
 
-    public static boolean isLoginManagedByConnectId(String appId, String userId) {
-        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
-        return auth != null;
+    public static ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        if(record != null) {
+            return ConnectAppMangement.Connect;
+        }
+
+        return getCredentialsForApp(appId, userId) != null ?
+                ConnectAppMangement.ConnectId :
+                ConnectAppMangement.Unmanaged;
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
@@ -595,8 +611,14 @@ public class ConnectManager {
     public static AuthInfo.TokenAuth getConnectToken() {
         if (isConnectIdConfigured()) {
             ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
-            if (user != null && (new Date()).compareTo(user.getConnectTokenExpiration()) < 0) {
+            Date currentDate = new Date();
+            if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "Found a valid existing Connect Token with current date set to " + currentDate +
+                                " and record expiration date being " + user.getConnectTokenExpiration());
                 return new AuthInfo.TokenAuth(user.getConnectToken());
+            } else if (user != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
         }
 
@@ -607,11 +629,15 @@ public class ConnectManager {
         if (isConnectIdConfigured()) {
             ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
                     userId);
-            if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
+            Date currentDate = new Date();
+            if (record != null && currentDate.compareTo(record.getHqTokenExpiration()) < 0) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Found a valid existing HQ Token with current date set to " + currentDate +
+                        " and record expiration date being "  + record.getHqTokenExpiration());
                 return new AuthInfo.TokenAuth(record.getHqToken());
+            } else if (record != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing HQ Token is not valid");
             }
         }
-
         return null;
     }
 
