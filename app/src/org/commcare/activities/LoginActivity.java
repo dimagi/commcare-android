@@ -221,7 +221,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             String username = uiController.getEnteredUsername();
 
-            if(!appLaunchedFromConnect && uiController.loginManagedByConnectId()) {
+            if(appLaunchedFromConnect) {
+                //Auto login
+                doLogin(loginMode, restoreSession, "AUTO");
+            }
+            else if(uiController.loginManagedByConnectId()) {
+                //Unlock and then auto login
                 ConnectManager.unlockConnect(this, success -> {
                     if(success) {
                         String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
@@ -230,6 +235,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 });
             }
             else {
+                //Manual login
                 String passwordOrPin = uiController.getEnteredPasswordOrPin();
                 doLogin(loginMode, restoreSession, passwordOrPin);
             }
@@ -521,12 +527,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void handleFailedConnectSignIn() {
         ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-        if(appLaunchedFromConnect) {
-            FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-        } else if(ConnectManager.isLoginManagedByConnectId(record.getUniqueId(), getUniformUsername())) {
-            //TODO: Display an additional message that the user will need to login with their password to restore CID login
-            //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
-            //checkForSavedCredentials();
+
+        ConnectManager.ConnectAppMangement appState = ConnectManager.getAppManagement(this,
+                record.getUniqueId(), getUniformUsername());
+
+        switch(appState) {
+            case Connect -> {
+                FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
+            }
+            case ConnectId -> {
+                //TODO: Display an additional message that the user will need to login with their password to restore CID login
+                //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
+                //checkForSavedCredentials();
+            }
         }
     }
 
@@ -538,34 +551,35 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void checkForSavedCredentials() {
-        boolean loginWithConnectIDVisible = false;
-        if (ConnectManager.isConnectIdConfigured()) {
-            if (appLaunchedFromConnect && !connectLaunchPerformed) {
-                loginWithConnectIDVisible = true;
-                uiController.setConnectButtonVisible(false);
-                uiController.setUsername(getString(R.string.login_input_auto));
-                uiController.setPasswordOrPin(getString(R.string.login_input_auto));
-                if(!seatAppIfNeeded(presetAppId)) {
-                    connectLaunchPerformed = true;
-                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
-                }
-            } else {
-                int selectorIndex = uiController.getSelectedAppIndex();
-                if(selectorIndex > 0) {
-                    String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                        loginWithConnectIDVisible = ConnectManager.isLoginManagedByConnectId(seatedAppId,
-                                uiController.getEnteredUsername());
-                    }
-                } else {
-                    //Connect jobs selected from dropdown
-                    loginWithConnectIDVisible = true;
-                }
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectManager.ConnectAppMangement appState = ConnectManager.getAppManagement(this,
+                seatedAppId, uiController.getEnteredUsername());
+
+        if(appLaunchedFromConnect && presetAppId != null) {
+            appState = ConnectManager.ConnectAppMangement.Connect;
+
+            uiController.setConnectButtonVisible(false);
+            if (!seatAppIfNeeded(presetAppId)) {
+                connectLaunchPerformed = true;
+                initiateLoginAttempt(uiController.isRestoreSessionChecked());
             }
         }
 
-        uiController.setConnectIdLoginState(loginWithConnectIDVisible);
+        if(appState == ConnectManager.ConnectAppMangement.ConnectId) {
+            int selectorIndex = uiController.getSelectedAppIndex();
+            if (selectorIndex > 0) {
+                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+
+                if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                    appState = ConnectManager.ConnectAppMangement.Unmanaged;
+                }
+            } else {
+                //Connect jobs selected from dropdown
+                appState = ConnectManager.ConnectAppMangement.Connect;
+            }
+        }
+
+        uiController.setConnectIdLoginState(appState);
     }
 
     @Override
@@ -623,7 +637,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 ConnectManager.forgetUser("User initiated from login page");
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
-                uiController.setConnectIdLoginState(false);
+                uiController.setConnectIdLoginState(ConnectManager.ConnectAppMangement.Unmanaged);
                 return true;
             default:
                 return otherResult;
@@ -743,9 +757,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         int position = 0;
         if (selectedAppIndex >= 0) {
             position = selectedAppIndex;
+
+            if(position >= appNames.size()) {
+                //Special case when user forgets ConnectID account and last app in the list is selected
+                position = appNames.size() - 1;
+            }
         } else if (appIdDropdownList.contains(currAppId)) {
             position = appIdDropdownList.indexOf(currAppId);
         }
+
         uiController.setMultipleAppsUiState(appNames, position);
         selectedAppIndex = -1;
     }
