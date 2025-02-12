@@ -17,6 +17,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.ResourceRecoveryTask;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -177,6 +178,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         boolean network = ConnectivityStatus.isNetworkAvailable(this);
         if (!network) {
             loadingIndicator.setVisibility(View.INVISIBLE);
+            Logger.log(LogTypes.TYPE_NETWORK, "No Internet");
             updateStatus(StringUtils.getStringRobust(this, R.string.recovery_network_unavailable));
         }
         return network;
