@@ -79,38 +79,12 @@ public class CaseUtils {
     public static void purgeCases() throws InvalidCaseGraphException {
         long start = System.currentTimeMillis();
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
-        Vector<String> owners = new Vector<>();
-        Vector<String> users = new Vector<>();
-        for (IStorageIterator<User> userIterator = CommCareApplication.instance()
-                .getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore(); ) {
-            String id = userIterator.nextRecord().getUniqueId();
-            owners.addElement(id);
-            users.addElement(id);
-        }
-
-        //Now add all of the relevant groups
-        //TODO: Wow. This is.... kind of megasketch
-        for (String userId : users) {
-            DataInstance instance = CommCareUtil.loadFixture("user-groups", userId);
-            if (instance == null) {
-                continue;
-            }
-            EvaluationContext ec = new EvaluationContext(instance);
-            for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
-                if (idelement.getValue() != null) {
-                    owners.addElement(idelement.getValue().uncast().getString());
-                }
-            }
-        }
-
-        SQLiteDatabase db;
-        db = CommCareApplication.instance().getUserDbHandle();
-
-        db.beginTransaction();
+        Vector<String> owners = getAllOwners();
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         int removedCaseCount;
         int removedLedgers;
         try {
+            db.beginTransaction();
             SqlStorage<ACase> storage = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
             DAG<String, int[], String> fullCaseGraph = getFullCaseGraph(storage, new AndroidCaseIndexTable(), owners);
 
@@ -149,6 +123,35 @@ public class CaseUtils {
                 "Purged [%d Case, %d Ledger] records in %dms",
                 removedCaseCount, removedLedgers, taken));
 
+    }
+
+    private static Vector<String> getAllOwners() {
+        Vector<String> users = new Vector<>();
+        Vector<String> owners = new Vector<>();
+        SqlStorage<User> userStorage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
+        for (IStorageIterator<User> userIterator = userStorage.iterate(); userIterator.hasMore(); ) {
+            String id = userIterator.nextRecord().getUniqueId();
+            owners.addElement(id);
+            users.addElement(id);
+        }
+
+        //Now add all of the relevant groups
+        //TODO: Wow. This is.... kind of megasketch
+        for (String userId : users) {
+            DataInstance instance = CommCareUtil.loadFixture("user-groups", userId);
+            if (instance == null) {
+                continue;
+            }
+            EvaluationContext ec = new EvaluationContext(instance);
+            for (TreeReference ref : ec.expandReference(
+                    XPathReference.getPathExpr("/groups/group/@id").getReference())) {
+                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
+                if (idelement.getValue() != null) {
+                    owners.addElement(idelement.getValue().uncast().getString());
+                }
+            }
+        }
+        return owners;
     }
 
     public static DAG<String, int[], String> getFullCaseGraph(SqlStorage<ACase> caseStorage,
