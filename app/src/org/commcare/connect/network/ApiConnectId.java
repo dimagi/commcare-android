@@ -551,13 +551,13 @@ public class ApiConnectId {
     }
 
     public static boolean hqUserInvitation(Context context, String username, String password, String callBackUrl,
-            String invitationCode, IApiCallback callback) {
+                                           String invitationCode, AuthInfo.TokenAuth connectIdToken,
+                                           IApiCallback callback) {
         int urlId = R.string.ConnectConfirmUserInvitation;
-        AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context);
         HashMap<String, Object> params = new HashMap<>();
         params.put("callback_url", callBackUrl);
         params.put("invite_code", invitationCode);
-        params.put("user_token", connectIdToken.toString());
+        params.put("user_token", connectIdToken.bearerToken);
         return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
                 new AuthInfo.ProvidedAuth(username, password, false), params, false, false, callback);
     }

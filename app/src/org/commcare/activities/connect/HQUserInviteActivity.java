@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ActivityHquserInviteBinding;
@@ -102,59 +102,63 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
     private void handleInvitation(String callBackUrl, String inviteCode) {
         Logger.log("HQInvite", "User accepted invitation");
 
-        IApiCallback callback = new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, true, "");
-                Logger.log("HQInvite", "Acceptance succeeded");
-                binding.progressBar.setVisibility(View.GONE);
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        startActivity(new Intent(HQUserInviteActivity.this, DispatchActivity.class));
-                        finish();
-                    }
-                } catch (IOException e) {
-                    CrashUtil.reportException(e);
-                    setErrorMessage(getString(R.string.connect_hq_invitation_accept_error));
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, false, "API error");
-                Logger.log("HQInvite", "Acceptance failed");
-                binding.progressBar.setVisibility(View.GONE);
-                setErrorMessage(getString(R.string.connect_hq_invitation_accept_error));
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                binding.progressBar.setVisibility(View.GONE);
-                setErrorMessage(getString(R.string.recovery_network_unavailable));
-            }
-
-            @Override
-            public void processOldApiError() {
-                binding.progressBar.setVisibility(View.GONE);
-                setErrorMessage(getString(R.string.recovery_network_outdated));
-            }
-        };
-        ConnectUserRecord user = ConnectManager.getUser(this);
         binding.progressBar.setVisibility(View.VISIBLE);
-        boolean isBusy = !ApiConnectId.hqUserInvitation(HQUserInviteActivity.this,user.getUserId(),user.getPassword(), callBackUrl, inviteCode, callback);
-        if (isBusy) {
-            Toast.makeText(HQUserInviteActivity.this, R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+
+        ConnectSsoHelper.retrieveConnectTokenAsync(this, token -> {
+            if(token != null) {
+                IApiCallback callback = new IApiCallback() {
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, true, "");
+                        Logger.log("HQInvite", "Acceptance succeeded");
+                        try {
+                            String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                            if (responseAsString.length() > 0) {
+                                startActivity(new Intent(HQUserInviteActivity.this, DispatchActivity.class));
+                                finish();
+                            }
+                            finalizeApiCall(-1);
+                        } catch (IOException e) {
+                            CrashUtil.reportException(e);
+                            finalizeApiCall(R.string.connect_hq_invitation_accept_error);
+                        }
+                    }
+
+                    @Override
+                    public void processFailure(int responseCode, IOException e) {
+                        FirebaseAnalyticsUtil.reportHQInvitationResponse(domain, false, "API error");
+                        Logger.log("HQInvite", "Acceptance failed");
+                        finalizeApiCall(R.string.connect_hq_invitation_accept_error);
+                    }
+
+                    @Override
+                    public void processNetworkFailure() {
+                        finalizeApiCall(R.string.recovery_network_unavailable);
+                    }
+
+                    @Override
+                    public void processOldApiError() {
+                        finalizeApiCall(R.string.recovery_network_outdated);
+                    }
+                };
+
+                ConnectUserRecord user = ConnectManager.getUser(this);
+                ApiConnectId.hqUserInvitation(this, user.getUserId(), user.getPassword(),
+                        callBackUrl, inviteCode, token, callback);
+            } else {
+                finalizeApiCall(R.string.connect_hq_invitation_accept_error);
+            }
+        });
     }
 
-    public void setErrorMessage(String message) {
-        boolean show = message != null;
+    private void finalizeApiCall(int errorStringId) {
+        binding.progressBar.setVisibility(View.GONE);
 
-        binding.connectPhoneVerifyError.setVisibility(show ? View.VISIBLE : View.GONE);
+        boolean showError = errorStringId > 0;
+        binding.connectPhoneVerifyError.setVisibility(showError ? View.VISIBLE : View.GONE);
 
-        if (show) {
-            binding.connectPhoneVerifyError.setText(message);
+        if (showError) {
+            binding.connectPhoneVerifyError.setText(getString(errorStringId));
         }
     }
 
