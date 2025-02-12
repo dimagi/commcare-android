@@ -1,6 +1,5 @@
 package org.commcare.google.services.analytics;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -13,9 +12,8 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.FormUploadResult;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Date;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
@@ -174,16 +172,32 @@ public class FirebaseAnalyticsUtil {
                 CCAnalyticsParam.ACTION_TYPE, actionType);
     }
 
-    public static void reportFormNav(String direction, String method) {
+    public static void reportFormEntry(String formId) {
+        reportEvent(CCAnalyticsEvent.FORM_ENTRY_ATTEMPT,
+                new String[]{CCAnalyticsParam.FORM_ID},
+                new String[]{formId});
+    }
+
+    public static void reportFormNav(String direction, String method, String formId) {
         if (rateLimitReporting(.1)) {
             reportEvent(CCAnalyticsEvent.FORM_NAVIGATION,
-                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD},
-                    new String[]{direction, method});
+                    new String[]{CCAnalyticsParam.DIRECTION, FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
+                    new String[]{direction, method, formId});
         }
     }
 
-    public static void reportFormQuitAttempt(String method) {
-        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT, FirebaseAnalytics.Param.METHOD, method);
+    public static void reportFormQuitAttempt(String method, String formId) {
+        reportEvent(CCAnalyticsEvent.FORM_EXIT_ATTEMPT,
+                new String[]{FirebaseAnalytics.Param.METHOD, CCAnalyticsParam.FORM_ID},
+                new String[]{method, formId});
+    }
+
+    public static void reportFormFinishAttempt(String saveResult, String formId, boolean userTriggered) {
+        String method = userTriggered ? AnalyticsParamValue.USER_TRIGGERED : AnalyticsParamValue.SYSTEM_TRIGGERED;
+        reportEvent(CCAnalyticsEvent.FORM_FINISH_ATTEMPT,
+                new String[]{CCAnalyticsParam.FORM_ID, CCAnalyticsParam.RESULT,
+                        FirebaseAnalytics.Param.METHOD},
+                new String[]{formId, saveResult, method});
     }
 
     /**
@@ -340,5 +354,17 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{quarantineReasonType});
+    }
+
+    public static void reportMenuItemClick(String commandId) {
+        reportEvent(CCAnalyticsEvent.MENU_SCREEN_ITEM_CLICK,
+                new String[]{FirebaseAnalytics.Param.ITEM_ID},
+                new String[]{commandId});
+    }
+
+    public static void reportFormUploadAttempt(FormUploadResult first, Integer second) {
+        reportEvent(CCAnalyticsEvent.FORM_UPLOAD_ATTEMPT,
+                new String[]{CCAnalyticsParam.RESULT, FirebaseAnalytics.Param.VALUE},
+                new String[]{String.valueOf(first), String.valueOf(second)});
     }
 }

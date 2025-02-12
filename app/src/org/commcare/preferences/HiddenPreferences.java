@@ -110,6 +110,8 @@ public class HiddenPreferences {
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
+    private static final String ENABLE_CUSTOM_MAP_MARKER = "cc-enable-custom-map-marker";
+
     /**
      * The domain name in the application profile file comes in the <domain>.commcarehq.org form,
      * this is standard across the different HQ servers. This constant is to store that suffix and
@@ -433,6 +435,11 @@ public class HiddenPreferences {
     public static boolean shouldShowUnsentFormsWhenZero() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
+    }
+
+    public static boolean shouldShowCustomMapMarker() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(ENABLE_CUSTOM_MAP_MARKER, PrefValues.NO).equals(PrefValues.YES);
     }
 
 
