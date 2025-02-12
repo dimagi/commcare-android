@@ -59,6 +59,11 @@ public class EntityDetailPagerAdapter extends FragmentStateAdapter {
         return fragment;
     }
 
+    public CharSequence getPageTitle(int position) {
+        Detail detailShowing = detail.isCompound() ? displayableChildDetails[position] : detail;
+        return detailShowing.getTitle().getText().evaluate();
+    }
+
     @Override
     public int getItemCount() {
         return detail.isCompound() ? displayableChildDetails.length : 1;
