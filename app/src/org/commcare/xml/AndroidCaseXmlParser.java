@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
+import org.commcare.cases.model.CaseIndex;
 import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -28,6 +29,9 @@ import org.kxml2.io.KXmlParser;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -96,14 +100,52 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         db.beginTransaction();
         try {
             super.commit(parsed);
-            if (mEntityCache != null) {
-                mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
-            }
+            clearEntityCache(parsed);
             mCaseIndexTable.clearCaseIndices(parsed);
             mCaseIndexTable.indexCase(parsed);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private void clearEntityCache(Case aCase) {
+        if (aCase == null || mEntityCache == null) {
+            return;
+        }
+        Set<Integer> recordsToWipe = new HashSet<>();
+        clearEntityCacheHelper(aCase, recordsToWipe, mCaseIndexTable, storage());
+        // Invalidate the current case in cache
+        mEntityCache.invalidateCaches(recordsToWipe);
+    }
+
+    public static void clearEntityCacheHelper(Case aCase, Set<Integer> visited, AndroidCaseIndexTable caseIndexTable,
+            IStorageUtilityIndexed<Case> storage) {
+        int caseRecordId = aCase.getID();
+
+        // Prevent infinite recursion by protecting against cyclic relationships
+        if (visited.contains(caseRecordId)) {
+            return;
+        }
+        visited.add(caseRecordId);
+
+        // Recursively clear cache for related cases
+        if (aCase.getIndices() != null) {
+            for (CaseIndex ci : aCase.getIndices()) {
+                Case relatedCase = storage.getRecordForValue(Case.INDEX_CASE_ID, ci.getTarget());
+                if (relatedCase != null) {
+                    clearEntityCacheHelper(relatedCase, visited, caseIndexTable, storage);
+                }
+            }
+        }
+
+        // We also need to clear cache of cases that have a index to our case
+        LinkedHashSet<Integer> relatedCases = caseIndexTable.getCasesWithTarget(aCase.getCaseId());
+        for (Integer relatedCaseRecordId : relatedCases) {
+            Case relatedCase = storage.read(relatedCaseRecordId);
+            if (relatedCase != null) {
+                clearEntityCacheHelper(relatedCase, visited, caseIndexTable, storage);
+            }
         }
     }
 

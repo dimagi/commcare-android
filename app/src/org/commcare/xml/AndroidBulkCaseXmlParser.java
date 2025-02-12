@@ -1,5 +1,7 @@
 package org.commcare.xml;
 
+import static org.commcare.xml.AndroidCaseXmlParser.clearEntityCacheHelper;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -15,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +77,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
         SQLiteDatabase db;
         db = getDbHandle();
         ArrayList<Integer> recordIdsToWipe = new ArrayList<>();
+        ArrayList<Case> casesToWipe = new ArrayList<>();
 
         db.beginTransaction();
         try {
@@ -81,10 +85,9 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
                 Case c = writeLog.get(cid);
                 storage.write(c);
                 recordIdsToWipe.add(c.getID());
+                casesToWipe.add(c);
             }
-            if (mEntityCache != null) {
-                mEntityCache.invalidateCaches(recordIdsToWipe);
-            }
+            clearEntityCache(casesToWipe);
             mCaseIndexTable.clearCaseIndices(recordIdsToWipe);
 
             for (String cid : writeLog.keySet()) {
@@ -96,5 +99,15 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
             db.endTransaction();
         }
 
+    }
+
+    private void clearEntityCache(ArrayList<Case> casesToWipe) {
+        if (mEntityCache != null) {
+            Set<Integer> recordIdsToWipe = new HashSet<>();
+            for (int i = 0; i < casesToWipe.size(); i++) {
+                clearEntityCacheHelper(casesToWipe.get(i), recordIdsToWipe, mCaseIndexTable, storage);
+            }
+            mEntityCache.invalidateCaches(recordIdsToWipe);
+        }
     }
 }

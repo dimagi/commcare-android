@@ -203,6 +203,26 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
     }
 
     /**
+     * Get a list of Case Record id's for cases which index a provided target value.
+     *
+     * @param targetValue The case targeted by the index
+     * @return An integer array of indexed case record ids
+     */
+    @Override
+    public LinkedHashSet<Integer> getCasesWithTarget(String targetValue) {
+        String[] args = new String[]{targetValue};
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            String query = String.format("SELECT %s FROM %s WHERE %s = ?", COL_CASE_RECORD_ID, TABLE_NAME, COL_INDEX_TARGET);
+            DbUtil.explainSql(db, query, args);
+        }
+        Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_TARGET + " =  ?", args, null,
+                null, null);
+        LinkedHashSet<Integer> ret = new LinkedHashSet<>();
+        SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID, ret);
+        return ret;
+    }
+
+    /**
      * Get a list of Case Record id's for cases which index any of a set of provided values
      *
      * @param indexName      The name of the index
