@@ -362,7 +362,7 @@ public class ConnectIDSignupFragment extends Fragment {
         binding.errorTextView.setVisibility(View.GONE);
         String phoneNo = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
         ConnectUserRecord tempUser = new ConnectUserRecord(phoneNo, generateUserId(), ConnectManager.generatePassword(),
-                binding.nameTextValue.getText().toString(), "");
+                binding.nameTextValue.getText().toString(), "","","");
 
         final Context context = getActivity();
                 ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),

@@ -31,6 +31,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
@@ -95,6 +96,13 @@ public class ConnectJobsListsFragment extends Fragment {
         launcher = (appId, isLearning) -> {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
         };
+
+       /* view.findViewById(R.id.connect_jobs_last_update).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
+            }
+        });*/
 
         refreshUi();
         refreshData();
@@ -207,7 +215,10 @@ public class ConnectJobsListsFragment extends Fragment {
         noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
-            if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
+            ConnectUserRecord user = ConnectManager.getUser(getActivity());
+            if (user.getPaymentName().isEmpty() && user.getPaymentPhone().isEmpty() && job.getPaymentInfoRequired()) {
+                Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
+            } else if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
                 launchJobInfo(job);
             } else {
                 launchAppForJob(job, isLearning);
@@ -254,6 +265,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
             switch (jobStatus) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+ 
                     if (!finished) {
                         availableNewJobs.add(createJobModel(
                                 job, JOB_NEW_OPPORTUNITY, NEW_APP, true, true, false, false
@@ -262,6 +274,7 @@ public class ConnectJobsListsFragment extends Fragment {
                     break;
 
                 case STATUS_LEARNING:
+ 
                     ConnectLoginJobListModel model = createJobModel(
                             job, JOB_LEARNING, LEARN_APP, isLearnAppInstalled, false, true, false
                     );
