@@ -1,11 +1,8 @@
 package org.commcare.views;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.os.Build;
-import androidx.annotation.IdRes;
 import android.text.method.LinkMovementMethod;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -22,6 +19,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.IdRes;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.cases.entity.Entity;
@@ -202,9 +202,16 @@ public class EntityDetailView extends FrameLayout {
         if (veryLong) {
             detailRow.setOrientation(LinearLayout.VERTICAL);
             spacer.setVisibility(View.GONE);
+            if (isLabelEmpty(labelText)) {
+                label.setVisibility(GONE);
+            }
             label.setLayoutParams(fill);
             valuePane.setLayoutParams(fill);
         } else {
+            if (isLabelEmpty(labelText)) {
+                origLabel.weight = 0;
+                origValue.weight = detailRow.getWeightSum();
+            }
             if (detailRow.getOrientation() != LinearLayout.HORIZONTAL) {
                 detailRow.setOrientation(LinearLayout.HORIZONTAL);
                 spacer.setVisibility(View.INVISIBLE);
@@ -212,6 +219,12 @@ public class EntityDetailView extends FrameLayout {
                 valuePane.setLayoutParams(origValue);
             }
         }
+    }
+
+    // Empty case detail Display Texts are represented with an HTML non-breaking space (&nbsp). This was expanded
+    // to also check for blank spaces
+    private boolean isLabelEmpty(String text) {
+        return text.replaceAll("\\s|&nbsp;", "").equals("");
     }
 
     private boolean setUpText(String textField) {

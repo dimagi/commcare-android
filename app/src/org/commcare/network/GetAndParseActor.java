@@ -64,14 +64,15 @@ public abstract class GetAndParseActor {
     protected final HttpResponseProcessor responseProcessor = new HttpResponseProcessor() {
 
         @Override
-        public void processSuccess(int responseCode, InputStream responseStream) {
+        public void processSuccess(int responseCode, InputStream responseStream, String apiVersion) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseStream));
                 JSONObject jsonResponse = new JSONObject(responseAsString);
                 parseResponse(jsonResponse);
             } catch (JSONException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                        String.format("%s response was not properly-formed JSON: %s", requestName, e.getMessage()));
+                        String.format("%s response was not properly-formed JSON: %s",
+                                requestName, e.getMessage()));
             } catch (IOException e) {
                 Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
                         String.format("IO error while processing %s response: %s", requestName, e.getMessage()));
@@ -128,7 +129,8 @@ public abstract class GetAndParseActor {
                     String.format("%s response did not have required app_id param", this.requestName));
         } catch (JSONException e) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    String.format("App id in %s response was not properly formatted: %s", this.requestName, e.getMessage()));
+                    String.format("App id in %s response was not properly formatted: %s",
+                            this.requestName, e.getMessage()));
         }
         return false;
     }

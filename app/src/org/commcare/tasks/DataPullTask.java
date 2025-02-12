@@ -22,7 +22,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
@@ -152,7 +152,6 @@ public abstract class DataPullTask<R>
 
         publishProgress(PROGRESS_STARTED);
         HiddenPreferences.setPostUpdateSyncNeeded(false);
-        Logger.log(LogTypes.TYPE_USER, "Starting Sync");
         determineIfLoginNeeded();
 
         AndroidTransactionParserFactory factory = getTransactionParserFactory();
@@ -579,7 +578,7 @@ public abstract class DataPullTask<R>
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
-        EntityStorageCache.wipeCacheForCurrentAppWithoutCommit(userDb);
+        CommCareEntityStorageCache.wipeCacheForCurrentAppWithoutCommit(userDb);
     }
 
     private void updateCurrentUser(String password) {

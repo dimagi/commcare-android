@@ -62,7 +62,7 @@
             android:layout_marginLeft="@dimen/content_min_margin"
             android:layout_marginRight="@dimen/content_min_margin"
             android:gravity="center"
-            android:progressDrawable="@drawable/progressbar_modern"
+            android:progressDrawable="@drawable/progressbar_modern_blue"
             android:layout_marginStart="@dimen/content_min_margin"
             android:layout_marginEnd="@dimen/content_min_margin" />
 
@@ -95,7 +95,7 @@
                 android:id="@+id/check_for_update_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                SquareButtonWithText:backgroundColor="@color/cc_brand_color"
+                SquareButtonWithText:backgroundColor="@color/start_home_button"
                 SquareButtonWithText:img="@drawable/check_update"
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>
@@ -104,7 +104,7 @@
                 android:id="@+id/stop_update_download_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
+                SquareButtonWithText:backgroundColor="@color/start_logout_button"
                 SquareButtonWithText:img="@drawable/install_stop"
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>

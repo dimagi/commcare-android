@@ -4,6 +4,12 @@ CommCare is an easily customizable, open source mobile platform that supports fr
 
 This repository represents the Android version of CommCare. It depends on the [CommCare Core](https://github.com/dimagi/commcare-core) repository, which contains the XForm engine and case/lookup table implementations.
 
+## End-to-End Development
+
+CommCare Android is a mobile CommCare Platform client runtime, and requires a backend environment for full end-to-end usage and to test platform development.
+
+If you don't have an access to another backend, or if you will be doing full platform development, after completing this setup you can follow [the end-to-end development guide](https://github.com/dimagi/commcare-hq/blob/master/local_dev_guide.rst) which explains how to establish a local environment for CommCare's full client/server software. 
+
 ## Setup
 
 To set up an Android dev environment for commcare-android, do the following:
@@ -28,13 +34,12 @@ git clone https://github.com/dimagi/commcare-core.git
 
 - Open Android Studio
 - If this is your first time using Android Studio, click "Config" and setup the Android SDK.
-- Download the Android 12 (API 31) SDK Platform and the Google APIs for 31.
+- Download the Android 15 (API 35) SDK Platform and the Google APIs for 35.
 - Now go back to the Android Studio Welcome dashboard and click "Import project (Eclipse ADT, Gradle, etc.)"
 - Select AndroidStudioProjects > CommCare > commcare-android and hit OK
 - Click "OK" to use the Gradle wrapper
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
-- Disable _Instant Run_ found in Settings > Build, Execution, Deployment > Instant Run. (It does not play well with multidexing, which we have enabled, or with some of the processes we have set up for Google Services)
 
 ## Building
 

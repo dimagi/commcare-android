@@ -49,6 +49,7 @@ import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathException;
@@ -82,6 +83,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     private boolean formRelevanciesUpdateInProgress = false;
 
     private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
+    private TextView finishText;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -103,13 +105,14 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
         View finishButton = activity.findViewById(R.id.nav_btn_finish);
 
-        TextView finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
+        finishText = finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
         nextButton.setOnClickListener(v -> {
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
-                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+                    AnalyticsParamValue.NAV_BUTTON_PRESS,
+                    activity.getCurrentFormXmlnsFailSafe());
             showNextView();
             TextToSpeechConverter.INSTANCE.stop();
         });
@@ -118,10 +121,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                 FirebaseAnalyticsUtil.reportFormNav(
                         AnalyticsParamValue.DIRECTION_BACKWARD,
-                        AnalyticsParamValue.NAV_BUTTON_PRESS);
+                        AnalyticsParamValue.NAV_BUTTON_PRESS,
+                        activity.getCurrentFormXmlnsFailSafe());
                 showPreviousView(true);
             } else {
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS,
+                        activity.getCurrentFormXmlnsFailSafe());
                 activity.triggerUserQuitInput();
             }
             TextToSpeechConverter.INSTANCE.stop();
@@ -130,7 +135,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         finishButton.setOnClickListener(v -> {
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
-                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+                    AnalyticsParamValue.NAV_BUTTON_PRESS,
+                    activity.getCurrentFormXmlnsFailSafe());
             activity.triggerUserFormComplete();
         });
 
@@ -198,6 +204,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         } else {
             QuestionsView current = createView();
             showView(current, AnimationType.FADE, animateLastView);
+        }
+
+        if (finishText != null && FormEntryActivity.mFormController.isFormReadOnly()) {
+            finishText.setText(Localization.get("form.entry.exit.button").toUpperCase());
         }
     }
 
@@ -493,24 +503,25 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
+        final FormEntryCaption repeatCaptionPrompt = FormEntryActivity.mFormController.getCaptionPrompt();
+
         // Assign title and text strings based on the current state
         String backText = Localization.get("repeat.dialog.go.back");
-        String addAnotherText = Localization.get("repeat.dialog.add");
-        String title, skipText;
+
+        boolean hasRepetitions = FormEntryActivity.mFormController.getLastRepeatCount() > 0;
+        final String addAnotherText = repeatCaptionPrompt.getRepeatText(hasRepetitions ? "add" : "add-empty");
+
+        String skipText;
+
         if (!nextExitsForm) {
             skipText = Localization.get("repeat.dialog.leave");
         } else {
             skipText = Localization.get("repeat.dialog.exit");
         }
-        if (FormEntryActivity.mFormController.getLastRepeatCount() > 0) {
-            title = Localization.get("repeat.dialog.add.another", FormEntryActivity.mFormController.getLastGroupText());
-        } else {
-            title = Localization.get("repeat.dialog.add.new", FormEntryActivity.mFormController.getLastGroupText());
-        }
 
         // Create the choice dialog
         ContextThemeWrapper wrapper = new ContextThemeWrapper(activity, R.style.DialogBaseTheme);
-        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
+        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, addAnotherText);
 
         // Panel 1: Back option
         View.OnClickListener backListener = v -> {

@@ -6,11 +6,15 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.models.database.InterruptedFormState;
 import org.commcare.services.FCMMessageData;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MapLayer;
+import org.commcare.utils.SerializationUtil;
+import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -106,12 +110,15 @@ public class HiddenPreferences {
     public final static String DONT_SHOW_PENDING_SYNC_DIALOG = "dont-show-pending-sync-dialog";
     private static final String ENABLE_BACKGROUND_SYNC = "cc-enable-background-sync";
 
+    private static final String ENABLE_CUSTOM_MAP_MARKER = "cc-enable-custom-map-marker";
+
     /**
      * The domain name in the application profile file comes in the <domain>.commcarehq.org form,
      * this is standard across the different HQ servers. This constant is to store that suffix and
      * be used to remove it form the user domain name to match how the domain represented in the backend
      */
     public static final String USER_DOMAIN_SERVER_URL_SUFFIX = ".commcarehq.org";
+    private static final String INTERRUPTED_FORM_INDEX = "interrupted-form-index";
 
     /**
      * @return How many seconds should a user session remain open before expiring?
@@ -292,6 +299,7 @@ public class HiddenPreferences {
     }
 
     public static void setInterruptedSSD(int ssdId) {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Saving interrupted state");
         String currentUserId = CommCareApplication.instance().getCurrentUserId();
         CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
                 .putInt(ID_OF_INTERRUPTED_SSD + currentUserId, ssdId).apply();
@@ -427,6 +435,11 @@ public class HiddenPreferences {
     public static boolean shouldShowUnsentFormsWhenZero() {
         SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         return properties.getString(SHOW_UNSENT_FORMS_WHEN_ZERO, PrefValues.NO).equals(PrefValues.YES);
+    }
+
+    public static boolean shouldShowCustomMapMarker() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        return properties.getString(ENABLE_CUSTOM_MAP_MARKER, PrefValues.NO).equals(PrefValues.YES);
     }
 
 
@@ -628,5 +641,38 @@ public class HiddenPreferences {
      */
     public static boolean isBackgroundSyncEnabled() {
         return DeveloperPreferences.doesPropertyMatch(ENABLE_BACKGROUND_SYNC, PrefValues.NO, PrefValues.YES);
+    }
+
+    public static void setInterruptedFormState(InterruptedFormState interruptedFormState) {
+        try {
+            String currentUserId = CommCareApplication.instance().getCurrentUserId();
+            CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                    .putString(INTERRUPTED_FORM_INDEX + currentUserId, SerializationUtil.serializeToString(interruptedFormState))
+                    .apply();
+        } catch (Exception e) {
+            Logger.exception("Error while trying to save interrupted form state into prefs", e);
+        }
+    }
+
+    public static InterruptedFormState getInterruptedFormState() {
+        try {
+            String currentUserId = CommCareApplication.instance().getCurrentUserId();
+            String interruptedFormStateStr = CommCareApplication.instance().getCurrentApp().getAppPreferences()
+                    .getString(INTERRUPTED_FORM_INDEX + currentUserId, null);
+            if (interruptedFormStateStr != null) {
+                return SerializationUtil.deserializeFromString(interruptedFormStateStr,
+                        InterruptedFormState.class);
+            }
+        } catch (Exception e) {
+            Logger.exception("Error while trying to load interrupted form state from prefs", e);
+        }
+        return null;
+    }
+
+    public static void clearInterruptedFormState() {
+        String currentUserId = CommCareApplication.instance().getCurrentUserId();
+        CommCareApplication.instance().getCurrentApp().getAppPreferences().edit()
+                .remove(INTERRUPTED_FORM_INDEX + currentUserId)
+                .apply();
     }
 }

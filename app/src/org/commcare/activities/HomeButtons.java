@@ -51,7 +51,7 @@ public class HomeButtons {
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get(homeMessageKey),
                         R.color.white,
                         R.drawable.home_start,
-                        R.color.cc_attention_positive_color,
+                        R.color.start_home_button,
                         getStartButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("training.root.title"), R.color.white,
                         R.drawable.home_training, R.color.cc_dark_cool_accent_color,
@@ -59,19 +59,19 @@ public class HomeButtons {
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.forms.saved"),
                         R.color.white,
                         R.drawable.home_saved,
-                        R.color.cc_light_cool_accent_color,
+                        R.color.start_save_button,
                         getViewOldFormsListener(activity)),
                 HomeCardDisplayData.homeCardDataWithDynamicText(Localization.get("home.forms.incomplete"), R.color.white,
                         R.drawable.home_incomplete,
-                        R.color.solid_dark_orange,
+                        R.color.red_incomplete,
                         getIncompleteButtonListener(activity),
                         null,
                         getIncompleteButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
-                        R.color.cc_brand_color,
-                        R.color.cc_brand_text,
+                        R.color.start_sync_button,
+                        R.color.start_sync_dark_button,
                         getSyncButtonListener(activity),
                         getSyncButtonSubTextListener(activity),
                         getSyncButtonTextSetter(activity)),
@@ -80,7 +80,7 @@ public class HomeButtons {
                         getReportButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
-                        R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
+                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_core_text,
                         getLogoutButtonListener(activity),
                         null,
                         getLogoutButtonTextSetter(activity)),
@@ -130,7 +130,14 @@ public class HomeButtons {
 
     private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
-            SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData, notificationText);
+            try {
+                SyncDetailCalculations.updateSubText(activity, squareButtonViewHolder, cardDisplayData,
+                        notificationText);
+            } catch (SessionUnavailableException e) {
+                // stop button setup, since redirection to login is imminent
+                return;
+            }
+
             squareButtonViewHolder.subTextView.setBackgroundColor(activity.getResources().getColor(cardDisplayData.subTextBgColor));
             squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
             squareButtonViewHolder.textView.setText(cardDisplayData.text);
@@ -138,7 +145,10 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getStartButtonListener(final StandardHomeActivity activity) {
-        return v -> activity.enterRootModule();
+        return v ->  {
+            reportButtonClick(AnalyticsParamValue.START_BUTTON);
+            activity.enterRootModule();
+        };
     }
 
     private static View.OnClickListener getTrainingButtonListener(final StandardHomeActivity activity) {
@@ -178,7 +188,10 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getLogoutButtonListener(final StandardHomeActivity activity) {
-        return v -> activity.userTriggeredLogout();
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.LOGOUT_BUTTON);
+            activity.userTriggeredLogout();
+        };
     }
 
     private static TextSetter getLogoutButtonTextSetter(final StandardHomeActivity activity) {

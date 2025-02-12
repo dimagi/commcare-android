@@ -2,6 +2,7 @@ package org.commcare;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +18,10 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -73,7 +77,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.session.SessionWrapper;
@@ -116,6 +120,7 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -137,10 +142,12 @@ import javax.crypto.SecretKey;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class CommCareApplication extends MultiDexApplication {
+public class CommCareApplication extends Application implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
@@ -251,8 +258,11 @@ public class CommCareApplication extends MultiDexApplication {
         FirebaseMessagingUtil.verifyToken();
 
         customiseOkHttp();
-    }
 
+        setRxJavaGlobalHandler();
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+    }
 
     protected void loadSqliteLibs() {
         SQLiteDatabase.loadLibs(this);
@@ -780,8 +790,8 @@ public class CommCareApplication extends MultiDexApplication {
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
 
-                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
-                            EntityStorageCache.wipeCacheForCurrentApp();
+                        if (CommCareEntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
+                            CommCareEntityStorageCache.wipeCacheForCurrentApp();
                         }
 
                         purgeLogs();
@@ -1174,7 +1184,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
-            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(params);
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
@@ -1205,5 +1215,28 @@ public class CommCareApplication extends MultiDexApplication {
 
     public void customiseOkHttp() {
         CommCareNetworkServiceGenerator.customizeRetrofitSetup(new OkHttpBuilderCustomConfig());
+    }
+
+    private void setRxJavaGlobalHandler() {
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            if (throwable instanceof UndeliverableException) {
+                throwable = throwable.getCause();
+            }
+            // Swallow RequestAbandonedException
+            if (throwable instanceof RequestAbandonedException) {
+                return;
+            }
+
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
+        });
+    }
+
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        switch (event) {
+            case ON_DESTROY:
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
+                break;
+        }
     }
 }

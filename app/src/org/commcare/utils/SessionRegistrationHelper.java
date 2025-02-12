@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.util.Log;
 
 import org.commcare.activities.DispatchActivity;
@@ -52,7 +54,11 @@ public class SessionRegistrationHelper {
     }
 
     public static void registerSessionExpirationReceiver(AppCompatActivity activity) {
-        activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity.registerReceiver(userSessionExpiredReceiver, expirationFilter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
+        }
     }
 
     /**
