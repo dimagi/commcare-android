@@ -64,7 +64,7 @@ public class HQUserInviteActivity extends CommCareActivity<HQUserInviteActivity>
 
         if (isCorrectUser) {
             binding.tvHqInvitationHeaderTitle.setText(isTokenPresent
-                    ? getString(R.string.connect_hq_invitation_heading, username)
+                    ? getString(R.string.connect_hq_invitation_heading, domain, username)
                     : getString(R.string.connect_hq_invitation_connectId_not_configure));
             setButtonVisibility(isTokenPresent);
             setButtonListeners(isTokenPresent);

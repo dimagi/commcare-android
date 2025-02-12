@@ -577,7 +577,7 @@
     <string name="connect_learn">Aprender</string>
     <string name="connect_delivery">Entrega</string>
 
-    <string name="connect_hq_invitation_heading">Está convidado para o domínio do projeto CommCareHQ como %s</string>
+    <string name="connect_hq_invitation_heading">Está convidado para o domínio %s do projeto CommCareHQ como %s</string>
     <string name="connect_hq_invitation_accept">Aceitar</string>
     <string name="connect_hq_invitation_denied">Declínio</string>
     <string name="connect_hq_invitation_go_to_recovery">Vá para a recuperação</string>

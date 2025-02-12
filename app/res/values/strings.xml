@@ -778,7 +778,7 @@
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
 
-    <string name="connect_hq_invitation_heading">You are invited to CommCareHQ project domain as %s</string>
+    <string name="connect_hq_invitation_heading">You are invited to CommCareHQ project domain %s as %s</string>
     <string name="connect_hq_invitation_accept">Accept</string>
     <string name="connect_hq_invitation_denied">Decline</string>
     <string name="connect_hq_invitation_go_to_recovery">Go To Recovery</string>
