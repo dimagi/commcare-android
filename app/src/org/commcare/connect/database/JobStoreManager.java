@@ -94,21 +94,45 @@ public class JobStoreManager {
                     job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
                 }
             }
-            storeJob(job);
+            storeOrUpdateJob(job);
         }
 
         return newJobs;
     }
-
-    private void storeJob(ConnectJobRecord job) {
+    public void storeOrUpdateJob(ConnectJobRecord job) {
+        lock.lock();
         try {
-            jobStorage.write(job);
+            // Check if the job already exists using jobId
+            Vector<ConnectJobRecord> existingJobs = jobStorage.getRecordsForValues(
+                    new String[]{ConnectJobRecord.META_JOB_ID},
+                    new Object[]{job.getJobId()}
+            );
+
+            if (!existingJobs.isEmpty()) {
+                // Job exists, update the existing record
+                ConnectJobRecord existingJob = existingJobs.firstElement();
+                existingJob=existingJob.updateRecord(existingJob,job);  // You need to implement this method in ConnectJobRecord
+                existingJob.setLastUpdate(new Date());
+                jobStorage.write(existingJob);
+            } else {
+                // Job does not exist, create a new record
+                job.setLastUpdate(new Date());
+                if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                    job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
+                }
+                jobStorage.write(job);
+            }
+
+            // Store or update related entities
             storeAppInfo(job);
             storeModules(job);
             storePaymentUnits(job);
+
         } catch (Exception e) {
-            Logger.exception("Error storing job: " + job.getTitle(), e);
+            Logger.exception("Error storing or updating job: " + job.getTitle(), e);
             throw e;
+        } finally {
+            lock.unlock();
         }
     }
 
