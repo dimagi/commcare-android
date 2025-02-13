@@ -2,6 +2,7 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -10,10 +11,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
@@ -109,7 +110,7 @@ public class ApiConnectId {
                     Date expiration = new Date();
                     key = ConnectConstants.CONNECT_KEY_EXPIRES;
                     int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                    expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                     SsoToken ssoToken = new SsoToken(token, expiration);
@@ -173,7 +174,7 @@ public class ApiConnectId {
                         Date expiration = new Date();
                         key = ConnectConstants.CONNECT_KEY_EXPIRES;
                         int seconds = json.has(key) ? json.getInt(key) : 0;
-                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                        expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
                         user.updateConnectToken(token, expiration);
                         ConnectDatabaseHelper.storeUser(context, user);
 
@@ -556,5 +557,17 @@ public class ApiConnectId {
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
                 API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
+    }
+
+    public static boolean hqUserInvitation(Context context, String username, String password, String callBackUrl,
+                                           String invitationCode, AuthInfo.TokenAuth connectIdToken,
+                                           IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmUserInvitation;
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("callback_url", callBackUrl);
+        params.put("invite_code", invitationCode);
+        params.put("user_token", connectIdToken.bearerToken);
+        return ConnectNetworkHelper.post(context, context.getString(urlId), API_VERSION_CONNECT_ID,
+                new AuthInfo.ProvidedAuth(username, password, false), params, false, false, callback);
     }
 }
