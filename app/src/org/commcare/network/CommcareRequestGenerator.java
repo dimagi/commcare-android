@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.core.network.AuthInfo;
@@ -17,9 +20,12 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -167,24 +173,40 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     }
 
     private AuthInfo buildAuth() {
-        AuthInfo authInfo = new AuthInfo.NoAuth();
         if (username != null) {
             try {
                 AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), username, false);
                 if (tokenAuth != null) {
-                    authInfo = tokenAuth;
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
+                    return tokenAuth;
                 } else {
+                    try {
+                        if (ConnectManager.isConnectIdConfigured()) {
+                            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                            ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(
+                                    CommCareApplication.instance(), seatedAppId, username);
+                            if (appRecord != null && appRecord.getWorkerLinked()) {
+                                Logger.exception("Critical auth error for connect managed app",
+                                        new Throwable("No token Auth available for a connect managed app"));
+                            }
+                        }
+                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying current auth");
+                    } catch (Exception e){
+                        Logger.exception("error while checking connect status when trying to build auth", e);
+                    }
+
                     CommCareApplication.instance().getSession().getLoggedInUser();
                     //Use CurrentAuth (possibly token) if we have an active session and logged in user
-                    authInfo = new AuthInfo.CurrentAuth();
+                    return new AuthInfo.CurrentAuth();
                 }
             } catch (Exception e) {
+                Logger.exception("Error encountered while building auth", e);
                 //No token if no session
-                authInfo = new AuthInfo.ProvidedAuth(username, password);
+                return new AuthInfo.ProvidedAuth(username, password);
             }
         }
-
-        return authInfo;
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying no auth");
+        return new AuthInfo.NoAuth();
     }
 
     @Override

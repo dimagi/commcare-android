@@ -13,7 +13,10 @@ public class CCAnalyticsEvent {
     static final String ENABLE_PRIVILEGE = "enable_privilege";
     static final String ENTITY_DETAIL_NAVIGATION = "entity_detail_navigation";
     static final String FEATURE_USAGE = "feature_usage";
+    static final String FORM_ENTRY_ATTEMPT = "form_entry_attempt";
     static final String FORM_EXIT_ATTEMPT = "form_exit_attempt";
+    static final String FORM_FINISH_ATTEMPT = "form_finish_attempt";
+    static final String FORM_UPLOAD_ATTEMPT = "form_upload_attempt";
     static final String FORM_NAVIGATION = "form_navigation";
     static final String GRAPH_ACTION = "graphing_action";
     static final String HOME_BUTTON_CLICK = "home_button_click";
@@ -25,6 +28,7 @@ public class CCAnalyticsEvent {
     static final String VIEW_QUESTION_MEDIA = "view_question_media";
     static final String COMMON_COMMCARE_EVENT = "common_commcare_event";
     static final String FORM_QUARANTINE_EVENT = "form_quarantine_event";
+    static final String MENU_SCREEN_ITEM_CLICK = "menu_screen_item_click";
     static final String IN_APP_UPDATE_EVENT = "in_app_update_event";
     static final String LOGIN_CLICK = "login_click";
 

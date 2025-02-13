@@ -12,6 +12,7 @@ import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 import static org.commcare.connect.ConnectManager.isAppInstalled;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -177,20 +178,20 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void refreshUi() {
-        try {
+        //Make sure we still have context
+        Context context = getContext();
+        if(context != null) {
             updateUpdatedDate(new Date());
-            updateSecondaryPhoneConfirmationTile();
-        } catch (Exception e) {
-            //Ignore exception, happens if we leave the page before API call finishes
+            updateSecondaryPhoneConfirmationTile(context);
         }
     }
 
-    private void updateSecondaryPhoneConfirmationTile() {
-        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(getContext());
+    private void updateSecondaryPhoneConfirmationTile(Context context) {
+        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(context);
 
-        ConnectManager.updateSecondaryPhoneConfirmationTile(getContext(), connectTile, show, v -> {
+        ConnectManager.updateSecondaryPhoneConfirmationTile(context, connectTile, show, v -> {
             ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {
-                updateSecondaryPhoneConfirmationTile();
+                updateSecondaryPhoneConfirmationTile(context);
             });
         });
     }
