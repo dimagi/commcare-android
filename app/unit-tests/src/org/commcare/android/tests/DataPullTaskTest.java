@@ -1,5 +1,10 @@
 package org.commcare.android.tests;
 
+import static org.commcare.CommCareTestApplication.initWorkManager;
+
+import android.content.Context;
+import android.util.Log;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -17,6 +22,8 @@ import org.robolectric.annotation.LooperMode;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
 
 /**
  * Coverage for different DataPullTask codepaths.
@@ -91,6 +98,7 @@ public class DataPullTaskTest {
 
     @Test
     public void dataPullRecoverWithRetryTest() {
+        initWorkManager();
         installLoginAndUseLocalKeys();
         runDataPull(new Integer[]{412, 202, 200}, new String[]{GOOD_RESTORE, RETRY_RESPONSE, GOOD_RESTORE});
         Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);

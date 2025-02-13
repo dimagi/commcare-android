@@ -47,6 +47,9 @@ import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
+
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -93,6 +96,15 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 .detectLeakedClosableObjects()
                 .penaltyLog()
                 .build());
+    }
+
+
+    public static void initWorkManager() {
+        Context context = ApplicationProvider.getApplicationContext();
+        Configuration config = new Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build();
+        WorkManager.initialize(context, config);
     }
 
     @Override
