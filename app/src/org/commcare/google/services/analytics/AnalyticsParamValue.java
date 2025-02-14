@@ -86,6 +86,8 @@ public class AnalyticsParamValue {
     public static final String SAVED_FORMS_BUTTON = "saved_forms";
     public static final String INCOMPLETE_FORMS_BUTTON = "incomplete_forms";
     public static final String SYNC_BUTTON = "sync";
+    public static final String START_BUTTON = "start";
+    public static final String LOGOUT_BUTTON = "logout";
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
 
@@ -138,5 +140,11 @@ public class AnalyticsParamValue {
     public static final String UPDATE_RESET_REASON_NEWER_VERSION_AVAILABLE = "update_newer_version_available";
 
     public static final String IN_APP_UPDATE_SUCCESS = "success";
+
+    // Param values for Form Submission Event
+
+    public static final String USER_TRIGGERED = "user_triggered";
+    public static final String SYSTEM_TRIGGERED = "system_triggered";
+
 
 }

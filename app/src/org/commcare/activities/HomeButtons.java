@@ -80,7 +80,7 @@ public class HomeButtons {
                         getReportButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
-                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_neutral_text,
+                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_core_text,
                         getLogoutButtonListener(activity),
                         null,
                         getLogoutButtonTextSetter(activity)),
@@ -145,7 +145,10 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getStartButtonListener(final StandardHomeActivity activity) {
-        return v -> activity.enterRootModule();
+        return v ->  {
+            reportButtonClick(AnalyticsParamValue.START_BUTTON);
+            activity.enterRootModule();
+        };
     }
 
     private static View.OnClickListener getTrainingButtonListener(final StandardHomeActivity activity) {
@@ -185,7 +188,10 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getLogoutButtonListener(final StandardHomeActivity activity) {
-        return v -> activity.userTriggeredLogout();
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.LOGOUT_BUTTON);
+            activity.userTriggeredLogout();
+        };
     }
 
     private static TextSetter getLogoutButtonTextSetter(final StandardHomeActivity activity) {
