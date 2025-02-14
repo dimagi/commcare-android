@@ -96,29 +96,34 @@ public class JobStoreManager {
         return newJobs;
     }
 
-    public boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs,ConnectJobRecord job) {
+    public boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
         lock.lock();
         try {
             // Store or update related entities
             storeAppInfo(job);
             storeModules(job);
             storePaymentUnits(job);
-            if (!existingJobs.isEmpty()) {
-                // Job exists, update the existing record
-                ConnectJobRecord existingJob = existingJobs.get(0);
-                job.setID(existingJob.getID());
-                job.setLastUpdate(new Date());
-                jobStorage.write(job);
-                return true;
-            } else {
-                // Job does not exist, create a new record
+            // Check if the job already exists
+            boolean isExisting = false;
+            for (ConnectJobRecord existingJob : existingJobs) {
+                if (existingJob.getJobId() == job.getJobId()) {
+                    job.setID(existingJob.getID());  // Set ID for updating
+                    job.setLastUpdate(new Date());
+                    jobStorage.write(job);
+                    isExisting = true;
+                    break;
+                }
+            }
+
+            // If not existing, create a new record
+            if (!isExisting) {
                 job.setLastUpdate(new Date());
                 if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
                     job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
                 }
                 jobStorage.write(job);
-                return false;
             }
+            return isExisting;
 
         } catch (Exception e) {
             Logger.exception("Error storing or updating job: " + job.getTitle(), e);
@@ -149,7 +154,7 @@ public class JobStoreManager {
         for (ConnectLearnModuleSummaryRecord existing : existingModules) {
             boolean stillExists = false;
             for (ConnectLearnModuleSummaryRecord incoming : job.getLearnAppInfo().getLearnModules()) {
-                if (Objects.equals(existing.getModuleIndex(), incoming.getModuleIndex())) {
+                if (Objects.equals(existing.getSlug(), incoming.getSlug())) {
                     incoming.setID(existing.getID());  // Set ID for updating
                     stillExists = true;
                     break;
