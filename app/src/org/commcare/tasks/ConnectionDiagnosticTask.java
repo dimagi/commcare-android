@@ -73,7 +73,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
             out = Test.googlePing;
         } else if (!pingCC(commcareURL)) {
             out = Test.commCarePing;
-        }else{
+        } else {
             Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logConnectionSuccessMessage);
         }
         return out;
