@@ -29,6 +29,7 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -96,6 +97,7 @@ import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
+import org.commcare.tasks.EntityCacheInvalidationWorker;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PrimeEntityCache;
 import org.commcare.tasks.PrimeEntityCacheHelper;
@@ -164,6 +166,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
+    private static final String ENTITY_CACHE_INVALIDATION_REQUEST = "entity-cache-invalidation-request";
     private static Markwon markwon;
 
 
@@ -1241,5 +1244,15 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
         }
+    }
+
+    public void propogateEntityCacheInvalidation() {
+        OneTimeWorkRequest entityCacheInvalidationRequest = new OneTimeWorkRequest.Builder(
+                EntityCacheInvalidationWorker.class)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build();
+        WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
+        wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.KEEP,
+                entityCacheInvalidationRequest);
     }
 }

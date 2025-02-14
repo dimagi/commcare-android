@@ -6,6 +6,8 @@ import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_F
 import android.content.ContentValues;
 import android.util.Log;
 
+import com.google.common.collect.ImmutableList;
+
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -13,6 +15,7 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.AsyncEntity;
 import org.commcare.cases.entity.EntityStorageCache;
+import org.commcare.engine.cases.CaseUtils;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
@@ -26,8 +29,10 @@ import org.javarosa.core.services.Logger;
 
 import java.io.Closeable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -44,7 +49,9 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     private static final String COL_VALUE = "value";
     private static final String COL_TIMESTAMP = "timestamp";
     private static final String ENTITY_CACHE_WIPED_PREF_SUFFIX = "enity_cache_wiped";
-    private static final String COL_IS_DIRTY = "is_dirty";
+
+    // flag to record entity ids that has changed since last time around and
+    // for which the related entity graph needs to be deleted from cache
     private static final String COL_IS_SHALLOW = "is_shallow";
 
     private final SQLiteDatabase db;
@@ -70,7 +77,6 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                 COL_CACHE_KEY + ", " +
                 COL_VALUE + ", " +
                 COL_TIMESTAMP + ", " +
-                COL_IS_DIRTY + " INTEGER NOT NULL DEFAULT 0, " +
                 COL_IS_SHALLOW + " INTEGER NOT NULL DEFAULT 0, " +
                 "UNIQUE (" + COL_CACHE_NAME + "," + COL_APP_ID + "," + COL_ENTITY_KEY + "," + COL_CACHE_KEY + ")" +
                 ")";
@@ -129,30 +135,57 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     /**
      * Inserts a shallow record for the recordId to mark the record needing invalidation
      */
-    public void invalidateCache(String recordId) {
-        ContentValues cv = new ContentValues();
-        cv.put(COL_CACHE_NAME, mCacheName);
-        cv.put(COL_APP_ID, mAppId);
-        cv.put(COL_ENTITY_KEY, recordId);
-        cv.put(COL_IS_DIRTY, 1);
-        cv.put(COL_IS_SHALLOW, 1);
-        cv.put(COL_TIMESTAMP, System.currentTimeMillis());
-        db.insertWithOnConflict(TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    public void invalidateRecord(String recordId) {
+        if (isEmpty()) {
+            return;
+        }
+        markRecordsAsShallow(ImmutableList.of(Integer.parseInt(recordId)));
     }
 
     /**
      * Inserts shallow records for the recordIds to signify the records needing invalidation
      */
-    public void invalidateCaches(Collection<Integer> recordIds) {
+    public void invalidateRecords(Collection<Integer> recordIds) {
+        if (isEmpty()) {
+            return;
+        }
         try {
             db.beginTransaction();
-            for (Integer recordId : recordIds) {
-                invalidateCache(String.valueOf(recordId));
-            }
+            markRecordsAsShallow(recordIds);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
+    }
+
+    /**
+     * Removes cache records associated with the provided IDs
+     */
+    public void deleteRecords(Set<String> recordIds) {
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
+        int removed = 0;
+        for (Pair<String, String[]> querySet : whereParamList) {
+            removed += db.delete(TABLE_NAME, COL_CACHE_NAME + " = '" + mCacheName + "' AND " +
+                    COL_ENTITY_KEY + " IN " + querySet.first, querySet.second);
+        }
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            Log.d(TAG, "Invalidated " + removed + " cached values for bulk entities");
+        }
+    }
+
+    public Set<String> getShallowRecords() {
+        String whereClause = String.format("%s = ? AND %s = ?", COL_CACHE_NAME, COL_IS_SHALLOW);
+        Cursor c = db.query(TABLE_NAME, new String[]{COL_ENTITY_KEY}, whereClause,
+                new String[]{mCacheName, "1"}, null, null, null);
+        Set<String> resultSet = new HashSet<>();
+        try {
+            while (c.moveToNext()) {
+                resultSet.add(c.getString(0));
+            }
+        } finally {
+            c.close();
+        }
+        return resultSet;
     }
 
 
@@ -222,8 +255,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             String sqlStatement =
                     "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache"
                             + ".entity_key = AndroidCase.commcare_sql_id WHERE "
-                            +
-                            whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '"
+                            + whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '"
                             + AppUtils.getCurrentAppId() +
                             "' AND cache_key IN " + validKeys;
             SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
@@ -237,6 +269,15 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         } else {
             primeCacheOld(entitySet, cachePrimeKeys, detail);
         }
+    }
+
+    /**
+     * Gets all shallow records and it's related graph and delete those records from the cache
+     */
+    public void processShallowRecords() {
+        Set<String> shallowRecordIds = getShallowRecords();
+        Set<String> relatedRecordIds = CaseUtils.getRelatedCases(shallowRecordIds);
+        deleteRecords(relatedRecordIds);
     }
 
     @Deprecated
@@ -351,5 +392,38 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             }
         }
         walker.close();
+    }
+
+    private void markRecordsAsShallow(Collection<Integer> recordIds) {
+        for (Integer recordId : recordIds) {
+            ContentValues cv = new ContentValues();
+            cv.put(COL_CACHE_NAME, mCacheName);
+            cv.put(COL_APP_ID, mAppId);
+            cv.put(COL_ENTITY_KEY, recordId);
+            cv.put(COL_IS_SHALLOW, 1);
+            cv.put(COL_TIMESTAMP, System.currentTimeMillis());
+            db.insertWithOnConflict(TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        }
+    }
+
+    /**
+     * Checks whether the cache is empty
+     * @return if the cache is empty
+     */
+    public boolean isEmpty() {
+        return getCount() == 0;
+    }
+
+    private int getCount() {
+        String sql = "SELECT COUNT(*) FROM " + TABLE_NAME + " WHERE " + COL_CACHE_NAME + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{mCacheName});
+        if (cursor != null) {
+            try (cursor) {
+                if (cursor.moveToFirst()) {
+                    return cursor.getInt(0);
+                }
+            }
+        }
+        return 0;
     }
 }
