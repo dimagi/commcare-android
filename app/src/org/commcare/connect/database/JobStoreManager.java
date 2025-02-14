@@ -36,7 +36,7 @@ public class JobStoreManager {
                 pruneOldJobs(existingList, jobs);
             }
 
-            return processAndStoreJobs(jobs);
+            return processAndStoreJobs(existingList,jobs);
         } catch (Exception e) {
             Logger.exception("Error storing jobs", e);
             throw e;
@@ -82,7 +82,7 @@ public class JobStoreManager {
         paymentUnitStorage.removeAll(paymentUnitIds);
     }
 
-    private int processAndStoreJobs(List<ConnectJobRecord> jobs) {
+    private int processAndStoreJobs(List<ConnectJobRecord> existingJobs,List<ConnectJobRecord> jobs) {
         int newJobs = 0;
 
         for (ConnectJobRecord job : jobs) {
@@ -94,24 +94,18 @@ public class JobStoreManager {
                     job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
                 }
             }
-            storeOrUpdateJob(job);
+            storeOrUpdateJob(existingJobs,job);
         }
 
         return newJobs;
     }
 
-    public void storeOrUpdateJob(ConnectJobRecord job) {
+    public void storeOrUpdateJob(List<ConnectJobRecord> existingJobs,ConnectJobRecord job) {
         lock.lock();
         try {
-            // Check if the job already exists using jobId
-            Vector<ConnectJobRecord> existingJobs = jobStorage.getRecordsForValues(
-                    new String[]{ConnectJobRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()}
-            );
-
             if (!existingJobs.isEmpty()) {
                 // Job exists, update the existing record
-                ConnectJobRecord existingJob = existingJobs.firstElement();
+                ConnectJobRecord existingJob = existingJobs.get(0);
                 job.setID(existingJob.getID());
                 job.setLastUpdate(new Date());
                 jobStorage.write(job);
