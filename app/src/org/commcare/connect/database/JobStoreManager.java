@@ -87,28 +87,29 @@ public class JobStoreManager {
 
         for (ConnectJobRecord job : jobs) {
             job.setLastUpdate(new Date());
-
-            if (job.getID() <= 0) {
+            boolean isExisting = storeOrUpdateJob(existingJobs, job);
+            if (!isExisting) {
                 newJobs++;
-                if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
-                    job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
-                }
             }
-            storeOrUpdateJob(existingJobs,job);
         }
 
         return newJobs;
     }
 
-    public void storeOrUpdateJob(List<ConnectJobRecord> existingJobs,ConnectJobRecord job) {
+    public boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs,ConnectJobRecord job) {
         lock.lock();
         try {
+            // Store or update related entities
+            storeAppInfo(job);
+            storeModules(job);
+            storePaymentUnits(job);
             if (!existingJobs.isEmpty()) {
                 // Job exists, update the existing record
                 ConnectJobRecord existingJob = existingJobs.get(0);
                 job.setID(existingJob.getID());
                 job.setLastUpdate(new Date());
                 jobStorage.write(job);
+                return true;
             } else {
                 // Job does not exist, create a new record
                 job.setLastUpdate(new Date());
@@ -116,12 +117,8 @@ public class JobStoreManager {
                     job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
                 }
                 jobStorage.write(job);
+                return false;
             }
-
-            // Store or update related entities
-            storeAppInfo(job);
-            storeModules(job);
-            storePaymentUnits(job);
 
         } catch (Exception e) {
             Logger.exception("Error storing or updating job: " + job.getTitle(), e);
@@ -147,16 +144,27 @@ public class JobStoreManager {
                 new Object[]{job.getJobId()}
         );
 
-        Set<Integer> existingModuleIndices = new HashSet<>();
+        // Prune old modules that are not present in the incoming data
+        Vector<Integer> moduleIdsToDelete = new Vector<>();
         for (ConnectLearnModuleSummaryRecord existing : existingModules) {
-            existingModuleIndices.add(existing.getModuleIndex());
-        }
-
-        for (ConnectLearnModuleSummaryRecord module : job.getLearnAppInfo().getLearnModules()) {
-            if (existingModuleIndices.contains(module.getModuleIndex())) {
-                module.setLastUpdate(new Date());
+            boolean stillExists = false;
+            for (ConnectLearnModuleSummaryRecord incoming : job.getLearnAppInfo().getLearnModules()) {
+                if (Objects.equals(existing.getModuleIndex(), incoming.getModuleIndex())) {
+                    incoming.setID(existing.getID());  // Set ID for updating
+                    stillExists = true;
+                    break;
+                }
             }
+            if (!stillExists) {
+                moduleIdsToDelete.add(existing.getID());
+            }
+        }
+        moduleStorage.removeAll(moduleIdsToDelete);
+
+        // Store or update current modules
+        for (ConnectLearnModuleSummaryRecord module : job.getLearnAppInfo().getLearnModules()) {
             module.setJobId(job.getJobId());
+            module.setLastUpdate(new Date());
             moduleStorage.write(module);
         }
     }
@@ -167,16 +175,27 @@ public class JobStoreManager {
                 new Object[]{job.getJobId()}
         );
 
-        Set<Integer> existingPaymentUnitIds = new HashSet<>();
+        // Prune old payment units that are not present in the incoming data
+        Vector<Integer> paymentUnitIdsToDelete = new Vector<>();
         for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
-            existingPaymentUnitIds.add(existing.getUnitId());
-        }
-
-        for (ConnectPaymentUnitRecord record : job.getPaymentUnits()) {
-            if (!existingPaymentUnitIds.contains(record.getUnitId())) {
-                record.setJobId(job.getJobId());
-                paymentUnitStorage.write(record);
+            boolean stillExists = false;
+            for (ConnectPaymentUnitRecord incoming : job.getPaymentUnits()) {
+                if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
+                    incoming.setID(existing.getID());  // Set ID for updating
+                    stillExists = true;
+                    break;
+                }
             }
+            if (!stillExists) {
+                paymentUnitIdsToDelete.add(existing.getID());
+            }
+        }
+        paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
+
+        // Store or update current payment units
+        for (ConnectPaymentUnitRecord record : job.getPaymentUnits()) {
+            record.setJobId(job.getJobId());
+            paymentUnitStorage.write(record);
         }
     }
 
