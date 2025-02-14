@@ -2,9 +2,13 @@ package org.commcare.utils;
 
 import junit.framework.Assert;
 
+import org.javarosa.core.storage.Shoe;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Vector;
+
+import static org.junit.Assert.assertThrows;
 
 /**
  * Unit test for the encryption and decryption of a string
@@ -38,7 +42,7 @@ public class EncryptionUtilsTest {
         EncryptionUtils.encrypt(null, provider.getKey(null, true));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testEncryptionWithNullKey() throws Exception {
         EncryptionUtils.encrypt(TEST_DATA.getBytes(StandardCharsets.UTF_8), null);
     }
