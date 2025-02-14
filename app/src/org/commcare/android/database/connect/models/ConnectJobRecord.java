@@ -475,39 +475,4 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         return newRecord;
     }
-
-
-    public static ConnectJobRecord updateRecord(ConnectJobRecord oldRecord,ConnectJobRecord newRecord) {
-        oldRecord.jobId = newRecord.getJobId();
-        oldRecord.title = newRecord.getTitle();
-        oldRecord.description = newRecord.getDescription();
-        oldRecord.status = newRecord.getStatus();
-        oldRecord.completedVisits = newRecord.getCompletedVisits();
-        oldRecord.maxDailyVisits = newRecord.getMaxDailyVisits();
-        oldRecord.maxVisits = newRecord.getMaxVisits();
-        oldRecord.budgetPerVisit = newRecord.getBudgetPerVisit();
-        oldRecord.totalBudget = newRecord.getTotalBudget();
-        oldRecord.projectEndDate = newRecord.getProjectEndDate();
-        oldRecord.lastWorkedDate = newRecord.getLastWorkedDate();
-        oldRecord.deliveries = newRecord.deliveries;
-        oldRecord.payments =newRecord.payments;
-        oldRecord.learnings = newRecord.learnings;
-        oldRecord.assessments = newRecord.assessments;
-        oldRecord.paymentUnits = newRecord.paymentUnits;
-        oldRecord.organization = newRecord.getOrganization();
-        oldRecord.numLearningModules = newRecord.getNumLearningModules();
-        oldRecord.learningModulesCompleted = newRecord.learningModulesCompleted;
-        oldRecord.currency = newRecord.getCurrency();
-        oldRecord.paymentAccrued = Integer.toString(newRecord.getPaymentAccrued());
-        oldRecord.shortDescription = newRecord.getShortDescription();
-        oldRecord.lastUpdate = newRecord.getLastUpdate();
-        oldRecord.lastLearnUpdate = newRecord.getLastLearnUpdate();
-        oldRecord.lastDeliveryUpdate = newRecord.getLastDeliveryUpdate();
-        oldRecord.dateClaimed = newRecord.getDateClaimed();
-        oldRecord.projectStartDate = newRecord.getProjectStartDate();
-        oldRecord.isActive = newRecord.getIsActive();
-        oldRecord.isUserSuspended= newRecord.isUserSuspended;
-
-        return newRecord;
-    }
 }

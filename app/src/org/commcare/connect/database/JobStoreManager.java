@@ -99,6 +99,7 @@ public class JobStoreManager {
 
         return newJobs;
     }
+
     public void storeOrUpdateJob(ConnectJobRecord job) {
         lock.lock();
         try {
@@ -111,9 +112,9 @@ public class JobStoreManager {
             if (!existingJobs.isEmpty()) {
                 // Job exists, update the existing record
                 ConnectJobRecord existingJob = existingJobs.firstElement();
-                existingJob=existingJob.updateRecord(existingJob,job);  // You need to implement this method in ConnectJobRecord
-                existingJob.setLastUpdate(new Date());
-                jobStorage.write(existingJob);
+                job.setID(existingJob.getID());
+                job.setLastUpdate(new Date());
+                jobStorage.write(job);
             } else {
                 // Job does not exist, create a new record
                 job.setLastUpdate(new Date());
