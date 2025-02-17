@@ -552,6 +552,7 @@ public class MediaUtil {
 
         byte[] byteArray = null;
         int quality = 100;
+        int numCompressionCycles = 0;
         while (quality != 0) {
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
@@ -561,7 +562,9 @@ public class MediaUtil {
                 }
                 quality -= IMAGE_QUALIY_REDUCTION_FACTOR;
             }
+            numCompressionCycles++;
         }
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Micro image compressed successfully. Number of cycles: " + numCompressionCycles);
         return byteArray;
     }
 
