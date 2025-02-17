@@ -47,19 +47,6 @@ public class FaceCaptureView extends AppCompatImageView {
     public enum CaptureMode {FaceDetectionMode, ManualMode}
     private CaptureMode captureMode = CaptureMode.FaceDetectionMode;
 
-    public void setCaptureMode(CaptureMode captureMode){
-        this.captureMode = captureMode;
-
-        if (captureMode == CaptureMode.ManualMode) {
-            imageStabilizedListener = null;
-        }
-        invalidate();
-    }
-
-    public CaptureMode getCaptureMode() {
-        return captureMode;
-    }
-
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
@@ -72,6 +59,20 @@ public class FaceCaptureView extends AppCompatImageView {
             imageWidth = DEFAULT_IMAGE_HEIGHT;
             imageHeight = DEFAULT_IMAGE_WIDTH;
         }
+    }
+
+    public void setCaptureMode(CaptureMode captureMode){
+        this.captureMode = captureMode;
+
+        if (captureMode == CaptureMode.ManualMode) {
+            imageStabilizedListener = null;
+            faceOvalGraphic = null;
+        }
+        invalidate();
+    }
+
+    public CaptureMode getCaptureMode() {
+        return captureMode;
     }
 
     private void loadViewAttribs(AttributeSet attrs) {
@@ -89,10 +90,6 @@ public class FaceCaptureView extends AppCompatImageView {
     private void initCameraView(int viewWidth, int viewHeight){
         setFaceCaptureArea(calcCaptureArea(viewWidth, viewHeight));
         calcScaleFactors(viewWidth, viewHeight);
-
-        if (captureMode == CaptureMode.FaceDetectionMode) {
-            faceOvalGraphic = new FaceOvalGraphic();
-        }
 
         Bitmap previewOverlay = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(previewOverlay);
@@ -113,6 +110,12 @@ public class FaceCaptureView extends AppCompatImageView {
         canvas.drawOval(faceCaptureArea, paint);
 
         setImageBitmap(previewOverlay);
+
+        if (captureMode == CaptureMode.FaceDetectionMode) {
+            faceOvalGraphic = new FaceOvalGraphic();
+        } else {
+            faceOvalGraphic = null;
+        }
     }
 
     public int getImageWidth() {
