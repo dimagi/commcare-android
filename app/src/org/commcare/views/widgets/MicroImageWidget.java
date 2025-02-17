@@ -15,7 +15,6 @@ import org.javarosa.core.model.data.Base64ImageData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,7 +30,7 @@ public class MicroImageWidget extends ImageWidget{
 
         mChooseButton.setVisibility(GONE);
         if (mPrompt.getAnswerValue() instanceof Base64ImageData) {
-            mBinary = ((Pair<String, String>)mPrompt.getAnswerValue().getValue()).second;
+            mBinary = ((Base64ImageData)mPrompt.getAnswerValue()).getImageData();
         }
     }
 
