@@ -99,17 +99,11 @@ public class JobStoreManager {
     public boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
         lock.lock();
         try {
-            // Store or update related entities
-            storeAppInfo(job);
-            storeModules(job);
-            storePaymentUnits(job);
             // Check if the job already exists
             boolean isExisting = false;
             for (ConnectJobRecord existingJob : existingJobs) {
                 if (existingJob.getJobId() == job.getJobId()) {
                     job.setID(existingJob.getID());  // Set ID for updating
-                    job.setLastUpdate(new Date());
-                    jobStorage.write(job);
                     isExisting = true;
                     break;
                 }
@@ -117,12 +111,16 @@ public class JobStoreManager {
 
             // If not existing, create a new record
             if (!isExisting) {
-                job.setLastUpdate(new Date());
                 if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
                     job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
                 }
-                jobStorage.write(job);
             }
+            job.setLastUpdate(new Date());
+            jobStorage.write(job);
+            // Store or update related entities
+            storeAppInfo(job);
+            storeModules(job);
+            storePaymentUnits(job);
             return isExisting;
 
         } catch (Exception e) {
@@ -134,6 +132,20 @@ public class JobStoreManager {
     }
 
     private void storeAppInfo(ConnectJobRecord job) {
+        // Check if LearnAppInfo already exists
+        Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
+                new String[]{ConnectAppRecord.META_JOB_ID},
+                new Object[]{job.getJobId()}
+        );
+
+        // Update LearnAppInfo and DeliveryAppInfo if they already exist
+        for (ConnectAppRecord existing : existingAppInfos) {
+            if (existing.getIsLearning() && job.getLearnAppInfo() != null) {
+                job.getLearnAppInfo().setID(existing.getID());  // Set ID for updating
+            } else if (!existing.getIsLearning() && job.getDeliveryAppInfo() != null) {
+                job.getDeliveryAppInfo().setID(existing.getID());  // Set ID for updating
+            }
+        }
         job.getLearnAppInfo().setJobId(job.getJobId());
         job.getDeliveryAppInfo().setJobId(job.getJobId());
         job.getLearnAppInfo().setLastUpdate(new Date());
