@@ -49,14 +49,23 @@ public class MicroImageWidget extends ImageWidget{
 
         File f = new File(binaryPath.toString());
         Bitmap originalImage = BitmapFactory.decodeFile(binaryPath.toString());
+        if (originalImage == null) {
+            throw new RuntimeException("Failed to decode image file");
+        }
 
-        Bitmap scaledDownBitmap = scaleImage(originalImage, IMAGE_DIMEN_SCALED_MAX_PX, IMAGE_DIMEN_SCALED_MAX_PX);
-        byte[] compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(scaledDownBitmap, MICRO_IMAGE_MAX_SIZE_BYTES);
-
+        Bitmap scaledDownBitmap = null;
+        byte[] compressedBitmapByteArray;
         try {
+            scaledDownBitmap = scaleImage(originalImage, IMAGE_DIMEN_SCALED_MAX_PX, IMAGE_DIMEN_SCALED_MAX_PX);
+            compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(scaledDownBitmap, MICRO_IMAGE_MAX_SIZE_BYTES);
             mBinary = Base64.encodeToString(compressedBitmapByteArray, Base64.DEFAULT);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            originalImage.recycle();
+            if (scaledDownBitmap != null) {
+                scaledDownBitmap.recycle();
+            }
         }
         mBinaryName = f.getName();
     }

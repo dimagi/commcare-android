@@ -648,12 +648,15 @@ public class MediaUtil {
 
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, cropArea.left, cropArea.top,
                 cropArea.right - cropArea.left, cropArea.bottom - cropArea.top);
-
         try {
             FileUtil.writeBitmapToDiskAndCleanupHandles(croppedBitmap,
                     ImageType.fromExtension(FileUtil.getExtension(imageFile.getPath())), imageFile);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save image after cropping", e);
+        } finally {
+            if (croppedBitmap != bitmap) {
+                croppedBitmap.recycle();
+            }
         }
     }
 }
