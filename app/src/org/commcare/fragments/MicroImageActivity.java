@@ -108,7 +108,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                 .build();
         preview.setSurfaceProvider(cameraView.getSurfaceProvider());
 
-        UseCase imageAnalyzerOrCapture = null;
+        UseCase imageAnalyzerOrCapture;
         if (faceCaptureView.getCaptureMode() == FaceCaptureView.CaptureMode.FaceDetectionMode) {
             imageAnalyzerOrCapture = buildImageAnalysisUseCase(targetResolution, targetRotation);
         } else {
@@ -158,9 +158,13 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                         super.onCaptureSuccess(imageProxy);
                         @SuppressLint("UnsafeOptInUsageError")
                         Image capturedImage = imageProxy.getImage();
-                        inputImage = ImageConvertUtils.getInstance().convertJpegToUpRightBitmap(capturedImage, imageProxy.getImageInfo().getRotationDegrees());
-                        imageProxy.close();
-                        finalizeImageCapture(calcPreviewCaptureArea());
+                        if (capturedImage != null) {
+                            inputImage = ImageConvertUtils.getInstance().convertJpegToUpRightBitmap(capturedImage, imageProxy.getImageInfo().getRotationDegrees());
+                            imageProxy.close();
+                            finalizeImageCapture(calcPreviewCaptureArea());
+                        } else {
+                            logErrorAndExit("No image found, manual capture failed!", "microimage.camera.start.failed", null);
+                        }
                     }
                 });
             }
@@ -189,10 +193,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             // process image with the face detector
             faceDetector.process(image)
                     .addOnSuccessListener(faces -> processFaceDetectionResult(faces, image))
-                    .addOnFailureListener(e -> handleErrorDuringDetection(e))
-                    .addOnCompleteListener(task -> {
-                        imageProxy.close();
-                    });
+                    .addOnFailureListener(this::handleErrorDuringDetection)
+                    .addOnCompleteListener(task -> imageProxy.close());
         } else {
             imageProxy.close();
         }
