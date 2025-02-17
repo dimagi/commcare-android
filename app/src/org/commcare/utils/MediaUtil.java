@@ -526,12 +526,15 @@ public class MediaUtil {
 
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, cropArea.left, cropArea.top,
                 cropArea.right - cropArea.left, cropArea.bottom - cropArea.top);
-
         try {
             FileUtil.writeBitmapToDiskAndCleanupHandles(croppedBitmap,
                     ImageType.fromExtension(FileUtil.getExtension(imageFile.getPath())), imageFile);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save image after cropping", e);
+        } finally {
+            if (croppedBitmap != bitmap) {
+                croppedBitmap.recycle();
+            }
         }
     }
 
@@ -542,7 +545,7 @@ public class MediaUtil {
         return false;
     }
 
-    public static byte[] compressBitmapToTargetSize(Bitmap bitmap, int targetSize) {
+    public static byte[] compressBitmapToTargetSize(Bitmap bitmap, int targetSize) throws IOException {
         if (bitmap == null) {
             return null;
         }
@@ -550,13 +553,14 @@ public class MediaUtil {
         byte[] byteArray = null;
         int quality = 100;
         while (quality != 0) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
-            byteArray = baos.toByteArray();
-            if (byteArray.length <= targetSize) {
-                break;
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
+                byteArray = baos.toByteArray();
+                if (byteArray.length <= targetSize) {
+                    break;
+                }
+                quality -= IMAGE_QUALIY_REDUCTION_FACTOR;
             }
-            quality -= IMAGE_QUALIY_REDUCTION_FACTOR;
         }
         return byteArray;
     }
