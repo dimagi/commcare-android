@@ -140,9 +140,9 @@ public class JobStoreManager {
 
         // Update LearnAppInfo and DeliveryAppInfo if they already exist
         for (ConnectAppRecord existing : existingAppInfos) {
-            if (existing.getIsLearning() && job.getLearnAppInfo() != null) {
+            if (existing.getIsLearning()) {
                 job.getLearnAppInfo().setID(existing.getID());  // Set ID for updating
-            } else if (!existing.getIsLearning() && job.getDeliveryAppInfo() != null) {
+            } else  {
                 job.getDeliveryAppInfo().setID(existing.getID());  // Set ID for updating
             }
         }
