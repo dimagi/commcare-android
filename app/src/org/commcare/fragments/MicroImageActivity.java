@@ -303,7 +303,7 @@ public class MicroImageActivity extends CommonBaseActivity implements ImageAnaly
         try {
             startCamera();
         } catch (ExecutionException | InterruptedException e) {
-            logErrorAndExit("Error restarting camera in manual mode", R.string.camera_start_failed, e);
+            logErrorAndExit("Error restarting camera in manual mode", "microimage.camera.start.failed", e);
         }
     }
 
