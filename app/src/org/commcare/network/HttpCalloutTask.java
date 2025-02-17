@@ -1,6 +1,11 @@
 package org.commcare.network;
 
+import static org.commcare.network.HttpCalloutTask.ResponseBodyErrorMessages.retrieveErrorMessageValue;
+import static org.commcare.network.HttpUtils.parseUserVisibleError;
+
 import android.content.Context;
+
+import okhttp3.ResponseBody;
 
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
@@ -18,15 +23,14 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import retrofit2.Response;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLException;
-
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 /**
  * @author ctsims
@@ -43,7 +47,27 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         NetworkFailureBadPassword,
         IncorrectPin,
         AuthOverHttp,
+        LockedOutUser,
         CaptivePortal
+    }
+
+    // Stores HTTP response body error messages associated with 401s
+    public enum ResponseBodyErrorMessages {
+        Max_Login_Attempts_Exceeded("maximum password attempts exceeded"),
+        No_Error_Message("");
+        private final String errorMessage;
+
+        ResponseBodyErrorMessages(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+        public static ResponseBodyErrorMessages retrieveErrorMessageValue(String errorMessage){
+            for (ResponseBodyErrorMessages msgs : ResponseBodyErrorMessages.values()){
+                if (msgs.errorMessage.equals(errorMessage)){
+                    return msgs;
+                }
+            }
+            throw new IllegalArgumentException("HTTP Response body error message not recognized: "+ errorMessage);
+        }
     }
 
     private final Context c;
@@ -179,7 +203,13 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
     }
 
     protected HttpCalloutOutcomes doResponseAuthFailed(Response response) {
-        return HttpCalloutOutcomes.AuthFailed;
+        switch (retrieveErrorMessageValue(parseUserVisibleError(response, false))){
+            case Max_Login_Attempts_Exceeded:
+                return HttpCalloutOutcomes.LockedOutUser;
+            default:
+                return HttpCalloutOutcomes.AuthFailed;
+        }
+
     }
 
     protected abstract HttpCalloutOutcomes doResponseOther(Response response);
