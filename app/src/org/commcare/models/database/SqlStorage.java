@@ -795,6 +795,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     public Vector<T> getSortedRecordsForValues(String[] fieldNames, Object[] values,String orderby) {
+        if (orderby != null && !orderby.matches("^\\w+\\s*(ASC|DESC)?\\s*$")) {
+            throw new IllegalArgumentException("Invalid format");
+        }
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
 
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, orderby);
