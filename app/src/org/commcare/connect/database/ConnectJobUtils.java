@@ -90,8 +90,7 @@ public class ConnectJobUtils {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
-            }
-            else {
+            } else {
                 Collections.sort(modules, new Comparator<ConnectLearnModuleSummaryRecord>() {
                     @Override
                     public int compare(ConnectLearnModuleSummaryRecord o1, ConnectLearnModuleSummaryRecord o2) {
