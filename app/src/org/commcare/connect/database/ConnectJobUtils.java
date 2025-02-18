@@ -15,6 +15,7 @@ import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -81,12 +82,23 @@ public class ConnectJobUtils {
             }
 
             //Retrieve learn modules
-            Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getSortedRecordsForValues(
+            Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getRecordsForValues(
                     new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()},
-                    ConnectLearnModuleSummaryRecord.META_INDEX+" DESC");
+                    new Object[]{job.getJobId()});
 
             List<ConnectLearnModuleSummaryRecord> modules = new ArrayList<>(existingModules);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
+            }
+            else {
+                Collections.sort(modules, new Comparator<ConnectLearnModuleSummaryRecord>() {
+                    @Override
+                    public int compare(ConnectLearnModuleSummaryRecord o1, ConnectLearnModuleSummaryRecord o2) {
+                        return Integer.compare(o1.getModuleIndex(), o2.getModuleIndex());
+                    }
+                });
+            }
 
             if (job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
