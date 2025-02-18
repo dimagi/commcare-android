@@ -181,6 +181,9 @@ public class CaseUtils {
 
     private static String getRecordIdFromCaseId(SqlStorage<ACase> storage, String caseId) {
         Vector<Integer> result = storage.getIDsForValue(INDEX_CASE_ID, caseId);
+        if (result == null || result.isEmpty()) {
+            throw new IllegalStateException("No record found for case ID: " + caseId);
+        }
         return String.valueOf(result.get(0));
     }
 
