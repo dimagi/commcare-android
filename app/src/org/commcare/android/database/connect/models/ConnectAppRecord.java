@@ -78,11 +78,11 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         app.description = json.getString(META_DESCRIPTION);
         app.organization = json.getString(META_ORGANIZATION);
         app.passingScore = json.getInt(META_PASSING_SCORE);
-        app.installUrl =json.getString(META_INSTALL_URL);
+        app.installUrl = json.getString(META_INSTALL_URL);
 
         JSONArray array = json.getJSONArray(META_MODULES);
         app.learnModules = new ArrayList<>();
-        for(int i=0; i<array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
             app.learnModules.add(ConnectLearnModuleSummaryRecord.fromJson(obj, i));
         }
@@ -90,16 +90,43 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         return app;
     }
 
-    public boolean getIsLearning() { return isLearning; }
-    public int getJobId() { return jobId; }
-    public void setJobId(int jobId) { this.jobId = jobId; }
+    public boolean getIsLearning() {
+        return isLearning;
+    }
 
-    public String getAppId() { return appId; }
-    public String getDomain() { return domain; }
-    public int getPassingScore() { return passingScore; }
+    public int getJobId() {
+        return jobId;
+    }
 
-    public List<ConnectLearnModuleSummaryRecord> getLearnModules() { return learnModules; }
-    public String getInstallUrl() { return installUrl; }
-    public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public int getPassingScore() {
+        return passingScore;
+    }
+
+    public List<ConnectLearnModuleSummaryRecord> getLearnModules() {
+        return learnModules;
+    }
+
+    public String getInstallUrl() {
+        return installUrl;
+    }
+
+    public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) {
+        learnModules = modules;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }

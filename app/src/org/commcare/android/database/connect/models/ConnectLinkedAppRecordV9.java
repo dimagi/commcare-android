@@ -73,7 +73,10 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         linkOfferDate2 = new Date();
     }
 
-    public String getAppId(){ return appId; }
+    public String getAppId() {
+        return appId;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -98,7 +101,9 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         return hqTokenExpiration;
     }
 
-    public boolean getConnectIdLinked() { return connectIdLinked; }
+    public boolean getConnectIdLinked() {
+        return connectIdLinked;
+    }
 
     public Date getLinkOfferDate1() {
         return linkOffered1 ? linkOfferDate1 : null;
@@ -108,7 +113,9 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         return linkOffered2 ? linkOfferDate2 : null;
     }
 
-    public boolean isUsingLocalPassphrase() { return usingLocalPassphrase; }
+    public boolean isUsingLocalPassphrase() {
+        return usingLocalPassphrase;
+    }
 
     public static ConnectLinkedAppRecordV9 fromV8(@NonNull ConnectLinkedAppRecordV8 oldRecord) {
         ConnectLinkedAppRecordV9 newRecord = new ConnectLinkedAppRecordV9();

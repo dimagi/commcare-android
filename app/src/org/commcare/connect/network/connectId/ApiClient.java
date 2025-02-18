@@ -22,7 +22,9 @@ public class ApiClient {
     public static final String BASE_URL = "https://connectid.dimagi.com";  // Replace with actual base URL
     private static final String API_VERSION = "1.0";  // Replace with actual version value
     private static volatile Retrofit retrofit;
-    private ApiClient() {}
+
+    private ApiClient() {
+    }
 
     public static Retrofit getClient() {
         if (retrofit == null) {

@@ -13,8 +13,8 @@ import static org.commcare.tasks.ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ConnectivityStatus {
-    private static final String logNotConnectedMessage = "Network test: Not connected.";
-    private static final String logConnectionSuccessMessage = "Network test: Success.";
+    public static final String logNotConnectedMessage = "Network test: Not connected.";
+    public static final String logConnectionSuccessMessage = "Network test: Success.";
     public static boolean isAirplaneModeOn(Context context) {
         return Settings.Global.getInt(context.getApplicationContext().getContentResolver(), Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
     }

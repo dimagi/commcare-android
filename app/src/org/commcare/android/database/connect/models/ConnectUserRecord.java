@@ -54,7 +54,7 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(value = 9, nullable = true)
     private Date connectTokenExpiration;
-    @Persisting(value=10, nullable = true)
+    @Persisting(value = 10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
     @Persisting(11)
@@ -121,8 +121,14 @@ public class ConnectUserRecord extends Persisted {
     public void setAlternatePhone(String alternatePhone) {
         this.alternatePhone = alternatePhone;
     }
-    public void setPin(String pin) { this.pin = pin; }
-    public String getPin() { return pin; }
+
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
+    public String getPin() {
+        return pin;
+    }
 
     public String getPassword() {
         return password;
@@ -151,16 +157,26 @@ public class ConnectUserRecord extends Persisted {
     public Date getLastPinDate() {
         return lastPasswordDate;
     }
-    public void setLastPinDate(Date date) { lastPasswordDate = date; }
+
+    public void setLastPinDate(Date date) {
+        lastPasswordDate = date;
+    }
 
     public boolean getSecondaryPhoneVerified() {
         return secondaryPhoneVerified;
     }
-    public void setSecondaryPhoneVerified(boolean verified) { secondaryPhoneVerified = verified; }
-    public Date getSecondaryPhoneVerifyByDate() {
-        return verifySecondaryPhoneByDate;
+
+    public void setSecondaryPhoneVerified(boolean verified) {
+        secondaryPhoneVerified = verified;
     }
-    public void setSecondaryPhoneVerifyByDate(Date date) { verifySecondaryPhoneByDate = date; }
+
+    public Date getSecondaryPhoneVerifyByDate() {
+        return secondaryPhoneVerified ? verifySecondaryPhoneByDate : null;
+    }
+
+    public void setSecondaryPhoneVerifyByDate(Date date) {
+        verifySecondaryPhoneByDate = date;
+    }
 
     public boolean shouldForcePin() {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
@@ -184,7 +200,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public boolean shouldRequireSecondaryPhoneVerification() {
-        if(secondaryPhoneVerified) {
+        if (secondaryPhoneVerified) {
             return false;
         }
 
@@ -197,7 +213,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
-        if((new Date()).compareTo(connectTokenExpiration) < 0) {
+        if ((new Date()).compareTo(connectTokenExpiration) < 0) {
             return new AuthInfo.TokenAuth(connectToken);
         }
 

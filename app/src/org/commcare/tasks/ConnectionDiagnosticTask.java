@@ -1,5 +1,8 @@
 package org.commcare.tasks;
 
+import static org.commcare.utils.ConnectivityStatus.logConnectionSuccessMessage;
+import static org.commcare.utils.ConnectivityStatus.logNotConnectedMessage;
+
 import android.content.Context;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.CommCareNetworkService;
@@ -65,10 +68,13 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         Test out = null;
         if (!ConnectivityStatus.isNetworkAvailable(this.c)) {
             out = Test.isOnline;
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logNotConnectedMessage);
         } else if (!pingSuccess(googleURL)) {
             out = Test.googlePing;
         } else if (!pingCC(commcareURL)) {
             out = Test.commCarePing;
+        } else {
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logConnectionSuccessMessage);
         }
         return out;
     }

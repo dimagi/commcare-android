@@ -12,6 +12,7 @@ import java.util.Date;
 public class SsoToken {
     private final String token;
     private final Date expiration;
+
     public SsoToken(String token, Date expiration) {
         if (token == null || expiration == null) {
             throw new IllegalArgumentException("Token and expiration must not be null");
@@ -22,6 +23,7 @@ public class SsoToken {
         this.token = token;
         this.expiration = new Date(expiration.getTime());
     }
+
     public static SsoToken fromResponseStream(InputStream stream) throws IOException, JSONException {
         String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                 stream));
@@ -37,12 +39,15 @@ public class SsoToken {
         expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
         return new SsoToken(token, expiration);
     }
+
     public String getToken() {
         return token;
     }
+
     public Date getExpiration() {
         return new Date(expiration.getTime());
     }
+
     @Override
     public String toString() {
         return "SsoToken{expiration=" + expiration + '}';

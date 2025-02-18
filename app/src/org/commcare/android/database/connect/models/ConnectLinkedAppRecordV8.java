@@ -58,7 +58,9 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
     @MetaField(META_OFFERED_2_DATE)
     private Date linkOfferDate2;
 
-    public String getAppId(){ return appId; }
+    public String getAppId() {
+        return appId;
+    }
 
     public String getUserId() {
         return userId;
@@ -84,7 +86,9 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
         return hqTokenExpiration;
     }
 
-    public boolean getConnectIdLinked() { return connectIdLinked; }
+    public boolean getConnectIdLinked() {
+        return connectIdLinked;
+    }
 
     public Date getLinkOfferDate1() {
         return linkOffered1 ? linkOfferDate1 : null;

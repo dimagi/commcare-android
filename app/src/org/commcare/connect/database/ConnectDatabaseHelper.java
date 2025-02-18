@@ -26,7 +26,7 @@ import org.javarosa.core.services.storage.Persistable;
  */
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
-    private static SQLiteDatabase connectDatabase;
+    public static SQLiteDatabase connectDatabase;
     static boolean dbBroken = false;
 
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
@@ -55,14 +55,14 @@ public class ConnectDatabaseHelper {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
-                    if (!dbBroken && (connectDatabase == null || !connectDatabase.isOpen())) {
+                    if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
+                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
 
                             DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
 
-                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context,false);
-                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context,true);
+                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
+                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
                                 connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
@@ -73,6 +73,7 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
+                            handleCorruptDb(context);
                             Logger.exception("Corrupt Connect DB", e);
                         }
                     }

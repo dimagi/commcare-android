@@ -12,13 +12,12 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.models.database.SqlStorage;
-import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 
 public class ConnectJobUtils {
@@ -26,7 +25,7 @@ public class ConnectJobUtils {
     public static void upsertJob(Context context, ConnectJobRecord job) {
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
-        new JobStoreManager(context).storeJobs(context,list,false);
+        new JobStoreManager(context).getCompositeJobs(context, list, false);
     }
 
     public static ConnectJobRecord getCompositeJob(Context context, int jobId) {
@@ -39,13 +38,13 @@ public class ConnectJobUtils {
         return jobs.isEmpty() ? null : jobs.firstElement();
     }
 
-    public static List<ConnectJobRecord> getJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
+    public static List<ConnectJobRecord> getCompositeJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
         if (jobStorage == null) {
             jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
         }
 
         Vector<ConnectJobRecord> jobs;
-        if (status == ConnectJobRecord.STATUS_ALL_JOBS) {
+        if (status != ConnectJobRecord.STATUS_ALL_JOBS) {
             jobs = jobStorage.getRecordsForValues(
                     new String[]{ConnectJobRecord.META_STATUS},
                     new Object[]{status});
@@ -81,12 +80,22 @@ public class ConnectJobUtils {
             }
 
             //Retrieve learn modules
-            Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getSortedRecordsForValues(
+            Vector<ConnectLearnModuleSummaryRecord> existingModules = moduleStorage.getRecordsForValues(
                     new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
-                    new Object[]{job.getJobId()},
-                    ConnectLearnModuleSummaryRecord.META_INDEX+" DESC");
+                    new Object[]{job.getJobId()});
 
             List<ConnectLearnModuleSummaryRecord> modules = new ArrayList<>(existingModules);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
+            } else {
+                Collections.sort(modules, new Comparator<ConnectLearnModuleSummaryRecord>() {
+                    @Override
+                    public int compare(ConnectLearnModuleSummaryRecord o1, ConnectLearnModuleSummaryRecord o2) {
+                        return Integer.compare(o1.getModuleIndex(), o2.getModuleIndex());
+                    }
+                });
+            }
 
             if (job.getLearnAppInfo() != null) {
                 job.getLearnAppInfo().setLearnModules(modules);
@@ -110,17 +119,9 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getAvailableJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
-        jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
-
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (!record.isFinished()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
+        jobs.addAll(getCompositeJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
+        return getUnFinishedJobs(jobs);
     }
 
     public static List<ConnectJobRecord> getTrainingJobs(Context context) {
@@ -128,16 +129,8 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getTrainingJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
-
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (!record.isFinished()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
+        return getUnFinishedJobs(jobs);
     }
 
     public static List<ConnectJobRecord> getDeliveryJobs(Context context) {
@@ -145,7 +138,7 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getDeliveryJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for (ConnectJobRecord record : jobs) {
@@ -157,12 +150,19 @@ public class ConnectJobUtils {
         return filtered;
     }
 
-    public static List<ConnectJobRecord> getFinishedJobs(Context context) {
-        return getFinishedJobs(context, null);
+    public static List<ConnectJobRecord> getUnFinishedJobs(List<ConnectJobRecord> jobs) {
+        List<ConnectJobRecord> filtered = new ArrayList<>();
+        for (ConnectJobRecord record : jobs) {
+            if (!record.isFinished()) {
+                filtered.add(record);
+            }
+        }
+
+        return filtered;
     }
 
     public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for (ConnectJobRecord record : jobs) {
@@ -226,7 +226,7 @@ public class ConnectJobUtils {
         for (ConnectJobPaymentRecord existing : existingList) {
             boolean stillExists = false;
             for (ConnectJobPaymentRecord incoming : payments) {
-                if (existing.getDate() != null && existing.getPaymentId().equals(incoming.getPaymentId())) {
+                if (existing.getPaymentId().equals(incoming.getPaymentId())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
@@ -360,7 +360,7 @@ public class ConnectJobUtils {
 
     public static Date getLastJobsUpdate(Context context) {
         Date lastDate = null;
-        for (ConnectJobRecord job : getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)) {
+        for (ConnectJobRecord job : getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)) {
             if (lastDate == null || lastDate.before(job.getLastUpdate())) {
                 lastDate = job.getLastUpdate();
             }

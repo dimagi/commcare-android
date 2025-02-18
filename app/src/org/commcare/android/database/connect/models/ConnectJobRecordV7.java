@@ -43,7 +43,6 @@ public class ConnectJobRecordV7 extends Persisted implements Serializable {
     public static final String META_IS_ACTIVE = "is_active";
 
 
-
     @Persisting(1)
     @MetaField(META_JOB_ID)
     private int jobId;
@@ -116,34 +115,105 @@ public class ConnectJobRecordV7 extends Persisted implements Serializable {
 
     }
 
-    public int getJobId() { return jobId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getShortDescription() { return shortDescription; }
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
-    public int getCompletedVisits() { return completedVisits; }
-    public int getMaxVisits() { return maxVisits; }
-    public int getMaxDailyVisits() { return maxDailyVisits; }
-    public int getBudgetPerVisit() { return budgetPerVisit; }
-    public Date getProjectEndDate() { return projectEndDate; }
-    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
-    public String getCurrency() { return currency; }
-    public int getNumLearningModules() { return numLearningModules; }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
-    public Date getLastUpdate() { return lastUpdate; }
-    public Date getLastLearnUpdate() { return lastLearnUpdate; }
-    public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
-    public String getOrganization() { return organization; }
-    public int getTotalBudget() { return totalBudget; }
-    public Date getLastWorkedDate() { return lastWorkedDate; }
-    public int getLearningModulesCompleted() { return learningModulesCompleted; }
+    public int getJobId() {
+        return jobId;
+    }
 
-    public boolean getIsActive() { return isActive; }
+    public String getTitle() {
+        return title;
+    }
 
-    public Date getProjectStartDate() { return projectStartDate; }
+    public String getDescription() {
+        return description;
+    }
 
-    public Date getDateClaimed() { return dateClaimed; }
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getCompletedVisits() {
+        return completedVisits;
+    }
+
+    public int getMaxVisits() {
+        return maxVisits;
+    }
+
+    public int getMaxDailyVisits() {
+        return maxDailyVisits;
+    }
+
+    public int getBudgetPerVisit() {
+        return budgetPerVisit;
+    }
+
+    public Date getProjectEndDate() {
+        return projectEndDate;
+    }
+
+    public int getPaymentAccrued() {
+        return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public int getNumLearningModules() {
+        return numLearningModules;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public Date getLastLearnUpdate() {
+        return lastLearnUpdate;
+    }
+
+    public Date getLastDeliveryUpdate() {
+        return lastDeliveryUpdate;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public int getTotalBudget() {
+        return totalBudget;
+    }
+
+    public Date getLastWorkedDate() {
+        return lastWorkedDate;
+    }
+
+    public int getLearningModulesCompleted() {
+        return learningModulesCompleted;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public Date getProjectStartDate() {
+        return projectStartDate;
+    }
+
+    public Date getDateClaimed() {
+        return dateClaimed;
+    }
 
     public static ConnectJobRecordV7 fromV4(ConnectJobRecordV4 oldRecord) {
         ConnectJobRecordV7 newRecord = new ConnectJobRecordV7();

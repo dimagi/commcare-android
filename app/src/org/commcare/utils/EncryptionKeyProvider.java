@@ -37,10 +37,12 @@ import androidx.annotation.RequiresApi;
 public class EncryptionKeyProvider {
     /**
      *  Key store name that store the encryptrd key
+     *  the value of the key should not be renamed due to backward compatibility
      */
     private static final String KEYSTORE_NAME = "AndroidKeyStore";
     /**
      *  Key name to get the secret value from key store
+     *  the value of the key should not be renamed due to backward compatibility
      */
     private static final String SECRET_NAME = "secret";
 

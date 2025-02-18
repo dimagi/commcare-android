@@ -1,4 +1,5 @@
 package org.commcare.android.database.connect.models;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.models.framework.Persisting;
@@ -33,6 +34,7 @@ public class ConnectUserRecordV5 extends Persisted {
     /**
      * User's password hash.
      * Updated when password is changed or reset.
+     *
      * @see #setPassword(String)
      * @see #lastPasswordDate
      */
@@ -46,7 +48,7 @@ public class ConnectUserRecordV5 extends Persisted {
     private String name;
     /**
      * User's phone no.
-     *  Used for authentication and recovery
+     * Used for authentication and recovery
      */
     @Persisting(4)
     private String primaryPhone;
@@ -78,32 +80,46 @@ public class ConnectUserRecordV5 extends Persisted {
         connectTokenExpiration = new Date();
     }
 
-    public String getUserId() {return userId; }
+    public String getUserId() {
+        return userId;
+    }
+
     public String getPrimaryPhone() {
         return primaryPhone;
     }
+
     public String getAlternatePhone() {
         return alternatePhone;
     }
+
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
-    public int getRegistrationPhase() { return registrationPhase; }
+
+    public int getRegistrationPhase() {
+        return registrationPhase;
+    }
+
     public Date getLastPasswordDate() {
         return lastPasswordDate;
     }
+
     public String getConnectToken() {
         return connectToken;
     }
+
     public Date getConnectTokenExpiration() {
         return connectTokenExpiration;
     }

@@ -27,20 +27,23 @@ public class JobStoreManager {
         this.paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectPaymentUnitRecord.class);
     }
 
-    public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
+    public int getCompositeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         lock.lock();
         try {
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
             List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
 
             if (pruneMissing) {
                 pruneOldJobs(existingList, jobs);
             }
-
-            return processAndStoreJobs(jobs);
+            int newJob = processAndStoreJobs(existingList, jobs);
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+            return newJob;
         } catch (Exception e) {
             Logger.exception("Error storing jobs", e);
             throw e;
         } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
             lock.unlock();
         }
     }
@@ -82,37 +85,70 @@ public class JobStoreManager {
         paymentUnitStorage.removeAll(paymentUnitIds);
     }
 
-    private int processAndStoreJobs(List<ConnectJobRecord> jobs) {
+    private int processAndStoreJobs(List<ConnectJobRecord> existingJobs, List<ConnectJobRecord> jobs) {
         int newJobs = 0;
 
         for (ConnectJobRecord job : jobs) {
             job.setLastUpdate(new Date());
-
-            if (job.getID() <= 0) {
+            boolean isExisting = storeOrUpdateJob(existingJobs, job);
+            if (!isExisting) {
                 newJobs++;
-                if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
-                    job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
-                }
             }
-            storeJob(job);
         }
 
         return newJobs;
     }
 
-    private void storeJob(ConnectJobRecord job) {
+    private boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
+        lock.lock();
         try {
+            // Check if the job already exists
+            boolean isExisting = false;
+            for (ConnectJobRecord existingJob : existingJobs) {
+                if (existingJob.getJobId() == job.getJobId()) {
+                    job.setID(existingJob.getID());  // Set ID for updating
+                    isExisting = true;
+                    break;
+                }
+            }
+
+            // If not existing, create a new record
+            if (!isExisting) {
+                if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                    job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
+                }
+            }
+            job.setLastUpdate(new Date());
             jobStorage.write(job);
+            // Store or update related entities
             storeAppInfo(job);
             storeModules(job);
             storePaymentUnits(job);
+            return isExisting;
+
         } catch (Exception e) {
-            Logger.exception("Error storing job: " + job.getTitle(), e);
+            Logger.exception("Error storing or updating job: " + job.getTitle(), e);
             throw e;
+        } finally {
+            lock.unlock();
         }
     }
 
     private void storeAppInfo(ConnectJobRecord job) {
+        // Check if LearnAppInfo already exists
+        Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
+                new String[]{ConnectAppRecord.META_JOB_ID},
+                new Object[]{job.getJobId()}
+        );
+
+        // Update LearnAppInfo and DeliveryAppInfo if they already exist
+        for (ConnectAppRecord existing : existingAppInfos) {
+            if (existing.getIsLearning()) {
+                job.getLearnAppInfo().setID(existing.getID());  // Set ID for updating
+            } else {
+                job.getDeliveryAppInfo().setID(existing.getID());  // Set ID for updating
+            }
+        }
         job.getLearnAppInfo().setJobId(job.getJobId());
         job.getDeliveryAppInfo().setJobId(job.getJobId());
         job.getLearnAppInfo().setLastUpdate(new Date());
@@ -128,16 +164,27 @@ public class JobStoreManager {
                 new Object[]{job.getJobId()}
         );
 
-        Set<Integer> existingModuleIndices = new HashSet<>();
+        // Prune old modules that are not present in the incoming data
+        Vector<Integer> moduleIdsToDelete = new Vector<>();
         for (ConnectLearnModuleSummaryRecord existing : existingModules) {
-            existingModuleIndices.add(existing.getModuleIndex());
-        }
-
-        for (ConnectLearnModuleSummaryRecord module : job.getLearnAppInfo().getLearnModules()) {
-            if (existingModuleIndices.contains(module.getModuleIndex())) {
-                module.setLastUpdate(new Date());
+            boolean stillExists = false;
+            for (ConnectLearnModuleSummaryRecord incoming : job.getLearnAppInfo().getLearnModules()) {
+                if (Objects.equals(existing.getSlug(), incoming.getSlug())) {
+                    incoming.setID(existing.getID());  // Set ID for updating
+                    stillExists = true;
+                    break;
+                }
             }
+            if (!stillExists) {
+                moduleIdsToDelete.add(existing.getID());
+            }
+        }
+        moduleStorage.removeAll(moduleIdsToDelete);
+
+        // Store or update current modules
+        for (ConnectLearnModuleSummaryRecord module : job.getLearnAppInfo().getLearnModules()) {
             module.setJobId(job.getJobId());
+            module.setLastUpdate(new Date());
             moduleStorage.write(module);
         }
     }
@@ -148,21 +195,32 @@ public class JobStoreManager {
                 new Object[]{job.getJobId()}
         );
 
-        Set<Integer> existingPaymentUnitIds = new HashSet<>();
+        // Prune old payment units that are not present in the incoming data
+        Vector<Integer> paymentUnitIdsToDelete = new Vector<>();
         for (ConnectPaymentUnitRecord existing : existingPaymentUnits) {
-            existingPaymentUnitIds.add(existing.getUnitId());
-        }
-
-        for (ConnectPaymentUnitRecord record : job.getPaymentUnits()) {
-            if (!existingPaymentUnitIds.contains(record.getUnitId())) {
-                record.setJobId(job.getJobId());
-                paymentUnitStorage.write(record);
+            boolean stillExists = false;
+            for (ConnectPaymentUnitRecord incoming : job.getPaymentUnits()) {
+                if (Objects.equals(existing.getUnitId(), incoming.getUnitId())) {
+                    incoming.setID(existing.getID());  // Set ID for updating
+                    stillExists = true;
+                    break;
+                }
             }
+            if (!stillExists) {
+                paymentUnitIdsToDelete.add(existing.getID());
+            }
+        }
+        paymentUnitStorage.removeAll(paymentUnitIdsToDelete);
+
+        // Store or update current payment units
+        for (ConnectPaymentUnitRecord record : job.getPaymentUnits()) {
+            record.setJobId(job.getJobId());
+            paymentUnitStorage.write(record);
         }
     }
 
     private List<ConnectJobRecord> getJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
         // Placeholder for job retrieval logic
-        return ConnectJobUtils.getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
+        return ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
     }
 }

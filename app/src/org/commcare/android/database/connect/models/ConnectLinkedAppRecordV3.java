@@ -41,7 +41,10 @@ public class ConnectLinkedAppRecordV3 extends Persisted {
         hqTokenExpiration = new Date();
     }
 
-    public String getAppId() { return appId; }
+    public String getAppId() {
+        return appId;
+    }
+
     public String getUserId() {
         return userId;
     }

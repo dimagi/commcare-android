@@ -59,7 +59,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;
 
-    public ConnectJobPaymentRecord() {}
+    public ConnectJobPaymentRecord() {
+    }
 
     public static ConnectJobPaymentRecord fromV3(ConnectJobPaymentRecordV3 oldRecord) {
         ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
@@ -82,7 +83,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
         payment.amount = String.valueOf(json.getInt(META_AMOUNT));
         payment.paymentId = json.getString("id");
-        payment.confirmed = json.optBoolean(META_CONFIRMED,false);
+        payment.confirmed = json.optBoolean(META_CONFIRMED, false);
         try {
             payment.confirmedDate = json.has(META_CONFIRMED_DATE) && !json.isNull(META_CONFIRMED_DATE) ?
                     DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
@@ -93,17 +94,32 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         return payment;
     }
 
-    public String getPaymentId() {return paymentId; }
-    public Date getDate() { return date;}
+    public String getPaymentId() {
+        return paymentId;
+    }
 
-    public String getAmount() { return amount; }
+    public Date getDate() {
+        return date;
+    }
 
-    public boolean getConfirmed() {return confirmed; }
-    public Date getConfirmedDate() {return confirmedDate; }
+    public String getAmount() {
+        return amount;
+    }
+
+    public boolean getConfirmed() {
+        return confirmed;
+    }
+
+    public Date getConfirmedDate() {
+        if (!confirmed) {
+            return null;
+        }
+        return confirmedDate;
+    }
 
     public void setConfirmed(boolean confirmed) {
         this.confirmed = confirmed;
-        if(confirmed) {
+        if (confirmed) {
             confirmedDate = new Date();
         }
     }
@@ -121,6 +137,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
         return days < CONFIRMATION_WINDOW_DAYS;
     }
+
     /**
      * Checks if a confirmed payment can have its confirmation undone:
      * - Payment must be confirmed
