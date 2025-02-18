@@ -424,6 +424,8 @@ public class FormStorageTest {
             // Added in 2.64
             "org.commcare.android.database.connect.models.ConnectUserRecordV25"
 
+            // Added in 2.65
+            , "org.javarosa.core.model.data.Base64ImageData"
     );
 
 
