@@ -119,7 +119,10 @@ public class ConnectMessageChannelListFragment extends Fragment {
     }
 
     public void refreshUi() {
-        List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(requireActivity());
-        channelAdapter.setChannels(channels);
+        Context context = getContext();
+        if(context != null) {
+            List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(context);
+            channelAdapter.setChannels(channels);
+        }
     }
 }
