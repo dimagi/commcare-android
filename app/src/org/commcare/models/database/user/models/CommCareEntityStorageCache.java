@@ -234,6 +234,9 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
             Detail detail) {
         if (detail.isCacheEnabled()) {
+            // first make sure to process shallow records in case they are present
+            processShallowRecords();
+
             Vector<String> cacheKeys = new Vector<>();
             String validKeys = buildValidKeys(cacheKeys, detail);
             if (validKeys.isEmpty()) {
