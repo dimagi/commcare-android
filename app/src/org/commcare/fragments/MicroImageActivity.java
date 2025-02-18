@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.media.Image;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Size;
 import android.widget.Toast;
 
@@ -31,7 +30,6 @@ import java.util.concurrent.ExecutionException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -75,11 +73,12 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(() -> {
-            ProcessCameraProvider cameraProvider = null;
+            ProcessCameraProvider cameraProvider;
             try {
                 cameraProvider = cameraProviderFuture.get();
             } catch (ExecutionException | InterruptedException e) {
                 logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e);
+                return;
             }
             bindUseCases(cameraProvider);
         }, ContextCompat.getMainExecutor(this));
@@ -153,7 +152,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     }
 
     private void handleErrorDuringDetection(Exception e) {
-        Log.e(TAG, "Error during face detection: " + e);
+        Logger.exception("Error during face detection ", e);
         Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
         // TODO: decide whether to switch to manual mode or close activity
     }
@@ -168,6 +167,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             try {
                 inputImage = ImageConvertUtils.getInstance().convertToUpRightBitmap(image);
             } catch (MlKitException e) {
+                Logger.exception("Error during face detection ", e);
                 Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
                 // TODO: decide whether to switch to manual mode or close activity?
             }
