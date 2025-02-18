@@ -99,7 +99,6 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.EntityCacheInvalidationWorker;
 import org.commcare.tasks.LogSubmissionTask;
-import org.commcare.tasks.PrimeEntityCache;
 import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
@@ -1246,7 +1245,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
-    public void propogateEntityCacheInvalidation() {
+    public void scheduleEntityCacheInvalidation() {
         OneTimeWorkRequest entityCacheInvalidationRequest = new OneTimeWorkRequest.Builder(
                 EntityCacheInvalidationWorker.class)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

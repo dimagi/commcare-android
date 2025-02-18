@@ -24,10 +24,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.OutOfQuotaPolicy;
-import androidx.work.WorkManager;
 
 import com.google.android.play.core.install.model.InstallErrorCode;
 
@@ -74,9 +70,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
-import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.EntityCacheInvalidationWorker;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ResultAndError;
@@ -923,7 +917,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 startUnsentFormsTask(false, false);
-                CommCareApplication.instance().propogateEntityCacheInvalidation();
+                CommCareApplication.instance().scheduleEntityCacheInvalidation();
                 refreshUI();
 
                 if (exitFromExternalLaunch()) {
