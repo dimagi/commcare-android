@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.MockedStatic;
 import org.robolectric.annotation.Config;
+import org.commcare.cases.entity.EntityStorageCache.ValueType;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,7 +71,7 @@ public class EntityListCacheIndexTest {
 
             // verify cases have been cached
             CommCareEntityStorageCache entityStorageCache = new CommCareEntityStorageCache("case");
-            String cacheKey = entityStorageCache.getCacheKey("m1_case_short", "0");
+            String cacheKey = entityStorageCache.getCacheKey("m1_case_short", "0", ValueType.TYPE_NORMAL_FIELD);
             assertEquals("stan", entityStorageCache.retrieveCacheValue("1", cacheKey));
             assertEquals("ellen", entityStorageCache.retrieveCacheValue("2", cacheKey));
             assertEquals("pat", entityStorageCache.retrieveCacheValue("3", cacheKey));
@@ -78,6 +79,7 @@ public class EntityListCacheIndexTest {
             // verify changing a case expires the related cases in cache
             TestUtils.processResourceTransactionIntoAppDb(
                     "/commcare-apps/index_and_cache_test/incremental_restore.xml");
+            entityStorageCache.processShallowRecords();
             assertNull(entityStorageCache.retrieveCacheValue("1", cacheKey));
             assertNull(entityStorageCache.retrieveCacheValue("2", cacheKey));
             assertNull(entityStorageCache.retrieveCacheValue("3", cacheKey));
