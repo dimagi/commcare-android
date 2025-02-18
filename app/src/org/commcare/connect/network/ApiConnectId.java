@@ -1,4 +1,5 @@
 package org.commcare.connect.network;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Handler;
@@ -54,17 +55,17 @@ public class ApiConnectId {
         HashMap<String, String> params = new HashMap<>();
         params.put("token", connectToken);
 
-            String host;
-            String domain;
-            String url;
-            try {
-                host = (new URL(ServerUrls.getKeyServer())).getHost();
-                domain =  HiddenPreferences.getUserDomainWithoutServerUrl();
-                String myStr = "https://%s/a/%s/settings/users/commcare/link_connectid_user/";
-                url = String.format(myStr, host, domain);
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
+        String host;
+        String domain;
+        String url;
+        try {
+            host = (new URL(ServerUrls.getKeyServer())).getHost();
+            domain = HiddenPreferences.getUserDomainWithoutServerUrl();
+            String myStr = "https://%s/a/%s/settings/users/commcare/link_connectid_user/";
+            url = String.format(myStr, host, domain);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
 
         try {
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
@@ -95,15 +96,14 @@ public class ApiConnectId {
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         if (postResult.responseCode == 200) {
-            try{
+            try {
                 SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
 
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token);
 
                 return new AuthInfo.TokenAuth(token.getToken());
-            }
-            catch (IOException | JSONException e) {
+            } catch (IOException | JSONException e) {
                 CrashUtil.log("In retrieveHqTokenApi function");
                 CrashUtil.reportException(e);
             }
@@ -113,7 +113,7 @@ public class ApiConnectId {
     }
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
-        String url = ApiClient.BASE_URL+context.getString(R.string.ConnectHeartbeatURL);
+        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, String> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
@@ -137,7 +137,7 @@ public class ApiConnectId {
             params.put("username", user.getUserId());
             params.put("password", user.getPassword());
 
-            String url = ApiClient.BASE_URL+context.getString(R.string.ConnectTokenURL);
+            String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
             ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                     API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
@@ -153,7 +153,7 @@ public class ApiConnectId {
                         key = ConnectConstants.CONNECT_KEY_EXPIRES;
                         int seconds = json.has(key) ? json.getInt(key) : 0;
                         expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-                        user.updateConnectToken(new SsoToken(token,expiration));
+                        user.updateConnectToken(new SsoToken(token, expiration));
                         ConnectUserDatabaseUtil.storeUser(context, user);
 
                         return new AuthInfo.TokenAuth(token);
@@ -170,7 +170,7 @@ public class ApiConnectId {
     }
 
     public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
-        String url=ApiClient.BASE_URL+context.getString(R.string.ConnectFetchDbKeyURL);
+        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
         ConnectNetworkHelper.get(context,
                 url,
                 API_VERSION_CONNECT_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
@@ -183,7 +183,7 @@ public class ApiConnectId {
             handler.post(() -> {
                 try {
                     ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     //Ignore, ok if showing fails
                 }
             });
@@ -198,7 +198,8 @@ public class ApiConnectId {
             });
         }
     }
-    static void callApi(Context context,Call<ResponseBody> call, IApiCallback callback) {
+
+    static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback) {
         showProgressDialog(context);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -238,7 +239,7 @@ public class ApiConnectId {
         params.put("password", password);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.checkPassword(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
@@ -250,7 +251,7 @@ public class ApiConnectId {
         params.put("password", newPassword);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.resetPassword(params);
-        callApi(context,call, callback);
+        callApi(context, call, callback);
     }
 
     public static void checkPin(Context context, String phone, String secret,
@@ -263,7 +264,7 @@ public class ApiConnectId {
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.confirmPIN(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void changePin(Context context, String username, String password,
@@ -277,13 +278,13 @@ public class ApiConnectId {
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.changePIN(token, params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void checkPhoneAvailable(Context context, String phone, IApiCallback callback) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.checkPhoneNumber(phone);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void registerUser(Context context, String username, String password, String displayName,
@@ -296,7 +297,7 @@ public class ApiConnectId {
         params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.registerUser(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
 
@@ -310,7 +311,7 @@ public class ApiConnectId {
         params.put("new_phone_number", newPhone);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.changePhoneNo(token, params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void updateUserProfile(Context context, String username,
@@ -329,7 +330,7 @@ public class ApiConnectId {
         }
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.updateProfile(token, params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void requestRegistrationOtpPrimary(Context context, String username, String password,
@@ -338,8 +339,8 @@ public class ApiConnectId {
         String token = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.validatePhone(token,params);
-        callApi(context,call,callback);
+        Call<ResponseBody> call = apiService.validatePhone(token, params);
+        callApi(context, call, callback);
     }
 
     public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
@@ -347,7 +348,7 @@ public class ApiConnectId {
         params.put("phone", phone);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.requestOTPPrimary(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void requestRecoveryOtpSecondary(Context context, String phone, String secret,
@@ -357,29 +358,29 @@ public class ApiConnectId {
         params.put("secret_key", secret);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.recoverSecondary(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void requestVerificationOtpSecondary(Context context, String username, String password,
                                                        IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String basicToken= HttpUtils.getCredential(authInfo);
+        String basicToken = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.validateSecondaryPhone(basicToken,params);
-        callApi(context,call,callback);
+        Call<ResponseBody> call = apiService.validateSecondaryPhone(basicToken, params);
+        callApi(context, call, callback);
     }
 
     public static void confirmRegistrationOtpPrimary(Context context, String username, String password,
                                                      String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String basicToken= HttpUtils.getCredential(authInfo);
+        String basicToken = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
         params.put("token", token);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.confirmOTP(basicToken,params);
-        callApi(context,call,callback);
+        Call<ResponseBody> call = apiService.confirmOTP(basicToken, params);
+        callApi(context, call, callback);
     }
 
     public static void confirmRecoveryOtpPrimary(Context context, String phone, String secret,
@@ -390,7 +391,7 @@ public class ApiConnectId {
         params.put("token", token);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.recoverConfirmOTP(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void confirmRecoveryOtpSecondary(Context context, String phone, String secret,
@@ -401,7 +402,7 @@ public class ApiConnectId {
         params.put("token", token);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.recoverConfirmOTPSecondary(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void confirmVerificationOtpSecondary(Context context, String username, String password,
@@ -412,7 +413,7 @@ public class ApiConnectId {
         params.put("token", token);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.confirmOTPSecondary(token1, params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void requestInitiateAccountDeactivation(Context context, String phone, String secretKey, IApiCallback callback) {
@@ -421,7 +422,7 @@ public class ApiConnectId {
         params.put("phone_number", phone);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.accountDeactivation(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     public static void confirmUserDeactivation(Context context, String phone, String secret,
@@ -433,7 +434,7 @@ public class ApiConnectId {
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.confirmDeactivation(params);
-        callApi(context,call,callback);
+        callApi(context, call, callback);
     }
 
     private static void handleApiError(Response<?> response) {

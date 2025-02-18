@@ -1,6 +1,7 @@
 package org.commcare.connect.network.connectId;
 
 import java.util.Map;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -48,6 +49,7 @@ public interface ApiService {
 
     @POST(ApiEndPoints.recoverSecondary)
     Call<ResponseBody> recoverSecondary(@Body Map<String, String> recoverSecondaryRequest);
+
     @POST(ApiEndPoints.confirmPIN)
     Call<ResponseBody> confirmPIN(@Body Map<String, String> confirmPINRequest);
 
@@ -56,8 +58,10 @@ public interface ApiService {
 
     @POST(ApiEndPoints.resetPassword)
     Call<ResponseBody> resetPassword(@Body Map<String, String> resetPasswordRequest);
+
     @POST(ApiEndPoints.changePassword)
     Call<ResponseBody> changePassword(@Header("Authorization") String token, @Body Map<String, String> changePasswordRequest);
+
     @POST(ApiEndPoints.confirmPassword)
     Call<ResponseBody> checkPassword(@Body Map<String, String> confirmPasswordRequest);
 }

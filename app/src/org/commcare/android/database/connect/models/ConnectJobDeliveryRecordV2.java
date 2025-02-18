@@ -11,6 +11,7 @@ import java.util.Date;
 /**
  * Data class for holding info related to a Connect job delivery
  * This version was used up to V2 of the DB
+ *
  * @author dviggiano
  */
 @Table(ConnectJobDeliveryRecordV2.STORAGE_KEY)
@@ -56,19 +57,46 @@ public class ConnectJobDeliveryRecordV2 extends Persisted implements Serializabl
     private String entityName;
     @Persisting(9)
     private Date lastUpdate;
+
     /**
      * Default constructor required for serialization
-    */
+     */
     public ConnectJobDeliveryRecordV2() {
     }
 
-    public int getDeliveryId() { return deliveryId; }
-    public Date getDate() { return date; }
-    public String getStatus() { return status; }
-    public String getEntityName() { return entityName; }
-    public int getJobId() { return jobId; }
-    public String getUnitName() { return unitName; }
-    public String getSlug() { return slug; }
-    public String getEntityId() { return entityId; }
-    public Date getLastUpdate() { return lastUpdate; }
+    public int getDeliveryId() {
+        return deliveryId;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public int getJobId() {
+        return jobId;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public String getEntityId() {
+        return entityId;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
 }

@@ -27,20 +27,23 @@ public class JobStoreManager {
         this.paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectPaymentUnitRecord.class);
     }
 
-    public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
+    public int getCompositeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         lock.lock();
         try {
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
             List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
 
             if (pruneMissing) {
                 pruneOldJobs(existingList, jobs);
             }
-
-            return processAndStoreJobs(existingList,jobs);
+            int newJob = processAndStoreJobs(existingList, jobs);
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+            return newJob;
         } catch (Exception e) {
             Logger.exception("Error storing jobs", e);
             throw e;
         } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
             lock.unlock();
         }
     }
@@ -82,7 +85,7 @@ public class JobStoreManager {
         paymentUnitStorage.removeAll(paymentUnitIds);
     }
 
-    private int processAndStoreJobs(List<ConnectJobRecord> existingJobs,List<ConnectJobRecord> jobs) {
+    private int processAndStoreJobs(List<ConnectJobRecord> existingJobs, List<ConnectJobRecord> jobs) {
         int newJobs = 0;
 
         for (ConnectJobRecord job : jobs) {
@@ -96,7 +99,7 @@ public class JobStoreManager {
         return newJobs;
     }
 
-    public boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
+    private boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
         lock.lock();
         try {
             // Check if the job already exists
@@ -142,7 +145,7 @@ public class JobStoreManager {
         for (ConnectAppRecord existing : existingAppInfos) {
             if (existing.getIsLearning()) {
                 job.getLearnAppInfo().setID(existing.getID());  // Set ID for updating
-            } else  {
+            } else {
                 job.getDeliveryAppInfo().setID(existing.getID());  // Set ID for updating
             }
         }
@@ -218,6 +221,6 @@ public class JobStoreManager {
 
     private List<ConnectJobRecord> getJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
         // Placeholder for job retrieval logic
-        return ConnectJobUtils.getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
+        return ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
     }
 }

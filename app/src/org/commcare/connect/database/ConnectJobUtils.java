@@ -12,14 +12,12 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.models.database.SqlStorage;
-import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 
 public class ConnectJobUtils {
@@ -27,7 +25,7 @@ public class ConnectJobUtils {
     public static void upsertJob(Context context, ConnectJobRecord job) {
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
-        new JobStoreManager(context).storeJobs(context,list,false);
+        new JobStoreManager(context).getCompositeJobs(context, list, false);
     }
 
     public static ConnectJobRecord getCompositeJob(Context context, int jobId) {
@@ -40,7 +38,7 @@ public class ConnectJobUtils {
         return jobs.isEmpty() ? null : jobs.firstElement();
     }
 
-    public static List<ConnectJobRecord> getJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
+    public static List<ConnectJobRecord> getCompositeJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
         if (jobStorage == null) {
             jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
         }
@@ -121,8 +119,8 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getAvailableJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
-        jobs.addAll(getJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
+        jobs.addAll(getCompositeJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
         return getUnFinishedJobs(jobs);
     }
 
@@ -131,7 +129,7 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getTrainingJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
         return getUnFinishedJobs(jobs);
     }
 
@@ -140,7 +138,7 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getDeliveryJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for (ConnectJobRecord record : jobs) {
@@ -164,7 +162,7 @@ public class ConnectJobUtils {
     }
 
     public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
+        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
 
         List<ConnectJobRecord> filtered = new ArrayList<>();
         for (ConnectJobRecord record : jobs) {
@@ -362,7 +360,7 @@ public class ConnectJobUtils {
 
     public static Date getLastJobsUpdate(Context context) {
         Date lastDate = null;
-        for (ConnectJobRecord job : getJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)) {
+        for (ConnectJobRecord job : getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)) {
             if (lastDate == null || lastDate.before(job.getLastUpdate())) {
                 lastDate = job.getLastUpdate();
             }

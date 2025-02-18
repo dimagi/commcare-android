@@ -1,5 +1,7 @@
 package org.commcare.connect.database;
+
 import android.content.Context;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.util.Base64;
@@ -50,9 +52,9 @@ public class ConnectDatabaseUtils {
         }
     }
 
-    public static String getConnectDbEncodedPassphrase(Context context,boolean isLocal) {
+    public static String getConnectDbEncodedPassphrase(Context context, boolean isLocal) {
         try {
-            byte[] passBytes = getConnectDbPassphrase(context,isLocal);
+            byte[] passBytes = getConnectDbPassphrase(context, isLocal);
             if (passBytes != null) {
                 return Base64.encode(passBytes);
             }
@@ -63,12 +65,12 @@ public class ConnectDatabaseUtils {
         return null;
     }
 
-    public static byte[] getConnectDbPassphrase(Context context,boolean isLocal) {
+    public static byte[] getConnectDbPassphrase(Context context, boolean isLocal) {
         try {
             ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord(isLocal);
             if (record != null) {
                 return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
-            }else{
+            } else {
                 CrashUtil.log("We dont find paraphrase in db");
                 throw new RuntimeException("We dont find a record in db to get passphrase");
             }

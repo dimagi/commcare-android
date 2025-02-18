@@ -26,7 +26,7 @@ import org.javarosa.core.services.storage.Persistable;
  */
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
-    private static SQLiteDatabase connectDatabase;
+    public static SQLiteDatabase connectDatabase;
     static boolean dbBroken = false;
 
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
@@ -57,12 +57,12 @@ public class ConnectDatabaseHelper {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context,true);
+                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
 
                             DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
 
-                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context,false);
-                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context,true);
+                            String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
+                            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
                                 connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));

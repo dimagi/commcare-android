@@ -102,7 +102,7 @@ public class ConnectNetworkHelper {
     }
 
     private static void addVersionHeader(HashMap<String, String> headers, String version) {
-        if(version != null) {
+        if (version != null) {
             headers.put("Accept", "application/json;version=" + version);
         }
     }
@@ -112,7 +112,7 @@ public class ConnectNetworkHelper {
                                       boolean background) {
         ConnectNetworkHelper instance = getInstance();
 
-        if(!background) {
+        if (!background) {
             setCallInProgress(url);
             instance.showProgressDialog(context);
         }
@@ -153,9 +153,8 @@ public class ConnectNetworkHelper {
             instance.onFinishProcessing(context, background);
 
             return new PostResult(responseCode, stream, exception);
-        }
-        catch(Exception e) {
-            if(!background) {
+        } catch (Exception e) {
+            if (!background) {
                 setCallInProgress(null);
             }
             return new PostResult(-1, null, e);
@@ -165,7 +164,7 @@ public class ConnectNetworkHelper {
     private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
                                  HashMap<String, String> params, boolean useFormEncoding,
                                  boolean background, IApiCallback handler) {
-        if(!background) {
+        if (!background) {
             if (isBusy()) {
                 return false;
             }
@@ -225,8 +224,8 @@ public class ConnectNetworkHelper {
     }
 
     public PostResult getSync(Context context, String url, AuthInfo authInfo, boolean background,
-                                        Multimap<String, String> params) {
-        if(!background) {
+                              Multimap<String, String> params) {
+        if (!background) {
             setCallInProgress(url);
             showProgressDialog(context);
         }
@@ -279,7 +278,7 @@ public class ConnectNetworkHelper {
 
     private boolean getInternal(Context context, String url, String version, AuthInfo authInfo,
                                 Multimap<String, String> params, boolean background, IApiCallback handler) {
-        if(!background) {
+        if (!background) {
             if (isBusy()) {
                 return false;
             }
@@ -332,7 +331,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                if(responseCode == 406) {
+                if (responseCode == 406) {
                     //API version is too old, require app update.
                     handler.processOldApiError();
                 } else {
@@ -408,7 +407,7 @@ public class ConnectNetworkHelper {
     }
 
     private void onFinishProcessing(Context context, boolean background) {
-        if(!background) {
+        if (!background) {
             setCallInProgress(null);
             dismissProgressDialog(context);
         }
@@ -432,7 +431,7 @@ public class ConnectNetworkHelper {
             handler.post(() -> {
                 try {
                     ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     //Ignore, ok if showing fails
                 }
             });

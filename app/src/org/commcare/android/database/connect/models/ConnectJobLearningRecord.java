@@ -18,6 +18,7 @@ import java.util.Date;
  * This version (V2) includes additional fields for learning modules and payment tracking
  * compared to V1. Migration from V1 automatically copies existing fields and initializes
  * new fields with default values.
+ *
  * @author dviggiano
  */
 @Table(ConnectJobLearningRecord.STORAGE_KEY)
@@ -64,8 +65,15 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         return record;
     }
 
-    public int getModuleId() { return moduleId; }
-    public Date getDate() { return date; }
+    public int getModuleId() {
+        return moduleId;
+    }
 
-    public void setLastUpdate(Date date) { lastUpdate = date; }
+    public Date getDate() {
+        return date;
+    }
+
+    public void setLastUpdate(Date date) {
+        lastUpdate = date;
+    }
 }

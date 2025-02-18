@@ -10,6 +10,7 @@ import org.javarosa.core.services.Logger;
 
 public class ConnectUserDatabaseUtil {
     private static final Object LOCK = new Object();
+
     public static ConnectUserRecord getUser(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context must not be null");

@@ -1,7 +1,6 @@
 package org.commcare.connect.database;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.models.database.SqlStorage;
@@ -18,43 +17,43 @@ public class ConnectAppDatabaseUtil {
     }
 
     public static void deleteAppData(Context context, ConnectLinkedAppRecord record) {
-            SqlStorage<ConnectLinkedAppRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class);
-            storage.remove(record);
+        SqlStorage<ConnectLinkedAppRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class);
+        storage.remove(record);
     }
 
     /**
-          * Stores or updates a ConnectLinkedAppRecord in the database.
-          *
-          * @param context The Android context
-          * @param appId Application identifier
-          * @param userId User identifier
-          * @param connectIdLinked Whether the app is linked to ConnectID
-          * @param passwordOrPin User's password or PIN
-          * @param workerLinked Whether the app is linked to a worker
-          * @param localPassphrase Whether using local passphrase
-          * @return The stored record
-          * throw error if storage operations fail
-          */
+     * Stores or updates a ConnectLinkedAppRecord in the database.
+     *
+     * @param context         The Android context
+     * @param appId           Application identifier
+     * @param userId          User identifier
+     * @param connectIdLinked Whether the app is linked to ConnectID
+     * @param passwordOrPin   User's password or PIN
+     * @param workerLinked    Whether the app is linked to a worker
+     * @param localPassphrase Whether using local passphrase
+     * @return The stored record
+     * throw error if storage operations fail
+     */
     public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked, boolean localPassphrase) {
 
-            ConnectLinkedAppRecord record = getAppData(context, appId, userId);
-            if (record == null) {
-                record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
-            } else if (!record.getPassword().equals(passwordOrPin)) {
-                record.setPassword(passwordOrPin);
-            }
+        ConnectLinkedAppRecord record = getAppData(context, appId, userId);
+        if (record == null) {
+            record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
+        } else if (!record.getPassword().equals(passwordOrPin)) {
+            record.setPassword(passwordOrPin);
+        }
 
-            record.setConnectIdLinked(connectIdLinked);
-            record.setIsUsingLocalPassphrase(localPassphrase);
+        record.setConnectIdLinked(connectIdLinked);
+        record.setIsUsingLocalPassphrase(localPassphrase);
 
-            if (workerLinked) {
-                //If passed in false, we'll leave the setting unchanged
-                record.setWorkerLinked(true);
-            }
+        if (workerLinked) {
+            //If passed in false, we'll leave the setting unchanged
+            record.setWorkerLinked(true);
+        }
 
-            storeApp(context, record);
+        storeApp(context, record);
 
-            return record;
+        return record;
     }
 
     public static void storeApp(Context context, ConnectLinkedAppRecord record) {

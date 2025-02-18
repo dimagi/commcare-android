@@ -168,18 +168,18 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.jobId = json.getInt(META_JOB_ID);
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
-        job.organization =  json.getString(META_ORGANIZATION);
+        job.organization = json.getString(META_ORGANIZATION);
         job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
         job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
-        if(job.projectStartDate!=null && job.projectStartDate.after(startDate)){
-            startDate=job.projectStartDate;
+        if (job.projectStartDate != null && job.projectStartDate.after(startDate)) {
+            startDate = job.projectStartDate;
         }
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
         String budgetPerUserKey = "budget_per_user";
-        job.totalBudget =  json.getInt(budgetPerUserKey);
-        job.currency =  json.getString(META_CURRENCY);
+        job.totalBudget = json.getInt(budgetPerUserKey);
+        job.currency = json.getString(META_CURRENCY);
         job.shortDescription = json.getString(META_SHORT_DESCRIPTION);
         job.paymentAccrued = "";
         job.deliveries = new ArrayList<>();
@@ -188,20 +188,20 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.assessments = new ArrayList<>();
         job.completedVisits = json.getInt(META_DELIVERY_PROGRESS);
 
-        job.claimed = json.has(META_CLAIM) &&!json.isNull(META_CLAIM);
+        job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
 
-        job.isActive = !json.optBoolean(META_IS_ACTIVE,true);
+        job.isActive = !json.optBoolean(META_IS_ACTIVE, true);
 
-        job.isUserSuspended = json.optBoolean(META_USER_SUSPENDED,false);
+        job.isUserSuspended = json.optBoolean(META_USER_SUSPENDED, false);
 
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
-        for(int i=0; i<unitsJson.length(); i++) {
+        for (int i = 0; i < unitsJson.length(); i++) {
             job.paymentUnits.add(ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId()));
         }
 
-        if(job.claimed) {
+        if (job.claimed) {
             JSONObject claim = json.getJSONObject(META_CLAIM);
 
             if (claim.has(META_MAX_PAYMENTS)) {
@@ -219,11 +219,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             if (claim.has(META_PAYMENT_UNITS)) {
                 //Update payment units
                 JSONArray unitsArray = claim.getJSONArray(META_PAYMENT_UNITS);
-                for(int i=0; i< unitsArray.length(); i++) {
+                for (int i = 0; i < unitsArray.length(); i++) {
                     JSONObject unitObj = unitsArray.getJSONObject(i);
                     int unitId = unitObj.getInt(META_PAYMENT_UNIT);
-                    for(int j=0; j < job.paymentUnits.size(); j++) {
-                        if(job.paymentUnits.get(j).getUnitId() == unitId) {
+                    for (int j = 0; j < job.paymentUnits.size(); j++) {
+                        if (job.paymentUnits.get(j).getUnitId() == unitId) {
                             int newMax = unitObj.getInt(META_MAX_VISITS);
                             job.paymentUnits.get(j).setMaxTotal(newMax);
                             break;
@@ -241,9 +241,9 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job.jobId, false);
 
         job.status = STATUS_AVAILABLE;
-        if(job.getLearningCompletePercentage() > 0) {
+        if (job.getLearningCompletePercentage() > 0) {
             job.status = STATUS_LEARNING;
-            if(job.claimed) {
+            if (job.claimed) {
                 job.status = STATUS_DELIVERING;
             }
         }
@@ -255,40 +255,125 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return !isActive || getDaysRemaining() <= 0;
     }
 
-    public int getJobId() { return jobId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getShortDescription() { return shortDescription; }
-    public boolean getIsNew() { return status == STATUS_AVAILABLE_NEW; }
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
-    public int getCompletedVisits() { return completedVisits; }
-    public int getMaxVisits() { return maxVisits; }
-    public void setMaxVisits(int max) { maxVisits = max; }
-    public int getMaxDailyVisits() { return maxDailyVisits; }
-    public int getBudgetPerVisit() { return budgetPerVisit; }
-    public int getPercentComplete() { return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0; }
-    public Date getProjectStartDate() { return projectStartDate; }
-    public Date getProjectEndDate() { return projectEndDate; }
-    public void setProjectEndDate(Date date) { projectEndDate = date; }
-    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
-    public void setPaymentAccrued(int paymentAccrued) { this.paymentAccrued = Integer.toString(paymentAccrued); }
-    public String getCurrency() { return currency; }
-    public int getNumLearningModules() { return numLearningModules; }
-    public int getCompletedLearningModules() { return learningModulesCompleted; }
-    public void setCompletedLearningModules(int numCompleted) { this.learningModulesCompleted = numCompleted; }
-    public ConnectAppRecord getLearnAppInfo() { return learnAppInfo; }
-    public void setLearnAppInfo(ConnectAppRecord appInfo) { this.learnAppInfo = appInfo; }
-    public ConnectAppRecord getDeliveryAppInfo() { return deliveryAppInfo; }
-    public void setDeliveryAppInfo(ConnectAppRecord appInfo) { this.deliveryAppInfo = appInfo; }
-    public List<ConnectJobDeliveryRecord> getDeliveries() { return deliveries; }
+    public int getJobId() {
+        return jobId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public boolean getIsNew() {
+        return status == STATUS_AVAILABLE_NEW;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getCompletedVisits() {
+        return completedVisits;
+    }
+
+    public int getMaxVisits() {
+        return maxVisits;
+    }
+
+    public void setMaxVisits(int max) {
+        maxVisits = max;
+    }
+
+    public int getMaxDailyVisits() {
+        return maxDailyVisits;
+    }
+
+    public int getBudgetPerVisit() {
+        return budgetPerVisit;
+    }
+
+    public int getPercentComplete() {
+        return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0;
+    }
+
+    public Date getProjectStartDate() {
+        return projectStartDate;
+    }
+
+    public Date getProjectEndDate() {
+        return projectEndDate;
+    }
+
+    public void setProjectEndDate(Date date) {
+        projectEndDate = date;
+    }
+
+    public int getPaymentAccrued() {
+        return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0;
+    }
+
+    public void setPaymentAccrued(int paymentAccrued) {
+        this.paymentAccrued = Integer.toString(paymentAccrued);
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public int getNumLearningModules() {
+        return numLearningModules;
+    }
+
+    public int getCompletedLearningModules() {
+        return learningModulesCompleted;
+    }
+
+    public void setCompletedLearningModules(int numCompleted) {
+        this.learningModulesCompleted = numCompleted;
+    }
+
+    public ConnectAppRecord getLearnAppInfo() {
+        return learnAppInfo;
+    }
+
+    public void setLearnAppInfo(ConnectAppRecord appInfo) {
+        this.learnAppInfo = appInfo;
+    }
+
+    public ConnectAppRecord getDeliveryAppInfo() {
+        return deliveryAppInfo;
+    }
+
+    public void setDeliveryAppInfo(ConnectAppRecord appInfo) {
+        this.deliveryAppInfo = appInfo;
+    }
+
+    public List<ConnectJobDeliveryRecord> getDeliveries() {
+        return deliveries;
+    }
+
     public void setDeliveries(List<ConnectJobDeliveryRecord> deliveries) {
         this.deliveries = deliveries;
-        if(deliveries.size() > 0) {
+        if (deliveries.size() > 0) {
             completedVisits = deliveries.size();
         }
     }
-    public List<ConnectJobPaymentRecord> getPayments() { return payments; }
+
+    public List<ConnectJobPaymentRecord> getPayments() {
+        return payments;
+    }
+
     public void setPayments(List<ConnectJobPaymentRecord> payments) {
         this.payments = payments;
     }
@@ -296,6 +381,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public List<ConnectJobLearningRecord> getLearnings() {
         return learnings;
     }
+
     public void setLearnings(List<ConnectJobLearningRecord> learnings) {
         this.learnings = learnings;
     }
@@ -303,10 +389,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public List<ConnectJobAssessmentRecord> getAssessments() {
         return assessments;
     }
+
     public void setAssessments(List<ConnectJobAssessmentRecord> assessments) {
         this.assessments = assessments;
     }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 
     public int getDaysRemaining() {
         long millis = projectEndDate.getTime() - (startDate).getTime();
@@ -357,27 +447,57 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
     }
 
-    public Date getLastUpdate() { return lastUpdate; }
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
 
-    public Date getLastLearnUpdate() { return lastLearnUpdate; }
-    public void setLastLearnUpdate(Date date) { lastLearnUpdate = date; }
-    public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
-    public void setLastDeliveryUpdate(Date date) { lastDeliveryUpdate = date; }
-    public String getOrganization() { return organization; }
-    public int getTotalBudget() { return totalBudget; }
-    public Date getLastWorkedDate() { return lastWorkedDate; }
-    public Date getDateClaimed() { return dateClaimed; }
-    public boolean getIsActive() { return isActive; }
+    public Date getLastLearnUpdate() {
+        return lastLearnUpdate;
+    }
 
-    public void setIsUserSuspended(boolean isUserSuspended) {  this.isUserSuspended=isUserSuspended; }
+    public void setLastLearnUpdate(Date date) {
+        lastLearnUpdate = date;
+    }
 
-    public boolean getIsUserSuspended(){
+    public Date getLastDeliveryUpdate() {
+        return lastDeliveryUpdate;
+    }
+
+    public void setLastDeliveryUpdate(Date date) {
+        lastDeliveryUpdate = date;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public int getTotalBudget() {
+        return totalBudget;
+    }
+
+    public Date getLastWorkedDate() {
+        return lastWorkedDate;
+    }
+
+    public Date getDateClaimed() {
+        return dateClaimed;
+    }
+
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsUserSuspended(boolean isUserSuspended) {
+        this.isUserSuspended = isUserSuspended;
+    }
+
+    public boolean getIsUserSuspended() {
         return isUserSuspended;
     }
 
     public String getMoneyString(int value) {
         String currency = "";
-        if(this.currency != null && this.currency.length() > 0) {
+        if (this.currency != null && this.currency.length() > 0) {
             currency = " " + this.currency;
         }
 
@@ -389,7 +509,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int dailyVisitCount = 0;
         Date today = new Date();
         for (ConnectJobDeliveryRecord record : deliveries) {
-            if(sameDay(today, record.getDate())) {
+            if (sameDay(today, record.getDate())) {
                 dailyVisitCount++;
             }
         }
@@ -413,12 +533,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
 
-
     public Hashtable<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
         Hashtable<String, Integer> paymentCounts = new Hashtable<>();
-        for(int i = 0; i < deliveries.size(); i++) {
+        for (int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
-            if(!todayOnly || sameDay(new Date(), delivery.getDate())) {
+            if (!todayOnly || sameDay(new Date(), delivery.getDate())) {
                 int oldCount = 0;
                 if (paymentCounts.containsKey(delivery.getSlug())) {
                     oldCount = paymentCounts.get(delivery.getSlug());
@@ -471,7 +590,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         newRecord.dateClaimed = oldRecord.getDateClaimed();
         newRecord.projectStartDate = oldRecord.getProjectStartDate();
         newRecord.isActive = oldRecord.getIsActive();
-        newRecord.isUserSuspended= false;
+        newRecord.isUserSuspended = false;
 
         return newRecord;
     }

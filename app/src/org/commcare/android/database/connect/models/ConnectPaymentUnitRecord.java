@@ -62,16 +62,38 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         paymentUnit.maxDaily = json.getInt(META_DAILY);
         paymentUnit.amount = json.getInt(META_AMOUNT);
 
-        return  paymentUnit;
+        return paymentUnit;
     }
 
-    public int getJobId() { return jobId; }
-    public void setJobId(int jobId) { this.jobId = jobId; }
+    public int getJobId() {
+        return jobId;
+    }
 
-    public String getName() { return name; }
-    public int getUnitId() { return unitId; }
-    public int getMaxTotal() { return maxTotal; }
-    public void setMaxTotal(int max) { maxTotal = max; }
-    public int getMaxDaily() { return maxDaily; }
-    public int getAmount() { return amount; }
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getUnitId() {
+        return unitId;
+    }
+
+    public int getMaxTotal() {
+        return maxTotal;
+    }
+
+    public void setMaxTotal(int max) {
+        maxTotal = max;
+    }
+
+    public int getMaxDaily() {
+        return maxDaily;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
 }

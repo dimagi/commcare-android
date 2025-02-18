@@ -107,17 +107,50 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
 
     }
 
-    public int getJobId() { return jobId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getShortDescription() { return shortDescription; }
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
-    public int getCompletedVisits() { return completedVisits; }
-    public int getMaxVisits() { return maxVisits; }
-    public int getMaxDailyVisits() { return maxDailyVisits; }
-    public int getBudgetPerVisit() { return budgetPerVisit; }
-    public Date getProjectEndDate() { return projectEndDate; }
+    public int getJobId() {
+        return jobId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getCompletedVisits() {
+        return completedVisits;
+    }
+
+    public int getMaxVisits() {
+        return maxVisits;
+    }
+
+    public int getMaxDailyVisits() {
+        return maxDailyVisits;
+    }
+
+    public int getBudgetPerVisit() {
+        return budgetPerVisit;
+    }
+
+    public Date getProjectEndDate() {
+        return projectEndDate;
+    }
+
     public int getPaymentAccrued() {
         if (paymentAccrued == null || paymentAccrued.isEmpty()) {
             return 0;
@@ -129,15 +162,40 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
             return 0;
         }
     }
-    public String getCurrency() { return currency; }
-    public int getNumLearningModules() { return numLearningModules; }
 
-    public Date getLastUpdate() { return lastUpdate; }
+    public String getCurrency() {
+        return currency;
+    }
 
-    public Date getLastLearnUpdate() { return lastLearnUpdate; }
-    public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
-    public String getOrganization() { return organization; }
-    public int getTotalBudget() { return totalBudget; }
-    public Date getLastWorkedDate() { return lastWorkedDate; }
-    public int getLearningModulesCompleted() { return learningModulesCompleted; }
+    public int getNumLearningModules() {
+        return numLearningModules;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public Date getLastLearnUpdate() {
+        return lastLearnUpdate;
+    }
+
+    public Date getLastDeliveryUpdate() {
+        return lastDeliveryUpdate;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public int getTotalBudget() {
+        return totalBudget;
+    }
+
+    public Date getLastWorkedDate() {
+        return lastWorkedDate;
+    }
+
+    public int getLearningModulesCompleted() {
+        return learningModulesCompleted;
+    }
 }

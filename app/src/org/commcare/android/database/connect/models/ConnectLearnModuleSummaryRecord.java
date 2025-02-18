@@ -62,15 +62,32 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.name = json.getString(META_NAME);
         info.description = json.getString(META_DESCRIPTION);
         info.timeEstimate = json.getInt(META_ESTIMATE);
-        info.lastUpdate=new Date();
+        info.lastUpdate = new Date();
 
         return info;
     }
 
-    public void setJobId(int jobId) { this.jobId = jobId; }
-    public String getSlug() { return slug; }
-    public int getModuleIndex() { return moduleIndex; }
-    public String getName() { return name; }
-    public int getTimeEstimate() { return timeEstimate; }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public int getModuleIndex() {
+        return moduleIndex;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getTimeEstimate() {
+        return timeEstimate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }
