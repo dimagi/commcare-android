@@ -24,6 +24,7 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -66,7 +67,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         try {
            startCamera();
         } catch (ExecutionException | InterruptedException e) {
-            logErrorAndExit("Error starting camera", R.string.camera_start_failed, e);
+            logErrorAndExit("Error starting camera", "microimage.camera.start.failed", e);
         }
     }
 
@@ -78,7 +79,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             try {
                 cameraProvider = cameraProviderFuture.get();
             } catch (ExecutionException | InterruptedException e) {
-                logErrorAndExit("Error acquiring camera provider", R.string.camera_start_failed, e);
+                logErrorAndExit("Error acquiring camera provider", "microimage.camera.start.failed", e);
             }
             bindUseCases(cameraProvider);
         }, ContextCompat.getMainExecutor(this));
@@ -117,9 +118,13 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         return imageAnalyzer;
     }
 
-    private void logErrorAndExit(String logMessage, @StringRes int userMessageId, Throwable e) {
-        Logger.log(LogTypes.TYPE_MEDIA_EVENT, logMessage + ((e != null)?": " + e.getMessage():""));
-        Toast.makeText(this, userMessageId, Toast.LENGTH_LONG).show();
+    private void logErrorAndExit(String logMessage, String userMessageKey, Throwable e) {
+        if (e == null) {
+            Logger.log(LogTypes.TYPE_EXCEPTION, logMessage);
+        } else {
+            Logger.exception(logMessage, e);
+        }
+        Toast.makeText(this, Localization.get(userMessageKey), Toast.LENGTH_LONG).show();
         setResult(AppCompatActivity.RESULT_CANCELED);
         finish();
     }
@@ -149,7 +154,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
 
     private void handleErrorDuringDetection(Exception e) {
         Log.e(TAG, "Error during face detection: " + e);
-        Toast.makeText(this, R.string.face_detection_mode_failed, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
         // TODO: decide whether to switch to manual mode or close activity
     }
 
@@ -163,7 +168,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             try {
                 inputImage = ImageConvertUtils.getInstance().convertToUpRightBitmap(image);
             } catch (MlKitException e) {
-                Toast.makeText(this, R.string.face_detection_mode_failed, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
                 // TODO: decide whether to switch to manual mode or close activity?
             }
         } else {
@@ -178,7 +183,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             setResult(AppCompatActivity.RESULT_OK);
             finish();
         } catch (Exception e) {
-            logErrorAndExit(e.getMessage(), R.string.micro_image_cropping_failed, e.getCause());
+            logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
         }
 
     }

@@ -992,3 +992,7 @@ background.sync.fail=Background sync failed. Please try to trigger a normal Sync
 android.package.name.org.commcare.dalvik.reminders=CommCare Reminders
 android.package.name.callout.commcare.org.sendussd=Commcare USSD
 android.package.name.org.commcare.dalvik.abha=CommCare ABHA
+
+microimage.camera.start.failed=Camera failed to start
+microimage.face.detection.mode.failed=Face detection mode failed
+microimage.cropping.failed=Image cropping failed, make sure the target is inside the capture area
