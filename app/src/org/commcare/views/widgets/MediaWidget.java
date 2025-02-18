@@ -356,6 +356,9 @@ public abstract class MediaWidget extends QuestionWidget {
     public static void playMedia(Context context, String mediaType, String filePath) {
         Intent i = new Intent(Intent.ACTION_VIEW);
         File mediaFile = new File(filePath);
+        if (!mediaFile.exists()) {
+            return;
+        }
         Uri mediaUri = FileUtil.getUriForExternalFile(context, mediaFile);
         i.setDataAndType(mediaUri, mediaType);
         i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

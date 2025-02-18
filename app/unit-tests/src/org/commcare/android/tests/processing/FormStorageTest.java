@@ -361,6 +361,9 @@ public class FormStorageTest {
             // Added in 2.55
             , "org.javarosa.core.model.FormIndex"
             , "org.commcare.models.database.InterruptedFormState"
+
+            // Added in 2.56
+            , "org.javarosa.core.model.data.Base64ImageData"
     );
 
 
