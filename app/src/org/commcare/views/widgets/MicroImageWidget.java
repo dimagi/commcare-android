@@ -10,9 +10,11 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.fragments.MicroImageActivity;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.modern.util.Pair;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.MediaUtil;
 import org.javarosa.core.model.data.Base64ImageData;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -50,7 +52,9 @@ public class MicroImageWidget extends ImageWidget{
         File f = new File(binaryPath.toString());
         Bitmap originalImage = BitmapFactory.decodeFile(binaryPath.toString());
         if (originalImage == null) {
-            throw new RuntimeException("Failed to decode image file");
+            showToast("microimage.decoding.no.image");
+            Logger.log(LogTypes.TYPE_EXCEPTION,"Error decoding image ");
+            return;
         }
 
         Bitmap scaledDownBitmap = null;
@@ -60,7 +64,9 @@ public class MicroImageWidget extends ImageWidget{
             compressedBitmapByteArray = MediaUtil.compressBitmapToTargetSize(scaledDownBitmap, MICRO_IMAGE_MAX_SIZE_BYTES);
             mBinary = Base64.encodeToString(compressedBitmapByteArray, Base64.DEFAULT);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            showToast("microimage.scalingdown.compression.error");
+            Logger.exception("Error while scaling down and compressing image: ", e);
+            return;
         } finally {
             originalImage.recycle();
             if (scaledDownBitmap != null) {
