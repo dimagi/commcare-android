@@ -5,10 +5,12 @@ import android.net.ConnectivityManager;
 import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
@@ -26,6 +28,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -52,7 +56,7 @@ public class ApiConnectId {
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
     public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("token", connectToken);
 
         String host;
@@ -84,7 +88,7 @@ public class ApiConnectId {
     }
 
     public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) throws MalformedURLException {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", HQ_CLIENT_ID);
         params.put("scope", "mobile_access sync");
         params.put("grant_type", "password");
@@ -114,7 +118,7 @@ public class ApiConnectId {
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
             params.put("fcm_token", token);
@@ -130,7 +134,7 @@ public class ApiConnectId {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
 
         if (user != null) {
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("client_id", CONNECT_CLIENT_ID);
             params.put("scope", "openid");
             params.put("grant_type", "password");
@@ -233,7 +237,7 @@ public class ApiConnectId {
 
     public static void checkPassword(Context context, String phone, String secret,
                                      String password, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         params.put("password", password);
@@ -245,7 +249,7 @@ public class ApiConnectId {
     public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
                                      String newPassword, IApiCallback callback) {
 
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phoneNumber);
         params.put("secret_key", recoverySecret);
         params.put("password", newPassword);
@@ -257,7 +261,7 @@ public class ApiConnectId {
     public static void checkPin(Context context, String phone, String secret,
                                 String pin, IApiCallback callback) {
 
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         params.put("recovery_pin", pin);
@@ -273,7 +277,7 @@ public class ApiConnectId {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
 
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("recovery_pin", pin);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
@@ -289,7 +293,7 @@ public class ApiConnectId {
 
     public static void registerUser(Context context, String username, String password, String displayName,
                                     String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("username", username);
         params.put("password", password);
         params.put("name", displayName);
@@ -306,7 +310,7 @@ public class ApiConnectId {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("old_phone_number", oldPhone);
         params.put("new_phone_number", newPhone);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
@@ -320,7 +324,7 @@ public class ApiConnectId {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         if (secondaryPhone != null) {
             params.put("secondary_phone", secondaryPhone);
         }
@@ -337,14 +341,14 @@ public class ApiConnectId {
                                                      IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.validatePhone(token, params);
         callApi(context, call, callback);
     }
 
     public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phone);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.requestOTPPrimary(params);
@@ -353,7 +357,7 @@ public class ApiConnectId {
 
     public static void requestRecoveryOtpSecondary(Context context, String phone, String secret,
                                                    IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
@@ -365,7 +369,7 @@ public class ApiConnectId {
                                                        IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String basicToken = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.validateSecondaryPhone(basicToken, params);
         callApi(context, call, callback);
@@ -375,7 +379,7 @@ public class ApiConnectId {
                                                      String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String basicToken = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("token", token);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
@@ -385,7 +389,7 @@ public class ApiConnectId {
 
     public static void confirmRecoveryOtpPrimary(Context context, String phone, String secret,
                                                  String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         params.put("token", token);
@@ -396,7 +400,7 @@ public class ApiConnectId {
 
     public static void confirmRecoveryOtpSecondary(Context context, String phone, String secret,
                                                    String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone", phone);
         params.put("secret_key", secret);
         params.put("token", token);
@@ -409,7 +413,7 @@ public class ApiConnectId {
                                                        String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token1 = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("token", token);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.confirmOTPSecondary(token1, params);
@@ -417,7 +421,7 @@ public class ApiConnectId {
     }
 
     public static void requestInitiateAccountDeactivation(Context context, String phone, String secretKey, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("phone_number", phone);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
@@ -427,7 +431,7 @@ public class ApiConnectId {
 
     public static void confirmUserDeactivation(Context context, String phone, String secret,
                                                String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("phone_number", phone);
         params.put("secret_key", secret);
         params.put("token", token);
@@ -467,5 +471,77 @@ public class ApiConnectId {
         } else {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unexpected Error: " + message);
         }
+    }
+
+    public static void retrieveMessages(Context context, String username, String password, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        Multimap<String, String> params = ArrayListMultimap.create();
+        ConnectNetworkHelper.get(context,
+                context.getString(R.string.ConnectMessageRetrieveMessagesURL),
+                API_VERSION_CONNECT_ID, authInfo, params, true, callback);
+    }
+
+    public static boolean updateChannelConsent(Context context, String username, String password,
+                                               String channel, boolean consented,
+                                               IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("channel", channel);
+        params.put("consent", consented);
+
+        return ConnectNetworkHelper.post(context,
+                context.getString(R.string.ConnectMessageChannelConsentURL),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static void retrieveChannelEncryptionKey(Context context, String channelId, String channelUrl, IApiCallback callback) {
+        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("channel_id", channelId);
+
+            ConnectNetworkHelper.post(context,
+                    channelUrl,
+                    null, token, params, true, true, callback);
+        });
+    }
+
+    public static void confirmReceivedMessages(Context context, String username, String password,
+                                               List<String> messageIds, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("messages", messageIds);
+
+        ConnectNetworkHelper.post(context,
+                context.getString(R.string.ConnectMessageConfirmURL),
+                API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
+    }
+
+    public static void sendMessagingMessage(Context context, String username, String password,
+                                            ConnectMessagingMessageRecord message, String key, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        String[] parts = ConnectMessagingMessageRecord.encrypt(message.getMessage(), key);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("channel", message.getChannelId());
+
+        HashMap<String, Object> content = new HashMap<>();
+        try {
+            content.put("ciphertext", parts[0]);
+            content.put("nonce", parts[1]);
+            content.put("tag", parts[2]);
+        } catch (Exception e) {
+            Logger.exception("Sending message", e);
+        }
+        params.put("content", content);
+        params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
+        params.put("message_id", message.getMessageId());
+
+        ConnectNetworkHelper.post(context,
+                context.getString(R.string.ConnectMessageSendURL),
+                API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
     }
 }

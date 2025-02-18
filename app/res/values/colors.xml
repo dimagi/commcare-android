@@ -143,7 +143,7 @@
     <color name="red_500">#F44336</color>
     <color name="red_700">#D32F2F</color>
     <color name="red_900">#B71C1C</color>
-    
+
     <!-- Button colors -->
     <color name="button_disabled">@color/cc_neutral_bg</color>
     <color name="button_primary_color">@color/cc_brand_color</color>
@@ -197,5 +197,8 @@
     <color name="connect_tealish_blue_color">#E7EAF8</color>
     <color name="connect_dark_grey">#9CA3AF</color>
     <color name="connect_un_fill_progress">#ebecfa</color>
+    <color name="connect_message_receiver_bg">#5C6FD0</color>
+    <color name="connect_message_sender_bg">#F1F5F9</color>
+    <color name="connect_message_sender_text_color">#334155</color>
 
 </resources>

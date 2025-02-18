@@ -16,6 +16,10 @@ import org.commcare.utils.FormUploadResult;
 
 import java.util.Date;
 
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
+
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
@@ -459,5 +463,25 @@ public class FirebaseAnalyticsUtil {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, positive ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
+    }
+
+    public static void reportNotificationType(String notificationType) {
+        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
+                CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
+    }
+
+    public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
+        return (navController, navDestination, args) -> {
+            String currentFragmentClassName = "UnknownDestination";
+            NavDestination destination = navController.getCurrentDestination();
+            if (destination instanceof FragmentNavigator.Destination) {
+                currentFragmentClassName = ((FragmentNavigator.Destination)destination).getClassName();
+            }
+
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        };
     }
 }
