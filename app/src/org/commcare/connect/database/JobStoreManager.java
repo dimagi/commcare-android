@@ -18,7 +18,6 @@ public class JobStoreManager {
     private final SqlStorage<ConnectAppRecord> appInfoStorage;
     private final SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage;
     private final SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage;
-    private final ReentrantLock lock = new ReentrantLock();
 
     public JobStoreManager(Context context) {
         this.jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
@@ -98,7 +97,6 @@ public class JobStoreManager {
     }
 
     private boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
-        lock.lock();
         try {
             // Check if the job already exists
             boolean isExisting = false;
@@ -127,8 +125,6 @@ public class JobStoreManager {
         } catch (Exception e) {
             Logger.exception("Error storing or updating job: " + job.getTitle(), e);
             throw e;
-        } finally {
-            lock.unlock();
         }
     }
 
