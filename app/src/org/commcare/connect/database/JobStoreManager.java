@@ -28,7 +28,6 @@ public class JobStoreManager {
     }
 
     public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
-        lock.lock();
         try {
             ConnectDatabaseHelper.connectDatabase.beginTransaction();
             List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
@@ -44,7 +43,6 @@ public class JobStoreManager {
             throw e;
         } finally {
             ConnectDatabaseHelper.connectDatabase.endTransaction();
-            lock.unlock();
         }
     }
 
