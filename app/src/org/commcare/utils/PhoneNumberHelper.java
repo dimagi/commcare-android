@@ -2,17 +2,12 @@ package org.commcare.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.auth.api.identity.SignInClient;
-import com.google.android.gms.common.api.ApiException;
-
-import org.commcare.connect.ConnectConstants;
 
 import java.util.Locale;
 
@@ -66,9 +61,7 @@ public class PhoneNumberHelper {
         PhoneNumberUtil util = getUtil(context);
         try {
             Phonenumber.PhoneNumber phoneNumber = util.parse(phone, null);
-            if (util.isValidNumber(phoneNumber)) {
-                return phoneNumber.getCountryCode();
-            }
+            return phoneNumber.getCountryCode();
         } catch (NumberParseException e) {
             //Error parsing number means it isn't valid, fall-through to return false
         }
@@ -111,20 +104,5 @@ public class PhoneNumberHelper {
                         e.printStackTrace();
                     }
                 });
-    }
-
-    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity) {
-
-        if (requestCode == ConnectConstants.CREDENTIAL_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
-            SignInClient signInClient = Identity.getSignInClient(activity);
-            String phoneNumber;
-            try {
-                phoneNumber = signInClient.getPhoneNumberFromIntent(intent);
-                return phoneNumber;
-            } catch (ApiException ignored) {
-            }
-
-        }
-        return "";
     }
 }

@@ -166,42 +166,14 @@
         android:label="fragment_connect_payment_setup"
         tools:layout="@layout/fragment_connect_payment_setup">
         <action
-            android:id="@+id/action_connectPaymentSetupFragment_to_connectPaymentSetupPhoneVerificationFragment"
-            app:destination="@id/connectPaymentSetupPhoneVerificationFragment" />
+            android:id="@+id/action_connectPaymentSetupFragment_to_connectJobIntroFragment"
+            app:destination="@id/connect_job_intro_fragment" />
     </fragment>
-    <fragment
-        android:id="@+id/connectPaymentSetupPhoneVerificationFragment"
-        android:name="org.commcare.fragments.connect.ConnectPaymentSetupPhoneVerificationFragment"
-        android:label="ConnectPaymentSetupPhoneVerificationFragment"
-        tools:layout="@layout/screen_connect_payment_phone_verify">
-        <argument
-            android:name="phone"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="paymentProfileName"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="username"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="password"
-            app:argType="string"
-            app:nullable="true" />
-        <action
-            android:id="@+id/action_connectPaymentSetupPhoneVerificationFragment_to_connect_jobs_list_fragment"
-            app:destination="@id/connect_jobs_list_fragment"
-            app:popUpTo="@id/connect_jobs_list_fragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+
     <dialog
         android:id="@+id/connect_job_detail_bottom_sheet_dialog_fragment"
         android:name="org.commcare.fragments.connect.ConnectJobDetailBottomSheetDialogFragment"
         tools:layout="@layout/fragment_connect_job_detail_bottom_sheet_dialog"
         android:label="ConnectJobDetailBottomSheetDialogFragment">
-
-
     </dialog>
 </navigation>

@@ -84,7 +84,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for getContext() fragment
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
@@ -155,14 +155,6 @@ public class ConnectIdPhoneFragment extends Fragment {
         KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPrimaryPhoneInput);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
-        skipPhoneNumberCheck = false;
-        displayNumber(phone);
-    }
-
     public void finish(boolean success, String phone) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
@@ -214,11 +206,10 @@ public class ConnectIdPhoneFragment extends Fragment {
         Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
 
-    //8556
     void displayNumber(String fullNumber) {
-        int code = PhoneNumberHelper.getCountryCode(getContext());
+        int code = PhoneNumberHelper.getCountryCode(requireContext());
         if (fullNumber != null && fullNumber.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(getContext(), fullNumber);
+            code = PhoneNumberHelper.getCountryCode(requireContext(), fullNumber);
         }
 
         String codeText = "";

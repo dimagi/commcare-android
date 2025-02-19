@@ -217,6 +217,7 @@ public class ConnectJobsListsFragment extends Fragment {
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
             ConnectUserRecord user = ConnectManager.getUser(getActivity());
             if (user.getPaymentName().isEmpty() && user.getPaymentPhone().isEmpty() && job.getPaymentInfoRequired()) {
+                ConnectManager.setActiveJob(job);
                 Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectPaymentSetupFragment());
             } else if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
                 launchJobInfo(job);

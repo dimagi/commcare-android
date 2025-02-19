@@ -395,14 +395,20 @@ public class ConnectManager {
         return getInstance().activeJob;
     }
 
-    private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
+    private static void launchConnectId(CommCareActivity<?> parent, String task, String paymentPhone, String paymentName, ConnectActivityCompleteListener listener) {
         Intent intent = new Intent(parent, ConnectIdActivity.class);
         intent.putExtra("TASK", task);
+        if(paymentPhone != null) {
+            intent.putExtra("phone", paymentPhone);
+        }
+        if(paymentName != null) {
+            intent.putExtra("name", paymentName);
+        }
         parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
     }
 
     public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
-        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, callback);
+        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, null, null, callback);
     }
 
     public static ConnectUserRecord handleRecoveryPackage(Context context, String method, String phone, String password, InputStream responseData) {
@@ -459,7 +465,11 @@ public class ConnectManager {
     }
 
     public static void beginSecondaryPhoneVerification(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
-        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, callback);
+        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, null, null, callback);
+    }
+
+    public static void beginPaymentPhoneVerification(CommCareActivity<?> parent, String paymentPhone, String paymentName, ConnectActivityCompleteListener callback) {
+        launchConnectId(parent, ConnectConstants.VERIFY_PAYMENT_PHONE, paymentPhone, paymentName, callback);
     }
 
     public static void goToConnectJobsList(Context parent) {

@@ -8,33 +8,26 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.IApiCallback;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectPaymentSetupBinding;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Locale;
 
 public class ConnectPaymentSetupFragment extends Fragment {
 
     private FragmentConnectPaymentSetupBinding binding;
-    protected boolean skipPhoneNumberCheck = false;
     private boolean showhPhoneDialog = true;
 
     @Override
@@ -118,40 +111,8 @@ public class ConnectPaymentSetupFragment extends Fragment {
     private void submitPaymentDetail() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
-        boolean isBusy = !ApiConnectId.paymentInfo(requireActivity(), phone, user.getUserId(), user.getPassword(), binding.nameTextValue.getText().toString(), new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    Navigation.findNavController(binding.continueButton).navigate(
-                            ConnectPaymentSetupFragmentDirections.actionConnectPaymentSetupFragmentToConnectPaymentSetupPhoneVerificationFragment(phone,binding.nameTextValue.getText().toString(),user.getUserId(),user.getPassword()));
-                } catch (Exception e) {
-                    Logger.exception("Parsing return from confirm_secondary_otp", e);
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                binding.errorTextView.setVisibility(View.VISIBLE);
-                binding.errorTextView.setText(String.format(Locale.getDefault(), "Registration error: %d",
-                        responseCode));
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                Toast.makeText(requireActivity(), R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
-
-            }
-
-            @Override
-            public void processOldApiError() {
-                Toast.makeText(requireActivity(), R.string.recovery_network_outdated, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+        ConnectManager.beginPaymentPhoneVerification((CommCareActivity<?>)requireActivity(), phone,
+                binding.nameTextValue.getText().toString(), null);
     }
 
     public void updateButtonEnabled() {
@@ -165,18 +126,10 @@ public class ConnectPaymentSetupFragment extends Fragment {
         binding.continueButton.setEnabled(isEnabled);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
-        skipPhoneNumberCheck = false;
-        displayNumber(phone);
-    }
-
     void displayNumber(String fullNumber) {
-        int code = PhoneNumberHelper.getCountryCode(getContext());
+        int code = PhoneNumberHelper.getCountryCode(requireContext());
         if (fullNumber != null && fullNumber.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(getContext(), fullNumber);
+            code = PhoneNumberHelper.getCountryCode(requireContext(), fullNumber);
         }
 
         String codeText = "";
@@ -190,11 +143,8 @@ public class ConnectPaymentSetupFragment extends Fragment {
         if (fullNumber != null && fullNumber.startsWith(codeText)) {
             fullNumber = fullNumber.substring(codeText.length());
         }
-        skipPhoneNumberCheck = false;
         binding.connectPrimaryPhoneInput.setText(fullNumber);
-        skipPhoneNumberCheck = true;
         binding.countryCode.setText(codeText);
-        skipPhoneNumberCheck = false;
     }
 
     @Override

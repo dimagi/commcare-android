@@ -28,7 +28,6 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
@@ -42,7 +41,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.Locale;
 import java.util.Random;
 
@@ -202,14 +200,6 @@ public class ConnectIDSignupFragment extends Fragment {
                 (binding.nameTextValue.getText().toString().length() > 0 &&
                         binding.connectConsentCheck.isChecked()));
         binding.continueButton.setEnabled(isEnabled);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
-        skipPhoneNumberCheck = false;
-        displayNumber(phone);
     }
 
     void displayNumber(String fullNumber) {

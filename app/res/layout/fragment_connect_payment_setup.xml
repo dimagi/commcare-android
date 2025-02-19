@@ -140,6 +140,19 @@
         </LinearLayout>
     </LinearLayout>
 
+    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        android:id="@+id/connectPaymentInfoNextStepText"
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:textSize="14sp"
+        android:letterSpacing="0.08"
+        android:layout_height="wrap_content"
+        android:text="@string/connect_verify_payment_phone_message"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/phone_layout" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/continue_button"
         style="@style/CustomButtonStyle"
@@ -147,8 +160,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:layout_gravity="end"
-        android:text="@string/connect_payment_info_save"
+        android:text="@string/connect_payment_info_next"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/phone_layout"
+        app:layout_constraintTop_toBottomOf="@+id/connectPaymentInfoNextStepText"
  />
 </androidx.constraintlayout.widget.ConstraintLayout>

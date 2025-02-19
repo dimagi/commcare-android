@@ -59,6 +59,5 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
             NavHostFragment.findNavController(this).navigate(directions);
         });
         return view;
-
     }
 }

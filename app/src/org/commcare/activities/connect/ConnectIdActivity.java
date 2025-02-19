@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -18,7 +19,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragmnet;
 import org.commcare.views.dialogs.CustomProgressDialog;
+
+import java.util.Locale;
 
 public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
@@ -28,6 +32,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     public static String recoverSecret;
     public static String recoveryAltPhone;
     public static NavController controller;
+    private boolean performingOptionalPhoneVerification = false;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -53,11 +58,33 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
     private void handleRedirection(Intent intent) {
         String value = intent.getStringExtra("TASK");
+        String phone = intent.getStringExtra("phone");
+        String name = intent.getStringExtra("name");
         if (value != null) {
             switch (value) {
                 case ConnectConstants.BEGIN_REGISTRATION -> beginRegistration(this);
                 case ConnectConstants.VERIFY_PHONE -> beginSecondaryPhoneVerification(this);
+                case ConnectConstants.VERIFY_PAYMENT_PHONE -> beginPaymentPhoneVerification(phone, name);
             }
+        }
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent arg0) {
+        if(performingOptionalPhoneVerification) {
+            finish();
+            return true;
+        } else {
+            return super.onSingleTapUp(arg0);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(performingOptionalPhoneVerification) {
+            finish();
+        } else {
+            super.onBackPressed();
         }
     }
 
@@ -80,6 +107,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     public void beginRegistration(Context parent) {
         forgotPassword = false;
         forgotPin = false;
+        performingOptionalPhoneVerification = false;
         NavDirections navDirections = null;
         switch (ConnectManager.getStatus()) {
             case NotIntroduced :
@@ -132,12 +160,22 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     }
 
     private void beginSecondaryPhoneVerification(Context parent) {
+        performingOptionalPhoneVerification = true;
         NavDirections navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage
                 (parent.getString(R.string.connect_recovery_alt_title),
                         parent.getString(R.string.connect_recovery_alt_message),
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
                         parent.getString(R.string.connect_password_fail_button),
                         parent.getString(R.string.connect_recovery_alt_change_button),null,null);
+        controller.navigate(navDirections);
+    }
+
+    private void beginPaymentPhoneVerification(String phoneNumber, String paymentName) {
+        performingOptionalPhoneVerification = true;
+        NavDirections navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentToConnectidPhoneVerify(
+                ConnectConstants.CONNECT_VERIFY_PAYMENT_PHONE,
+                String.format(Locale.getDefault(), "%d", ConnectIdPhoneVerificationFragmnet.MethodVerifyPayment),
+                phoneNumber, paymentName, null, null, false);
         controller.navigate(navDirections);
     }
 

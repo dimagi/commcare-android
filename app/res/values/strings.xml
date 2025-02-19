@@ -481,8 +481,6 @@
     <string name="connect_pin_verify_forgot">Forgot Code</string>
     <string name="connect_recovery_title">ConnectID Recovery</string>
 
-
-
     <string name="connect_recovery_decision_new">Choose a step below</string>
     <string name="connect_recovery_button_new">Create New ConnectID Account</string>
     <string name="connect_recovery_button_recover">Recover Existing Account</string>
@@ -531,11 +529,17 @@
 
     <string name="connect_verify_phone_title">Verification Code</string>
     <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
+    <string name="connect_verify_phone_label_payment">We attempted to send you a SMS on your payment phone number.</string>
     <string name="connect_verify_phone_label_secondary">We attempted to send you a SMS on your secondary phone number.</string>
     <string name="connect_verify_phone_label_deactivate">In order to deactivate your account, please enter the code sent by SMS to your primary phone number.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_error">Error verifying SMS code</string>
     <string name="connect_verify_phone_resend_code">Resend Code</string>
+
+    <string name="connect_verify_payment_phone_title">Verification Code</string>
+    <string name="connect_verify_payment_phone_message">On the next screen, we\'ll send a code via SMS to the payment phone number you entered.</string>
+    <string name="connect_verify_payment_phone_back">Back</string>
+    <string name="connect_verify_payment_phone_ok">OK</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change">Change</string>
@@ -783,7 +787,7 @@
     <string name="connect_payment_info">Payment Info</string>
     <string name="connect_payment_info_description">Please confirm your exact name and phone number to receive payment</string>
     <string name="connect_payment_info_name_hint">Official Name</string>
-    <string name="connect_payment_info_save">Save</string>
+    <string name="connect_payment_info_next">Next</string>
     <string name="connect_payment_info_resend_otp">Resend OTP</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
