@@ -137,9 +137,13 @@ public class ConnectMessageFragment extends Fragment {
         });
 
         binding.imgSendMessage.setOnClickListener(v -> {
+            String messageText = binding.etMessage.getText().toString().trim();
+            if (messageText.isEmpty()) {
+                return;
+            }
             ConnectMessagingMessageRecord message = new ConnectMessagingMessageRecord();
             message.setMessageId(UUID.randomUUID().toString());
-            message.setMessage(binding.etMessage.getText().toString());
+            message.setMessage(messageText);
             message.setChannelId(channelId);
             message.setTimeStamp(new Date());
             message.setIsOutgoing(true);
@@ -168,7 +172,7 @@ public class ConnectMessageFragment extends Fragment {
 
     public void refreshUi() {
         Context context = getContext();
-        if (context != null) {
+        if (context != null && adapter != null) {
             List<ConnectMessagingMessageRecord> messages = ConnectMessageUtils.getMessagingMessagesForChannel(context, channelId);
 
             List<ConnectMessageChatData> chats = new ArrayList<>();

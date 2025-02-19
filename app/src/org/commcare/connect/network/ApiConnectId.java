@@ -521,13 +521,18 @@ public class ApiConnectId {
 
     public static void sendMessagingMessage(Context context, String username, String password,
                                             ConnectMessagingMessageRecord message, String key, IApiCallback callback) {
+        if (message == null || key == null) {
+            callback.processFailure(400, new IOException("Message or key is null"));
+            return;
+        }
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-
         String[] parts = ConnectMessagingMessageRecord.encrypt(message.getMessage(), key);
-
+        if (parts == null) {
+            callback.processFailure(500, new IOException("Message encryption failed"));
+            return;
+        }
         HashMap<String, Object> params = new HashMap<>();
         params.put("channel", message.getChannelId());
-
         HashMap<String, Object> content = new HashMap<>();
         try {
             content.put("ciphertext", parts[0]);
@@ -539,7 +544,6 @@ public class ApiConnectId {
         params.put("content", content);
         params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
         params.put("message_id", message.getMessageId());
-
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
                 API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);

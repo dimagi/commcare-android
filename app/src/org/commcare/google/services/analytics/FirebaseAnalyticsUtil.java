@@ -479,7 +479,9 @@ public class FirebaseAnalyticsUtil {
             }
 
             Bundle bundle = new Bundle();
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+            CharSequence label = navDestination.getLabel();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME,
+                    label != null ? label.toString() : "Unknown");
             bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
             reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
         };

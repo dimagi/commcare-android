@@ -81,6 +81,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConnectMessageChatData chat = messages.get(position);
+        if (chat == null) {
+            return;
+        }
         if (getItemViewType(position) == LEFTVIEW) {
             ((LeftViewHolder)holder).bind(chat);
         } else {

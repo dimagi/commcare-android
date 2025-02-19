@@ -120,7 +120,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
     public void refreshUi() {
         Context context = getContext();
-        if (context != null) {
+        if (context != null && channelAdapter != null) {
             List<ConnectMessagingChannelRecord> channels = ConnectMessageUtils.getMessagingChannels(context);
             channelAdapter.setChannels(channels);
         }

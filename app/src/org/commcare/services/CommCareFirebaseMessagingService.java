@@ -64,8 +64,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
-                remoteMessage.getData());
         Map<String, String> payloadData = remoteMessage.getData();
 
         // Check if the message contains a data object, there is no further action if not
@@ -87,8 +85,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String token) {
-        // TODO: Remove the token from the log
-        Logger.log(LogTypes.TYPE_FCM, "New registration token was generated: " + token);
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 

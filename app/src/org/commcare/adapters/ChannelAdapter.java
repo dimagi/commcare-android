@@ -1,5 +1,6 @@
 package org.commcare.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -83,6 +85,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
                 } else {
                     SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+                    outputFormat.setTimeZone(TimeZone.getDefault());
                     lastText = outputFormat.format(lastDate);
                 }
 
@@ -106,12 +109,14 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     private static String formatDate(String dateStr) {
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            inputFormat.setTimeZone(TimeZone.getDefault());
             SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+            outputFormat.setTimeZone(TimeZone.getDefault());
             Date date = inputFormat.parse(dateStr);
             return outputFormat.format(date);
         } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
+            Log.e("ChannelAdapter", "Error parsing date: " + dateStr, e);
+            return "Unknown Date";
         }
     }
 

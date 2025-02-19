@@ -196,7 +196,11 @@ public class ConnectNetworkHelper {
         if (useFormEncoding) {
             Multimap<String, String> multimap = ArrayListMultimap.create();
             for (Map.Entry<String, Object> entry : params.entrySet()) {
-                multimap.put(entry.getKey(), entry.getValue().toString());
+                Object value = entry.getValue();
+                if (value == null) {
+                    continue;
+                }
+                multimap.put(entry.getKey(), String.valueOf(value));
             }
 
             requestBody = ModernHttpRequester.getPostBody(multimap);

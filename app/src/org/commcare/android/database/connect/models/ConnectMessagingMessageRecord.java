@@ -6,7 +6,9 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.util.Base64;
 import org.commcare.util.EncryptionUtils;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,6 +18,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
 
 @Table(ConnectMessagingMessageRecord.STORAGE_KEY)
 public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
@@ -145,12 +149,16 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
             String encoded = Base64.encode(bytes.array());
             return EncryptionUtils.decrypt(encoded, key);
+        } catch (IllegalArgumentException e) {
+            Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Invalid Base64 encoding in message");
+            return null;
         } catch (Exception e) {
+            Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Decryption failed: " + e.getMessage());
             return null;
         }
     }
 
-    public static String[] encrypt(String text, String key) {
+    public static String[] encrypt(@NonNull String text, @NonNull String key) {
         try {
             String encoded = EncryptionUtils.encrypt(text, key);
             byte[] bytes = Base64.decode(encoded);

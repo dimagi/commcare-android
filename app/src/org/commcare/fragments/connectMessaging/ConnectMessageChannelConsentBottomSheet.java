@@ -30,6 +30,11 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
 
         ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(requireContext(),
                 args.getChannelId());
+        if (channel == null) {
+            Toast.makeText(requireContext(), "Channel not found", Toast.LENGTH_SHORT).show();
+            NavHostFragment.findNavController(this).popBackStack();
+            return null;
+        }
 
         binding.channelName.setText(channel.getChannelName());
 
@@ -56,9 +61,14 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
             channel.setAnsweredConsent(true);
             channel.setConsented(false);
             MessageManager.updateChannelConsent(requireContext(), channel, success -> {
-
+                if (!success) {
+                    Context context = getContext();
+                    if (context != null) {
+                        Toast.makeText(context, "Failed to decline channel consent", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                NavHostFragment.findNavController(this).popBackStack();
             });
-            NavHostFragment.findNavController(this).popBackStack();
         });
 
         return binding.getRoot();
