@@ -20,6 +20,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectPaymentSetupBinding;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
 
@@ -111,6 +112,7 @@ public class ConnectPaymentSetupFragment extends Fragment {
     private void submitPaymentDetail() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
+        FirebaseAnalyticsUtil.reportPaymentInfoChangeAttempted();
         ConnectManager.beginPaymentPhoneVerification((CommCareActivity<?>)requireActivity(), phone,
                 binding.nameTextValue.getText().toString(), null);
     }

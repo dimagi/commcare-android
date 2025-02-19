@@ -36,6 +36,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
@@ -572,6 +573,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
             case ConnectConstants.CONNECT_VERIFY_PAYMENT_PHONE -> {
                 if(success) {
+                    FirebaseAnalyticsUtil.reportPaymentInfoChanged();
                     user.setPaymentPhone(primaryPhone);
                     user.setPaymentName(username);
                     ConnectDatabaseHelper.storeUser(requireActivity(), user);
