@@ -10,10 +10,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
@@ -109,7 +109,7 @@ public class ApiConnectId {
                     Date expiration = new Date();
                     key = ConnectConstants.CONNECT_KEY_EXPIRES;
                     int seconds = json.has(key) ? json.getInt(key) : 0;
-                    expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                    expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
 
                     String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                     SsoToken ssoToken = new SsoToken(token, expiration);
@@ -173,7 +173,7 @@ public class ApiConnectId {
                         Date expiration = new Date();
                         key = ConnectConstants.CONNECT_KEY_EXPIRES;
                         int seconds = json.has(key) ? json.getInt(key) : 0;
-                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                        expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
                         user.updateConnectToken(token, expiration);
                         ConnectDatabaseHelper.storeUser(context, user);
 
@@ -339,6 +339,7 @@ public class ApiConnectId {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
+
         HashMap<String, String> params = new HashMap<>();
         if (secondaryPhone != null) {
             params.put("secondary_phone", secondaryPhone);
@@ -556,5 +557,29 @@ public class ApiConnectId {
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
                 API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
+    }
+
+    public static boolean paymentInfo(Context context, String phone, String username, String password, String name, IApiCallback callback) {
+        int urlId = R.string.ConnectPaymentPhoneNumberURL;
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("phone_number", phone);
+        params.put("owner_name", name);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+    }
+
+    public static boolean confirmPaymentInfo(Context context, String phone, String username, String password, String token, IApiCallback callback) {
+        int urlId = R.string.ConnectConfirmPaymentOtpURL;
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("phone_number", phone);
+        params.put("token", token);
+
+        return ConnectNetworkHelper.post(context, context.getString(urlId),
+                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 }

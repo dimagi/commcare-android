@@ -64,6 +64,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public static final int MethodRecoveryAlternate = 3;
     public static final int MethodVerifyAlternate = 4;
     public static final int MethodUserDeactivate = 5;
+    public static final int MethodVerifyPayment = 6;
     public static final int REQ_USER_CONSENT = 200;
     private int method;
     private String primaryPhone;
@@ -126,11 +127,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         // Inflate the layout for requireActivity() fragment
         binding = ScreenConnectPhoneVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        binding.connectPhoneVerifyButton.setEnabled(false);
         buttonEnabled("");
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
         client.startSmsUserConsent(null);
-
 
         if (getArguments() != null) {
             method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getMethod()));
@@ -173,7 +172,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     }
 
     private void handleDeactivateButton() {
-        binding.connectDeactivateButton.setVisibility(!deactivateButton ? View.GONE : View.VISIBLE);
+        binding.connectDeactivateButton.setVisibility(deactivateButton ? View.VISIBLE : View.GONE);
         binding.connectResendButton.setVisibility(View.GONE);
     }
 
@@ -185,7 +184,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
     public void onStart() {
         super.onStart();
         registerBrodcastReciever();
-
     }
 
     @Override
@@ -272,6 +270,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         String text;
         if(method == MethodUserDeactivate) {
             text = getString(R.string.connect_verify_phone_label_deactivate);
+        } else if(method == MethodVerifyPayment) {
+            text = getString(R.string.connect_verify_phone_label_payment);
         } else {
             boolean alternate = method == MethodRecoveryAlternate || method == MethodVerifyAlternate;
             String phone = alternate ? recoveryPhone : primaryPhone;
@@ -348,7 +348,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
         };
 
-        boolean isBusy;
         switch (method) {
             case MethodRecoveryPrimary -> {
                ApiConnectId.requestRecoveryOtpPrimary(requireActivity(), username, callback);
@@ -359,14 +358,15 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case MethodVerifyAlternate -> {
                 ApiConnectId.requestVerificationOtpSecondary(requireActivity(), username, password, callback);
             }
+            case MethodVerifyPayment -> {
+                ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
+                ApiConnectId.paymentInfo(requireActivity(), primaryPhone, user.getUserId(), user.getPassword(),
+                        username, callback);
+            }
             default -> {
                ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
             }
         }
-
-//        if (isBusy) {
-//            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-//        }
     }
 
     public void verifySmsCode() {
@@ -379,11 +379,9 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                logRecoveryResult(true);
-
                 try {
                     switch (method) {
-                        case MethodRegistrationPrimary -> {
+                        case MethodRegistrationPrimary, MethodVerifyPayment -> {
                             finish(true, false, null);
                         }
                         case MethodVerifyAlternate -> {
@@ -394,6 +392,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                             finish(true, false, null);
                         }
                         case MethodRecoveryPrimary -> {
+                            ConnectManager.logRecoveryResult(
+                                    AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP, true);
                             String secondaryPhone = null;
                             String responseAsString = new String(
                                     StreamsUtil.inputStreamToByteArray(responseData));
@@ -406,38 +406,24 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                             finish(true, false, secondaryPhone);
                         }
                         case MethodRecoveryAlternate -> {
-                            String responseAsString = new String(
-                                    StreamsUtil.inputStreamToByteArray(responseData));
-                            JSONObject json = new JSONObject(responseAsString);
+                            ConnectUserRecord recovered = ConnectManager.handleRecoveryPackage(
+                                    context, AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP,
+                                    phone, password, responseData);
 
-                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                            String username = json.has(key) ? json.getString(key) : "";
-
-                            key = ConnectConstants.CONNECT_KEY_NAME;
-                            String displayName = json.has(key) ? json.getString(key) : "";
-
-                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                            if (json.has(key)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                            }
-
-                            resetPassword(context, phone, password, username, displayName);
+                            resetPassword(context, phone, password, recovered);
                         }
                     }
                 } catch (Exception e) {
-                    Logger.exception("Parsing return from OTP verification", e);
+                    throw new RuntimeException(e);
                 }
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                logRecoveryResult(false);
+                String methodParam = method == MethodRecoveryPrimary ?
+                        AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP :
+                        AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP;
+                ConnectManager.logRecoveryResult(methodParam, false);
                 setErrorMessage(getString(R.string.connect_verify_phone_error));
             }
 
@@ -462,20 +448,25 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case MethodVerifyAlternate -> {
               ApiConnectId.confirmVerificationOtpSecondary(requireActivity(), username, password, token, callback);
             }
+            case MethodVerifyPayment -> {
+                ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
+                ApiConnectId.confirmPaymentInfo(requireActivity(), primaryPhone, user.getUserId(), user.getPassword(),
+                        token, callback);
+            }
             default -> {
                 ApiConnectId.confirmRegistrationOtpPrimary(requireActivity(), username, password, token, callback);
             }
         }
     }
 
-    private void resetPassword(Context context, String phone, String secret, String username, String name) {
+    private void resetPassword(Context context, String phone, String secret, ConnectUserRecord user) {
         //Auto-generate and send a new password
         String password = ConnectManager.generatePassword();
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                        password, name, recoveryPhone);
+                user.setPassword(password);
+                user.setAlternatePhone(recoveryPhone);
                 user.setSecondaryPhoneVerified(true);
                 ConnectDatabaseHelper.storeUser(context, user);
 
@@ -498,16 +489,6 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
             }
         });
-    }
-
-    private void logRecoveryResult(boolean success) {
-        if (method != MethodRegistrationPrimary) {
-            String methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP;
-            if (method == MethodRecoveryAlternate) {
-                methodParam = AnalyticsParamValue.CCC_RECOVERY_METHOD_ALTERNATE_OTP;
-            }
-            FirebaseAnalyticsUtil.reportCccRecovery(success, methodParam);
-        }
     }
 
     public void changeNumber() {
@@ -588,6 +569,16 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE -> {
                 if (success) {
                     directions = ConnectIdPhoneVerificationFragmnetDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_deactivated), ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS, getString(R.string.connect_deactivate_account_creation), null, username, password);
+                }
+            }
+            case ConnectConstants.CONNECT_VERIFY_PAYMENT_PHONE -> {
+                if(success) {
+                    FirebaseAnalyticsUtil.reportPaymentInfoChanged();
+                    user.setPaymentPhone(primaryPhone);
+                    user.setPaymentName(username);
+                    ConnectDatabaseHelper.storeUser(requireActivity(), user);
+                    requireActivity().setResult(RESULT_OK);
+                    requireActivity().finish();
                 }
             }
         }

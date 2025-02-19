@@ -511,4 +511,17 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
                 CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
     }
+
+    public static void reportPaymentInfoPage(String reason) {
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_INFO_VIEW,
+                CCAnalyticsParam.REASON, reason);
+    }
+
+    public static void reportPaymentInfoChangeAttempted() {
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_INFO_CHANGE_ATTEMPT);
+    }
+
+    public static void reportPaymentInfoChanged() {
+        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_INFO_CHANGED);
+    }
 }

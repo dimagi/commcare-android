@@ -6,22 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 
 import com.google.common.base.Strings;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
+import org.commcare.fragments.connect.ConnectJobsListsFragmentDirections;
+import org.commcare.fragments.connect.ConnectPaymentSetupFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.ResourceEngineListener;
@@ -144,7 +144,19 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            Fragment fragment = getCurrentFragment();
+
+            if(fragment instanceof ConnectPaymentSetupFragment) {
+                if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
+                    navController.navigate(ConnectJobsListsFragmentDirections.
+                            actionConnectJobsListFragmentToConnectJobIntroFragment());
+                }
+            } else {
+                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+            }
+        }
     }
 
     @Override
