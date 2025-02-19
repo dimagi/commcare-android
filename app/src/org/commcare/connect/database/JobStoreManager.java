@@ -27,11 +27,11 @@ public class JobStoreManager {
         this.paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectPaymentUnitRecord.class);
     }
 
-    public int getCompositeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
+    public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         lock.lock();
         try {
             ConnectDatabaseHelper.connectDatabase.beginTransaction();
-            List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
+            List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
 
             if (pruneMissing) {
                 pruneOldJobs(existingList, jobs);
@@ -219,7 +219,7 @@ public class JobStoreManager {
         }
     }
 
-    private List<ConnectJobRecord> getJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
+    private List<ConnectJobRecord> getCompositeJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
         // Placeholder for job retrieval logic
         return ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
     }
