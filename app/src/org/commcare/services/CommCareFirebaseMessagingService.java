@@ -42,6 +42,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public static final String MESSAGING_UPDATE_BROADCAST = "com.dimagi.messaging.update";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_STATUS = "payment_status";
+    private static final String CCC_ACTION_PREFIX = "ccc_";
 
     enum ActionTypes {
         SYNC,
@@ -96,69 +97,15 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     private void showNotification(Map<String, String> payloadData) {
         String notificationTitle = payloadData.get("title");
         String notificationText = payloadData.get("body");
-
         Intent intent = null;
         String action = payloadData.get("action");
-
         if (hasCccAction(action)) {
             FirebaseAnalyticsUtil.reportNotificationType(action);
-
             if (action.equals(ConnectMessagingActivity.CCC_MESSAGE)) {
-                boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
-
-                //Don't show a notification in some cases:
-                //Can't decrypt message (no key)
-                //On channels page (just update the page)
-                //On message page for the active channel
-
-                int notificationTitleId;
-                String notificationMessage;
-                String channelId;
-                if (isMessage) {
-                    ConnectMessagingMessageRecord message = MessageManager.handleReceivedMessage(this,
-                            payloadData);
-
-                    if (message == null) {
-                        Logger.log(LogTypes.TYPE_FCM, "Ignoring message without known consented channel: " +
-                                payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_ID));
-                        //End now to avoid showing a notification
-                        return;
-                    }
-
-                    ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(this,
-                            message.getChannelId());
-
-                    notificationTitleId = R.string.connect_messaging_message_notification_title;
-                    notificationMessage = getString(R.string.connect_messaging_message_notification_message,
-                            channel.getChannelName());
-
-                    channelId = message.getChannelId();
-                } else {
-                    //Channel
-                    ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(this,
-                            payloadData);
-
-                    notificationTitleId = R.string.connect_messaging_channel_notification_title;
-                    notificationMessage = getString(R.string.connect_messaging_channel_notification_message,
-                            channel.getChannelName());
-
-                    channelId = channel.getChannelId();
-                }
-
-                //Send broadcast so any interested pages can update their UI
-                Intent broadcastIntent = new Intent(MESSAGING_UPDATE_BROADCAST);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-
-                if (!ConnectMessageChannelListFragment.isActive &&
-                        !channelId.equals(ConnectMessageFragment.activeChannel)) {
-                    //Show push notification
-                    notificationTitle = getString(notificationTitleId);
-                    notificationText = notificationMessage;
-
-                    intent = new Intent(getApplicationContext(), ConnectMessagingActivity.class);
-                    intent.putExtra("action", action);
-                    intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
-                }
+                // Instead of handling the message notification inline,
+                // delegate to a helper method for clarity.
+                handleMessageNotification(payloadData, action);
+                return;
             } else {
                 //Intent for ConnectActivity
 //                intent = new Intent(getApplicationContext(), ConnectActivity.class);
@@ -172,17 +119,13 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             intent.setAction(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
         }
-
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP |
                     Intent.FLAG_ACTIVITY_NEW_TASK);
-
             int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                     ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                     : PendingIntent.FLAG_UPDATE_CURRENT;
-
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
-
             NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                     CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
                     .setContentTitle(notificationTitle)
@@ -192,7 +135,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     .setSmallIcon(R.drawable.commcare_actionbar_logo)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setWhen(System.currentTimeMillis());
-
             // Check if the payload action is CCC_PAYMENTS
 //            if (action.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
 //                // Yes button intent with payment_id from payload
@@ -215,14 +157,71 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 //                fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
 //                fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
 //            }
-
             NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
             mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
         }
     }
 
+    // New helper method to create the base notification.
+    private NotificationCompat.Builder createBaseNotification(String title, String text, PendingIntent intent) {
+        return new NotificationCompat.Builder(this, CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setContentIntent(intent)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.commcare_actionbar_logo)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setWhen(System.currentTimeMillis());
+    }
+
+    // New helper method to handle message-related notifications.
+    private void handleMessageNotification(Map<String, String> payloadData, String action) {
+        boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
+        String channelId;
+        String notificationTitle;
+        String notificationMessage;
+        if (isMessage) {
+            ConnectMessagingMessageRecord message = MessageManager.handleReceivedMessage(this, payloadData);
+            if (message == null) {
+                Logger.log(LogTypes.TYPE_FCM, "Ignoring message without known consented channel: " +
+                        payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_ID));
+                return;
+            }
+            ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(this, message.getChannelId());
+            notificationTitle = getString(R.string.connect_messaging_message_notification_title);
+            notificationMessage = getString(R.string.connect_messaging_message_notification_message, channel.getChannelName());
+            channelId = message.getChannelId();
+        } else {
+            ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(this, payloadData);
+            notificationTitle = getString(R.string.connect_messaging_channel_notification_title);
+            notificationMessage = getString(R.string.connect_messaging_channel_notification_message, channel.getChannelName());
+            channelId = channel.getChannelId();
+        }
+        Intent broadcastIntent = new Intent(MESSAGING_UPDATE_BROADCAST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+        if (!ConnectMessageChannelListFragment.isActive &&
+                !channelId.equals(ConnectMessageFragment.activeChannel)) {
+            Intent intent = new Intent(getApplicationContext(), ConnectMessagingActivity.class);
+            intent.putExtra("action", action);
+            intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
+            showNotificationWithIntent(intent, notificationTitle, notificationMessage);
+        }
+    }
+
+    // New helper method to show the notification using a given intent.
+    private void showNotificationWithIntent(Intent intent, String title, String text) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                : PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
+        NotificationCompat.Builder builder = createBaseNotification(title, text, contentIntent);
+        NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        mNM.notify(FCM_NOTIFICATION, builder.build());
+    }
+
     private boolean hasCccAction(String action) {
-        return action != null && action.contains("ccc_");
+        return action != null && action.contains(CCC_ACTION_PREFIX);
     }
 
     public static void clearNotification(Context context) {

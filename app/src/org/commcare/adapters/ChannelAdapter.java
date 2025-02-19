@@ -60,6 +60,16 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             this.binding = binding;
         }
 
+        private String formatLastDate(Date lastDate) {
+            if (DateUtils.dateDiff(new Date(), lastDate) == 0) {
+                return DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
+            } else {
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+                outputFormat.setTimeZone(TimeZone.getDefault());
+                return outputFormat.format(lastDate);
+            }
+        }
+
         public void bind(ItemChannelBinding binding, ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
             binding.tvChannelName.setText(channel.getChannelName());
 
@@ -80,16 +90,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             boolean showDate = lastDate != null;
             binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);
             if (showDate) {
-                String lastText;
-                if (DateUtils.dateDiff(new Date(), lastDate) == 0) {
-                    lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
-                } else {
-                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-                    outputFormat.setTimeZone(TimeZone.getDefault());
-                    lastText = outputFormat.format(lastDate);
-                }
-
-                binding.tvLastChatTime.setText(lastText);
+                binding.tvLastChatTime.setText(formatLastDate(lastDate));
             }
 
             boolean showUnread = unread > 0;

@@ -3,6 +3,7 @@ package org.commcare.adapters;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.commcare.dalvik.databinding.ItemChatLeftViewBinding;
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding;
@@ -30,6 +31,13 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyDataSetChanged();
     }
 
+    private static void bindCommon(TextView messageView, TextView userNameView, ConnectMessageChatData chat) {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        builder.append(chat.getMessage());
+        MarkupUtil.setMarkdown(messageView, builder, new SpannableStringBuilder());
+        userNameView.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+    }
+
     public static class LeftViewHolder extends RecyclerView.ViewHolder {
         ItemChatLeftViewBinding binding;
 
@@ -39,11 +47,7 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         public void bind(ConnectMessageChatData chat) {
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            builder.append(chat.getMessage());
-            MarkupUtil.setMarkdown(binding.tvChatMessage, builder, new SpannableStringBuilder());
-
-            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+            bindCommon(binding.tvChatMessage, binding.tvUserName, chat);
         }
     }
 
@@ -56,11 +60,7 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         public void bind(ConnectMessageChatData chat) {
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            builder.append(chat.getMessage());
-            MarkupUtil.setMarkdown(binding.tvChatMessage, builder, new SpannableStringBuilder());
-
-            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+            bindCommon(binding.tvChatMessage, binding.tvUserName, chat);
         }
     }
 

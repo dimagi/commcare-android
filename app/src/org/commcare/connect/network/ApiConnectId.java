@@ -498,9 +498,12 @@ public class ApiConnectId {
 
     public static void retrieveChannelEncryptionKey(Context context, String channelId, String channelUrl, IApiCallback callback) {
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+            if (token == null) {
+                callback.processFailure(401, new IOException("Failed to retrieve token"));
+                return;
+            }
             HashMap<String, Object> params = new HashMap<>();
             params.put("channel_id", channelId);
-
             ConnectNetworkHelper.post(context,
                     channelUrl,
                     null, token, params, true, true, callback);
@@ -535,11 +538,16 @@ public class ApiConnectId {
         params.put("channel", message.getChannelId());
         HashMap<String, Object> content = new HashMap<>();
         try {
+            if (parts[0] == null || parts[1] == null || parts[2] == null) {
+                callback.processFailure(500, new IOException("Invalid encryption parts"));
+                return;
+            }
             content.put("ciphertext", parts[0]);
             content.put("nonce", parts[1]);
             content.put("tag", parts[2]);
         } catch (Exception e) {
             Logger.exception("Sending message", e);
+            callback.processFailure(500, new IOException(e.getMessage()));
         }
         params.put("content", content);
         params.put("timestamp", DateUtils.formatDateTime(message.getTimeStamp(), DateUtils.FORMAT_ISO8601));
