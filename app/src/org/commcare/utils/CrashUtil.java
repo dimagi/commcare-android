@@ -4,11 +4,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Contains constants and methods used in Crashlytics reporting.
- *
+ * <p>
  * Created by shubham on 8/09/17.
  */
 public class CrashUtil {
@@ -56,12 +57,21 @@ public class CrashUtil {
         }
     }
 
+    /**
+     * Registers the current Connect user with Firebase Crashlytics for error tracking.
+     * <p>
+     * If Crashlytics is enabled and a Connect ID is configured, this method retrieves
+     * the user ID from ConnectManager and sets it as a custom key in Crashlytics.
+     * <p>
+     * In case of any exceptions during this process, the exception is recorded in
+     * Crashlytics to aid debugging.
+     */
     public static void registerConnectUser() {
         if (crashlyticsEnabled && ConnectManager.isConnectIdConfigured()) {
-            try{
-                String userId=ConnectManager.getUser(CommCareApplication.instance()).getUserId();
+            try {
+                String userId = ConnectManager.getUser(CommCareApplication.instance()).getUserId();
                 FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, userId);
-            }catch (Exception e){
+            } catch (Exception e) {
                 FirebaseCrashlytics.getInstance().recordException(e);
             }
         }
