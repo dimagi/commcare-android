@@ -6,13 +6,12 @@ package org.commcare.google.services.analytics;
 
 public class CCAnalyticsParam {
 
-
     static final String CC_APP_ID = "cc_app_id";
     static final String CC_APP_BUILD_PROFILE_ID = "cc_app_build_profile_id";
     static final String CCHQ_DOMAIN = "cchq_domain";
     static final String SERVER = "server";
     static final String FREE_DISK = "free_disk";
-
+    static final String NOTIFICATION_TYPE = "notification_type";
     static final String ACTION_TYPE = "action_type";
     static final String DIRECTION = "direction";
     static final String TIME_IN_MINUTES = "time_in_minutes";

@@ -20,7 +20,7 @@ public class ApiConnect {
         }
 
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
@@ -39,12 +39,12 @@ public class ApiConnect {
         }
 
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
             String url = context.getString(R.string.ConnectStartLearningURL, BuildConfig.CCC_HOST);
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
 
             ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, false, handler);
@@ -59,7 +59,7 @@ public class ApiConnect {
         }
 
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
@@ -78,12 +78,12 @@ public class ApiConnect {
         }
 
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
             String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
 
             ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, false, false, handler);
         });
@@ -97,7 +97,7 @@ public class ApiConnect {
         }
 
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
@@ -116,13 +116,13 @@ public class ApiConnect {
         }
 
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            if(token == null) {
+            if (token == null) {
                 return;
             }
 
             String url = context.getString(R.string.ConnectPaymentConfirmationURL, BuildConfig.CCC_HOST, paymentId);
 
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("confirmed", confirmed ? "true" : "false");
 
             ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, false, handler);

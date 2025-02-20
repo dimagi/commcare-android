@@ -16,6 +16,10 @@ import org.commcare.utils.FormUploadResult;
 
 import java.util.Date;
 
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
+
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
@@ -33,6 +37,8 @@ public class FirebaseAnalyticsUtil {
 
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
+    private static final String UNKNOWN_DESTINATION = "UnknownDestination";
+    private static final String UNKNOWN_LABEL = "Unknown";
 
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
@@ -459,5 +465,27 @@ public class FirebaseAnalyticsUtil {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, positive ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
+    }
+
+    public static void reportNotificationType(String notificationType) {
+        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
+                CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
+    }
+
+    public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
+        return (navController, navDestination, args) -> {
+            String currentFragmentClassName = UNKNOWN_DESTINATION;
+            NavDestination destination = navController.getCurrentDestination();
+            if (destination instanceof FragmentNavigator.Destination) {
+                currentFragmentClassName = ((FragmentNavigator.Destination)destination).getClassName();
+            }
+
+            Bundle bundle = new Bundle();
+            CharSequence label = navDestination.getLabel();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME,
+                    label != null ? label.toString() : UNKNOWN_LABEL);
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        };
     }
 }

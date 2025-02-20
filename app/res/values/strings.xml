@@ -832,4 +832,23 @@
     <string name="ConnectInitiateUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/initiate_deactivation</string>
     <string name="ConnectConfirmUserAccountDeactivationURL">https://connectid.dimagi.com/users/recover/confirm_deactivation</string>
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
+    <string name="connect_messaging_title">Messaging</string>
+    <string name="connect_messaging_channel_list_title">Channels</string>
+    <string name="connect_messaging_channel_list_unconsented">Unconsented channel</string>
+    <string name="connect_messaging_channel_preview_you">You</string>
+    <string name="connect_messaging_channel_preview_them">Them</string>
+    <string name="connect_messaging_channel_consent_title">Consent to channel</string>
+    <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
+    <string name="connect_messaging_channel_consent_accept">Accept</string>
+    <string name="connect_messaging_channel_consent_decline">Decline</string>
+
+    <string name="connect_messaging_message_notification_title">New Message</string>
+    <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
+    <string name="connect_messaging_channel_notification_title">New Channel</string>
+    <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
+    <!--    Connect Messaging URLs-->
+    <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
+    <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
+    <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
+    <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
 </resources>
