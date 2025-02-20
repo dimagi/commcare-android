@@ -68,18 +68,17 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
+    private boolean skipWorkManager = false;
 
     @Override
     public void onCreate() {
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
-        initWorkManager();
 
         super.onCreate();
 
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
-
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
@@ -99,7 +98,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
 
-    public static void initWorkManager() {
+    public void initWorkManager() {
         Context context = ApplicationProvider.getApplicationContext();
         try {
             // first try to get instance to see if it's already initialised
@@ -318,5 +317,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public boolean isNsdServicesEnabled() {
         return false;
+    }
+
+    public void setSkipWorkManager() {
+        skipWorkManager = true;
     }
 }

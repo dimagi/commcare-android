@@ -1,9 +1,8 @@
 package org.commcare.android.tests;
 
-import static org.commcare.CommCareTestApplication.initWorkManager;
 
-import android.content.Context;
-import android.util.Log;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -20,11 +19,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
-
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.work.Configuration;
-import androidx.work.WorkManager;
 
 /**
  * Coverage for different DataPullTask codepaths.
@@ -47,6 +41,11 @@ public class DataPullTaskTest {
      */
     private static ResultAndError<DataPullTask.PullTaskResult> dataPullResult;
     private static DataPullTask pullTask;
+
+    @Before
+    public void setUp() {
+        ((CommCareTestApplication)CommCareTestApplication.instance()).initWorkManager();
+    }
 
     @Test
     public void dataPullWithMissingRemoteKeyRecordTest() {
