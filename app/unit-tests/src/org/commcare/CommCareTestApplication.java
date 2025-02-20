@@ -65,7 +65,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
     private static PrototypeFactory testPrototypeFactory;
     private static final ArrayList<String> factoryClassNames = new ArrayList<>();
-
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
@@ -74,6 +73,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     public void onCreate() {
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
+        initWorkManager();
 
         super.onCreate();
 
@@ -101,10 +101,15 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     public static void initWorkManager() {
         Context context = ApplicationProvider.getApplicationContext();
-        Configuration config = new Configuration.Builder()
-                .setMinimumLoggingLevel(Log.DEBUG)
-                .build();
-        WorkManager.initialize(context, config);
+        try {
+            // first try to get instance to see if it's already initialised
+            WorkManager.getInstance(context);
+        } catch (IllegalStateException e) {
+            Configuration config = new Configuration.Builder()
+                    .setMinimumLoggingLevel(Log.DEBUG)
+                    .build();
+            WorkManager.initialize(context, config);
+        }
     }
 
     @Override

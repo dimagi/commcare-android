@@ -14,6 +14,7 @@ import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -98,7 +99,6 @@ public class DataPullTaskTest {
 
     @Test
     public void dataPullRecoverWithRetryTest() {
-        initWorkManager();
         installLoginAndUseLocalKeys();
         runDataPull(new Integer[]{412, 202, 200}, new String[]{GOOD_RESTORE, RETRY_RESPONSE, GOOD_RESTORE});
         Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);
