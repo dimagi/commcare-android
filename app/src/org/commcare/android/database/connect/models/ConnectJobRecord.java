@@ -1,15 +1,11 @@
 package org.commcare.android.database.connect.models;
 
-import android.view.View;
-
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,7 +13,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

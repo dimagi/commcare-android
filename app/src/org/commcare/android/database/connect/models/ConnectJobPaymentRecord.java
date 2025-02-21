@@ -1,7 +1,6 @@
 package org.commcare.android.database.connect.models;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -10,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;

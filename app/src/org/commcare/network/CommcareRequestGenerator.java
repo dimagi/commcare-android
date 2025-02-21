@@ -150,15 +150,18 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             params.put("skip_fixtures", "true");
         }
 
+        AuthInfo auth = buildAuth();
         requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 baseUri,
                 params,
                 getHeaders(syncToken),
-                buildAuth(),
+                auth,
                 null);
 
-        return requester.makeRequest();
+        Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
+        return response;
     }
 
     public static HashMap<String, String> getHeaders(String lastToken) {
@@ -209,6 +212,13 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return new AuthInfo.NoAuth();
     }
 
+    private void checkForTokenError(Response<ResponseBody> response, AuthInfo auth) {
+        if(response.code() == 401 && auth instanceof AuthInfo.TokenAuth) {
+            Logger.exception("Invalid HQ SSO token", new Exception("Invalid HQ token"));
+            ConnectSsoHelper.discardTokens(CommCareApplication.instance(), username);
+        }
+    }
+
     @Override
     public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
         Multimap params = ArrayListMultimap.create();
@@ -220,15 +230,18 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         // include IMEI in key fetch request for auditing large deployments
         params.put("device_id", CommCareApplication.instance().getPhoneId());
 
+        AuthInfo auth = buildAuth();
         requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 baseUri,
                 params,
                 new HashMap(),
-                buildAuth(),
+                auth,
                 null);
 
-        return requester.makeRequest();
+        Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
+        return response;
     }
 
     private String getSyncToken(String username) {
@@ -271,6 +284,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
+        AuthInfo auth = buildAuth();
         requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
@@ -279,11 +293,13 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                buildAuth(),
+                auth,
                 null,
                 false);
 
-        return requester.makeRequest();
+        Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
+        return response;
     }
 
     @Override
@@ -296,15 +312,17 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         HashMap<String, String> headers = new HashMap<>(getHeaders(null));
         headers.putAll(httpHeaders);
 
+        AuthInfo auth = buildAuth();
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 uri,
                 httpParams,
                 headers,
-                buildAuth(),
+                auth,
                 null);
 
         Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
         if (response.code() == 404) {
             throw new FileNotFoundException("No Data available at URL " + uri);
         }
