@@ -73,13 +73,13 @@
       </template>
     </field>
   </detail>
-  <detail id="m1_case_short">
+  <detail id="m1_case_short" cache_enabled="true">
     <title>
       <text>
         <locale id="m1.case_short.title"/>
       </text>
     </title>
-    <field>
+    <field cache_enabled="true">
       <header>
         <text>
           <locale id="m1.case_short.case_name_1.header"/>
@@ -90,7 +90,7 @@
           <xpath function="case_name"/>
         </text>
       </template>
-      <sort type="string" order="-2" direction="ascending">
+      <sort type="string" direction="ascending">
         <text>
           <xpath function="case_name"/>
         </text>

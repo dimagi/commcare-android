@@ -230,6 +230,12 @@ class UserDatabaseUpgrader {
                 oldVersion = 28;
             }
         }
+
+        if (oldVersion == 28) {
+            if (updateTwentyEightTwentyNine(db)) {
+                oldVersion = 29;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -784,6 +790,19 @@ class UserDatabaseUpgrader {
                     "case_category_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_CATEGORY)));
             db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(
                     "case_state_index", "AndroidCase", TableBuilder.scrubName(Case.INDEX_STATE)));
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean updateTwentyEightTwentyNine(SQLiteDatabase db) {
+        //drop the existing table and recreate using current definition
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + CommCareEntityStorageCache.TABLE_NAME);
+            db.execSQL(CommCareEntityStorageCache.getTableDefinition());
             db.setTransactionSuccessful();
             return true;
         } finally {
