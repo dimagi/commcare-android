@@ -44,6 +44,8 @@ public class FaceCaptureView extends AppCompatImageView {
     private float postScaleWidthOffset;
     private float scaleFactor;
     private ImageStabilizedListener imageStabilizedListener;
+    public enum CaptureMode {FaceDetectionMode, ManualMode}
+    private CaptureMode captureMode = CaptureMode.FaceDetectionMode;
 
     public FaceCaptureView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -59,6 +61,20 @@ public class FaceCaptureView extends AppCompatImageView {
         }
     }
 
+    public void setCaptureMode(CaptureMode captureMode){
+        this.captureMode = captureMode;
+
+        if (captureMode == CaptureMode.ManualMode) {
+            imageStabilizedListener = null;
+            faceOvalGraphic = null;
+        }
+        invalidate();
+    }
+
+    public CaptureMode getCaptureMode() {
+        return captureMode;
+    }
+
     private void loadViewAttribs(AttributeSet attrs) {
         TypedArray typedArr = getContext().obtainStyledAttributes(attrs, R.styleable.FaceCaptureView);
         try {
@@ -72,7 +88,7 @@ public class FaceCaptureView extends AppCompatImageView {
     }
 
     private void initCameraView(int viewWidth, int viewHeight){
-        setFaceCaptureArea(viewWidth, viewHeight);
+        setFaceCaptureArea(calcCaptureArea(viewWidth, viewHeight));
         calcScaleFactors(viewWidth, viewHeight);
 
         Bitmap previewOverlay = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.ARGB_8888);
@@ -95,7 +111,11 @@ public class FaceCaptureView extends AppCompatImageView {
 
         setImageBitmap(previewOverlay);
 
-        faceOvalGraphic = new FaceOvalGraphic();
+        if (captureMode == CaptureMode.FaceDetectionMode) {
+            faceOvalGraphic = new FaceOvalGraphic();
+        } else {
+            faceOvalGraphic = null;
+        }
     }
 
     public int getImageWidth() {
@@ -141,7 +161,15 @@ public class FaceCaptureView extends AppCompatImageView {
         this.imageStabilizedListener = imageStabilizedListener;
     }
 
-    private void setFaceCaptureArea(int width, int height) {
+    public RectF getFaceCaptureArea() {
+        return faceCaptureArea;
+    }
+
+    private void setFaceCaptureArea(RectF faceCaptureArea) {
+        this.faceCaptureArea = faceCaptureArea;
+    }
+
+    public RectF calcCaptureArea(int width, int height) {
         int captureAreaWidth = (int)(width * VIEW_CAPTURE_AREA_RATIO);
         int captureAreaHeigth = (int)(height * VIEW_CAPTURE_AREA_RATIO);
 
@@ -150,7 +178,7 @@ public class FaceCaptureView extends AppCompatImageView {
         int captureAreaRight = captureAreaLeft + captureAreaWidth;
         int captureAreaBottom = captureAreaTop + captureAreaHeigth;
 
-        faceCaptureArea = new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
+        return new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
     }
 
     private void calcScaleFactors(int viewWidth, int viewHeight) {

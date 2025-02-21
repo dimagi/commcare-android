@@ -3,9 +3,12 @@ package org.commcare.fragments;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Size;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -19,6 +22,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
 import org.commcare.views.widgets.ImageWidget;
@@ -34,6 +38,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -46,6 +51,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
+    private ImageView cameraShutterButton;
+    private boolean isGooglePlayServicesAvailable = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,13 +61,19 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
 
         faceCaptureView = findViewById(R.id.face_overlay);
         cameraView = findViewById(R.id.view_finder);
+        cameraShutterButton = findViewById(R.id.camera_shutter_button);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.micro_image_activity_title);
         }
-
-        faceCaptureView.setImageStabilizedListener(this);
+        isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
+        if (isGooglePlayServicesAvailable) {
+            faceCaptureView.setImageStabilizedListener(this);
+        } else {
+            faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
+            cameraShutterButton.setVisibility(View.VISIBLE);
+        }
 
         try {
            startCamera();
@@ -95,15 +108,19 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                 .build();
         preview.setSurfaceProvider(cameraView.getSurfaceProvider());
 
-        UseCase imageAnalyzer = buildImageAnalysisUseCase(targetResolution, targetRotation);
-
+        UseCase imageAnalyzerOrCapture;
+        if (faceCaptureView.getCaptureMode() == FaceCaptureView.CaptureMode.FaceDetectionMode) {
+            imageAnalyzerOrCapture = buildImageAnalysisUseCase(targetResolution, targetRotation);
+        } else {
+            imageAnalyzerOrCapture = buildImageCaptureUseCase(targetResolution);
+        }
         CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
         // Unbind any previous use cases before binding new ones
         cameraProvider.unbindAll();
 
         // Bind the use cases to the camera
-        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzer);
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalyzerOrCapture);
     }
 
     private UseCase buildImageAnalysisUseCase(Size targetResolution, int targetRotation) {
@@ -128,6 +145,40 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         finish();
     }
 
+    // Set up image capture use case, for when Google Services is not available
+    private UseCase buildImageCaptureUseCase(Size targetResolution){
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(targetResolution).build();
+
+        cameraShutterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageCapture.takePicture(ContextCompat.getMainExecutor(getApplicationContext()), new ImageCapture.OnImageCapturedCallback(){
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
+                        super.onCaptureSuccess(imageProxy);
+                        @SuppressLint("UnsafeOptInUsageError")
+                        Image capturedImage = imageProxy.getImage();
+                        if (capturedImage != null) {
+                            inputImage = ImageConvertUtils.getInstance().convertJpegToUpRightBitmap(capturedImage, imageProxy.getImageInfo().getRotationDegrees());
+                            imageProxy.close();
+                            finalizeImageCapture(calcPreviewCaptureArea());
+                        } else {
+                            logErrorAndExit("No image found, manual capture failed!", "microimage.camera.start.failed", null);
+                        }
+                    }
+                });
+            }
+        });
+        return imageCapture;
+    }
+
+    private Rect calcPreviewCaptureArea() {
+        int actualImageHeight = (int)(faceCaptureView.getImageHeight() * ((float)faceCaptureView.getHeight())/cameraView.getHeight());
+        int actualImageWidth = (int)(faceCaptureView.getImageWidth() * ((float)faceCaptureView.getWidth())/cameraView.getWidth());
+        RectF rectF = faceCaptureView.calcCaptureArea(actualImageWidth, actualImageHeight);
+        return new Rect((int)rectF.left, (int)rectF.top, (int)rectF.right, (int)rectF.bottom);
+    }
+
     @Override
     public void analyze(@NonNull ImageProxy imageProxy) {
         @SuppressLint("UnsafeOptInUsageError") Image mediaImage = imageProxy.getImage();
@@ -142,10 +193,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             // process image with the face detector
             faceDetector.process(image)
                     .addOnSuccessListener(faces -> processFaceDetectionResult(faces, image))
-                    .addOnFailureListener(e -> handleErrorDuringDetection(e))
-                    .addOnCompleteListener(task -> {
-                        imageProxy.close();
-                    });
+                    .addOnFailureListener(this::handleErrorDuringDetection)
+                    .addOnCompleteListener(task -> imageProxy.close());
         } else {
             imageProxy.close();
         }
@@ -154,7 +203,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     private void handleErrorDuringDetection(Exception e) {
         Logger.exception("Error during face detection ", e);
         Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
-        // TODO: decide whether to switch to manual mode or close activity
+        switchToManualCaptureMode();
     }
 
     private void processFaceDetectionResult(List<Face> faces, InputImage image) {
@@ -169,15 +218,30 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             } catch (MlKitException e) {
                 Logger.exception("Error during face detection ", e);
                 Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
-                // TODO: decide whether to switch to manual mode or close activity?
+                switchToManualCaptureMode();
             }
         } else {
             faceCaptureView.updateFace(null);
         }
     }
 
+    private void switchToManualCaptureMode() {
+        cameraShutterButton.setVisibility(View.VISIBLE);
+        isGooglePlayServicesAvailable = false;
+        faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
+        try {
+            startCamera();
+        } catch (ExecutionException | InterruptedException e) {
+            logErrorAndExit("Error restarting camera in manual mode", "microimage.camera.start.failed", e);
+        }
+    }
+
     @Override
     public void onImageStabilizedListener(Rect faceArea) {
+        finalizeImageCapture(faceArea);
+    }
+
+    private void finalizeImageCapture(Rect faceArea) {
         try {
             MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
             setResult(AppCompatActivity.RESULT_OK);
@@ -185,6 +249,5 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         } catch (Exception e) {
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
         }
-
     }
 }
