@@ -779,7 +779,7 @@ public class FileUtil {
 
     // Retruns true if location is either a content Uri or a valid file path
     public static boolean isValidFileLocation(String location) {
-        return location != null && (location.startsWith("content://") || new File(location).exists());
+        return location != null && !location.equals("") && (location.startsWith("content://") || new File(location).exists());
     }
 
     // returns the duration for a media file otherwise -1 in case of an error
