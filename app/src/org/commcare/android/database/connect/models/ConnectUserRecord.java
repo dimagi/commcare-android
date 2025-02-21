@@ -194,6 +194,11 @@ public class ConnectUserRecord extends Persisted {
         connectTokenExpiration = expirationDate;
     }
 
+    public void clearConnectToken() {
+        connectToken = null;
+        connectTokenExpiration = new Date();
+    }
+
     public String getConnectToken() {
         return connectToken;
     }
