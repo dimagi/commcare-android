@@ -275,7 +275,7 @@ public class FirebaseAnalyticsUtil {
     public static void reportPrivilegeEnabled(String privilegeName, String usernameUsedToActivate) {
         reportEvent(CCAnalyticsEvent.ENABLE_PRIVILEGE,
                 new String[]{FirebaseAnalytics.Param.ITEM_NAME, CCAnalyticsParam.USERNAME},
-                new String[]{privilegeName, EncryptionUtils.getMD5HashAsString(usernameUsedToActivate)});
+                new String[]{privilegeName, EncryptionUtils.getMd5HashAsString(usernameUsedToActivate)});
     }
 
     public static void reportTimedSession(String sessionType, double timeInSeconds, double timeInMinutes) {

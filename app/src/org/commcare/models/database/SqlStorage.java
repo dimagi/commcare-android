@@ -1,6 +1,7 @@
 package org.commcare.models.database;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
