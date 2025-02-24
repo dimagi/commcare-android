@@ -86,7 +86,7 @@ public class TabbedDetailView extends RelativeLayout {
 
         if (detail.isCompound()) {
             new TabLayoutMediator(mTabLayout, mViewPager,
-                    (tab, position) -> tab.setText(detail.getDetails()[position].getTitle().getText().evaluate()))
+                    (tab, position) -> tab.setText(entityDetailPagerAdapter.getPageTitle(position)))
                     .attach();
         } else {
             mTabLayout.setVisibility(GONE);
