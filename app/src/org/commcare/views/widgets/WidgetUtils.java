@@ -1,7 +1,10 @@
 package org.commcare.views.widgets;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -74,5 +77,23 @@ public class WidgetUtils {
             intentIntegrator.setDesiredBarcodeFormats(formats);
         }
         return intentIntegrator.createScanIntent();
+    }
+
+    @SuppressLint("InlinedApi")
+    public static Intent createPickMediaIntent(Context context, String mimeType) {
+        Intent intent = new Intent();
+        if (isPhotoPickerSupported(context)) {
+            intent.setAction(MediaStore.ACTION_PICK_IMAGES);
+        } else {
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+        }
+        return intent.setType(mimeType);
+    }
+
+    @SuppressLint("InlinedApi")
+    public static boolean isPhotoPickerSupported(Context context) {
+        Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+        PackageManager packageManager = context.getPackageManager();
+        return intent.resolveActivity(packageManager) != null;
     }
 }
