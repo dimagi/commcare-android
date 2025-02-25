@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 
+import java.time.format.TextStyle;
+
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.res.ResourcesCompat;
 
@@ -28,12 +30,6 @@ public class ConnectBoldTextView extends AppCompatTextView {
     }
 
     private void init(Context context) {
-        try {
-            setTypeface(ResourcesCompat.getFont(context, R.font.roboto_bold));
-        } catch (Exception e) {
-            Logger.log(TAG, "Failed to load Roboto Bold font");
-            // Fallback to system bold font
-            setTypeface(Typeface.DEFAULT_BOLD);
-        }
+        setTypeface(null, Typeface.BOLD);
     }
 }

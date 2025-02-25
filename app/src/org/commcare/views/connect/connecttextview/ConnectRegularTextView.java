@@ -29,12 +29,6 @@ public class ConnectRegularTextView extends AppCompatTextView {
     }
 
     private void init(Context context) {
-        try {
-            setTypeface(ResourcesCompat.getFont(context, R.font.roboto_regular));
-        } catch (Exception e) {
-            Logger.log(TAG, "Failed to load Roboto Regular font");
-            // Fallback to system bold font
-            setTypeface(Typeface.DEFAULT);
-        }
+            setTypeface(null,Typeface.NORMAL);
     }
 }

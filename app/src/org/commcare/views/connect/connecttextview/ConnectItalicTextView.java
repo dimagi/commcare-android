@@ -29,12 +29,6 @@ public class ConnectItalicTextView extends AppCompatTextView {
     }
 
     private void init(Context context) {
-        try {
-            setTypeface(ResourcesCompat.getFont(context, R.font.roboto_italic));
-        } catch (Exception e) {
-            Logger.log(TAG, "Failed to load Roboto Italic font");
-            // Fallback to system bold font
-            setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
-        }
+            setTypeface(null,Typeface.ITALIC);
     }
 }

@@ -29,12 +29,6 @@ public class ConnectMediumTextView extends AppCompatTextView {
     }
 
     private void init(Context context) {
-        try {
-            setTypeface(ResourcesCompat.getFont(context, R.font.roboto_medium));
-        } catch (Exception e) {
-            Logger.log(TAG, "Failed to load Roboto Medium font");
-            // Fallback to system bold font
-            setTypeface(Typeface.DEFAULT_BOLD);
-        }
+        setTypeface(null, Typeface.DEFAULT_BOLD.getStyle());
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import org.commcare.connect.network.connectId.ApiEndPoints;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 
@@ -24,7 +25,7 @@ public class ApiConnect {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectOpportunitiesURL, BuildConfig.CCC_HOST);
+            String url = String.format(ApiEndPoints.connectOpportunitiesURL, BuildConfig.CCC_HOST);
             Multimap<String, String> params = ArrayListMultimap.create();
 
             ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, false, handler);
@@ -43,7 +44,7 @@ public class ApiConnect {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectStartLearningURL, BuildConfig.CCC_HOST);
+            String url = String.format(ApiEndPoints.connectStartLearningURL, BuildConfig.CCC_HOST);
             HashMap<String, String> params = new HashMap<>();
             params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
 
@@ -63,7 +64,7 @@ public class ApiConnect {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
+            String url = String.format(ApiEndPoints.connectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
             Multimap<String, String> params = ArrayListMultimap.create();
 
             ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, false, handler);
@@ -82,7 +83,7 @@ public class ApiConnect {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
+            String url = String.format(ApiEndPoints.connectClaimJobURL, BuildConfig.CCC_HOST, jobId);
             HashMap<String, String> params = new HashMap<>();
 
             ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, false, false, handler);
@@ -101,7 +102,7 @@ public class ApiConnect {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
+            String url = String.format(ApiEndPoints.connectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
             Multimap<String, String> params = ArrayListMultimap.create();
 
             ConnectNetworkHelper.get(context, url, API_VERSION_CONNECT, token, params, false, handler);
@@ -120,7 +121,7 @@ public class ApiConnect {
                 return;
             }
 
-            String url = context.getString(R.string.ConnectPaymentConfirmationURL, BuildConfig.CCC_HOST, paymentId);
+            String url = String.format(ApiEndPoints.connectPaymentConfirmationURL, BuildConfig.CCC_HOST, paymentId);
 
             HashMap<String, String> params = new HashMap<>();
             params.put("confirmed", confirmed ? "true" : "false");

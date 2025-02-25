@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commcare.connect.ConnectManager
 import org.commcare.connect.network.ApiConnectId
+import org.javarosa.core.services.Logger
 
 class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
     CoroutineWorker(context, workerParams) {
@@ -30,11 +31,11 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
                         return@withContext if (result.responseCode in 200..299) {
                             Result.success()
                         } else {
-                            Log.e(TAG, "Heartbeat failed with response code: ${result.responseCode}")
+                            Logger.log(TAG, "Heartbeat failed with response code: ${result.responseCode}")
                             Result.failure()
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error during heartbeat", e)
+                        Logger.log(TAG, "Error during heartbeat: $e")
                         return@withContext Result.failure()
                     }
 
