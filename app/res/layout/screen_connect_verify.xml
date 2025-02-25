@@ -49,8 +49,7 @@
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/fingerprint"
-                    app:tint="@color/connect_blue_color" />
+                    android:src="@drawable/baseline_fingerprint_24" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_verify_fingerprint_button"
@@ -84,8 +83,7 @@
                     android:layout_width="90dp"
                     android:layout_height="90dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/pattern"
-                    app:tint="@color/connect_blue_color" />
+                    android:src="@drawable/baseline_pattern_24" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_verify_pin_button"
