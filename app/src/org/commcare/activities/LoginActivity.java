@@ -737,12 +737,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeConnect = ConnectManager.isConnectIdConfigured();
-        if (includeConnect) {
-            appNames.add(Localization.get("login.app.connect"));
-            appIdDropdownList.add("");
-        }
-
         for (ApplicationRecord r : readyApps) {
             appNames.add(r.getDisplayName());
             appIdDropdownList.add(r.getUniqueId());
