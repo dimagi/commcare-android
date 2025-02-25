@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="15dp"
     android:layout_margin="10dp"
-    android:id="@+id/rootView"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:shadowColor="@color/connect_light_grey_transparent"
+    android:shadowDx="30"
+    android:shadowDy="30"
+    android:shadowRadius="50"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="15dp"
     app:cardElevation="10dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -66,19 +74,19 @@
                         android:textSize="11sp" />
 
                     <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                        android:id="@+id/tvApproved"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/tvApproved"
                         android:layout_marginTop="3dp"
                         android:text="10"
                         android:textColor="@color/connect_green"
                         android:textSize="12sp" />
 
                     <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                        android:id="@+id/tvDeliveryTotalAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
-                        android:id="@+id/tvDeliveryTotalAmount"
                         android:text="10,000 MWK"
                         android:textColor="@color/connect_green"
                         android:textSize="12sp" />
@@ -119,8 +127,8 @@
                         android:textSize="11sp" />
 
                     <org.commcare.views.connect.connecttextview.ConnectBoldTextView
-                        android:layout_width="wrap_content"
                         android:id="@+id/tvRemaining"
+                        android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:layout_marginTop="3dp"
@@ -142,8 +150,8 @@
             app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
 
         <ImageView
-            android:layout_width="15dp"
             android:id="@+id/imgArrowForward"
+            android:layout_width="15dp"
             android:layout_height="15dp"
             android:layout_marginRight="10dp"
             android:contentDescription="@null"

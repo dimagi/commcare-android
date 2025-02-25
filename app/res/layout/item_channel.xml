@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:id="@+id/itemRootLayout"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:layout_margin="0dp"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:padding="8dp"
+        android:layout_margin="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/imgChannel"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:cardBackgroundColor="@color/connect_lighter_grey"
+            app:cardCornerRadius="7dp"
+            app:cardElevation="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_contact_support_30"/>
+        </androidx.cardview.widget.CardView>
+
+        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            android:id="@+id/tvChannelName"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:text="Channel Name"
+            android:textColor="@color/black"
+            android:textSize="19sp"
+            android:fontFamily="@font/roboto_bold"
+            app:layout_constraintStart_toEndOf="@+id/imgChannel"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            android:id="@+id/tvChannelDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="2dp"
+            android:text="message preview on top of the card..."
+            android:textColor="@color/connect_grey"
+            android:textSize="14sp"
+            android:fontFamily="@font/roboto_bold"
+            app:layout_constraintEnd_toStartOf="@+id/tvLastChatTime"
+            app:layout_constraintStart_toEndOf="@+id/imgChannel"
+            app:layout_constraintBottom_toBottomOf="@+id/imgChannel" />
+
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            android:id="@+id/tvLastChatTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="0dp"
+            android:text="10:00"
+            android:textColor="@color/connect_grey"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            android:background="@drawable/shape_border_10px_blue"
+            android:id="@+id/tvUnreadCount"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:text="15"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginHorizontal="10dp"
+        android:background="@color/connect_divider_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraint" />
+</androidx.constraintlayout.widget.ConstraintLayout>

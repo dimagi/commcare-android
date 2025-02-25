@@ -177,7 +177,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             }
         } else {
             final Context context = requireActivity();
-            boolean isBusy = !ApiConnectId.checkPassword(requireActivity(), phone, secretKey, password, new IApiCallback() {
+            ApiConnectId.checkPassword(requireActivity(), phone, secretKey, password, new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     String username = null;
@@ -237,10 +237,6 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                     ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
                 }
             });
-
-            if (isBusy) {
-                Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-            }
         }
     }
 

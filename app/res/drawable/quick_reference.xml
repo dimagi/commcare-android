@@ -2,12 +2,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="300dp"
     android:height="233dp"
-    android:viewportHeight="960"
-    android:viewportWidth="960">
+    android:viewportHeight="900"
+    android:viewportWidth="1260">
     <group
         android:scaleX="0.7"
         android:scaleY="0.7"
-        android:pivotX="600"
+        android:pivotX="900"
         android:pivotY="600">
         <path
             android:fillColor="@color/square_button_icon_color"

@@ -48,7 +48,7 @@ public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<C
         String remaining = context.getString(R.string.connect_results_summary_remaining_days,
                 connectDeliveryDetails.getPendingCount(), connectDeliveryDetails.getRemainingDays());
         holder.binding.tvRemaining.setText(remaining);
-        holder.binding.imgArrowForward.setOnClickListener(view -> {
+        holder.binding.rootView.setOnClickListener(view -> {
             deliveryItemOnClickListener.onClick(connectDeliveryDetails.getDeliveryName());
         });
     }
