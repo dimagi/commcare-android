@@ -173,7 +173,15 @@
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
-
+        <service android:name="com.google.android.gms.metadata.ModuleDependencies"
+            android:enabled="false"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+            </intent-filter>
+            <meta-data android:name="photopicker_activity:0:required" android:value="" />
+        </service>
         <provider
             android:name="org.commcare.provider.FormsProvider"
             android:exported="false"
