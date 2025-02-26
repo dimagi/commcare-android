@@ -2,7 +2,7 @@ package org.commcare.utils;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -67,9 +67,9 @@ public class CrashUtil {
      * Crashlytics to aid debugging.
      */
     public static void registerConnectUser() {
-        if (crashlyticsEnabled && ConnectManager.isConnectIdConfigured()) {
+        if (crashlyticsEnabled && ConnectIDManager.isLoggedIN()) {
             try {
-                String userId = ConnectManager.getUser(CommCareApplication.instance()).getUserId();
+                String userId = ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
                 FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, userId);
             } catch (Exception e) {
                 FirebaseCrashlytics.getInstance().recordException(e);

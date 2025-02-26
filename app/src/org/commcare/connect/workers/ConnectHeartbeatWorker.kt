@@ -6,7 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.commcare.connect.ConnectManager
+import org.commcare.connectId.ConnectIDManager
 import org.commcare.connect.network.ApiConnectId
 import org.javarosa.core.services.Logger
 
@@ -16,7 +16,7 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
                     try {
-                        if (!ConnectManager.isConnectIdConfigured()) {
+                        if (!ConnectIDManager.isLoggedIN()) {
                             Log.w(TAG, "Connect ID not configured, skipping heartbeat")
                             return@withContext Result.failure()
                         }

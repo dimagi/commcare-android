@@ -26,7 +26,7 @@ import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.SMSListener;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -379,7 +379,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                             finish(true, false, null);
                         }
                         case MethodVerifyAlternate -> {
-                            ConnectUserRecord user = ConnectManager.getUser(requireActivity().getApplicationContext());
+                            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(requireActivity().getApplicationContext());
                             user.setSecondaryPhoneVerified(true);
                             ConnectUserDatabaseUtil.storeUser(context, user);
 
@@ -462,7 +462,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     private void resetPassword(Context context, String phone, String secret, String username, String name) {
         //Auto-generate and send a new password
-        String password = ConnectManager.generatePassword();
+        String password =  ConnectIDManager.getInstance().generatePassword();
         ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -561,7 +561,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
                 if (success) {
-                    ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                    ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
@@ -571,7 +571,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                 if (success) {
                     user.setSecondaryPhoneVerified(true);
                     ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
-                    ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                    ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();

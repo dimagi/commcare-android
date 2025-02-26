@@ -7,8 +7,7 @@ import android.os.Bundle;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
@@ -85,7 +84,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         forgotPassword = false;
         forgotPin = false;
         NavDirections navDirections = null;
-        switch (ConnectManager.getStatus()) {
+        switch (ConnectIDManager.getInstance().getStatus()) {
             case NotIntroduced :
                 navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf()
                         .setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);

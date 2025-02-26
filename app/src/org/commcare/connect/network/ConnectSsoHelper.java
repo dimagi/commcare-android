@@ -6,7 +6,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
@@ -75,7 +75,7 @@ public class ConnectSsoHelper {
     }
 
     public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
-        if (!ConnectManager.isConnectIdConfigured()) {
+        if (!ConnectIDManager.isLoggedIN()) {
             return null;
         }
 
@@ -87,7 +87,7 @@ public class ConnectSsoHelper {
         }
 
         //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
+        AuthInfo.TokenAuth hqTokenAuth = ConnectIDManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
         if (hqTokenAuth == null && (performLink || appRecord.getWorkerLinked())) {
             //First get a valid ConnectId token
             AuthInfo.TokenAuth connectIdToken = ApiConnectId.retrieveConnectIdTokenSync(context);

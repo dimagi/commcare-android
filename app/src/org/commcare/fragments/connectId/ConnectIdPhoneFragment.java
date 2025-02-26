@@ -23,7 +23,7 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
@@ -127,7 +127,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneButton.setOnClickListener(v -> handleButtonPress());
         //Special case for initial reg. screen. Remembering phone number before account has been created
 
-        ConnectUserRecord user = ConnectManager.getUser(getActivity());
+        ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
         if (user == null && existingPhone == null) {
@@ -240,7 +240,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     public void handleButtonPress() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         if (callingClass == ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE || callingClass == ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE) {
             existing = user != null ? user.getAlternatePhone() : null;
@@ -295,7 +295,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             String phone = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
 
             boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-            ConnectUserRecord user = ConnectManager.getUser(getContext());
+            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
 
             if (valid) {
                 String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;

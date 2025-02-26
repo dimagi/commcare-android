@@ -18,7 +18,7 @@ import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
@@ -130,7 +130,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
                 if (success) {
-                    ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                    ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
@@ -154,7 +154,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_SUCCESS:
-                ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
+                ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                 ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                 requireActivity().setResult(RESULT_OK);
                 requireActivity().finish();
@@ -196,10 +196,10 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             //CONNECT_RECOVERY_WRONG_PIN
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
                 if (success) {
-                    if (ConnectManager.getFailureAttempt() > 2) {
+                    if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
                                 ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate), null, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret, ConnectIdActivity.recoveryAltPhone,false).setAllowChange(false);
-                        ConnectManager.setFailureAttempt(0);
+                        ConnectIDManager.getInstance().setFailureAttempt(0);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverSecret).setChange(false).setRecover(true);
                     }
@@ -207,7 +207,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 break;
             case ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN:
                 if (success) {
-                    if (ConnectManager.getFailureAttempt() > 2) {
+                    if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "").setChange(true).setRecover(false);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "").setChange(false).setRecover(false);
@@ -242,7 +242,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS:
                 if (success) {
                     if (!secondButton) {
-                        ConnectManager.forgetUser("Account deactivation");
+                        ConnectIDManager.forgetUser("Account deactivation");
                         requireActivity().finish();
                     }
                 }

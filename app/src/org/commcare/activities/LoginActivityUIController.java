@@ -24,7 +24,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -198,7 +198,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @Override
     public void refreshView() {
         updateBanner();
-
         activity.restoreEnteredTextFromRotation();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
@@ -206,7 +205,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         setLoginInputsVisibility(!noApps);
-        if (!ConnectManager.isConnectIdConfigured() && readyApps.size() == 1 || presetAppRecord != null) {
+        if (!ConnectIDManager.isLoggedIN() && readyApps.size() == 1 || presetAppRecord != null) {
             setLoginInputsVisibility(true);
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
@@ -543,12 +542,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     public void updateConnectLoginState() {
-        setConnectButtonVisible(ConnectManager.shouldShowConnectButton());
+        setConnectButtonVisible(ConnectIDManager.isLoggedIN());
         if(activity==null){
             return;
         }
 
-        if (ConnectManager.isConnectIdConfigured()) {
+        if (ConnectIDManager.isLoggedIN()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
             if (user == null || user.getName() == null) {
                 welcomeMessage.setText(activity.getString(R.string.default_welcome_message));

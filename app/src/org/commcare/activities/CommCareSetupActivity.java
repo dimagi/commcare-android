@@ -24,7 +24,7 @@ import androidx.fragment.app.FragmentTransaction;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -170,7 +170,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
         if(!fromManager) {
-            ConnectManager.init(this);
+            ConnectIDManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
@@ -424,7 +424,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 finish();
                 return;
             default:
-                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+                ConnectIDManager.getInstance().handleFinishedActivity(this, requestCode, resultCode, data);
                 return;
 
         }
@@ -495,12 +495,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.isLoggedIN());
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.isLoggedIN());
         }
         return true;
     }
@@ -628,7 +628,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectManager.registerUser(this, success -> {
+                ConnectIDManager.getInstance().registerUser(this, success -> {
                     updateConnectButton();
                     if(success) {
 //                        ConnectManager.goToConnectJobsList(this);
@@ -636,7 +636,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 });
                 break;
             case MENU_CONNECT_FORGET:
-                ConnectManager.forgetUser("User initiated from setup page");
+                ConnectIDManager.forgetUser("User initiated from setup page");
                 updateConnectButton();
                 break;
         }
@@ -644,8 +644,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
-            ConnectManager.unlockConnect(this, success -> {
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.isLoggedIN(), v -> {
+            ConnectIDManager.getInstance().unlockConnect(this, success -> {
 //                ConnectManager.goToConnectJobsList(this);
             });
         });

@@ -15,7 +15,7 @@ import androidx.navigation.Navigation;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -122,7 +122,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding.continueButton.setEnabled(false);
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
             existing = user != null ? user.getAlternatePhone() : null;

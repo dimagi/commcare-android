@@ -25,7 +25,7 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.Locale;
-import java.util.Random;
 
 public class ConnectIDSignupFragment extends Fragment {
     private String existingPhone = "";
@@ -229,7 +228,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void handleContinueButtonPress() {
-        user = ConnectManager.getUser(getActivity());
+        user = ConnectIDManager.getInstance().getUser(getActivity());
         checkPhoneNumber();
     }
 
@@ -250,7 +249,7 @@ public class ConnectIDSignupFragment extends Fragment {
                     binding.connectPrimaryPhoneInput.getText().toString());
 
             boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-            ConnectUserRecord user = ConnectManager.getUser(getContext());
+            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
 
             if (valid) {
                 String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
@@ -353,7 +352,7 @@ public class ConnectIDSignupFragment extends Fragment {
         binding.errorTextView.setText(null);
         binding.errorTextView.setVisibility(View.GONE);
         String phoneNo = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
-        ConnectUserRecord tempUser = new ConnectUserRecord(phoneNo, generateUserId(), ConnectManager.generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phoneNo, generateUserId(), ConnectIDManager.getInstance().generatePassword(),
                 binding.nameTextValue.getText().toString(), "");
 
         final Context context = getActivity();
