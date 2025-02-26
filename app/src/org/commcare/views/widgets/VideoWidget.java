@@ -65,9 +65,9 @@ public class VideoWidget extends MediaWidget {
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
             try {
-                ((AppCompatActivity)getContext()).startActivityForResult(
-                        WidgetUtils.createPickMediaIntent (getContext(), "video/*"),
-                        FormEntryConstants.AUDIO_VIDEO_FETCH);
+                ((AppCompatActivity)getContext())
+                        .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "video/*"),
+                                FormEntryConstants.AUDIO_VIDEO_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),

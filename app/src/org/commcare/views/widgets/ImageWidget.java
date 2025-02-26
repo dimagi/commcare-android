@@ -138,9 +138,9 @@ public class ImageWidget extends QuestionWidget {
                 mErrorTextView.setVisibility(View.GONE);
 
                 try {
-                    ((AppCompatActivity)getContext()).startActivityForResult(
-                            WidgetUtils.createPickMediaIntent (getContext(), "image/*"),
-                            FormEntryConstants.IMAGE_CHOOSER);
+                    ((AppCompatActivity)getContext())
+                            .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "image/*"),
+                                    FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
