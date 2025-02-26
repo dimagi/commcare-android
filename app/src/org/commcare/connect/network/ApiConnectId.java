@@ -77,7 +77,7 @@ public class ApiConnectId {
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "OAuth Token Post Result " + postResult.responseCode);
-        if (postResult.responseCode >= 200 && postResult.responseCode < 300>) {
+        if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                         postResult.responseStream));
