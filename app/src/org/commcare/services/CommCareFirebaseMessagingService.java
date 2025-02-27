@@ -203,13 +203,14 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     .setContentText(notificationText)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.commcare_actionbar_logo)
                     .setPriority(priority)
                     .setWhen(System.currentTimeMillis());
 
             if(largeIcon != null) {
                 fcmNotification.setLargeIcon(largeIcon);
             }
+
+            fcmNotification.setSmallIcon(R.drawable.commcare_actionbar_logo);
 
             // Check if the payload action is CCC_PAYMENTS
             if (action.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
