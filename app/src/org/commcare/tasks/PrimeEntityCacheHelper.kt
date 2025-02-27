@@ -67,16 +67,20 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
                 .build()
             WorkManager.getInstance(CommCareApplication.instance())
                 .enqueueUniqueWork(
-                    PRIME_ENTITY_CACHE_REQUEST,
+                    getWorkRequestName(),
                     ExistingWorkPolicy.KEEP,
                     primeEntityCacheRequest
                 )
+        }
+
+        private fun getWorkRequestName(): String {
+            return PRIME_ENTITY_CACHE_REQUEST + "_" + getCurrentAppId()
         }
     }
 
     fun cancelWork() {
         cancel()
-        WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(PRIME_ENTITY_CACHE_REQUEST)
+        WorkManager.getInstance(CommCareApplication.instance()).cancelUniqueWork(getWorkRequestName())
     }
 
     /**
