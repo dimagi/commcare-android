@@ -24,8 +24,6 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 
 import java.io.IOException;
@@ -89,14 +87,6 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         textView.setText(paymentText);
 
-//        boolean expired = daysRemaining < 0;
-//        textView = view.findViewById(R.id.connect_delivery_action_title);
-//        textView.setText(expired ? R.string.connect_delivery_expired : R.string.connect_delivery_ready_to_claim);
-
-//        textView = view.findViewById(R.id.connect_delivery_action_details);
-//        textView.setText(expired ? R.string.connect_delivery_expired_detailed :
-//                R.string.connect_delivery_ready_to_claim_detailed);
-
         boolean jobClaimed = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING;
         boolean installed = false;
         for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
@@ -114,7 +104,6 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         Button button = view.findViewById(R.id.connect_delivery_button);
         button.setText(buttonTextId);
-//        button.setEnabled(!expired);
         button.setOnClickListener(v -> {
             if (jobClaimed) {
                 proceedAfterJobClaimed(button, job, appInstalled);
@@ -148,36 +137,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
             }
         });
 
-//        jobCardDataHandle(view, job);
         return view;
-    }
-
-    private void jobCardDataHandle(View view, ConnectJobRecord job) {
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
-        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
-        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
-
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
-        });
-
-        tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
-        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
-
-        String workingHours = job.getWorkingHours();
-        boolean showHours = workingHours != null;
-        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        if(showHours) {
-            tv_job_time.setText(workingHours);
-        }
     }
 
     private void reportApiCall(boolean success) {

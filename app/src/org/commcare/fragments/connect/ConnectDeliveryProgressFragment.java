@@ -172,7 +172,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
         ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
-        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
@@ -181,7 +180,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();
