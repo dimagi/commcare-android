@@ -111,7 +111,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         nextButton.setOnClickListener(v -> {
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
-                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+                    AnalyticsParamValue.NAV_BUTTON_PRESS,
+                    activity.getCurrentFormXmlnsFailSafe());
             showNextView();
             TextToSpeechConverter.INSTANCE.stop();
         });
@@ -120,10 +121,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                 FirebaseAnalyticsUtil.reportFormNav(
                         AnalyticsParamValue.DIRECTION_BACKWARD,
-                        AnalyticsParamValue.NAV_BUTTON_PRESS);
+                        AnalyticsParamValue.NAV_BUTTON_PRESS,
+                        activity.getCurrentFormXmlnsFailSafe());
                 showPreviousView(true);
             } else {
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS,
+                        activity.getCurrentFormXmlnsFailSafe());
                 activity.triggerUserQuitInput();
             }
             TextToSpeechConverter.INSTANCE.stop();
@@ -132,7 +135,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         finishButton.setOnClickListener(v -> {
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
-                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+                    AnalyticsParamValue.NAV_BUTTON_PRESS,
+                    activity.getCurrentFormXmlnsFailSafe());
             activity.triggerUserFormComplete();
         });
 

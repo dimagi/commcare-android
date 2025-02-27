@@ -40,10 +40,10 @@ afterEvaluate {
 
 android {
     namespace "org.commcare.commcaresupportlibrary"
-    compileSdk 33
+    compileSdk 35
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {

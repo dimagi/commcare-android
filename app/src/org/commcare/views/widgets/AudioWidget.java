@@ -4,9 +4,12 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.MediaStore.Audio;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
@@ -15,7 +18,6 @@ import org.commcare.utils.StringUtils;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * Legacy Audio Widget that allows user to capture sounds by performing an intent callout
@@ -32,19 +34,19 @@ public class AudioWidget extends MediaWidget {
     @Override
     protected void initializeButtons() {
         // setup capture button
-        mCaptureButton = new AppCompatButton(getContext());
+        mCaptureButton = new MaterialButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
                 !mPrompt.isReadOnly());
 
         // setup audio filechooser button
-        mChooseButton = new AppCompatButton(getContext());
+        mChooseButton = new MaterialButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
                 !mPrompt.isReadOnly());
 
         // setup play button
-        mPlayButton = new AppCompatButton(getContext());
+        mPlayButton = new MaterialButton(getContext());
         WidgetUtils.setupButton(mPlayButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
                 !mPrompt.isReadOnly());

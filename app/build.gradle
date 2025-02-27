@@ -30,7 +30,7 @@ configurations {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.2'
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
@@ -40,9 +40,9 @@ dependencies {
     testImplementation 'androidx.work:work-testing:2.7.1'
     testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     testImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
-    testImplementation 'org.json:json:20140107'
+    testImplementation 'org.json:json:20231013'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     androidTestImplementation 'androidx.test:runner:1.4.0'
@@ -84,6 +84,9 @@ dependencies {
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:4.5.3@aar'
     implementation 'androidx.sqlite:sqlite:2.2.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
@@ -100,11 +103,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation (name: 'rtl-viewpager-2.0.0', ext: 'aar')
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
 
+    implementation 'com.getkeepsafe.relinker:relinker:1.4.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
@@ -121,10 +124,10 @@ dependencies {
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
         exclude group: 'io.realm'
     }
-    implementation 'androidx.work:work-runtime:2.7.1'
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    implementation 'androidx.work:work-runtime:2.10.0'
+    implementation 'androidx.work:work-runtime-ktx:2.10.0'
 
-    implementation 'com.google.android.play:core:1.10.3'
+    implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
 
@@ -138,7 +141,7 @@ dependencies {
     implementation 'com.appmattus.certificatetransparency:certificatetransparency-android:2.5.4'
 
     // Dependency required for API desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_minimal:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_minimal:2.1.3'
 }
 
 ext {
@@ -184,7 +187,7 @@ afterEvaluate {
  * https://discuss.gradle.org/t/gradle-7-0-seems-to-take-an-overzealous-approach-to-inter-task-dependencies/39656/2
  * Gradle 7.0 treats any copy tasks as having an implicit dependencies with each other.
  */
-task injectPropertiesIntoFirebaseConfigFile {
+tasks.register('injectPropertiesIntoFirebaseConfigFile') {
     description = 'Injects properties into the google-services.json file at runtime'
 
     copy {
@@ -222,7 +225,7 @@ static def getDate() {
 
 android {
     namespace 'org.commcare.dalvik'
-    compileSdk 33
+    compileSdk 35
 
     lintOptions {
         abortOnError false
@@ -249,7 +252,8 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 33
+        targetSdkVersion 34
+
         applicationId 'org.commcare.dalvik'
         testNamespace 'org.commcare.dalvik.test'
 
@@ -281,9 +285,7 @@ android {
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_LIVE', "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_DEV', "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
-
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
-
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
 
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
@@ -491,7 +493,7 @@ android {
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
  */
-task downloadCCApp(type: Exec)
+tasks.register('downloadCCApp', Exec)
 
 // task configuration phase
 downloadCCApp {
@@ -521,7 +523,7 @@ downloadCCApp {
 }
 
 
-task downloadRestoreFile(type: Exec)
+tasks.register('downloadRestoreFile', Exec)
 
 // task configuration phase
 downloadRestoreFile {
@@ -551,7 +553,7 @@ downloadRestoreFile {
 }
 
 // dynamically inject commcare app download into standalone build process
-tasks.whenTaskAdded { task ->
+tasks.configureEach { task ->
     if ((task.name == 'processStandaloneDebugResources' ||
             task.name == 'processStandaloneReleaseResources') && 'true' == runDownloadScripts) {
         task.dependsOn downloadCCApp

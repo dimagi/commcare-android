@@ -27,6 +27,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
+import org.commcare.utils.MockEncryptionKeyProvider;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -76,6 +77,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         setExternalStorageState(Environment.MEDIA_MOUNTED);
 
         super.onCreate();
+
+        setEncryptionKeyProvider(new MockEncryptionKeyProvider());
 
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
@@ -213,7 +216,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // manually create/setup session service because robolectric doesn't
         // really support services
         CommCareSessionService ccService = startRoboCommCareService();
-        ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
         User user = getUserFromDb(ccService, record);
         if (user == null && cachedUserPassword != null) {

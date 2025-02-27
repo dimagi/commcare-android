@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:viewBindingIgnore="true">
 
     <TextView
@@ -36,9 +37,13 @@
                 android:layout_margin="@dimen/standard_spacer_double"
                 android:gravity="center"/>
 
-            <Button
-                android:id="@+id/action_button"
-                style="@style/PromptedUpdateButtonUpdate" />
+            <com.google.android.material.button.MaterialButton
+                android:layout_height="wrap_content"
+                app:backgroundTint="@color/solid_green"
+                android:textSize="@dimen/font_size_xlarge"
+                android:layout_margin="16dp"
+                android:layout_width="wrap_content"
+                android:id="@+id/action_button"/>
 
             <ImageView
                 android:id="@+id/image_cue"
@@ -46,9 +51,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/standard_spacer_double"/>
 
-            <Button
-                android:id="@+id/do_later_button"
-                style="@style/PromptedUpdateButtonUpdateLater"/>
+            <com.google.android.material.button.MaterialButton
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size_xlarge"
+                android:layout_margin="16dp"
+                android:layout_width="wrap_content"
+                android:paddingHorizontal="24dp"
+                android:id="@+id/do_later_button" />
 
             <TextView
                 android:id="@+id/help_text"
