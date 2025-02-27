@@ -1,5 +1,7 @@
 package org.commcare;
 
+import static org.commcare.AppUtils.getCurrentAppId;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -385,7 +387,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     protected void cancelWorkManagerTasks() {
-        // Cancel form Submissions for this user
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
@@ -579,7 +580,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public void unseat(ApplicationRecord record) {
         // cancel all Workmanager tasks for the unseated record
         WorkManager.getInstance(CommCareApplication.instance())
-                .cancelAllWorkByTag(record.getApplicationId());
+                .cancelAllWorkByTag(record.getUniqueId());
         MissingMediaDownloadHelper.cancelAllDownloads();
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
@@ -852,7 +853,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
         PeriodicWorkRequest formSubmissionRequest =
                 new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                        .addTag(getCurrentAppId())
                         .setConstraints(constraints)
                         .setBackoffCriteria(
                                 BackoffPolicy.EXPONENTIAL,
@@ -861,7 +862,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),
+                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentAppId()),
                 ExistingPeriodicWorkPolicy.KEEP,
                 formSubmissionRequest
         );
@@ -878,7 +879,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
             PeriodicWorkRequest updateRequest =
                     new PeriodicWorkRequest.Builder(UpdateWorker.class, UpdateHelper.getAutoUpdatePeriodicity(), TimeUnit.HOURS)
-                            .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                            .addTag(getCurrentAppId())
                             .setConstraints(constraints)
                             .setBackoffCriteria(
                                     BackoffPolicy.EXPONENTIAL,

@@ -8,6 +8,7 @@ import androidx.work.WorkManager
 import io.reactivex.functions.Cancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.commcare.AppUtils.getCurrentAppId
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityLoadingProgressListener
@@ -61,7 +62,9 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
          */
         @JvmStatic
         fun schedulePrimeEntityCacheWorker() {
-            val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java).build()
+            val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java)
+                .addTag(getCurrentAppId())
+                .build()
             WorkManager.getInstance(CommCareApplication.instance())
                 .enqueueUniqueWork(
                     PRIME_ENTITY_CACHE_REQUEST,
