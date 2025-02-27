@@ -108,6 +108,7 @@
     <dimen name="new_progressbar_button_minwidth">32dp</dimen>
     <dimen name="new_progressbar_button_padding">24dp</dimen>
     <dimen name="modern_progressbar_radius">4dp</dimen>
+    <dimen name="progressbar_vertical_padding">16dp</dimen>
 
     <dimen name="submission_progressbar_height">10dp</dimen>
 

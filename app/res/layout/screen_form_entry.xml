@@ -97,8 +97,8 @@
             android:layout_toStartOf="@+id/nav_btn_next"
             android:layout_width="wrap_content"
             android:max="100"
-            android:paddingBottom="@dimen/content_start"
-            android:paddingTop="@dimen/content_start"
+            android:paddingBottom="@dimen/progressbar_vertical_padding"
+            android:paddingTop="@dimen/progressbar_vertical_padding"
             android:progress="0"
             android:progressDrawable="@drawable/progressbar_modern" />
 
