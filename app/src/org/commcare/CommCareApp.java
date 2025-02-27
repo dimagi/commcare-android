@@ -80,6 +80,16 @@ public class CommCareApp implements AppFilePathBuilder {
     private int resourceState;
     private volatile PrimeEntityCacheHelper primeEntityCacheHelper;
 
+    /**
+     * Constructs a new CommCareApp instance using the specified application record.
+     *
+     * <p>
+     * Initializes the instance by setting the application record and configuring the Android platform based on the current
+     * CommCare version retrieved from the global CommCareApplication instance.
+     * </p>
+     *
+     * @param record the application record containing configuration details for this instance
+     */
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
         // Now, we need to identify the state of the application resources
@@ -400,6 +410,14 @@ public class CommCareApp implements AppFilePathBuilder {
         return new UnencryptedHybridFileBackedSqlStorage<>(name, c, buildAndroidDbHelper(), this);
     }
 
+    /**
+     * Constructs an Android database helper that provides a thread-safe mechanism for obtaining the SQLiteDatabase handle.
+     *
+     * <p>This helper lazily initializes the database by creating a writable instance if no valid database handle exists,
+     * synchronizing on a lock to ensure safe access in concurrent environments.</p>
+     *
+     * @return an AndroidDbHelper instance with a synchronized {@code getHandle()} method
+     */
     protected AndroidDbHelper buildAndroidDbHelper() {
         return new AndroidDbHelper(CommCareApplication.instance().getApplicationContext()) {
             @Override
@@ -414,6 +432,14 @@ public class CommCareApp implements AppFilePathBuilder {
         };
     }
 
+    /**
+     * Retrieves the PrimeEntityCacheHelper instance, initializing it lazily in a thread-safe manner if needed.
+     *
+     * <p>This method ensures that only a single instance of PrimeEntityCacheHelper is created. On subsequent calls,
+     * the already-initialized instance is returned.</p>
+     *
+     * @return the PrimeEntityCacheHelper instance used for caching primary entities.
+     */
     public PrimeEntityCacheHelper getPrimeEntityCacheHelper() {
         if (primeEntityCacheHelper == null) {
             synchronized (this) {

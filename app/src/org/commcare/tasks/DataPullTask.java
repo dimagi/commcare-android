@@ -422,8 +422,17 @@ public abstract class DataPullTask<R>
     }
 
     /**
-     * @return the proper result, or null if we have not yet been able to determine the result to
-     * return
+     * Attempts to recover from a bad local state encountered during data synchronization.
+     *
+     * <p>This method triggers the recovery process by publishing a progress update and invoking a recovery
+     * operation with the provided parser factory. On successful recovery, it finalizes the sync process,
+     * schedules a cache-priming task, and returns a result indicating a successful download. If recovery fails,
+     * it cleans up any login state, publishes a final progress update, and returns a result indicating recovery
+     * failure along with an error message. An {@code UnknownSyncError} is thrown if the recovery result code is unrecognized.
+     *
+     * @param factory the parser factory used during the recovery operation
+     * @return a result wrapper containing the pull task result and an error message if applicable
+     * @throws UnknownSyncError if the recovery result code is not recognized
      */
     private ResultAndError<PullTaskResult> handleBadLocalState(AndroidTransactionParserFactory factory)
             throws UnknownSyncError {

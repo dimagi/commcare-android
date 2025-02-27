@@ -92,6 +92,13 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
     }
+    /**
+     * Enables StrictMode policies to detect leaked SQLite objects and closable resources.
+     *
+     * <p>This method sets a virtual machine policy that monitors for leaked SQLite objects and objects
+     * that implement Closeable. Detected violations are logged to aid in debugging resource management
+     * issues during development and testing.</p>
+     */
     @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -102,6 +109,12 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
 
+    /**
+     * Initializes the WorkManager with a test-specific configuration.
+     *
+     * <p>This method retrieves the application context and configures WorkManager with a minimum
+     * logging level set to DEBUG, enabling detailed logging for background task execution during tests.</p>
+     */
     public static void initWorkManager() {
         Context context = ApplicationProvider.getApplicationContext();
         Configuration config = new Configuration.Builder()
@@ -110,6 +123,17 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         WorkManager.initialize(context, config);
     }
 
+    /**
+     * Retrieves file-backed SQL storage for application-level persistable data.
+     *
+     * <p>This method delegates the call to the current application instance,
+     * returning a storage object that supports file-backed SQL operations for the specified
+     * storage name and persistable type.</p>
+     *
+     * @param name the storage identifier used to locate the storage instance
+     * @param c the class object representing the persistable type for storage
+     * @return a file-backed SQL storage instance for the specified persistable type
+     */
     @Override
     public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedAppStorage(String name, Class<T> c) {
         return getCurrentApp().getFileBackedStorage(name, c);

@@ -272,7 +272,14 @@ public class UpdateHelper implements TableStateListener {
         return mMaxProgress;
     }
 
-    // Returns Unique request name for the UpdateWorker Request
+    /**
+     * Constructs a unique request name for the update worker by combining a predefined prefix with the current application's unique identifier.
+     *
+     * <p>This method retrieves the current application ID using {@code getCurrentAppId()} and appends it to the {@code UPDATE_REQUEST_NAME}
+     * constant, separated by an underscore, ensuring that the update request name is distinct for each app.</p>
+     *
+     * @return a unique update request name string.
+     */
     public static String getUpdateRequestName() {
         String appId = getCurrentAppId();
         return UPDATE_REQUEST_NAME + "_" + appId;

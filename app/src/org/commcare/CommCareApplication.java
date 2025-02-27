@@ -391,6 +391,13 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
+    /**
+     * Cancels scheduled background tasks for form submissions and prime entity caching.
+     *
+     * <p>If an active application exists, this method stops the unique work associated with form
+     * submissions and cancels the prime entity cache tasks. If the current application is null,
+     * no actions are performed.</p>
+     */
     protected void cancelWorkManagerTasks() {
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
@@ -580,7 +587,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     /**
-     * If the given record is the currently seated app, unseat it
+     * Unseats the specified application if it is currently active.
+     *
+     * <p>This method cancels any background tasks associated with the application record by stopping
+     * all WorkManager tasks tagged with the record’s unique identifier and halts pending media downloads.
+     * If the provided record represents the currently seated application, it also tears down the
+     * application's sandbox and clears the active application reference.</p>
+     *
+     * @param record the application record to unseat
      */
     public void unseat(ApplicationRecord record) {
         // cancel all Workmanager tasks for the unseated record
@@ -731,6 +745,20 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
+    /**
+     * Binds to the CommCare session service and initializes the user session.
+     *
+     * <p>This method starts the session service (using a foreground service on newer Android versions),
+     * establishes a service connection, and prepares the user storage by applying the given encryption key
+     * and user key record. If a valid user is found in storage, it starts a session—restoring it from preferences
+     * if requested or creating a new one otherwise. It also sets up logger storage, schedules background tasks
+     * (such as app updates, form submissions, missing media downloads, and prime entity cache maintenance),
+     * cleans up orphaned files, and triggers various maintenance routines.</p>
+     *
+     * @param key the encryption key used to prepare the user's storage.
+     * @param record the user key record containing credentials for validating the user.
+     * @param restoreSession if true, restores an existing session from preferences; otherwise, initiates a new session.
+     */
     private void bindUserSessionService(final byte[] key, final UserKeyRecord record,
                                         final boolean restoreSession) {
         mConnection = new ServiceConnection() {
@@ -850,6 +878,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
+    /**
+     * Schedules periodic form submissions via WorkManager.
+     *
+     * <p>This method creates and enqueues a unique periodic work request for form submissions. The request is configured
+     * to run only when the device is connected to a network and the battery is not low. It uses an exponential backoff strategy
+     * for retries, with the submission interval defined by a constant. A unique tag based on the current application ID ensures that
+     * duplicate scheduling is avoided.</p>
+     */
     private void scheduleFormSubmissions() {
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -873,7 +909,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         );
     }
 
-    // Hand off an app update task to the Android WorkManager
+    /**
+     * Schedules a periodic app update task using WorkManager.
+     *
+     * <p>If auto-update is enabled (determined by {@link UpdateHelper#shouldAutoUpdate()}), this
+     * method builds a periodic work request for updating the application. The work request is configured
+     * with network connectivity and battery constraints, tagged with the current app ID, and uses an
+     * exponential backoff policy for retries. It is then enqueued as a unique periodic work using WorkManager.</p>
+     */
     private void scheduleAppUpdate() {
         if (UpdateHelper.shouldAutoUpdate()) {
             Constraints constraints = new Constraints.Builder()

@@ -148,6 +148,18 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     }
 
 
+    /**
+     * Extracts the field ID from a composite cache key.
+     *
+     * <p>The cache key is expected to contain a type prefix (indicating a sort or normal field),
+     * followed by the detail identifier and an underscore, and then the numeric field ID. This method
+     * removes the type-specific prefixes and extracts the field ID. If the numeric conversion fails,
+     * an error is logged and -1 is returned.
+     *
+     * @param detailId the identifier of the detail present in the cache key
+     * @param cacheKey the composite cache key containing type information, the detail ID, and the field ID
+     * @return the numeric field ID extracted from the cache key, or -1 if parsing fails
+     */
     public int getFieldIdFromCacheKey(String detailId, String cacheKey) {
         cacheKey = cacheKey.replace(String.valueOf(TYPE_SORT_FIELD) + "_", "");
         cacheKey = cacheKey.replace(String.valueOf(TYPE_NORMAL_FIELD) + "_", "");
@@ -190,6 +202,19 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                 .getInt(uuid + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, -1);
     }
 
+    /**
+     * Populates the provided entity set with cached values from the database.
+     *
+     * <p>If caching is enabled for the given detail, this method builds a dynamic SQL query using valid cache keys,
+     * based on the provided key arrays, to retrieve matching cache entries. If valid keys are found, the query results
+     * are used to update the entity set. If no valid keys exist, the method exits early. When caching is not enabled
+     * for the detail, the legacy cache priming method is invoked.</p>
+     *
+     * @param entitySet a mapping from entity keys to asynchronous entities that will be updated with cached data
+     * @param cachePrimeKeys a two-dimensional array where the first sub-array contains field names for the SQL WHERE clause,
+     *                       and the second sub-array contains corresponding primer values used in the query
+     * @param detail the detail object that determines whether caching is enabled and aids in constructing valid cache keys
+     */
     public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
             Detail detail) {
         if (detail.isCacheEnabled()) {
@@ -231,6 +256,20 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
+    /**
+     * Primes the cache by populating the provided entity set with cached asynchronous entity data using an older caching mechanism.
+     *
+     * <p>This deprecated method constructs a SQL query based on a combination of sort keys derived from the detail's fields
+     * and additional cache key parameters. It retrieves matching cache entries from the database by joining the entity cache
+     * with the AndroidCase table, and populates the given entity set with the results. If no valid sort keys are generated,
+     * no operation is performed.</p>
+     *
+     * @param entitySet a hashtable to be populated with cached asynchronous entities
+     * @param cachePrimeKeys a two-dimensional array containing key names (at index 0) and key values (at index 1) used to filter the cache query
+     * @param detail the detail instance whose fields are used to generate sort keys for constructing the query
+     *
+     * @deprecated Use {@link #primeCache(Hashtable, String[][], Detail)} for improved cache priming logic.
+     */
     @Deprecated
     private void primeCacheOld(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
             Detail detail) {
@@ -272,10 +311,36 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
+    /**
+     * Constructs a cache key string by concatenating the value type, detail identifier, and field identifier.
+     *
+     * <p>The generated key uniquely identifies a cached entry in the entity storage by combining the cache value category
+     * (e.g., normal or sort field), the detail record ID, and the field ID, separated by underscores.
+     *
+     * @param detailId the identifier of the detail record associated with the cache entry
+     * @param mFieldId the identifier of the field within the detail record
+     * @param valueType the category of the cache key, distinguishing between different value types (e.g., normal or sort field)
+     * @return a composite cache key in the format: valueType_detailId_mFieldId
+     */
     public String getCacheKey(String detailId, String mFieldId, ValueType valueType) {
         return valueType + "_" + detailId + "_" + mFieldId;
     }
 
+    /**
+     * Constructs a SQL placeholder string for sortable fields.
+     * <p>
+     * Iterates through the array of fields, and for each field with a non-null sort configuration,
+     * adds its index to the provided vector and appends a placeholder ("?") to the result string.
+     * If at least one sortable field is found, returns a string containing the placeholders enclosed in parentheses
+     * (e.g., "(?, ?, ...)"). Otherwise, returns an empty string.
+     * </p>
+     *
+     * @param sortKeys a collection to be populated with indices of fields that can be sorted
+     * @param fields the array of DetailField objects to evaluate for sortability
+     * @return a SQL placeholder string for sortable fields, or an empty string if no sortable fields exist
+     *
+     * @deprecated Use updated key-building logic that supports both normal and sort field keys.
+     */
     @Deprecated
     private static String buildValidSortKeys(Vector<Integer> sortKeys, DetailField[] fields) {
         String validKeys = "(";
@@ -295,6 +360,18 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
+    /**
+     * Constructs a SQL placeholder list for cache keys based on cache-enabled fields in the provided detail.
+     * <p>
+     * Iterates over each field in the detail and, for fields with caching enabled, appends a SQL placeholder
+     * ("?") and adds the generated cache key for the normal field type to the given list. If a field supports sorting,
+     * an additional placeholder is appended and the corresponding sort field cache key is added.
+     * </p>
+     *
+     * @param keys a vector that is populated with generated cache keys for both normal and sort fields
+     * @param detail the detail instance whose fields are evaluated for caching and sorting configurations
+     * @return a SQL placeholder string (e.g., "(?, ?)") matching the added cache keys, or an empty string if no valid keys were found
+     */
     private String buildValidKeys(Vector<String> keys, Detail detail) {
         StringBuilder validKeys = new StringBuilder("(");
         DetailField[] fields = detail.getFields();
@@ -316,6 +393,16 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         return "";
     }
 
+    /**
+     * Constructs a SQL WHERE clause for the provided column names.
+     *
+     * <p>This method iterates through the given array of column names, sanitizes each using
+     * {@code TableBuilder.scrubName}, and builds an equality condition ("column = ?") for each.
+     * When more than one column name is provided, the conditions are concatenated using " AND ".</p>
+     *
+     * @param names an array of column names to include in the WHERE clause
+     * @return a SQL WHERE clause string with equality conditions for each column, or an empty string if no names are provided
+     */
     private static String buildKeyNameWhereClause(String[] names) {
         String whereClause = "";
         for (int i = 0; i < names.length; ++i) {
@@ -327,6 +414,17 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         return whereClause;
     }
 
+    /**
+     * Retrieves cache entries from the database using the provided SQL query and populates the corresponding
+     * entities in the given mapping with the retrieved data. For each query result, if the entity exists in the
+     * entity set, the cache key is inspected to determine whether the value should be stored as normal field data
+     * or sort field data.
+     *
+     * @param db the SQLite database used to execute the query
+     * @param sqlStatement the SQL query to retrieve cache data
+     * @param args the arguments for the SQL query
+     * @param entitySet the mapping of entity keys to AsyncEntity instances to update with the retrieved cache values
+     */
     private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
             Hashtable<String, AsyncEntity> entitySet) {
         Cursor walker = db.rawQuery(sqlStatement, args);

@@ -41,7 +41,13 @@ object MissingMediaDownloadHelper : TableStateListener {
     private const val BACK_OFF_DELAY = 5 * 60 * 1000L // 5 mins
     private const val REQUEST_NAME = "missing_media_download_request"
 
-    // Schedules MissingMediaDownloadWorker
+    /**
+     * Schedules a one-time MissingMediaDownloadWorker to download missing media resources.
+     *
+     * This function sets up constraints that require network connectivity and adequate battery level,
+     * applies an exponential backoff retry strategy, and enqueues the work uniquely using the current application ID.
+     * Duplicate work is avoided by preserving existing tasks with the same unique request name.
+     */
     @JvmStatic
     fun scheduleMissingMediaDownload() {
         val constraints = Constraints.Builder()
@@ -65,7 +71,14 @@ object MissingMediaDownloadHelper : TableStateListener {
                         downloadMissingMediaRequest)
     }
 
-    // Returns Unique request name for the UpdateWorker Request
+    /**
+     * Generates a unique request name for the missing media download worker.
+     *
+     * This name is created by concatenating a constant base name with the current application ID,
+     * separated by an underscore, ensuring that each download request is uniquely identifiable.
+     *
+     * @return A unique request name as a String.
+     */
     private fun getMissingMediaDownloadRequestName(): String {
         return REQUEST_NAME + "_" + getCurrentAppId()
     }

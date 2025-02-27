@@ -35,11 +35,15 @@ public class EntityLoaderTask
     private boolean provideDetailProgressUpdates;
 
     /**
-     * Creates a new instance
+     * Constructs a new EntityLoaderTask for loading entities asynchronously.
      *
-     * @param detail      detail we want to load
-     * @param entityDatum entity datum corresponding to the entity list, null for entity detail screens
-     * @param evalCtx     evaluation context
+     * <p>This constructor initializes an EntityLoaderHelper with the provided detail configuration,
+     * an optional entity datum (used for entity lists, or null for detail screens), and an evaluation context.
+     * It also determines whether to enable detailed progress updates based on the optimization setting of the detail.</p>
+     *
+     * @param detail      the detail configuration that specifies how entities should be loaded
+     * @param entityDatum the entity datum for the entity list, or null if loading entity details
+     * @param evalCtx     the evaluation context used during the entity loading process
      */
     public EntityLoaderTask(Detail detail, @Nullable EntityDatum entityDatum, EvaluationContext evalCtx) {
         entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx, false);
@@ -47,6 +51,16 @@ public class EntityLoaderTask
         provideDetailProgressUpdates = detail.shouldOptimize();
     }
 
+    /**
+     * Loads entities in the background using the first element of the provided nodeset.
+     *
+     * <p>This method delegates entity loading to the entity loader helper and passes the current task as a progress listener.
+     * If an {@code XPathException} is encountered during loading, the exception is logged, stored internally, and {@code null} is returned.</p>
+     *
+     * @param nodeset an array of {@code TreeReference}; only the first element is used to load the entities
+     * @return a {@code Pair} containing a list of loaded entities and a list of corresponding {@code TreeReference} instances,
+     *         or {@code null} if an error occurred during loading
+     */
     @Override
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
         try {
@@ -123,17 +137,42 @@ public class EntityLoaderTask
         listener.attachLoader(this);
     }
 
+    /**
+     * Cancels the ongoing entity loading operation.
+     *
+     * <p>Invoked when the task is cancelled, this method stops any active entity loading by
+     * calling the cancel method on the entity loader helper.</p>
+     */
     @Override
     protected void onCancelled() {
         super.onCancelled();
         entityLoaderHelper.cancel();
     }
 
+    /**
+     * Publishes a progress update for the entity loading process.
+     *
+     * <p>This method forwards the current progress phase, along with the progress and total counts, to the asynchronous
+     * task's built-in progress reporting mechanism.</p>
+     *
+     * @param phase   the current loading phase
+     * @param progress the current progress count
+     * @param total    the total number of progress steps
+     */
     @Override
     public void publishEntityLoadingProgress(EntityLoadingProgressPhase phase, int progress, int total) {
         publishProgress(phase.getValue(), progress, total);
     }
 
+    /**
+     * Updates the progress listener with the specified progress values if detail progress updates are enabled.
+     *
+     * <p>This method is invoked on the UI thread as part of the asynchronous task's progress update mechanism.
+     * If a listener is attached and detail progress updates are active, it forwards the provided progress values
+     * to the listener's {@code deliverProgress} method.</p>
+     *
+     * @param values the progress update values to be delivered
+     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         if (listener != null && provideDetailProgressUpdates) {

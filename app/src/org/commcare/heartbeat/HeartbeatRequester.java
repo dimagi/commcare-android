@@ -104,6 +104,15 @@ public class HeartbeatRequester extends GetAndParseActor {
         DriftHelper.clearMaxDriftSinceLastHeartbeat();
     }
 
+    /**
+     * Checks the server's heartbeat response for a directive to disable background work.
+     *
+     * <p>If the response contains a "disable_background_work" flag set to true, this method updates
+     * the corresponding hidden preference and cancels all background tasks associated with the current
+     * application using the WorkManager.
+     *
+     * @param responseAsJson the JSON object containing the server's heartbeat response
+     */
     private void checkForDisableBackgroundWork(JSONObject responseAsJson) {
         boolean disableBackgroundWork = responseAsJson.optBoolean("disable_background_work", false);
         HiddenPreferences.setDisableBackgroundWorkTime(disableBackgroundWork);
@@ -112,6 +121,15 @@ public class HeartbeatRequester extends GetAndParseActor {
         }
     }
 
+    /**
+     * Checks the server response for a forced log submission directive and triggers log submission if enabled.
+     *
+     * <p>This method retrieves the currently logged in user's unique identifier, extracts the "force_logs"
+     * flag from the provided JSON response, and updates the hidden preferences accordingly. If forced logging
+     * is activated, it immediately triggers the log submission process.</p>
+     *
+     * @param responseAsJson the JSON object containing the server response
+     */
     private void checkForForceLogs(JSONObject responseAsJson) {
         String userId = CommCareApplication.instance().getSession().getLoggedInUser().getUniqueId();
         HiddenPreferences.setForceLogs(userId, responseAsJson.optBoolean("force_logs", false));

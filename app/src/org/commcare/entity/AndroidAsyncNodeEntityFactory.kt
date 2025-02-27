@@ -41,6 +41,17 @@ class AndroidAsyncNodeEntityFactory(
         }
     }
 
+    /**
+     * Prepares the entities list by priming the cache based on the current caching strategy.
+     *
+     * When caching is enabled (as determined by the detail object), the function ensures that entity datum is provided,
+     * throwing a RuntimeException if it is missing. Depending on whether a cache priming operation is already in progress,
+     * it either cancels the ongoing work (if it's for a different entity datum) and primes the cache for the current detail,
+     * or observes the existing caching process. If no cache priming is active, it directly initiates a new priming operation to
+     * update the entities list. If caching is not enabled, the function exits without making changes.
+     *
+     * @param entities mutable list of entities to be updated during the cache priming process.
+     */
     override fun prepareEntitiesInternal(
         entities: MutableList<Entity<TreeReference>>
     ) {
@@ -76,6 +87,12 @@ class AndroidAsyncNodeEntityFactory(
         }
     }
 
+    /**
+     * Cancels any ongoing work in the provided PrimeEntityCacheHelper and blocks until the cancellation is confirmed
+     * or a timeout of 30 seconds is reached.
+     *
+     * If the cancellation status is not received within 30 seconds, a timeout message is logged.
+     */
     private fun cancelExistingWorkWithWait(primeEntityCacheHelper: PrimeEntityCacheHelper) {
         runBlocking {
             try {
@@ -93,6 +110,16 @@ class AndroidAsyncNodeEntityFactory(
     }
 
 
+    /**
+     * Observes the prime cache work for the current detail and updates the entities list with cached results.
+     *
+     * If a prime cache operation is active for the current datum (matching the data and detail IDs), this function
+     * blocks until the cached entities become available within a timeout of TEN_MINUTES. On success, it clears the
+     * provided list and populates it with the cached data; if the operation times out, it logs the event and falls
+     * back to the standard entity preparation routine.
+     *
+     * @param entities the mutable list that will be updated with cached entities.
+     */
     private fun observePrimeCacheWork(
         primeEntityCacheHelper: PrimeEntityCacheHelper,
         entities: MutableList<Entity<TreeReference>>
@@ -122,6 +149,11 @@ class AndroidAsyncNodeEntityFactory(
         }
     }
 
+    /**
+     * Retrieves the current command identifier from the application's active session.
+     *
+     * @return the current command ID.
+     */
     private fun getCurrentCommandId(): String {
         return CommCareApplication.instance().currentSession.command
     }

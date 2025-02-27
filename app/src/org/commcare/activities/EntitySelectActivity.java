@@ -172,6 +172,18 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private TextView progressTv;
     private int lastProgress = 0;
 
+    /**
+     * Initializes the activity's session and UI components for entity selection.
+     *
+     * <p>This method restores any saved state, sets up data observers, and configures the current session.
+     * It clears location data when no previous state exists, and if the session command is missing, it aborts
+     * further initialization. Depending on the session's entity details, it may enforce landscape orientation,
+     * initialize custom callouts, adjust UI modes, and hide certain actions. Finally, it configures the UI layout
+     * based on whether the activity is being recreated due to an orientation change and invalidates the options menu
+     * to ensure it reflects the latest state.</p>
+     *
+     * @param savedInstanceState the bundle containing the activity's previously saved state, or null if starting fresh
+     */
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
@@ -247,6 +259,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Configures the activity's layout and initializes UI components for entity selection.
+     * <p>
+     * Depending on the device's orientation and layout settings, this method sets up either a dual-pane view
+     * for landscape mode in two-pane configurations or a standard layout for portrait orientation.
+     * It conditionally initializes a grid or list view based on configuration preferences, making the appropriate view visible,
+     * and sets up a click event listener to handle entity selection. Additionally, it initializes UI elements for progress,
+     * header, and search functionality, restores the last query and selection state, persists the adapter state, and sets up
+     * callout and map navigation listeners.
+     * </p>
+     *
+     * @param isOrientationChange {@code true} if the UI is being reconfigured due to an orientation change; {@code false} otherwise
+     */
     private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -356,6 +381,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Configures the provided adapter view for entity selection.
+     * 
+     * <p>This method binds the activity's adapter to the given view, applies divider styling
+     * if the view is a ListView (based on whether entity tile view is enabled), hides the progress
+     * container, and updates the search banner state.</p>
+     *
+     * @param view the adapter view to be configured
+     */
     private void setupUIFromAdapter(AdapterView view) {
         view.setAdapter(adapter);
         if (view instanceof ListView) {
@@ -365,6 +399,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         entitySelectSearchUI.setSearchBannerState();
     }
 
+    /**
+     * Determines whether mapping navigation should be enabled by scanning the detail fields of the current short selection.
+     * <p>
+     * Iterates through the detail fields and sets the mapping enabled flag to true if a field with a template form of "address" is found.
+     * </p>
+     */
     private void setupMapNav() {
         for (DetailField field : shortSelect.getFields()) {
             if ("address".equals(field.getTemplateForm())) {
@@ -474,6 +514,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Initiates asynchronous loading of entities for selection.
+     *
+     * <p>This method first saves any pending callout data from the adapter to the session. 
+     * It then checks if no loader task is currently active and if an existing loader cannot be attached 
+     * to the activity. In that case, it sets the progress text to indicate initialization, creates 
+     * a new entity loader task using the current selection criteria, attaches itself as a listener, 
+     * and starts the task in parallel. It also triggers observation of the prime cache worker.</p>
+     *
+     * @return {@code true} if a new entity loader task was initiated; {@code false} if an existing loader is active or was attached.
+     */
     public boolean loadEntities() {
         if (adapter != null) {
             // Store extra data to be reloaded upon load task completion
@@ -491,6 +542,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return false;
     }
 
+    /**
+     * Observes progress state updates from the prime entity cache helper and updates the UI accordingly.
+     *
+     * <p>This method registers an observer on the progress state obtained from the prime entity cache helper.
+     * When an update is received, it verifies whether the update's data and selection identifiers match the current
+     * selection context. If they match, it calls {@code deliverProgress} with the associated progress values.
+     */
     private void observePrimeCacheWorker() {
         PrimeEntityCacheHelper primeEntityCacheHelper =
                 CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
@@ -502,6 +560,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         });
     }
 
+    /**
+     * Saves critical state flags to the provided Bundle for later restoration.
+     *
+     * <p>This method persists the state of flags related to the here function,
+     * mapping capability, location changes during loading, and auto-launching of callouts.
+     * These flags are restored when the activity is recreated after configuration changes.</p>
+     *
+     * @param savedInstanceState the Bundle in which to save the transient state.
+     */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
@@ -865,6 +932,21 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return choiceItems;
     }
 
+    /**
+     * Populates the UI with the loaded entities and finalizes the entity retrieval process.
+     *
+     * <p>This method clears the loading state by setting an appropriate progress message, constructs
+     * and assigns an adapter populated with the fetched entities and their corresponding references,
+     * and restores any previous search or selection state. If an entity was pre-selected via the
+     * launching intent and the activity is in the designated display mode, it highlights that entity.
+     * Finally, it initiates a refresh timer, and if a location change was detected during loading,
+     * it triggers a reload of the entities.
+     *
+     * @param entities         the list of loaded entities.
+     * @param references       the corresponding list of tree references for the entities.
+     * @param factory          the factory used to create node entity instances.
+     * @param focusTargetIndex the index at which the UI should focus after loading; if -1, no focus change is applied.
+     */
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
@@ -916,10 +998,26 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Updates the progress text view with the given message.
+     *
+     * <p>This method sets the text of the progress display element to inform users
+     * about the current loading or processing status.</p>
+     *
+     * @param message the message to display in the progress text view
+     */
     private void setProgressText(String message) {
         progressTv.setText(message);
     }
 
+    /**
+     * Restores the search UI state and adapter callout data from the session.
+     *
+     * <p>
+     * This method refreshes the previously entered search string in the search UI and reloads the adapter's
+     * callout data from the session, ensuring the entity selection view reflects earlier user interactions.
+     * </p>
+     */
     private void restoreAdapterStateFromSession() {
         entitySelectSearchUI.restoreSearchString();
 
@@ -944,12 +1042,32 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Attaches the specified entity loader task and displays the progress indicator.
+     *
+     * <p>
+     * This method makes the progress container visible to signal that an entity loading operation is in progress 
+     * and assigns the provided loader task to the internal loader field.
+     * </p>
+     *
+     * @param task the entity loader task to attach for loading entity data
+     */
     @Override
     public void attachLoader(EntityLoaderTask task) {
         findViewById(R.id.progress_container).setVisibility(View.VISIBLE);
         this.loader = task;
     }
 
+    /**
+     * Sets up and refreshes the entity detail view based on the selected entity reference.
+     *
+     * <p>If the detail view panel has not been initialized yet, this method inflates the layout,
+     * configures the confirmation button, and adjusts the view mode according to the session data. It then
+     * refreshes the detail view with the entity details corresponding to the provided selection and detail index.
+     *
+     * @param selection the reference to the selected entity used to retrieve detailed information
+     * @param detailIndex the index indicating which detail section should be displayed
+     */
     private void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
         selectedIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(),
                 selection, getIntent(), selectDatum, asw);
@@ -1002,11 +1120,34 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         finish();
     }
 
+    /**
+     * Handles errors encountered during the entity load process by displaying an appropriate error message.
+     *
+     * <p>This method delegates error display to {@code displayCaseListLoadException}, passing along the
+     * encountered exception.
+     *
+     * @param e the exception that occurred during the entity load process
+     */
     @Override
     public void deliverLoadError(Exception e) {
         displayCaseListLoadException(e);
     }
 
+    /**
+     * Updates the progress display based on the current entity loading phase and progress percentage.
+     * <p>
+     * Computes the progress percentage from the number of completed and total work units, and updates
+     * the displayed message only if the percentage has changed. The message varies according to the loading phase:
+     * processing, caching, or uncached calculation.
+     * </p>
+     *
+     * @param values an array where:
+     *               <ul>
+     *                 <li>values[0] is an integer representing the current loading phase (mapped to an enum)</li>
+     *                 <li>values[1] is the count of completed work units</li>
+     *                 <li>values[2] is the total number of work units</li>
+     *               </ul>
+     */
     @Override
     public void deliverProgress(Integer[] values) {
         EntityLoadingProgressListener.EntityLoadingProgressPhase phase =
@@ -1028,6 +1169,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Handles the forward swipe gesture event for transitioning to form entry.
+     *
+     * <p>If a valid entity selection exists (i.e. {@code selectedIntent} is not {@code null}),
+     * the method checks the current UI and tab state. In awesome mode, if the detail view is present
+     * and the current tab is not the last, the swipe gesture is intercepted (returning {@code false})
+     * to allow navigation between tabs. Otherwise, if the activity is not in view-only mode, it triggers
+     * entity selection by calling {@code performEntitySelect()}, then allows the swipe gesture to proceed.
+     * If no entity is selected, the method simply returns {@code true}.</p>
+     *
+     * @return {@code true} if the swipe gesture should proceed; {@code false} if it is intercepted
+     *         due to uncompleted tab navigation in awesome mode.
+     */
     @Override
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry

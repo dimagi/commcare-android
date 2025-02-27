@@ -36,6 +36,20 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     public EntitySubnodeDetailFragment() {
     }
 
+    /**
+     * Inflates and initializes the fragment's view for displaying an entity's detail list.
+     * <p>
+     * Restores instance state and retrieves the detail and reference for display. If neither
+     * the adapter nor the loader is set and the fragment is not already attached to an activity,
+     * an asynchronous loader task is initiated to fetch entity data. In this case, a header row
+     * is built from the detail fields and added to the view.
+     * </p>
+     *
+     * @param inflater the LayoutInflater used to inflate the layout
+     * @param container the parent view for the fragment's UI
+     * @param savedInstanceState a Bundle containing previous state, if available
+     * @return the root View for the fragment's user interface
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
@@ -78,6 +92,20 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         this.loader = task;
     }
 
+    /**
+     * Delivers the results of an entity data load operation and updates the subnode detail view.
+     * <p>
+     * This method retrieves the correct detail from the session—using a child detail if indicated by the arguments—
+     * resets the loader, and creates a new adapter to display the loaded entities and their associated references.
+     * The list view is then updated with the new adapter, and if a valid focus target index is provided, the view
+     * is scrolled to bring the specified item into focus.
+     * </p>
+     *
+     * @param entities list of loaded entities
+     * @param references list of tree references corresponding to the entities
+     * @param factory factory for constructing node entities
+     * @param focusTargetIndex index to scroll to, or -1 if no scrolling is required
+     */
     @Override
     public void deliverLoadResult(List<Entity<TreeReference>> entities, List<TreeReference> references,
             NodeEntityFactory factory, int focusTargetIndex) {
@@ -98,11 +126,27 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
         }
     }
 
+    /**
+     * Handles load errors by forwarding the exception to the parent activity for display.
+     *
+     * <p>This method casts the current activity to a CommCareActivity and calls its error display method
+     * to notify the user of the issue encountered during data loading.</p>
+     *
+     * @param e the exception that occurred during the data loading process
+     */
     @Override
     public void deliverLoadError(Exception e) {
         ((CommCareActivity)getActivity()).displayCaseListLoadException(e);
     }
 
+    /**
+     * Receives progress updates during entity loading.
+     *
+     * <p>This implementation intentionally does nothing as progress updates are not
+     * needed for the subnode detail display logic.</p>
+     *
+     * @param values an array of progress indicators (unused)
+     */
     @Override
     public void deliverProgress(Integer[] values) {
         // nothing to do
