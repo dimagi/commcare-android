@@ -4,6 +4,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
@@ -104,11 +106,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent intent = null;
         String action = payloadData.get("action");
+        String notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
+        int priority = NotificationCompat.PRIORITY_HIGH;
+        Bitmap largeIcon = null;
 
         if (hasCccAction(action)) {
             FirebaseAnalyticsUtil.reportNotificationType(action);
 
             if(action.equals(ConnectMessagingActivity.CCC_MESSAGE)) {
+                notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID;
+                priority = NotificationCompat.PRIORITY_MAX;
+                largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.commcare_actionbar_logo);
+
                 boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
 
                 //Don't show a notification in some cases:
@@ -189,14 +198,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
             NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
-                    CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
+                    notificationChannel)
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationText)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.commcare_actionbar_logo)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setPriority(priority)
                     .setWhen(System.currentTimeMillis());
+
+            if(largeIcon != null) {
+                fcmNotification.setLargeIcon(largeIcon);
+            }
 
             // Check if the payload action is CCC_PAYMENTS
             if (action.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
