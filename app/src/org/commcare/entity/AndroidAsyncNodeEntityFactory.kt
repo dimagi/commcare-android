@@ -26,8 +26,9 @@ class AndroidAsyncNodeEntityFactory(
     d: Detail,
     private val entityDatum: EntityDatum?,
     ec: EvaluationContext?,
-    entityStorageCache: EntityStorageCache?
-) : AsyncNodeEntityFactory(d, ec, entityStorageCache) {
+    entityStorageCache: EntityStorageCache?,
+    inBackground: Boolean
+) : AsyncNodeEntityFactory(d, ec, entityStorageCache, inBackground) {
 
     companion object {
         const val TEN_MINUTES = 10 * 60 * 1000L

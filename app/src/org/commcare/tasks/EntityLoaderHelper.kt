@@ -23,6 +23,7 @@ class EntityLoaderHelper(
     detail: Detail,
     sessionDatum: EntityDatum?,
     evalCtx: EvaluationContext,
+    inBackground: Boolean
 ) : Cancellable {
 
     var focusTargetIndex: Int = -1
@@ -33,11 +34,11 @@ class EntityLoaderHelper(
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
         if (detail.shouldOptimize()) {
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache)
+            factory = AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache, inBackground)
         } else if (detail.useAsyncStrategy()) {
             // legacy cache and index
             val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache)
+            factory = AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache, inBackground)
         } else {
             factory = NodeEntityFactory(detail, evalCtx)
             if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
@@ -66,15 +67,15 @@ class EntityLoaderHelper(
     /**
      *  Primes the entity cache
      */
-    fun cacheEntities(nodeset: TreeReference, inBackground : Boolean): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
+    fun cacheEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
         val references = factory.expandReferenceList(nodeset)
         val entities = loadEntitiesWithReferences(references, null)
-        cacheEntities(entities, inBackground)
+        cacheEntities(entities)
         return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
     }
 
-    fun cacheEntities(entities: MutableList<Entity<TreeReference>>?, inBackground: Boolean) {
-        factory.cacheEntities(entities, inBackground)
+    fun cacheEntities(entities: MutableList<Entity<TreeReference>>?) {
+        factory.cacheEntities(entities)
     }
 
     /**

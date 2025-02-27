@@ -155,16 +155,16 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         if (!detail.isCacheEnabled() || cancelled) return
         currentDatumInProgress = entityDatum.dataId
         currentDetailInProgress = detail.id
-        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId)).also {
+        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId), inBackground).also {
             it.factory.setEntityProgressListener(this)
         }
         // Handle the cache operation based on the available input
         val cachedEntities = when {
             entities != null -> {
-                entityLoaderHelper!!.cacheEntities(entities, inBackground)
+                entityLoaderHelper!!.cacheEntities(entities)
                 entities
             }
-            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset, inBackground).first
+            else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset).first
         }
         _cachedEntitiesState.value = Triple(entityDatum.dataId, detail.id, cachedEntities)
         currentDatumInProgress = null
