@@ -460,5 +460,5 @@
     <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
     <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
     <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
-    <string name="entity_list_sorting" cc:translatable="true">Sorting cases…</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
 </resources>

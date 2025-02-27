@@ -870,7 +870,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
-        setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_sorting));
+        setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_finishing));
         adapter = new EntityListAdapter(this, shortSelect, references, entities, factory,
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
