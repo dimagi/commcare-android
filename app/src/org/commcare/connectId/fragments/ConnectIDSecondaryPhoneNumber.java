@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.connectId.fragments;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -8,18 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connectId.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSecondaryPhoneNumberBinding;
 import org.commcare.utils.PhoneNumberHelper;
@@ -27,6 +23,10 @@ import org.commcare.utils.PhoneNumberHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class ConnectIDSecondaryPhoneNumber extends Fragment {
     private String method;

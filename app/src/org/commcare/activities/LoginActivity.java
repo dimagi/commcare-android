@@ -788,7 +788,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return presetAppID;
     }
 
-    public void registerConnectIdUser() {
+    private void registerConnectIdUser() {
         selectedAppIndex = -1;
         ConnectIDManager.getInstance().registerUser(this, success -> {
             //Do nothing, just return to login page

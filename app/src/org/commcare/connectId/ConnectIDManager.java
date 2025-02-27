@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -227,16 +226,14 @@ public class ConnectIDManager {
         }
 
         ConnectUserDatabaseUtil.forgetUser(manager.parentActivity);
-
-        ConnectIdActivity.reset();
-
+        ConnectIdActivity connectIdActivity=new ConnectIdActivity();
+        connectIdActivity.reset();
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
     }
 
-
     private void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
         Intent intent = new Intent(parent, ConnectIdActivity.class);
-        intent.putExtra("TASK", task);
+        intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
     }
 

@@ -172,7 +172,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:name="org.commcare.connectId.ConnectIdActivity"
             android:exported="true" />
         <activity
             android:label="@string/application_name"

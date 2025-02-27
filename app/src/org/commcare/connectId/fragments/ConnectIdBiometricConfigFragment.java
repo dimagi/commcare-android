@@ -1,6 +1,4 @@
-package org.commcare.fragments.connectId;
-import static android.app.Activity.RESULT_OK;
-import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
+package org.commcare.connectId.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,19 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connectId.ConnectIDManager;
+import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -31,6 +22,16 @@ import org.commcare.utils.BiometricsHelper;
 import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
+import static android.app.Activity.RESULT_OK;
+import static org.commcare.connectId.fragments.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -86,7 +87,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         biometricPromptCallbacks = preparePromptCallbacks();
         if (getArguments() != null) {
             callingActivity = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            allowPassword = org.commcare.fragments.connectId.ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
+            allowPassword = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
         }
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
@@ -294,7 +295,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 if (success) {
                     directions =
                             ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                                    ConnectIDManager.MethodRecoveryPrimary), ConnectIdActivity.recoverPhone, ConnectIdActivity.recoverPhone, "", null, false).setAllowChange(false);
+                                    ConnectIDManager.MethodRecoveryPrimary), ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, "", null, false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_BIOMETRIC -> {

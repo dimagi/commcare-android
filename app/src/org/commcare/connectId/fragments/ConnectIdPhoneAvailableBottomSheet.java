@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.connectId.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -6,14 +6,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.connectId.ConnectIdPhoneAvailableBottomSheetArgs;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 
 public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragment {

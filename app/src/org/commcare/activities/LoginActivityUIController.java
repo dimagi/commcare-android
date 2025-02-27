@@ -496,34 +496,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     protected boolean loginManagedByConnectId() {
         return loginManagedByConnectId;
     }
-    protected void setConnectIdLoginState(boolean useConnectId) {
-        if (!useConnectId && loginManagedByConnectId) {
-            setPasswordOrPin("");
-        }
 
-        loginManagedByConnectId = useConnectId;
-
-        String text;
-        if (useConnectId) {
-            text = activity.getString(R.string.login_button_connectid);
-        } else {
-            text = Localization.get("login.button");
-        }
-        loginButton.setText(text);
-
-        /**
-         * included these lines because when a user changes the language from the system settings while in the app,
-         * the strings should be translate correctly when they return to the app. That's why I added this code.
-         */
-        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
-        if (useConnectId) {
-            passwordOrPin.setText(R.string.login_password_by_connect);
-            passwordOrPin.clearFocus();
-        }
-
-        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
-    }
     public void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -558,5 +531,34 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
             welcomeMessage.setText(welcomeText);
         }
+    }
+
+    protected void setConnectIdLoginState(boolean useConnectId) {
+        if (!useConnectId && loginManagedByConnectId) {
+            setPasswordOrPin("");
+        }
+
+        loginManagedByConnectId = useConnectId;
+
+        String text;
+        if (useConnectId) {
+            text = activity.getString(R.string.login_button_connectid);
+        } else {
+            text = Localization.get("login.button");
+        }
+        loginButton.setText(text);
+
+        /**
+         * included these lines because when a user changes the language from the system settings while in the app,
+         * the strings should be translate correctly when they return to the app. That's why I added this code.
+         */
+        connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
+        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
+        if (useConnectId) {
+            passwordOrPin.setText(R.string.login_password_by_connect);
+            passwordOrPin.clearFocus();
+        }
+
+        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
     }
 }

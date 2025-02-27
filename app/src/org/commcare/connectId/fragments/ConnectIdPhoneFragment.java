@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.connectId.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,25 +10,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
-import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connectId.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connectId.ConnectIDManager;
+import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPrimaryPhoneBinding;
 import org.commcare.utils.KeyboardHelper;
@@ -38,6 +31,13 @@ import org.javarosa.core.services.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -184,7 +184,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {
-                    ConnectIdActivity.recoverPhone = phone;
+                    ((ConnectIdActivity)requireActivity()).recoverPhone = phone;
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                 }
             }

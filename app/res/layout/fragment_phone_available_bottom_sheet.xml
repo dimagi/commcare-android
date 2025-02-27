@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/transparent"
-        tools:context="org.commcare.fragments.connectId.ConnectIdPhoneAvailableBottomSheet">
+        tools:context="org.commcare.connectId.fragments.ConnectIdPhoneAvailableBottomSheet">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
