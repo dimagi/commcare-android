@@ -22,7 +22,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
-import org.commcare.connectId.ConnectIDManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;

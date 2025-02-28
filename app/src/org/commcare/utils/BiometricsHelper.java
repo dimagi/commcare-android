@@ -34,9 +34,6 @@ public class BiometricsHelper {
         Configured     // Biometrics set up and ready for authentication
     }
 
-    private static final int StrongBiometric = BiometricManager.Authenticators.BIOMETRIC_STRONG;
-    private static final int PinBiometric = BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-
     /**
      * Checks the fingerprint authentication status.
      *
@@ -45,7 +42,7 @@ public class BiometricsHelper {
      * @return The fingerprint configuration status.
      */
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, StrongBiometric);
+        return checkStatus(context, biometricManager, BiometricManager.Authenticators.BIOMETRIC_STRONG);
     }
 
     /**
@@ -56,7 +53,7 @@ public class BiometricsHelper {
      * @return True if fingerprint authentication is configured, false otherwise.
      */
     public static boolean isFingerprintConfigured(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, StrongBiometric) == ConfigurationStatus.Configured;
+        return checkStatus(context, biometricManager, BiometricManager.Authenticators.BIOMETRIC_STRONG) == ConfigurationStatus.Configured;
     }
 
     /**
@@ -66,7 +63,7 @@ public class BiometricsHelper {
      * @return True if the configuration process starts successfully, false otherwise.
      */
     public static boolean configureFingerprint(Activity activity) {
-        return configureBiometric(activity, StrongBiometric);
+        return configureBiometric(activity, BiometricManager.Authenticators.BIOMETRIC_STRONG);
     }
 
     /**
@@ -113,7 +110,7 @@ public class BiometricsHelper {
      */
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            return checkStatus(context, biometricManager, PinBiometric);
+            return checkStatus(context, biometricManager, BiometricManager.Authenticators.DEVICE_CREDENTIAL);
         } else {
             KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
             boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
@@ -132,7 +129,7 @@ public class BiometricsHelper {
      * @return True if PIN authentication is configured, false otherwise.
      */
     public static boolean isPinConfigured(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, PinBiometric) == ConfigurationStatus.Configured;
+        return checkStatus(context, biometricManager, BiometricManager.Authenticators.DEVICE_CREDENTIAL) == ConfigurationStatus.Configured;
     }
 
     /**
@@ -142,7 +139,7 @@ public class BiometricsHelper {
      * @return True if the configuration process starts successfully, false otherwise.
      */
     public static boolean configurePin(Activity activity) {
-        return configureBiometric(activity, PinBiometric);
+        return configureBiometric(activity, BiometricManager.Authenticators.DEVICE_CREDENTIAL);
     }
 
     private static BiometricPrompt.AuthenticationCallback biometricPromptCallbackHolder;
@@ -209,7 +206,7 @@ public class BiometricsHelper {
     }
 
     private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
-        if (authenticator == PinBiometric && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        if (authenticator == BiometricManager.Authenticators.DEVICE_CREDENTIAL && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
 
             boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
@@ -226,7 +223,7 @@ public class BiometricsHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
             enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED, authenticator);
-        } else if (authenticator == StrongBiometric && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        } else if (authenticator == BiometricManager.Authenticators.BIOMETRIC_STRONG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
         } else {
             return false;

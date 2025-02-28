@@ -6,7 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.commcare.connectId.ConnectIDManager
+import org.commcare.connect.ConnectIDManager
 import org.commcare.connect.network.ApiConnectId
 import org.javarosa.core.services.Logger
 

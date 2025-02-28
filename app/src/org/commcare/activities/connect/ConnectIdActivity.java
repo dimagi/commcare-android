@@ -1,4 +1,4 @@
-package org.commcare.connectId;
+package org.commcare.activities.connect;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +8,9 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connectId.fragments.ConnectIDSignupFragmentDirections;
-import org.commcare.connectId.fragments.ConnectIdBiometricConfigFragment;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
+import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.CustomProgressDialog;
 

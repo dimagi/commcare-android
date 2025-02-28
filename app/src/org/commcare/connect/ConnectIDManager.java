@@ -1,14 +1,14 @@
-package org.commcare.connectId;
+package org.commcare.connect;
 
 import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;

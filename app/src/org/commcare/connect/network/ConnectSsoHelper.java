@@ -6,7 +6,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connectId.ConnectIDManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;

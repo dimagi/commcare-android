@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,15 +13,15 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connectId.ConnectIDManager;
-import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPrimaryPhoneBinding;
 import org.commcare.utils.KeyboardHelper;
@@ -51,6 +51,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     private int callingClass;
     private ScreenConnectPrimaryPhoneBinding binding;
     protected boolean skipPhoneNumberCheck = false;
+    private PhoneNumberHelper phoneNumberHelper;
 
     TextWatcher watcher = new TextWatcher() {
         @Override
@@ -95,30 +96,29 @@ public class ConnectIdPhoneFragment extends Fragment {
             existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
         }
+        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
+                phoneNumberHelper.requestPhoneNumberHint(registerForActivityResult(
+                        new ActivityResultContracts.StartIntentSenderForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                                Intent data = result.getData();
+                                String phoneNumber;
+                                try {
+                                    phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
+                                    displayNumber(phoneNumber);
+                                } catch (ApiException e) {
+                                    Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
+                                    Logger.exception("Retrieved phone hint but encountered an ApiException", e);
+                                }
+
+                            }
+                        }),
+                        getActivity());
             }
         };
-
-        PhoneNumberHelper.setPhoneNumberHintLauncher(registerForActivityResult(
-                new ActivityResultContracts.StartIntentSenderForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Intent data = result.getData();
-                        String phoneNumber;
-                        try {
-                            phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
-                            displayNumber(phoneNumber);
-                        } catch (ApiException e) {
-                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                            Logger.exception("Retrieved phone hint but encountered an ApiException", e);
-                        }
-
-                    }
-                }
-        ));
 
         binding.countryCode.setOnFocusChangeListener(listener);
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
@@ -153,7 +153,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
+        String phone = phoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
         skipPhoneNumberCheck = false;
         displayNumber(phone);
     }
@@ -214,9 +214,9 @@ public class ConnectIdPhoneFragment extends Fragment {
 
     //8556
     void displayNumber(String fullNumber) {
-        int code = PhoneNumberHelper.getCountryCode(getContext());
+        int code = phoneNumberHelper.getCountryCode(requireActivity().getResources().getConfiguration().locale);
         if (fullNumber != null && fullNumber.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(getContext(), fullNumber);
+            code = phoneNumberHelper.getCountryCode(fullNumber);
         }
 
         String codeText = "";
@@ -238,7 +238,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     }
 
     public void handleButtonPress() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
@@ -294,7 +294,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         if (!skipPhoneNumberCheck) {
             String phone = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
 
-            boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+            boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
             ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
 
             if (valid) {

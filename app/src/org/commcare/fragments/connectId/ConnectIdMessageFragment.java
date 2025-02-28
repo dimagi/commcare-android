@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,16 +8,14 @@ import android.view.ViewGroup;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connectId.ConnectIDManager;
-import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
-import org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs;
-import org.commcare.fragments.connectId.ConnectIdMessageFragmentDirections;
 
 import java.util.Locale;
 

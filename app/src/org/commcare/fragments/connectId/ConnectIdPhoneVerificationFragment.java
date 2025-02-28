@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -15,8 +15,10 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.SMSListener;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -24,8 +26,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connectId.ConnectIDManager;
-import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;

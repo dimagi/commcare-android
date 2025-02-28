@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,12 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connectId.ConnectIDManager;
-import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -31,7 +31,7 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
-import static org.commcare.connectId.fragments.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
+import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
 
 /**
  * A simple {@link Fragment} subclass.

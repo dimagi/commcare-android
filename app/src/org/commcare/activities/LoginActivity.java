@@ -22,7 +22,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connectId.ConnectIDManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -107,7 +107,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private String presetAppID;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect;
-    private boolean connectLaunchPerformed;
+    private boolean connectLaunchPerformed = false;
     private String presetAppId;
 
     @Override
@@ -127,7 +127,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ConnectIDManager.getInstance().init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectIDManager.getInstance().wasAppLaunchedFromConnect(presetAppId);
-        connectLaunchPerformed = false;
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation

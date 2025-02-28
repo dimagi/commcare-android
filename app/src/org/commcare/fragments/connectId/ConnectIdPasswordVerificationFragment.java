@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -6,15 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connectId.ConnectIDManager;
-import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPasswordVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;

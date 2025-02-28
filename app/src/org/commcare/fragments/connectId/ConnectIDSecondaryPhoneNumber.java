@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,12 +10,12 @@ import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connectId.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSecondaryPhoneNumberBinding;
 import org.commcare.utils.PhoneNumberHelper;
@@ -33,6 +33,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     private String existingPhone;
     private int callingClass;
     protected boolean skipPhoneNumberCheck = false;
+    private PhoneNumberHelper phoneNumberHelper;
+
     FragmentSecondaryPhoneNumberBinding binding;
 
 
@@ -60,7 +62,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         }
-        String code = "+" + String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
+        phoneNumberHelper= new PhoneNumberHelper(requireActivity());
+        String code = "+" + phoneNumberHelper.getCountryCode(requireActivity().getResources().getConfiguration().locale);
         binding.countryCode.setText(code);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
@@ -107,10 +110,10 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     public void updateButtonEnabled() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+        boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
 
         binding.continueButton.setEnabled(valid);
     }
@@ -120,7 +123,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             return;
         }
         binding.continueButton.setEnabled(false);
-        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;

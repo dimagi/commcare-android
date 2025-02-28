@@ -1,4 +1,4 @@
-package org.commcare.connectId.fragments;
+package org.commcare.fragments.connectId;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,14 +16,14 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
+import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connectId.ConnectIDManager;
-import org.commcare.connectId.ConnectIdActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
 import org.commcare.utils.PhoneNumberHelper;
@@ -52,6 +52,8 @@ public class ConnectIDSignupFragment extends Fragment {
     private boolean showhPhoneDialog = true;
     private ConnectUserRecord user;
     NavDirections directions = null;
+    private PhoneNumberHelper phoneNumberHelper;
+
 
     public ConnectIDSignupFragment() {
         // Required empty public constructor
@@ -80,34 +82,32 @@ public class ConnectIDSignupFragment extends Fragment {
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
             existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
         }
+        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && showhPhoneDialog) {
-                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
+                phoneNumberHelper.requestPhoneNumberHint(    registerForActivityResult(
+                        new ActivityResultContracts.StartIntentSenderForResult(),
+                        result -> {
+                            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                                Intent data = result.getData();
+                                String phoneNumber;
+                                try {
+                                    phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
+                                    displayNumber(phoneNumber);
+                                } catch (ApiException e) {
+                                    Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
+                                    throw new RuntimeException(e);
+                                }
+
+                            }
+                        }
+                ),getActivity());
                 showhPhoneDialog = false;
             }
         };
 
-
-        PhoneNumberHelper.setPhoneNumberHintLauncher(  registerForActivityResult(
-                new ActivityResultContracts.StartIntentSenderForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Intent data = result.getData();
-                        String phoneNumber;
-                        try {
-                            phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
-                            displayNumber(phoneNumber);
-                        } catch (ApiException e) {
-                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                            throw new RuntimeException(e);
-                        }
-
-                    }
-                }
-        ));
-
-        binding.countryCode.setText(PhoneNumberHelper.setDefaultCountryCode(getContext()));
+        binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode());
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
 
@@ -184,10 +184,10 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     public void updateButtonEnabled() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+        boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
 
         boolean isEnabled = valid && (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE ||
                 (binding.nameTextValue.getText().toString().length() > 0 &&
@@ -198,15 +198,15 @@ public class ConnectIDSignupFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
+        String phone = phoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
         skipPhoneNumberCheck = false;
         displayNumber(phone);
     }
 
     void displayNumber(String fullNumber) {
-        int code = PhoneNumberHelper.getCountryCode(getContext());
+        int code = phoneNumberHelper.getCountryCode(requireActivity().getResources().getConfiguration().locale);
         if (fullNumber != null && fullNumber.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(getContext(), fullNumber);
+            code = phoneNumberHelper.getCountryCode(fullNumber);
         }
 
         String codeText = "";
@@ -245,10 +245,10 @@ public class ConnectIDSignupFragment extends Fragment {
 
     public void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
-            String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+            String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                     binding.connectPrimaryPhoneInput.getText().toString());
 
-            boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+            boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
             ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
 
             if (valid) {

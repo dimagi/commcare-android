@@ -24,7 +24,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connectId.ConnectIDManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;

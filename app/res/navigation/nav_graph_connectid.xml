@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/connectid_biometric_config"
-        android:name="org.commcare.connectId.fragments.ConnectIdBiometricConfigFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment"
         android:label="fragment_connectid_biometric_config"
         tools:layout="@layout/screen_connect_verify">
         <action
@@ -46,7 +46,7 @@
 
     <fragment
         android:id="@+id/connectid_phone_verify"
-        android:name="org.commcare.connectId.fragments.ConnectIdPhoneVerificationFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragment"
         android:label="fragment_connectid_phone_verify"
         tools:layout="@layout/screen_connect_phone_verify">
         <action
@@ -174,7 +174,7 @@
 
     <fragment
         android:id="@+id/connectid_pin"
-        android:name="org.commcare.connectId.fragments.ConnectIdPinFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIdPinFragment"
         android:label="fragment_connectid_pin"
         tools:layout="@layout/fragment_recovery_code">
         <action
@@ -223,7 +223,7 @@
 
     <fragment
         android:id="@+id/connectid_password"
-        android:name="org.commcare.connectId.fragments.ConnectIdPasswordVerificationFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment"
         android:label="fragment_connectid_password"
         tools:layout="@layout/screen_connect_password_verify">
         <action
@@ -257,7 +257,7 @@
 
     <fragment
         android:id="@+id/connectid_signup_fragment"
-        android:name="org.commcare.connectId.fragments.ConnectIDSignupFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIDSignupFragment"
         android:label="fragment_connectid_signup_fragment"
         tools:layout="@layout/fragment_signup">
         <argument
@@ -291,7 +291,7 @@
 
     <fragment
         android:id="@+id/connectid_secondary_phone_fragment"
-        android:name="org.commcare.connectId.fragments.ConnectIDSecondaryPhoneNumber"
+        android:name="org.commcare.fragments.connectId.ConnectIDSecondaryPhoneNumber"
         android:label="connectid_secondary_phone_fragment"
         tools:layout="@layout/fragment_secondary_phone_number">
         <action
@@ -318,7 +318,7 @@
 
     <fragment
         android:id="@+id/connectid_phoneNo"
-        android:name="org.commcare.connectId.fragments.ConnectIdPhoneFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneFragment"
         android:label="fragment_connectid_phoneNo"
         tools:layout="@layout/screen_connect_primary_phone">
         <action
@@ -352,7 +352,7 @@
 
     <fragment
         android:id="@+id/connectid_user_deactivate_otp_verify"
-        android:name="org.commcare.connectId.fragments.ConnectIdUserDeactivateOTPVerificationFragment"
+        android:name="org.commcare.fragments.connectId.ConnectIdUserDeactivateOTPVerificationFragment"
         android:label="fragment_connectid_user_deactivate_otp_verify"
         tools:layout="@layout/screen_connect_user_deactivate_otp_verify">
         <action
