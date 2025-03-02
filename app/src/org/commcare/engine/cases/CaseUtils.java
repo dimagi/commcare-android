@@ -84,8 +84,8 @@ public class CaseUtils {
         SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         int removedCaseCount;
         int removedLedgers;
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             SqlStorage<ACase> storage = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
             DAG<String, int[], String> fullCaseGraph = getFullCaseGraph(storage, new AndroidCaseIndexTable(), owners);
 

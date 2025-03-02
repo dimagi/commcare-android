@@ -149,8 +149,8 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         if (isEmpty()) {
             return;
         }
+        db.beginTransaction();
         try {
-            db.beginTransaction();
             markRecordsAsShallow(recordIds);
             db.setTransactionSuccessful();
         } finally {
