@@ -917,7 +917,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 startUnsentFormsTask(false, false);
-                CommCareApplication.instance().scheduleEntityCacheInvalidation();
                 refreshUI();
 
                 if (exitFromExternalLaunch()) {

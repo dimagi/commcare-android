@@ -1265,7 +1265,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                     .build();
             WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
-            wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.KEEP,
+            wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
                     entityCacheInvalidationRequest);
         }
     }
