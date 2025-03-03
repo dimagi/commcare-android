@@ -3,6 +3,9 @@ package org.commcare.engine.cases;
 import static org.commcare.cases.model.Case.INDEX_CASE_ID;
 import static org.commcare.cases.util.CaseDBUtils.xordata;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -161,9 +164,9 @@ public class CaseUtils {
      * @param recordIds databse ids for the cases we want to find related cases
      * @return database ids for all related cases for the given set of cases
      */
-    public static Set<String> getRelatedCases(Set<String> recordIds) {
+    public static Set<Integer> getRelatedCases(Set<String> recordIds) {
         if (recordIds.isEmpty()) {
-            return recordIds;
+            return ImmutableSet.of();
         }
 
         SqlStorage<ACase> storage = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
@@ -171,20 +174,20 @@ public class CaseUtils {
                 new Vector<>());
         Set<String> caseIds = getCaseIdsFromRecordsIds(storage, recordIds);
         Set<String> relatedCaseIds = fullCaseGraph.getRelatedRecords(caseIds);
-        Set<String> relatedRecordIds = new HashSet<>();
+        Set<Integer> relatedRecordIds = new HashSet<>();
         for (String relatedCaseId : relatedCaseIds) {
-            String relatedRecordId = getRecordIdFromCaseId(storage, relatedCaseId);
+            Integer relatedRecordId = getRecordIdFromCaseId(storage, relatedCaseId);
             relatedRecordIds.add(relatedRecordId);
         }
         return relatedRecordIds;
     }
 
-    private static String getRecordIdFromCaseId(SqlStorage<ACase> storage, String caseId) {
+    private static Integer getRecordIdFromCaseId(SqlStorage<ACase> storage, String caseId) {
         Vector<Integer> result = storage.getIDsForValue(INDEX_CASE_ID, caseId);
         if (result == null || result.isEmpty()) {
             throw new IllegalStateException("No record found for case ID: " + caseId);
         }
-        return String.valueOf(result.get(0));
+        return result.get(0);
     }
 
     private static Set<String> getCaseIdsFromRecordsIds(SqlStorage<ACase> storage, Set<String> recordIds) {
