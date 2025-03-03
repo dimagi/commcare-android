@@ -41,6 +41,26 @@
                     android:layout_marginEnd="@dimen/content_min_margin"
                     android:layout_marginStart="@dimen/content_min_margin" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/connect_login_button"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginHorizontal="30dp"
+                    android:text="@string/connect_button_logged_in"
+                    android:visibility="gone" />
+
+                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    android:id="@+id/login_or"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/content_min_margin"
+                    android:text="@string/choice_or"
+                    android:textColor="@color/cc_neutral_color"
+                    android:textSize="@dimen/text_medium"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/str_setup_message_2"
                     android:layout_width="fill_parent"
