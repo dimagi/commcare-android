@@ -162,7 +162,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     /**
      * Removes cache records associated with the provided IDs
      */
-    private void deleteRecords(Set<Integer> recordIds) {
+    private void deleteRecords(Vector<Integer> recordIds) {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
         int removed = 0;
         for (Pair<String, String[]> querySet : whereParamList) {
@@ -281,7 +281,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     public void processShallowRecords() {
         try (Closeable ignored = lockCache()) {
             Set<String> shallowRecordIds = getShallowRecords();
-            Set<Integer> relatedRecordIds = CaseUtils.getRelatedCases(shallowRecordIds);
+            Vector<Integer> relatedRecordIds = CaseUtils.getRelatedCases(shallowRecordIds);
             deleteRecords(relatedRecordIds);
         } catch (IOException e) {
             Logger.exception("Error while processing shallow records", e);
