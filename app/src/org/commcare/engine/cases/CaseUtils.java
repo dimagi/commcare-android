@@ -3,8 +3,6 @@ package org.commcare.engine.cases;
 import static org.commcare.cases.model.Case.INDEX_CASE_ID;
 import static org.commcare.cases.util.CaseDBUtils.xordata;
 
-import com.google.common.collect.ImmutableSet;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -172,7 +170,7 @@ public class CaseUtils {
         DAG<String, int[], String> fullCaseGraph = getFullCaseGraph(storage, new AndroidCaseIndexTable(),
                 new Vector<>());
         Set<String> caseIds = getCaseIdsFromRecordsIds(storage, recordIds);
-        Set<String> relatedCaseIds = fullCaseGraph.getRelatedRecords(caseIds);
+        Set<String> relatedCaseIds = fullCaseGraph.findConnectedRecords(caseIds);
         return storage.getIDsForValues(new String[]{INDEX_CASE_ID}, relatedCaseIds.toArray());
     }
 
