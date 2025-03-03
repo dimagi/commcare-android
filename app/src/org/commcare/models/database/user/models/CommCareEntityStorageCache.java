@@ -28,6 +28,7 @@ import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -278,9 +279,14 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
      * Gets all shallow records and it's related graph and delete those records from the cache
      */
     public void processShallowRecords() {
-        Set<String> shallowRecordIds = getShallowRecords();
-        Set<String> relatedRecordIds = CaseUtils.getRelatedCases(shallowRecordIds);
-        deleteRecords(relatedRecordIds);
+        try (Closeable ignored = lockCache()) {
+            Set<String> shallowRecordIds = getShallowRecords();
+            Set<String> relatedRecordIds = CaseUtils.getRelatedCases(shallowRecordIds);
+            deleteRecords(relatedRecordIds);
+        } catch (IOException e) {
+            Logger.exception("Error while processing shallow records", e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Deprecated
