@@ -162,7 +162,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     /**
      * Removes cache records associated with the provided IDs
      */
-    public void deleteRecords(Set<Integer> recordIds) {
+    private void deleteRecords(Set<Integer> recordIds) {
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(recordIds);
         int removed = 0;
         for (Pair<String, String[]> querySet : whereParamList) {
@@ -174,7 +174,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
-    public Set<String> getShallowRecords() {
+    private Set<String> getShallowRecords() {
         String whereClause = String.format("%s = ? AND %s = ?", COL_CACHE_NAME, COL_IS_SHALLOW);
         Cursor c = db.query(TABLE_NAME, new String[]{COL_ENTITY_KEY}, whereClause,
                 new String[]{mCacheName, "1"}, null, null, null);
@@ -191,8 +191,8 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
 
 
     public int getFieldIdFromCacheKey(String detailId, String cacheKey) {
-        cacheKey = cacheKey.replace(String.valueOf(TYPE_SORT_FIELD) + "_", "");
-        cacheKey = cacheKey.replace(String.valueOf(TYPE_NORMAL_FIELD) + "_", "");
+        cacheKey = cacheKey.replace(TYPE_SORT_FIELD + "_", "");
+        cacheKey = cacheKey.replace(TYPE_NORMAL_FIELD + "_", "");
         String intId = cacheKey.substring(detailId.length() + 1);
         try {
             return Integer.parseInt(intId);
