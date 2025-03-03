@@ -233,8 +233,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         } else {
             checkEnteredUsernameForMatch();
         }
-        updateConnectLoginState();
-
+        activity.checkForSavedCredentials();
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
@@ -493,6 +492,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private Resources getResources() {
         return activity.getResources();
     }
+
     protected boolean loginManagedByConnectId() {
         return loginManagedByConnectId;
     }
@@ -501,6 +501,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
+
     protected boolean isAppSelectorVisible() {
         return spinner.getVisibility() == View.VISIBLE;
     }
@@ -514,12 +515,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    public void updateConnectLoginState() {
+    protected void setConnectIdLoginState(boolean useConnectId) {
         setConnectButtonVisible(ConnectIDManager.isLoggedIN());
-        if(activity==null){
+        if (activity == null) {
             return;
         }
-
         if (ConnectIDManager.isLoggedIN()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
             if (user == null || user.getName() == null) {
@@ -531,9 +531,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
             welcomeMessage.setText(welcomeText);
         }
-    }
 
-    protected void setConnectIdLoginState(boolean useConnectId) {
         if (!useConnectId && loginManagedByConnectId) {
             setPasswordOrPin("");
         }

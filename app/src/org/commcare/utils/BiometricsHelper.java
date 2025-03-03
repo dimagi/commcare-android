@@ -109,15 +109,12 @@ public class BiometricsHelper {
      * @return The PIN configuration status.
      */
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            return checkStatus(context, biometricManager, BiometricManager.Authenticators.DEVICE_CREDENTIAL);
-        } else {
-            KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
-            boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                    manager.isDeviceSecure() :
-                    manager.isKeyguardSecure();
+        int authStatus = canAuthenticate(context, biometricManager, BiometricManager.Authenticators.DEVICE_CREDENTIAL);
 
-            return isSecure ? ConfigurationStatus.Configured : ConfigurationStatus.NotConfigured;
+        if (authStatus == BiometricManager.BIOMETRIC_SUCCESS) {
+            return ConfigurationStatus.Configured;
+        } else {
+            return ConfigurationStatus.NotConfigured;
         }
     }
 
@@ -208,10 +205,8 @@ public class BiometricsHelper {
     private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
         if (authenticator == BiometricManager.Authenticators.DEVICE_CREDENTIAL && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
-
             boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                    manager.isDeviceSecure() :
-                    manager.isKeyguardSecure();
+                    manager.isDeviceSecure() : manager.isKeyguardSecure();
 
             return isSecure ? BiometricManager.BIOMETRIC_SUCCESS : BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
         }
