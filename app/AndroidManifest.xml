@@ -99,7 +99,6 @@
         android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
         android:protectionLevel="signature">
     </permission>
-
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
