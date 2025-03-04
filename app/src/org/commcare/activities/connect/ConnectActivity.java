@@ -162,8 +162,8 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_sync).setEnabled(backButtonAndActionBarEnabled);
-        menu.findItem(R.id.action_notification).setEnabled(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_notification).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
     }
 
