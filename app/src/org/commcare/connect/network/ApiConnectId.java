@@ -100,7 +100,7 @@ public class ApiConnectId {
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "OAuth Token Post Result " + postResult.responseCode);
-        if (postResult.responseCode == 200) {
+        if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
             try {
                 String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
                         postResult.responseStream));
@@ -124,6 +124,9 @@ public class ApiConnectId {
             } catch (IOException | JSONException e) {
                 Logger.exception("Parsing return from HQ OIDC call", e);
             }
+        } else if(postResult.responseCode == 401) {
+            Logger.exception("Invalid ConnectID SSO token", new Exception("Invalid ConnectID token when trying to retrieve HQ token"));
+            ConnectSsoHelper.discardTokens(context, hqUsername);
         }
 
         return null;

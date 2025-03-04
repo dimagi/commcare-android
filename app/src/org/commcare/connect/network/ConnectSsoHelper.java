@@ -4,10 +4,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 
 import java.lang.ref.WeakReference;
 
@@ -94,5 +97,25 @@ public class ConnectSsoHelper {
         TokenTask task = new TokenTask(context, null, false, callback);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void discardTokens(Context context, String username) {
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
+
+        if(username != null) {
+            ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, username);
+            if (appRecord != null) {
+                appRecord.clearHqToken();
+                ConnectDatabaseHelper.storeApp(context, appRecord);
+            }
+        }
+
+        ConnectUserRecord user = ConnectDatabaseHelper.getUser(context);
+        if(user != null) {
+            user.clearConnectToken();
+            ConnectDatabaseHelper.storeUser(context, user);
+        }
     }
 }
