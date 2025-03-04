@@ -9,7 +9,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_notification"
-        android:icon="@drawable/ic_connect_menu_notification"
+        android:icon="@drawable/ic_connect_messaging_base"
         android:title="Notification"
         app:showAsAction="always" />
     <item

@@ -351,6 +351,8 @@
     <string name="notification_channel_server_communication_description" cc:translatable="true">Notifications for status of any background server communication happening at the moment like CommCare App updates, log submission etc.</string>
     <string name="notification_channel_push_notfications_title" cc:translatable="true">Priority notifications from Server</string>
     <string name="notification_channel_push_notfications_description" cc:translatable="true">Notifications sent from server directly to notify user of priority tasks</string>
+    <string name="notification_channel_messaging_title" cc:translatable="true">Messages from CommCare</string>
+    <string name="notification_channel_messaging_description" cc:translatable="true">Notifications sent from server directly to notify user of incoming messages and new channels</string>
     <string name="recovery_measure_reinstall_method" cc:translatable="true">Choose Reinstall Method</string>
     <string name="recovery_measure_reinstall_detail" cc:translatable="true">Your app needs to be reinstalled due to a problem, please select a method for reinstalling.</string>
     <string name="recovery_measure_reinstall_online_method" cc:translatable="true">Online Reinstall</string>
@@ -550,9 +552,9 @@
     <string name="connect_messaging_channel_consent_accept">Accept</string>
     <string name="connect_messaging_channel_consent_decline">Decline</string>
 
-    <string name="connect_messaging_message_notification_title">New Message</string>
+    <string name="connect_messaging_message_notification_title">🔔 New Message 🔔</string>
     <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
-    <string name="connect_messaging_channel_notification_title">New Channel</string>
+    <string name="connect_messaging_channel_notification_title">🔔 New Channel 🔔</string>
     <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
 
     <string name="connect_last_update">Updated: %s</string>
