@@ -465,5 +465,13 @@
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
 
+    <!--    Entity List Progresss Indicators-->
+    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
+    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
+    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
+    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+
+
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
 </resources>
