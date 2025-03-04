@@ -171,7 +171,7 @@ public class CaseUtils {
                 new Vector<>());
         Set<String> caseIds = getCaseIdsFromRecordsIds(storage, recordIds);
         Set<String> relatedCaseIds = fullCaseGraph.findConnectedRecords(caseIds);
-        return storage.getIDsForValues(new String[]{INDEX_CASE_ID}, relatedCaseIds.toArray());
+        return storage.getBulkIdsForIndex(INDEX_CASE_ID, relatedCaseIds);
     }
 
     private static Set<String> getCaseIdsFromRecordsIds(SqlStorage<ACase> storage, Set<String> recordIds) {
