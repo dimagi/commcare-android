@@ -43,6 +43,8 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20231013'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     androidTestImplementation 'androidx.test:runner:1.4.0'

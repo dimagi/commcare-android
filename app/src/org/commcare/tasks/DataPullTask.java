@@ -451,6 +451,7 @@ public abstract class DataPullTask<R>
         recordSuccessfulSyncTime(username);
 
         ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
+        CommCareApplication.instance().scheduleEntityCacheInvalidation();
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
