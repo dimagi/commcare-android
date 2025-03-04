@@ -492,14 +492,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void observePrimeCacheWorker() {
-        PrimeEntityCacheHelper primeEntityCacheHelper =
-                CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
-        primeEntityCacheHelper.getProgressState().observe(this, triple -> {
-            if (triple.getFirst().contentEquals(selectDatum.getDataId()) &&
-                    triple.getSecond().contentEquals(shortSelect.getId())) {
-                deliverProgress(triple.getThird());
-            }
-        });
+        if (shortSelect.shouldOptimize()) {
+            PrimeEntityCacheHelper primeEntityCacheHelper =
+                    CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
+            primeEntityCacheHelper.getProgressState().observe(this, triple -> {
+                if (triple.getFirst().contentEquals(selectDatum.getDataId()) &&
+                        triple.getSecond().contentEquals(shortSelect.getId())) {
+                    deliverProgress(triple.getThird());
+                }
+            });
+        }
     }
 
     @Override
