@@ -1,8 +1,17 @@
 package org.commcare.connect;
 
+import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
+
+import static org.commcare.utils.StringUtils.convertDpToPixel;
+
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -852,22 +861,25 @@ public class ConnectDatabaseHelper {
             List<ConnectMessagingMessageRecord> messages = channel.getMessages();
             ConnectMessagingMessageRecord lastMessage = messages.size() > 0 ?
                     messages.get(messages.size() - 1) : null;
-            String preview = "";
+            SpannableString preview;
             if(!channel.getConsented()) {
-                preview = context.getString(R.string.connect_messaging_channel_list_unconsented);
+                preview = new SpannableString(context.getString(R.string.connect_messaging_channel_list_unconsented));
             } else if(lastMessage != null) {
-                int senderId = lastMessage.getIsOutgoing() ?
-                        R.string.connect_messaging_channel_preview_you :
-                        R.string.connect_messaging_channel_preview_them;
-                String sender = context.getString(senderId);
 
                 String trimmed = lastMessage.getMessage().split("\n")[0];
                 int maxLength = 25;
                 if(trimmed.length() > maxLength) {
                     trimmed = trimmed.substring(0, maxLength - 3) + "...";
                 }
-
-                preview = String.format("%s: %s", sender, trimmed);
+                preview = new SpannableString(lastMessage.getIsOutgoing()? "  "+trimmed:trimmed);
+                if(lastMessage.getIsOutgoing()){
+                    Drawable drawable = lastMessage.getConfirmed() ? ContextCompat.getDrawable(context, R.drawable.ic_connect_message_read) : ContextCompat.getDrawable(context, R.drawable.ic_connect_message_unread);
+                    float lineHeight = convertDpToPixel(14);
+                    drawable.setBounds(0,0,(int) lineHeight, (int) lineHeight);
+                    preview.setSpan(new ImageSpan(drawable), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            } else {
+                preview = new SpannableString("");
             }
 
             channel.setPreview(preview);

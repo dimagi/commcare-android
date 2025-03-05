@@ -1,5 +1,7 @@
 package org.commcare.android.database.connect.models;
 
+import android.text.SpannableString;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -62,7 +64,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     @MetaField(META_KEY)
     private String key;
 
-    private String preview;
+    private SpannableString preview;
 
     private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
 
@@ -153,11 +155,11 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     }
     public List<ConnectMessagingMessageRecord> getMessages() { return messages; }
 
-    public void setPreview(String preview) {
+    public void setPreview(SpannableString preview) {
         this.preview = preview;
     }
 
-    public String getPreview() {
+    public SpannableString getPreview() {
         return preview;
     }
 }

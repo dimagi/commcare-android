@@ -1,7 +1,9 @@
 package org.commcare.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.text.Spannable;
+import android.util.DisplayMetrics;
 
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -48,5 +50,11 @@ public class StringUtils {
             ret = c.getString(resId, args);
         }
         return MarkupUtil.styleSpannable(c, ret);
+    }
+
+    public static float convertDpToPixel(float dp){
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        float px = dp * (metrics.densityDpi / 160f);
+        return Math.round(px);
     }
 }
