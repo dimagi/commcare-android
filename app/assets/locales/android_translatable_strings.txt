@@ -180,7 +180,6 @@ login.password=Password
 login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Log In
-login.app.connect=Go to Connect Jobs
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.welcome.single=Welcome back! Please log in.

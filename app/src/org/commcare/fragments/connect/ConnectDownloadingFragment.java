@@ -49,7 +49,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         getLearnApp = args.getLearning();
 
         //Disable back button during install (done by providing empty callback)
-        setBackButtonEnabled(false);
+        setBackButtonAndActionBarState(false);
 
         //Disable the default wait dialog during this fragment since it displays progress on its own
         setWaitDialogEnabled(false);
@@ -57,10 +57,10 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
         startAppDownload();
     }
 
-    private void setBackButtonEnabled(boolean enabled) {
+    private void setBackButtonAndActionBarState(boolean enabled) {
         Activity activity = getActivity();
         if(activity instanceof ConnectActivity connectActivity) {
-            connectActivity.setBackButtonEnabled(enabled);
+            connectActivity.setBackButtonAndActionBarState(enabled);
         }
     }
 
@@ -109,7 +109,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     public void onSuccessfulVerification() {
-        setBackButtonEnabled(true);
+        setBackButtonAndActionBarState(true);
         View view = getView();
         if (view != null) {
             Navigation.findNavController(view).popBackStack();
@@ -127,7 +127,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void showInstallFailError(AppInstallStatus statusmissing) {
-        setBackButtonEnabled(true);
+        setBackButtonAndActionBarState(true);
         setWaitDialogEnabled(true);
         String installError = getString(R.string.connect_app_install_unknown_error);
         try {

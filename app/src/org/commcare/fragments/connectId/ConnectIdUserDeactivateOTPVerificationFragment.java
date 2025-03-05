@@ -322,11 +322,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             }
         };
 
-        boolean isBusy;
-        isBusy = !ApiConnectId.requestInitiateAccountDeactivation(requireActivity(), username, password, callback);
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+        ApiConnectId.requestInitiateAccountDeactivation(requireActivity(), username, password, callback);
     }
 
     public void verifySmsCode() {
@@ -373,11 +369,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             }
         };
 
-        boolean isBusy;
-        isBusy = !ApiConnectId.confirmUserDeactivation(requireActivity(), username, password, token, callback);
-        if (isBusy) {
-            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-        }
+        ApiConnectId.confirmUserDeactivation(requireActivity(), username, password, token, callback);
     }
 
     private void logRecoveryResult(boolean success) {
