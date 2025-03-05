@@ -349,6 +349,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } else if (requestCode == FormEntryConstants.INTENT_CALLOUT) {
                 processIntentResponse(intent, true);
                 Toast.makeText(this, Localization.get("intent.callout.cancelled"), Toast.LENGTH_SHORT).show();
+            } else if (requestCode == FormEntryConstants.LOCATION_CAPTURE){
+                Toast.makeText(this, Localization.get("location.capture.cancelled"), Toast.LENGTH_SHORT).show();
             }
         } else {
             switch (requestCode) {
