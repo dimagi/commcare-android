@@ -2,7 +2,6 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -547,7 +546,7 @@ public class ApiConnectId {
                 channel.setKey(json.getString("key"));
                 ConnectDatabaseHelper.storeMessagingChannel(context, channel);
             }
-        } catch(Exception e) {
+        } catch(IOException | JSONException e) {
             Logger.exception("Messaging channel encryption key", e);
         }
     }
