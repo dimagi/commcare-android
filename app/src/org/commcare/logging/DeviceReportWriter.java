@@ -1,5 +1,7 @@
 package org.commcare.logging;
 
+import android.os.Build;
+
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.javarosa.DeviceReportRecord;
@@ -97,6 +99,8 @@ public class DeviceReportWriter {
         writeText("device_id", did);
         writeText("report_date", DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601));
         writeText("app_version", AppUtils.getCurrentVersionString());
+        writeText("device_model", Build.MODEL);
+        writeText("android_version", Build.VERSION.RELEASE);
     }
 
     private void writeUserReport() throws IllegalArgumentException, IllegalStateException, IOException {
