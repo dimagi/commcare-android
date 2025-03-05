@@ -295,6 +295,8 @@
     <string name="notification_channel_server_communication_description">Notificações sobre o status de qualquer comunicação do servidor em segundo plano acontecendo no momento, como atualizações do aplicativo CommCare, envio de log, etc.</string>
     <string name="notification_channel_push_notfications_title">Notificações prioritárias do servidor</string>
     <string name="notification_channel_push_notfications_description">Notificações enviadas diretamente do servidor para notificar o usuário sobre tarefas prioritárias</string>
+    <string name="notification_channel_messaging_title">Mensagens da CommCare</string>
+    <string name="notification_channel_messaging_description">Notificações enviadas diretamente do servidor para notificar o usuário sobre mensagens recebidas e novos canais</string>
     <string name="recovery_measure_reinstall_method">Escolha o método de reinstalação</string>
     <string name="recovery_measure_reinstall_detail">Seu aplicativo precisa ser reinstalado devido a um problema. Selecione um método para reinstalar.</string>
     <string name="recovery_measure_reinstall_online_method">Reinstalação on-line</string>

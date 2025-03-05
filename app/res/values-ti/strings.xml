@@ -283,6 +283,8 @@
     <string name="notification_channel_server_communication_description">ኣብዚ እዋን ዝፍፀሙ ዝኾነ ይኹን ድሕረ ባይታ ርክብ ሰርቨር ዝምልከት ሓበሬታታት ከም ኮምኬር ኣፕሊኬሽን ምዝማን, መዝገብ ምርካብ ወዘተ</string>
     <string name="notification_channel_push_notfications_title">ቀዳምነት ዝወሃቦም ካብ ሰርቨር ዝመፁ መልእክትታት</string>
     <string name="notification_channel_push_notfications_description">ብቐጥታ ንተጠቃሚ ቀዳምነት ዝወሃቦም ዕማማት ንምሕባር ካብ ሰርቨር ዝልኣኹ መልእክትታት</string>
+    <string name="notification_channel_messaging_title">መልእኽትታት ካብ ኮምኬር</string>
+    <string name="notification_channel_messaging_description">ካብ ሰርቨር ብቐጥታ ዝለኣኹ መተሓሳሰቢታት ንተጠቃሚ ዝኣትዉ መልእኽትታትን ሓደስቲ ቻነላትን ንምሕባር</string>
     <string name="recovery_measure_reinstall_method">ሜላ ዳግማይ ምፅዓን ምረፅ</string>
     <string name="recovery_measure_reinstall_detail">ኣፕሊኬሽንኩም ብሰንኪ ዘጋጠሞ ፀገም ዳግማይ ምፅዓን የድልዮ፣ በይዝኦም ዳግማይ ንምፅዓን ዝሕግዝ ሜላ ይምረፁ</string>
     <string name="recovery_measure_reinstall_online_method">online ዳግማይ ምፅዓን</string>
