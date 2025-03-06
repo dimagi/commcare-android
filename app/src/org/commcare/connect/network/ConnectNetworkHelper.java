@@ -198,7 +198,8 @@ public class ConnectNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(getResponseProcessor(context, url, background, handler));
+        postTask.connect(getResponseProcessor(context, url, authInfo instanceof AuthInfo.TokenAuth,
+                background, handler));
 
         postTask.executeParallel();
 
@@ -324,14 +325,15 @@ public class ConnectNetworkHelper {
                         ArrayListMultimap.create(),
                         headers,
                         authInfo);
-        getTask.connect(getResponseProcessor(context, url, background, handler));
+        getTask.connect(getResponseProcessor(context, url, authInfo instanceof AuthInfo.TokenAuth,
+                background, handler));
         getTask.executeParallel();
 
         return true;
     }
 
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, String url, boolean background, IApiCallback handler) {
+            Context context, String url, boolean usingTokenAuth, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
@@ -351,6 +353,11 @@ public class ConnectNetworkHelper {
                     handler.processOldApiError();
                 } else {
                     //400 error
+                    if(responseCode == 401 && usingTokenAuth) {
+                        Logger.exception("Invalid token", new Exception("Invalid token during API call"));
+                        ConnectSsoHelper.discardTokens(context, null);
+                    }
+
                     handler.processFailure(responseCode, null);
                 }
             }
