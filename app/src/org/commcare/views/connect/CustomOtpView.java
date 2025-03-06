@@ -17,57 +17,35 @@ import androidx.annotation.Nullable;
 
 import org.commcare.dalvik.R;
 
-/**
- * CustomOtpView is a customizable OTP input field view that consists of multiple EditText fields.
- * Users can configure the number of digits, border properties, text color, and other attributes via XML.
- */
 public class CustomOtpView extends LinearLayout {
 
-    private int digitCount;
-    private int borderColor;
-    private int errorBorderColor;
-    private int borderRadius;
-    private int borderWidth;
-    private int textColor;
-    private int errorTextColor;
-    private float textSize;
+    private int digitCount = 4;
+    private int borderColor = Color.BLACK;
+    private int errorBorderColor = Color.RED;
+    private int borderRadius = 5;
+    private int borderWidth = 2;
+    private int textColor = Color.BLACK;
+    private int errorTextColor = Color.RED;
+    private float textSize = 10;
     private OtpCompleteListener otpCompleteListener;
     private OnOtpChangedListener otpChangedListener;
     private boolean isErrorState = false;
 
-    /**
-     * Constructor for programmatic instantiation.
-     */
     public CustomOtpView(Context context) {
         super(context);
         init(null);
     }
 
-    /**
-     * Constructor used when inflating from XML.
-     */
     public CustomOtpView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
     }
 
-    /**
-     * Initializes the view and reads XML attributes if provided.
-     */
     private void init(AttributeSet attrs) {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
 
-        // Set default values
-        digitCount = 4;
-        borderColor = Color.BLACK;
-        errorBorderColor = Color.RED;
-        borderRadius = 5;
-        borderWidth = 2;
-        textColor = Color.BLACK;
-        errorTextColor = Color.RED;
-        textSize = 14;
-
+        // Read attributes from XML
         if (attrs != null) {
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CustomOtpView);
             digitCount = typedArray.getInt(R.styleable.CustomOtpView_otpViewDigitCount, digitCount);
@@ -84,9 +62,6 @@ public class CustomOtpView extends LinearLayout {
         createOtpFields();
     }
 
-    /**
-     * Creates the OTP input fields dynamically based on the digit count.
-     */
     private void createOtpFields() {
         removeAllViews();
         for (int i = 0; i < digitCount; i++) {
@@ -95,12 +70,11 @@ public class CustomOtpView extends LinearLayout {
         }
     }
 
-    /**
-     * Creates an individual EditText for OTP input.
-     */
     private EditText createOtpEditText(int index) {
         EditText editText = new EditText(getContext());
-        LayoutParams params = new LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                0, LayoutParams.WRAP_CONTENT, 1.0f
+        );
         params.setMargins(8, 8, 8, 8);
         editText.setLayoutParams(params);
         editText.setGravity(Gravity.CENTER);
@@ -109,12 +83,99 @@ public class CustomOtpView extends LinearLayout {
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackground(createBackgroundDrawable());
         editText.setId(index);
+
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && index > 0 && ((EditText) getChildAt(index)).getText().length() == 0) {
+                // Move to the first empty edit text if it's focused and empty
+                for (int i = 0; i < digitCount; i++) {
+                    if (((EditText) getChildAt(i)).getText().length() == 0) {
+                        getChildAt(i).requestFocus();
+                        break;
+                    }
+                }
+            }
+        });
+
+        editText.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                int edtIndex = index > 0 ? index - 1 : 0;
+
+                if(index == 5) {
+                    //Check for special case where we need to delete last digit and stay in the cell
+                    EditText last = (EditText)getChildAt(index);
+                    if(last.getText().length() > 0) {
+                        edtIndex++;
+                    }
+                }
+
+                EditText edt = (EditText)getChildAt(edtIndex);
+                edt.setText("");
+                edt.requestFocus();
+                return true; // Consume the event
+            }
+            return false;
+        });
+
+        editText.addTextChangedListener(new TextWatcher() {
+            private boolean isSelfTriggered = false;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (isSelfTriggered) {
+                    return;
+                }
+
+                setErrorState(false);
+
+                if (s.length() == 1) {
+                    // Overwrite the existing value and move to the next EditText
+                    if (index < digitCount - 1) {
+                        EditText nextEditText = (EditText) getChildAt(index + 1);
+                        nextEditText.setText(""); // Clear next field
+                        nextEditText.requestFocus();
+                    } else {
+                        checkOtpCompletion();
+                    }
+                    if (otpChangedListener != null) {
+                        String otp = getOtpValue();
+                        otpChangedListener.onOtpChanged(otp);
+                    }
+                } else if (s.length() > 1) {
+                    // If more than one character, replace with the latest input
+                    char lastChar = s.charAt(s.length() - 1);
+                    String text = "";
+                    if(Character.isDigit(lastChar)) {
+                        text = String.valueOf(lastChar);
+                    }
+                    editText.setText(text);
+                } else if (otpChangedListener != null) {
+                    String otp = getOtpValue();
+                    otpChangedListener.onOtpChanged(otp);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isSelfTriggered) return;
+
+                if (s.length() > 1) {
+                    // Ensure only the last character is preserved
+                    isSelfTriggered = true;
+                    editText.setText(s.subSequence(s.length() - 1, s.length()));
+                    editText.setSelection(1); // Place cursor after the character
+                    isSelfTriggered = false;
+                }
+            }
+        });
+
+
         return editText;
     }
 
-    /**
-     * Retrieves the entered OTP as a string.
-     */
     public String getOtpValue() {
         StringBuilder otp = new StringBuilder();
         for (int i = 0; i < digitCount; i++) {
@@ -124,9 +185,6 @@ public class CustomOtpView extends LinearLayout {
         return otp.toString();
     }
 
-    /**
-     * Creates a background drawable for OTP fields.
-     */
     private GradientDrawable createBackgroundDrawable() {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(borderRadius);
@@ -134,45 +192,52 @@ public class CustomOtpView extends LinearLayout {
         return drawable;
     }
 
-    /**
-     * Sets an OTP completion listener.
-     */
+    private void checkOtpCompletion() {
+        StringBuilder otp = new StringBuilder();
+        for (int i = 0; i < digitCount; i++) {
+            EditText editText = (EditText) getChildAt(i);
+            otp.append(editText.getText().toString());
+        }
+        if (otp.length() == digitCount && otpCompleteListener != null) {
+            otpCompleteListener.onOtpComplete(otp.toString());
+        }
+    }
+
+    // Public methods for customization
     public void setOtpCompleteListener(OtpCompleteListener listener) {
         this.otpCompleteListener = listener;
     }
 
-    /**
-     * Sets an OTP changed listener.
-     */
     public void setOnOtpChangedListener(OnOtpChangedListener listener) {
         this.otpChangedListener = listener;
     }
-    /**
-     * Sets the error in the view make the view red in case of error.
-     * Dont forgot to set it to false when the error is resolved
-     */
+
     public void setErrorState(boolean isError) {
         this.isErrorState = isError;
-        post(this::updateUi);  // Ensure UI updates happen on the main thread
+        updateUi();
     }
 
     private void updateUi() {
         for (int i = 0; i < getChildCount(); i++) {
             EditText editText = (EditText) getChildAt(i);
-            if (editText != null) {
-                editText.setTextColor(isErrorState ? errorTextColor : textColor);
-                editText.setBackground(createBackgroundDrawable());
-            }
+            editText.setTextColor(isErrorState ? errorTextColor : textColor);
+            editText.setBackground(createBackgroundDrawable());
         }
     }
 
-    /**
-     * Sets the OTP in the fields programmatically.
-     */
+    public interface OtpCompleteListener {
+        void onOtpComplete(String otp);
+    }
+
+    public interface OnOtpChangedListener {
+        void onOtpChanged(String otp);
+    }
+
     public void setOtp(String otp) {
         if (otp.length() > digitCount) {
             throw new IllegalArgumentException("OTP length exceeds the digit count");
         }
+
         for (int i = 0; i < digitCount; i++) {
             EditText editText = (EditText) getChildAt(i);
             if (i < otp.length()) {
@@ -180,21 +245,7 @@ public class CustomOtpView extends LinearLayout {
             } else {
                 editText.setText("");
             }
-            editText.clearFocus();
+            editText.clearFocus(); // Ensure no field remains focused
         }
-    }
-
-    /**
-     * Interface for OTP completion event.
-     */
-    public interface OtpCompleteListener {
-        void onOtpComplete(String otp);
-    }
-
-    /**
-     * Interface for OTP changed event.
-     */
-    public interface OnOtpChangedListener {
-        void onOtpChanged(String otp);
     }
 }

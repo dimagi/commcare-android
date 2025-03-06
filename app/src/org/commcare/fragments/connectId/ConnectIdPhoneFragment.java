@@ -51,6 +51,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     private int callingClass;
     private ScreenConnectPrimaryPhoneBinding binding;
     protected boolean skipPhoneNumberCheck = false;
+
     private PhoneNumberHelper phoneNumberHelper;
 
     TextWatcher watcher = new TextWatcher() {
@@ -96,27 +97,11 @@ public class ConnectIdPhoneFragment extends Fragment {
             existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
             callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
         }
-        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
+        phoneNumberHelper= new PhoneNumberHelper(requireActivity());
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                phoneNumberHelper.requestPhoneNumberHint(registerForActivityResult(
-                        new ActivityResultContracts.StartIntentSenderForResult(),
-                        result -> {
-                            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                                Intent data = result.getData();
-                                String phoneNumber;
-                                try {
-                                    phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
-                                    displayNumber(phoneNumber);
-                                } catch (ApiException e) {
-                                    Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                                    Logger.exception("Retrieved phone hint but encountered an ApiException", e);
-                                }
-
-                            }
-                        }),
-                        getActivity());
+                phoneNumberHelper.requestPhoneNumberHint(getActivity(),null);
             }
         };
 
@@ -214,7 +199,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
     //8556
     void displayNumber(String fullNumber) {
-        int code = phoneNumberHelper.getCountryCode(requireActivity().getResources().getConfiguration().locale);
+        int code = phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         if (fullNumber != null && fullNumber.length() > 0) {
             code = phoneNumberHelper.getCountryCode(fullNumber);
         }

@@ -8,6 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.commcare.connect.ConnectIDManager
 import org.commcare.connect.network.ApiConnectId
+import org.commcare.connect.network.ConnectNetworkServiceFactory
+import org.commcare.connect.network.HeartBeatBody
+import org.commcare.utils.FirebaseMessagingUtil
 import org.javarosa.core.services.Logger
 
 class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
@@ -21,19 +24,19 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
                             return@withContext Result.failure()
                         }
                         //NOTE: Using trad'l code route instead until we can get the commented code to work
-                        //val connectNetworkService = ConnectNetworkServiceFactory.createConnectIdNetworkSerive()
-                        //val fcmToken = FirebaseMessagingUtil.getFCMToken();
-                        //val requestBody = HeartBeatBody(fcmToken)
-                        //val response = connectNetworkService.makeHeartbeatRequest(requestBody)!!.execute()
-                        //return@withContext if (response.isSuccessful) Result.success() else Result.failure()
+                        val connectNetworkService = ConnectNetworkServiceFactory.createConnectIdNetworkSerive()
+                        val fcmToken = FirebaseMessagingUtil.getFCMToken();
+                        val requestBody = HeartBeatBody(fcmToken)
+                        val response = connectNetworkService.makeHeartbeatRequest(requestBody)!!.execute()
+                        return@withContext if (response.isSuccessful) Result.success() else Result.failure()
 
-                        val result = ApiConnectId.makeHeartbeatRequestSync(applicationContext)
-                        return@withContext if (result.responseCode in 200..299) {
-                            Result.success()
-                        } else {
-                            Logger.log(TAG, "Heartbeat failed with response code: ${result.responseCode}")
-                            Result.failure()
-                        }
+//                        val result = ApiConnectId.makeHeartbeatRequestSync(applicationContext)
+//                        return@withContext if (result.responseCode in 200..299) {
+//                            Result.success()
+//                        } else {
+//                            Logger.log(TAG, "Heartbeat failed with response code: ${result.responseCode}")
+//                            Result.failure()
+//                        }
                     } catch (e: Exception) {
                         Logger.log(TAG, "Error during heartbeat: $e")
                         return@withContext Result.failure()

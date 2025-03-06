@@ -21,6 +21,7 @@ import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.io.StreamsUtil;
@@ -229,6 +230,23 @@ public class ConnectIDManager {
         ConnectIdActivity connectIdActivity=new ConnectIdActivity();
         connectIdActivity.reset();
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
+    }
+
+    public static AuthInfo.TokenAuth getConnectToken() {
+        if (isLoggedIN()) {
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+            Date currentDate = new Date();
+            if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "Found a valid existing Connect Token with current date set to " + currentDate +
+                                " and record expiration date being " + user.getConnectTokenExpiration());
+                return new AuthInfo.TokenAuth(user.getConnectToken().bearerToken);
+            } else if (user != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
+            }
+        }
+
+        return null;
     }
 
     private void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {

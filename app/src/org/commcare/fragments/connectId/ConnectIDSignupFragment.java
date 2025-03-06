@@ -38,6 +38,8 @@ import java.io.InputStream;
 import java.security.SecureRandom;
 import java.util.Locale;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -52,7 +54,8 @@ public class ConnectIDSignupFragment extends Fragment {
     private boolean showhPhoneDialog = true;
     private ConnectUserRecord user;
     NavDirections directions = null;
-    private PhoneNumberHelper phoneNumberHelper;
+    private ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher;
+    PhoneNumberHelper phoneNumberHelper;
 
 
     public ConnectIDSignupFragment() {
@@ -75,39 +78,39 @@ public class ConnectIDSignupFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSignupBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        requireActivity().setTitle(R.string.connect_registration_title);
+        requireActivity().setTitle(getString(R.string.connect_registration_title));
+        phoneNumberHelper= new PhoneNumberHelper(requireActivity());
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
         if (getArguments() != null) {
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
             existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
         }
-        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
+        phoneNumberHintLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        String phoneNumber;
+                        try {
+                            phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
+                            displayNumber(phoneNumber);
+                        } catch (ApiException e) {
+                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
+                            throw new RuntimeException(e);
+                        }
 
+                    }
+                }
+        );
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && showhPhoneDialog) {
-                phoneNumberHelper.requestPhoneNumberHint(    registerForActivityResult(
-                        new ActivityResultContracts.StartIntentSenderForResult(),
-                        result -> {
-                            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                                Intent data = result.getData();
-                                String phoneNumber;
-                                try {
-                                    phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
-                                    displayNumber(phoneNumber);
-                                } catch (ApiException e) {
-                                    Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                                    throw new RuntimeException(e);
-                                }
-
-                            }
-                        }
-                ),getActivity());
+                phoneNumberHelper.requestPhoneNumberHint(requireActivity(), phoneNumberHintLauncher);
                 showhPhoneDialog = false;
             }
         };
 
-        binding.countryCode.setText(phoneNumberHelper.getDefaultCountryCode());
+        binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.countryCode.setOnFocusChangeListener(listener);
 
@@ -154,7 +157,6 @@ public class ConnectIDSignupFragment extends Fragment {
         if (!existingPhone.isEmpty()) {
             displayNumber(existingPhone);
         }
-        requireActivity().setTitle(getString(R.string.connect_registration_title));
         return view;
     }
 
@@ -204,7 +206,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void displayNumber(String fullNumber) {
-        int code = phoneNumberHelper.getCountryCode(requireActivity().getResources().getConfiguration().locale);
+        int code = phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         if (fullNumber != null && fullNumber.length() > 0) {
             code = phoneNumberHelper.getCountryCode(fullNumber);
         }
@@ -289,7 +291,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                         @Override
                                         public void processFailure(int responseCode, IOException e) {
                                             skipPhoneNumberCheck = false;
-                                            if(responseCode==406){
+                                            if (responseCode == 406) {
                                                 skipPhoneNumberCheck = false;
                                                 updateButtonEnabled();
                                                 binding.errorTextView.setVisibility(View.VISIBLE);
