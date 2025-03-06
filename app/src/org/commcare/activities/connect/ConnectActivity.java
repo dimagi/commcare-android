@@ -169,9 +169,9 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     public void updateMessagingIcon() {
         if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_menu_notification_none;
+            int icon = R.drawable.ic_connect_messaging_base;
             if(ConnectDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_menu_notification;
+                icon = R.drawable.ic_connect_messaging_unread;
             }
             messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
         }
