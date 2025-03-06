@@ -547,7 +547,7 @@ public class ApiConnectId {
                 ConnectDatabaseHelper.storeMessagingChannel(context, channel);
             }
         } catch(IOException | JSONException e) {
-            Logger.exception("Messaging channel encryption key", e);
+            throw new RuntimeException(e);
         }
     }
 
