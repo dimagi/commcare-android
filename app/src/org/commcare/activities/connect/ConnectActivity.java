@@ -41,7 +41,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
-    private boolean backButtonEnabled = true;
+    private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     String redirectionAction = "";
     String opportunityId = "";
@@ -160,11 +160,18 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_notification).setVisible(backButtonAndActionBarEnabled);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     public void updateMessagingIcon() {
         if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_menu_notification_none;
+            int icon = R.drawable.ic_connect_messaging_base;
             if(ConnectDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_menu_notification;
+                icon = R.drawable.ic_connect_messaging_unread;
             }
             messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
         }
@@ -192,7 +199,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     @Override
     public void onBackPressed() {
-        if (backButtonEnabled) {
+        if (backButtonAndActionBarEnabled) {
             super.onBackPressed();
         }
     }
@@ -221,8 +228,9 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         return null;
     }
 
-    public void setBackButtonEnabled(boolean enabled) {
-        backButtonEnabled = enabled;
+    public void setBackButtonAndActionBarState(boolean enabled) {
+        backButtonAndActionBarEnabled = enabled;
+        invalidateOptionsMenu();
     }
 
     public void setWaitDialogEnabled(boolean enabled) {

@@ -4,14 +4,21 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
@@ -94,6 +101,21 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 
+    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
+        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = (DrawableCompat.wrap(drawable)).mutate();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
     /**
      * This method purpose is to show notifications to the user when the app is in the foreground.
      * When the app is in the background, FCM is responsible for notifying the user
@@ -104,11 +126,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent intent = null;
         String action = payloadData.get("action");
+        String notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
+        int priority = NotificationCompat.PRIORITY_HIGH;
+        Bitmap largeIcon = null;
 
         if (hasCccAction(action)) {
             FirebaseAnalyticsUtil.reportNotificationType(action);
 
             if(action.equals(ConnectMessagingActivity.CCC_MESSAGE)) {
+                notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID;
+                priority = NotificationCompat.PRIORITY_MAX;
+                largeIcon = getBitmapFromVectorDrawable(getApplicationContext(), R.drawable.ic_connect_message_large);
+
                 boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
 
                 //Don't show a notification in some cases:
@@ -189,14 +218,18 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
             NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
-                    CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID)
+                    notificationChannel)
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationText)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                     .setSmallIcon(R.drawable.commcare_actionbar_logo)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setPriority(priority)
                     .setWhen(System.currentTimeMillis());
+
+            if(largeIcon != null) {
+                fcmNotification.setLargeIcon(largeIcon);
+            }
 
             // Check if the payload action is CCC_PAYMENTS
             if (action.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
