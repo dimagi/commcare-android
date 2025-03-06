@@ -77,8 +77,17 @@ public class PhoneNumberHelper {
     /**
      * Retrieves the country code for the user's current locale.
      */
-    public int getCountryCode(Locale locale) {
+    public int getCountryCodeFromLocale(Context context) {
+        Locale locale = context.getResources().getConfiguration().locale;
         return phoneNumberUtil.getCountryCodeForRegion(locale.getCountry());
+    }
+
+    public String setDefaultCountryCode(Context context) {
+        int code = getCountryCodeFromLocale(context);
+        if (code > 0) {
+            return "+" + code;
+        }
+        return "";
     }
 
     /**

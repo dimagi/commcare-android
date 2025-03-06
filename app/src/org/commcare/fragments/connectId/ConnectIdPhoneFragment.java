@@ -101,7 +101,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                phoneNumberHelper.requestPhoneNumberHint(getActivity(),null);
+                phoneNumberHelper.requestPhoneNumberHint(null,getActivity());
             }
         };
 

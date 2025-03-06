@@ -105,7 +105,7 @@ public class ConnectIDSignupFragment extends Fragment {
         );
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && showhPhoneDialog) {
-                phoneNumberHelper.requestPhoneNumberHint(requireActivity(), phoneNumberHintLauncher);
+                phoneNumberHelper.requestPhoneNumberHint(phoneNumberHintLauncher, requireActivity());
                 showhPhoneDialog = false;
             }
         };
