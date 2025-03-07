@@ -1,10 +1,7 @@
 package org.commcare.connect;
 
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
 import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
-import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,7 +25,6 @@ import androidx.work.WorkManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
