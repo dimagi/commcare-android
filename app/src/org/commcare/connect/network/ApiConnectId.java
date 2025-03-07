@@ -9,6 +9,7 @@ import com.google.common.collect.Multimap;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDatabaseHelper;
@@ -509,6 +510,21 @@ public class ApiConnectId {
                 API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
     }
 
+    public static void retrieveChannelEncryptionKeySync(Context context, ConnectMessagingChannelRecord channel) {
+        AuthInfo.TokenAuth auth = ApiConnectId.retrieveConnectIdTokenSync(context);
+        if(auth != null) {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("channel_id", channel.getChannelId());
+
+            ConnectNetworkHelper.PostResult result = ConnectNetworkHelper.postSync(context,
+                    channel.getKeyUrl(), null, auth, params, true, true);
+
+            if(result.responseCode >= 200 && result.responseCode < 300) {
+                handleReceivedEncryptionKey(context, result.responseStream, channel);
+            }
+        }
+    }
+
     public static void retrieveChannelEncryptionKey(Context context, String channelId, String channelUrl, IApiCallback callback) {
         ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
             HashMap<String, Object> params = new HashMap<>();
@@ -518,6 +534,23 @@ public class ApiConnectId {
                     channelUrl,
                     null, token, params, true, true, callback);
         });
+    }
+
+    public static void handleReceivedEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
+        try {
+            String responseAsString = new String(
+                    StreamsUtil.inputStreamToByteArray(stream));
+
+            if(responseAsString.length() > 0) {
+                JSONObject json = new JSONObject(responseAsString);
+                channel.setKey(json.getString("key"));
+                ConnectDatabaseHelper.storeMessagingChannel(context, channel);
+            }
+        } catch(JSONException e) {
+            throw new RuntimeException(e);
+        } catch(IOException e) {
+            Logger.exception("Parsing return from key request", e);
+        }
     }
 
     public static void confirmReceivedMessages(Context context, String username, String password,
