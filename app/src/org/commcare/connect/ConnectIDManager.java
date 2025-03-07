@@ -7,6 +7,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
@@ -16,14 +17,17 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -65,8 +69,14 @@ public class ConnectIDManager {
         LoggedIn//User Loggedin ConnectId
     }
 
+    public enum ConnectAppMangement {
+        Unmanaged, ConnectId, Connect
+    }
+
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
+    public static final int PENDING_ACTION_OPP_STATUS = 2;
+    public static final int PENDING_ACTION_NONE = 0;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     public static final int MethodRegistrationPrimary = 1;
@@ -78,6 +88,10 @@ public class ConnectIDManager {
     private Context parentActivity;
     private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
+    private int pendingAction = PENDING_ACTION_NONE;
+    private ConnectJobRecord activeJob = null;
+
+
 
     //Singleton, private constructor
     private ConnectIDManager() {
@@ -123,6 +137,10 @@ public class ConnectIDManager {
         String primed = getInstance().primedAppIdForAutoLogin;
         getInstance().primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
+    }
+
+    public static void setPendingAction(int action) {
+        getInstance().pendingAction = action;
     }
 
     public String generatePassword() {
@@ -259,11 +277,169 @@ public class ConnectIDManager {
         launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, callback);
     }
 
+    public static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+        if (record != null) {
+            record.setLastAccessed(new Date());
+            ConnectAppDatabaseUtil.storeApp(activity, record);
+        }
+    }
+
+    public static void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+        switch(getAppManagement(activity, appId, username)) {
+            case Unmanaged -> {
+                //ConnectID is NOT configured
+                boolean offerToLink = true;
+                boolean isSecondOffer = false;
+
+                ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+                //See if we've offered to link already
+                Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
+                if (firstOffer != null) {
+                    isSecondOffer = true;
+                    //See if we've done the second offer
+                    Date secondOffer = linkedApp.getLinkOfferDate2();
+                    if (secondOffer != null) {
+                        //They've declined twice, we won't bug them again
+                        offerToLink = false;
+                    } else {
+                        //Determine whether to do second offer
+                        int daysToSecondOffer = 30;
+                        long millis = (new Date()).getTime() - firstOffer.getTime();
+                        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+                        offerToLink = days >= daysToSecondOffer;
+                    }
+                }
+
+                if (offerToLink) {
+                    if (linkedApp == null) {
+                        //Create the linked app record (even if just to remember that we offered)
+                        linkedApp = ConnectAppDatabaseUtil.storeApp(activity, appId, username, false, "", false, false);
+                    }
+
+                    //Update that we offered
+                    if (isSecondOffer) {
+                        linkedApp.setLinkOfferDate2(new Date());
+                    } else {
+                        linkedApp.setLinkOfferDate1(new Date());
+                    }
+
+                    final ConnectLinkedAppRecord appRecordFinal = linkedApp;
+                    StandardAlertDialog d = new StandardAlertDialog(activity,
+                            activity.getString(R.string.login_link_connectid_title),
+                            activity.getString(R.string.login_link_connectid_message));
+
+                    d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
+                        activity.dismissAlertDialog();
+
+                        getInstance().unlockConnect(activity, success -> {
+                            if (success) {
+                                appRecordFinal.linkToConnectId(password);
+                                ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
+
+                                //Link the HQ user by aqcuiring the SSO token for the first time
+                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
+                                    if (auth == null) {
+                                        //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
+                                        //TODO: Re-enable when token working again
+                                        //ConnectManager.forgetAppCredentials(appId, username);
+                                    }
+
+                                    callback.connectActivityComplete(true);
+                                });
+                            } else {
+                                callback.connectActivityComplete(false);
+                            }
+                        });
+                    });
+
+                    d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
+                        activity.dismissAlertDialog();
+
+                        //Save updated record indicating that we offered
+                        ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
+
+                        callback.connectActivityComplete(false);
+                    });
+
+                    activity.showAlertDialog(d);
+                    return;
+                }
+            }
+            case ConnectId -> {
+                if (!autoLoggedIn) {
+                    //See if user wishes to permanently sever the connection
+                    StandardAlertDialog d = new StandardAlertDialog(activity,
+                            activity.getString(R.string.login_unlink_connectid_title),
+                            activity.getString(R.string.login_unlink_connectid_message));
+
+                    d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
+                        activity.dismissAlertDialog();
+
+                        getInstance().unlockConnect(activity, success -> {
+                            if (success) {
+                                ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+                                if (linkedApp != null) {
+                                    linkedApp.severConnectIdLink();
+                                    ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
+                                }
+                            }
+
+                            callback.connectActivityComplete(success);
+                        });
+                    });
+
+                    d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
+                        activity.dismissAlertDialog();
+
+                        callback.connectActivityComplete(false);
+                    });
+
+                    activity.showAlertDialog(d);
+                    return;
+                }
+            }
+            default -> {
+                //Connect managed app, nothing to do
+            }
+        }
+
+        callback.connectActivityComplete(false);
+    }
+
+    ///TODO update the code with connect code
+    public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+        switch (job.getStatus()) {
+            case ConnectJobRecord.STATUS_LEARNING -> {
+//                updateLearningProgress(context, job, listener);
+            }
+            case ConnectJobRecord.STATUS_DELIVERING -> {
+//                updateDeliveryProgress(context, job, listener);
+            }
+            default -> {
+                listener.connectActivityComplete(true);
+            }
+        }
+    }
+
     public void goToConnectJobsList(Context parent) {
         manager.parentActivity = parent;
         completeSignin();
 //        Intent i = new Intent(parent, ConnectActivity.class);
 //        parent.startActivity(i);
+    }
+
+    public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
+        ConnectJobRecord job = null;
+
+        ConnectAppRecord appRecord = getInstance().getAppRecord(context, appId);
+        if (appRecord != null) {
+            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
+        }
+
+        setActiveJob(job);
+
+        return job;
     }
 
     public boolean isLoginManagedByConnectId(String appId, String userId) {
@@ -348,6 +524,22 @@ public class ConnectIDManager {
 
     public ConnectUserRecord getUser(Context context) {
         return ConnectUserDatabaseUtil.getUser(context);
+    }
+
+    public static void setActiveJob(ConnectJobRecord job) {
+        getInstance().activeJob = job;
+    }
+
+
+    public static ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
+        ConnectAppRecord record = getInstance().getAppRecord(context, appId);
+        if(record != null) {
+            return ConnectAppMangement.Connect;
+        }
+
+        return getInstance().getCredentialsForApp(appId, userId) != null ?
+                ConnectAppMangement.ConnectId :
+                ConnectAppMangement.Unmanaged;
     }
 
     public BiometricManager getBiometricManager(CommCareActivity<?> parent) {
