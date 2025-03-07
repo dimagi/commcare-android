@@ -2,8 +2,6 @@ package org.commcare.connect;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 
-import static org.commcare.utils.StringUtils.convertDpToPixel;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -38,6 +36,7 @@ import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.util.Base64;
+import org.commcare.utils.DimensionUtils;
 import org.commcare.utils.EncryptionUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -874,7 +873,7 @@ public class ConnectDatabaseHelper {
                 preview = new SpannableString(lastMessage.getIsOutgoing()? "  "+trimmed:trimmed);
                 if(lastMessage.getIsOutgoing()){
                     Drawable drawable = lastMessage.getConfirmed() ? ContextCompat.getDrawable(context, R.drawable.ic_connect_message_read) : ContextCompat.getDrawable(context, R.drawable.ic_connect_message_unread);
-                    float lineHeight = convertDpToPixel(14);
+                    float lineHeight = DimensionUtils.INSTANCE.convertDpToPixel(14);
                     drawable.setBounds(0,0,(int) lineHeight, (int) lineHeight);
                     preview.setSpan(new ImageSpan(drawable), 0, 1, SPAN_EXCLUSIVE_EXCLUSIVE);
                 }

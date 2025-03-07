@@ -51,10 +51,4 @@ public class StringUtils {
         }
         return MarkupUtil.styleSpannable(c, ret);
     }
-
-    public static float convertDpToPixel(float dp){
-        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
-        float px = dp * (metrics.densityDpi / 160f);
-        return Math.round(px);
-    }
 }
