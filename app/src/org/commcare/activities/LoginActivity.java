@@ -129,10 +129,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
 
-        ColorDrawable colorDrawable
-                = new ColorDrawable(getResources().getColor(R.color.connect_blue_color));
-        getSupportActionBar().setBackgroundDrawable(colorDrawable);
-
         formAndDataSyncer = new FormAndDataSyncer();
 
         ConnectManager.init(this);
@@ -208,38 +204,32 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
-        if(isConnectJobsSelected()) {
+
+        LoginMode loginMode = uiController.getLoginMode();
+
+        //See whether login is managed by ConnectID
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String username = uiController.getEnteredUsername();
+
+        if(appLaunchedFromConnect) {
+            //Auto login
+            doLogin(loginMode, restoreSession, "AUTO");
+        }
+        else if(uiController.loginManagedByConnectId()) {
+            //Unlock and then auto login
             ConnectManager.unlockConnect(this, success -> {
                 if(success) {
-                    ConnectManager.goToConnectJobsList(this);
+                    String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
+                    doLogin(loginMode, restoreSession, pass);
                 }
             });
-        } else {
-            LoginMode loginMode = uiController.getLoginMode();
-
-            //See whether login is managed by ConnectID
-            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            String username = uiController.getEnteredUsername();
-
-            if(appLaunchedFromConnect) {
-                //Auto login
-                doLogin(loginMode, restoreSession, "AUTO");
-            }
-            else if(uiController.loginManagedByConnectId()) {
-                //Unlock and then auto login
-                ConnectManager.unlockConnect(this, success -> {
-                    if(success) {
-                        String pass = ConnectManager.getStoredPasswordForApp(seatedAppId, username);
-                        doLogin(loginMode, restoreSession, pass);
-                    }
-                });
-            }
-            else {
-                //Manual login
-                String passwordOrPin = uiController.getEnteredPasswordOrPin();
-                doLogin(loginMode, restoreSession, passwordOrPin);
-            }
         }
+        else {
+            //Manual login
+            String passwordOrPin = uiController.getEnteredPasswordOrPin();
+            doLogin(loginMode, restoreSession, passwordOrPin);
+        }
+
     }
 
     private void doLogin(LoginMode loginMode, boolean restoreSession, String passwordOrPin) {
@@ -741,12 +731,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         appIdDropdownList.clear();
 
-        boolean includeConnect = ConnectManager.isConnectIdConfigured();
-        if (includeConnect) {
-            appNames.add(Localization.get("login.app.connect"));
-            appIdDropdownList.add("");
-        }
-
         for (ApplicationRecord r : readyApps) {
             appNames.add(r.getDisplayName());
             appIdDropdownList.add(r.getUniqueId());
@@ -770,26 +754,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
     }
 
-    private boolean isConnectJobsSelected() {
-        return ConnectManager.isConnectIdConfigured() && uiController.getSelectedAppIndex() == 0;
-    }
-
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        boolean selectedConnect = isConnectJobsSelected();
-        if(selectedConnect) {
-            uiController.setLoginInputsVisibility(false);
-        } else {
-            // Retrieve the app record corresponding to the app selected
-            selectedAppIndex = position;
-            String appId = appIdDropdownList.get(selectedAppIndex);
-            if (appId.length() > 0) {
-                uiController.setLoginInputsVisibility(true);
-                if (!seatAppIfNeeded(appId)) {
-                    checkForSavedCredentials();
-                }
+
+        // Retrieve the app record corresponding to the app selected
+        selectedAppIndex = position;
+        String appId = appIdDropdownList.get(selectedAppIndex);
+        if (appId.length() > 0) {
+            uiController.setLoginInputsVisibility(true);
+            if (!seatAppIfNeeded(appId)) {
+                checkForSavedCredentials();
             }
         }
+
     }
 
     protected boolean seatAppIfNeeded(String appId) {

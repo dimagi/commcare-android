@@ -1,8 +1,5 @@
 package org.commcare.connect;
 
-import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -27,6 +23,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -54,7 +51,7 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
@@ -89,8 +86,6 @@ public class ConnectManager {
     private static final int APP_DOWNLOAD_TASK_ID = 4;
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
-//    public static final int MethodRecoveryAlternate = 3;
-//    public static final int MethodVerifyAlternate = 4;
 
     public static final int PENDING_ACTION_NONE = 0;
     public static final int PENDING_ACTION_CONNECT_HOME = 1;
@@ -294,7 +289,7 @@ public class ConnectManager {
         return show;
     }
 
-    public static void updateSecondaryPhoneConfirmationTile(Context context, ConstraintLayout tile, boolean show, View.OnClickListener listener) {
+    public static void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
@@ -305,10 +300,10 @@ public class ConnectManager {
             ConnectRegularTextView view = tile.findViewById(R.id.connect_phone_label);
             view.setText(message);
 
-            ConnectMediumTextView yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            RoundedButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
             yesButton.setOnClickListener(listener);
 
-            ConnectMediumTextView noButton = tile.findViewById(R.id.connect_phone_no_button);
+            RoundedButton noButton = tile.findViewById(R.id.connect_phone_no_button);
             noButton.setOnClickListener(v -> {
                 tile.setVisibility(View.GONE);
             });
@@ -351,7 +346,7 @@ public class ConnectManager {
         getInstance().parentActivity = activity;
 
         if (!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode)) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
+            if (requestCode == ConnectConstants.CONNECT_JOB_INFO && resultCode == AppCompatActivity.RESULT_OK) {
                 goToConnectJobsList(activity);
             }
         }
@@ -402,7 +397,7 @@ public class ConnectManager {
     private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
         Intent intent = new Intent(parent, ConnectIdActivity.class);
         intent.putExtra("TASK", task);
-        parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
+        parent.startActivityForResult(intent, ConnectConstants.CONNECT_JOB_INFO);
     }
 
     public static void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
@@ -417,6 +412,12 @@ public class ConnectManager {
         manager.parentActivity = parent;
         completeSignin();
         Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
+    }
+
+    public static void goToMessaging(Context parent) {
+        manager.parentActivity = parent;
+        Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
 
@@ -1039,6 +1040,6 @@ public class ConnectManager {
         }
 
         //Only time not to show is when we're in learn app but job is in delivery state
-        return !record.getIsLearning() || job.getStatus() != STATUS_DELIVERING;
+        return !record.getIsLearning() || job.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
     }
 }

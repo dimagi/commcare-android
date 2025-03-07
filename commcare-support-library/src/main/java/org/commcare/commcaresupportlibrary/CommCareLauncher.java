@@ -13,6 +13,7 @@ public class CommCareLauncher {
     public static void launchCommCareForAppId(Context context, String appId) {
         Intent intent = new Intent(CC_LAUNCH_ACTION);
         intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 }

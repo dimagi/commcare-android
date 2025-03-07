@@ -34,7 +34,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             getCurrentFragment().onActivityResult(requestCode, resultCode, data);
-        } else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
+        } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
             handleRedirection(data);
         }
         if (requestCode == RESULT_OK) {

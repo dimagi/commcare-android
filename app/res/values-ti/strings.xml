@@ -283,6 +283,8 @@
     <string name="notification_channel_server_communication_description">ኣብዚ እዋን ዝፍፀሙ ዝኾነ ይኹን ድሕረ ባይታ ርክብ ሰርቨር ዝምልከት ሓበሬታታት ከም ኮምኬር ኣፕሊኬሽን ምዝማን, መዝገብ ምርካብ ወዘተ</string>
     <string name="notification_channel_push_notfications_title">ቀዳምነት ዝወሃቦም ካብ ሰርቨር ዝመፁ መልእክትታት</string>
     <string name="notification_channel_push_notfications_description">ብቐጥታ ንተጠቃሚ ቀዳምነት ዝወሃቦም ዕማማት ንምሕባር ካብ ሰርቨር ዝልኣኹ መልእክትታት</string>
+    <string name="notification_channel_messaging_title">መልእኽትታት ካብ ኮምኬር</string>
+    <string name="notification_channel_messaging_description">ካብ ሰርቨር ብቐጥታ ዝለኣኹ መተሓሳሰቢታት ንተጠቃሚ ዝኣትዉ መልእኽትታትን ሓደስቲ ቻነላትን ንምሕባር</string>
     <string name="recovery_measure_reinstall_method">ሜላ ዳግማይ ምፅዓን ምረፅ</string>
     <string name="recovery_measure_reinstall_detail">ኣፕሊኬሽንኩም ብሰንኪ ዘጋጠሞ ፀገም ዳግማይ ምፅዓን የድልዮ፣ በይዝኦም ዳግማይ ንምፅዓን ዝሕግዝ ሜላ ይምረፁ</string>
     <string name="recovery_measure_reinstall_online_method">online ዳግማይ ምፅዓን</string>
@@ -562,4 +564,8 @@
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_job_tile_daily_limit">ልዕሊ (ገደብ) ደረት</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
+    <string name="connect_messaging_channel_consent_title">ፍቓድ ንቻነል ሃብ</string>
+    <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
+    <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
+    <string name="connect_messaging_channel_consent_decline">ኣውድቅ</string>
 </resources>

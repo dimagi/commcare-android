@@ -197,4 +197,7 @@
     <color name="connect_tealish_blue_color">#E7EAF8</color>
     <color name="connect_dark_grey">#9CA3AF</color>
     <color name="connect_un_fill_progress">#ebecfa</color>
+    <color name="connect_message_receiver_bg">#5C6FD0</color>
+    <color name="connect_message_sender_bg">#F1F5F9</color>
+    <color name="connect_message_sender_text_color">#334155</color>
 </resources>
