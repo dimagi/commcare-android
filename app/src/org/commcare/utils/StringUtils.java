@@ -1,9 +1,7 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.text.Spannable;
-import android.util.DisplayMetrics;
 
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
