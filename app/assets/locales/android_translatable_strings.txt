@@ -531,7 +531,7 @@ login.attempt.fail.changed.action=If you had unsent data or incomplete forms on 
 
 login.attempt.insufficient.role.permission.title=User doesn't have permission to access the CommCare application
 login.attempt.insufficient.role.permission.detail=The role assigned to your user doesn't have permission to access CommCare mobile application
-login.attempt.insufficient.role.permission.action=Contact your CommCare Administrator or CommCare Support for assistance with this matter
+login.attempt.insufficient.role.permission.action=Contact Support for assistance with this matter
 
 notification.credential.mismatch.title=Mismatching Login Credentials
 notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
