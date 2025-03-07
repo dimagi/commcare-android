@@ -546,8 +546,10 @@ public class ApiConnectId {
                 channel.setKey(json.getString("key"));
                 ConnectDatabaseHelper.storeMessagingChannel(context, channel);
             }
-        } catch(IOException | JSONException e) {
+        } catch(JSONException e) {
             throw new RuntimeException(e);
+        } catch(IOException e) {
+            Logger.exception("Parsing return from key request", e);
         }
     }
 
