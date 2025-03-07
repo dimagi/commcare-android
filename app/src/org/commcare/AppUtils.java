@@ -173,7 +173,7 @@ public class AppUtils {
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
         return Localization.get(application.getString(R.string.app_version_string), new String[]{
-                ccv, String.valueOf(BuildConfig.VERSION_CODE), ccv, buildNumber, buildDate, profileVersion});
+                ccv, String.valueOf(BuildConfig.VERSION_CODE), buildNumber, buildDate, profileVersion});
     }
 
     public static String getCurrentAppId() {
