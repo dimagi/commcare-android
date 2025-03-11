@@ -246,8 +246,7 @@ public class ConnectManager {
 
         BiometricManager bioManager = getBiometricManager(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, allowOtherOptions, callbacks);
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks);
         } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
