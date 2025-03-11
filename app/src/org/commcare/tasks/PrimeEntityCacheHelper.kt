@@ -62,15 +62,17 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
          */
         @JvmStatic
         fun schedulePrimeEntityCacheWorker() {
-            val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java)
-                .addTag(getCurrentAppId())
-                .build()
-            WorkManager.getInstance(CommCareApplication.instance())
-                .enqueueUniqueWork(
-                    getWorkRequestName(),
-                    ExistingWorkPolicy.KEEP,
-                    primeEntityCacheRequest
-                )
+            if (CommCareApplication.instance().commCarePlatform.isEntityCachingEnabled()) {
+                val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java)
+                    .addTag(getCurrentAppId())
+                    .build()
+                WorkManager.getInstance(CommCareApplication.instance())
+                    .enqueueUniqueWork(
+                        getWorkRequestName(),
+                        ExistingWorkPolicy.KEEP,
+                        primeEntityCacheRequest
+                    )
+            }
         }
 
         private fun getWorkRequestName(): String {
