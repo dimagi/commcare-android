@@ -20,6 +20,7 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
+import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -46,11 +47,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
+import androidx.annotation.NonNull;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
+
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
@@ -66,10 +69,10 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
     private static PrototypeFactory testPrototypeFactory;
     private static final ArrayList<String> factoryClassNames = new ArrayList<>();
-
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
+    private boolean skipWorkManager = false;
 
     @Override
     public void onCreate() {
@@ -82,7 +85,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
-
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
@@ -109,6 +111,20 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                 .detectLeakedClosableObjects()
                 .penaltyLog()
                 .build());
+    }
+
+
+    public void initWorkManager() {
+        Context context = ApplicationProvider.getApplicationContext();
+        try {
+            // first try to get instance to see if it's already initialised
+            WorkManager.getInstance(context);
+        } catch (IllegalStateException e) {
+            Configuration config = new Configuration.Builder()
+                    .setMinimumLoggingLevel(Log.DEBUG)
+                    .build();
+            WorkManager.initialize(context, config);
+        }
     }
 
     @Override
@@ -162,7 +178,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
-            for (String variant : baseODK) {
+            for(String variant : baseODK) {
                 addExternalizableClassesFromDir(variant.replace("/", File.separator), factoryClassNames);
             }
             addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
@@ -323,5 +339,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     @Override
     public boolean isNsdServicesEnabled() {
         return false;
+    }
+
+    public void setSkipWorkManager() {
+        skipWorkManager = true;
     }
 }

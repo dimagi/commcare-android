@@ -11,24 +11,11 @@
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
     <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
-
-    <string name="ConnectTokenURL">https://connectid.dimagi.com/o/token/</string>
-    <string name="ConnectHeartbeatURL">https://connectid.dimagi.com/users/heartbeat</string>
-    <string name="ConnectFetchDbKeyURL">https://connectid.dimagi.com/users/fetch_db_key</string>
-
-    <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
-    <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
-    <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
-    <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
-    <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
-    <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
-
-    <!--    Connect Messaging URLs-->
-    <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
-    <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
-    <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
-    <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
-
+    <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
+    <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
+    <string name="ConnectFetchDbKeyURL">/users/fetch_db_key</string>
+    <string name="ConnectTokenURL">/o/token/</string>
+    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
@@ -784,5 +771,13 @@
     <string name="connect_appbar_title_app_lock">App Lock</string>
     <string name="connect_appbar_title_password_verification">Password Verification</string>
 
-    <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
+    <!--    Entity List Progresss Indicators-->
+    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
+    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
+    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
+    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+
+
+    <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
 </resources>

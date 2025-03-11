@@ -48,9 +48,7 @@ abstract class BaseTest {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             appPermissions.addAll(arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_VIDEO,
                     Manifest.permission.POST_NOTIFICATIONS))
         } else {
             appPermissions.addAll(arrayOf(

@@ -57,21 +57,37 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
 
     public static ConnectLearnModuleSummaryRecord fromJson(JSONObject json, int moduleIndex) throws JSONException {
         ConnectLearnModuleSummaryRecord info = new ConnectLearnModuleSummaryRecord();
-
         info.moduleIndex = moduleIndex;
-
-        info.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : null;
-        info.name = json.has(META_NAME) ? json.getString(META_NAME) : null;
-        info.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : null;
-        info.timeEstimate = json.has(META_ESTIMATE) ? json.getInt(META_ESTIMATE) : -1;
+        info.slug = json.getString(META_SLUG);
+        info.name = json.getString(META_NAME);
+        info.description = json.getString(META_DESCRIPTION);
+        info.timeEstimate = json.getInt(META_ESTIMATE);
+        info.lastUpdate = new Date();
 
         return info;
     }
 
-    public void setJobId(int jobId) { this.jobId = jobId; }
-    public String getSlug() { return slug; }
-    public int getModuleIndex() { return moduleIndex; }
-    public String getName() { return name; }
-    public int getTimeEstimate() { return timeEstimate; }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public int getModuleIndex() {
+        return moduleIndex;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getTimeEstimate() {
+        return timeEstimate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }

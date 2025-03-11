@@ -38,6 +38,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.MultipleAppsUtil;
@@ -50,6 +51,7 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -826,6 +828,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onStartInstallClicked() {
         if (lastInstallMode != INSTALL_MODE_OFFLINE && isNetworkNotConnected()) {
             failWithNotification(AppInstallStatus.NoConnection);
+            Logger.log(LogTypes.TYPE_NETWORK, "No Internet");
         } else {
             startResourceInstall();
         }

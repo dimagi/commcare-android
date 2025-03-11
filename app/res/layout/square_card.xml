@@ -41,8 +41,8 @@
                 android:paddingBottom="@dimen/standard_spacer"
                 android:paddingLeft="@dimen/standard_spacer"
                 android:paddingRight="@dimen/standard_spacer"
-                android:textSize="@dimen/font_size_xlarge"
-                app:text_size_small="@dimen/font_size_large"
+                android:textSize="@dimen/font_size_large"
+                app:text_size_small="@dimen/font_size_medium"
                 android:paddingStart="@dimen/standard_spacer"
                 android:paddingEnd="@dimen/standard_spacer" />
         </RelativeLayout>
@@ -54,6 +54,6 @@
             android:layout_below="@+id/card"
             android:layout_gravity="end"
             android:padding="@dimen/help_text_padding"
-            android:textSize="@dimen/font_size_medium"/>
+            android:textSize="@dimen/font_size_small"/>
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
