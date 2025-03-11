@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import io.reactivex.functions.Cancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,6 +56,7 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
 
     companion object {
         const val PRIME_ENTITY_CACHE_REQUEST = "prime-entity-cache-request"
+        const val ENTITY_CACHE_INVALIDATION_REQUEST = "entity-cache-invalidation-request"
 
         /**
          * Schedules a background worker request to prime cache for all
@@ -77,6 +79,20 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
 
         private fun getWorkRequestName(): String {
             return PRIME_ENTITY_CACHE_REQUEST + "_" + getCurrentAppId()
+        }
+
+        @JvmStatic
+        fun scheduleEntityCacheInvalidation() {
+            if (CommCareApplication.instance().commCarePlatform.isEntityCachingEnabled()) {
+                val entityCacheInvalidationRequest =
+                    OneTimeWorkRequest.Builder(EntityCacheInvalidationWorker::class.java)
+                        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        .build()
+                WorkManager.getInstance(CommCareApplication.instance()).enqueueUniqueWork(
+                    ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
+                    entityCacheInvalidationRequest
+                )
+            }
         }
     }
 
