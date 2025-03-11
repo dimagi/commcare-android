@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -27,6 +26,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
@@ -45,8 +45,8 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private ConnectDeliveryProgressFragment.ViewStateAdapter viewStateAdapter;
     private TextView updateText;
 
-    private ConstraintLayout paymentAlertTile;
-    private TextView paymentAlertText;
+    private CardView paymentAlertTile;
+    private ConnectRegularTextView paymentAlertText;
     private ConnectJobPaymentRecord paymentToConfirm = null;
     private String tabPosition = "";
     boolean isTabChange = false;
@@ -86,13 +86,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         paymentAlertTile = view.findViewById(R.id.connect_delivery_progress_alert_tile);
         paymentAlertText = view.findViewById(R.id.connect_payment_confirm_label);
-        TextView paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
+        RoundedButton paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
         paymentAlertNoButton.setOnClickListener(v -> {
             updatePaymentConfirmationTile(getContext(), true);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
         });
 
-        TextView paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
+        RoundedButton paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
         paymentAlertYesButton.setOnClickListener(v -> {
             final ConnectJobPaymentRecord payment = paymentToConfirm;
             //Dismiss the tile
@@ -172,7 +172,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
         ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
-        ConnectMediumTextView connect_job_pay = viewJobCard.findViewById(R.id.connect_job_pay);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
@@ -181,7 +180,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         tvJobTitle.setText(job.getTitle());
         tvJobDiscrepation.setText(job.getDescription());
-        connect_job_pay.setText(job.getMoneyString(job.getBudgetPerVisit()));
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();

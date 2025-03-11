@@ -384,6 +384,8 @@ public class FormStorageTest {
             , "org.commcare.android.database.global.models.ConnectKeyRecord"
             , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
             , "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord"
+            , "org.commcare.android.database.connect.models.ConnectMessagingChannelRecord"
+            , "org.commcare.android.database.connect.models.ConnectMessagingMessageRecord"
     );
 
 

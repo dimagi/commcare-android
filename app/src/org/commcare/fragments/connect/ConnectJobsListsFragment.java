@@ -12,14 +12,16 @@ import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 import static org.commcare.connect.ConnectManager.isAppInstalled;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -59,7 +61,7 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
-    private ConstraintLayout connectTile;
+    private CardView connectTile;
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
@@ -81,14 +83,14 @@ public class ConnectJobsListsFragment extends Fragment {
         getActivity().setTitle(R.string.connect_title);
 
         view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
-
         connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
+        updateText.setVisibility(View.GONE);
         updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
-
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
+        refreshButton.setVisibility(View.GONE);
 
         launcher = (appId, isLearning) -> {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
@@ -96,7 +98,6 @@ public class ConnectJobsListsFragment extends Fragment {
 
         refreshUi();
         refreshData();
-
         return view;
     }
 
@@ -104,6 +105,15 @@ public class ConnectJobsListsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         refreshUi();
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void refreshData() {
@@ -168,20 +178,20 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void refreshUi() {
-        try {
+        //Make sure we still have context
+        Context context = getContext();
+        if(context != null) {
             updateUpdatedDate(new Date());
-            updateSecondaryPhoneConfirmationTile();
-        } catch (Exception e) {
-            //Ignore exception, happens if we leave the page before API call finishes
+            updateSecondaryPhoneConfirmationTile(context);
         }
     }
 
-    private void updateSecondaryPhoneConfirmationTile() {
-        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(getContext());
+    private void updateSecondaryPhoneConfirmationTile(Context context) {
+        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(context);
 
-        ConnectManager.updateSecondaryPhoneConfirmationTile(getContext(), connectTile, show, v -> {
+        ConnectManager.updateSecondaryPhoneConfirmationTile(context, connectTile, show, v -> {
             ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {
-                updateSecondaryPhoneConfirmationTile();
+                updateSecondaryPhoneConfirmationTile(context);
             });
         });
     }
@@ -211,7 +221,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void launchJobInfo(ConnectJobRecord job) {
         ConnectManager.setActiveJob(job);
-        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment(true));
+        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {

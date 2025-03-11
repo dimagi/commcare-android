@@ -295,6 +295,8 @@
     <string name="notification_channel_server_communication_description">Notificações sobre o status de qualquer comunicação do servidor em segundo plano acontecendo no momento, como atualizações do aplicativo CommCare, envio de log, etc.</string>
     <string name="notification_channel_push_notfications_title">Notificações prioritárias do servidor</string>
     <string name="notification_channel_push_notfications_description">Notificações enviadas diretamente do servidor para notificar o usuário sobre tarefas prioritárias</string>
+    <string name="notification_channel_messaging_title">Mensagens da CommCare</string>
+    <string name="notification_channel_messaging_description">Notificações enviadas diretamente do servidor para notificar o usuário sobre mensagens recebidas e novos canais</string>
     <string name="recovery_measure_reinstall_method">Escolha o método de reinstalação</string>
     <string name="recovery_measure_reinstall_detail">Seu aplicativo precisa ser reinstalado devido a um problema. Selecione um método para reinstalar.</string>
     <string name="recovery_measure_reinstall_online_method">Reinstalação on-line</string>
@@ -445,6 +447,10 @@
     <string name="connect_verify_phone_resend_wait">Não recebeu o seu código? Reenviar em %d s</string>
     <string name="connect_verify_phone_change">mudar</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
+    <string name="connect_messaging_channel_consent_title">Consentimento para canal</string>
+    <string name="connect_messaging_channel_consent_description">Você concorda em abrir um tópico de mensagens neste canal?</string>
+    <string name="connect_messaging_channel_consent_accept">Aceitar</string>
+    <string name="connect_messaging_channel_consent_decline">Recusar</string>
     <string name="connect_last_update">Atualizado: %s</string>
     <string name="connect_title">Ligar</string>
     <string name="connect_no_jobs">Você não foi convidado para nenhuma oportunidade ativa. Por favor, volte mais tarde.</string>
