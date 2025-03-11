@@ -1259,16 +1259,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     public void scheduleEntityCacheInvalidation() {
         if (getCommCarePlatform().isEntityCachingEnabled()) {
-            CommCareEntityStorageCache entityStorageCache = new CommCareEntityStorageCache("case");
-            if (!entityStorageCache.isEmpty()) {
-                OneTimeWorkRequest entityCacheInvalidationRequest = new OneTimeWorkRequest.Builder(
-                        EntityCacheInvalidationWorker.class)
-                        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                        .build();
-                WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
-                wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
-                        entityCacheInvalidationRequest);
-            }
+            OneTimeWorkRequest entityCacheInvalidationRequest = new OneTimeWorkRequest.Builder(
+                    EntityCacheInvalidationWorker.class)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build();
+            WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
+            wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
+                    entityCacheInvalidationRequest);
+
         }
     }
 }

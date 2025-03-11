@@ -13,7 +13,9 @@ class EntityCacheInvalidationWorker(context: Context, workerParams: WorkerParame
     override suspend fun doWork(): Result {
         try {
             val entityStorageCache: CommCareEntityStorageCache = CommCareEntityStorageCache("case")
-            entityStorageCache.processShallowRecords()
+            if (!entityStorageCache.isEmpty) {
+                entityStorageCache.processShallowRecords()
+            }
         } catch (e: Exception) {
             Logger.exception("Error encountered while invalidating entity cache", e)
             return Result.failure()
