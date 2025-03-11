@@ -804,6 +804,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
                         purgeLogs();
                         cleanRawMedia();
+
+                        getCurrentApp().getPrimeEntityCacheHelper().clearState();
                         PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
