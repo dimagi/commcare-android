@@ -22,6 +22,7 @@
     <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
     <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
     <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
+    <string name="ConnectConfirmUserInvitation">https://connectid.dimagi.com/users/confirm_hq_invite</string>
 
     <!--    Connect Messaging URLs-->
     <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
@@ -778,11 +779,19 @@
     <string name="connect_learn">Learn</string>
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
+
+    <string name="connect_hq_invitation_heading">You are invited to CommCareHQ project domain %s as %s</string>
+    <string name="connect_hq_invitation_accept">Accept</string>
+    <string name="connect_hq_invitation_denied">Decline</string>
+    <string name="connect_hq_invitation_go_to_recovery">Go To Recovery</string>
+    <string name="connect_hq_invitation_connectId_not_configure">You have not configured your ConnectID. To accept this invitation, please configure your ConnectID first. Once configured, you\'ll be able to accept the invitation.</string>
+    <string name="connect_hq_invitation_wrong_user">Oops! It seems like the invitation was sent to the wrong person.</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
     <string name="connect_job_tile_daily_limit">Over Limit</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
     <string name="connect_appbar_title_password_verification">Password Verification</string>
+    <string name="connect_hq_invitation_accept_error">There was an error accepting the invitation, please contact support.</string>
 
     <string name="connect_db_corrupt">A problem occurred with the database, please recover your account.</string>
 </resources>
