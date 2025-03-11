@@ -57,21 +57,6 @@ public class ConnectIDSignupFragment extends Fragment {
     private ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher;
     PhoneNumberHelper phoneNumberHelper;
 
-
-    public ConnectIDSignupFragment() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIDSignupFragment newInstance() {
-        ConnectIDSignupFragment fragment = new ConnectIDSignupFragment();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

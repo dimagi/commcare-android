@@ -106,20 +106,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         }
     };
 
-
-    public ConnectIdPhoneVerificationFragment() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIdPhoneVerificationFragment newInstance() {
-        return new ConnectIdPhoneVerificationFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

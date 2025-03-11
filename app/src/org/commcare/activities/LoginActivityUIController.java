@@ -103,6 +103,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private LoginMode loginMode;
 
     private boolean manuallySwitchedToPasswordMode;
+    private ConnectIDManager.ConnectAppMangement connectAppState;
     private boolean loginManagedByConnectId;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
@@ -515,34 +516,23 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    protected void setConnectIdLoginState(boolean useConnectId) {
-        setConnectButtonVisible(ConnectIDManager.isLoggedIN());
-        if (activity == null) {
-            return;
-        }
-        if (ConnectIDManager.isLoggedIN()) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-            if (user == null || user.getName() == null) {
-                welcomeMessage.setText(activity.getString(R.string.default_welcome_message));
-                return;
-            }
-            String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                    user.getName());
-
-            welcomeMessage.setText(welcomeText);
-        }
-
-        if (!useConnectId && loginManagedByConnectId) {
+    protected void setConnectIdLoginState(ConnectIDManager.ConnectAppMangement appState) {
+        boolean unmanaged = appState == ConnectIDManager.ConnectAppMangement.Unmanaged;
+        if (unmanaged &&
+                connectAppState != ConnectIDManager.ConnectAppMangement.Unmanaged) {
             setPasswordOrPin("");
         }
 
-        loginManagedByConnectId = useConnectId;
+        connectAppState = appState;
+
+        boolean connect = connectAppState == ConnectIDManager.ConnectAppMangement.Connect;
+        setLoginInputsVisibility(!connect);
 
         String text;
-        if (useConnectId) {
-            text = activity.getString(R.string.login_button_connectid);
-        } else {
+        if (unmanaged) {
             text = Localization.get("login.button");
+        } else {
+            text = activity.getString(R.string.login_button_connectid);
         }
         loginButton.setText(text);
 
@@ -551,12 +541,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
          * the strings should be translate correctly when they return to the app. That's why I added this code.
          */
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-        passwordOrPin.setBackgroundColor(getResources().getColor(useConnectId ? R.color.grey_light : R.color.white));
-        if (useConnectId) {
+
+        passwordOrPin.setBackgroundColor(getResources().getColor(unmanaged ? R.color.white : R.color.grey_light));
+        if (!unmanaged) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();
         }
 
-        passwordOrPin.setInputType(useConnectId ? InputType.TYPE_CLASS_TEXT : (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD));
+        passwordOrPin.setInputType(unmanaged ?
+                (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD) :
+                InputType.TYPE_CLASS_TEXT);
     }
 }

@@ -23,20 +23,6 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
     Button back;
     String phoneNumber;
 
-    public ConnectIdPhoneAvailableBottomSheet() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIdPhoneAvailableBottomSheet newInstance() {
-        ConnectIdPhoneAvailableBottomSheet fragment = new ConnectIdPhoneAvailableBottomSheet();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

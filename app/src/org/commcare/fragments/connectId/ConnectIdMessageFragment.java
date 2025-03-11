@@ -49,11 +49,6 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private static final String KEY_CALLING_CLASS = "calling_class";
     private ScreenConnectMessageBinding binding;
 
-
-    public ConnectIdMessageFragment() {
-        // Required empty public constructor
-    }
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -78,10 +73,6 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             password = savedInstanceState.getString(KEY_PASSWORD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
         }
-    }
-
-    public static ConnectIdMessageFragment newInstance() {
-        return new ConnectIdMessageFragment();
     }
 
     @Override

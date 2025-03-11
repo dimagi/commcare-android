@@ -79,19 +79,6 @@ public class ConnectIdPinFragment extends Fragment {
         }
     };
 
-    public ConnectIdPinFragment() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIdPinFragment newInstance() {
-        return new ConnectIdPinFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public void onResume() {
         super.onResume();

@@ -52,7 +52,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
-                        android:text="@string/add_secondary_phone_number"
+                        android:text="@string/connect_phone_title_alternate"
                         android:textColor="@color/connect_dark_blue_color"
                         android:textSize="18sp" />
 
@@ -65,7 +65,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="16dp"
                         android:textStyle="bold"
-                        android:text="@string/add_secondary_phone_number_to_reset_your_recovery_code"
+                        android:text="@string/connect_phone_message_alternate"
                         android:textColor="@color/connect_subtext_80"
                         android:textSize="12sp" />
 

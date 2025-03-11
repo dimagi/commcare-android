@@ -32,37 +32,20 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     private String method;
     private String existingPhone;
     private int callingClass;
-    protected boolean skipPhoneNumberCheck = false;
     private PhoneNumberHelper phoneNumberHelper;
 
     FragmentSecondaryPhoneNumberBinding binding;
-
-
-    public ConnectIDSecondaryPhoneNumber() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIDSecondaryPhoneNumber newInstance() {
-        return new ConnectIDSecondaryPhoneNumber();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSecondaryPhoneNumberBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
-        if (getArguments() != null) {
-            method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
-            existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
-            callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
-        }
-        phoneNumberHelper=new PhoneNumberHelper(requireActivity());
+        method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
+        existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
+        callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
+
+        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
         String code = "+" + phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         binding.countryCode.setText(code);
         binding.countryCode.addTextChangedListener(new TextWatcher() {
@@ -102,11 +85,9 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         });
 
         binding.continueButton.setOnClickListener(v -> handleButtonPress());
-        binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
-        binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
         updateButtonEnabled();
         requireActivity().setTitle(R.string.connect_phone_title_alternate);
-        return view;
+        return binding.getRoot();
     }
 
     public void updateButtonEnabled() {
@@ -134,14 +115,12 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             IApiCallback callback = new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     finish(true, phone);
                 }
 
                 @Override
                 public void processFailure(int responseCode, IOException e) {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     Toast.makeText(getContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
@@ -149,14 +128,12 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
                 @Override
                 public void processNetworkFailure() {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     ConnectNetworkHelper.showNetworkError(getContext());
                 }
 
                 @Override
                 public void processOldApiError() {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     ConnectNetworkHelper.showOutdatedApiError(getContext());
                 }
@@ -192,14 +169,13 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
-                directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf( ConnectIdPhoneVerificationFragment.MethodVerifyAlternate),
+                         null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE,String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
                 } else {
                     directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
@@ -209,8 +185,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             }
         }
         if (directions == null) {
-            Toast.makeText(getContext(), R.string.connect_navigation_error, Toast.LENGTH_SHORT).show();
-            return;
+            throw new IllegalStateException(String.valueOf(R.string.connect_navigation_error));
         }
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }

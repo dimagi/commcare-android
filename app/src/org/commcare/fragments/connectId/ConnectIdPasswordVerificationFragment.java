@@ -53,21 +53,12 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     private static final String KEY_SECRET_KEY = "secret_key";
     private ScreenConnectPasswordVerifyBinding binding;
 
-    public ConnectIdPasswordVerificationFragment() {
-        // Required empty public constructor
-    }
-
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_FAILURE_COUNT, failureCount);
         outState.putString(KEY_PHONE, phone);
         outState.putString(KEY_SECRET_KEY, secretKey);
-    }
-
-    public static ConnectIdPasswordVerificationFragment newInstance() {
-        ConnectIdPasswordVerificationFragment fragment = new ConnectIdPasswordVerificationFragment();
-        return fragment;
     }
 
     @Override

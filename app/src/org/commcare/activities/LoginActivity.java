@@ -530,7 +530,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 ConnectIDManager.forgetUser("User initiated from login page");
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
-                uiController.setConnectIdLoginState(false);
+                uiController.setConnectIdLoginState(ConnectIDManager.ConnectAppMangement.Unmanaged);
                 return true;
             default:
                 return otherResult;
@@ -657,34 +657,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        boolean selectedConnect = isConnectJobsSelected();
         String appId = appIdDropdownList.get(position);
         seatAppIfNeeded(appId);
-        if (selectedConnect) {
+        if (isConnectJobsSelected()) {
             uiController.setLoginInputsVisibility(false);
         } else {
             // Retrieve the app record corresponding to the app selected
             selectedAppIndex = position;
             if (appId.length() > 0) {
                 uiController.setLoginInputsVisibility(true);
-                if (!appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId())) {
+                if (!seatAppIfNeeded(appId)) {
                     checkForSavedCredentials();
                 }
             }
-        }
-    }
-
-    protected void seatAppIfNeeded(String appId) {
-        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
-        if (selectedNewApp) {
-            // Set the id of the last selected app
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.edit().putString(KEY_LAST_APP, appId).commit();
-
-            // Launch the activity to seat the new app
-            Intent i = new Intent(this, SeatAppActivity.class);
-            i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
-            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
     }
 
@@ -876,36 +861,51 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         });
     }
 
+    protected boolean seatAppIfNeeded(String appId) {
+        boolean selectedNewApp = !appId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
+        if (selectedNewApp) {
+            // Set the id of the last selected app
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            prefs.edit().putString(KEY_LAST_APP, appId).commit();
+
+            // Launch the activity to seat the new app
+            Intent i = new Intent(this, SeatAppActivity.class);
+            i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
+            this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+        }
+        return selectedNewApp;
+    }
+
     public void checkForSavedCredentials() {
-        boolean loginWithConnectIDVisible = false;
-        if (ConnectIDManager.isLoggedIN()) {
-            if (appLaunchedFromConnect && !connectLaunchPerformed) {
-                loginWithConnectIDVisible = true;
-                uiController.setConnectButtonVisible(false);
-                uiController.setUsername(getString(R.string.login_input_auto));
-                uiController.setPasswordOrPin(getString(R.string.login_input_auto));
-                boolean selectedNewApp = !presetAppId.equals(CommCareApplication.instance().getCurrentApp().getUniqueId());
-                if (!selectedNewApp) {
-                    connectLaunchPerformed = true;
-                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
-                }
-            } else {
-                int selectorIndex = uiController.getSelectedAppIndex();
-                if (selectorIndex > 0) {
-                    String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    if (!uiController.isAppSelectorVisible() || selectedAppId.equals(seatedAppId)) {
-                        loginWithConnectIDVisible = ConnectIDManager.getInstance().isLoginManagedByConnectId(seatedAppId,
-                                uiController.getEnteredUsername());
-                    }
-                } else {
-                    //Connect jobs selected from dropdown
-                    loginWithConnectIDVisible = true;
-                }
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectIDManager.ConnectAppMangement appState = ConnectIDManager.getAppManagement(this,
+                seatedAppId, uiController.getEnteredUsername());
+
+        if(appLaunchedFromConnect && presetAppId != null) {
+            appState = ConnectIDManager.ConnectAppMangement.Connect;
+
+            uiController.setConnectButtonVisible(false);
+            if (!seatAppIfNeeded(presetAppId)) {
+                connectLaunchPerformed = true;
+                initiateLoginAttempt(uiController.isRestoreSessionChecked());
             }
         }
 
-        uiController.setConnectIdLoginState(loginWithConnectIDVisible);
+        if(appState == ConnectIDManager.ConnectAppMangement.ConnectId) {
+            int selectorIndex = uiController.getSelectedAppIndex();
+            if (selectorIndex > 0) {
+                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+
+                if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                    appState = ConnectIDManager.ConnectAppMangement.Unmanaged;
+                }
+            } else {
+                //Connect jobs selected from dropdown
+                appState = ConnectIDManager.ConnectAppMangement.Connect;
+            }
+        }
+
+        uiController.setConnectIdLoginState(appState);
     }
 
     protected String getPresetAppId() {

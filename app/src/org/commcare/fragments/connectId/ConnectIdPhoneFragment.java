@@ -69,22 +69,6 @@ public class ConnectIdPhoneFragment extends Fragment {
         }
     };
 
-    public ConnectIdPhoneFragment() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIdPhoneFragment newInstance() {
-        ConnectIdPhoneFragment fragment = new ConnectIdPhoneFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
