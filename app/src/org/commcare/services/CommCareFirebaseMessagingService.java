@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.common.util.Strings;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -217,6 +218,11 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
+            if (Strings.isEmptyOrWhitespace(notificationTitle) && Strings.isEmptyOrWhitespace(notificationText)) {
+                Logger.exception("Empty push notification",
+                        new Throwable(String.format("Empty notification for action '%s'", action)));
+            }
+
             NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                     notificationChannel)
                     .setContentTitle(notificationTitle)
@@ -227,7 +233,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     .setPriority(priority)
                     .setWhen(System.currentTimeMillis());
 
-            if(largeIcon != null) {
+            if (largeIcon != null) {
                 fcmNotification.setLargeIcon(largeIcon);
             }
 
