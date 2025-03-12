@@ -3,6 +3,7 @@ package org.commcare.fragments.connect;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -262,6 +263,16 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                 tv.setText(warningText);
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void refreshData() {

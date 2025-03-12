@@ -107,6 +107,7 @@ public class ConnectJobsListsFragment extends Fragment {
         refreshUi();
     }
 
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_sync) {
             refreshData();

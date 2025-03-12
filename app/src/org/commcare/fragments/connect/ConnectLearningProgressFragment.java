@@ -2,6 +2,7 @@ package org.commcare.fragments.connect;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -85,6 +86,16 @@ public class ConnectLearningProgressFragment extends Fragment {
         if(ConnectManager.isConnectIdConfigured()) {
             refreshData();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void refreshData() {
