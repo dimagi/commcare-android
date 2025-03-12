@@ -566,6 +566,20 @@ public class ConnectManager {
         callback.connectActivityComplete(false);
     }
 
+    public static boolean checkForFailedConnectIdAuth(String seatedAppId, String username) {
+        try {
+            if (isConnectIdConfigured()) {
+                ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(
+                        CommCareApplication.instance(), seatedAppId, username);
+                return appRecord != null && appRecord.getWorkerLinked();
+            }
+        } catch (Exception e){
+            Logger.exception("Error while checking ConnectId status after failed token auth", e);
+        }
+
+        return false;
+    }
+
     public static ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
         ConnectAppRecord record = getAppRecord(context, appId);
         if(record != null) {
