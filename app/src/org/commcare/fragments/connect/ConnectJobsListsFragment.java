@@ -15,14 +15,20 @@ import static org.commcare.connect.ConnectManager.isAppInstalled;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -96,6 +102,24 @@ public class ConnectJobsListsFragment extends Fragment {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
         };
 
+        MenuHost host = (MenuHost)requireActivity();
+        host.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                //Activity loads the menu
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.action_sync) {
+                    refreshData();
+                    return true;
+                }
+
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+
         refreshUi();
         refreshData();
         return view;
@@ -105,16 +129,6 @@ public class ConnectJobsListsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         refreshUi();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_sync) {
-            refreshData();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     public void refreshData() {
