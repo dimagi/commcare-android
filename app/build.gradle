@@ -283,7 +283,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         applicationId 'org.commcare.dalvik'
         testNamespace 'org.commcare.dalvik.test'
