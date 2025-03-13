@@ -24,7 +24,7 @@ public class ConnectSsoHelper {
         void tokenRetrieved(AuthInfo.TokenAuth token);
     }
 
-    //Used for aynchronously retrieving HQ or SSO token
+    //Used for asynchronously retrieving HQ or SSO token
     private static class TokenTask extends AsyncTask<Void, Void, AuthInfo.TokenAuth> {
         private final WeakReference<Context> weakContext;
         private final String hqUsername; //null for ConnectId
@@ -42,7 +42,7 @@ public class ConnectSsoHelper {
         protected AuthInfo.TokenAuth doInBackground(Void... voids) {
             Context context = weakContext.get();
             if(hqUsername == null) {
-                return ApiConnectId.retrieveConnectIdTokenSync(context);
+                return retrieveConnectIdTokenSync(context);
             }
 
             return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
@@ -54,10 +54,29 @@ public class ConnectSsoHelper {
         }
     }
 
+    public static void retrieveConnectIdTokenAsync(Context context, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, null, false, callback);
+
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
     public static void retrieveHqSsoTokenAsync(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
         TokenTask task = new TokenTask(context, hqUsername, linkHqUser, callback);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
+        if (!ConnectManager.isConnectIdConfigured()) {
+            return null;
+        }
+
+        AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
+        if (connectToken != null) {
+            return connectToken;
+        }
+
+        return ApiConnectId.retrieveConnectIdTokenSync(context);
     }
 
     public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
@@ -76,7 +95,7 @@ public class ConnectSsoHelper {
         AuthInfo.TokenAuth hqTokenAuth = ConnectManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
         if (hqTokenAuth == null && (performLink || appRecord.getWorkerLinked())) {
             //First get a valid ConnectId token
-            AuthInfo.TokenAuth connectIdToken = ApiConnectId.retrieveConnectIdTokenSync(context);
+            AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context);
 
             //If we can't get a valid Connect token there's no point continuing
             if (connectIdToken != null) {
@@ -86,17 +105,11 @@ public class ConnectSsoHelper {
                 }
 
                 //Retrieve HQ token
-                hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
+                hqTokenAuth = ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
             }
         }
 
         return hqTokenAuth;
-    }
-
-    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
-        TokenTask task = new TokenTask(context, null, false, callback);
-
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static void discardTokens(Context context, String username) {

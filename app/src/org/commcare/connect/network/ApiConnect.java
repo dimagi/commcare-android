@@ -19,7 +19,7 @@ public class ApiConnect {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -38,7 +38,7 @@ public class ApiConnect {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -58,7 +58,7 @@ public class ApiConnect {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -77,7 +77,7 @@ public class ApiConnect {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -96,7 +96,7 @@ public class ApiConnect {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }
@@ -115,7 +115,7 @@ public class ApiConnect {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, token -> {
             if(token == null) {
                 return;
             }

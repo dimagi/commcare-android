@@ -10,7 +10,9 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -45,7 +47,8 @@ public class MessageManager {
         if(channel != null && channel.getConsented()) {
             if(Strings.isNullOrEmpty(channel.getKey())) {
                 //Attempt to get the encryption key now if we don't have it yet
-                ApiConnectId.retrieveChannelEncryptionKeySync(context, channel);
+                AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context);
+                ApiConnectId.retrieveChannelEncryptionKeySync(context, channel, auth);
             }
 
             //If we still don't have a key, this will return null and we'll ignore the message
