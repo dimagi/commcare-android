@@ -21,8 +21,9 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -271,7 +272,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
     public void finish(boolean success, boolean failedEnrollment) {
         NavDirections directions = null;
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);

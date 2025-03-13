@@ -8,7 +8,7 @@ import android.util.Log;
 
 import androidx.work.Configuration;
 
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;

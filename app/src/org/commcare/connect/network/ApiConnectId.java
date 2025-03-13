@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import android.net.ConnectivityManager;
 
 import org.commcare.CommCareApplication;
@@ -12,11 +14,12 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.connectId.ApiClient;
@@ -24,8 +27,6 @@ import org.commcare.connect.network.connectId.ApiService;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.connectId.network.ApiClient;
-import org.commcare.network.connectId.network.ApiService;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
@@ -104,7 +105,7 @@ public class ApiConnectId {
     }
 
     public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) throws MalformedURLException {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", HQ_CLIENT_ID);
         params.put("scope", "mobile_access sync");
         params.put("grant_type", "password");
@@ -158,7 +159,7 @@ public class ApiConnectId {
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
             params.put("fcm_token", token);
@@ -178,7 +179,7 @@ public class ApiConnectId {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
 
         if (user != null) {
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("client_id", CONNECT_CLIENT_ID);
             params.put("scope", "openid");
             params.put("grant_type", "password");
@@ -484,9 +485,6 @@ public class ApiConnectId {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.confirmDeactivation(params);
         callApi(context, call, callback);
-        apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.confirmDeactivation(params);
-        callApi(context,call,callback);
     }
 
     private static void handleNetworkError(Throwable t) {
@@ -576,7 +574,7 @@ public class ApiConnectId {
             if(responseAsString.length() > 0) {
                 JSONObject json = new JSONObject(responseAsString);
                 channel.setKey(json.getString("key"));
-                ConnectDatabaseHelper.storeMessagingChannel(context, channel);
+                ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
             }
         } catch(JSONException e) {
             throw new RuntimeException(e);

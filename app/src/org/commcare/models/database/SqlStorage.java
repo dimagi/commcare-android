@@ -170,6 +170,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+    @Override
+    public Vector getSortedRecordsForValues(String[] metaFieldNames, Object[] values, String orderby) {
+        return null;
+    }
+
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
         String scrubbedName = TableBuilder.scrubName(rawFieldName);

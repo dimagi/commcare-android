@@ -780,4 +780,14 @@
 
 
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
+    <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
+    <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
+    <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
+    <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
+    <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
+    <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
+    <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
+    <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
+    <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
+    <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
 </resources>
