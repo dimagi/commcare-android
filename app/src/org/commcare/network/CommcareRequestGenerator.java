@@ -183,8 +183,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                     Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
                     return tokenAuth;
                 } else {
-                    String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    if(ConnectManager.checkForFailedConnectIdAuth(seatedAppId, username)) {
+                    if(ConnectManager.checkForFailedConnectIdAuth(username)) {
                         Logger.exception("Token auth error for connect managed app",
                                 new Throwable("No token Auth available for a connect managed app"));
                     }

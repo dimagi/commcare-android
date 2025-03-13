@@ -566,9 +566,10 @@ public class ConnectManager {
         callback.connectActivityComplete(false);
     }
 
-    public static boolean checkForFailedConnectIdAuth(String seatedAppId, String username) {
+    public static boolean checkForFailedConnectIdAuth(String username) {
         try {
             if (isConnectIdConfigured()) {
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(
                         CommCareApplication.instance(), seatedAppId, username);
                 return appRecord != null && appRecord.getWorkerLinked();
