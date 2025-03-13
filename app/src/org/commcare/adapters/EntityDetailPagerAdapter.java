@@ -21,7 +21,7 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  * @author jschweers
  */
-public class EntityDetailPagerAdapter extends FragmentStateAdapter{
+public class EntityDetailPagerAdapter extends FragmentStateAdapter {
 
     private final ListItemViewModifier modifier;
     private final Detail detail;
@@ -57,6 +57,11 @@ public class EntityDetailPagerAdapter extends FragmentStateAdapter{
         SerializationUtil.serializeToBundle(args, EntityDetailFragment.CHILD_REFERENCE, mEntityReference);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public CharSequence getPageTitle(int position) {
+        Detail detailShowing = detail.isCompound() ? displayableChildDetails[position] : detail;
+        return detailShowing.getTitle().getText().evaluate();
     }
 
     @Override

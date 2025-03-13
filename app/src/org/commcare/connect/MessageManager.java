@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -41,7 +42,7 @@ public class MessageManager {
         String channelId = payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
 
         //Make sure we know and have consented to the channel
-        ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(context, channelId);
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, channelId);
         if(channel != null && channel.getConsented()) {
             if(Strings.isNullOrEmpty(channel.getKey())) {
                 //Attempt to get the encryption key now if we don't have it yet
@@ -51,7 +52,7 @@ public class MessageManager {
             //If we still don't have a key, this will return null and we'll ignore the message
             message = ConnectMessagingMessageRecord.fromMessagePayload(payloadData, channel.getKey());
             if(message != null) {
-                ConnectDatabaseHelper.storeMessagingMessage(context, message);
+                ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
             }
         }
 
@@ -60,7 +61,7 @@ public class MessageManager {
 
     public static ConnectMessagingChannelRecord handleReceivedChannel(Context context, Map<String, String> payloadData) {
         ConnectMessagingChannelRecord channel = ConnectMessagingChannelRecord.fromMessagePayload(payloadData);
-        ConnectDatabaseHelper.storeMessagingChannel(context, channel);
+        ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
 
         return channel;
     }
@@ -85,7 +86,7 @@ public class MessageManager {
                         }
 
                         JSONArray messagesJson = json.getJSONArray("messages");
-                        List<ConnectMessagingChannelRecord> existingChannels = ConnectDatabaseHelper.getMessagingChannels(context);
+                        List<ConnectMessagingChannelRecord> existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
                         for (int i = 0; i < messagesJson.length(); i++) {
                             JSONObject obj = (JSONObject) messagesJson.get(i);
                             ConnectMessagingMessageRecord message = ConnectMessagingMessageRecord.fromJson(obj, existingChannels);
@@ -95,8 +96,8 @@ public class MessageManager {
                         }
                     }
 
-                    ConnectDatabaseHelper.storeMessagingChannels(context, channels, true);
-                    ConnectDatabaseHelper.storeMessagingMessages(context, messages, false);
+                    ConnectMessagingDatabaseHelper.storeMessagingChannels(context, channels, true);
+                    ConnectMessagingDatabaseHelper.storeMessagingMessages(context, messages, false);
 
                     for(ConnectMessagingChannelRecord channel : channels) {
                         if(channel.getConsented() && channel.getKey().length() == 0) {
@@ -157,7 +158,7 @@ public class MessageManager {
                             StreamsUtil.inputStreamToByteArray(responseData));
                     Log.e("DEBUG_TESTING", "processSuccess: " + responseAsString);
 
-                    ConnectDatabaseHelper.storeMessagingChannel(context, channel);
+                    ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
 
                     if(channel.getConsented()) {
                         getChannelEncryptionKey(context, channel, listener);
@@ -246,7 +247,7 @@ public class MessageManager {
     }
 
     public static void updateReceivedMessages(Context context, ConnectManager.ConnectActivityCompleteListener listener) {
-        List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesAll(context);
+        List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll(context);
         List<ConnectMessagingMessageRecord> unsent = new ArrayList<>();
         List<String> unsentIds = new ArrayList<>();
         for(ConnectMessagingMessageRecord message : messages) {
@@ -263,7 +264,7 @@ public class MessageManager {
                 public void processSuccess(int responseCode, InputStream responseData) {
                     for(ConnectMessagingMessageRecord message : unsent) {
                         message.setConfirmed(true);
-                        ConnectDatabaseHelper.storeMessagingMessage(context, message);
+                        ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
                     }
                     listener.connectActivityComplete(true);
                 }
@@ -287,7 +288,7 @@ public class MessageManager {
     }
 
     public static void sendUnsentMessages(Context context) {
-        List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesAll(context);
+        List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll(context);
         for(ConnectMessagingMessageRecord message : messages) {
             if(message.getIsOutgoing() && !message.getConfirmed()) {
                 sendMessage(context, message, success -> {
@@ -300,7 +301,7 @@ public class MessageManager {
 
     public static void sendMessage(Context context, ConnectMessagingMessageRecord message,
                                    ConnectManager.ConnectActivityCompleteListener listener) {
-        ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(context, message.getChannelId());
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, message.getChannelId());
 
         if(channel.getKey().length() > 0) {
             ConnectUserRecord user = ConnectManager.getUser(context);
@@ -308,7 +309,7 @@ public class MessageManager {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     message.setConfirmed(true);
-                    ConnectDatabaseHelper.storeMessagingMessage(context, message);
+                    ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
                     listener.connectActivityComplete(true);
                 }
 

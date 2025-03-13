@@ -13,8 +13,9 @@ import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -93,7 +94,7 @@ public class ConnectJobIntroFragment extends Fragment {
                         //TODO: Expecting to eventually get HQ username from server here
 
                         job.setStatus(ConnectJobRecord.STATUS_LEARNING);
-                        ConnectDatabaseHelper.upsertJob(getContext(), job);
+                        ConnectJobUtils.upsertJob(getContext(), job);
 
                         if (appInstalled) {
                             ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());

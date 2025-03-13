@@ -80,48 +80,75 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
             delivery.jobId = jobId;
             delivery.lastUpdate = new Date();
 
-            deliveryId = json.has(META_ID) ? json.getInt(META_ID) : -1;
+            deliveryId = json.getInt(META_ID);
             delivery.deliveryId = deliveryId;
             dateString = json.getString(META_DATE);
             delivery.date = DateUtils.parseDateTime(dateString);
-            delivery.status = json.has(META_STATUS) ? json.getString(META_STATUS) : "";
-            delivery.unitName = json.has(META_UNIT_NAME) ? json.getString(META_UNIT_NAME) : "";
-            delivery.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
-            delivery.entityId = json.has(META_ENTITY_ID) ? json.getString(META_ENTITY_ID) : "";
-            delivery.entityName = json.has(META_ENTITY_NAME) ? json.getString(META_ENTITY_NAME) : "";
-
-            delivery.reason = json.has(META_REASON) && !json.isNull(META_REASON) ? json.getString(META_REASON) : "";
+            delivery.status = json.getString(META_STATUS);
+            delivery.unitName = json.getString(META_UNIT_NAME);
+            delivery.slug = json.getString(META_SLUG);
+            delivery.entityId = json.getString(META_ENTITY_ID);
+            delivery.entityName = json.getString(META_ENTITY_NAME);
+            delivery.reason = json.getString(META_REASON);
 
             return delivery;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             String message = String.format(Locale.getDefault(), "Error parsing delivery %d: date = '%s'", deliveryId, dateString);
             CrashUtil.reportException(new Exception(message, e));
             return null;
         }
     }
 
-    public int getDeliveryId() { return deliveryId; }
+    public int getDeliveryId() {
+        return deliveryId;
+    }
+
     public Date getDate() {
         return date;
     }
-    public String getStatus() { return status; }
-    public String getEntityName() { return entityName; }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
 
-    public int getJobId() { return jobId; }
-    public String getUnitName() { return unitName; }
-    public String getSlug() { return slug; }
-    public String getEntityId() { return entityId; }
-    public Date getLastUpdate() { return lastUpdate; }
-    public String getReason() { return reason; }
+    public String getStatus() {
+        return status;
+    }
+
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public int getJobId() {
+        return jobId;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public String getEntityId() {
+        return entityId;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public String getReason() {
+        return reason;
+    }
 
     public static ConnectJobDeliveryRecord fromV2(ConnectJobDeliveryRecordV2 oldRecord) {
         ConnectJobDeliveryRecord newRecord = new ConnectJobDeliveryRecord();
 
         newRecord.jobId = oldRecord.getJobId();
         newRecord.deliveryId = oldRecord.getDeliveryId();
-        newRecord.date = oldRecord.date;
+        newRecord.date = oldRecord.getDate();
         newRecord.status = oldRecord.getStatus();
         newRecord.unitName = oldRecord.getUnitName();
         newRecord.slug = oldRecord.getSlug();

@@ -43,6 +43,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         NetworkFailureBadPassword,
         IncorrectPin,
         AuthOverHttp,
+        InsufficientRolePermission,
         CaptivePortal
     }
 
@@ -81,6 +82,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                     outcome = doResponseSuccess(response);
                 } else if (responseCode == 401) {
                     outcome = doResponseAuthFailed(response);
+                } else if (responseCode == 403) {
+                    outcome = doResponseInsufficientRolePermission(response);
                 } else {
                     outcome = doResponseOther(response);
                 }
@@ -119,6 +122,10 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         // So either we didn't need our our HTTP callout or we succeeded. Either way, move on
         // to the next step
         return doPostCalloutTask(calloutFailed);
+    }
+
+    private HttpCalloutOutcomes doResponseInsufficientRolePermission(Response response) {
+        return HttpCalloutOutcomes.InsufficientRolePermission;
     }
 
     protected boolean processSuccessfulRequest() {

@@ -1529,6 +1529,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     // We just queried and found that no update is available.
                     // Let's check again in next session.
                     CommCareApplication.instance().getSession().hideInAppUpdate();
+                }else{
+                    Logger.log(LogTypes.TYPE_NETWORK, "No Internet");
                 }
                 break;
             case AVAILABLE:

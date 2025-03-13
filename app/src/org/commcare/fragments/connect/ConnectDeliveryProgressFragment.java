@@ -26,6 +26,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
@@ -296,7 +297,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         //NOTE: Checking for network connectivity here
         boolean show = paymentToConfirm != null;
         if (show) {
-            show = ConnectNetworkHelper.isOnline(context);
+            show = ConnectivityStatus.isNetworkAvailable(context);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationOnlineCheck(show);
         }
 

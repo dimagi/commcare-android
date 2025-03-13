@@ -26,10 +26,11 @@ import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.SMSListener;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -389,7 +390,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                         case MethodVerifyAlternate -> {
                             ConnectUserRecord user = ConnectManager.getUser(requireActivity().getApplicationContext());
                             user.setSecondaryPhoneVerified(true);
-                            ConnectDatabaseHelper.storeUser(context, user);
+                            ConnectUserDatabaseUtil.storeUser(context, user);
 
                             finish(true, false, null);
                         }
@@ -477,7 +478,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 ConnectUserRecord user = new ConnectUserRecord(phone, username,
                         password, name, recoveryPhone);
                 user.setSecondaryPhoneVerified(true);
-                ConnectDatabaseHelper.storeUser(context, user);
+                ConnectUserDatabaseUtil.storeUser(context, user);
 
                 finish(true, false, null);
             }
@@ -522,7 +523,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 ConnectIdActivity.recoveryAltPhone = secondaryPhone;
             }
         }
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         NavDirections directions = null;
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
@@ -578,7 +579,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             case ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
                 if (success) {
                     user.setSecondaryPhoneVerified(true);
-                    ConnectDatabaseHelper.storeUser(requireActivity(), user);
+                    ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
                     ConnectManager.setStatus(ConnectManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
                     requireActivity().setResult(RESULT_OK);

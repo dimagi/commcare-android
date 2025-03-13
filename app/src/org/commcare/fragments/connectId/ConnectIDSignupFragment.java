@@ -25,8 +25,9 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -383,7 +384,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                 user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
                             }
 
-                            ConnectDatabaseHelper.storeUser(context, user);
+                            ConnectUserDatabaseUtil.storeUser(context, user);
 
                             //            ConnectUserRecord dbUser = ConnectDatabaseHelper.getUser(getActivity());
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);

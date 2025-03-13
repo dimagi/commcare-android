@@ -18,8 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
 import org.commcare.services.CommCareFirebaseMessagingService;
@@ -49,7 +50,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(getContext());
+        List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
 
         channelAdapter = new ChannelAdapter(channels, this::selectChannel);
 
@@ -63,7 +64,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         String channelId = getArguments() != null ? getArguments().getString("channel_id") : null;
         if(channelId != null) {
-            ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+            ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
         }
 
@@ -121,7 +122,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
     public void refreshUi() {
         Context context = getContext();
         if(context != null) {
-            List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getMessagingChannels(context);
+            List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
             channelAdapter.setChannels(channels);
         }
     }

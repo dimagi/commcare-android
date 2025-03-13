@@ -136,12 +136,11 @@ public class ImageWidget extends QuestionWidget {
                 ImageCaptureProcessing.setCustomImagePath(null);
             } else {
                 mErrorTextView.setVisibility(View.GONE);
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/*");
 
                 try {
-                    ((AppCompatActivity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.IMAGE_CHOOSER);
+                    ((AppCompatActivity)getContext())
+                            .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "image/*"),
+                                    FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),

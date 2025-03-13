@@ -7,8 +7,9 @@ import android.os.Bundle;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
 import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
@@ -87,7 +88,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                         .setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                 break;
             case Registering :
-                ConnectUserRecord user = ConnectDatabaseHelper.getUser(parent);
+                ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parent);
                 int phase = user.getRegistrationPhase();
                 if (phase != ConnectConstants.CONNECT_NO_ACTIVITY) {
                     switch(phase) {

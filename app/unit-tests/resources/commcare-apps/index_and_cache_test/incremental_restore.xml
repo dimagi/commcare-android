@@ -1,0 +1,18 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <fixture id="user-groups" user_id="441bdbb17001bade54aa23dcb7313950">
+        <groups/>
+    </fixture>
+    <case case_id="b319e951-03f1-4172-b662-4fb3964a0be7"
+        date_modified="2016-03-10T11:16:54.774000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+        xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>stan</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice2</sample_choice_question>
+            <sample_number_question>145</sample_number_question>
+        </update>
+    </case>
+</OpenRosaResponse>

@@ -113,8 +113,12 @@ public class ConnectLinkedAppRecord extends Persisted {
     }
 
     public void updateHqToken(SsoToken token) {
-        hqToken = token.token;
-        hqTokenExpiration = token.expiration;
+        hqToken = token.getToken();
+        hqTokenExpiration = token.getExpiration();
+    }
+
+    public boolean getConnectIdLinked() {
+        return connectIdLinked;
     }
 
     public void clearHqToken() {
@@ -122,7 +126,6 @@ public class ConnectLinkedAppRecord extends Persisted {
         hqTokenExpiration = new Date();
     }
 
-    public boolean getConnectIdLinked() { return connectIdLinked; }
     public void setConnectIdLinked(boolean linked) { connectIdLinked = linked; }
 
     public void linkToConnectId(String password) {
@@ -140,6 +143,7 @@ public class ConnectLinkedAppRecord extends Persisted {
     public Date getLinkOfferDate1() {
         return linkOffered1 ? linkOfferDate1 : null;
     }
+
     public void setLinkOfferDate1(Date date) {
         linkOffered1 = true;
         linkOfferDate1 = date;
@@ -148,16 +152,27 @@ public class ConnectLinkedAppRecord extends Persisted {
     public Date getLinkOfferDate2() {
         return linkOffered2 ? linkOfferDate2 : null;
     }
+
     public void setLinkOfferDate2(Date date) {
         linkOffered2 = true;
         linkOfferDate2 = date;
     }
 
-    public boolean isUsingLocalPassphrase() { return usingLocalPassphrase; }
-    public void setIsUsingLocalPassphrase(boolean using) { usingLocalPassphrase = using; }
+    public boolean isUsingLocalPassphrase() {
+        return usingLocalPassphrase;
+    }
 
-    public Date getLastAccessed() { return lastAccessed; }
-    public void setLastAccessed(Date date) { lastAccessed = date; }
+    public void setIsUsingLocalPassphrase(boolean using) {
+        usingLocalPassphrase = using;
+    }
+
+    public Date getLastAccessed() {
+        return lastAccessed;
+    }
+
+    public void setLastAccessed(Date date) {
+        lastAccessed = date;
+    }
 
     public static ConnectLinkedAppRecord fromV9(ConnectLinkedAppRecordV9 oldRecord) {
         ConnectLinkedAppRecord newRecord = new ConnectLinkedAppRecord();

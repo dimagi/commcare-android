@@ -24,8 +24,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -282,7 +282,7 @@ public class LoginActivityUiController implements CommCareActivityUIController {
 
         if (ConnectManager.isConnectIdConfigured()) {
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
-                    ConnectDatabaseHelper.getUser(activity).getName());
+                    ConnectUserDatabaseUtil.getUser(activity).getName());
 
             welcomeMessage.setText(welcomeText);
         }

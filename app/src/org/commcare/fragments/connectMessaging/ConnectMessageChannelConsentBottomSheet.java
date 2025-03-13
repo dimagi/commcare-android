@@ -10,8 +10,9 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
 
 import androidx.annotation.NonNull;
@@ -28,7 +29,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         ConnectMessageChannelConsentBottomSheetArgs args = ConnectMessageChannelConsentBottomSheetArgs
                 .fromBundle(getArguments());
 
-        ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(),
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(),
                 args.getChannelId());
 
         binding.channelName.setText(channel.getChannelName());

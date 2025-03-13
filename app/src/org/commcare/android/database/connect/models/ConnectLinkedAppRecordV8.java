@@ -5,6 +5,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
+import java.time.Instant;
 import java.util.Date;
 
 /**
@@ -57,7 +58,9 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
     @MetaField(META_OFFERED_2_DATE)
     private Date linkOfferDate2;
 
-    public String getAppId(){ return appId; }
+    public String getAppId() {
+        return appId;
+    }
 
     public String getUserId() {
         return userId;
@@ -83,7 +86,9 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
         return hqTokenExpiration;
     }
 
-    public boolean getConnectIdLinked() { return connectIdLinked; }
+    public boolean getConnectIdLinked() {
+        return connectIdLinked;
+    }
 
     public Date getLinkOfferDate1() {
         return linkOffered1 ? linkOfferDate1 : null;
@@ -105,9 +110,9 @@ public class ConnectLinkedAppRecordV8 extends Persisted {
 
         newRecord.connectIdLinked = true;
         newRecord.linkOffered1 = true;
-        newRecord.linkOfferDate1 = new Date();
+        newRecord.linkOfferDate1 = Date.from(Instant.now());
         newRecord.linkOffered2 = false;
-        newRecord.linkOfferDate2 = new Date();
+        newRecord.linkOfferDate2 = Date.from(Instant.now());
 
         return newRecord;
     }

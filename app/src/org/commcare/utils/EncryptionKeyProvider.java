@@ -35,7 +35,15 @@ import androidx.annotation.RequiresApi;
  * @author dviggiano
  */
 public class EncryptionKeyProvider {
+    /**
+     *  Key store name that store the encryptrd key
+     *  the value of the key should not be renamed due to backward compatibility
+     */
     private static final String KEYSTORE_NAME = "AndroidKeyStore";
+    /**
+     *  Key name to get the secret value from key store
+     *  the value of the key should not be renamed due to backward compatibility
+     */
     private static final String SECRET_NAME = "secret";
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -71,18 +79,25 @@ public class EncryptionKeyProvider {
     }
 
     //Gets the SecretKey from the Android KeyStore (creates a new one the first time)
+    @SuppressLint("InlinedApi") //Suppressing since we check the API version elsewhere
     private static EncryptionKeyAndTransform getKey(Context context, KeyStore keystore, boolean trueForEncrypt)
             throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException,
             InvalidAlgorithmParameterException, NoSuchProviderException {
 
         if (doesKeystoreContainEncryptionKey()) {
             KeyStore.Entry existingKey = keystore.getEntry(SECRET_NAME, null);
-            if (existingKey instanceof KeyStore.SecretKeyEntry entry) {
-                return new EncryptionKeyAndTransform(entry.getSecretKey(), getTransformationString(false));
-            } else if (existingKey instanceof KeyStore.PrivateKeyEntry entry) {
+            if (existingKey instanceof KeyStore.SecretKeyEntry) {
+                KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry) existingKey;
+                return new EncryptionKeyAndTransform(
+                        entry.getSecretKey(),
+                        String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING)
+                );
+            } else if (existingKey instanceof KeyStore.PrivateKeyEntry) {
+                KeyStore.PrivateKeyEntry entry = (KeyStore.PrivateKeyEntry) existingKey;
                 Key key = trueForEncrypt ? entry.getCertificate().getPublicKey() : entry.getPrivateKey();
-                return new EncryptionKeyAndTransform(key, getTransformationString(true));
-            } else {
+                return new EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding");
+            }
+            else {
                 throw new RuntimeException("Unrecognized key type retrieved from KeyStore");
             }
         } else {
@@ -108,7 +123,7 @@ public class EncryptionKeyProvider {
                     .build();
 
             keyGenerator.init(keySpec);
-            return new EncryptionKeyAndTransform(keyGenerator.generateKey(), getTransformationString(false));
+            return new EncryptionKeyAndTransform(keyGenerator.generateKey(), String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING));
         } else {
             KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA", KEYSTORE_NAME);
 
@@ -132,19 +147,8 @@ public class EncryptionKeyProvider {
             KeyPair pair = generator.generateKeyPair();
 
             Key key = trueForEncrypt ? pair.getPublic() : pair.getPrivate();
-            return new EncryptionKeyAndTransform(key, getTransformationString(true));
+            return new EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding");
         }
     }
 
-    @SuppressLint("InlinedApi") //Suppressing since we check the API version elsewhere
-    public static String getTransformationString(boolean useRsa) {
-        String transformation;
-        if (useRsa) {
-            transformation = "RSA/ECB/PKCS1Padding";
-        } else {
-            transformation = String.format("%s/%s/%s", ALGORITHM, BLOCK_MODE, PADDING);
-        }
-
-        return transformation;
-    }
 }

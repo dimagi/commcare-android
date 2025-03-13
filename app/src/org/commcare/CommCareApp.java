@@ -25,6 +25,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -44,6 +45,7 @@ import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
@@ -76,6 +78,7 @@ public class CommCareApp implements AppFilePathBuilder {
     private static Stylizer mStylizer;
 
     private int resourceState;
+    private volatile PrimeEntityCacheHelper primeEntityCacheHelper;
 
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
@@ -409,6 +412,17 @@ public class CommCareApp implements AppFilePathBuilder {
                 }
             }
         };
+    }
+
+    public PrimeEntityCacheHelper getPrimeEntityCacheHelper() {
+        if (primeEntityCacheHelper == null) {
+            synchronized (this) {
+                if (primeEntityCacheHelper == null) {
+                    primeEntityCacheHelper = new PrimeEntityCacheHelper();
+                }
+            }
+        }
+        return primeEntityCacheHelper;
     }
 
     /**

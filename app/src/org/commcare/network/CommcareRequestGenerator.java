@@ -8,7 +8,8 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.android.database.user.models.ACase;
@@ -186,7 +187,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                     try {
                         if (ConnectManager.isConnectIdConfigured()) {
                             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                            ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(
+                            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(
                                     CommCareApplication.instance(), seatedAppId, username);
                             if (appRecord != null && appRecord.getWorkerLinked()) {
                                 Logger.exception("Critical auth error for connect managed app",

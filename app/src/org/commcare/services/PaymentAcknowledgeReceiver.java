@@ -1,15 +1,13 @@
 package org.commcare.services;
-
-import static org.commcare.connect.ConnectDatabaseHelper.getPayments;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectJobUtils;
 
 import java.util.List;
 
@@ -37,10 +35,10 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
     }
 
     private void UpdatePayment(Context context) {
-        ConnectJobRecord job = ConnectDatabaseHelper.getJob(context, Integer.parseInt(opportunityId));
+        ConnectJobRecord job = ConnectJobUtils.getCompositeJob(context, Integer.parseInt(opportunityId));
         ConnectManager.updateDeliveryProgress(context, job, success -> {
             if (success) {
-                List<ConnectJobPaymentRecord> existingPaymentList = getPayments(context, job.getJobId(), null);
+                List<ConnectJobPaymentRecord> existingPaymentList = ConnectJobUtils.getPayments(context, job.getJobId(), null);
                 getPaymentsFromJobs(context, existingPaymentList);
             }
         });

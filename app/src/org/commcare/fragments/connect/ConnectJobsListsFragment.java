@@ -31,9 +31,11 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -87,7 +89,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
         updateText.setVisibility(View.GONE);
-        updateUpdatedDate(ConnectDatabaseHelper.getLastJobsUpdate(getContext()));
+        updateUpdatedDate(ConnectJobUtils.getLastJobsUpdate(getContext()));
         ImageView refreshButton = view.findViewById(R.id.connect_jobs_refresh);
         refreshButton.setOnClickListener(v -> refreshData());
         refreshButton.setVisibility(View.GONE);
@@ -136,7 +138,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
                         //Store retrieved jobs
                         totalJobs = jobs.size();
-                        newJobs = ConnectDatabaseHelper.storeJobs(getContext(), jobs, true);
+                        newJobs =  ConnectJobUtils.storeJobs(getContext(), jobs, true);
                         setJobListData(jobs);
                     }
                 } catch (IOException | JSONException | ParseException e) {
@@ -149,7 +151,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
             @Override
             public void processFailure(int responseCode, IOException e) {
-                setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
+                setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
                 reportApiCall(false, 0, 0);
                 refreshUi();
@@ -157,7 +159,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
             @Override
             public void processNetworkFailure() {
-                setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
+                setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
                 Logger.log("ERROR", "Failed (network)");
                 reportApiCall(false, 0, 0);
                 refreshUi();
@@ -165,7 +167,7 @@ public class ConnectJobsListsFragment extends Fragment {
 
             @Override
             public void processOldApiError() {
-                setJobListData(ConnectDatabaseHelper.getJobs(getActivity(), -1, null));
+                setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
                 ConnectNetworkHelper.showOutdatedApiError(getContext());
                 reportApiCall(false, 0, 0);
             }
@@ -362,11 +364,11 @@ public class ConnectJobsListsFragment extends Fragment {
             String learnAppId = job.getLearnAppInfo().getAppId();
             String deliverAppId = job.getDeliveryAppInfo().getAppId();
             if (jobType.equalsIgnoreCase(JOB_LEARNING)) {
-                ConnectLinkedAppRecord learnRecord = ConnectDatabaseHelper.getAppData(getActivity(), learnAppId, "");
+                ConnectLinkedAppRecord learnRecord = ConnectAppDatabaseUtil.getAppData(getActivity(), learnAppId, "");
                 return learnRecord != null ? learnRecord.getLastAccessed() : lastAssessedDate;
 
             } else if (jobType.equalsIgnoreCase(JOB_DELIVERY)) {
-                ConnectLinkedAppRecord deliverRecord = ConnectDatabaseHelper.getAppData(getActivity(), deliverAppId, "");
+                ConnectLinkedAppRecord deliverRecord = ConnectAppDatabaseUtil.getAppData(getActivity(), deliverAppId, "");
                 return deliverRecord != null ? deliverRecord.getLastAccessed() : lastAssessedDate;
             }
         } catch (Exception e) {
