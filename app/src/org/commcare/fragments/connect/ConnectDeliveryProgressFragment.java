@@ -71,7 +71,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(R.string.connect_progress_delivery);
@@ -138,6 +138,12 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                 if (!isTabChange) {
                     TabLayout.Tab tab = tabLayout.getTabAt(position);
                     tabLayout.selectTab(tab);
+
+                    View view = viewStateAdapter.createFragment(position).getView();
+                    if(view != null) {
+                        pager.getLayoutParams().height = view.getMeasuredHeight();
+                        pager.requestLayout();
+                    }
 
                     FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
                 } else {
@@ -212,6 +218,16 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         if(showHours) {
             tv_job_time.setText(workingHours);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -337,37 +353,32 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
-        private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
-        private static ConnectResultsSummaryListFragment verificationFragment = null;
+        private final List<Fragment> fragmentList = new ArrayList<>();
 
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
+            fragmentList.add(ConnectDeliveryProgressDeliveryFragment.newInstance());
+            fragmentList.add(ConnectResultsSummaryListFragment.newInstance());
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) {
-                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance();
-                return deliveryFragment;
-            }
-
-            verificationFragment = ConnectResultsSummaryListFragment.newInstance();
-            return verificationFragment;
+            return fragmentList.get(position);
         }
 
         @Override
         public int getItemCount() {
-            return 2;
+            return fragmentList.size();
         }
 
         public void refresh() {
-            if (deliveryFragment != null) {
-                deliveryFragment.updateView();
-            }
-
-            if (verificationFragment != null) {
-                verificationFragment.updateView();
+            for (Fragment fragment : fragmentList) {
+                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment) {
+                    ((ConnectDeliveryProgressDeliveryFragment) fragment).updateView();
+                } else if (fragment instanceof ConnectResultsSummaryListFragment) {
+                    ((ConnectResultsSummaryListFragment) fragment).updateView();
+                }
             }
         }
     }
