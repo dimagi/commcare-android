@@ -241,7 +241,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
         };
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter,RECEIVER_NOT_EXPORTED);
         }else{
             requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
