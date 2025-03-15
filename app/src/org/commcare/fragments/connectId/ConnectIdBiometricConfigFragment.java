@@ -236,9 +236,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
     public void performFingerprintUnlock() {
         attemptingFingerprint = true;
-        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(requireActivity(), biometricManager) ||
-                allowPassword;
-        BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, allowOtherOptions, biometricPromptCallbacks);
+        BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
 
     public void performPasswordUnlock() {

@@ -341,6 +341,12 @@ public class ConnectDatabaseHelper {
             for (ConnectJobRecord incoming : jobs) {
                 if (existing.getJobId() == incoming.getJobId()) {
                     incoming.setID(existing.getID());
+
+                    //Could be the case that app has transitioned to learn and server doesn't know yet
+                    if(existing.getStatus() > incoming.getStatus()) {
+                        incoming.setStatus(existing.getStatus());
+                    }
+
                     stillExists = true;
                     break;
                 }

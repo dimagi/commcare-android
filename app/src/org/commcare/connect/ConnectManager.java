@@ -246,8 +246,7 @@ public class ConnectManager {
 
         BiometricManager bioManager = getBiometricManager(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, allowOtherOptions, callbacks);
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks);
         } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
@@ -564,6 +563,21 @@ public class ConnectManager {
         }
 
         callback.connectActivityComplete(false);
+    }
+
+    public static boolean checkForFailedConnectIdAuth(String username) {
+        try {
+            if (isConnectIdConfigured()) {
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(
+                        CommCareApplication.instance(), seatedAppId, username);
+                return appRecord != null && appRecord.getWorkerLinked();
+            }
+        } catch (Exception e){
+            Logger.exception("Error while checking ConnectId status after failed token auth", e);
+        }
+
+        return false;
     }
 
     public static ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
