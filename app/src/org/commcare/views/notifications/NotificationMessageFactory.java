@@ -60,6 +60,10 @@ public class NotificationMessageFactory {
          * No PIN was entered
          */
         Auth_EmptyPin("login.attempt.fail.empty.pin"),
+        /**
+         * User's role doesn't have the right to access CommCare mobile app
+         */
+        Auth_InsufficientRolePermission("login.attempt.insufficient.role.permission"),
 
         /**
          * Server 500 when retrieving data.

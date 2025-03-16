@@ -1,5 +1,7 @@
 package org.commcare;
 
+import static org.commcare.AppUtils.getCurrentAppId;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -29,6 +31,7 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -96,7 +99,9 @@ import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
+import org.commcare.tasks.EntityCacheInvalidationWorker;
 import org.commcare.tasks.LogSubmissionTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
@@ -163,6 +168,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
+    private static final String ENTITY_CACHE_INVALIDATION_REQUEST = "entity-cache-invalidation-request";
     private static Markwon markwon;
 
 
@@ -388,10 +394,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     protected void cancelWorkManagerTasks() {
-        // Cancel form Submissions for this user
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+            currentApp.getPrimeEntityCacheHelper().cancelWork();
         }
     }
 
@@ -581,7 +587,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public void unseat(ApplicationRecord record) {
         // cancel all Workmanager tasks for the unseated record
         WorkManager.getInstance(CommCareApplication.instance())
-                .cancelAllWorkByTag(record.getApplicationId());
+                .cancelAllWorkByTag(record.getUniqueId());
         MissingMediaDownloadHelper.cancelAllDownloads();
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
@@ -801,7 +807,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
                         purgeLogs();
                         cleanRawMedia();
-
+                        PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -854,7 +860,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
         PeriodicWorkRequest formSubmissionRequest =
                 new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                        .addTag(getCurrentAppId())
                         .setConstraints(constraints)
                         .setBackoffCriteria(
                                 BackoffPolicy.EXPONENTIAL,
@@ -863,7 +869,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),
+                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentAppId()),
                 ExistingPeriodicWorkPolicy.KEEP,
                 formSubmissionRequest
         );
@@ -880,7 +886,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
             PeriodicWorkRequest updateRequest =
                     new PeriodicWorkRequest.Builder(UpdateWorker.class, UpdateHelper.getAutoUpdatePeriodicity(), TimeUnit.HOURS)
-                            .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                            .addTag(getCurrentAppId())
                             .setConstraints(constraints)
                             .setBackoffCriteria(
                                     BackoffPolicy.EXPONENTIAL,
@@ -1248,6 +1254,19 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             case ON_DESTROY:
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
+        }
+    }
+
+    public void scheduleEntityCacheInvalidation() {
+        CommCareEntityStorageCache entityStorageCache = new CommCareEntityStorageCache("case");
+        if (!entityStorageCache.isEmpty()) {
+            OneTimeWorkRequest entityCacheInvalidationRequest = new OneTimeWorkRequest.Builder(
+                    EntityCacheInvalidationWorker.class)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build();
+            WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
+            wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
+                    entityCacheInvalidationRequest);
         }
     }
 }

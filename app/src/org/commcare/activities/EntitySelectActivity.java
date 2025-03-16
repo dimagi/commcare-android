@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -35,6 +34,7 @@ import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
+import org.commcare.cases.entity.EntityLoadingProgressListener;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
@@ -53,11 +53,13 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.utils.AndroidHereFunctionHandler;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
 import org.commcare.utils.SerializationUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -166,6 +168,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
             new LocationNotificationHandler(this);
+    private AdapterView visibleView;
+    private TextView progressTv;
+    private int lastProgress = 0;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -254,7 +259,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             setContentView(R.layout.entity_select_layout);
         }
 
-        AdapterView visibleView;
         GridView gridView = this.findViewById(R.id.screen_entity_select_grid);
         ListView listView = this.findViewById(R.id.screen_entity_select_list);
         if (shortSelect.shouldBeLaidOutInGrid()) {
@@ -268,6 +272,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             gridView.setVisibility(View.GONE);
             EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
         }
+        progressTv = findViewById(R.id.progress_text);
         RxAdapterView.itemClickEvents(visibleView)
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .throttleFirst(CLICK_DEBOUNCE_TIME, TimeUnit.MILLISECONDS)
@@ -356,7 +361,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (view instanceof ListView) {
             EntitySelectViewSetup.setupDivider(this, (ListView)view, shortSelect.usesEntityTileView());
         }
-        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        findViewById(R.id.progress_container).setVisibility(View.GONE);
         entitySelectSearchUI.setSearchBannerState();
     }
 
@@ -476,12 +481,27 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, evalContext());
+            setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, selectDatum, evalContext());
             entityLoader.attachListener(this);
             entityLoader.executeParallel(selectDatum.getNodeset());
+            observePrimeCacheWorker();
             return true;
         }
         return false;
+    }
+
+    private void observePrimeCacheWorker() {
+        if (shortSelect.shouldOptimize()) {
+            PrimeEntityCacheHelper primeEntityCacheHelper =
+                    CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
+            primeEntityCacheHelper.getProgressState().observe(this, triple -> {
+                if (triple.getFirst().contentEquals(selectDatum.getDataId()) &&
+                        triple.getSecond().contentEquals(shortSelect.getId())) {
+                    deliverProgress(triple.getThird());
+                }
+            });
+        }
     }
 
     @Override
@@ -852,16 +872,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                   List<TreeReference> references,
                                   NodeEntityFactory factory, int focusTargetIndex) {
         loader = null;
-
-        AdapterView visibleView;
-        if (shortSelect.shouldBeLaidOutInGrid()) {
-            visibleView = ((GridView)this.findViewById(R.id.screen_entity_select_grid));
-        } else {
-            ListView listView = this.findViewById(R.id.screen_entity_select_list);
-            EntitySelectViewSetup.setupDivider(this, listView, shortSelect.usesEntityTileView());
-            visibleView = listView;
-        }
-
+        setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_finishing));
         adapter = new EntityListAdapter(this, shortSelect, references, entities, factory,
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
@@ -883,7 +894,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        findViewById(R.id.progress_container).setVisibility(View.GONE);
 
         if (adapter != null) {
             // filter by additional session data (search string, callout result data)
@@ -905,6 +916,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             locationChangedWhileLoading = false;
             loadEntities();
         }
+    }
+
+    private void setProgressText(String message) {
+        progressTv.setText(message);
     }
 
     private void restoreAdapterStateFromSession() {
@@ -933,7 +948,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void attachLoader(EntityLoaderTask task) {
-        findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
+        findViewById(R.id.progress_container).setVisibility(View.VISIBLE);
         this.loader = task;
     }
 
@@ -992,6 +1007,27 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverLoadError(Exception e) {
         displayCaseListLoadException(e);
+    }
+
+    @Override
+    public void deliverProgress(Integer[] values) {
+        EntityLoadingProgressListener.EntityLoadingProgressPhase phase =
+                EntityLoadingProgressListener.EntityLoadingProgressPhase.fromInt(values[0]);
+        int progress = values[1] * 100 / values[2];
+        if (progress != lastProgress) {
+            lastProgress = progress;
+            String progressDisplay = progress + "%";
+            switch (phase) {
+                case PHASE_PROCESSING -> setProgressText(
+                        StringUtils.getStringRobust(this, R.string.entity_list_processing,
+                                new String[]{progressDisplay}));
+                case PHASE_CACHING -> setProgressText(
+                        StringUtils.getStringRobust(this, R.string.entity_list_loading_cache));
+                case PHASE_UNCACHED_CALCULATION -> setProgressText(
+                        StringUtils.getStringRobust(this, R.string.entity_list_calculating,
+                                new String[]{progressDisplay}));
+            }
+        }
     }
 
     @Override

@@ -25,7 +25,7 @@ public class ConnectJobUtils {
     public static void upsertJob(Context context, ConnectJobRecord job) {
         List<ConnectJobRecord> list = new ArrayList<>();
         list.add(job);
-        new JobStoreManager(context).getCompositeJobs(context, list, false);
+        new JobStoreManager(context).storeJobs(context, list, false);
     }
 
     public static ConnectJobRecord getCompositeJob(Context context, int jobId) {
