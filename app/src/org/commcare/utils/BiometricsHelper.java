@@ -227,4 +227,54 @@ public class BiometricsHelper {
         activity.startActivityForResult(enrollIntent, IntentIntegrator.REQUEST_CODE);
         return true;
     }
+
+    /**
+     * Initiates password-based authentication.
+     *
+     * @param activity                The fragment activity.
+     * @param biometricManager        The BiometricManager instance.
+     * @param biometricPromptCallback The callback for authentication results.
+     */
+    public static void authenticatePassword(Activity activity, BiometricManager biometricManager,
+                                            BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
+        if (isPasswordConfigured(activity, biometricManager)) {
+            biometricPromptCallbackHolder = biometricPromptCallback;
+            KeyguardManager manager = (KeyguardManager) activity.getSystemService(Context.KEYGUARD_SERVICE);
+            activity.startActivityForResult(
+                    manager.createConfirmDeviceCredentialIntent(
+                            activity.getString(R.string.connect_unlock_title),
+                            activity.getString(R.string.connect_unlock_message)),
+                    ConnectConstants.CONNECT_UNLOCK_PASSWORD);
+        }
+    }
+
+    /**
+     * Determines if password authentication is configured on the device.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return True if password authentication is configured, false otherwise.
+     */
+    public static boolean isPasswordConfigured(Context context, BiometricManager biometricManager) {
+        return checkStatus(context, biometricManager, BiometricManager.Authenticators.DEVICE_CREDENTIAL) == ConfigurationStatus.Configured;
+    }
+
+    /**
+     * Handles the result of the password authentication activity.
+     *
+     * @param requestCode The request code for the authentication intent.
+     * @param resultCode  The result code from the authentication activity.
+     * @return True if the request was handled, false otherwise.
+     */
+    public static boolean handlePasswordUnlockActivityResult(int requestCode, int resultCode) {
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PASSWORD) {
+            if (resultCode == Activity.RESULT_OK) {
+                biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
+            } else {
+                biometricPromptCallbackHolder.onAuthenticationFailed();
+            }
+            return true;
+        }
+        return false;
+    }
 }

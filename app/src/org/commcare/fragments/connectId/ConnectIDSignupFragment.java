@@ -63,6 +63,7 @@ public class ConnectIDSignupFragment extends Fragment {
         phoneNumberHelper = new PhoneNumberHelper(requireActivity());
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
+        setArguments();
 
         binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
 
@@ -363,7 +364,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                     StreamsUtil.inputStreamToByteArray(responseData));
                             JSONObject json = new JSONObject(responseAsString);
                             if (json.has(ConnectConstants.CONNECT_KEY_DB_KEY)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY)));
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
                             }
 
                             user.setSecondaryPhoneVerified(!json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY) || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY));
