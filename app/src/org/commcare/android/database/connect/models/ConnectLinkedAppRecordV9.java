@@ -7,10 +7,15 @@ import org.commcare.modern.models.MetaField;
 
 import java.util.Date;
 
+import androidx.annotation.NonNull;
+
 /**
- * DB model holding info for an HQ app linked to ConnectID
+ * Migrates a V8 record to V9 format.
+ * New in V9:
+ * - Added usingLocalPassphrase field
+ * - Changed link offer date handling
  *
- * @author dviggiano
+ * @return A new V9 record with migrated data
  */
 @Table(ConnectLinkedAppRecordV9.STORAGE_KEY)
 public class ConnectLinkedAppRecordV9 extends Persisted {
@@ -68,7 +73,10 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         linkOfferDate2 = new Date();
     }
 
-    public String getAppId(){ return appId; }
+    public String getAppId() {
+        return appId;
+    }
+
     public String getUserId() {
         return userId;
     }
@@ -93,7 +101,9 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         return hqTokenExpiration;
     }
 
-    public boolean getConnectIdLinked() { return connectIdLinked; }
+    public boolean getConnectIdLinked() {
+        return connectIdLinked;
+    }
 
     public Date getLinkOfferDate1() {
         return linkOffered1 ? linkOfferDate1 : null;
@@ -103,9 +113,11 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         return linkOffered2 ? linkOfferDate2 : null;
     }
 
-    public boolean isUsingLocalPassphrase() { return usingLocalPassphrase; }
+    public boolean isUsingLocalPassphrase() {
+        return usingLocalPassphrase;
+    }
 
-    public static ConnectLinkedAppRecordV9 fromV8(ConnectLinkedAppRecordV8 oldRecord) {
+    public static ConnectLinkedAppRecordV9 fromV8(@NonNull ConnectLinkedAppRecordV8 oldRecord) {
         ConnectLinkedAppRecordV9 newRecord = new ConnectLinkedAppRecordV9();
 
         newRecord.appId = oldRecord.getAppId();
@@ -119,7 +131,7 @@ public class ConnectLinkedAppRecordV9 extends Persisted {
         newRecord.linkOfferDate1 = newRecord.linkOffered1 ? oldRecord.getLinkOfferDate1() : new Date();
         newRecord.linkOffered2 = oldRecord.getLinkOfferDate2() != null;
         newRecord.linkOfferDate2 = newRecord.linkOffered2 ? oldRecord.getLinkOfferDate2() : new Date();
-
+        // Default to true for backward compatibility
         newRecord.usingLocalPassphrase = true;
 
         return newRecord;

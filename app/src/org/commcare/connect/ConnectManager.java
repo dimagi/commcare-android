@@ -34,6 +34,11 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseUtils;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -155,12 +160,12 @@ public class ConnectManager {
         manager.parentActivity = parent;
 
         if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
-                String remotePassphrase = ConnectDatabaseHelper.getConnectDbEncodedPassphrase(parent, false);
+                String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
                 }
@@ -353,7 +358,7 @@ public class ConnectManager {
     }
 
     public static ConnectUserRecord getUser(Context context) {
-        return ConnectDatabaseHelper.getUser(context);
+        return ConnectUserDatabaseUtil.getUser(context);
     }
 
     public static void forgetUser(String reason) {
@@ -363,7 +368,7 @@ public class ConnectManager {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
 
-        ConnectDatabaseHelper.forgetUser(manager.parentActivity);
+        ConnectUserDatabaseUtil.forgetUser(manager.parentActivity);
 
         ConnectIdActivity.reset();
 
@@ -375,7 +380,7 @@ public class ConnectManager {
 
         ConnectAppRecord appRecord = getAppRecord(context, appId);
         if (appRecord != null) {
-            job = ConnectDatabaseHelper.getJob(context, appRecord.getJobId());
+            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
         }
 
         setActiveJob(job);
@@ -430,17 +435,17 @@ public class ConnectManager {
     }
 
     public static void forgetAppCredentials(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId, userId);
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, appId, userId);
         if (record != null) {
-            ConnectDatabaseHelper.deleteAppData(manager.parentActivity, record);
+            ConnectAppDatabaseUtil.deleteAppData(manager.parentActivity, record);
         }
     }
 
     public static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(activity, appId, username);
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
         if (record != null) {
             record.setLastAccessed(new Date());
-            ConnectDatabaseHelper.storeApp(activity, record);
+            ConnectAppDatabaseUtil.storeApp(activity, record);
         }
     }
 
@@ -451,7 +456,7 @@ public class ConnectManager {
                 boolean offerToLink = true;
                 boolean isSecondOffer = false;
 
-                ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+                ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
                 //See if we've offered to link already
                 Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
                 if (firstOffer != null) {
@@ -473,7 +478,7 @@ public class ConnectManager {
                 if (offerToLink) {
                     if (linkedApp == null) {
                         //Create the linked app record (even if just to remember that we offered)
-                        linkedApp = ConnectDatabaseHelper.storeApp(activity, appId, username, false, "", false, false);
+                        linkedApp = ConnectAppDatabaseUtil.storeApp(activity, appId, username, false, "", false, false);
                     }
 
                     //Update that we offered
@@ -494,7 +499,7 @@ public class ConnectManager {
                         unlockConnect(activity, success -> {
                             if (success) {
                                 appRecordFinal.linkToConnectId(password);
-                                ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
+                                ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
 
                                 //Link the HQ user by aqcuiring the SSO token for the first time
                                 ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
@@ -516,7 +521,7 @@ public class ConnectManager {
                         activity.dismissAlertDialog();
 
                         //Save updated record indicating that we offered
-                        ConnectDatabaseHelper.storeApp(activity, appRecordFinal);
+                        ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
 
                         callback.connectActivityComplete(false);
                     });
@@ -537,10 +542,10 @@ public class ConnectManager {
 
                         unlockConnect(activity, success -> {
                             if (success) {
-                                ConnectLinkedAppRecord linkedApp = ConnectDatabaseHelper.getAppData(activity, appId, username);
+                                ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
                                 if (linkedApp != null) {
                                     linkedApp.severConnectIdLink();
-                                    ConnectDatabaseHelper.storeApp(activity, linkedApp);
+                                    ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
                                 }
                             }
 
@@ -578,7 +583,7 @@ public class ConnectManager {
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
-        return ConnectDatabaseHelper.getAppRecord(context, appId);
+        return ConnectJobUtils.getAppRecord(context, appId);
     }
 
     public static String getStoredPasswordForApp(String appId, String userId) {
@@ -588,7 +593,7 @@ public class ConnectManager {
 
     @Nullable
     public static AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, appId,
                 userId);
         if (record != null && record.getConnectIdLinked() && record.getPassword().length() > 0) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
@@ -599,7 +604,7 @@ public class ConnectManager {
 
     public static AuthInfo.TokenAuth getConnectToken() {
         if (isConnectIdConfigured()) {
-            ConnectUserRecord user = ConnectDatabaseHelper.getUser(manager.parentActivity);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
             Date currentDate = new Date();
             if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
@@ -616,7 +621,7 @@ public class ConnectManager {
 
     public static AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isConnectIdConfigured()) {
-            ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(manager.parentActivity, appId,
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, appId,
                     userId);
             Date currentDate = new Date();
             if (record != null && currentDate.compareTo(record.getHqTokenExpiration()) < 0) {
@@ -720,7 +725,7 @@ public class ConnectManager {
         if (isConnectIdConfigured()) {
             if (appLaunchedFromConnect) {
                 //Configure some things if we haven't already
-                ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context,
+                ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(context,
                         appId, username);
                 if (record == null) {
                     record = prepareConnectManagedApp(context, appId, username);
@@ -729,7 +734,7 @@ public class ConnectManager {
                 passwordOrPin = record.getPassword();
             } else if (uiInAutoLogin) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                ConnectLinkedAppRecord record = ConnectDatabaseHelper.getAppData(context, seatedAppId,
+                ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(context, seatedAppId,
                         username);
                 passwordOrPin = record != null ? record.getPassword() : null;
 
@@ -748,7 +753,7 @@ public class ConnectManager {
         String password = generatePassword();
 
         //Store ConnectLinkedAppRecord (note worker already linked)
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.storeApp(context, appId, username, true, password, true, false);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.storeApp(context, appId, username, true, password, true, false);
 
         return appRecord;
     }
@@ -826,7 +831,7 @@ public class ConnectManager {
                             learningRecords.add(record);
                         }
                         job.setLearnings(learningRecords);
-                        job.setComletedLearningModules(learningRecords.size());
+                        job.setCompletedLearningModules(learningRecords.size());
 
                         key = "assessments";
                         JSONArray assessments = json.getJSONArray(key);
@@ -838,7 +843,7 @@ public class ConnectManager {
                         }
                         job.setAssessments(assessmentRecords);
 
-                        ConnectDatabaseHelper.updateJobLearnProgress(context, job);
+                        ConnectJobUtils.updateJobLearnProgress(context, job);
                     }
                 } catch (IOException | JSONException | ParseException e) {
                     Logger.exception("Parsing return from learn_progress request", e);
@@ -913,7 +918,7 @@ public class ConnectManager {
 
                         if (updatedJob) {
                             job.setLastDeliveryUpdate(new Date());
-                            ConnectDatabaseHelper.upsertJob(context, job);
+                            ConnectJobUtils.upsertJob(context, job);
                         }
 
                         List<ConnectJobDeliveryRecord> deliveries = new ArrayList<>(json.length());
@@ -930,7 +935,7 @@ public class ConnectManager {
                             }
 
                             //Store retrieved deliveries
-                            ConnectDatabaseHelper.storeDeliveries(context, deliveries, job.getJobId(), true);
+                            ConnectJobUtils.storeDeliveries(context, deliveries, job.getJobId(), true);
 
                             job.setDeliveries(deliveries);
                         }
@@ -944,7 +949,7 @@ public class ConnectManager {
                                 payments.add(ConnectJobPaymentRecord.fromJson(obj, job.getJobId()));
                             }
 
-                            ConnectDatabaseHelper.storePayments(context, payments, job.getJobId(), true);
+                            ConnectJobUtils.storePayments(context, payments, job.getJobId(), true);
 
                             job.setPayments(payments);
                         }
@@ -990,7 +995,7 @@ public class ConnectManager {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 payment.setConfirmed(confirmed);
-                ConnectDatabaseHelper.storePayment(context, payment);
+                ConnectJobUtils.storePayment(context, payment);
 
                 //No need to report to user
                 reportApiCall(true);

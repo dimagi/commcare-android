@@ -51,6 +51,8 @@ public class EncryptionUtils {
         }
 
         byte[] result = new byte[PASSPHRASE_LENGTH];
+        int maxAttempts = 100; // Safety limit
+        int attempts = 0;
 
         while (true) {
             random.nextBytes(result);
@@ -67,9 +69,13 @@ public class EncryptionUtils {
                 }
             }
 
-            if (!containsZero) {
+            if (!containsZero || ++attempts >= maxAttempts) {
                 break;
             }
+        }
+
+            if (attempts >= maxAttempts) {
+                throw new IllegalStateException("Failed to generate a passphrase without zeros after " + maxAttempts + " attempts");
         }
 
         return result;
@@ -80,8 +86,8 @@ public class EncryptionUtils {
             IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, CertificateException, KeyStoreException, IOException,
             NoSuchProviderException {
-        Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, keyAndTransform.key);
+        Cipher cipher = Cipher.getInstance(keyAndTransform.getTransformation());
+        cipher.init(Cipher.ENCRYPT_MODE, keyAndTransform.getKey());
         byte[] encrypted = cipher.doFinal(bytes);
         byte[] iv = cipher.getIV();
         int ivLength = iv == null ? 0 : iv.length;
@@ -109,7 +115,7 @@ public class EncryptionUtils {
             InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
             UnrecoverableEntryException {
         int readIndex = 0;
-        int ivLength = bytes[readIndex];
+        int ivLength = bytes[readIndex] & 0xFF;
         readIndex++;
         if (ivLength < 0) {
             //Note: Early chance to catch decryption error
@@ -122,17 +128,17 @@ public class EncryptionUtils {
             readIndex += ivLength;
         }
 
-        int encryptedLength = bytes[readIndex] * 256;
+        int encryptedLength = (bytes[readIndex] & 0xFF) << 8;
         readIndex++;
-        encryptedLength += bytes[readIndex];
+        encryptedLength += (bytes[readIndex] & 0xFF);
 
         byte[] encrypted = new byte[encryptedLength];
         readIndex++;
         System.arraycopy(bytes, readIndex, encrypted, 0, encryptedLength);
 
-        Cipher cipher = Cipher.getInstance(keyAndTransform.transformation);
+        Cipher cipher = Cipher.getInstance(keyAndTransform.getTransformation());
 
-        cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.key, iv != null ? new IvParameterSpec(iv) : null);
+        cipher.init(Cipher.DECRYPT_MODE, keyAndTransform.getKey(), iv != null ? new IvParameterSpec(iv) : null);
 
         return cipher.doFinal(encrypted);
     }

@@ -97,7 +97,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         try {
             super.commit(parsed);
             if (mEntityCache != null) {
-                mEntityCache.invalidateCache(String.valueOf(parsed.getID()));
+                mEntityCache.invalidateRecord(String.valueOf(parsed.getID()));
             }
             mCaseIndexTable.clearCaseIndices(parsed);
             mCaseIndexTable.indexCase(parsed);

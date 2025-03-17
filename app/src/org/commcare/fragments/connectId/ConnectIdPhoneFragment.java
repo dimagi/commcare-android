@@ -23,8 +23,9 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -165,13 +166,13 @@ public class ConnectIdPhoneFragment extends Fragment {
 
     public void finish(boolean success, String phone) {
         NavDirections directions = null;
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
 
             case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 if (success) {
                     user.setAlternatePhone(phone);
-                    ConnectDatabaseHelper.storeUser(getActivity(), user);
+                    ConnectUserDatabaseUtil.storeUser(getActivity(), user);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, "").setRecover(false).setChange(false);
                 } else {
@@ -181,7 +182,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 if (success) {
                     user.setPrimaryPhone(phone);
-                    ConnectDatabaseHelper.storeUser(getActivity(), user);
+                    ConnectUserDatabaseUtil.storeUser(getActivity(), user);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE);
                 }
                 directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",

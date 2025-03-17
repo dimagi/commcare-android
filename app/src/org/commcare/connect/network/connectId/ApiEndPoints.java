@@ -1,12 +1,11 @@
-package org.commcare.network.connectId.network;
+package org.commcare.connect.network.connectId;
 
 public class ApiEndPoints {
-    public static final String ConnectTokenURL = "o/token/";
-    public static final String ConnectHeartbeatURL = "/users/heartbeat";
-    public static final String ConnectFetchDbKeyURL = "/users/fetch_db_key";
-    public static final String ConnectChangePasswordURL = "/users/change_password";
+    public static final String connectTokenURL = "/o/token/";
+    public static final String connectHeartbeatURL = "/users/heartbeat";
+    public static final String connectFetchDbKeyURL = "/users/fetch_db_key";
     public static final String registerUser = "/users/register";
-    public static final String phoneAvailable = "/users/phone_available?";
+    public static final String phoneAvailable = "/users/phone_available";
     public static final String changePhoneNo = "/users/change_phone";
     public static final String updateProfile = "/users/update_profile";
     public static final String validatePhone = "/users/validate_phone";

@@ -1,13 +1,14 @@
 package org.commcare.tasks;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import static org.commcare.utils.ConnectivityStatus.logConnectionSuccessMessage;
+import static org.commcare.utils.ConnectivityStatus.logNotConnectedMessage;
 
+import android.content.Context;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.ConnectivityStatus;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -44,11 +45,6 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String commcareHTML = "success";
     private static final String pingPrefix = "ping -c 1 ";
 
-
-    //the various log messages that will be returned regarding the outcomes of the tests
-    private static final String logNotConnectedMessage = "Network test: Not connected.";
-    private static final String logConnectionSuccessMessage = "Network test: Success.";
-
     private static final String logGoogleNullPointerMessage = "Google ping test: Process could not be started.";
     private static final String logGoogleIOErrorMessage = "Google ping test: Local error.";
     private static final String logGoogleInterruptedMessage = "Google ping test: Process was interrupted.";
@@ -70,28 +66,21 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     @Override
     protected Test doTaskBackground(Void... params) {
         Test out = null;
-        if (!isOnline(this.c)) {
+        if (!ConnectivityStatus.isNetworkAvailable(this.c)) {
             out = Test.isOnline;
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logNotConnectedMessage);
         } else if (!pingSuccess(googleURL)) {
             out = Test.googlePing;
         } else if (!pingCC(commcareURL)) {
             out = Test.commCarePing;
+        } else {
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logConnectionSuccessMessage);
         }
         return out;
     }
 
     //checks if the network is connected or not.
-    private boolean isOnline(Context context) {
-        ConnectivityManager conManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = conManager.getActiveNetworkInfo();
-        boolean notInAirplaneMode = (netInfo != null && netInfo.isConnected());
 
-        //if user is not online, log not connected. if online, log success
-        String logMessage = !notInAirplaneMode ? logNotConnectedMessage : logConnectionSuccessMessage;
-        Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logMessage);
-
-        return notInAirplaneMode;
-    }
 
     //check if a ping to a specific ip address (used for google url) is successful.
     private boolean pingSuccess(String url) {
