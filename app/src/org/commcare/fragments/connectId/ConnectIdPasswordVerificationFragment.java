@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -64,11 +65,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            failureCount = savedInstanceState.getInt(KEY_FAILURE_COUNT);
-            phone = savedInstanceState.getString(KEY_PHONE);
-            secretKey = savedInstanceState.getString(KEY_SECRET_KEY);
-        }
+        setSavedState(savedInstanceState);
     }
 
     @Override
@@ -77,12 +74,10 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = ScreenConnectPasswordVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
-        secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
-        callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
         failureCount = 0;
-        binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> handleForgotPress());
-        binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> handleButtonPress());
+        setArguments();
+        binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> onForgotPasswordClick());
+        binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> onVerifyPasswordClick());
         requireActivity().setTitle(R.string.connect_appbar_title_password_verification);
         return view;
     }
@@ -93,7 +88,21 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         requestInputFocus();
     }
 
-    public void finish(boolean success, boolean forgot) {
+    private void setSavedState(Bundle savedInstanceState){
+        if (savedInstanceState != null) {
+            failureCount = savedInstanceState.getInt(KEY_FAILURE_COUNT);
+            phone = savedInstanceState.getString(KEY_PHONE);
+            secretKey = savedInstanceState.getString(KEY_SECRET_KEY);
+        }
+    }
+
+    private void setArguments(){
+        phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
+        secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
+        callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+    }
+
+    private void finish(boolean success, boolean forgot) {
         NavDirections directions = null;
         switch (callingClass) {
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
@@ -135,7 +144,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         }
     }
 
-    public void handleWrongPassword() {
+    private void handleWrongPassword() {
         failureCount++;
         logRecoveryResult(false);
         binding.connectPasswordVerifyInput.setText("");
@@ -157,16 +166,16 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PASSWORD);
     }
 
-    public void handleForgotPress() {
+    private void onForgotPasswordClick() {
         finish(true, true);
     }
 
-    public void handleButtonPress() {
+    private void onVerifyPasswordClick() {
         String password = Objects.requireNonNull(binding.connectPasswordVerifyInput.getText()).toString();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireActivity());
         if (user != null) {
             //If we have the password stored locally, no need for network call
-            if (password.equals(user.getPassword())) {
+            if (MessageDigest.isEqual(password.getBytes(), user.getPassword().getBytes())) {
                 logRecoveryResult(true);
                 finish(true, false);
             } else {
@@ -184,28 +193,23 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                                 StreamsUtil.inputStreamToByteArray(responseData));
                         if (responseAsString.length() > 0) {
                             JSONObject json = new JSONObject(responseAsString);
-                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                            if (json.has(key)) {
-                                username = json.getString(key);
+                                username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
+
+
+                            if (json.has(ConnectConstants.CONNECT_KEY_NAME)) {
+                                name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
                             }
 
-                            key = ConnectConstants.CONNECT_KEY_NAME;
-                            if (json.has(key)) {
-                                name = json.getString(key);
-                            }
-
-                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                            if (json.has(key)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
+                            if (json.has(ConnectConstants.CONNECT_KEY_DB_KEY)) {
+                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
                             }
 
                             ConnectUserRecord user = new ConnectUserRecord(phone, username,
                                     password, name, "");
 
-                            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
-                            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                            user.setSecondaryPhoneVerified(!json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY) || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY));
                             if (!user.getSecondaryPhoneVerified()) {
-                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
+                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
                             }
 
                             //TODO: Need to get secondary phone from server
@@ -237,7 +241,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         }
     }
 
-    public void requestInputFocus() {
+    private void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPasswordVerifyInput);
     }
 

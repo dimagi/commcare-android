@@ -22,7 +22,6 @@ import org.commcare.utils.PhoneNumberHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -84,7 +83,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             }
         });
 
-        binding.continueButton.setOnClickListener(v -> handleButtonPress());
+        binding.continueButton.setOnClickListener(v -> onContinuePress());
         updateButtonEnabled();
         requireActivity().setTitle(R.string.connect_phone_title_alternate);
         return binding.getRoot();
@@ -99,7 +98,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding.continueButton.setEnabled(valid);
     }
 
-    public void handleButtonPress() {
+    public void onContinuePress() {
         if(getContext()==null){
             return;
         }

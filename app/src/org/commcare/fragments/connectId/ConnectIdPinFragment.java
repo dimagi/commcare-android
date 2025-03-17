@@ -95,8 +95,8 @@ public class ConnectIdPinFragment extends Fragment {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         checkPin();
-        binding.connectPinButton.setOnClickListener(v -> handleButtonPress());
-        binding.forgotButton.setOnClickListener(v -> handleForgotPress());
+        binding.connectPinButton.setOnClickListener(v -> verifyPin());
+        binding.forgotButton.setOnClickListener(v -> onForgotPress());
         binding.connectPinInput.addTextChangedListener(watcher);
         binding.connectPinInput.addTextChangedListener(watcher);
         clearPinFields();
@@ -182,7 +182,7 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
 
-    public void handleButtonPress() {
+    public void verifyPin() {
         String pin = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
 
@@ -330,7 +330,7 @@ public class ConnectIdPinFragment extends Fragment {
 
     }
 
-    public void handleForgotPress() {
+    public void onForgotPress() {
         finish(true, true, null);
     }
 

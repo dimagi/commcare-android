@@ -43,11 +43,6 @@ import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ConnectIdUserDeactivateOTPVerificationFragment#newInstance} factory method to
- * create an instance of requireActivity() fragment.
- */
 public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     public static final int REQ_USER_CONSENT = 200;
     private String primaryPhone;
@@ -154,13 +149,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        registerBrodcastReciever();
-
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_USER_CONSENT && (resultCode == RESULT_OK) && data != null) {
@@ -182,11 +170,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     public void onResume() {
         super.onResume();
         requestInputFocus();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     @Override

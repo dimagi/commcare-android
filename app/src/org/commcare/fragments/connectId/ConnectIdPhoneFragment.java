@@ -1,6 +1,5 @@
 package org.commcare.fragments.connectId;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -38,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import kotlin.jvm.Throws;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -93,7 +93,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
         binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
 
-        binding.connectPrimaryPhoneButton.setOnClickListener(v -> handleButtonPress());
+        binding.connectPrimaryPhoneButton.setOnClickListener(v -> verifyPhone());
         //Special case for initial reg. screen. Remembering phone number before account has been created
 
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getActivity());
@@ -175,13 +175,11 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
         }
         if (directions == null) {
-            Logger.log("Error", "Navigation directions is null. Unable to navigate.");
-            return;
+            throw new RuntimeException("Navigation directions is null. Unable to navigate.");
         }
             Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
 
-    //8556
     void displayNumber(String fullNumber) {
         int code = phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         if (fullNumber != null && fullNumber.length() > 0) {
@@ -206,7 +204,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         skipPhoneNumberCheck = false;
     }
 
-    public void handleButtonPress() {
+    public void verifyPhone() {
         String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
@@ -340,10 +338,5 @@ public class ConnectIdPhoneFragment extends Fragment {
                 binding.connectPrimaryPhoneButton.setEnabled(false);
             }
         }
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
     }
 }
