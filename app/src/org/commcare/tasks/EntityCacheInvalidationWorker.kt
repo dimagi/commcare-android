@@ -22,9 +22,7 @@ class EntityCacheInvalidationWorker(context: Context, workerParams: WorkerParame
             return Result.failure()
         } finally {
             // we want to schedule the Prime worker irrespective of result of this task
-            if (CommCareApplication.isSessionActive()) {
-                PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker()
-            }
+            PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker()
         }
         return Result.success()
     }
