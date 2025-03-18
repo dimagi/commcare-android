@@ -32,11 +32,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -50,8 +52,14 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     private String password;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
-
+    private int resendLimitMinutes = 2;
     private ScreenConnectUserDeactivateOtpVerifyBinding binding;
+
+    private static final String KEY_USER_NAME = "user_name";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_PHONE = "phone";
+    private static final String KEY_SMS_TIME = "sms_time";
+
 
     private final Handler taskHandler = new Handler();
 
@@ -61,7 +69,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             int secondsToReset = -1;
             if (smsTime != null) {
                 double elapsedMinutes = ((new DateTime()).getMillis() - smsTime.getMillis()) / 60000.0;
-                int resendLimitMinutes = 2;
                 double minutesRemaining = resendLimitMinutes - elapsedMinutes;
                 if (minutesRemaining > 0) {
                     secondsToReset = (int) Math.ceil(minutesRemaining * 60);
@@ -93,16 +100,13 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
         client.startSmsUserConsent(null);
 
-
         if (getArguments() != null) {
-            int method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
             primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
-            boolean allowChange = (ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getAllowChange());
             username = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
             password = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
-            int callingClass = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            boolean deactivateButton = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
         }
+
+        getLoadState(savedInstanceState);
 
         handleDeactivateButton();
 
@@ -114,6 +118,41 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
 
         startHandler();
 
+        setListener();
+
+        return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_PHONE, primaryPhone);
+        outState.putString(KEY_USER_NAME, username);
+        outState.putString(KEY_PASSWORD, password);
+        outState.putLong(KEY_SMS_TIME, smsTime.getMillis());
+    }
+
+    public void getLoadState(Bundle savedInstanceState){
+        primaryPhone=savedInstanceState.getString(KEY_PHONE);
+        password=savedInstanceState.getString(KEY_PASSWORD);
+        username=savedInstanceState.getString(KEY_USER_NAME);
+        smsTime=new DateTime(savedInstanceState.getLong(KEY_SMS_TIME));
+    }
+
+    private void handleDeactivateButton() {
+        binding.connectResendButton.setVisibility(View.GONE);
+    }
+
+    private void handleKeyboardType() {
+        binding.connectPhoneVerifyCode.setInputType(InputType.TYPE_CLASS_TEXT);
+    }
+
+
+    private void buttonEnabled(String code) {
+        binding.connectPhoneVerifyButton.setEnabled(code.length() > 5);
+    }
+
+    private void setListener(){
         binding.connectResendButton.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
         binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
@@ -132,20 +171,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
 
             }
         });
-        return view;
-    }
-
-    private void handleDeactivateButton() {
-        binding.connectResendButton.setVisibility(View.GONE);
-    }
-
-    private void handleKeyboardType() {
-        binding.connectPhoneVerifyCode.setInputType(InputType.TYPE_CLASS_TEXT);
-    }
-
-
-    private void buttonEnabled(String code) {
-        binding.connectPhoneVerifyButton.setEnabled(code.length() > 5);
     }
 
     @Override
@@ -183,7 +208,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         }
     }
 
-    public void registerBrodcastReciever() {
+    private void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
         smsBroadcastReceiver.setSmsListener(  new SMSListener() {
@@ -197,7 +222,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
     }
 
-    public void setErrorMessage(String message) {
+    private void setErrorMessage(String message) {
         if (message == null) {
             binding.connectPhoneVerifyError.setVisibility(View.GONE);
         } else {
@@ -206,15 +231,15 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         }
     }
 
-    public void requestInputFocus() {
+    private void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPhoneVerifyCode);
     }
 
-    public void setResendEnabled(boolean enabled) {
+    private void setResendEnabled(boolean enabled) {
         binding.connectResendButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
     }
 
-    public void updateMessage() {
+    private void updateMessage() {
         String text;
         String phone = primaryPhone;
         if (phone != null) {
@@ -237,7 +262,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         taskHandler.removeCallbacks(runnable);
     }
 
-    public void requestSmsCode() {
+    private void requestSmsCode() {
         smsTime = new DateTime();
         setErrorMessage(null);
 
@@ -248,13 +273,11 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_SECRET;
-                        if (json.has(key)) {
-                            password = json.getString(key);
+                        if (json.has(ConnectConstants.CONNECT_KEY_SECRET)) {
+                            password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
                         }
 
-                        key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                        if (json.has(key)) {
+                        if (json.has(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
                             updateMessage();
                         }
                     }
@@ -267,7 +290,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             public void processFailure(int responseCode, IOException e) {
                 String message = "";
                 if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                    message = String.valueOf(responseCode);
                 } else if (e != null) {
                     message = e.toString();
                 }
@@ -293,14 +316,13 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         ApiConnectId.requestInitiateAccountDeactivation(requireActivity(), username, password, callback);
     }
 
-    public void verifySmsCode() {
+    private void verifySmsCode() {
         setErrorMessage(null);
         String token = binding.connectPhoneVerifyCode.getText().toString();
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 logRecoveryResult(true);
-                try {
                     stopHandler();
                     Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(
                             ConnectIdUserDeactivateOTPVerificationFragmentDirections.actionConnectidUserDeactivateOtpVerifyToConnectidMessage(
@@ -309,21 +331,18 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                                     ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS,
                                     getString(R.string.connect_deactivate_account_creation),
                                     null, username, password));
-                } catch (Exception e) {
-                    Logger.exception("Parsing return from OTP verification", e);
-                }
             }
 
             @Override
             public void processFailure(int responseCode, IOException e) {
                 String message = "";
                 if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
+                    message = String.valueOf(responseCode);
                 } else if (e != null) {
                     message = e.toString();
                 }
                 logRecoveryResult(false);
-                setErrorMessage(getString(R.string.connect_verify_phone_error));
+                setErrorMessage(message);
             }
 
             @Override

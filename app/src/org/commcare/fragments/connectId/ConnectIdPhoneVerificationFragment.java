@@ -45,6 +45,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -75,8 +76,16 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     private int callingClass;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
-
     private ScreenConnectPhoneVerifyBinding binding;
+    private static final String KEY_PHONE = "phone";
+    private static final String KEY_METHOD = "method";
+    private static final String KEY_ALLOWCHANGE = "allow_change";
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_RECOVERY_PHONE = "recovery_phone";
+    private static final String KEY_DEACTIVATE_BUTTON = "deactivate_button";
+    private static final String KEY_CALLING_CLASS = "calling_class";
+
 
     private final Handler taskHandler = new android.os.Handler();
 
@@ -117,7 +126,30 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
         client.startSmsUserConsent(null);
 
+        handleDeactivateButton();
 
+        updateMessage();
+
+        requestSmsCode();
+
+        startHandler();
+
+        getArgument();
+
+        getLoadState(savedInstanceState);
+
+        setListener();
+
+        requireActivity().setTitle(R.string.connect_verify_phone_title);
+        return view;
+    }
+
+    private void handleDeactivateButton() {
+        binding.connectDeactivateButton.setVisibility(!deactivateButton ? View.GONE : View.VISIBLE);
+        binding.connectResendButton.setVisibility(View.GONE);
+    }
+
+    private void getArgument(){
         if (getArguments() != null) {
             method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
             primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
@@ -128,15 +160,9 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             callingClass = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
             deactivateButton = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
         }
+    }
 
-        handleDeactivateButton();
-
-        updateMessage();
-
-        requestSmsCode();
-
-        startHandler();
-
+    private void setListener(){
         binding.connectResendButton.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyChange.setOnClickListener(arg0 -> changeNumber());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
@@ -146,13 +172,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             setErrorMessage(null);
             buttonEnabled(otp);
         });
-        requireActivity().setTitle(R.string.connect_verify_phone_title);
-        return view;
-    }
-
-    private void handleDeactivateButton() {
-        binding.connectDeactivateButton.setVisibility(!deactivateButton ? View.GONE : View.VISIBLE);
-        binding.connectResendButton.setVisibility(View.GONE);
     }
 
     private void buttonEnabled(String code) {
@@ -164,6 +183,30 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         super.onStart();
         registerBrodcastReciever();
 
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_PHONE, primaryPhone);
+        outState.putInt(KEY_METHOD, method);
+        outState.putInt(KEY_CALLING_CLASS, callingClass);
+        outState.putBoolean(KEY_ALLOWCHANGE, allowChange);
+        outState.putString(KEY_USERNAME, username);
+        outState.putString(KEY_PASSWORD, password);
+        outState.putString(KEY_RECOVERY_PHONE, recoveryPhone);
+        outState.putBoolean(KEY_DEACTIVATE_BUTTON, deactivateButton);
+    }
+
+    private void getLoadState(Bundle savedInstanceState){
+        primaryPhone=savedInstanceState.getString(KEY_PHONE);
+        method=savedInstanceState.getInt(KEY_METHOD);
+        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
+        allowChange=savedInstanceState.getBoolean(KEY_ALLOWCHANGE);
+        username=savedInstanceState.getString(KEY_USERNAME);
+        password=savedInstanceState.getString(KEY_PASSWORD);
+        recoveryPhone=savedInstanceState.getString(KEY_RECOVERY_PHONE);
+        deactivateButton=savedInstanceState.getBoolean(KEY_DEACTIVATE_BUTTON);
     }
 
     @Override
@@ -208,7 +251,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     }
 
-    public void registerBrodcastReciever() {
+    private void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
         smsBroadcastReceiver.setSmsListener (new SMSListener() {
@@ -226,7 +269,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         }
     }
 
-    public void setErrorMessage(String message) {
+    private void setErrorMessage(String message) {
         if (message == null) {
             binding.connectPhoneVerifyError.setVisibility(View.GONE);
             binding.customOtpView.setErrorState(false);
@@ -237,16 +280,16 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         }
     }
 
-    public void requestInputFocus() {
+    private void requestInputFocus() {
         KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.customOtpView);
     }
 
-    public void setResendEnabled(boolean enabled) {
+    private void setResendEnabled(boolean enabled) {
         binding.connectResendButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
         binding.connectDeactivateButton.setVisibility(enabled ? View.GONE : (deactivateButton ? View.VISIBLE : View.GONE));
     }
 
-    public void updateMessage() {
+    private void updateMessage() {
         String text;
         if(method == MethodUserDeactivate) {
             text = getString(R.string.connect_verify_phone_label_deactivate);
@@ -273,7 +316,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         taskHandler.removeCallbacks(runnable);
     }
 
-    public void requestSmsCode() {
+    private void requestSmsCode() {
         smsTime = new DateTime();
         setErrorMessage(null);
         IApiCallback callback = new IApiCallback() {
@@ -341,13 +384,9 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                 ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
             }
         }
-
-//        if (isBusy) {
-//            Toast.makeText(requireActivity(), R.string.busy_message, Toast.LENGTH_SHORT).show();
-//        }
     }
 
-    public void verifySmsCode() {
+    private void verifySmsCode() {
         setErrorMessage(null);
 
         String token = binding.customOtpView.getOtpValue();
@@ -488,11 +527,11 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         }
     }
 
-    public void changeNumber() {
+    private void changeNumber() {
         finish(true, true, null);
     }
 
-    public void finish(boolean success, boolean changeNumber, String secondaryPhone) {
+    private void finish(boolean success, boolean changeNumber, String secondaryPhone) {
         stopHandler();
         if (method == MethodRecoveryPrimary) {
             ((ConnectIdActivity)requireActivity()).recoverSecret = password;
@@ -575,7 +614,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         }
     }
 
-    public void showYesNoDialog() {
+    private void showYesNoDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AlertDialogTheme);
         builder.setTitle(R.string.connect_deactivate_dialog_title);
         builder.setMessage(R.string.connect_deactivate_dialog_description)

@@ -12,6 +12,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -22,6 +23,8 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
     Button recover;
     Button back;
     String phoneNumber;
+    private static final String KEY_PHONE = "phone";
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,6 +37,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         if (getArguments() != null) {
             phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }
+        getLoadState(savedInstanceState);
 
         phoneTextView.setText(phoneNumber != null ? phoneNumber : "");
 
@@ -43,6 +47,15 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
             NavHostFragment.findNavController(this).navigate(directions);
         });
         return view;
+    }
 
+    private void getLoadState(Bundle outState) {
+        phoneNumber = outState.getString(KEY_PHONE);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_PHONE, phoneNumber);
     }
 }

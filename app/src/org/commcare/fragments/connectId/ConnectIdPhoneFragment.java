@@ -33,11 +33,9 @@ import java.util.Locale;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-import kotlin.jvm.Throws;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,23 +49,10 @@ public class ConnectIdPhoneFragment extends Fragment {
     private int callingClass;
     private ScreenConnectPrimaryPhoneBinding binding;
     protected boolean skipPhoneNumberCheck = false;
-
+    private static final String KEY_PHONE = "phone";
+    private static final String KEY_METHOD = "method";
+    private static final String KEY_CALLING_CLASS = "calling_class";
     private PhoneNumberHelper phoneNumberHelper;
-
-    TextWatcher watcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            checkPhoneNumber();
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-        }
-    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -76,31 +61,20 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
 
         requireActivity().setTitle(getString(R.string.connect_phone_page_title));
-        if (getArguments() != null) {
-            method = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getMethod();
-            existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
-            callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
-        }
-        phoneNumberHelper= new PhoneNumberHelper(requireActivity());
 
-        View.OnFocusChangeListener listener = (v, hasFocus) -> {
-            if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                phoneNumberHelper.requestPhoneNumberHint(null,getActivity());
-            }
-        };
+        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
 
-        binding.countryCode.setOnFocusChangeListener(listener);
-        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
-        binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
+        setLisetner();
+        setArguments();
+        getLoadState(savedInstanceState);
 
-        binding.connectPrimaryPhoneButton.setOnClickListener(v -> verifyPhone());
         //Special case for initial reg. screen. Remembering phone number before account has been created
 
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
         if (user == null && existingPhone == null) {
-            Logger.log("Null Exception","User and existing phone cannot be null together");
+            Logger.log("Null Exception", "User and existing phone cannot be null together");
         }
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;
         binding.connectPrimaryPhoneTitle.setText(title);
@@ -127,7 +101,56 @@ public class ConnectIdPhoneFragment extends Fragment {
         displayNumber(phone);
     }
 
-    public void finish(boolean success, String phone) {
+    private void setLisetner(){
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                checkPhoneNumber();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+        View.OnFocusChangeListener listener = (v, hasFocus) -> {
+            if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
+                phoneNumberHelper.requestPhoneNumberHint(null,getActivity());
+            }
+        };
+        binding.countryCode.setOnFocusChangeListener(listener);
+        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
+        binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
+
+        binding.connectPrimaryPhoneButton.setOnClickListener(v -> verifyPhone());
+    }
+
+    private void setArguments(){
+        if (getArguments() != null) {
+            method = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getMethod();
+            existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
+            callingClass = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
+        }
+    }
+
+    private void getLoadState(Bundle outState){
+        existingPhone=outState.getString(KEY_PHONE);
+        method=outState.getString(KEY_METHOD);
+        callingClass=outState.getInt(KEY_CALLING_CLASS);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_PHONE, existingPhone);
+        outState.putString(KEY_METHOD, method);
+        outState.putInt(KEY_CALLING_CLASS, callingClass);
+    }
+
+    private void finish(boolean success, String phone) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
@@ -180,7 +203,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
 
-    void displayNumber(String fullNumber) {
+    private void displayNumber(String fullNumber) {
         int code = phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         if (fullNumber != null && fullNumber.length() > 0) {
             code = phoneNumberHelper.getCountryCode(fullNumber);
@@ -204,7 +227,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         skipPhoneNumberCheck = false;
     }
 
-    public void verifyPhone() {
+    private void verifyPhone() {
         String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
@@ -257,7 +280,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         }
     }
 
-    public void checkPhoneNumber() {
+    private void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
             String phone = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
 

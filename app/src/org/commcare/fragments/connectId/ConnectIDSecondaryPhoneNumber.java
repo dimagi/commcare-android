@@ -23,6 +23,7 @@ import org.commcare.utils.PhoneNumberHelper;
 import java.io.IOException;
 import java.io.InputStream;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -32,6 +33,9 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     private String existingPhone;
     private int callingClass;
     private PhoneNumberHelper phoneNumberHelper;
+    private static final String KEY_EXISTING_PHONE = "phone";
+    private static final String KEY_METHOD = "method";
+    private static final String KEY_CALLING_CLASS = "calling_class";
 
     FragmentSecondaryPhoneNumberBinding binding;
 
@@ -40,13 +44,34 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSecondaryPhoneNumberBinding.inflate(inflater, container, false);
+        getLoadState(savedInstanceState);
+        setListener();
         method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
         existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
-
         phoneNumberHelper = new PhoneNumberHelper(requireActivity());
         String code = "+" + phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         binding.countryCode.setText(code);
+        updateButtonEnabled();
+        requireActivity().setTitle(R.string.connect_phone_title_alternate);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_EXISTING_PHONE, existingPhone);
+        outState.putInt(KEY_CALLING_CLASS, callingClass);
+        outState.putString(KEY_METHOD, method);
+    }
+
+    private void getLoadState(Bundle savedInstanceState){
+        existingPhone=savedInstanceState.getString(KEY_EXISTING_PHONE);
+        method=savedInstanceState.getString(KEY_METHOD);
+        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
+    }
+
+    private void setListener(){
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -84,12 +109,9 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         });
 
         binding.continueButton.setOnClickListener(v -> onContinuePress());
-        updateButtonEnabled();
-        requireActivity().setTitle(R.string.connect_phone_title_alternate);
-        return binding.getRoot();
     }
 
-    public void updateButtonEnabled() {
+    private void updateButtonEnabled() {
         String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
@@ -98,7 +120,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding.continueButton.setEnabled(valid);
     }
 
-    public void onContinuePress() {
+    private void onContinuePress() {
         if(getContext()==null){
             return;
         }
@@ -152,7 +174,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         }
     }
 
-    public void finish(boolean success, String phone) {
+    private void finish(boolean success, String phone) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {

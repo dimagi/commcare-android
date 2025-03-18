@@ -193,7 +193,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    public void updateFingerprint(String fingerprintButtonText) {
+    private void updateFingerprint(String fingerprintButtonText) {
         boolean showFingerprint = fingerprintButtonText != null;
         binding.connectVerifyFingerprintContainer.setVisibility(showFingerprint ? View.VISIBLE : View.GONE);
         if (showFingerprint) {
@@ -201,7 +201,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    public void updatePin(String pinButtonText) {
+    private void updatePin(String pinButtonText) {
         boolean showPin = pinButtonText != null;
         binding.connectVerifyPinContainer.setVisibility(showPin ? View.VISIBLE : View.GONE);
         if (showPin) {
@@ -220,23 +220,23 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    public void performFingerprintUnlock() {
+    private void performFingerprintUnlock() {
         attemptingFingerprint = true;
         boolean allowOtherOptions = BiometricsHelper.isPinConfigured(requireActivity(), biometricManager) ||
                 allowPassword;
         BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, allowOtherOptions, biometricPromptCallbacks);
     }
 
-    public void performPasswordUnlock() {
+    private void performPasswordUnlock() {
         BiometricsHelper.authenticatePassword(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
 
-    public void performPinUnlock() {
+    private void performPinUnlock() {
         BiometricsHelper.authenticatePin(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
 
 
-    public void handleFingerprintButton() {
+    private void handleFingerprintButton() {
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
@@ -246,7 +246,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    public void handlePinButton() {
+    private void handlePinButton() {
         BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
             performPinUnlock();
@@ -255,7 +255,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    public void finish(boolean success, boolean failedEnrollment) {
+    private void finish(boolean success, boolean failedEnrollment) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),

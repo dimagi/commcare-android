@@ -50,31 +50,11 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private ScreenConnectMessageBinding binding;
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        setLoadState(outState);
-
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            title = savedInstanceState.getString(KEY_TITLE);
-            message = savedInstanceState.getString(KEY_MESSAGE);
-            buttonText = savedInstanceState.getString(KEY_BUTTON_TEXT);
-            button2Text = savedInstanceState.getString(KEY_BUTTON2_TEXT);
-            userName = savedInstanceState.getString(KEY_USER_NAME);
-            password = savedInstanceState.getString(KEY_PASSWORD);
-            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
-        }
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        getLoadState(savedInstanceState);
         binding.connectMessageButton.setOnClickListener(v -> handleContinueButtonPress(false));
         binding.connectMessageButton2.setOnClickListener(v -> handleContinueButtonPress(true));
         loadArguments();
@@ -90,7 +70,19 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         setButton2Text(button2Text);
     }
 
-    private void setLoadState(Bundle outState){
+    private void getLoadState(Bundle savedInstanceState){
+        title=savedInstanceState.getString(KEY_TITLE);
+        message=savedInstanceState.getString(KEY_MESSAGE);
+        buttonText=savedInstanceState.getString(KEY_BUTTON_TEXT);
+        button2Text=savedInstanceState.getString(KEY_BUTTON2_TEXT);
+        userName=savedInstanceState.getString(KEY_USER_NAME);
+        password=savedInstanceState.getString(KEY_PASSWORD);
+        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putString(KEY_TITLE, title);
         outState.putString(KEY_MESSAGE, message);
         outState.putString(KEY_BUTTON_TEXT, buttonText);

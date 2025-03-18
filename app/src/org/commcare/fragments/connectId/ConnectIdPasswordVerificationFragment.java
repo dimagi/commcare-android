@@ -55,17 +55,9 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     private ScreenConnectPasswordVerifyBinding binding;
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(KEY_FAILURE_COUNT, failureCount);
-        outState.putString(KEY_PHONE, phone);
-        outState.putString(KEY_SECRET_KEY, secretKey);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setSavedState(savedInstanceState);
+        getSavedState(savedInstanceState);
     }
 
     @Override
@@ -88,7 +80,15 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         requestInputFocus();
     }
 
-    private void setSavedState(Bundle savedInstanceState){
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_FAILURE_COUNT, failureCount);
+        outState.putString(KEY_PHONE, phone);
+        outState.putString(KEY_SECRET_KEY, secretKey);
+    }
+
+    private void getSavedState(Bundle savedInstanceState){
         if (savedInstanceState != null) {
             failureCount = savedInstanceState.getInt(KEY_FAILURE_COUNT);
             phone = savedInstanceState.getString(KEY_PHONE);
