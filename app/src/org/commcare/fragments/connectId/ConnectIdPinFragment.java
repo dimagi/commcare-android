@@ -207,11 +207,13 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
     private void getLoadState(Bundle savedInstanceState){
-        phone=savedInstanceState.getString(KEY_PHONE);
-        secret=savedInstanceState.getString(KEY_SECRET);
-        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
-        isRecovery=savedInstanceState.getBoolean(KEY_RECOVERY);
-        isChanging=savedInstanceState.getBoolean(KEY_CHANGING);
+        if(savedInstanceState!=null) {
+            phone = savedInstanceState.getString(KEY_PHONE);
+            secret = savedInstanceState.getString(KEY_SECRET);
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+            isRecovery = savedInstanceState.getBoolean(KEY_RECOVERY);
+            isChanging = savedInstanceState.getBoolean(KEY_CHANGING);
+        }
     }
 
 

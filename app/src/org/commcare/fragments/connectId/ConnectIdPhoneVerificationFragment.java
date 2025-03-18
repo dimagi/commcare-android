@@ -116,11 +116,18 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     };
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getLoadState(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
         binding = ScreenConnectPhoneVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        getArgument();
         binding.connectPhoneVerifyButton.setEnabled(false);
         buttonEnabled("");
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
@@ -133,10 +140,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         requestSmsCode();
 
         startHandler();
-
-        getArgument();
-
-        getLoadState(savedInstanceState);
 
         setListener();
 
@@ -199,14 +202,16 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     }
 
     private void getLoadState(Bundle savedInstanceState){
-        primaryPhone=savedInstanceState.getString(KEY_PHONE);
-        method=savedInstanceState.getInt(KEY_METHOD);
-        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
-        allowChange=savedInstanceState.getBoolean(KEY_ALLOWCHANGE);
-        username=savedInstanceState.getString(KEY_USERNAME);
-        password=savedInstanceState.getString(KEY_PASSWORD);
-        recoveryPhone=savedInstanceState.getString(KEY_RECOVERY_PHONE);
-        deactivateButton=savedInstanceState.getBoolean(KEY_DEACTIVATE_BUTTON);
+        if(savedInstanceState!=null) {
+            primaryPhone = savedInstanceState.getString(KEY_PHONE);
+            method = savedInstanceState.getInt(KEY_METHOD);
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+            allowChange = savedInstanceState.getBoolean(KEY_ALLOWCHANGE);
+            username = savedInstanceState.getString(KEY_USERNAME);
+            password = savedInstanceState.getString(KEY_PASSWORD);
+            recoveryPhone = savedInstanceState.getString(KEY_RECOVERY_PHONE);
+            deactivateButton = savedInstanceState.getBoolean(KEY_DEACTIVATE_BUTTON);
+        }
     }
 
     @Override

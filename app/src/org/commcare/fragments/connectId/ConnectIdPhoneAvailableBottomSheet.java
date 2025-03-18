@@ -50,7 +50,9 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
     }
 
     private void getLoadState(Bundle outState) {
-        phoneNumber = outState.getString(KEY_PHONE);
+        if (outState != null) {
+            phoneNumber = outState.getString(KEY_PHONE);
+        }
     }
 
     @Override

@@ -71,13 +71,15 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private void getLoadState(Bundle savedInstanceState){
-        title=savedInstanceState.getString(KEY_TITLE);
-        message=savedInstanceState.getString(KEY_MESSAGE);
-        buttonText=savedInstanceState.getString(KEY_BUTTON_TEXT);
-        button2Text=savedInstanceState.getString(KEY_BUTTON2_TEXT);
-        userName=savedInstanceState.getString(KEY_USER_NAME);
-        password=savedInstanceState.getString(KEY_PASSWORD);
-        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
+        if(savedInstanceState!=null) {
+            title = savedInstanceState.getString(KEY_TITLE);
+            message = savedInstanceState.getString(KEY_MESSAGE);
+            buttonText = savedInstanceState.getString(KEY_BUTTON_TEXT);
+            button2Text = savedInstanceState.getString(KEY_BUTTON2_TEXT);
+            userName = savedInstanceState.getString(KEY_USER_NAME);
+            password = savedInstanceState.getString(KEY_PASSWORD);
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+        }
     }
 
     @Override

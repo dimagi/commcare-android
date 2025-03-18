@@ -133,10 +133,12 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     }
 
     public void getLoadState(Bundle savedInstanceState){
-        primaryPhone=savedInstanceState.getString(KEY_PHONE);
-        password=savedInstanceState.getString(KEY_PASSWORD);
-        username=savedInstanceState.getString(KEY_USER_NAME);
-        smsTime=new DateTime(savedInstanceState.getLong(KEY_SMS_TIME));
+        if(savedInstanceState!=null) {
+            primaryPhone = savedInstanceState.getString(KEY_PHONE);
+            password = savedInstanceState.getString(KEY_PASSWORD);
+            username = savedInstanceState.getString(KEY_USER_NAME);
+            smsTime = new DateTime(savedInstanceState.getLong(KEY_SMS_TIME));
+        }
     }
 
     private void handleDeactivateButton() {

@@ -66,9 +66,11 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     private void getLoadState(Bundle savedInstanceState){
-        existingPhone=savedInstanceState.getString(KEY_EXISTING_PHONE);
-        method=savedInstanceState.getString(KEY_METHOD);
-        callingClass=savedInstanceState.getInt(KEY_CALLING_CLASS);
+        if(savedInstanceState!=null) {
+            existingPhone = savedInstanceState.getString(KEY_EXISTING_PHONE);
+            method = savedInstanceState.getString(KEY_METHOD);
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+        }
     }
 
     private void setListener(){
