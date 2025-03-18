@@ -68,7 +68,7 @@ public class RecordingFragment extends DialogFragment {
 
     private static final int HEAAC_SAMPLE_RATE = 44100;
     private static final int AMRNB_SAMPLE_RATE = 8000;
-    private final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
+    public static final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
