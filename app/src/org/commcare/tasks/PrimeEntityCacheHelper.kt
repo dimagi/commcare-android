@@ -51,7 +51,7 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
     val cachedEntitiesState: StateFlow<Triple<String, String, List<Entity<TreeReference>>>?> get() = _cachedEntitiesState
 
     private val _progressState = MutableLiveData<Triple<String, String, Array<Int>>>(null)
-    val progressState: LiveData<Triple<String, String, Array<Int>>> get() = _progressState
+    val progressState: LiveData<Triple<String, String, Array<Int>>?> get() = _progressState
 
 
     companion object {

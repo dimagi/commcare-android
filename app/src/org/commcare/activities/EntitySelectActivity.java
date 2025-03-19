@@ -496,7 +496,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             PrimeEntityCacheHelper primeEntityCacheHelper =
                     CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
             primeEntityCacheHelper.getProgressState().observe(this, triple -> {
-                if (triple.getFirst().contentEquals(selectDatum.getDataId()) &&
+                if (triple != null && triple.getFirst().contentEquals(selectDatum.getDataId()) &&
                         triple.getSecond().contentEquals(shortSelect.getId())) {
                     deliverProgress(triple.getThird());
                 }
