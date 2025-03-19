@@ -39,6 +39,7 @@ import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
@@ -612,6 +613,23 @@ public class ConnectManager {
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
+            }
+        }
+
+        return null;
+    }
+
+    public static AuthInfo.TokenAuth getConnectToken() {
+        if (isConnectIdConfigured()) {
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+            Date currentDate = new Date();
+            if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                        "Found a valid existing Connect Token with current date set to " + currentDate +
+                                " and record expiration date being " + user.getConnectToken());
+                return new AuthInfo.TokenAuth(user.getConnectToken());
+            } else if (user != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
         }
 

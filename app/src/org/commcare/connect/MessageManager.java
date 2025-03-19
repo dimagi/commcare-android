@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.common.base.Strings;
+
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -42,6 +44,12 @@ public class MessageManager {
         //Make sure we know and have consented to the channel
         ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(context, channelId);
         if (channel != null && channel.getConsented()) {
+            if(Strings.isNullOrEmpty(channel.getKey())) {
+                //Attempt to get the encryption key now if we don't have it yet
+                ApiConnectId.retrieveChannelEncryptionKeySync(context, channel);
+            }
+
+            //If we still don't have a key, this will return null and we'll ignore the message
             message = ConnectMessagingMessageRecord.fromMessagePayload(payloadData, channel.getKey());
             if (message != null) {
                 ConnectMessageUtils.storeMessagingMessage(context, message);
@@ -205,25 +213,10 @@ public class MessageManager {
                 new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
-                        try {
-                            String responseAsString = new String(
-                                    StreamsUtil.inputStreamToByteArray(responseData));
-                            Log.e("DEBUG_TESTING", "processSuccess: " + responseAsString);
+                        ApiConnectId.handleReceivedEncryptionKey(context, responseData, channel);
 
-                            if (responseAsString.length() > 0) {
-                                JSONObject json = new JSONObject(responseAsString);
-                                channel.setKey(json.getString("key"));
-                                ConnectMessageUtils.storeMessagingChannel(context, channel);
-                            }
-
-                            if (listener != null) {
-                                listener.connectActivityComplete(true);
-                            }
-                        } catch (Exception e) {
-                            Log.e("Error", "Oops", e);
-                            if (listener != null) {
-                                listener.connectActivityComplete(false);
-                            }
+                        if (listener != null) {
+                            listener.connectActivityComplete(true);
                         }
                     }
 

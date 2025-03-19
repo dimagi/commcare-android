@@ -155,6 +155,11 @@ public class ConnectLinkedAppRecord extends Persisted {
         linkOfferDate2 = date;
     }
 
+    public void clearHqToken() {
+        hqToken = null;
+        hqTokenExpiration = new Date();
+    }
+
     public boolean isUsingLocalPassphrase() {
         return usingLocalPassphrase;
     }

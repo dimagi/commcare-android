@@ -6,8 +6,10 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -100,12 +102,7 @@ public class ConnectSsoHelper {
                 }
 
                 //Retrieve HQ token
-                try {
-                    hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
-                } catch (MalformedURLException e) {
-                    Logger.log(LogTypes.TYPE_EXCEPTION, "Invalid HQ URL: " + e.getMessage());
-                    return null;
-                }
+                hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
             }
         }
 
@@ -117,4 +114,25 @@ public class ConnectSsoHelper {
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
+
+    public static void discardTokens(Context context, String username) {
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
+
+        if(username != null) {
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, username);
+            if (appRecord != null) {
+                appRecord.clearHqToken();
+                ConnectAppDatabaseUtil.storeApp(context, appRecord);
+            }
+        }
+
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+        if(user != null) {
+            user.clearConnectToken();
+            ConnectUserDatabaseUtil.storeUser(context, user);
+        }
+    }
+
 }

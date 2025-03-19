@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.SsoToken;
@@ -18,6 +19,10 @@ import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Helper class for accessing the Connect DB
@@ -111,6 +116,18 @@ public class ConnectDatabaseHelper {
             user.setRegistrationPhase(phase);
             ConnectUserDatabaseUtil.storeUser(context, user);
         }
+    }
+
+    public static List<ConnectJobPaymentRecord> getPayments(Context context, int jobId, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
+        if (paymentStorage == null) {
+            paymentStorage = getConnectStorage(context, ConnectJobPaymentRecord.class);
+        }
+
+        Vector<ConnectJobPaymentRecord> payments = paymentStorage.getRecordsForValues(
+                new String[]{ConnectJobPaymentRecord.META_JOB_ID},
+                new Object[]{jobId});
+
+        return new ArrayList<>(payments);
     }
 
 

@@ -199,6 +199,15 @@ public class ConnectUserRecord extends Persisted {
         return forcePin;
     }
 
+    public void clearConnectToken() {
+        connectToken = null;
+        connectTokenExpiration = new Date();
+    }
+
+    public Date getConnectTokenExpiration() {
+        return connectTokenExpiration;
+    }
+
     public boolean shouldRequireSecondaryPhoneVerification() {
         if (secondaryPhoneVerified) {
             return false;
@@ -207,17 +216,13 @@ public class ConnectUserRecord extends Persisted {
         return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
-    public void updateConnectToken(SsoToken token) {
-        connectToken = token.getToken();
-        connectTokenExpiration = token.getExpiration();
+    public void updateConnectToken(String token, Date expirationDate) {
+        connectToken = token;
+        connectTokenExpiration = expirationDate;
     }
 
-    public AuthInfo.TokenAuth getConnectToken() {
-        if ((new Date()).compareTo(connectTokenExpiration) < 0) {
-            return new AuthInfo.TokenAuth(connectToken);
-        }
-
-        return null;
+    public String getConnectToken() {
+        return connectToken;
     }
 
     public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
