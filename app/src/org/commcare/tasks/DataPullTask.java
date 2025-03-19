@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+
 import androidx.core.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -436,7 +437,6 @@ public abstract class DataPullTask<R>
         if (returnCode == PROGRESS_DONE) {
             // Recovery was successful
             onSuccessfulSync();
-            PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE || returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
             wipeLoginIfItOccurred();
@@ -451,7 +451,7 @@ public abstract class DataPullTask<R>
         recordSuccessfulSyncTime(username);
 
         ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
-        CommCareApplication.instance().scheduleEntityCacheInvalidation();
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);

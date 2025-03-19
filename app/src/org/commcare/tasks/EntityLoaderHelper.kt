@@ -111,6 +111,6 @@ class EntityLoaderHelper(
 
     override fun cancel() {
         stopLoading = true
-        factory.cancelLoading()
+        factory.markAsCancelled()
     }
 }
