@@ -366,6 +366,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             // CommCareSessionService, close it and open a new one
             SessionRegistrationHelper.unregisterSessionExpiration();
             if (this.sessionServiceIsBound) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session to start a new one");
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
@@ -378,6 +379,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session");
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
