@@ -29,6 +29,7 @@ public class AudioRecordingService extends Service {
     private static final int AMRNB_SAMPLE_RATE = 8000;
     private MediaRecorder recorder;
     private final IBinder binder = new AudioRecorderBinder();
+    public static final String RECORDING_FILENAME_EXTRA_KEY = "recording-filename-extra-key";
 
     @Override
     public void onCreate() {
@@ -43,6 +44,9 @@ public class AudioRecordingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
+        setupRecorder(fileName);
+        recorder.start();
         return START_STICKY;
     }
 
@@ -71,7 +75,7 @@ public class AudioRecordingService extends Service {
         }
     }
 
-    private void setupRecorder() {
+    private void setupRecorder(String fileName) {
         if (recorder == null) {
             recorder = new MediaRecorder();
         }

@@ -1,9 +1,11 @@
 package org.commcare.views.widgets;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -13,6 +15,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +47,8 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static org.commcare.views.widgets.AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY;
 
 /**
  * A popup dialog fragment that handles recording_fragment and saving of audio
@@ -81,6 +86,9 @@ public class RecordingFragment extends DialogFragment {
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
     private AudioManager.AudioRecordingCallback audioRecordingCallback;
+    private boolean audioRecordingServiceBounded = false;
+    private AudioRecordingService audioRecordingService;
+    private ServiceConnection audioRecordingServiceConnection;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -181,15 +189,43 @@ public class RecordingFragment extends DialogFragment {
 
         disableScreenRotation((AppCompatActivity) getContext());
         setCancelable(false);
-        setupRecorder();
-        recorder.start();
-        recordingDuration.setBase(SystemClock.elapsedRealtime());
-        recordingInProgress();
-        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
 
-        // Extend the user extension if about to expire, this is to prevent the session from expiring in the
-        // middle of a recording
-        CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
+        Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
+        serviceIntent.putExtra(RECORDING_FILENAME_EXTRA_KEY, fileName);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireActivity().startForegroundService(serviceIntent);
+        } else {
+            requireActivity().startService(serviceIntent);
+        }
+        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(), Context.BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection getAudioRecordingServiceConnection() {
+        return audioRecordingServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                audioRecordingService = ((AudioRecordingService.AudioRecorderBinder) service).getService();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    registerAudioRecordingConfigurationChangeCallback();
+                }
+
+                recordingDuration.setBase(SystemClock.elapsedRealtime());
+                recordingInProgress();
+                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
+
+                // Extend the user extension if about to expire, this is to prevent the session from expiring in the
+                // middle of a recording
+                CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
+
+                audioRecordingServiceBounded = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                audioRecordingService = null;
+            }
+        };
     }
 
     private void recordingInProgress() {
