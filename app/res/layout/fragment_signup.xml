@@ -30,25 +30,26 @@
                 android:layout_marginTop="40dp"
                 android:background="@color/connect_light_grey" />
 
-            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            <TextView
                 android:id="@+id/phone_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:textStyle="bold"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:text="@string/connect_registration_title"
                 android:textColor="@color/connect_dark_blue_color"
                 android:textSize="16sp" />
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
                 android:id="@+id/phone_sub_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
-                android:fontFamily="@font/roboto_regular"
+                android:textStyle="normal"
                 android:text="@string/connect_registration_title"
                 android:textColor="@color/connect_subtext"
                 android:textSize="12sp" />

@@ -15,12 +15,13 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            <TextView
                 android:id="@+id/connect_message_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="@dimen/content_min_margin"
+                android:textStyle="bold"
                 android:textColor="@color/connect_subtext"
                 android:textSize="@dimen/text_larger" />
 

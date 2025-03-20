@@ -19,7 +19,7 @@ class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
                     try {
-                        if (!ConnectIDManager.isLoggedIN()) {
+                        if (!ConnectIDManager.getInstance().isLoggedIN()) {
                             Log.w(TAG, "Connect ID not configured, skipping heartbeat")
                             return@withContext Result.failure()
                         }

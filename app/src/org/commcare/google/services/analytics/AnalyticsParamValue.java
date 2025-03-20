@@ -157,5 +157,7 @@ public class AnalyticsParamValue {
     // Param values for Form Submission Event
     public static final String USER_TRIGGERED = "user_triggered";
     public static final String SYSTEM_TRIGGERED = "system_triggered";
-
+    public static final String FORGOT_USER_REASON_1 = "User initiated from login page";
+    public static final String FORGOT_USER_REASON_2 = "Account deactivation";
+    public static final String FORGOT_USER_REASON_3 = "User initiated from setup page";
 }

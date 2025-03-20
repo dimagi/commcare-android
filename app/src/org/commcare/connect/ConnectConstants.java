@@ -36,7 +36,6 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-
     public final static int CONNECT_NO_ACTIVITY = ConnectConstants.CONNECT_ID_TASK_ID_OFFSET;
     public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.CONNECT_ID_TASK_ID_OFFSET + 2;
     public final static int CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS = ConnectConstants.CONNECT_ID_TASK_ID_OFFSET + 5;

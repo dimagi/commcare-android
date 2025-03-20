@@ -25,7 +25,7 @@ object ConnectNetworkServiceFactory {
         .build()
 
     fun createConnectIdNetworkSerive(): ConnectNetworkService {
-        authInterceptor.setCredential(HttpUtils.getCredential(ConnectIDManager.getConnectToken()))
+        authInterceptor.setCredential(HttpUtils.getCredential(ConnectIDManager.getInstance().getConnectToken()))
         return connectIdRetrofit.create(ConnectNetworkService::class.java)
     }
 }

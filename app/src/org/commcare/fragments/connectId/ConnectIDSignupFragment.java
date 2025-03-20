@@ -257,30 +257,24 @@ public class ConnectIDSignupFragment extends Fragment {
                             ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
+                            updateUi("");
                         } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
+                            updateUi(getString(R.string.connect_phone_not_alt));
                         } else {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.connect_phone_checking));
+                            updateUi(getString(R.string.connect_phone_checking));
                             callPhoneAvailableApi(phone);
                         }
                     }
                     case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.connect_phone_not_primary));
+                            updateUi(getString(R.string.connect_phone_not_primary));
                         } else {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
+                            updateUi("");
                         }
                     }
                 }
             } else {
-                binding.errorTextView.setVisibility(View.VISIBLE);
-                binding.errorTextView.setText(getString(R.string.connect_phone_invalid));
+                updateUi(getString(R.string.connect_phone_invalid));
             }
         }
     }
@@ -292,12 +286,10 @@ public class ConnectIDSignupFragment extends Fragment {
                     public void processSuccess(int responseCode, InputStream responseData) {
                         skipPhoneNumberCheck = false;
                         if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            updateButtonEnabled();
+                            updateUi(null);
                             createAccount();
                         } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.connect_phone_not_found));
+                            updateUi(getString(R.string.connect_phone_not_found));
                         }
                     }
 
@@ -305,23 +297,17 @@ public class ConnectIDSignupFragment extends Fragment {
                     public void processFailure(int responseCode, IOException e) {
                         skipPhoneNumberCheck = false;
                         if (responseCode == 406) {
-                            skipPhoneNumberCheck = false;
-                            updateButtonEnabled();
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
+                            updateUi(getString(R.string.recovery_network_outdated));
                         }
                         if (e != null) {
                             Logger.exception("Checking phone number", e);
                         }
                         if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                            updateButtonEnabled();
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
+                            updateUi(getString(R.string.connect_phone_unavailable));
                             NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                             ((ConnectIdActivity)requireActivity()).recoverPhone = phone;
-                            updateButtonEnabled();
                             NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         }
@@ -330,17 +316,13 @@ public class ConnectIDSignupFragment extends Fragment {
                     @Override
                     public void processNetworkFailure() {
                         skipPhoneNumberCheck = false;
-                        updateButtonEnabled();
-                        binding.errorTextView.setVisibility(View.VISIBLE);
-                        binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
+                        updateUi(getString(R.string.recovery_network_unavailable));
                     }
 
                     @Override
                     public void processOldApiError() {
                         skipPhoneNumberCheck = false;
-                        updateButtonEnabled();
-                        binding.errorTextView.setVisibility(View.VISIBLE);
-                        binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
+                        updateUi(getString(R.string.recovery_network_outdated));
                     }
                 });
     }
@@ -384,21 +366,17 @@ public class ConnectIDSignupFragment extends Fragment {
 
                     @Override
                     public void processFailure(int responseCode, IOException e) {
-                        binding.errorTextView.setVisibility(View.VISIBLE);
-                        binding.errorTextView.setText("Registration error: " + responseCode);
+                        updateUi("Registration error: " + responseCode);
                     }
 
                     @Override
                     public void processNetworkFailure() {
-                        binding.errorTextView.setVisibility(View.VISIBLE);
-                        binding.errorTextView.setText(R.string.recovery_network_unavailable);
-
+                        updateUi(getResources().getString(R.string.recovery_network_unavailable));
                     }
 
                     @Override
                     public void processOldApiError() {
-                        binding.errorTextView.setVisibility(View.VISIBLE);
-                        binding.errorTextView.setText(R.string.recovery_network_outdated);
+                        updateUi(getResources().getString(R.string.recovery_network_outdated));
                     }
                 });
     }
@@ -415,4 +393,15 @@ public class ConnectIDSignupFragment extends Fragment {
 
         return userId.toString();
     }
+
+    void updateUi(String errorMessage) {
+        updateButtonEnabled();
+        if (errorMessage == null || errorMessage.isEmpty()) {
+            binding.errorTextView.setVisibility(View.GONE);
+        } else {
+            binding.errorTextView.setVisibility(View.VISIBLE);
+            binding.errorTextView.setText(errorMessage);
+        }
+    }
+
 }

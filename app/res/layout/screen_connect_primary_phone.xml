@@ -25,7 +25,7 @@
             android:layout_marginTop="40dp"
             android:background="@color/connect_light_grey" />
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/connect_primary_phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -35,7 +35,8 @@
             android:layout_marginEnd="16dp"
             android:text="@string/connect_phone_title_primary"
             android:textColor="@color/connect_blue_color"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
         <org.commcare.views.connect.connecttextview.ConnectMediumTextView
             android:id="@+id/connect_primary_phone_message"

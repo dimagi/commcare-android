@@ -12,7 +12,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            <TextView
                 android:id="@+id/connect_verify_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -22,7 +22,8 @@
                 android:text="@string/connect_verify_title"
                 android:textAlignment="center"
                 android:textColor="@color/connect_text_color"
-                android:textSize="@dimen/text_larger" />
+                android:textSize="@dimen/text_larger"
+                android:textStyle="bold"/>
 
             <org.commcare.views.connect.connecttextview.ConnectMediumTextView
                 android:id="@+id/connect_verify_message"

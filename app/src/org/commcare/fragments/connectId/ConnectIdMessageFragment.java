@@ -16,6 +16,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 
 import java.util.Locale;
 
@@ -230,7 +231,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS:
                 if (success) {
                     if (!secondButton) {
-                        ConnectIDManager.forgetUser("Account deactivation");
+                        ConnectIDManager.forgetUser(AnalyticsParamValue.FORGOT_USER_REASON_2);
                         requireActivity().finish();
                     }
                 }

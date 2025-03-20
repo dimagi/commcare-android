@@ -39,6 +39,7 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -134,13 +135,13 @@ public class ConnectIDManager {
     }
 
     public boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = getInstance().primedAppIdForAutoLogin;
-        getInstance().primedAppIdForAutoLogin = null;
+        String primed = primedAppIdForAutoLogin;
+        primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
     }
 
-    public static void setPendingAction(int action) {
-        getInstance().pendingAction = action;
+    public void setPendingAction(int action) {
+        pendingAction = action;
     }
 
     public String generatePassword() {
@@ -184,9 +185,9 @@ public class ConnectIDManager {
     }
 
 
-    public static boolean isLoggedIN() {
+    public boolean isLoggedIN() {
         return AppManagerDeveloperPreferences.isConnectIdEnabled()
-                && getInstance().connectStatus == ConnectIdStatus.LoggedIn;
+                && connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
@@ -228,7 +229,7 @@ public class ConnectIDManager {
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
-        getInstance().parentActivity = activity;
+        parentActivity = activity;
 
         if (!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode)) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
@@ -236,6 +237,37 @@ public class ConnectIDManager {
             }
         }
     }
+
+    public boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin, boolean loginManagedByConnectId) {
+        AtomicBoolean result= new AtomicBoolean(false);
+        if(isLoggedIN()) {
+            completeSignin();
+            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            ConnectJobRecord job = setConnectJobForApp(context, appId);
+
+            if(job != null) {
+                updateAppAccess(context, appId, username);
+                //Update job status
+               updateJobProgress(context, job, success -> {
+                   result.set(job.getIsUserSuspended());
+                });
+            } else {
+                //Possibly offer to link or de-link ConnectId-managed login
+                checkConnectIdLink(context,
+                        loginManagedByConnectId, appId,
+                        username,
+                        enteredPasswordPin, success -> {
+                            ConnectIDManager.updateAppAccess(context, appId, username);
+                            result.set(false);
+                        });
+            }
+
+            return result.get();
+        }
+
+        return true;
+    }
+
 
     public static void forgetUser(String reason) {
         ConnectIDManager manager = getInstance();
@@ -250,7 +282,7 @@ public class ConnectIDManager {
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
     }
 
-    public static AuthInfo.TokenAuth getConnectToken() {
+    public AuthInfo.TokenAuth getConnectToken() {
         if (isLoggedIN()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
             Date currentDate = new Date();
@@ -273,11 +305,11 @@ public class ConnectIDManager {
         parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
     }
 
-    public void registerUser(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
+    public void launchConnectId(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
         launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, callback);
     }
 
-    public static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
+    private static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
         if (record != null) {
             record.setLastAccessed(new Date());
@@ -285,7 +317,7 @@ public class ConnectIDManager {
         }
     }
 
-    public static void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+    private void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
         switch(getAppManagement(activity, appId, username)) {
             case Unmanaged -> {
                 //ConnectID is NOT configured
@@ -332,7 +364,7 @@ public class ConnectIDManager {
                     d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                         activity.dismissAlertDialog();
 
-                        getInstance().unlockConnect(activity, success -> {
+                        unlockConnect(activity, success -> {
                             if (success) {
                                 appRecordFinal.linkToConnectId(password);
                                 ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
@@ -376,7 +408,7 @@ public class ConnectIDManager {
                     d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
                         activity.dismissAlertDialog();
 
-                        getInstance().unlockConnect(activity, success -> {
+                        unlockConnect(activity, success -> {
                             if (success) {
                                 ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
                                 if (linkedApp != null) {
@@ -408,7 +440,7 @@ public class ConnectIDManager {
     }
 
     ///TODO update the code with connect code
-    public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    private static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
 //                updateLearningProgress(context, job, listener);
@@ -422,17 +454,17 @@ public class ConnectIDManager {
         }
     }
 
-    public void goToConnectJobsList(Context parent) {
+    private void goToConnectJobsList(Context parent) {
         manager.parentActivity = parent;
         completeSignin();
 //        Intent i = new Intent(parent, ConnectActivity.class);
 //        parent.startActivity(i);
     }
 
-    public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
+    private ConnectJobRecord setConnectJobForApp(Context context, String appId) {
         ConnectJobRecord job = null;
 
-        ConnectAppRecord appRecord = getInstance().getAppRecord(context, appId);
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
         if (appRecord != null) {
             job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
         }
@@ -447,7 +479,7 @@ public class ConnectIDManager {
         return auth != null;
     }
 
-    public ConnectAppRecord getAppRecord(Context context, String appId) {
+    private ConnectAppRecord getAppRecord(Context context, String appId) {
         return ConnectJobUtils.getAppRecord(context, appId);
     }
 
@@ -474,7 +506,7 @@ public class ConnectIDManager {
         return null;
     }
 
-    public void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
+    private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
         ApiConnectId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -511,33 +543,33 @@ public class ConnectIDManager {
     }
 
     public ConnectIdStatus getStatus() {
-        return getInstance().connectStatus;
+        return connectStatus;
     }
 
-    public void setStatus(ConnectIdStatus connectStatus) {
-        getInstance().connectStatus = connectStatus;
+    public void setStatus(ConnectIdStatus status) {
+        connectStatus = status;
     }
 
     public void setParent(Context parent) {
-        getInstance().parentActivity = parent;
+        parentActivity = parent;
     }
 
     public ConnectUserRecord getUser(Context context) {
         return ConnectUserDatabaseUtil.getUser(context);
     }
 
-    public static void setActiveJob(ConnectJobRecord job) {
-        getInstance().activeJob = job;
+    public void setActiveJob(ConnectJobRecord job) {
+        activeJob = job;
     }
 
 
-    public static ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
-        ConnectAppRecord record = getInstance().getAppRecord(context, appId);
+    public ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
         if(record != null) {
             return ConnectAppMangement.Connect;
         }
 
-        return getInstance().getCredentialsForApp(appId, userId) != null ?
+        return getCredentialsForApp(appId, userId) != null ?
                 ConnectAppMangement.ConnectId :
                 ConnectAppMangement.Unmanaged;
     }
@@ -552,11 +584,11 @@ public class ConnectIDManager {
     }
 
     public int getFailureAttempt() {
-        return getInstance().failedPinAttempts;
+        return failedPinAttempts;
     }
 
     public void setFailureAttempt(int failureAttempt) {
-        getInstance().failedPinAttempts = failureAttempt;
+        failedPinAttempts = failureAttempt;
     }
 
 

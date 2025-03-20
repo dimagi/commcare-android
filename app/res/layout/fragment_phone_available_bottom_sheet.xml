@@ -23,12 +23,12 @@
                 android:contentDescription="@null"
                 android:src="@drawable/ic_primary_portrait" />
 
-            <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+            <TextView
                 android:id="@+id/connectBoldTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/roboto_medium"
+                android:textStyle="bold"
                 android:text="@string/connect_phone_unavailable"
                 android:textColor="@color/connect_warning_color"
                 android:textSize="16sp"
@@ -36,25 +36,25 @@
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="@+id/imageView2" />
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
                 android:id="@+id/phone_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/roboto_regular"
+              android:textStyle="bold"
                 android:text="+91 7748962888"
                 android:textColor="@color/connect_secondary_text"
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="@+id/connectBoldTextView"
                 app:layout_constraintTop_toBottomOf="@+id/connectBoldTextView" />
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/roboto_regular"
-                android:text="Do you want to recover your account? "
+                android:textStyle="normal"
+                android:text="Do you want to recover your account?"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="@+id/phone_number"
