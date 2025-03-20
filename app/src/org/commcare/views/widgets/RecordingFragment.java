@@ -9,10 +9,7 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,7 +41,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -65,9 +61,6 @@ public class RecordingFragment extends DialogFragment {
     private static final String CLEAR_TEXT_KEY = "recording.clear";
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
-
-    private static final int HEAAC_SAMPLE_RATE = 44100;
-    private static final int AMRNB_SAMPLE_RATE = 8000;
     public static final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
 
     private String fileName;
@@ -82,7 +75,6 @@ public class RecordingFragment extends DialogFragment {
 
     private Chronometer recordingDuration;
 
-    private MediaRecorder recorder;
     private RecordingCompletionListener listener;
     private MediaPlayer player;
     private long mLastStopTime;
@@ -214,72 +206,6 @@ public class RecordingFragment extends DialogFragment {
         recordingDuration.setVisibility(View.VISIBLE);
         actionButton.setVisibility(View.INVISIBLE);
         discardRecording.setVisibility(View.INVISIBLE);
-    }
-
-    private void setupRecorder() {
-        if (recorder == null) {
-            recorder = new MediaRecorder();
-        }
-
-        boolean isHeAacSupported = isHeAacEncoderSupported();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-        } else {
-            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            recorder.setPrivacySensitive(true);
-        }
-        recorder.setAudioSamplingRate(isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        if (isHeAacSupported) {
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-        } else {
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        }
-        recorder.setOutputFile(fileName);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerAudioRecordingConfigurationChangeCallback();
-        }
-        try {
-            recorder.prepare();
-            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Preparing recording: " + fileName
-                    + " | " + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
-                    + " | " + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC : MediaRecorder.AudioEncoder.AMR_NB));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Checks whether the device supports High Efficiency AAC (HE-AAC) audio codec
-    private boolean isHeAacEncoderSupported() {
-        int numCodecs = MediaCodecList.getCodecCount();
-
-        for (int i = 0; i < numCodecs; i++) {
-            MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
-
-            if (!codecInfo.isEncoder()) {
-                continue;
-            }
-
-            for (String supportedType : codecInfo.getSupportedTypes()) {
-                if (supportedType.equalsIgnoreCase(MIMETYPE_AUDIO_AAC)) {
-                    MediaCodecInfo.CodecCapabilities cap = codecInfo.getCapabilitiesForType(MIMETYPE_AUDIO_AAC);
-                    MediaCodecInfo.CodecProfileLevel[] profileLevels = cap.profileLevels;
-                    for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
-                        int profile = profileLevel.profile;
-                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE
-                                || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     @SuppressLint("NewApi")
