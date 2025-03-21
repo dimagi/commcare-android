@@ -1013,20 +1013,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void deliverProgress(Integer[] values) {
         EntityLoadingProgressListener.EntityLoadingProgressPhase phase =
                 EntityLoadingProgressListener.EntityLoadingProgressPhase.fromInt(values[0]);
-        int progress = values[1] * 100 / values[2];
-        if (progress != lastProgress) {
-            lastProgress = progress;
-            String progressDisplay = progress + "%";
-            switch (phase) {
-                case PHASE_PROCESSING -> setProgressText(
-                        StringUtils.getStringRobust(this, R.string.entity_list_processing,
-                                new String[]{progressDisplay}));
-                case PHASE_CACHING -> setProgressText(
-                        StringUtils.getStringRobust(this, R.string.entity_list_loading_cache));
-                case PHASE_UNCACHED_CALCULATION -> setProgressText(
-                        StringUtils.getStringRobust(this, R.string.entity_list_calculating,
-                                new String[]{progressDisplay}));
-            }
+        int phaseProgress = values[1] * 100 / values[2];
+        int totalPhases = 1;
+        if(shortSelect.isCacheEnabled()){
+            // with caching we deliver progress in 3 separate phases
+            totalPhases = 3;
+        }
+        int weightedProgress = (phase.getValue() - 1) * 100 / totalPhases + phaseProgress / totalPhases;
+        if (weightedProgress != lastProgress) {
+            lastProgress = weightedProgress;
+            String progressDisplay = weightedProgress + "%";
+            setProgressText(
+                    StringUtils.getStringRobust(this, R.string.entity_list_loading,
+                            new String[]{progressDisplay}));
         }
     }
 
