@@ -275,16 +275,16 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        if (json.has(ConnectConstants.CONNECT_KEY_SECRET)) {
-                            password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
-                        }
+                        password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
 
                         if (json.has(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
                             updateMessage();
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (IOException e) {
                     Logger.exception("Parsing return from OTP request", e);
+                }catch (JSONException e){
+                    throw new RuntimeException(e);
                 }
             }
 

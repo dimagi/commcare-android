@@ -186,23 +186,16 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             ApiConnectId.checkPassword(requireActivity(), phone, secretKey, password, new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    String username = null;
-                    String name = null;
+                    String username ;
+                    String name ;
                     try {
                         String responseAsString = new String(
                                 StreamsUtil.inputStreamToByteArray(responseData));
                         if (responseAsString.length() > 0) {
                             JSONObject json = new JSONObject(responseAsString);
-                                username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
-
-
-                            if (json.has(ConnectConstants.CONNECT_KEY_NAME)) {
-                                name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
-                            }
-
-                            if (json.has(ConnectConstants.CONNECT_KEY_DB_KEY)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
-                            }
+                            username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
+                            name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
+                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
 
                             ConnectUserRecord user = new ConnectUserRecord(phone, username,
                                     password, name, "");
@@ -212,11 +205,12 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                                 user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
                             }
 
-                            //TODO: Need to get secondary phone from server
                             ConnectUserDatabaseUtil.storeUser(context, user);
                         }
-                    } catch (IOException | JSONException e) {
+                    } catch (IOException e) {
                         Logger.exception("Parsing return from OTP request", e);
+                    }catch (JSONException e){
+                        throw new RuntimeException(e);
                     }
 
                     logRecoveryResult(true);

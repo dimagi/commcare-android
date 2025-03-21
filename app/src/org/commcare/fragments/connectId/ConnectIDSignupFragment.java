@@ -345,10 +345,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             String responseAsString = new String(
                                     StreamsUtil.inputStreamToByteArray(responseData));
                             JSONObject json = new JSONObject(responseAsString);
-                            if (json.has(ConnectConstants.CONNECT_KEY_DB_KEY)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
-                            }
-
+                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
                             user.setSecondaryPhoneVerified(!json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY) || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY));
                             if (!user.getSecondaryPhoneVerified()) {
                                 user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
@@ -358,8 +355,10 @@ public class ConnectIDSignupFragment extends Fragment {
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
-                        } catch (IOException | JSONException e) {
+                        } catch (IOException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
+                        }catch (JSONException e){
+                            throw new RuntimeException(e);
                         }
 
                     }

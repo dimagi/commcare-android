@@ -331,19 +331,17 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_SECRET;
-                        if (json.has(key)) {
-                            password = json.getString(key);
-                        }
+                            password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
 
-                        key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                        if (json.has(key)) {
-                            recoveryPhone = json.getString(key);
+                        if (json.has(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
+                            recoveryPhone = json.getString(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
                             updateMessage();
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (IOException e) {
                     Logger.exception("Parsing return from OTP request", e);
+                }catch (JSONException e){
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -421,8 +419,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                                     StreamsUtil.inputStreamToByteArray(responseData));
                             if (responseAsString.length() > 0) {
                                 JSONObject json = new JSONObject(responseAsString);
-                                String key = ConnectConstants.CONNECT_KEY_SECONDARY_PHONE;
-                                secondaryPhone = json.has(key) ? json.getString(key) : null;
+                                secondaryPhone = json.has(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE) ? json.getString(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE) : null;
                             }
 
                             finish(true, false, secondaryPhone);
@@ -432,16 +429,11 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                                     StreamsUtil.inputStreamToByteArray(responseData));
                             JSONObject json = new JSONObject(responseAsString);
 
-                            String key = ConnectConstants.CONNECT_KEY_USERNAME;
-                            String username = json.has(key) ? json.getString(key) : "";
+                            String username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
 
-                            key = ConnectConstants.CONNECT_KEY_NAME;
-                            String displayName = json.has(key) ? json.getString(key) : "";
+                            String displayName = json.getString(ConnectConstants.CONNECT_KEY_NAME);
 
-                            key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                            if (json.has(key)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                            }
+                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
 
                             resetPassword(context, phone, password, username, displayName);
                         }
