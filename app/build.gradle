@@ -563,7 +563,8 @@ tasks.configureEach { task ->
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
-    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest') {
+    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest' ||
+            task.name == 'connectedCommcareReleaseAndroidTest' || task.name == 'connectedCommcareDebugAndroidTest') {
         android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }
