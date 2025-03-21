@@ -15,6 +15,8 @@ import androidx.navigation.Navigation;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectUserDeactivateOtpVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -230,14 +232,8 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                setErrorMessage("Error requesting SMS code" + message);
+            public void processFailure(int responseCode) {
+                setErrorMessage("Error requesting SMS code");
 
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
@@ -248,6 +244,18 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                 setErrorMessage(getString(R.string.recovery_network_unavailable));
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                setErrorMessage(getString(R.string.recovery_network_token_unavailable));
+                //Null out the last-requested time so user can request again immediately
+                smsTime = null;
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                setErrorMessage(getString(R.string.recovery_network_token_request_rejected));
             }
 
             @Override
@@ -281,13 +289,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
+            public void processFailure(int responseCode) {
                 logRecoveryResult(false);
                 setErrorMessage(getString(R.string.connect_verify_phone_error));
             }
@@ -295,6 +297,16 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             @Override
             public void processNetworkFailure() {
                 setErrorMessage(getString(R.string.recovery_network_unavailable));
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                setErrorMessage(getString(R.string.recovery_network_token_unavailable));
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                setErrorMessage(getString(R.string.recovery_network_token_request_rejected));
             }
 
             @Override

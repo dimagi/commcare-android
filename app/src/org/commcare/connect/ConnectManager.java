@@ -501,14 +501,27 @@ public class ConnectManager {
                                 ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
 
                                 //Link the HQ user by aqcuiring the SSO token for the first time
-                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
-                                    if (auth == null) {
-                                        //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
-                                        //TODO: Re-enable when token working again
-                                        //ConnectManager.forgetAppCredentials(appId, username);
+                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, new ConnectSsoHelper.TokenCallback() {
+                                    @Override
+                                    public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                                        if (token == null) {
+                                            //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
+                                            //TODO: Re-enable when token working again
+                                            //ConnectManager.forgetAppCredentials(appId, username);
+                                        }
+
+                                        callback.connectActivityComplete(true);
                                     }
 
-                                    callback.connectActivityComplete(true);
+                                    @Override
+                                    public void tokenUnavailable() {
+                                        ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                                    }
+
+                                    @Override
+                                    public void tokenRequestDenied() {
+                                        ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
+                                    }
                                 });
                             } else {
                                 callback.connectActivityComplete(false);
@@ -792,13 +805,23 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
             }
 
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                Logger.log("ERROR", "Failed (token unavailable)");
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
             }
 
             @Override
@@ -868,7 +891,7 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
@@ -877,6 +900,20 @@ public class ConnectManager {
             @Override
             public void processNetworkFailure() {
                 Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(context);
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -978,15 +1015,27 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Delivery progress call failed: %d", responseCode));
+            public void processFailure(int responseCode) {
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
 
             @Override
             public void processNetworkFailure() {
-                Logger.log("ERROR", "Failed (network)");
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(context);
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -1017,7 +1066,7 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
@@ -1026,6 +1075,20 @@ public class ConnectManager {
             @Override
             public void processNetworkFailure() {
                 Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(context);
+                reportApiCall(false);
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
