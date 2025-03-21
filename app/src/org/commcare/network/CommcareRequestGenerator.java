@@ -7,12 +7,11 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -22,7 +21,6 @@ import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -176,29 +174,30 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return headers;
     }
 
-    private AuthInfo buildAuth() {
+    private AuthInfo buildAuth() throws TokenRequestDeniedException, TokenUnavailableException {
         if (username != null) {
-            try {
-                AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), username, false);
-                if (tokenAuth != null) {
-                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
-                    return tokenAuth;
-                } else {
-                    if(ConnectManager.checkForFailedConnectIdAuth(username)) {
-                        Logger.exception("Token auth error for connect managed app",
-                                new Throwable("No token Auth available for a connect managed app"));
-                    }
+            AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), username, false);
+            if (tokenAuth != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
+                return tokenAuth;
+            } else {
+                if (ConnectManager.checkForFailedConnectIdAuth(username)) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("No token Auth available for a connect managed app"));
+                }
 
+                try {
                     CommCareApplication.instance().getSession().getLoggedInUser();
                     //Use CurrentAuth (possibly token) if we have an active session and logged in user
                     return new AuthInfo.CurrentAuth();
+                } catch (Exception e) {
+                    Logger.exception("Error encountered while building auth", e);
+                    //No token if no session
+                    return new AuthInfo.ProvidedAuth(username, password);
                 }
-            } catch (Exception e) {
-                Logger.exception("Error encountered while building auth", e);
-                //No token if no session
-                return new AuthInfo.ProvidedAuth(username, password);
             }
         }
+
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying no auth");
         return new AuthInfo.NoAuth();
     }
@@ -212,7 +211,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     @Override
     public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
-        Multimap params = ArrayListMultimap.create();
+        Multimap<String, String> params = ArrayListMultimap.create();
 
         if (lastRequest != null) {
             params.put("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601));
@@ -226,7 +225,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 CommCareApplication.instance(),
                 baseUri,
                 params,
-                new HashMap(),
+                new HashMap<>(),
                 auth,
                 null);
 

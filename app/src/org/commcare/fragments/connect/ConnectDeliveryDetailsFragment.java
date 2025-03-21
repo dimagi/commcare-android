@@ -117,7 +117,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, IOException e) {
+                    public void processFailure(int responseCode) {
                         Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
                         reportApiCall(false);
                     }
@@ -125,6 +125,18 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     @Override
                     public void processNetworkFailure() {
                         ConnectNetworkHelper.showNetworkError(getContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processTokenUnavailableError() {
+                        ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
                         reportApiCall(false);
                     }
 

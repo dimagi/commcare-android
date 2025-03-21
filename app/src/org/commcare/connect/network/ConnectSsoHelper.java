@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -25,6 +24,8 @@ import java.net.MalformedURLException;
 public class ConnectSsoHelper {
     public interface TokenCallback {
         void tokenRetrieved(AuthInfo.TokenAuth token);
+        void tokenUnavailable();
+        void tokenRequestDenied();
     }
 
     //Used for asynchronously retrieving HQ or SSO token
@@ -33,6 +34,7 @@ public class ConnectSsoHelper {
         private final String hqUsername; //null for ConnectId
         private final boolean linkHqUser;
         final TokenCallback callback;
+        private Exception caughtException;
         TokenTask(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
             super();
             this.weakContext = new WeakReference<>(context);
@@ -43,17 +45,32 @@ public class ConnectSsoHelper {
 
         @Override
         protected AuthInfo.TokenAuth doInBackground(Void... voids) {
-            Context context = weakContext.get();
-            if(hqUsername == null) {
-                return retrieveConnectIdTokenSync(context);
-            }
+            try {
+                Context context = weakContext.get();
+                if (hqUsername == null) {
+                    return retrieveConnectIdTokenSync(context);
+                }
 
-            return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
+                return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
+            } catch(TokenUnavailableException | TokenRequestDeniedException e) {
+                caughtException = e;
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(AuthInfo.TokenAuth token) {
-            callback.tokenRetrieved(token);
+            if(caughtException != null) {
+                if(caughtException instanceof TokenUnavailableException) {
+                    Logger.exception("Token unavailable", caughtException);
+                    callback.tokenUnavailable();
+                } else {
+                    Logger.exception("Token request denied", caughtException);
+                    callback.tokenRequestDenied();
+                }
+            } else {
+                callback.tokenRetrieved(token);
+            }
         }
     }
 
@@ -69,7 +86,7 @@ public class ConnectSsoHelper {
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) throws TokenRequestDeniedException, TokenUnavailableException {
         if (!ConnectManager.isConnectIdConfigured()) {
             return null;
         }
@@ -82,7 +99,7 @@ public class ConnectSsoHelper {
         return ApiConnectId.retrieveConnectIdTokenSync(context);
     }
 
-    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) throws TokenRequestDeniedException, TokenUnavailableException {
         if (!ConnectManager.isConnectIdConfigured()) {
             return null;
         }
@@ -108,11 +125,7 @@ public class ConnectSsoHelper {
                 }
 
                 //Retrieve HQ token
-                try {
-                    hqTokenAuth = ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
+                hqTokenAuth = ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
             }
         }
 

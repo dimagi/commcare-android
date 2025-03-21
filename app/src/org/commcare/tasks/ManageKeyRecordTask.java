@@ -8,6 +8,8 @@ import org.commcare.activities.DataPullController;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.database.SqlStorage;
@@ -211,6 +213,15 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|insufficient role permission");
                 receiver.raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
                 break;
+            case TokenUnavailable:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|token unavailable");
+                receiver.raiseLoginMessage(StockMessages.TokenUnavailable, true);
+                break;
+            case TokenRequestDenied:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|token request denied");
+                receiver.raiseLoginMessage(StockMessages.TokenRequestDenied, true);
+                break;
+
             default:
                 break;
         }
@@ -337,7 +348,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
-    protected Response<ResponseBody> doHttpRequest() throws IOException {
+    protected Response<ResponseBody> doHttpRequest() throws IOException, TokenRequestDeniedException, TokenUnavailableException {
         CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }

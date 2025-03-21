@@ -6,8 +6,6 @@ import android.os.Handler;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-import android.net.ConnectivityManager;
-
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -15,13 +13,10 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.connectId.ApiClient;
 import org.commcare.connect.network.connectId.ApiService;
 import org.commcare.core.network.AuthInfo;
@@ -30,7 +25,6 @@ import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
@@ -47,13 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.HttpException;
-import retrofit2.Response;
-
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -242,12 +229,12 @@ public class ApiConnectId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code(), e);
+                        callback.processFailure(response.code());
                     }
                 } else {
                     // Handle validation errors
                     handleApiError(response);
-                    callback.processFailure(response.code(), null);
+                    callback.processFailure(response.code());
                 }
             }
 
@@ -521,8 +508,7 @@ public class ApiConnectId {
         }
     }
 
-    public static void retrieveChannelEncryptionKeySync(Context context, ConnectMessagingChannelRecord channel) {
-        AuthInfo.TokenAuth auth = ApiConnectId.retrieveConnectIdTokenSync(context);
+    public static void retrieveChannelEncryptionKeySync(Context context, ConnectMessagingChannelRecord channel, AuthInfo.TokenAuth auth) {
         if(auth != null) {
             HashMap<String, Object> params = new HashMap<>();
             params.put("channel_id", channel.getChannelId());
@@ -537,13 +523,26 @@ public class ApiConnectId {
     }
 
     public static void retrieveChannelEncryptionKey(Context context, String channelId, String channelUrl, IApiCallback callback) {
-        ConnectSsoHelper.retrieveConnectTokenAsync(context, token -> {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("channel_id", channelId);
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+            @Override
+            public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("channel_id", channelId);
 
-            ConnectNetworkHelper.post(context,
-                    channelUrl,
-                    null, token, params, true, true, callback);
+                ConnectNetworkHelper.post(context,
+                        channelUrl,
+                        null, token, params, true, true, callback);
+            }
+
+            @Override
+            public void tokenUnavailable() {
+                callback.processTokenUnavailableError();
+            }
+
+            @Override
+            public void tokenRequestDenied() {
+                callback.processTokenRequestDeniedError();
+            }
         });
     }
 

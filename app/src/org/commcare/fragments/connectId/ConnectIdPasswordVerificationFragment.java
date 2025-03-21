@@ -224,13 +224,23 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
+                public void processFailure(int responseCode) {
                     handleWrongPassword();
                 }
 
                 @Override
                 public void processNetworkFailure() {
                     ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
+                }
+
+                @Override
+                public void processTokenUnavailableError() {
+                    ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
+                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
                 }
 
                 @Override

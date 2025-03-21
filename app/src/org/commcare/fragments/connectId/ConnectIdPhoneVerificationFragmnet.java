@@ -323,14 +323,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
-                setErrorMessage("Error requesting SMS code" + message);
+            public void processFailure(int responseCode) {
+                setErrorMessage("Error requesting SMS code");
 
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
@@ -341,6 +335,16 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
                 setErrorMessage(getString(R.string.recovery_network_unavailable));
                 //Null out the last-requested time so user can request again immediately
                 smsTime = null;
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                setErrorMessage(getString(R.string.recovery_network_token_unavailable));
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                setErrorMessage(getString(R.string.recovery_network_token_request_rejected));
             }
 
             @Override
@@ -431,13 +435,7 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
+            public void processFailure(int responseCode) {
                 logRecoveryResult(false);
                 setErrorMessage(getString(R.string.connect_verify_phone_error));
             }
@@ -445,6 +443,16 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             @Override
             public void processNetworkFailure() {
                 setErrorMessage(getString(R.string.recovery_network_unavailable));
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                setErrorMessage(getString(R.string.recovery_network_token_unavailable));
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                setErrorMessage(getString(R.string.recovery_network_token_request_rejected));
             }
 
             @Override
@@ -484,19 +492,29 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Toast.makeText(context, getString(R.string.connect_recovery_failure),
                         Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(requireActivity().getApplicationContext());
+                ConnectNetworkHelper.showNetworkError(requireActivity());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
             }
 
             @Override
             public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
+                ConnectNetworkHelper.showOutdatedApiError(requireActivity());
             }
         });
     }
