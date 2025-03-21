@@ -220,6 +220,10 @@ public class ConnectUserRecord extends Persisted {
         return null;
     }
 
+    public Date getConnectTokenExpiration(){
+        return connectTokenExpiration;
+    }
+
     public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
 
