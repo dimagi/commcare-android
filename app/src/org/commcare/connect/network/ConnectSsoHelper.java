@@ -5,14 +5,17 @@ import android.os.AsyncTask;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -86,7 +89,7 @@ public class ConnectSsoHelper {
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
-        ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, hqUsername);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, hqUsername);
         if (appRecord == null) {
             return null;
         }
@@ -105,7 +108,11 @@ public class ConnectSsoHelper {
                 }
 
                 //Retrieve HQ token
-                hqTokenAuth = ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
+                try {
+                    hqTokenAuth = ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
 
@@ -118,17 +125,17 @@ public class ConnectSsoHelper {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
 
         if(username != null) {
-            ConnectLinkedAppRecord appRecord = ConnectDatabaseHelper.getAppData(context, seatedAppId, username);
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, username);
             if (appRecord != null) {
                 appRecord.clearHqToken();
-                ConnectDatabaseHelper.storeApp(context, appRecord);
+                ConnectAppDatabaseUtil.storeApp(context, appRecord);
             }
         }
 
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
         if(user != null) {
             user.clearConnectToken();
-            ConnectDatabaseHelper.storeUser(context, user);
+            ConnectUserDatabaseUtil.storeUser(context, user);
         }
     }
 }

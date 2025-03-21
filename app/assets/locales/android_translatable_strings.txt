@@ -533,6 +533,10 @@ login.attempt.fail.changed.title=Password Changed since Last Login
 login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.
 login.attempt.fail.changed.action=If you had unsent data or incomplete forms on the phone before you logged in with your new password you should log out, and log in with your old password. Make sure all your unsent forms are sent and incomplete forms are submitted, then log in again with your new password and sync. 
 
+login.attempt.insufficient.role.permission.title=User doesn't have permission to access the CommCare application
+login.attempt.insufficient.role.permission.detail=The role assigned to your user doesn't have permission to access CommCare mobile application
+login.attempt.insufficient.role.permission.action=Contact Support for assistance with this matter
+
 notification.credential.mismatch.title=Mismatching Login Credentials
 notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
 notification.credential.mismatch.action=Contact CommCare Support for assistance with your account
@@ -996,3 +1000,5 @@ background.sync.fail=Background sync failed. Please try to trigger a normal Sync
 android.package.name.org.commcare.dalvik.reminders=CommCare Reminders
 android.package.name.callout.commcare.org.sendussd=Commcare USSD
 android.package.name.org.commcare.dalvik.abha=CommCare ABHA
+
+location.capture.cancelled=Location capture cancelled

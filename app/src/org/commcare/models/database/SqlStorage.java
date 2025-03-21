@@ -1,6 +1,7 @@
 package org.commcare.models.database;
 
 import android.database.Cursor;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
@@ -772,6 +773,22 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             }
         }
         return returnSet;
+    }
+
+    /**
+     * Retrieves a set of the model ids in storage based on a list of values matching one of the
+     * indexes of this storage
+     */
+    public Vector<Integer> getBulkIdsForIndex(String indexName, Collection matchingValues) {
+        String fieldName = TableBuilder.scrubName(indexName);
+        List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(matchingValues, "?");
+        for (Pair<String, String[]> querySet : whereParamList) {
+            Cursor c = helper.getHandle().query(table,
+                    new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, fieldName},
+                    fieldName + " IN " + querySet.first, querySet.second, null, null, null);
+            return fillIdWindow(c, DatabaseHelper.ID_COL, new LinkedHashSet<>());
+        }
+        return new Vector<>();
     }
 
     @Override

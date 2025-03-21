@@ -30,6 +30,7 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
@@ -103,9 +104,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
             case AUTH_FAILED:
-                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-                ConnectManager.forgetAppCredentials(seatedAppId, username);
+
+                if(ConnectManager.checkForFailedConnectIdAuth(username)) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("Token Auth failed during sync for a ConnectID managed app"));
+                }
+
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:
@@ -269,6 +274,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
         }
+        CommCareApplication.instance().scheduleEntityCacheInvalidation();
     }
 
     public void updateUiForFormUploadResult(String message, boolean success) {

@@ -149,7 +149,7 @@
     <string name="form_scan_finished">Formų paieška baigta</string>
     <string name="access_error">"Klaida bandant pasiekti %s: "</string>
     <string name="manifest_server_error">Manifesto atsakymas nepraneša OpenRosa versijos -- blogas serveris?</string>
-    <string name="root_element_error">Šakninis elementas nėra &amp;lt;manifest\&gt; -- buvo %s</string>
+    <string name="root_element_error">Šakninis elementas nėra &lt;manifest\&gt; -- buvo %s</string>
     <string name="root_namespace_error">Šakninio elemento vardų erdvė neteisinga: %s</string>
     <string name="manifest_tag_error">Manifesto įvestyje %s trūksta vienos ar keleto žymų: filename, hash, arba downloadUrl</string>
     <string name="form_download_progress">%1$s. Siunčiami medijos failai: %2$s iš %3$s</string>

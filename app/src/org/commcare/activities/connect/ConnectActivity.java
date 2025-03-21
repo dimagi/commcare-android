@@ -15,8 +15,9 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -167,7 +168,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     public void updateMessagingIcon() {
         if(messagingMenuItem != null) {
             int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectDatabaseHelper.getUnviewedMessages(this).size() > 0) {
+            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
                 icon = R.drawable.ic_connect_messaging_unread;
             }
             messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
@@ -181,17 +182,9 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             return true;
         }
 
-        getCurrentFragment().onOptionsItemSelected(item);
+        //NOTE: Fragments will handle the sync button individually (via MenuProviders)
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private Fragment getCurrentFragment() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        Fragment currentFragment =
-                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-       return  currentFragment;
     }
 
     @Override

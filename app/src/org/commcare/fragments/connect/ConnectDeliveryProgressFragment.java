@@ -3,6 +3,9 @@ package org.commcare.fragments.connect;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,6 +13,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -26,6 +31,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ConnectivityStatus;
 import org.commcare.views.connect.RoundedButton;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
 import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
@@ -66,7 +72,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(R.string.connect_progress_delivery);
@@ -134,6 +140,12 @@ public class ConnectDeliveryProgressFragment extends Fragment {
                     TabLayout.Tab tab = tabLayout.getTabAt(position);
                     tabLayout.selectTab(tab);
 
+                    View view = viewStateAdapter.createFragment(position).getView();
+                    if(view != null) {
+                        pager.getLayoutParams().height = view.getMeasuredHeight();
+                        pager.requestLayout();
+                    }
+
                     FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
                 } else {
                     isTabChange = false;
@@ -157,6 +169,24 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
             }
         });
+
+        MenuHost host = (MenuHost)requireActivity();
+        host.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                //Activity loads the menu
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.action_sync) {
+                    refreshData();
+                    return true;
+                }
+
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 
         updateConnectWarningMessage(view);
         updatePaymentConfirmationTile(getContext(), false);
@@ -189,6 +219,16 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         if(showHours) {
             tv_job_time.setText(workingHours);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_sync) {
+            refreshData();
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -296,7 +336,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         //NOTE: Checking for network connectivity here
         boolean show = paymentToConfirm != null;
         if (show) {
-            show = ConnectNetworkHelper.isOnline(context);
+            show = ConnectivityStatus.isNetworkAvailable(context);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationOnlineCheck(show);
         }
 
@@ -314,37 +354,32 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
-        private static ConnectDeliveryProgressDeliveryFragment deliveryFragment = null;
-        private static ConnectResultsSummaryListFragment verificationFragment = null;
+        private final List<Fragment> fragmentList = new ArrayList<>();
 
         public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
+            fragmentList.add(ConnectDeliveryProgressDeliveryFragment.newInstance());
+            fragmentList.add(ConnectResultsSummaryListFragment.newInstance());
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            if (position == 0) {
-                deliveryFragment = ConnectDeliveryProgressDeliveryFragment.newInstance();
-                return deliveryFragment;
-            }
-
-            verificationFragment = ConnectResultsSummaryListFragment.newInstance();
-            return verificationFragment;
+            return fragmentList.get(position);
         }
 
         @Override
         public int getItemCount() {
-            return 2;
+            return fragmentList.size();
         }
 
         public void refresh() {
-            if (deliveryFragment != null) {
-                deliveryFragment.updateView();
-            }
-
-            if (verificationFragment != null) {
-                verificationFragment.updateView();
+            for (Fragment fragment : fragmentList) {
+                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment) {
+                    ((ConnectDeliveryProgressDeliveryFragment) fragment).updateView();
+                } else if (fragment instanceof ConnectResultsSummaryListFragment) {
+                    ((ConnectResultsSummaryListFragment) fragment).updateView();
+                }
             }
         }
     }

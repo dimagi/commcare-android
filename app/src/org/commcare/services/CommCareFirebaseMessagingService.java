@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.common.util.Strings;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -26,8 +27,9 @@ import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
@@ -159,7 +161,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                         return;
                     }
 
-                    ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(this,
+                    ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(this,
                             message.getChannelId());
 
                     notificationTitleId = R.string.connect_messaging_message_notification_title;
@@ -217,6 +219,11 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
 
+            if (Strings.isEmptyOrWhitespace(notificationTitle) && Strings.isEmptyOrWhitespace(notificationText)) {
+                Logger.exception("Empty push notification",
+                        new Throwable(String.format("Empty notification for action '%s'", action)));
+            }
+
             NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
                     notificationChannel)
                     .setContentTitle(notificationTitle)
@@ -227,7 +234,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     .setPriority(priority)
                     .setWhen(System.currentTimeMillis());
 
-            if(largeIcon != null) {
+            if (largeIcon != null) {
                 fcmNotification.setLargeIcon(largeIcon);
             }
 
