@@ -225,7 +225,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
         for (int i = 0; i < unitsJson.length(); i++) {
-            job.paymentUnits.add(ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId()));
+            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId());
+            if(payment != null) {
+                job.paymentUnits.add(payment);
+            }
         }
 
         if (job.claimed) {
