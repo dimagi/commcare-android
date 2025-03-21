@@ -74,8 +74,4 @@ public class PreInitLogger implements ILogger {
         // TODO Auto-generated method stub
     }
 
-    @Override
-    public void logException(Throwable e) {
-        CrashUtil.reportException(e);
-    }
 }

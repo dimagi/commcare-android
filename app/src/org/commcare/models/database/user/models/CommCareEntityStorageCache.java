@@ -103,6 +103,11 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
+    @Override
+    public int getFieldIdFromCacheKey(String detailId, String cacheKey) {
+        return 0;
+    }
+
     public String retrieveCacheValue(String entityKey, String cacheKey) {
         String whereClause = String.format("%s = ? AND %s = ? AND %s = ? AND %s = ?", COL_APP_ID, COL_CACHE_NAME, COL_ENTITY_KEY, COL_CACHE_KEY);
 
@@ -264,5 +269,9 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             }
         }
         walker.close();
+    }
+
+    public String getCacheKey(String detailId, String mFieldId, ValueType valueType) {
+        return valueType + "_" + detailId + "_" + mFieldId;
     }
 }
