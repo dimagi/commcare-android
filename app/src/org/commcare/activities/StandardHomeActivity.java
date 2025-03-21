@@ -108,7 +108,6 @@ public class StandardHomeActivity
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
                                 AIRPLANE_MODE_CATEGORY));
             }
-
             FirebaseAnalyticsUtil.reportSyncResult(
                     false,
                     AnalyticsParamValue.SYNC_TRIGGER_USER,

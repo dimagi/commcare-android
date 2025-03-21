@@ -19,8 +19,9 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -211,7 +212,7 @@ public class ConnectIdPinFragment extends Fragment {
 
     public void handleButtonPress() {
         String pin = binding.connectPinInput.getText().toString();
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
 
         final Context context = getActivity();
         if (isChanging) {
@@ -221,7 +222,7 @@ public class ConnectIdPinFragment extends Fragment {
                         @Override
                         public void processSuccess(int responseCode, InputStream responseData) {
                             user.setPin(pin);
-                            ConnectDatabaseHelper.storeUser(context, user);
+                            ConnectUserDatabaseUtil.storeUser(context, user);
                             ConnectManager.setFailureAttempt(0);
                             finish(true, false, pin);
                         }
@@ -326,7 +327,7 @@ public class ConnectIdPinFragment extends Fragment {
                 //TODO: Need to get secondary phone from server
                 user.setPassword(password);
 
-                ConnectDatabaseHelper.storeUser(context, user);
+                ConnectUserDatabaseUtil.storeUser(context, user);
 
                 finish(true, false, user.getPin());
             }
@@ -367,7 +368,7 @@ public class ConnectIdPinFragment extends Fragment {
 
     public void finish(boolean success, boolean forgot, String pin) {
         NavDirections directions = null;
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
             case ConnectConstants.CONNECT_UNLOCK_PIN -> {
                 if (success) {
@@ -397,7 +398,7 @@ public class ConnectIdPinFragment extends Fragment {
                     if (user != null) {
                         user.setPin(pin);
                         user.setLastPinDate(new Date());
-                        ConnectDatabaseHelper.storeUser(getActivity(), user);
+                        ConnectUserDatabaseUtil.storeUser(getActivity(), user);
                     }
                 } else {
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
@@ -445,7 +446,7 @@ public class ConnectIdPinFragment extends Fragment {
                     if (user != null) {
                         user.setPin(pin);
                         user.setLastPinDate(new Date());
-                        ConnectDatabaseHelper.storeUser(requireActivity(), user);
+                        ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
                     }
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null, phone, secret);
 

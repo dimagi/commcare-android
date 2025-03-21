@@ -4,65 +4,66 @@
           android:versionCode="106"
           android:versionName="2.56">
 
-    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,     ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer,     com.google.firebase.crashlytics, com.google.firebase.iid, com.appmattus.certificatetransparency" />
-
-    <uses-permission android:name="android.permission.NFC" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
-    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
-    <uses-permission xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.INTERNET" />
-    <uses-permission xmlns:android="http://schemas.android.com/apk/res/android"
+    <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:name="android.permission.INTERNET"/>
+    <uses-permission
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- required to ensure app compatibility -->
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- required to ensure app compatibility -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+        android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission
-        android:name="android.permission.NEARBY_WIFI_DEVICES"
-        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
-        android:required="false" />
+        android:required="false"/>
     <uses-feature
         android:name="android.hardware.location"
-        android:required="false" />
+        android:required="false"/>
     <uses-feature
         android:name="android.hardware.location.gps"
-        android:required="false" />
+        android:required="false"/>
     <uses-feature
         android:name="android.hardware.location.network"
-        android:required="false" />
+        android:required="false"/>
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false" />
+        android:required="false"/>
 
     <permission-group
         android:name="commcare.permission-group.DATABASE"
         android:description="@string/permission_content_provider_description"
-        android:label="@string/permission_content_provider_label" />
+        android:label="@string/permission_content_provider_label"
+        />
+
     <permission-group
         android:name="commcare.permission-group.EXTERNAL_ACTION"
         android:description="@string/permission_external_action_description"
-        android:label="@string/permission_external_action_label" />
+        android:label="@string/permission_external_action_label"
+        />
 
     <permission-group
         android:name="commcare.permission-group.INTERNAL_ACTION"
@@ -70,17 +71,20 @@
         />
 
     <permission
-        android:name="${applicationId}.provider.cases.read"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
+        android:name="${applicationId}.provider.cases.read"
         android:permissionGroup="commcare.permission-group.DATABASE"
-        android:protectionLevel="dangerous" />
+        android:protectionLevel="dangerous">
+    </permission>
+
     <permission
         android:name="${applicationId}.permission.COMMCARE_LOGOUT"
         android:description="@string/permission_commcare_logout_description"
         android:label="@string/permission_commcare_logout_label"
         android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
-        android:protectionLevel="dangerous" />
+        android:protectionLevel="dangerous">
+    </permission>
 
     <permission
         android:name="${applicationId}.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
@@ -96,17 +100,12 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.SEND" />
-
             <data android:mimeType="*/*" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
-
-            <data
-                android:mimeType="*/*"
-                android:scheme="*" />
+            <data android:mimeType="*/*" android:scheme="*" />
         </intent>
-
         <package android:name="com.google.android.apps.maps" />
         <package android:name="org.commcare.dalvik.reminders" />
         <package android:name="callout.commcare.org.sendussd" />
@@ -183,13 +182,19 @@
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
             android:name="org.commcare.activities.connect.ConnectIdActivity"
-            android:theme="@style/NoAppBarTheme"
-            android:exported="true" />
+            android:theme="@style/NoAppBarTheme" />
         <activity
-            android:name="org.commcare.activities.connect.ConnectActivity"
-            android:exported="true" />
+            android:name="org.commcare.activities.connect.ConnectActivity" />
         <activity android:name="org.commcare.activities.AppSelectActivity" />
-
+        <service android:name="com.google.android.gms.metadata.ModuleDependencies"
+            android:enabled="false"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+            </intent-filter>
+            <meta-data android:name="photopicker_activity:0:required" android:value="" />
+        </service>
         <provider
             android:name="org.commcare.provider.FormsProvider"
             android:authorities="${odkProvider}.forms"

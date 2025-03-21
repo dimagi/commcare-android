@@ -1,5 +1,7 @@
 package org.commcare.android.database.connect.models;
 
+import android.util.Log;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -7,6 +9,8 @@ import org.commcare.modern.models.MetaField;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import androidx.annotation.NonNull;
 
 /**
  * Data class for holding info related to a Connect job
@@ -105,33 +109,106 @@ public class ConnectJobRecordV4 extends Persisted implements Serializable {
 
     }
 
-    public int getJobId() { return jobId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getShortDescription() { return shortDescription; }
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
-    public int getCompletedVisits() { return completedVisits; }
-    public int getMaxVisits() { return maxVisits; }
-    public int getMaxDailyVisits() { return maxDailyVisits; }
-    public int getBudgetPerVisit() { return budgetPerVisit; }
-    public Date getProjectEndDate() { return projectEndDate; }
-    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
-    public String getCurrency() { return currency; }
-    public int getNumLearningModules() { return numLearningModules; }
-    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
-    public Date getLastUpdate() { return lastUpdate; }
-    public Date getLastLearnUpdate() { return lastLearnUpdate; }
-    public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
-    public String getOrganization() { return organization; }
-    public int getTotalBudget() { return totalBudget; }
-    public Date getLastWorkedDate() { return lastWorkedDate; }
-    public int getLearningModulesCompleted() { return learningModulesCompleted; }
+    public int getJobId() {
+        return jobId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getCompletedVisits() {
+        return completedVisits;
+    }
+
+    public int getMaxVisits() {
+        return maxVisits;
+    }
+
+    public int getMaxDailyVisits() {
+        return maxDailyVisits;
+    }
+
+    public int getBudgetPerVisit() {
+        return budgetPerVisit;
+    }
+
+    public Date getProjectEndDate() {
+        return projectEndDate;
+    }
+
+    public int getPaymentAccrued() {
+        if (paymentAccrued == null || paymentAccrued.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(paymentAccrued);
+        } catch (NumberFormatException e) {
+            Log.e("ConnectJobRecordV4", "Failed to parse paymentAccrued: " + paymentAccrued, e);
+            return 0;
+        }
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public int getNumLearningModules() {
+        return numLearningModules;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public Date getLastLearnUpdate() {
+        return lastLearnUpdate;
+    }
+
+    public Date getLastDeliveryUpdate() {
+        return lastDeliveryUpdate;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public int getTotalBudget() {
+        return totalBudget;
+    }
+
+    public Date getLastWorkedDate() {
+        return lastWorkedDate;
+    }
+
+    public int getLearningModulesCompleted() {
+        return learningModulesCompleted;
+    }
 
     /**
      * Used for app db migration only
      */
-    public static ConnectJobRecordV4 fromV2(ConnectJobRecordV2 oldRecord) {
+    public static ConnectJobRecordV4 fromV2(@NonNull ConnectJobRecordV2 oldRecord) {
         ConnectJobRecordV4 newRecord = new ConnectJobRecordV4();
 
         newRecord.jobId = oldRecord.getJobId();
@@ -146,7 +223,6 @@ public class ConnectJobRecordV4 extends Persisted implements Serializable {
         newRecord.projectEndDate = oldRecord.getProjectEndDate();
         newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
         newRecord.organization = oldRecord.getOrganization();
-        newRecord.lastWorkedDate = oldRecord.getLastWorkedDate();
         newRecord.numLearningModules = oldRecord.getNumLearningModules();
         newRecord.learningModulesCompleted = oldRecord.getLearningModulesCompleted();
         newRecord.currency = oldRecord.getCurrency();

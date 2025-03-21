@@ -18,8 +18,9 @@ import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
 import java.util.Locale;
@@ -97,7 +98,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
 
     public void finish(boolean success, boolean secondButton) {
         NavDirections directions = null;
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(getActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
                 if (success) {

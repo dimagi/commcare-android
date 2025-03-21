@@ -27,8 +27,9 @@ import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
@@ -160,7 +161,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                         return;
                     }
 
-                    ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(this,
+                    ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(this,
                             message.getChannelId());
 
                     notificationTitleId = R.string.connect_messaging_message_notification_title;

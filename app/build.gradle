@@ -44,6 +44,8 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20231013'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     androidTestImplementation 'androidx.test:runner:1.4.0'
@@ -109,7 +111,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
@@ -306,9 +307,7 @@ android {
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_LIVE', "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_DEV', "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
-
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
-
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
 
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'

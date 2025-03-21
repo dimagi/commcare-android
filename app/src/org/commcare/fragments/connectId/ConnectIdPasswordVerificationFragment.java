@@ -16,8 +16,9 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -118,9 +119,9 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                     } else {
                         ConnectIdActivity.forgotPassword = false;
                         FirebaseAnalyticsUtil.reportCccSignIn(AnalyticsParamValue.CCC_SIGN_IN_METHOD_PASSWORD);
-                        ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
+                        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireActivity());
                         user.setLastPinDate(new Date());
-                        ConnectDatabaseHelper.storeUser(requireActivity(), user);
+                        ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
                         if (user.shouldRequireSecondaryPhoneVerification()) {
                             directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), phone, secretKey);
                         } else {
@@ -166,7 +167,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
 
     public void handleButtonPress() {
         String password = Objects.requireNonNull(binding.connectPasswordVerifyInput.getText()).toString();
-        ConnectUserRecord user = ConnectDatabaseHelper.getUser(requireActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireActivity());
         if (user != null) {
             //If we have the password stored locally, no need for network call
             if (password.equals(user.getPassword())) {
@@ -212,7 +213,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                             }
 
                             //TODO: Need to get secondary phone from server
-                            ConnectDatabaseHelper.storeUser(context, user);
+                            ConnectUserDatabaseUtil.storeUser(context, user);
                         }
                     } catch (IOException | JSONException e) {
                         Logger.exception("Parsing return from OTP request", e);

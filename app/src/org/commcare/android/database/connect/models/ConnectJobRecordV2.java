@@ -4,9 +4,12 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.CrashUtil;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import static org.javarosa.core.services.Logger.log;
 
 /**
  * Data class for holding info related to a Connect job
@@ -32,11 +35,12 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
     public static final String META_BUDGET_PER_VISIT = "budget_per_visit";
     public static final String META_BUDGET_TOTAL = "total_budget";
     public static final String META_LAST_WORKED_DATE = "last_worked";
+
     public static final String META_STATUS = "status";
     public static final String META_LEARN_MODULES = "total_modules";
     public static final String META_COMPLETED_MODULES = "completed_modules";
 
-    public static final String META_DELIVERY_PROGRESS = "deliver_progress";
+    public static final String META_DELIVERY_PROGRESS = "delivery_progress";
     public static final String META_CURRENCY = "currency";
     public static final String META_ACCRUED = "payment_accrued";
     public static final String META_SHORT_DESCRIPTION = "short_description";
@@ -103,27 +107,95 @@ public class ConnectJobRecordV2 extends Persisted implements Serializable {
 
     }
 
-    public int getJobId() { return jobId; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getShortDescription() { return shortDescription; }
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
-    public int getCompletedVisits() { return completedVisits; }
-    public int getMaxVisits() { return maxVisits; }
-    public int getMaxDailyVisits() { return maxDailyVisits; }
-    public int getBudgetPerVisit() { return budgetPerVisit; }
-    public Date getProjectEndDate() { return projectEndDate; }
-    public int getPaymentAccrued() { return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0; }
-    public String getCurrency() { return currency; }
-    public int getNumLearningModules() { return numLearningModules; }
+    public int getJobId() {
+        return jobId;
+    }
 
-    public Date getLastUpdate() { return lastUpdate; }
+    public String getTitle() {
+        return title;
+    }
 
-    public Date getLastLearnUpdate() { return lastLearnUpdate; }
-    public Date getLastDeliveryUpdate() { return lastDeliveryUpdate; }
-    public String getOrganization() { return organization; }
-    public int getTotalBudget() { return totalBudget; }
-    public Date getLastWorkedDate() { return lastWorkedDate; }
-    public int getLearningModulesCompleted() { return learningModulesCompleted; }
+    public String getDescription() {
+        return description;
+    }
+
+    public String getShortDescription() {
+        return shortDescription;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getCompletedVisits() {
+        return completedVisits;
+    }
+
+    public int getMaxVisits() {
+        return maxVisits;
+    }
+
+    public int getMaxDailyVisits() {
+        return maxDailyVisits;
+    }
+
+    public int getBudgetPerVisit() {
+        return budgetPerVisit;
+    }
+
+    public Date getProjectEndDate() {
+        return projectEndDate;
+    }
+
+    public int getPaymentAccrued() {
+        if (paymentAccrued == null || paymentAccrued.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(paymentAccrued);
+        } catch (NumberFormatException e) {
+            log("Invalid format for paymentAccrued: " + paymentAccrued, e.getMessage());
+            return 0;
+        }
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public int getNumLearningModules() {
+        return numLearningModules;
+    }
+
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public Date getLastLearnUpdate() {
+        return lastLearnUpdate;
+    }
+
+    public Date getLastDeliveryUpdate() {
+        return lastDeliveryUpdate;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public int getTotalBudget() {
+        return totalBudget;
+    }
+
+    public Date getLastWorkedDate() {
+        return lastWorkedDate;
+    }
+
+    public int getLearningModulesCompleted() {
+        return learningModulesCompleted;
+    }
 }

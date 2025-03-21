@@ -16,8 +16,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -146,7 +146,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {
         job.setStatus(ConnectJobRecord.STATUS_DELIVERING);
-        ConnectDatabaseHelper.upsertJob(getContext(), job);
+        ConnectJobUtils.upsertJob(getContext(), job);
 
         CommCareApplication.instance().closeUserSession();
 

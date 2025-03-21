@@ -20,8 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 import org.commcare.services.CommCareFirebaseMessagingService;
 
@@ -48,7 +49,7 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
-        ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
         getActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
@@ -147,7 +148,7 @@ public class ConnectMessageFragment extends Fragment {
 
             binding.etMessage.setText("");
 
-            ConnectDatabaseHelper.storeMessagingMessage(requireContext(), message);
+            ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
             refreshUi();
 
             MessageManager.sendMessage(requireContext(), message, success -> {
@@ -168,7 +169,7 @@ public class ConnectMessageFragment extends Fragment {
     public void refreshUi() {
         Context context = getContext();
         if(context != null) {
-            List<ConnectMessagingMessageRecord> messages = ConnectDatabaseHelper.getMessagingMessagesForChannel(context, channelId);
+            List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesForChannel(context, channelId);
 
             List<ConnectMessageChatData> chats = new ArrayList<>();
             for (ConnectMessagingMessageRecord message : messages) {
@@ -181,7 +182,7 @@ public class ConnectMessageFragment extends Fragment {
 
                 if (!message.getUserViewed()) {
                     message.setUserViewed(true);
-                    ConnectDatabaseHelper.storeMessagingMessage(context, message);
+                    ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
                 }
             }
 
