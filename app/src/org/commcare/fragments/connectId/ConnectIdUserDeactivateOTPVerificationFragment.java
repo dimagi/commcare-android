@@ -1,9 +1,5 @@
 package org.commcare.fragments.connectId;
 
-import static android.app.Activity.RESULT_OK;
-
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -12,18 +8,11 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
-
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.SMSBroadcastReceiver;
-import org.commcare.connect.SMSListener;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -41,8 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,7 +41,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     private String primaryPhone;
     private String username;
     private String password;
-    private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
 
     private ScreenConnectUserDeactivateOtpVerifyBinding binding;
@@ -111,9 +97,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         binding.connectPhoneVerifyButton.setEnabled(false);
         getActivity().setTitle(getString(R.string.connect_verify_phone_title));
         buttonEnabled("");
-        SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
-        client.startSmsUserConsent(null);
-
 
         if (getArguments() != null) {
             int method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmnetArgs.fromBundle(getArguments()).getMethod()));
@@ -172,61 +155,12 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        registerBrodcastReciever();
-
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQ_USER_CONSENT && (resultCode == RESULT_OK) && data != null) {
-            String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
-            getOtpFromMessage(message);
-
-        }
-    }
-
-    private void getOtpFromMessage(String message) {
-        Pattern otpPattern = Pattern.compile("(|^)\\d{6}");
-        Matcher matcher = otpPattern.matcher(message);
-        if (matcher.find()) {
-            binding.connectPhoneVerifyCode.setText(matcher.group(0));
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         requestInputFocus();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        try {
-            requireActivity().unregisterReceiver(smsBroadcastReceiver);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void registerBrodcastReciever() {
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
-
-        smsBroadcastReceiver.smsListener = new SMSListener() {
-            @Override
-            public void onSuccess(Intent intent) {
-                startActivityForResult(intent, REQ_USER_CONSENT);
-            }
-        };
-
-        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
     }
 
     public void setErrorMessage(String message) {

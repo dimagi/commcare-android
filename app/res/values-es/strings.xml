@@ -148,7 +148,7 @@
     <string name="form_scan_finished">Escaneo del formulario completado</string>
     <string name="access_error">"Error mientras accediendo a %s: "</string>
     <string name="manifest_server_error">Respuesta del manifiesto no reporta una version de OpenRosa -- servidor malo?</string>
-    <string name="root_element_error">Elemento root no es &amp;lt;manifiesto\&gt; -- fue %s</string>
+    <string name="root_element_error">Elemento root no es &lt;manifest\&gt; -- fue %s</string>
     <string name="root_namespace_error">El elemento de root Namespace esta incorrecto: %s</string>
     <string name="manifest_tag_error">Al manifiesto %s le fatan una o mas etiquetas: filename, hash, or downloadUrl</string>
     <string name="form_download_progress">%1$s. Obteniendo los archivos: %2$s of %3$s</string>
