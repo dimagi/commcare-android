@@ -464,6 +464,13 @@
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
+    <!--    Entity List Progresss Indicators-->
+    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
+    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
+    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
+    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+
     <!-- ConnectID strings -->
     <string name="choice_or">_____________    OR    _____________</string>
     <string name="connect_registration_title">ConnectID Signup</string>

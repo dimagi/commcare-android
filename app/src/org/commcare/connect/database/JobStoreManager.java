@@ -8,9 +8,7 @@ import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRec
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.services.Logger;
-
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class JobStoreManager {
 
@@ -18,7 +16,6 @@ public class JobStoreManager {
     private final SqlStorage<ConnectAppRecord> appInfoStorage;
     private final SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage;
     private final SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage;
-    private final ReentrantLock lock = new ReentrantLock();
 
     public JobStoreManager(Context context) {
         this.jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
@@ -27,11 +24,10 @@ public class JobStoreManager {
         this.paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectPaymentUnitRecord.class);
     }
 
-    public int getCompositeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
-        lock.lock();
+    public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
         try {
             ConnectDatabaseHelper.connectDatabase.beginTransaction();
-            List<ConnectJobRecord> existingList = getJobs(context, -1, jobStorage);
+            List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
 
             if (pruneMissing) {
                 pruneOldJobs(existingList, jobs);
@@ -44,7 +40,6 @@ public class JobStoreManager {
             throw e;
         } finally {
             ConnectDatabaseHelper.connectDatabase.endTransaction();
-            lock.unlock();
         }
     }
 
@@ -100,7 +95,6 @@ public class JobStoreManager {
     }
 
     private boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
-        lock.lock();
         try {
             // Check if the job already exists
             boolean isExisting = false;
@@ -129,8 +123,6 @@ public class JobStoreManager {
         } catch (Exception e) {
             Logger.exception("Error storing or updating job: " + job.getTitle(), e);
             throw e;
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -219,7 +211,7 @@ public class JobStoreManager {
         }
     }
 
-    private List<ConnectJobRecord> getJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
+    private List<ConnectJobRecord> getCompositeJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
         // Placeholder for job retrieval logic
         return ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
     }
