@@ -563,8 +563,7 @@ tasks.configureEach { task ->
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
-    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest' ||
-            task.name == 'connectedCommcareReleaseAndroidTest' || task.name == 'connectedCommcareDebugAndroidTest') {
+    if (isInstrumentationTestTask(task)) {
         android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }
@@ -646,4 +645,9 @@ def getConsumerAppPassword(isConsumerApp) {
 downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
+}
+
+static def isInstrumentationTestTask(task){
+    def instrumentationTestTaskNamePattern = /^(assemble|connected).*AndroidTest/
+    return task.name ==~ instrumentationTestTaskNamePattern
 }
