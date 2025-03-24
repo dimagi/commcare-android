@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectId;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -53,6 +54,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     private static final String KEY_METHOD = "method";
     private static final String KEY_CALLING_CLASS = "calling_class";
     private PhoneNumberHelper phoneNumberHelper;
+    private Activity activity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,9 +62,11 @@ public class ConnectIdPhoneFragment extends Fragment {
         // Inflate the layout for getContext() fragment
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
 
-        requireActivity().setTitle(getString(R.string.connect_phone_page_title));
+        activity=requireActivity();
 
-        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
+        activity.setTitle(getString(R.string.connect_phone_page_title));
+
+        phoneNumberHelper = new PhoneNumberHelper(activity);
 
         setLisetner();
         setArguments();
@@ -80,7 +84,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneTitle.setText(title);
         binding.connectPrimaryPhoneMessage.setText(message);
         displayNumber(existing);
-        requireActivity().setTitle(R.string.connect_phone_title_primary);
+        activity.setTitle(R.string.connect_phone_title_primary);
         return binding.getRoot();
     }
 
@@ -90,7 +94,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
         checkPhoneNumber();
 
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPrimaryPhoneInput);
+        KeyboardHelper.showKeyboardOnInput(getActivity(), binding.connectPrimaryPhoneInput);
     }
 
     @Override
@@ -176,7 +180,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                 if (success) {
-                    ((ConnectIdActivity)requireActivity()).recoverPhone = phone;
+                    ((ConnectIdActivity)activity).recoverPhone = phone;
                     directions = ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                 }
             }
@@ -204,7 +208,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     }
 
     private void displayNumber(String fullNumber) {
-        int code = phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
+        int code = phoneNumberHelper.getCountryCodeFromLocale(activity);
         if (fullNumber != null && fullNumber.length() > 0) {
             code = phoneNumberHelper.getCountryCode(fullNumber);
         }

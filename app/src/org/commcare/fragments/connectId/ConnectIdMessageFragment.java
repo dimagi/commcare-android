@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectId;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -121,12 +122,13 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
 
     private void finish(boolean success, boolean secondButton) {
         NavDirections directions = null;
-        ConnectIdActivity connectIdActivity= (ConnectIdActivity)requireActivity();
+        Activity activity=requireActivity();
+        ConnectIdActivity connectIdActivity= (ConnectIdActivity)activity;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
                 if (success) {
-                    successFlow();
+                    successFlow(activity);
                 }
                 break;
             //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
@@ -147,11 +149,11 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_SUCCESS:
-                successFlow();
+                successFlow(activity);
                 break;
             case ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL:
                 if (success) {
-                    SettingsHelper.launchSecuritySettings(requireActivity());
+                    SettingsHelper.launchSecuritySettings(activity);
                 } else {
                     directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                 }
@@ -232,7 +234,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (success) {
                     if (!secondButton) {
                         ConnectIDManager.forgetUser(AnalyticsParamValue.FORGOT_USER_REASON_2);
-                        requireActivity().finish();
+                        activity.finish();
                     }
                 }
                 break;
@@ -244,10 +246,10 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private void successFlow(){
+    private void successFlow(Activity activity){
         ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-        requireActivity().setResult(RESULT_OK);
-        requireActivity().finish();
+        activity.setResult(RESULT_OK);
+        activity.finish();
     }
 }

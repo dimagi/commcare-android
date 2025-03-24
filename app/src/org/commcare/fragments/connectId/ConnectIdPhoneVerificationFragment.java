@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectId;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -85,6 +86,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     private static final String KEY_RECOVERY_PHONE = "recovery_phone";
     private static final String KEY_DEACTIVATE_BUTTON = "deactivate_button";
     private static final String KEY_CALLING_CLASS = "calling_class";
+    private Activity activity;
 
 
     private final Handler taskHandler = new android.os.Handler();
@@ -127,6 +129,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         // Inflate the layout for requireActivity() fragment
         binding = ScreenConnectPhoneVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        activity=requireActivity();
         getArgument();
         binding.connectPhoneVerifyButton.setEnabled(false);
         buttonEnabled("");
@@ -143,7 +146,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
         setListener();
 
-        requireActivity().setTitle(R.string.connect_verify_phone_title);
+        activity.setTitle(R.string.connect_verify_phone_title);
         return view;
     }
 
@@ -249,7 +252,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     public void onPause() {
         super.onPause();
         try {
-            requireActivity().unregisterReceiver(smsBroadcastReceiver);
+            activity.unregisterReceiver(smsBroadcastReceiver);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -268,9 +271,9 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
         IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter,RECEIVER_NOT_EXPORTED);
+            activity.registerReceiver(smsBroadcastReceiver, intentFilter,RECEIVER_NOT_EXPORTED);
         }else{
-            requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
+            activity.registerReceiver(smsBroadcastReceiver, intentFilter);
         }
     }
 
@@ -286,7 +289,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     }
 
     private void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.customOtpView);
+        KeyboardHelper.showKeyboardOnInput(activity, binding.customOtpView);
     }
 
     private void setResendEnabled(boolean enabled) {
@@ -375,16 +378,16 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         boolean isBusy;
         switch (method) {
             case MethodRecoveryPrimary -> {
-                ApiConnectId.requestRecoveryOtpPrimary(requireActivity(), username, callback);
+                ApiConnectId.requestRecoveryOtpPrimary(activity, username, callback);
             }
             case MethodRecoveryAlternate -> {
-                ApiConnectId.requestRecoveryOtpSecondary(requireActivity(), username, password, callback);
+                ApiConnectId.requestRecoveryOtpSecondary(activity, username, password, callback);
             }
             case MethodVerifyAlternate -> {
-                ApiConnectId.requestVerificationOtpSecondary(requireActivity(), username, password, callback);
+                ApiConnectId.requestVerificationOtpSecondary(activity, username, password, callback);
             }
             default -> {
-                ApiConnectId.requestRegistrationOtpPrimary(requireActivity(), username, password, callback);
+                ApiConnectId.requestRegistrationOtpPrimary(activity, username, password, callback);
             }
         }
     }
@@ -407,7 +410,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                             finish(true, false, null);
                         }
                         case MethodVerifyAlternate -> {
-                            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(requireActivity().getApplicationContext());
+                            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(activity.getApplicationContext());
                             user.setSecondaryPhoneVerified(true);
                             ConnectUserDatabaseUtil.storeUser(context, user);
 
@@ -471,13 +474,13 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                 ApiConnectId.confirmRecoveryOtpPrimary(getActivity(), username, password, token, callback);
             }
             case MethodRecoveryAlternate -> {
-                ApiConnectId.confirmRecoveryOtpSecondary(requireActivity(), username, password, token, callback);
+                ApiConnectId.confirmRecoveryOtpSecondary(activity, username, password, token, callback);
             }
             case MethodVerifyAlternate -> {
-                ApiConnectId.confirmVerificationOtpSecondary(requireActivity(), username, password, token, callback);
+                ApiConnectId.confirmVerificationOtpSecondary(activity, username, password, token, callback);
             }
             default -> {
-                ApiConnectId.confirmRegistrationOtpPrimary(requireActivity(), username, password, token, callback);
+                ApiConnectId.confirmRegistrationOtpPrimary(activity, username, password, token, callback);
             }
         }
     }
@@ -504,12 +507,12 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
             @Override
             public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(requireActivity().getApplicationContext());
+                ConnectNetworkHelper.showNetworkError(activity.getApplicationContext());
             }
 
             @Override
             public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(requireActivity().getApplicationContext());
+                ConnectNetworkHelper.showOutdatedApiError(activity.getApplicationContext());
             }
         });
     }
@@ -530,10 +533,11 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     private void finish(boolean success, boolean changeNumber, String secondaryPhone) {
         stopHandler();
+        ConnectIdActivity refrenceActivity = (ConnectIdActivity)activity;
         if (method == MethodRecoveryPrimary) {
-            ((ConnectIdActivity)requireActivity()).recoverSecret = password;
+            (refrenceActivity).recoverSecret = password;
             if (secondaryPhone != null) {
-                ((ConnectIdActivity)requireActivity()).recoveryAltPhone = secondaryPhone;
+                (refrenceActivity).recoveryAltPhone = secondaryPhone;
             }
         }
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
@@ -555,14 +559,14 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                     if (changeNumber) {
                         directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     }else{
-                        ((ConnectIdActivity)requireActivity()).recoveryAltPhone = secondaryPhone;
-                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverSecret).setRecover(true).setChange(false);
-                        if (((ConnectIdActivity)requireActivity()).forgotPin) {
-                            if (((ConnectIdActivity)requireActivity()).forgotPassword) {
+                        (refrenceActivity).recoveryAltPhone = secondaryPhone;
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, (refrenceActivity).recoverPhone, (refrenceActivity).recoverSecret).setRecover(true).setChange(false);
+                        if ((refrenceActivity).forgotPin) {
+                            if ((refrenceActivity).forgotPassword) {
                                 directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, username, password);
 
                             } else {
-                                directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPassword(((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
+                                directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPassword((refrenceActivity).recoverPhone, (refrenceActivity).recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
                             }
                         }
                     }
@@ -571,32 +575,32 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE -> {
                 if (success) {
                     if (!deactivateButton) {
-                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverSecret).setRecover(true).setChange(true);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, (refrenceActivity).recoverPhone, (refrenceActivity).recoverSecret).setRecover(true).setChange(true);
                     } else {
                         directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify(ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragment.MethodUserDeactivate), ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, password, "", false).setAllowChange(false);
+                                ConnectIdPhoneVerificationFragment.MethodUserDeactivate), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, password, "", false).setAllowChange(false);
                     }
                 } else {
                     directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, "", "", false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, "", "", false).setAllowChange(false);
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
                 if (success) {
                     ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                    requireActivity().setResult(RESULT_OK);
-                    requireActivity().finish();
+                    activity.setResult(RESULT_OK);
+                    activity.finish();
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE -> {
                 if (success) {
                     user.setSecondaryPhoneVerified(true);
-                    ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
+                    ConnectUserDatabaseUtil.storeUser(activity, user);
                     ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                    requireActivity().setResult(RESULT_OK);
-                    requireActivity().finish();
+                    activity.setResult(RESULT_OK);
+                    activity.finish();
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE -> {

@@ -52,15 +52,17 @@ public class ConnectIDSignupFragment extends Fragment {
     private FragmentSignupBinding binding;
     private boolean showhPhoneDialog = true;
     PhoneNumberHelper phoneNumberHelper;
+    private Activity activity;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSignupBinding.inflate(inflater, container, false);
+        activity=requireActivity();
         View view = binding.getRoot();
-        requireActivity().setTitle(getString(R.string.connect_registration_title));
-        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
+        activity.setTitle(getString(R.string.connect_registration_title));
+        phoneNumberHelper = new PhoneNumberHelper(activity);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
         setArguments();
@@ -88,7 +90,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && showhPhoneDialog) {
-                phoneNumberHelper.requestPhoneNumberHint(phoneNumberHintLauncher, requireActivity());
+                phoneNumberHelper.requestPhoneNumberHint(phoneNumberHintLauncher, activity);
                 showhPhoneDialog = false;
             }
         };
@@ -145,7 +147,7 @@ public class ConnectIDSignupFragment extends Fragment {
                         Intent data = result.getData();
                         String phoneNumber;
                         try {
-                            phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
+                            phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(data);
                             displayNumber(phoneNumber);
                         } catch (ApiException e) {
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
@@ -203,7 +205,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void displayNumber(String fullNumber) {
-        int code = phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
+        int code = phoneNumberHelper.getCountryCodeFromLocale(activity);
         if (fullNumber != null && fullNumber.length() > 0) {
             code = phoneNumberHelper.getCountryCode(fullNumber);
         }
@@ -307,7 +309,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                            ((ConnectIdActivity)requireActivity()).recoverPhone = phone;
+                            ((ConnectIdActivity)activity).recoverPhone = phone;
                             NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         }
@@ -335,7 +337,7 @@ public class ConnectIDSignupFragment extends Fragment {
                 binding.nameTextValue.getText().toString(), "");
 
         final Context context = getActivity();
-        ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
+        ApiConnectId.registerUser(activity, tempUser.getUserId(), tempUser.getPassword(),
                 tempUser.getName(), phoneNo, new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {

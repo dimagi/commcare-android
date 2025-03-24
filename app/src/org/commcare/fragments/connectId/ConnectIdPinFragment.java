@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectId;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
@@ -63,7 +64,7 @@ public class ConnectIdPinFragment extends Fragment {
     private static final String KEY_CALLING_CLASS = "calling_class";
     private static final String KEY_RECOVERY = "is_recovery";
     private static final String KEY_CHANGING = "is_changing";
-
+    Activity activity;
     int titleId;
 
     TextWatcher watcher = new TextWatcher() {
@@ -98,6 +99,8 @@ public class ConnectIdPinFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
+        activity = requireActivity();
+
         checkPin();
         clearPinFields();
         getArgument();
@@ -120,7 +123,7 @@ public class ConnectIdPinFragment extends Fragment {
 
         binding.forgotButton.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
 
-        requireActivity().setTitle(getString(titleId));
+        activity.setTitle(getString(titleId));
         return view;
     }
 
@@ -131,7 +134,7 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
     private void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(requireActivity(), binding.connectPinInput);
+        KeyboardHelper.showKeyboardOnInput(activity, binding.connectPinInput);
     }
 
     private void clearPinFields() {
@@ -364,7 +367,7 @@ public class ConnectIdPinFragment extends Fragment {
     private void finish(boolean success, boolean forgot, String pin) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
-        ConnectIdActivity connectIdActivity= (ConnectIdActivity)requireActivity();
+        ConnectIdActivity connectIdActivity= (ConnectIdActivity)activity;
 
         switch (callingClass) {
             case ConnectConstants.CONNECT_UNLOCK_PIN -> {
@@ -378,8 +381,8 @@ public class ConnectIdPinFragment extends Fragment {
                         } else {
                             ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                            requireActivity().setResult(RESULT_OK);
-                            requireActivity().finish();
+                            activity.setResult(RESULT_OK);
+                            activity.finish();
                         }
                     }
                 } else {
@@ -443,7 +446,7 @@ public class ConnectIdPinFragment extends Fragment {
                     if (user != null) {
                         user.setPin(pin);
                         user.setLastPinDate(new Date());
-                        ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
+                        ConnectUserDatabaseUtil.storeUser(activity, user);
                     }
                     directions = ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null, phone, secret);
 
