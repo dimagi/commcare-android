@@ -47,7 +47,6 @@ import retrofit2.Response;
 public class ApiConnectId {
     private static final String API_VERSION_NONE = null;
     public static final String API_VERSION_CONNECT_ID = "1.0";
-    private static final int NETWORK_ACTIVITY_ID = 7000;
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
@@ -182,7 +181,7 @@ public class ApiConnectId {
             Handler handler = new Handler(context.getMainLooper());
             handler.post(() -> {
                 try {
-                    ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+                    ((CommCareActivity<?>)context).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID);
                 } catch (Exception e) {
                     //Ignore, ok if showing fails
                 }
@@ -194,7 +193,7 @@ public class ApiConnectId {
         if (context instanceof CommCareActivity<?>) {
             Handler handler = new Handler(context.getMainLooper());
             handler.post(() -> {
-                ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+                ((CommCareActivity<?>)context).dismissProgressDialogForTask(ConnectConstants.NETWORK_ACTIVITY_ID);
             });
         }
     }

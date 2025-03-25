@@ -73,7 +73,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     private String password;
     private String recoveryPhone;
     private boolean deactivateButton;
-    private boolean allowChange;
     private int callingClass;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
@@ -159,7 +158,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         if (getArguments() != null) {
             method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
             primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
-            allowChange = (ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getAllowChange());
             username = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
             password = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
             recoveryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getSecondaryPhone();
@@ -197,7 +195,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         outState.putString(KEY_PHONE, primaryPhone);
         outState.putInt(KEY_METHOD, method);
         outState.putInt(KEY_CALLING_CLASS, callingClass);
-        outState.putBoolean(KEY_ALLOWCHANGE, allowChange);
         outState.putString(KEY_USERNAME, username);
         outState.putString(KEY_PASSWORD, password);
         outState.putString(KEY_RECOVERY_PHONE, recoveryPhone);
@@ -209,7 +206,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
             method = savedInstanceState.getInt(KEY_METHOD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
-            allowChange = savedInstanceState.getBoolean(KEY_ALLOWCHANGE);
             username = savedInstanceState.getString(KEY_USERNAME);
             password = savedInstanceState.getString(KEY_PASSWORD);
             recoveryPhone = savedInstanceState.getString(KEY_RECOVERY_PHONE);
@@ -238,7 +234,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        binding.connectPhoneVerifyChange.setVisibility(allowChange ? View.VISIBLE : View.GONE);
+        binding.connectPhoneVerifyChange.setVisibility(callingClass==ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE ? View.VISIBLE : View.GONE);
         requestInputFocus();
     }
 
@@ -577,12 +573,11 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                     if (!deactivateButton) {
                         directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, (refrenceActivity).recoverPhone, (refrenceActivity).recoverSecret).setRecover(true).setChange(true);
                     } else {
-                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify(ConnectConstants.CONNECT_VERIFY_USER_DEACTIVATE, String.format(Locale.getDefault(), "%d",
-                                ConnectIdPhoneVerificationFragment.MethodUserDeactivate), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, password, "", false).setAllowChange(false);
+                        directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify( (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, password);
                     }
                 } else {
                     directions = ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, "", "", false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, "", "", false);
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {

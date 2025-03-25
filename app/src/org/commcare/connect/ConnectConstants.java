@@ -9,6 +9,7 @@ public class ConnectConstants {
     public static final int CONNECT_ID_TASK_ID_OFFSET = 1000;
     public final static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final int CONNECTID_REQUEST_CODE = 1034;
+    public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
     public static final String PIN = "PIN";

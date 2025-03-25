@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.checkerframework.checker.units.qual.A;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
@@ -51,7 +50,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     private static final int MaxFailures = 3;
     private int failureCount = 0;
     // Added keys for state restoration
-    private static final String KEY_FAILURE_COUNT = "failure_count";
+    private static final String KEY_CALLING_CLASS = "calling_class";
     private static final String KEY_PHONE = "phone";
     private static final String KEY_SECRET_KEY = "secret_key";
     private ScreenConnectPasswordVerifyBinding binding;
@@ -87,14 +86,14 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_FAILURE_COUNT, failureCount);
+        outState.putInt(KEY_CALLING_CLASS, callingClass);
         outState.putString(KEY_PHONE, phone);
         outState.putString(KEY_SECRET_KEY, secretKey);
     }
 
     private void getSavedState(Bundle savedInstanceState){
         if (savedInstanceState != null) {
-            failureCount = savedInstanceState.getInt(KEY_FAILURE_COUNT);
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
             phone = savedInstanceState.getString(KEY_PHONE);
             secretKey = savedInstanceState.getString(KEY_SECRET_KEY);
         }
@@ -117,7 +116,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null,false).setAllowChange(false);
+                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null,false);
                 }
                 break;
             case ConnectConstants.CONNECT_UNLOCK_PASSWORD:

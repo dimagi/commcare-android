@@ -47,6 +47,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
+
             android:layout_marginBottom="16dp"
             android:text="@string/choose_a_6_digit_recovery_code"
             android:textColor="@color/connect_subtext"

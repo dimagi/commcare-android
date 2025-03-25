@@ -52,7 +52,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     private String password;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
-    private int resendLimitMinutes = 2;
     private ScreenConnectUserDeactivateOtpVerifyBinding binding;
 
     private static final String KEY_USER_NAME = "user_name";
@@ -69,6 +68,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             int secondsToReset = -1;
             if (smsTime != null) {
                 double elapsedMinutes = ((new DateTime()).getMillis() - smsTime.getMillis()) / 60000.0;
+                int resendLimitMinutes = 2;
                 double minutesRemaining = resendLimitMinutes - elapsedMinutes;
                 if (minutesRemaining > 0) {
                     secondsToReset = (int) Math.ceil(minutesRemaining * 60);

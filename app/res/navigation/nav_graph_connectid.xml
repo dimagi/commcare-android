@@ -85,10 +85,6 @@
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:name="allowChange"
-            android:defaultValue="true"
-            app:argType="boolean" />
-        <argument
             android:name="username"
             app:argType="string"
             app:nullable="true" />
@@ -310,10 +306,6 @@
         <argument
             android:name="method"
             app:argType="string" />
-        <argument
-            android:name="phone"
-            app:argType="string"
-            app:nullable="true" />
     </fragment>
 
     <fragment
@@ -359,21 +351,9 @@
             android:id="@+id/action_connectid_user_deactivate_otp_verify_to_connectid_message"
             app:destination="@id/connectid_message" />
         <argument
-            android:name="callingClass"
-            app:argType="integer"
-            app:nullable="false" />
-        <argument
-            android:name="method"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
             android:name="primaryPhone"
             app:argType="string"
             app:nullable="true" />
-        <argument
-            android:name="allowChange"
-            android:defaultValue="true"
-            app:argType="boolean" />
         <argument
             android:name="username"
             app:argType="string"
@@ -382,12 +362,5 @@
             android:name="password"
             app:argType="string"
             app:nullable="true" />
-        <argument
-            android:name="secondaryPhone"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="deactivateButton"
-            app:argType="boolean" />
     </fragment>
 </navigation>

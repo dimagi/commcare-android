@@ -30,10 +30,8 @@ import androidx.navigation.Navigation;
 
 public class ConnectIDSecondaryPhoneNumber extends Fragment {
     private String method;
-    private String existingPhone;
     private int callingClass;
     private PhoneNumberHelper phoneNumberHelper;
-    private static final String KEY_EXISTING_PHONE = "phone";
     private static final String KEY_METHOD = "method";
     private static final String KEY_CALLING_CLASS = "calling_class";
 
@@ -47,7 +45,6 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         getLoadState(savedInstanceState);
         setListener();
         method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
-        existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         phoneNumberHelper = new PhoneNumberHelper(requireActivity());
         String code = "+" + phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
@@ -60,14 +57,12 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_EXISTING_PHONE, existingPhone);
         outState.putInt(KEY_CALLING_CLASS, callingClass);
         outState.putString(KEY_METHOD, method);
     }
 
     private void getLoadState(Bundle savedInstanceState){
         if(savedInstanceState!=null) {
-            existingPhone = savedInstanceState.getString(KEY_EXISTING_PHONE);
             method = savedInstanceState.getString(KEY_METHOD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
         }
@@ -130,11 +125,11 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
-        String existing = user != null ? user.getPrimaryPhone() : existingPhone;
+        String existing = user.getPrimaryPhone();
         if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-            existing = user != null ? user.getAlternatePhone() : null;
+            existing = user.getAlternatePhone();
         }
-        if (user != null && existing != null && !existing.equals(phone)) {
+        if (existing != null && !existing.equals(phone)) {
             IApiCallback callback = new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
@@ -193,12 +188,12 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                 directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf( ConnectIdPhoneVerificationFragment.MethodVerifyAlternate),
-                         null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                         null, user.getUserId(), user.getPassword(), null,false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE,String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE,String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false);
                 } else {
                     directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }

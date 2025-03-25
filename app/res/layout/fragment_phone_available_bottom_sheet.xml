@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-              android:textStyle="bold"
+                android:textStyle="bold"
                 android:text="+91 7748962888"
                 android:textColor="@color/connect_secondary_text"
                 android:textSize="20sp"
