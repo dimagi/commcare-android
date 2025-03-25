@@ -61,14 +61,14 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         outState.putString(KEY_METHOD, method);
     }
 
-    private void getLoadState(Bundle savedInstanceState){
-        if(savedInstanceState!=null) {
+    private void getLoadState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
             method = savedInstanceState.getString(KEY_METHOD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
         }
     }
 
-    private void setListener(){
+    private void setListener() {
         binding.countryCode.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -118,7 +118,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     private void onContinuePress() {
-        if(getContext()==null){
+        if (getContext() == null) {
             return;
         }
         binding.continueButton.setEnabled(false);
@@ -159,10 +159,10 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
             //Update the phone number with the server
             if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-               ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
+                ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
                         null, phone, callback);
             } else {
-            ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
+                ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
                         existing, phone, callback);
             }
 
@@ -187,13 +187,13 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
-                directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf( ConnectIdPhoneVerificationFragment.MethodVerifyAlternate),
-                         null, user.getUserId(), user.getPassword(), null,false);
+                directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate),
+                        null, user.getUserId(), user.getPassword(), null, false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE,String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false);
+                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false);
                 } else {
                     directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }

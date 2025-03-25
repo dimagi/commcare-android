@@ -71,7 +71,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                 int resendLimitMinutes = 2;
                 double minutesRemaining = resendLimitMinutes - elapsedMinutes;
                 if (minutesRemaining > 0) {
-                    secondsToReset = (int) Math.ceil(minutesRemaining * 60);
+                    secondsToReset = (int)Math.ceil(minutesRemaining * 60);
                 }
             }
 
@@ -132,8 +132,8 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         outState.putLong(KEY_SMS_TIME, smsTime.getMillis());
     }
 
-    public void getLoadState(Bundle savedInstanceState){
-        if(savedInstanceState!=null) {
+    public void getLoadState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
             password = savedInstanceState.getString(KEY_PASSWORD);
             username = savedInstanceState.getString(KEY_USER_NAME);
@@ -154,7 +154,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         binding.connectPhoneVerifyButton.setEnabled(code.length() > 5);
     }
 
-    private void setListener(){
+    private void setListener() {
         binding.connectResendButton.setOnClickListener(arg0 -> requestSmsCode());
         binding.connectPhoneVerifyButton.setOnClickListener(arg0 -> verifySmsCode());
         binding.connectPhoneVerifyCode.addTextChangedListener(new TextWatcher() {
@@ -213,7 +213,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     private void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 
-        smsBroadcastReceiver.setSmsListener(  new SMSListener() {
+        smsBroadcastReceiver.setSmsListener(new SMSListener() {
             @Override
             public void onSuccess(Intent intent) {
                 startActivityForResult(intent, REQ_USER_CONSENT);
@@ -283,7 +283,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                     }
                 } catch (IOException e) {
                     Logger.exception("Parsing return from OTP request", e);
-                }catch (JSONException e){
+                } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -325,14 +325,14 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 logRecoveryResult(true);
-                    stopHandler();
-                    Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(
-                            ConnectIdUserDeactivateOTPVerificationFragmentDirections.actionConnectidUserDeactivateOtpVerifyToConnectidMessage(
-                                    getString(R.string.connect_deactivate_account),
-                                    getString(R.string.connect_deactivate_account_deactivated),
-                                    ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS,
-                                    getString(R.string.connect_deactivate_account_creation),
-                                    null, username, password));
+                stopHandler();
+                Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(
+                        ConnectIdUserDeactivateOTPVerificationFragmentDirections.actionConnectidUserDeactivateOtpVerifyToConnectidMessage(
+                                getString(R.string.connect_deactivate_account),
+                                getString(R.string.connect_deactivate_account_deactivated),
+                                ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS,
+                                getString(R.string.connect_deactivate_account_creation),
+                                null, username, password));
             }
 
             @Override

@@ -62,7 +62,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         // Inflate the layout for getContext() fragment
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
 
-        activity=requireActivity();
+        activity = requireActivity();
 
         activity.setTitle(getString(R.string.connect_phone_page_title));
 
@@ -105,7 +105,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         displayNumber(phone);
     }
 
-    private void setLisetner(){
+    private void setLisetner() {
         TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -122,7 +122,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         };
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                phoneNumberHelper.requestPhoneNumberHint(null,getActivity());
+                phoneNumberHelper.requestPhoneNumberHint(null, getActivity());
             }
         };
         binding.countryCode.setOnFocusChangeListener(listener);
@@ -132,7 +132,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneButton.setOnClickListener(v -> verifyPhone());
     }
 
-    private void setArguments(){
+    private void setArguments() {
         if (getArguments() != null) {
             method = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getMethod();
             existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
@@ -140,10 +140,10 @@ public class ConnectIdPhoneFragment extends Fragment {
         }
     }
 
-    private void getLoadState(Bundle outState){
-        existingPhone=outState.getString(KEY_PHONE);
-        method=outState.getString(KEY_METHOD);
-        callingClass=outState.getInt(KEY_CALLING_CLASS);
+    private void getLoadState(Bundle outState) {
+        existingPhone = outState.getString(KEY_PHONE);
+        method = outState.getString(KEY_METHOD);
+        callingClass = outState.getInt(KEY_CALLING_CLASS);
     }
 
     @Override
@@ -204,7 +204,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         if (directions == null) {
             throw new RuntimeException("Navigation directions is null. Unable to navigate.");
         }
-            Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
+        Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
 
     private void displayNumber(String fullNumber) {

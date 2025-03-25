@@ -31,7 +31,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_phone_available_bottom_sheet, container, false);
-        back = (Button) view.findViewById(R.id.back_button);
+        back = (Button)view.findViewById(R.id.back_button);
         recover = view.findViewById(R.id.recover_button);
         phoneTextView = view.findViewById(R.id.phone_number);
         if (getArguments() != null) {

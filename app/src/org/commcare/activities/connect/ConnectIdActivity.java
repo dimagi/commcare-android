@@ -43,7 +43,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
-            Fragment currentFragment=getCurrentFragment();
+            Fragment currentFragment = getCurrentFragment();
             if (currentFragment instanceof ConnectIdBiometricConfigFragment) {
                 currentFragment.onActivityResult(requestCode, resultCode, data);
             }
@@ -152,19 +152,20 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
             actionBar.setDisplayHomeAsUpEnabled(isBackEnabled());
         }
     }
+
     private void beginSecondaryPhoneVerification(Context parent) {
         NavDirections navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage
                 (parent.getString(R.string.connect_recovery_alt_title),
                         parent.getString(R.string.connect_recovery_alt_message),
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
                         parent.getString(R.string.connect_password_fail_button),
-                        parent.getString(R.string.connect_recovery_alt_change_button),null,null);
+                        parent.getString(R.string.connect_recovery_alt_change_button), null, null);
         controller.navigate(navDirections);
     }
 
     @Override
     public void onBackPressed() {
-            super.onBackPressed();
+        super.onBackPressed();
     }
 
 

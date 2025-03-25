@@ -63,8 +63,8 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         setButton2Text(button2Text);
     }
 
-    private void getLoadState(Bundle savedInstanceState){
-        if(savedInstanceState!=null) {
+    private void getLoadState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
             title = savedInstanceState.getString(KEY_TITLE);
             message = savedInstanceState.getString(KEY_MESSAGE);
             button2Text = savedInstanceState.getString(KEY_BUTTON2_TEXT);
@@ -85,7 +85,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         outState.putInt(KEY_CALLING_CLASS, callingClass);
     }
 
-    private void loadArguments(){
+    private void loadArguments() {
         title = org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getTitle();
         message = org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getMessage();
         callingClass = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getCallingClass();
@@ -110,8 +110,8 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
 
     private void finish(boolean success, boolean secondButton) {
         NavDirections directions = null;
-        Activity activity=requireActivity();
-        ConnectIdActivity connectIdActivity= (ConnectIdActivity)activity;
+        Activity activity = requireActivity();
+        ConnectIdActivity connectIdActivity = (ConnectIdActivity)activity;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
@@ -154,7 +154,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret).setRecover(true).setChange(true);
                     }
                 } else {
-                    directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), connectIdActivity.recoverPhone, connectIdActivity.recoverPhone, null, null,false);
+                    directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), connectIdActivity.recoverPhone, connectIdActivity.recoverPhone, null, null, false);
                 }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD:
@@ -168,7 +168,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf(
-                                ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false);
+                                ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false);
                     }
                 }
                 break;
@@ -177,7 +177,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (success) {
                     if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.valueOf(
-                                ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate), null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone,false);
+                                ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate), null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone, false);
                         ConnectIDManager.getInstance().setFailureAttempt(0);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret).setChange(false).setRecover(true);
@@ -199,7 +199,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
                     } else {
                         directions = ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.valueOf(
-                                ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false);
+                                ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false);
                     }
                 }
                 break;
@@ -231,7 +231,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private void successFlow(Activity activity){
+    private void successFlow(Activity activity) {
         ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
         activity.setResult(RESULT_OK);

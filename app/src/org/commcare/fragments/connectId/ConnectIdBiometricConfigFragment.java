@@ -48,6 +48,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
     public ConnectIdBiometricConfigFragment() {
         // Required empty public constructor
     }
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -55,6 +56,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         outState.putBoolean(KEY_ALLOW_PASSWORD, allowPassword);
         outState.putBoolean(KEY_ATTEMPTING_FINGERPRINT, attemptingFingerprint);
     }
+
     public static ConnectIdBiometricConfigFragment newInstance(String param1, String param2) {
         ConnectIdBiometricConfigFragment fragment = new ConnectIdBiometricConfigFragment();
         Bundle args = new Bundle();
@@ -93,7 +95,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         return view;
     }
 
-    private void loadSavedState(Bundle savedInstanceState){
+    private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             callingActivity = savedInstanceState.getInt(KEY_CALLING_ACTIVITY);
             allowPassword = savedInstanceState.getBoolean(KEY_ALLOW_PASSWORD);

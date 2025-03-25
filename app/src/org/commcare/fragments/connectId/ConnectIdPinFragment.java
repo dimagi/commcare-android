@@ -161,7 +161,7 @@ public class ConnectIdPinFragment extends Fragment {
         binding.connectPinButton.setEnabled(buttonEnabled);
     }
 
-    private void setOnClickListener(){
+    private void setOnClickListener() {
         TextWatcher watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -188,7 +188,7 @@ public class ConnectIdPinFragment extends Fragment {
 
     }
 
-    private void getArgument(){
+    private void getArgument() {
         if (getArguments() != null) {
             phone = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getPhone();
             secret = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getSecret();
@@ -208,8 +208,8 @@ public class ConnectIdPinFragment extends Fragment {
         outState.putBoolean(KEY_CHANGING, isChanging);
     }
 
-    private void getLoadState(Bundle savedInstanceState){
-        if(savedInstanceState!=null) {
+    private void getLoadState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
             phone = savedInstanceState.getString(KEY_PHONE);
             secret = savedInstanceState.getString(KEY_SECRET);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
@@ -285,7 +285,7 @@ public class ConnectIdPinFragment extends Fragment {
                             } catch (IOException e) {
                                 Logger.exception("Parsing return from OTP request", e);
                                 //TODO: Show toast about error
-                            }catch (JSONException e){
+                            } catch (JSONException e) {
                                 throw new RuntimeException(e);
                             }
                         }
@@ -366,7 +366,7 @@ public class ConnectIdPinFragment extends Fragment {
     private void finish(boolean success, boolean forgot, String pin) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
-        ConnectIdActivity connectIdActivity= (ConnectIdActivity)activity;
+        ConnectIdActivity connectIdActivity = (ConnectIdActivity)activity;
 
         switch (callingClass) {
             case ConnectConstants.CONNECT_UNLOCK_PIN -> {

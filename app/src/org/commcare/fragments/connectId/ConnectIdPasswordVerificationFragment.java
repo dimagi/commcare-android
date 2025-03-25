@@ -70,7 +70,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         View view = binding.getRoot();
         failureCount = 0;
         setArguments();
-        activity=requireActivity();
+        activity = requireActivity();
         binding.connectPasswordVerifyForgot.setOnClickListener(arg0 -> onForgotPasswordClick());
         binding.connectPasswordVerifyButton.setOnClickListener(arg0 -> onVerifyPasswordClick());
         activity.setTitle(R.string.connect_appbar_title_password_verification);
@@ -91,7 +91,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         outState.putString(KEY_SECRET_KEY, secretKey);
     }
 
-    private void getSavedState(Bundle savedInstanceState){
+    private void getSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
             phone = savedInstanceState.getString(KEY_PHONE);
@@ -99,7 +99,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         }
     }
 
-    private void setArguments(){
+    private void setArguments() {
         phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
         secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
         callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
@@ -116,7 +116,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                     }
                 } else {
                     directions = ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null,false);
+                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null, false);
                 }
                 break;
             case ConnectConstants.CONNECT_UNLOCK_PASSWORD:
@@ -189,8 +189,8 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
             ApiConnectId.checkPassword(activity, phone, secretKey, password, new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    String username ;
-                    String name ;
+                    String username;
+                    String name;
                     try {
                         String responseAsString = new String(
                                 StreamsUtil.inputStreamToByteArray(responseData));
@@ -212,7 +212,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                         }
                     } catch (IOException e) {
                         Logger.exception("Parsing return from OTP request", e);
-                    }catch (JSONException e){
+                    } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
 

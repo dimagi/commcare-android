@@ -93,7 +93,6 @@ public class ConnectIDManager {
     private ConnectJobRecord activeJob = null;
 
 
-
     //Singleton, private constructor
     private ConnectIDManager() {
         // Protect against reflection
@@ -239,17 +238,17 @@ public class ConnectIDManager {
     }
 
     public boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin, boolean loginManagedByConnectId) {
-        AtomicBoolean result= new AtomicBoolean(false);
-        if(isLoggedIN()) {
+        AtomicBoolean result = new AtomicBoolean(false);
+        if (isLoggedIN()) {
             completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = setConnectJobForApp(context, appId);
 
-            if(job != null) {
+            if (job != null) {
                 updateAppAccess(context, appId, username);
                 //Update job status
-               updateJobProgress(context, job, success -> {
-                   result.set(job.getIsUserSuspended());
+                updateJobProgress(context, job, success -> {
+                    result.set(job.getIsUserSuspended());
                 });
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login
@@ -277,7 +276,7 @@ public class ConnectIDManager {
         }
 
         ConnectUserDatabaseUtil.forgetUser(manager.parentActivity);
-        ConnectIdActivity connectIdActivity=new ConnectIdActivity();
+        ConnectIdActivity connectIdActivity = new ConnectIdActivity();
         connectIdActivity.reset();
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
     }
@@ -318,7 +317,7 @@ public class ConnectIDManager {
     }
 
     private void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
-        switch(getAppManagement(activity, appId, username)) {
+        switch (getAppManagement(activity, appId, username)) {
             case Unmanaged -> {
                 //ConnectID is NOT configured
                 boolean offerToLink = true;
@@ -565,7 +564,7 @@ public class ConnectIDManager {
 
     public ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
         ConnectAppRecord record = getAppRecord(context, appId);
-        if(record != null) {
+        if (record != null) {
             return ConnectAppMangement.Connect;
         }
 

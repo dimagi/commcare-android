@@ -59,7 +59,7 @@ public class ConnectIDSignupFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSignupBinding.inflate(inflater, container, false);
-        activity=requireActivity();
+        activity = requireActivity();
         View view = binding.getRoot();
         activity.setTitle(getString(R.string.connect_registration_title));
         phoneNumberHelper = new PhoneNumberHelper(activity);
@@ -281,7 +281,7 @@ public class ConnectIDSignupFragment extends Fragment {
         }
     }
 
-    private void callPhoneAvailableApi(String phone){
+    private void callPhoneAvailableApi(String phone) {
         ApiConnectId.checkPhoneAvailable(getContext(), phone,
                 new IApiCallback() {
                     @Override
@@ -359,7 +359,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         } catch (IOException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
-                        }catch (JSONException e){
+                        } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
 
