@@ -39,7 +39,7 @@ import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_login_button)
     private Button connectLoginButton;
     @UiElement(value = R.id.login_or)
-    private ConnectMediumTextView orLabel;
+    private TextView orLabel;
 
     protected final LoginActivity activity;
 

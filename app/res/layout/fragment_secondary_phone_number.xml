@@ -138,7 +138,8 @@
                                     android:textColorHint="@color/connect_grey" />
                             </LinearLayout>
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
+                android:textStyle="bold"
                                 android:id="@+id/errorTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

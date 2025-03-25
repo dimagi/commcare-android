@@ -5,12 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+
 
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
@@ -19,7 +20,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragment {
 
-    ConnectMediumTextView phoneTextView;
+    TextView phoneTextView;
     Button recover;
     Button back;
     String phoneNumber;

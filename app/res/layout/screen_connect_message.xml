@@ -25,7 +25,8 @@
                 android:textColor="@color/connect_subtext"
                 android:textSize="@dimen/text_larger" />
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
+                android:textStyle="bold"
                 android:id="@+id/connect_message_message"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

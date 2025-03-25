@@ -112,7 +112,8 @@
 
         </LinearLayout>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+                android:textStyle="bold"
             android:id="@+id/connect_phone_verify_error"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -122,7 +123,8 @@
             android:textSize="14sp"
             android:visibility="gone" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+                android:textStyle="bold"
             android:id="@+id/connect_phone_verify_resend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

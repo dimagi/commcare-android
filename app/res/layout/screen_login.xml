@@ -73,7 +73,8 @@
                             android:paddingRight="@dimen/login_box_margins"
                             android:paddingStart="@dimen/login_box_margins">
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
+                android:textStyle="bold"
                                 android:id="@+id/welcome_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -92,7 +93,8 @@
                                 android:text="@string/connect_button_logged_in"
                                 android:visibility="gone"/>
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
+                android:textStyle="bold"
                                 android:id="@+id/login_or"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

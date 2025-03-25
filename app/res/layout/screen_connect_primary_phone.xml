@@ -38,7 +38,8 @@
             android:textSize="16sp"
             android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+                android:textStyle="bold"
             android:id="@+id/connect_primary_phone_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -117,7 +118,8 @@
                         android:textColorHint="@color/connect_grey" />
                 </LinearLayout>
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
+                android:textStyle="bold"
                     android:id="@+id/errorTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -131,7 +133,8 @@
 
         </LinearLayout>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+                android:textStyle="bold"
             android:id="@+id/connect_primary_phone_availability"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

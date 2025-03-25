@@ -39,7 +39,8 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="18sp" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+                android:textStyle="bold"
             android:id="@+id/phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -143,7 +144,8 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+                android:textStyle="bold"
             android:id="@+id/connect_pin_error_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

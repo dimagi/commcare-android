@@ -158,7 +158,8 @@
                             android:textColorHint="@color/connect_grey" />
                     </LinearLayout>
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
+                android:textStyle="bold"
                         android:id="@+id/errorTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -192,7 +193,8 @@
                     android:textColor="@color/connect_subtext"
                     android:textSize="13sp" />
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
+                android:textStyle="bold"
                     android:id="@+id/checkText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -239,7 +241,8 @@
                 android:layout_margin="16dp"
                 android:gravity="center_vertical|center_horizontal">
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
+                android:textStyle="bold"
                     android:id="@+id/button_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
