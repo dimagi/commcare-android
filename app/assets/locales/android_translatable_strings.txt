@@ -466,6 +466,7 @@ recording.paused.due.another.app.recording.title=CommCare Audio Recording
 recording.paused.due.another.app.recording.message=Recording paused as another app started recording. Click here to resume the recording!
 recording.notification.title=Audio recording
 recording.notification.in.progress=Recording in progress...
+recording.notification.paused=Recording paused
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
