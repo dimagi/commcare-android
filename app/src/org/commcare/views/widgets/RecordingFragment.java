@@ -269,7 +269,8 @@ public class RecordingFragment extends DialogFragment {
         inPausedState = true;
         recordingDuration.stop();
         chronoPause();
-        recorder.pause();
+
+        audioRecordingService.pauseRecording();
         recordingProgress.setVisibility(View.INVISIBLE);
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
@@ -291,7 +292,8 @@ public class RecordingFragment extends DialogFragment {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resuming");
         inPausedState = false;
         chronoResume();
-        recorder.resume();
+
+        audioRecordingService.resumeRecording();
         recordingInProgress();
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resumed");
     }
