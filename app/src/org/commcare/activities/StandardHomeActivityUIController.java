@@ -66,8 +66,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         connectTile.setVisibility(View.GONE);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
-        updateConnectProgress();
-        updateJobTileDetails();
+        if(ConnectManager.isConnectIdConfigured()) {
+            updateConnectProgress();
+            updateJobTileDetails();
+        }
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(activity), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
@@ -107,70 +109,72 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private void updateOpportunityMessage() {
         String warningText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
-        if (record != null) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
-            if (job.isFinished()) {
-                warningText = activity.getString(R.string.connect_progress_warning_ended);
-            } else if (job.getProjectStartDate().after(new Date())) {
-                warningText = activity.getString(R.string.connect_progress_warning_not_started);
-            } else if(job.readyToTransitionToDelivery()) {
-                warningText = activity.getString(R.string.connect_progress_ready_for_transition_to_delivery);
-            } else if (job.isMultiPayment()) {
-                Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
-                Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
-                List<String> dailyMaxes = new ArrayList<>();
-                List<String> totalMaxes = new ArrayList<>();
-                for (int i = 0; i < job.getPaymentUnits().size(); i++) {
-                    ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
-                    String stringKey = Integer.toString(unit.getUnitId());
+        if(ConnectManager.isConnectIdConfigured()) {
+            ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+            if (record != null) {
+                ConnectJobRecord job = ConnectManager.getActiveJob();
+                if (job.isFinished()) {
+                    warningText = activity.getString(R.string.connect_progress_warning_ended);
+                } else if (job.getProjectStartDate().after(new Date())) {
+                    warningText = activity.getString(R.string.connect_progress_warning_not_started);
+                } else if (job.readyToTransitionToDelivery()) {
+                    warningText = activity.getString(R.string.connect_progress_ready_for_transition_to_delivery);
+                } else if (job.isMultiPayment()) {
+                    Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+                    Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+                    List<String> dailyMaxes = new ArrayList<>();
+                    List<String> totalMaxes = new ArrayList<>();
+                    for (int i = 0; i < job.getPaymentUnits().size(); i++) {
+                        ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+                        String stringKey = Integer.toString(unit.getUnitId());
 
-                    int totalCount = 0;
-                    if (totalPaymentCounts.containsKey(stringKey)) {
-                        totalCount = totalPaymentCounts.get(stringKey);
-                    }
-
-                    if (totalCount >= unit.getMaxTotal()) {
-                        //Reached max total for this type
-                        totalMaxes.add(unit.getName());
-                    } else {
-                        int todayCount = 0;
-                        if (todayPaymentCounts.containsKey(stringKey)) {
-                            todayCount = todayPaymentCounts.get(stringKey);
+                        int totalCount = 0;
+                        if (totalPaymentCounts.containsKey(stringKey)) {
+                            totalCount = totalPaymentCounts.get(stringKey);
                         }
 
-                        if (todayCount >= unit.getMaxDaily()) {
-                            //Reached daily max for this type
-                            dailyMaxes.add(unit.getName());
+                        if (totalCount >= unit.getMaxTotal()) {
+                            //Reached max total for this type
+                            totalMaxes.add(unit.getName());
+                        } else {
+                            int todayCount = 0;
+                            if (todayPaymentCounts.containsKey(stringKey)) {
+                                todayCount = todayPaymentCounts.get(stringKey);
+                            }
+
+                            if (todayCount >= unit.getMaxDaily()) {
+                                //Reached daily max for this type
+                                dailyMaxes.add(unit.getName());
+                            }
                         }
                     }
-                }
 
-                if (totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
-                    warningText = "";
-                    if (totalMaxes.size() > 0) {
-                        String maxes = String.join(", ", totalMaxes);
-                        warningText = activity.getString(R.string.connect_progress_warning_max_reached_multi, maxes);
-                    }
+                    if (totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
+                        warningText = "";
+                        if (totalMaxes.size() > 0) {
+                            String maxes = String.join(", ", totalMaxes);
+                            warningText = activity.getString(R.string.connect_progress_warning_max_reached_multi, maxes);
+                        }
 
-                    if (dailyMaxes.size() > 0) {
-                        String maxes = String.join(", ", dailyMaxes);
-                        warningText += activity.getString(R.string.connect_progress_warning_daily_max_reached_multi, maxes);
+                        if (dailyMaxes.size() > 0) {
+                            String maxes = String.join(", ", dailyMaxes);
+                            warningText += activity.getString(R.string.connect_progress_warning_daily_max_reached_multi, maxes);
+                        }
                     }
-                }
-            } else {
-                if (job.getDeliveries().size() >= job.getMaxVisits()) {
-                    warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
-                } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
-                    warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
+                } else {
+                    if (job.getDeliveries().size() >= job.getMaxVisits()) {
+                        warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
+                    } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
+                        warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
+                    }
                 }
             }
-        }
 
-        connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-        if (warningText != null) {
-            TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
-            tv.setText(warningText);
+            connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+            if (warningText != null) {
+                TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
+                tv.setText(warningText);
+            }
         }
     }
 
@@ -237,7 +241,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectManager.shouldShowJobStatus(context, ccApp.getUniqueId())) {
+        if (ConnectManager.isConnectIdConfigured() && !ConnectManager.shouldShowJobStatus(context, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
 

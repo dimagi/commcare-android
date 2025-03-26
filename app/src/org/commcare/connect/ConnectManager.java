@@ -586,14 +586,17 @@ public class ConnectManager {
     }
 
     public static ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
-        ConnectAppRecord record = getAppRecord(context, appId);
-        if(record != null) {
-            return ConnectAppMangement.Connect;
-        }
+        if (ConnectManager.isConnectIdConfigured()) {
+            ConnectAppRecord record = getAppRecord(context, appId);
+            if (record != null) {
+                return ConnectAppMangement.Connect;
+            }
 
-        return getCredentialsForApp(appId, userId) != null ?
-                ConnectAppMangement.ConnectId :
-                ConnectAppMangement.Unmanaged;
+            return getCredentialsForApp(appId, userId) != null ?
+                    ConnectAppMangement.ConnectId :
+                    ConnectAppMangement.Unmanaged;
+        }
+        return ConnectAppMangement.Unmanaged;
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
