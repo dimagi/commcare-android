@@ -412,7 +412,7 @@ public class RecordingFragment extends DialogFragment {
             @Override
             public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
                 super.onRecordingConfigChanged(configs);
-                if (recorder == null) {
+                if (audioRecordingService == null || !audioRecordingService.isRecorderActive()) {
                     return;
                 }
 
@@ -450,17 +450,17 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private boolean hasRecordingGoneSilent(List<AudioRecordingConfiguration> configs) {
-        if (recorder == null) {
+        if (audioRecordingService == null || !audioRecordingService.isRecorderActive()) {
             return false;
         }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            if (recorder.getActiveRecordingConfiguration() == null) {
+            if (audioRecordingService.getActiveRecordingConfiguration() == null) {
                 return false;
             }
 
             Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream().filter(config ->
-                            config.getClientAudioSessionId() == recorder.getActiveRecordingConfiguration()
+                            config.getClientAudioSessionId() == audioRecordingService.getActiveRecordingConfiguration()
                                     .getClientAudioSessionId())
                     .findAny();
             return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;

@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
+import android.media.AudioRecordingConfiguration;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaRecorder;
@@ -20,6 +21,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.IOException;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
@@ -137,5 +139,17 @@ public class AudioRecordingService extends Service {
         }
 
         return false;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public AudioRecordingConfiguration getActiveRecordingConfiguration() {
+        if (!isRecorderActive()) {
+            return null;
+        }
+        return recorder.getActiveRecordingConfiguration();
+    }
+
+    public boolean isRecorderActive(){
+        return recorder != null;
     }
 }
