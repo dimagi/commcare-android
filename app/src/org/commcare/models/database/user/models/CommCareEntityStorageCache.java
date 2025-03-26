@@ -18,13 +18,18 @@ import org.commcare.modern.database.TableBuilder;
 import org.commcare.modern.util.Pair;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
+import org.javarosa.core.services.Logger;
 
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
+
+import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_NORMAL_FIELD;
+import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_FIELD;
 
 /**
  * @author ctsims
@@ -183,6 +188,19 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                 .getInt(uuid + "_" + ENTITY_CACHE_WIPED_PREF_SUFFIX, -1);
     }
 
+    public int getFieldIdFromCacheKey(String detailId, String cacheKey) {
+        cacheKey = cacheKey.replace(TYPE_SORT_FIELD + "_", "");
+        cacheKey = cacheKey.replace(TYPE_NORMAL_FIELD + "_", "");
+        String intId = cacheKey.substring(detailId.length() + 1);
+        try {
+            return Integer.parseInt(intId);
+        } catch (NumberFormatException nfe) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Unable to parse cache key " + cacheKey);
+            //TODO: Kill this cache key if this didn't work
+            return -1;
+        }
+    }
+
     public void primeCache(Hashtable<String, AsyncEntity> entitySet, String[][] cachePrimeKeys,
                            Detail detail) {
         Vector<Integer> sortKeys = new Vector<>();
@@ -264,5 +282,9 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             }
         }
         walker.close();
+    }
+
+    public String getCacheKey(String detailId, String mFieldId, ValueType valueType) {
+        return valueType + "_" + detailId + "_" + mFieldId;
     }
 }

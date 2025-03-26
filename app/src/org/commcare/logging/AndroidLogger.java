@@ -82,9 +82,4 @@ public class AndroidLogger implements ILogger {
     public void halt() {
         //Meh.
     }
-
-    @Override
-    public void logException(Throwable e) {
-        CrashUtil.reportException(e);
-    }
 }

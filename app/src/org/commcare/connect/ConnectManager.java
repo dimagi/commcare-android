@@ -840,7 +840,7 @@ public class ConnectManager {
                             learningRecords.add(record);
                         }
                         job.setLearnings(learningRecords);
-                        job.setComletedLearningModules(learningRecords.size());
+                        job.setCompletedLearningModules(learningRecords.size());
 
                         key = "assessments";
                         JSONArray assessments = json.getJSONArray(key);
