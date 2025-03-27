@@ -59,7 +59,15 @@ public class AudioRecordingService extends Service {
 
     @Override
     public void onDestroy() {
+        resetRecording();
         this.stopForeground(true);
+    }
+
+    private void resetRecording(){
+        if (recorder != null) {
+            recorder.release();
+            recorder = null;
+        }
     }
 
     private Notification createNotification(boolean recordingRunning) {
@@ -182,5 +190,9 @@ public class AudioRecordingService extends Service {
         recorder.resume();
         notificationManager.notify(RecordingFragment.RECORDING_NOTIFICATION_ID,
                 createNotification(true));
+    }
+
+    public void stopRecording() {
+        recorder.stop();
     }
 }
