@@ -158,11 +158,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void resetRecordingView() {
-        if (recorder != null) {
-            recorder.release();
-            recorder = null;
-        }
-
         if (player != null) {
             resetAudioPlayer();
         }
@@ -252,10 +247,10 @@ public class RecordingFragment extends DialogFragment {
 
         // resume first just in case we were paused
         if (inPausedState) {
-            recorder.resume();
+            audioRecordingService.resumeRecording();
         }
 
-        recorder.stop();
+        audioRecordingService.stopRecording();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
         instruction.setText(Localization.get("after.recording"));
@@ -333,10 +328,6 @@ public class RecordingFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         enableScreenRotation((AppCompatActivity) getContext());
-        if (recorder != null) {
-            recorder.release();
-            this.recorder = null;
-        }
 
         if (player != null) {
             try {
