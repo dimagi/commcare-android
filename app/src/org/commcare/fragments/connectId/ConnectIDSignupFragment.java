@@ -175,7 +175,8 @@ public class ConnectIDSignupFragment extends Fragment {
             binding.checkText.setVisibility(View.GONE);
             binding.recoverButton.setOnClickListener(v -> handleSignupButtonPress());
             binding.phoneSubText.setVisibility(View.GONE);
-            binding.continueButton.setOnClickListener(v -> handleContinueButtonPress());
+            binding.continueButton.setOnClickListener(v ->
+                    handleContinueButtonPress());
 
         } else {
             binding.nameLayout.setVisibility(View.VISIBLE);
@@ -266,10 +267,11 @@ public class ConnectIDSignupFragment extends Fragment {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
                          ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
                          ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
-                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
+//                        if (existingPrimary != null && existingPrimary.equals(phone)) {
+//                            binding.errorTextView.setVisibility(View.GONE);
+//                            binding.errorTextView.setText("");
+//                        } else
+                            if (existingAlternate != null && existingAlternate.equals(phone)) {
                             binding.errorTextView.setVisibility(View.VISIBLE);
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
