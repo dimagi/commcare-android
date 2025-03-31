@@ -10,14 +10,12 @@ import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
     public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
-        if (ConnectManager.isConnectIdConfigured()) {
-            Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
-                    .getRecordsForValues(
-                            new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
-                            new Object[]{appId, username});
-            return records.isEmpty() ? null : records.firstElement();
-        }
-        return null;
+
+        Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
+                .getRecordsForValues(
+                        new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
+                        new Object[]{appId, username});
+        return records.isEmpty() ? null : records.firstElement();
     }
 
     public static void deleteAppData(Context context, ConnectLinkedAppRecord record) {

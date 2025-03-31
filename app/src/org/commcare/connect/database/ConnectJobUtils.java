@@ -412,12 +412,9 @@ public class ConnectJobUtils {
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
-        if(ConnectManager.isConnectIdConfigured()) {
-            Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
-                    new String[]{ConnectAppRecord.META_APP_ID},
-                    new Object[]{appId});
-            return records.isEmpty() ? null : records.firstElement();
-        }
-        return null;
+        Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
+                new String[]{ConnectAppRecord.META_APP_ID},
+                new Object[]{appId});
+        return records.isEmpty() ? null : records.firstElement();
     }
 }
