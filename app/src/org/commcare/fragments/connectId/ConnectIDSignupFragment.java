@@ -267,74 +267,69 @@ public class ConnectIDSignupFragment extends Fragment {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
-                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
+                        binding.errorTextView.setVisibility(View.VISIBLE);
+                        if (existingAlternate != null && existingAlternate.equals(phone)) {
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
                             binding.errorTextView.setText(getString(R.string.connect_phone_checking));
-                        }
-
-                        ApiConnectId.checkPhoneAvailable(getContext(), phone,
-                                new IApiCallback() {
-                                    @Override
-                                    public void processSuccess(int responseCode, InputStream responseData) {
-                                        skipPhoneNumberCheck = false;
-                                        if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                                            binding.errorTextView.setVisibility(View.GONE);
-                                            updateButtonEnabled();
-                                            createAccount();
-                                        } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                                            binding.errorTextView.setVisibility(View.VISIBLE);
-                                            binding.errorTextView.setText(getString(R.string.connect_phone_not_found));
+                            ApiConnectId.checkPhoneAvailable(getContext(), phone,
+                                    new IApiCallback() {
+                                        @Override
+                                        public void processSuccess(int responseCode, InputStream responseData) {
+                                            skipPhoneNumberCheck = false;
+                                            if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
+                                                binding.errorTextView.setVisibility(View.GONE);
+                                                updateButtonEnabled();
+                                                createAccount();
+                                            } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
+                                                binding.errorTextView.setVisibility(View.VISIBLE);
+                                                binding.errorTextView.setText(getString(R.string.connect_phone_not_found));
+                                            }
                                         }
-                                    }
 
-                                    @Override
-                                    public void processFailure(int responseCode, IOException e) {
-                                        skipPhoneNumberCheck = false;
-                                        if (responseCode == 406) {
+                                        @Override
+                                        public void processFailure(int responseCode, IOException e) {
+                                            skipPhoneNumberCheck = false;
+                                            if (responseCode == 406) {
+                                                skipPhoneNumberCheck = false;
+                                                updateButtonEnabled();
+                                                binding.errorTextView.setVisibility(View.VISIBLE);
+                                                binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
+                                            }
+                                            if (e != null) {
+                                                Logger.exception("Checking phone number", e);
+                                            }
+                                            if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
+                                                updateButtonEnabled();
+                                                binding.errorTextView.setVisibility(View.VISIBLE);
+                                                binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
+                                                directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+                                                Navigation.findNavController(binding.continueButton).navigate(directions);
+                                            } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
+                                                ConnectIdActivity.recoverPhone = finalPhone;
+                                                updateButtonEnabled();
+                                                directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
+                                                Navigation.findNavController(binding.continueButton).navigate(directions);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void processNetworkFailure() {
+                                            skipPhoneNumberCheck = false;
+                                            updateButtonEnabled();
+                                            binding.errorTextView.setVisibility(View.VISIBLE);
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
+                                        }
+
+                                        @Override
+                                        public void processOldApiError() {
                                             skipPhoneNumberCheck = false;
                                             updateButtonEnabled();
                                             binding.errorTextView.setVisibility(View.VISIBLE);
                                             binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
-                                        if (e != null) {
-                                            Logger.exception("Checking phone number", e);
-                                        }
-                                        if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                                            updateButtonEnabled();
-                                            binding.errorTextView.setVisibility(View.VISIBLE);
-                                            binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
-                                            directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-                                            Navigation.findNavController(binding.continueButton).navigate(directions);
-                                        } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                                            ConnectIdActivity.recoverPhone = finalPhone;
-                                            updateButtonEnabled();
-                                            directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
-                                            Navigation.findNavController(binding.continueButton).navigate(directions);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void processNetworkFailure() {
-                                        skipPhoneNumberCheck = false;
-                                        updateButtonEnabled();
-                                        binding.errorTextView.setVisibility(View.VISIBLE);
-                                        binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
-                                    }
-
-                                    @Override
-                                    public void processOldApiError() {
-                                        skipPhoneNumberCheck = false;
-                                        updateButtonEnabled();
-                                        binding.errorTextView.setVisibility(View.VISIBLE);
-                                        binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
-                                    }
-                                });
+                                    });
+                        }
 
                     }
                     case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
