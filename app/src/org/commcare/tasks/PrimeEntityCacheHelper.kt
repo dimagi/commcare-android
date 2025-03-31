@@ -7,8 +7,12 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import io.reactivex.functions.Cancellable
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.runBlocking
 import org.commcare.AppUtils.getCurrentAppId
 import org.commcare.CommCareApplication
 import org.commcare.cases.entity.Entity
@@ -44,14 +48,14 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
     private var cancelled = false
 
 
-    private val _completionStatus = MutableStateFlow<Boolean>(false)
-    val completionStatus: StateFlow<Boolean> get() = _completionStatus
+    private val _completionStatus = MutableSharedFlow<Boolean>(replay = 0)
+    val completionStatus = _completionStatus.asSharedFlow()
 
-    private val _cachedEntitiesState = MutableStateFlow<Triple<String, String, List<Entity<TreeReference>>>?>(null)
-    val cachedEntitiesState: StateFlow<Triple<String, String, List<Entity<TreeReference>>>?> get() = _cachedEntitiesState
+    private val _cachedEntitiesState = MutableSharedFlow<Triple<String, String, List<Entity<TreeReference>>>?>(replay = 0)
+    val cachedEntitiesState = _cachedEntitiesState.asSharedFlow()
 
     private val _progressState = MutableLiveData<Triple<String, String, Array<Int>>>(null)
-    val progressState: LiveData<Triple<String, String, Array<Int>>> get() = _progressState
+    val progressState: LiveData<Triple<String, String, Array<Int>>?> get() = _progressState
 
 
     companion object {
@@ -112,7 +116,9 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
             primeEntityCacheForApp(CommCareApplication.instance().commCarePlatform)
         } finally {
             clearState()
-            _completionStatus.value = true
+            runBlocking {
+                _completionStatus.emit(true)
+            }
         }
     }
 
@@ -132,7 +138,9 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
             primeCacheForDetail(commandId, detail, entityDatum, entities)
         } finally {
             clearState()
-            _completionStatus.value = true
+            runBlocking {
+                _completionStatus.emit(true)
+            }
         }
     }
 
@@ -191,7 +199,9 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
             }
             else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset).first
         }
-        _cachedEntitiesState.value = Triple(entityDatum.dataId, detail.id, cachedEntities)
+        runBlocking {
+            _cachedEntitiesState.emit(Triple(entityDatum.dataId, detail.id, cachedEntities))
+        }
         currentDatumInProgress = null
         currentDetailInProgress = null
     }

@@ -2,6 +2,7 @@ package org.commcare.tasks
 
 import android.util.Pair
 import io.reactivex.functions.Cancellable
+import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
@@ -54,12 +55,23 @@ class EntityLoaderHelper(
         nodeset: TreeReference,
         progressListener: EntityLoadingProgressListener
     ): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
-        val references = factory.expandReferenceList(nodeset)
-        val entities = loadEntitiesWithReferences(references, progressListener)
-        entities?.let {
-            factory.prepareEntities(entities)
-            factory.printAndClearTraces("build")
-            return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+        if (factory !is AsyncNodeEntityFactory) {
+            // if we are into synchronous mode, cancel background cache work for now to not lock the user db
+            CommCareApplication.instance().currentApp.primeEntityCacheHelper.cancelWork()
+        }
+        try {
+            val references = factory.expandReferenceList(nodeset)
+            val entities = loadEntitiesWithReferences(references, progressListener)
+            entities?.let {
+                factory.prepareEntities(entities)
+                factory.printAndClearTraces("build")
+                return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
+            }
+        } finally {
+            if (factory !is AsyncNodeEntityFactory) {
+                // Restart the cancelled task
+                PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker()
+            }
         }
         return null
     }
