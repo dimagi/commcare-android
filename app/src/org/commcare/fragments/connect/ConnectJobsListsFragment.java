@@ -190,7 +190,7 @@ public class ConnectJobsListsFragment extends Fragment {
             @Override
             public void processTokenUnavailableError() {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
+                ConnectNetworkHelper.handleTokenUnavailableException(getContext());
                 reportApiCall(false, 0, 0);
                 refreshUi();
             }
@@ -198,7 +198,7 @@ public class ConnectJobsListsFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
+                ConnectNetworkHelper.handleTokenRequestDeniedException(getContext());
                 reportApiCall(false, 0, 0);
                 refreshUi();
             }
