@@ -266,21 +266,14 @@ public class ConnectIDSignupFragment extends Fragment {
                 String finalPhone = phone;
                 switch (callingClass) {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
-                         ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
-                         ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
-                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
+                            ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
+                            ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
+                        binding.errorTextView.setVisibility(View.VISIBLE);
+                        if (existingAlternate != null && existingAlternate.equals(phone)) {
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
-                            //Make sure the number isn't already in use
-//                            phone = phone.replaceAll("\\+", "%2b");
-                            binding.errorTextView.setVisibility(View.VISIBLE);
                             binding.errorTextView.setText(getString(R.string.connect_phone_checking));
-
-                                    ApiConnectId.checkPhoneAvailable(getContext(), phone,
+                            ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
                                         
                                         private void showError(int errorStringId) {
@@ -338,8 +331,8 @@ public class ConnectIDSignupFragment extends Fragment {
                                             showError(R.string.recovery_network_outdated);
                                         }
                                     });
-
                         }
+
                     }
                     case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {

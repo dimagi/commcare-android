@@ -204,7 +204,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
 
-        job.isActive = !json.optBoolean(META_IS_ACTIVE, true);
+        job.isActive = json.optBoolean(META_IS_ACTIVE, true);
 
         job.isUserSuspended = json.optBoolean(META_USER_SUSPENDED, false);
 
