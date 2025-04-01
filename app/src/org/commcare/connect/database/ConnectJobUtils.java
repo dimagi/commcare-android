@@ -11,6 +11,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.ArrayList;
@@ -416,5 +417,4 @@ public class ConnectJobUtils {
                 new Object[]{appId});
         return records.isEmpty() ? null : records.firstElement();
     }
-
 }

@@ -557,7 +557,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if(appState == ConnectManager.ConnectAppMangement.ConnectId) {
             int selectorIndex = uiController.getSelectedAppIndex();
-            String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+            String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
 
             if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
                 appState = ConnectManager.ConnectAppMangement.Unmanaged;
