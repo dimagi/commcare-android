@@ -59,7 +59,7 @@ public class ApiConnectId {
     public ApiConnectId() {
     }
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
-        String url = context.getString(R.string.ConnectHeartbeatURL);
+        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
@@ -71,12 +71,7 @@ public class ApiConnectId {
         return new ConnectNetworkHelper.PostResult(-1, null, null);
     }
 
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) throws TokenRequestDeniedException, TokenUnavailableException {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        if (user == null) {
-            return null;
-        }
-
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user) throws TokenRequestDeniedException, TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
         params.put("scope", "openid");
@@ -84,7 +79,7 @@ public class ApiConnectId {
         params.put("username", user.getUserId());
         params.put("password", user.getPassword());
 
-        String url = context.getString(R.string.ConnectTokenURL);
+        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
@@ -522,8 +517,8 @@ public class ApiConnectId {
         }
     }
 
-    public static void retrieveChannelEncryptionKey(Context context, String channelId, String channelUrl, IApiCallback callback) {
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+    public static void retrieveChannelEncryptionKey(Context context, @NonNull ConnectUserRecord user, String channelId, String channelUrl, IApiCallback callback) {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 HashMap<String, Object> params = new HashMap<>();

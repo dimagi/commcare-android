@@ -10,6 +10,7 @@ import com.google.common.base.Strings;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
@@ -76,7 +77,8 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     public void retrieveOpportunities() {
-        ApiConnect.getConnectOpportunities(requireContext(), new IApiCallback() {
+        ConnectUserRecord user = ConnectManager.getUser(requireContext());
+        ApiConnect.getConnectOpportunities(requireContext(), user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {

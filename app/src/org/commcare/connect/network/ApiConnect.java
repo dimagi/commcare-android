@@ -2,9 +2,12 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -15,18 +18,14 @@ import java.util.Locale;
 public class ApiConnect {
     private static final String API_VERSION_CONNECT = "1.0";
 
-    public static boolean getConnectOpportunities(Context context, IApiCallback handler) {
+    public static boolean getConnectOpportunities(Context context, @NonNull ConnectUserRecord user, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                if (token == null) {
-                    return;
-                }
-
                 String url = context.getString(R.string.ConnectOpportunitiesURL, BuildConfig.CCC_HOST);
                 Multimap<String, String> params = ArrayListMultimap.create();
 
@@ -47,18 +46,14 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean startLearnApp(Context context, int jobId, IApiCallback handler) {
+    public static boolean startLearnApp(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                if(token == null) {
-                    return;
-                }
-
                 String url = context.getString(R.string.ConnectStartLearningURL, BuildConfig.CCC_HOST);
                 HashMap<String, Object> params = new HashMap<>();
                 params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
@@ -80,18 +75,14 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean getLearnProgress(Context context, int jobId, IApiCallback handler) {
+    public static boolean getLearnProgress(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                if(token == null) {
-                    return;
-                }
-
                 String url = context.getString(R.string.ConnectLearnProgressURL, BuildConfig.CCC_HOST, jobId);
                 Multimap<String, String> params = ArrayListMultimap.create();
 
@@ -112,18 +103,14 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean claimJob(Context context, int jobId, IApiCallback handler) {
+    public static boolean claimJob(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                if(token == null) {
-                    return;
-                }
-
                 String url = context.getString(R.string.ConnectClaimJobURL, BuildConfig.CCC_HOST, jobId);
                 HashMap<String, Object> params = new HashMap<>();
 
@@ -144,18 +131,14 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean getDeliveries(Context context, int jobId, IApiCallback handler) {
+    public static boolean getDeliveries(Context context, @NonNull ConnectUserRecord user, int jobId, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                if(token == null) {
-                    return;
-                }
-
                 String url = context.getString(R.string.ConnectDeliveriesURL, BuildConfig.CCC_HOST, jobId);
                 Multimap<String, String> params = ArrayListMultimap.create();
 
@@ -176,18 +159,14 @@ public class ApiConnect {
         return true;
     }
 
-    public static boolean setPaymentConfirmed(Context context, String paymentId, boolean confirmed, IApiCallback handler) {
+    public static boolean setPaymentConfirmed(Context context, @NonNull ConnectUserRecord user, String paymentId, boolean confirmed, IApiCallback handler) {
         if (ConnectNetworkHelper.isBusy()) {
             return false;
         }
 
-        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, new ConnectSsoHelper.TokenCallback() {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                if(token == null) {
-                    return;
-                }
-
                 String url = context.getString(R.string.ConnectPaymentConfirmationURL, BuildConfig.CCC_HOST, paymentId);
 
                 HashMap<String, Object> params = new HashMap<>();

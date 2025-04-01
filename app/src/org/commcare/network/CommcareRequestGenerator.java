@@ -176,7 +176,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private AuthInfo buildAuth() throws TokenRequestDeniedException, TokenUnavailableException {
         if (username != null) {
-            AuthInfo.TokenAuth tokenAuth = ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), username, false);
+            AuthInfo.TokenAuth tokenAuth = ConnectManager.getHqTokenIfLinked(username);
             if (tokenAuth != null) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
                 return tokenAuth;

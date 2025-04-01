@@ -37,6 +37,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
@@ -133,7 +134,8 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public void refreshData() {
-        ApiConnect.getConnectOpportunities(getContext(), new IApiCallback() {
+        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ApiConnect.getConnectOpportunities(getContext(), user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 int totalJobs = 0;

@@ -44,6 +44,8 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -500,27 +502,24 @@ public class ConnectManager {
                                 appRecordFinal.linkToConnectId(password);
                                 ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
 
-                                //Link the HQ user by aqcuiring the SSO token for the first time
-                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, new ConnectSsoHelper.TokenCallback() {
+                                //Link the HQ user by acquiring the SSO token for the first time
+                                ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
+                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, appRecordFinal, username, true, new ConnectSsoHelper.TokenCallback() {
                                     @Override
                                     public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                                        if (token == null) {
-                                            //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
-                                            //TODO: Re-enable when token working again
-                                            //ConnectManager.forgetAppCredentials(appId, username);
-                                        }
-
                                         callback.connectActivityComplete(true);
                                     }
 
                                     @Override
                                     public void tokenUnavailable() {
                                         ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                                        callback.connectActivityComplete(false);
                                     }
 
                                     @Override
                                     public void tokenRequestDenied() {
                                         ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
+                                        callback.connectActivityComplete(false);
                                     }
                                 });
                             } else {
@@ -581,6 +580,25 @@ public class ConnectManager {
         }
 
         callback.connectActivityComplete(false);
+    }
+
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
+        if (!isConnectIdConfigured()) {
+            return null;
+        }
+
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        if (user == null) {
+            return null;
+        }
+
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, seatedAppId, username);
+        if(appRecord == null) {
+            return null;
+        }
+
+        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username, false);
     }
 
     public static boolean isSeatedAppLinkedToConnectId(String username) {
@@ -846,7 +864,8 @@ public class ConnectManager {
     }
 
     public static void updateLearningProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
-        ApiConnect.getLearnProgress(context, job.getJobId(), new IApiCallback() {
+        ConnectUserRecord user = getUser(context);
+        ApiConnect.getLearnProgress(context, user, job.getJobId(), new IApiCallback() {
             private static void reportApiCall(boolean success) {
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(success);
             }
@@ -928,7 +947,8 @@ public class ConnectManager {
     }
 
     public static void updateDeliveryProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
-        ApiConnect.getDeliveries(context, job.getJobId(), new IApiCallback() {
+        ConnectUserRecord user = getUser(context);
+        ApiConnect.getDeliveries(context, user, job.getJobId(), new IApiCallback() {
             private static void reportApiCall(boolean success) {
                 FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(success);
             }
@@ -1050,7 +1070,8 @@ public class ConnectManager {
     }
 
     public static void updatePaymentConfirmed(Context context, final ConnectJobPaymentRecord payment, boolean confirmed, ConnectActivityCompleteListener listener) {
-        ApiConnect.setPaymentConfirmed(context, payment.getPaymentId(), confirmed, new IApiCallback() {
+        ConnectUserRecord user = getUser(context);
+        ApiConnect.setPaymentConfirmed(context, user, payment.getPaymentId(), confirmed, new IApiCallback() {
             private void reportApiCall(boolean success) {
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(success);
             }

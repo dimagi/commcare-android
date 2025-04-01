@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -87,7 +88,8 @@ public class ConnectJobIntroFragment extends Fragment {
             button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.download_app));
             button.setOnClickListener(v -> {
                 //First, need to tell Connect we're starting learning so it can create a user on HQ
-                ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {
+                ConnectUserRecord user = ConnectManager.getUser(getContext());
+                ApiConnect.startLearnApp(getContext(), user, job.getJobId(), new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         reportApiCall(true);

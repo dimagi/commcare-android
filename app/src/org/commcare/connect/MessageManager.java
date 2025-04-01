@@ -11,7 +11,6 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.TokenRequestDeniedException;
@@ -23,25 +22,12 @@ import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class MessageManager {
-
-    private static MessageManager manager = null;
-
-    public static MessageManager getInstance() {
-        if (manager == null) {
-            manager = new MessageManager();
-        }
-
-        return manager;
-    }
-
     public static ConnectMessagingMessageRecord handleReceivedMessage(Context context, Map<String, String> payloadData) {
         ConnectMessagingMessageRecord message = null;
         String channelId = payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
@@ -52,7 +38,8 @@ public class MessageManager {
             if(Strings.isNullOrEmpty(channel.getKey())) {
                 //Attempt to get the encryption key now if we don't have it yet
                 try {
-                    AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context);
+                    ConnectUserRecord user = ConnectManager.getUser(context);
+                    AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context, user);
                     ApiConnectId.retrieveChannelEncryptionKeySync(context, channel, auth);
                 } catch (TokenRequestDeniedException | TokenUnavailableException e) {
                     Logger.exception("Retrieving channel encryption key", e);
@@ -220,7 +207,8 @@ public class MessageManager {
 
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
                                                ConnectManager.ConnectActivityCompleteListener listener) {
-        ApiConnectId.retrieveChannelEncryptionKey(context, channel.getChannelId(), channel.getKeyUrl(),
+        ConnectUserRecord user = ConnectManager.getUser(context);
+        ApiConnectId.retrieveChannelEncryptionKey(context, user, channel.getChannelId(), channel.getKeyUrl(),
                 new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
