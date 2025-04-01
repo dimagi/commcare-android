@@ -557,7 +557,7 @@ notification.bad.certificate.action=Check your device's time and date to make su
 notification.bad.certificate.button=Go to settings
 
 notification.token.unavailable.title=Couldn't connect to the server.
-notification.token.unavailable.detail=CommCare had an issue retrieving the SSO token for communication.
+notification.token.unavailable.detail=CommCare had an issue authenticating the user.
 notification.token.unavailable.action=Check your device's time and date to make sure they are correct, then try again.
 
 notification.token.denied.title=Couldn't connect to the server.
