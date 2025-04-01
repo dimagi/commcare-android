@@ -46,7 +46,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         setListener();
         method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
-        phoneNumberHelper = new PhoneNumberHelper(requireActivity());
+        PhoneNumberHelper.getInstance(requireActivity());
         String code = "+" + phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
         binding.countryCode.setText(code);
         updateButtonEnabled();
@@ -109,7 +109,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     private void updateButtonEnabled() {
-        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
         boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
@@ -122,7 +122,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             return;
         }
         binding.continueButton.setEnabled(false);
-        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
         String existing = user.getPrimaryPhone();

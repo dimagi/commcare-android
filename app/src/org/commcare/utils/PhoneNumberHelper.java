@@ -25,11 +25,21 @@ import io.michaelrocks.libphonenumber.android.Phonenumber;
  * Includes frequent usage of PhoneNumberUtil
  */
 public class PhoneNumberHelper {
+    private static PhoneNumberHelper instance;
     private final PhoneNumberUtil phoneNumberUtil;
 
-    public PhoneNumberHelper(Context context) {
-        this.phoneNumberUtil = PhoneNumberUtil.createInstance(context);
+    // Private constructor to prevent direct instantiation
+    private PhoneNumberHelper(Context context) {
+        phoneNumberUtil = PhoneNumberUtil.createInstance(context);
     }
+
+    public static synchronized PhoneNumberHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new PhoneNumberHelper(context);
+        }
+        return instance;
+    }
+
 
     /**
      * Combines the country code and phone number into a single formatted string.
@@ -39,7 +49,7 @@ public class PhoneNumberHelper {
      * @param phone       The phone number as a string.
      * @return A formatted phone number string with no special characters.
      */
-    public String buildPhoneNumber(String countryCode, String phone) {
+    public static String buildPhoneNumber(String countryCode, String phone) {
         return String.format("%s%s", countryCode, phone)
                 .replaceAll("-", "")
                 .replaceAll("\\(", "")
@@ -93,7 +103,7 @@ public class PhoneNumberHelper {
     /**
      * Requests a phone number hint from Google Identity API.
      */
-    public void requestPhoneNumberHint(ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher, Activity activity) {
+    public static void requestPhoneNumberHint(ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher, Activity activity) {
         GetPhoneNumberHintIntentRequest hintRequest = GetPhoneNumberHintIntentRequest.builder().build();
         Identity.getSignInClient(activity).getPhoneNumberHintIntent(hintRequest)
                 .addOnSuccessListener(pendingIntent -> {
@@ -109,7 +119,7 @@ public class PhoneNumberHelper {
     /**
      * Handles the result of a phone number picker request.
      */
-    public String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity) {
+    public static String handlePhoneNumberPickerResult(int requestCode, int resultCode, Intent intent, Activity activity) {
         if (requestCode == ConnectConstants.CREDENTIAL_PICKER_REQUEST && resultCode == Activity.RESULT_OK) {
             SignInClient signInClient = Identity.getSignInClient(activity);
             try {

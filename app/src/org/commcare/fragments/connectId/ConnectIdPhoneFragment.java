@@ -66,7 +66,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
         activity.setTitle(getString(R.string.connect_phone_page_title));
 
-        phoneNumberHelper = new PhoneNumberHelper(activity);
+        phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
 
         setLisetner();
         setArguments();
@@ -100,7 +100,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String phone = phoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
+        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
         skipPhoneNumberCheck = false;
         displayNumber(phone);
     }
@@ -122,7 +122,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         };
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                phoneNumberHelper.requestPhoneNumberHint(null, getActivity());
+                PhoneNumberHelper.requestPhoneNumberHint(null, getActivity());
             }
         };
         binding.countryCode.setOnFocusChangeListener(listener);
@@ -232,7 +232,7 @@ public class ConnectIdPhoneFragment extends Fragment {
     }
 
     private void verifyPhone() {
-        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
         String existing = user != null ? user.getPrimaryPhone() : existingPhone;

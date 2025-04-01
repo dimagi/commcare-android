@@ -62,7 +62,7 @@ public class ConnectIDSignupFragment extends Fragment {
         activity = requireActivity();
         View view = binding.getRoot();
         activity.setTitle(getString(R.string.connect_registration_title));
-        phoneNumberHelper = new PhoneNumberHelper(activity);
+        phoneNumberHelper =  PhoneNumberHelper.getInstance(activity);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
         setArguments();
@@ -90,7 +90,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && showhPhoneDialog) {
-                phoneNumberHelper.requestPhoneNumberHint(phoneNumberHintLauncher, activity);
+                PhoneNumberHelper.requestPhoneNumberHint(phoneNumberHintLauncher, activity);
                 showhPhoneDialog = false;
             }
         };
@@ -185,7 +185,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     public void updateButtonEnabled() {
-        String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
         boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
@@ -199,7 +199,7 @@ public class ConnectIDSignupFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        String phone = phoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
+        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data, getActivity());
         skipPhoneNumberCheck = false;
         displayNumber(phone);
     }
@@ -245,7 +245,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
     public void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
-            String phone = phoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+            String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                     binding.connectPrimaryPhoneInput.getText().toString());
 
             boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
