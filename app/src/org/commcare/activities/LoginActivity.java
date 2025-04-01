@@ -873,7 +873,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
             case AUTH_FAILED:
-                if(ConnectManager.checkForFailedConnectIdAuth(uiController.getEnteredUsername())) {
+                if(ConnectManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("Token Auth failed during login for a ConnectID managed app"));
                 }

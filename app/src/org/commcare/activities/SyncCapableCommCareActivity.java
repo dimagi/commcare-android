@@ -106,7 +106,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case AUTH_FAILED:
                 String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
 
-                if(ConnectManager.checkForFailedConnectIdAuth(username)) {
+                if(ConnectManager.isSeatedAppLinkedToConnectId(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("Token Auth failed during sync for a ConnectID managed app"));
                 }
