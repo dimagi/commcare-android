@@ -61,11 +61,12 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"/>
 
-                    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    <TextView
                         android:id="@+id/connect_payment_confirm_label"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:textColor="@color/black"
+                        android:textStyle="normal"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/connect_payment_confirm_icon" />
 
@@ -128,7 +129,7 @@
                         android:paddingTop="35dp"
                         android:paddingEnd="15dp">
 
-                        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                        <TextView
                             android:id="@+id/tvConnectMessage"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -136,6 +137,7 @@
                             android:text="@string/connect_job_tile_daily_limit_description"
                             android:textColor="@color/connect_warning_color"
                             android:textSize="14sp"
+                            android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
