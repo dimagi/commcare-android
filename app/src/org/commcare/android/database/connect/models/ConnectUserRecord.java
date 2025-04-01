@@ -169,7 +169,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public Date getSecondaryPhoneVerifyByDate() {
-        return secondaryPhoneVerified ? verifySecondaryPhoneByDate : null;
+        return  verifySecondaryPhoneByDate;
     }
 
     public void setSecondaryPhoneVerifyByDate(Date date) {
