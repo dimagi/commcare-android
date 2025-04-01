@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.activities.LoginActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
+import org.commcare.dalvik.databinding.ItemLoginConnectHomeCorruptAppsBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
@@ -25,42 +26,71 @@ import java.util.Locale;
 import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
 import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
 
-public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListConnectHomeAppsAdapter.ViewHolder> {
+public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private final ArrayList<ConnectLoginJobListModel> jobList;
     private final OnJobSelectionClick launcher;
+    private final ArrayList<ConnectLoginJobListModel> corruptJobs;
+    private static int NON_CORRUPT_JOB_VIEW = 4983;
+    private static int CORRUPT_JOB_VIEW = 9533;
 
-    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList, OnJobSelectionClick launcher) {
+    public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList, ArrayList<ConnectLoginJobListModel> corruptJobs, OnJobSelectionClick launcher) {
         this.mContext = context;
         this.jobList = jobList;
+        this.corruptJobs = corruptJobs;
         this.launcher = launcher;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         mContext = parent.getContext();
         // Inflate the layout for each item using View Binding
-        ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false);
-        return new ViewHolder(binding);
+        if(viewType==NON_CORRUPT_JOB_VIEW){
+            ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false);
+            return new NonCorruptJobViewHolder(binding);
+        }else{
+            ItemLoginConnectHomeCorruptAppsBinding binding = ItemLoginConnectHomeCorruptAppsBinding.inflate(
+                    LayoutInflater.from(parent.getContext()), parent, false);
+            return new CorruptJobViewHolder(binding);
+        }
+
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        bind(mContext, holder.binding, jobList.get(position), launcher);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof NonCorruptJobViewHolder){
+            bind(mContext, ((NonCorruptJobViewHolder)holder).binding, jobList.get(position), launcher);
+        } else if (holder instanceof CorruptJobViewHolder) {
+            bind(mContext, ((CorruptJobViewHolder)holder).binding, corruptJobs.get(position-jobList.size()));
+        }
     }
 
     @Override
     public int getItemCount() {
-        return jobList.size();
+        return jobList.size()+corruptJobs.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public int getItemViewType(int position) {
+        return position<jobList.size()?NON_CORRUPT_JOB_VIEW:CORRUPT_JOB_VIEW;
+    }
+
+    public static class NonCorruptJobViewHolder extends RecyclerView.ViewHolder {
         private final ItemLoginConnectHomeAppsBinding binding;
 
-        public ViewHolder(ItemLoginConnectHomeAppsBinding binding) {
+        public NonCorruptJobViewHolder(ItemLoginConnectHomeAppsBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    public static class CorruptJobViewHolder extends RecyclerView.ViewHolder {
+        private final ItemLoginConnectHomeCorruptAppsBinding binding;
+
+        public CorruptJobViewHolder(ItemLoginConnectHomeCorruptAppsBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -73,9 +103,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<JobListC
             Date date = inputFormat.parse(dateStr);
             return outputFormat.format(date);
         } catch (ParseException e) {
-            e.printStackTrace();
             return null;
         }
+    }
+
+    public void bind(Context mContext, ItemLoginConnectHomeCorruptAppsBinding binding, ConnectLoginJobListModel connectLoginJobListModel) {
+        binding.tvTitle.setText(connectLoginJobListModel.getName());
     }
 
     public void bind(Context mContext, ItemLoginConnectHomeAppsBinding binding, ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {

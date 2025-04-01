@@ -71,6 +71,7 @@ public class ConnectJobsListsFragment extends Fragment {
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
+    ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
     View view;
 
 
@@ -132,6 +133,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public void refreshData() {
+        corruptJobs.clear();
         ApiConnect.getConnectOpportunities(getContext(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -145,12 +147,13 @@ public class ConnectJobsListsFragment extends Fragment {
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
                         for (int i = 0; i < json.length(); i++) {
-
+                            JSONObject obj=null;
                             try {
-                                JSONObject obj = (JSONObject)json.get(i);
+                                obj = (JSONObject)json.get(i);
                                 jobs.add(ConnectJobRecord.fromJson(obj));
                             }catch (JSONException | ParseException e) {
                                 Logger.exception("Parsing return from Opportunities request", e);
+                                handleCorruptJob(obj);
                             }
                         }
 
@@ -161,6 +164,7 @@ public class ConnectJobsListsFragment extends Fragment {
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing / database error return from Opportunities request", e);
+                    handleCorruptJobs();
                 }
 
                 reportApiCall(true, totalJobs, newJobs);
@@ -206,6 +210,22 @@ public class ConnectJobsListsFragment extends Fragment {
         }
     }
 
+    private void handleCorruptJobs(){
+        TextView noOrCorruptJobsText = view.findViewById(R.id.connect_no_or_corrupt_jobs_text);
+        noOrCorruptJobsText.setText(R.string.connect_corrupt_jobs);
+        noOrCorruptJobsText.setVisibility(View.VISIBLE);
+    }
+
+    private void handleCorruptJob(JSONObject obj) {
+        if(obj!=null) {
+            try {
+                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobfromJson(obj)));
+            } catch (JSONException e) {
+                Logger.exception("JSONException while retrieving corrupt opportunity title", e);
+            }
+        }
+    }
+
     private void updateSecondaryPhoneConfirmationTile(Context context) {
         boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(context);
 
@@ -223,10 +243,11 @@ public class ConnectJobsListsFragment extends Fragment {
     private void initRecyclerView() {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
 
-        TextView noJobsText = view.findViewById(R.id.connect_no_jobs_text);
-        noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
+        TextView noOrCorruptJobsText = view.findViewById(R.id.connect_no_or_corrupt_jobs_text);
+        noOrCorruptJobsText.setText(R.string.connect_no_jobs);
+        noOrCorruptJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
 
-        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
+        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList,corruptJobs, (job, isLearning, appId, jobType) -> {
             if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
                 launchJobInfo(job);
             } else {
@@ -354,6 +375,15 @@ public class ConnectJobsListsFragment extends Fragment {
                 job.getCompletedLearningModules(),
                 jobType,
                 appType,
+                job
+        );
+    }
+
+    private ConnectLoginJobListModel createJobModel(    // Keeping only title as of now as other information might be corrupt
+            ConnectJobRecord job
+    ) {
+        return new ConnectLoginJobListModel(
+                job.getTitle(),
                 job
         );
     }

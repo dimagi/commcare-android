@@ -113,7 +113,7 @@
     </androidx.cardview.widget.CardView>
 
     <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-        android:id="@+id/connect_no_jobs_text"
+        android:id="@+id/connect_no_or_corrupt_jobs_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="40dp"
