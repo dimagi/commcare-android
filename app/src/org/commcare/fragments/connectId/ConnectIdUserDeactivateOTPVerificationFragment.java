@@ -58,7 +58,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_PHONE = "phone";
     private static final String KEY_SMS_TIME = "sms_time";
-    private final int resendLimitMinutes = 2;
+    private final int RESEND_LIMIT_MINUTES = 2;
 
 
     private final Handler taskHandler = new Handler();
@@ -69,7 +69,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             int secondsToReset = -1;
             if (smsTime != null) {
                 double elapsedMinutes = ((new DateTime()).getMillis() - smsTime.getMillis()) / 60000.0;
-                double minutesRemaining = resendLimitMinutes - elapsedMinutes;
+                double minutesRemaining = RESEND_LIMIT_MINUTES - elapsedMinutes;
                 if (minutesRemaining > 0) {
                     secondsToReset = (int)Math.ceil(minutesRemaining * 60);
                 }

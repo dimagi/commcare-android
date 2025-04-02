@@ -243,7 +243,7 @@ public class ConnectIDSignupFragment extends Fragment {
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 
-    public void checkPhoneNumber() {
+    private void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
             String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                     binding.connectPrimaryPhoneInput.getText().toString());

@@ -557,6 +557,11 @@ public class ConnectIDManager {
         return ConnectUserDatabaseUtil.getUser(context);
     }
 
+    public String getConnectUsername(Context context) {
+        return ConnectUserDatabaseUtil.getUser(context).getUserId();
+    }
+
+
     public void setActiveJob(ConnectJobRecord job) {
         activeJob = job;
     }
