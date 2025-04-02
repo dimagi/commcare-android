@@ -234,12 +234,12 @@ public class ConnectIDSignupFragment extends Fragment {
 
     void handleRecoverButtonPress() {
         ConnectUserDatabaseUtil.forgetUser(requireContext());
-        NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+        NavDirections directions = navigateToSelf(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 
     void handleSignupButtonPress() {
-        NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+        NavDirections directions = navigateToSelf(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
         Navigation.findNavController(binding.continueButton).navigate(directions);
     }
 
@@ -306,11 +306,11 @@ public class ConnectIDSignupFragment extends Fragment {
                         }
                         if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                             updateUi(getString(R.string.connect_phone_unavailable));
-                            NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+                            NavDirections directions = navigateToPhonenNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                             ((ConnectIdActivity)activity).recoverPhone = phone;
-                            NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
+                            NavDirections directions = navigateToBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         }
                     }
@@ -355,7 +355,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
                             ConnectUserDatabaseUtil.storeUser(context, user);
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
-                            NavDirections directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
+                            NavDirections directions = navigateToBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             Navigation.findNavController(binding.continueButton).navigate(directions);
                         } catch (IOException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
@@ -405,4 +405,14 @@ public class ConnectIDSignupFragment extends Fragment {
         }
     }
 
+    private NavDirections navigateToBiometricConfig(int phase) {
+        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
+    }
+
+    private NavDirections navigateToPhonenNotAvailable(String phone, int phase) {
+        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone,phase);
+    }
+    private NavDirections navigateToSelf(int phase) {
+        return  ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(phase);
+    }
 }

@@ -181,21 +181,20 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                     user.setAlternatePhone(phone);
                     ConnectUserDatabaseUtil.storeUser(getActivity(), user);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, "").setRecover(false).setChange(false);
+                    directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, false, false);
                 } else {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, "").setRecover(false).setChange(true);
+                    directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, false, true);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
-                directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate),
-                        null, user.getUserId(), user.getPassword(), null, false);
+                directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null, false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false);
+                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null, false);
                 } else {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
+                    directions = navigateToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
 
             }
@@ -206,5 +205,17 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             throw new IllegalStateException(String.valueOf(R.string.connect_navigation_error));
         }
         Navigation.findNavController(binding.continueButton).navigate(directions);
+    }
+
+    private NavDirections navigateToConnectidPin(int phase, String phone, boolean recover, boolean change) {
+        return ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPin(phase, phone, "").setRecover(recover).setChange(change);
+    }
+
+    private NavDirections navigateToConnectidPhoneVerify(int phase, int method, String phone, String userId, String password, String secretKey, boolean isRecovery) {
+        return ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(phase, String.valueOf(method), phone, userId, password, secretKey, isRecovery);
+    }
+
+    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret) {
+        return ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret);
     }
 }

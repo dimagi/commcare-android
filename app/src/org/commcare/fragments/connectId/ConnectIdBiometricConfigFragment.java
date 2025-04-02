@@ -269,16 +269,13 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         switch (callingActivity) {
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS -> {
                 if (success) {
-                    directions = failedEnrollment || !configured ? ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidMessage(getResources().getString(R.string.connect_biometric_enroll_fail_title), getResources().getString(R.string.connect_biometric_enroll_fail_message), ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL, getResources().getString(R.string.connect_biometric_enroll_fail_button), null, null, null) :
-                            ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                                    ConnectIDManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(), false);
+                    directions = failedEnrollment || !configured ? navigateToBiometricEnrollFail() :
+                            navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, ConnectIDManager.MethodRegistrationPrimary, user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone());
                 }
             }
             case ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS -> {
                 if (success) {
-                    directions =
-                            ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                                    ConnectIDManager.MethodRecoveryPrimary), ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, "", null, false);
+                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, ConnectIDManager.MethodRecoveryPrimary, ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, "", null);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_BIOMETRIC -> {
@@ -294,6 +291,13 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (directions != null) {
             Navigation.findNavController(binding.connectVerifyMessage).navigate(directions);
         }
+    }
 
+    private NavDirections navigateToBiometricEnrollFail() {
+        return ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidMessage(getResources().getString(R.string.connect_biometric_enroll_fail_title), getResources().getString(R.string.connect_biometric_enroll_fail_message), ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL, getResources().getString(R.string.connect_biometric_enroll_fail_button), null, null, null);
+    }
+
+    private NavDirections navigateToConnectidPhoneVerify(int verifyType, int method, String primaryPhone, String userId, String password, String alternatePhone) {
+        return ConnectIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidPhoneVerify(verifyType, String.format(Locale.getDefault(), "%d", method), primaryPhone, userId, password, alternatePhone, false);
     }
 }
