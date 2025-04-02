@@ -14,6 +14,8 @@ import static org.commcare.connect.ConnectManager.isAppInstalled;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -164,7 +166,7 @@ public class ConnectJobsListsFragment extends Fragment {
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing / database error return from Opportunities request", e);
-                    handleCorruptJobs();
+                    handleCorruptJobs(e);
                 }
 
                 reportApiCall(true, totalJobs, newJobs);
@@ -210,10 +212,20 @@ public class ConnectJobsListsFragment extends Fragment {
         }
     }
 
-    private void handleCorruptJobs(){
+    private void handleCorruptJobs(Exception e){
+
         TextView noOrCorruptJobsText = view.findViewById(R.id.connect_no_or_corrupt_jobs_text);
         noOrCorruptJobsText.setText(R.string.connect_corrupt_jobs);
         noOrCorruptJobsText.setVisibility(View.VISIBLE);
+
+        // App will crash after displaying the message to user for 3 seconds.
+        // We will remove this runtime exception (crash) in future.
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                throw new RuntimeException(e);
+            }
+        }, 3000);
     }
 
     private void handleCorruptJob(JSONObject obj) {
