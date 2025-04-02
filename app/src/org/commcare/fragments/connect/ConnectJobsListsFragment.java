@@ -56,7 +56,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -153,7 +152,7 @@ public class ConnectJobsListsFragment extends Fragment {
                             try {
                                 obj = (JSONObject)json.get(i);
                                 jobs.add(ConnectJobRecord.fromJson(obj));
-                            }catch (JSONException | ParseException e) {
+                            }catch (JSONException e) {
                                 Logger.exception("Parsing return from Opportunities request", e);
                                 handleCorruptJob(obj);
                             }

@@ -180,7 +180,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return job;
     }
 
-    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
+    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
