@@ -125,7 +125,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         String userPrimaryNumber = ConnectManager.getUser(requireActivity()).getPrimaryPhone();
         if (userPrimaryNumber.equals(phone)) {
             binding.errorTextView.setVisibility(View.VISIBLE);
-            binding.errorTextView.setText("Primary and alternate phone number are same");
+            binding.errorTextView.setText(R.string.primary_and_alternate_phone_number);
             valid = false;
         }else{
             binding.errorTextView.setVisibility(View.GONE);

@@ -790,4 +790,5 @@
     <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
     <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
     <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
+    <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
 </resources>
