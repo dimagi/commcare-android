@@ -593,6 +593,10 @@
     <string name="connect_results_summary_approved">Imeidhinishwa</string>
     <string name="connect_results_summary_remaining">Iliyosalia</string>
     <string name="connect_results_summary_remaining_days">%d ndani ya siku %d</string>
+    <string name="connect_results_summary_remaining_tomorrow">%d hadi Kesho</string>
+    <string name="connect_results_summary_remaining_today">%d ifikapo Leo</string>
+    <string name="connect_results_summary_visits_done">Ziara Zote Zimefanywa</string>
+    <string name="connect_results_summary_days_over">Siku Zimeisha</string>
     <string name="back">Nyuma</string>
     <string name="recover">Pata nafuu</string>
     <string name="connect_job_info_per_visit">kwa ziara</string>

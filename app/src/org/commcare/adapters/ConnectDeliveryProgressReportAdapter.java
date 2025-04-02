@@ -45,9 +45,26 @@ public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<C
         holder.binding.tvDeliveryTitle.setText(String.valueOf(connectDeliveryDetails.getDeliveryName()));
         holder.binding.tvApproved.setText(String.valueOf(connectDeliveryDetails.getApprovedCount()));
         holder.binding.tvDeliveryTotalAmount.setText(String.valueOf(connectDeliveryDetails.getTotalAmount()));
-        String remaining = context.getString(R.string.connect_results_summary_remaining_days,
-                connectDeliveryDetails.getPendingCount(), connectDeliveryDetails.getRemainingDays());
+
+        int pending = connectDeliveryDetails.getPendingCount();
+        String remaining;
+        if(pending > 0) {
+            remaining = switch ((int) connectDeliveryDetails.getRemainingDays()) {
+                case 0 ->
+                        context.getString(R.string.connect_results_summary_days_over);
+                case 1 ->
+                        context.getString(R.string.connect_results_summary_remaining_today, pending);
+                case 2 ->
+                        context.getString(R.string.connect_results_summary_remaining_tomorrow, pending);
+                default ->
+                        context.getString(R.string.connect_results_summary_remaining_days,
+                                pending, connectDeliveryDetails.getRemainingDays());
+            };
+        } else {
+            remaining = context.getString(R.string.connect_results_summary_visits_done);
+        }
         holder.binding.tvRemaining.setText(remaining);
+
         holder.binding.rootView.setOnClickListener(view -> {
             deliveryItemOnClickListener.onClick(connectDeliveryDetails.getDeliveryName());
         });

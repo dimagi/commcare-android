@@ -507,6 +507,10 @@
     <string name="connect_results_summary_all">Todos</string>
     <string name="connect_results_summary_remaining">Restante</string>
     <string name="connect_results_summary_remaining_days">%d em %d dias</string>
+    <string name="connect_results_summary_remaining_tomorrow">%d até Amanhã</string>
+    <string name="connect_results_summary_remaining_today">%d até Hoje</string>
+    <string name="connect_results_summary_visits_done">Todas as Visitas Realizadas</string>
+    <string name="connect_results_summary_days_over">Dias Acima</string>
     <string name="connect_results_payment_confirm">Confirmar</string>
     <string name="connect_results_payment_confirm_undo">Desfazer confirmação</string>
     <string name="connect_results_payment_confirmed">Confirmado</string>

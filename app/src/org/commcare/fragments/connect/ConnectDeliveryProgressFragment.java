@@ -28,7 +28,6 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -52,7 +51,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     private TextView updateText;
 
     private CardView paymentAlertTile;
-    private ConnectRegularTextView paymentAlertText;
+    private TextView paymentAlertText;
     private ConnectJobPaymentRecord paymentToConfirm = null;
     private String tabPosition = "";
     boolean isTabChange = false;
@@ -201,7 +200,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
         ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_discrepation);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
@@ -209,7 +208,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         });
 
         tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setText(job.getDescription());
+        tvJobDescription.setText(job.getDescription());
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();
