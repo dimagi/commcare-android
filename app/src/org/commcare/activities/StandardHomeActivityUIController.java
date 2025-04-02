@@ -82,14 +82,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (show) {
             ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
-            ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+            ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
             ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
             ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
             ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
-            tvJobDiscrepation.setText(job.getDescription());
+            tvJobDescription.setText(job.getDescription());
             connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
             String workingHours = job.getWorkingHours();
