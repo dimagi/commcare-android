@@ -200,7 +200,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
         ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
