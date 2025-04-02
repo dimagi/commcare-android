@@ -173,14 +173,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static ConnectJobRecord corruptJobfromJson(JSONObject json)throws JSONException{
         ConnectJobRecord job = new ConnectJobRecord();
-        job.jobId = json.has(META_JOB_ID) ? json.getInt(META_JOB_ID) : -1;
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
         job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
         return job;
     }
 
-    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
+    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);

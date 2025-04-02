@@ -153,7 +153,7 @@ public class ConnectJobsListsFragment extends Fragment {
                             try {
                                 obj = (JSONObject)json.get(i);
                                 jobs.add(ConnectJobRecord.fromJson(obj));
-                            }catch (JSONException | ParseException e) {
+                            }catch (JSONException  e) {
                                 Logger.exception("Parsing return from Opportunities request", e);
                                 handleCorruptJob(obj);
                             }
@@ -166,7 +166,7 @@ public class ConnectJobsListsFragment extends Fragment {
                     }
                 } catch (IOException | JSONException e) {
                     Logger.exception("Parsing / database error return from Opportunities request", e);
-                    handleCorruptJobs(e);
+                    throw new RuntimeException(e);
                 }
 
                 reportApiCall(true, totalJobs, newJobs);
@@ -212,22 +212,6 @@ public class ConnectJobsListsFragment extends Fragment {
         }
     }
 
-    private void handleCorruptJobs(Exception e){
-
-        TextView noOrCorruptJobsText = view.findViewById(R.id.connect_no_or_corrupt_jobs_text);
-        noOrCorruptJobsText.setText(R.string.connect_corrupt_jobs);
-        noOrCorruptJobsText.setVisibility(View.VISIBLE);
-
-        // App will crash after displaying the message to user for 3 seconds.
-        // We will remove this runtime exception (crash) in future.
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                throw new RuntimeException(e);
-            }
-        }, 3000);
-    }
-
     private void handleCorruptJob(JSONObject obj) {
         if(obj!=null) {
             try {
@@ -255,9 +239,8 @@ public class ConnectJobsListsFragment extends Fragment {
     private void initRecyclerView() {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
 
-        TextView noOrCorruptJobsText = view.findViewById(R.id.connect_no_or_corrupt_jobs_text);
-        noOrCorruptJobsText.setText(R.string.connect_no_jobs);
-        noOrCorruptJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
+        TextView noJobsText = view.findViewById(R.id.connect_no_jobs_text);
+        noJobsText.setVisibility((corruptJobs.size()>0 || jobList.size() > 0) ? View.GONE : View.VISIBLE);
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList,corruptJobs, (job, isLearning, appId, jobType) -> {
             if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
