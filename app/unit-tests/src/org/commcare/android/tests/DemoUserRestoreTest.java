@@ -51,6 +51,11 @@ public class DemoUserRestoreTest {
     private final static String REF_BASE_DIR =
             "jr://resource/commcare-apps/demo_user_restore/";
 
+    @Before
+    public void setUp() throws Exception {
+        ((CommCareTestApplication)CommCareTestApplication.instance()).setSkipWorkManager();
+    }
+
     private static void loginAsDemoUser() {
         Intent loginActivityIntent =
                 new Intent(ApplicationProvider.getApplicationContext(), LoginActivity.class);

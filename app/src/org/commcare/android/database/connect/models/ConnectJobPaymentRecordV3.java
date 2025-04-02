@@ -29,11 +29,18 @@ public class ConnectJobPaymentRecordV3 extends Persisted implements Serializable
     @MetaField(META_AMOUNT)
     private String amount;
 
-    public ConnectJobPaymentRecordV3() {}
+    public ConnectJobPaymentRecordV3() {
+    }
 
-    public int getJobId() { return jobId; }
+    public int getJobId() {
+        return jobId;
+    }
 
-    public Date getDate() { return date;}
+    public Date getDate() {
+        return date;
+    }
 
-    public String getAmount() { return amount; }
+    public String getAmount() {
+        return amount;
+    }
 }

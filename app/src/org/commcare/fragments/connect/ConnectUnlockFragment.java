@@ -11,8 +11,10 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -92,7 +94,7 @@ public class ConnectUnlockFragment extends Fragment {
                                 Logger.exception("Parsing return from Opportunities request", e);
                             }
                         }
-                        ConnectDatabaseHelper.storeJobs(requireContext(), jobs, true);
+                        new JobStoreManager(requireContext()).storeJobs(requireContext(), jobs, true);
                     }
                 } catch (IOException | JSONException e) {
                     Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
@@ -140,7 +142,7 @@ public class ConnectUnlockFragment extends Fragment {
 
         if(!Strings.isNullOrEmpty(opportunityId)) {
             int jobId = Integer.parseInt(opportunityId);
-            ConnectJobRecord job = ConnectDatabaseHelper.getJob(requireContext(), jobId);
+            ConnectJobRecord job = ConnectJobUtils.getCompositeJob(requireContext(), jobId);
             if(job != null) {
                 ConnectManager.setActiveJob(job);
             }

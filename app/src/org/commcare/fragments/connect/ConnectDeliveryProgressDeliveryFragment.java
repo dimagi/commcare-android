@@ -114,16 +114,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         if (job != null) {
             List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
             HashMap<String, HashMap<String, Integer>> paymentTypeAndStatusCounts = new HashMap<>();
-            int totalApproved = 0;
-            int totalPending = 0;
-            String totalAmount;
-            long daysRemaining;
-            ConnectJobDeliveryRecord delivery = null;
 
             if (!job.getDeliveries().isEmpty()) {
                 // Loop through each delivery and count statuses
                 for (int i = 0; i < job.getDeliveries().size(); i++) {
-                    delivery = job.getDeliveries().get(i);
+                    ConnectJobDeliveryRecord delivery = job.getDeliveries().get(i);
                     if (delivery == null) {
                         continue;
                     }
@@ -150,22 +145,21 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                     HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.containsKey(unitIdKey) ? paymentTypeAndStatusCounts.get(unitIdKey) : new HashMap<>();
 
                     // Get pending and approved counts
-                    totalPending = statusCounts.containsKey("pending") ? statusCounts.get("pending") : 0;
-                    totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
+                    int totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
+                    int remaining = unit.getMaxTotal() - totalApproved;
 
                     // Calculate the total amount for this delivery (numApproved * unit amount)
-                    totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
+                    String totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
 
                     // Calculate remaining days for the delivery
-                    daysRemaining = calculateDaysPending(delivery);
+                    long daysRemaining = job.getDaysRemaining();
 
-                    int totalStatus = totalPending + totalApproved;
-                    double approvedPercentage = totalStatus > 0 ? (double) totalApproved / totalStatus * 100 : 0.0;
+                    double approvedPercentage = unit.getMaxTotal() > 0 ? (double) totalApproved / unit.getMaxTotal() * 100 : 0.0;
                     connectDeliveryDetails = new ConnectDeliveryDetails();
                     connectDeliveryDetails.setUnitId(unit.getUnitId());
                     connectDeliveryDetails.setDeliveryName(unit.getName());
                     connectDeliveryDetails.setApprovedCount(totalApproved);
-                    connectDeliveryDetails.setPendingCount(totalPending);
+                    connectDeliveryDetails.setPendingCount(remaining);
                     connectDeliveryDetails.setRemainingDays(daysRemaining);
                     connectDeliveryDetails.setTotalAmount(totalAmount);
                     connectDeliveryDetails.setApprovedPercentage(approvedPercentage);
@@ -181,17 +175,5 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                 recyclerView.setAdapter(adapter);
             }
         }
-    }
-
-    private long calculateDaysPending(ConnectJobDeliveryRecord delivery) {
-        Date dueDate = delivery.getDate();
-        if (dueDate == null) {
-            return 0;
-        }
-        long currentTime = System.currentTimeMillis();
-        long dueTime = dueDate.getTime();
-        long timeDifference = dueTime - currentTime;
-        long daysPending = TimeUnit.MILLISECONDS.toDays(timeDifference);
-        return Math.max(0, daysPending);
     }
 }

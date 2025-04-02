@@ -10,8 +10,9 @@ import androidx.navigation.ui.NavigationUI;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 
@@ -74,7 +75,7 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
                 if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
-                    ConnectMessagingChannelRecord channel = ConnectDatabaseHelper.getMessagingChannel(this, channelId);
+                    ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
 
                     int fragmentId = channel.getConsented() ? R.id.connectMessageFragment : R.id.channelListFragment;
 

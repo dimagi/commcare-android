@@ -14,6 +14,9 @@ import java.util.Date;
 
 /**
  * Data class for holding info related to the completion of a Connect job learning module
+ * This version (V2) includes additional fields for learning modules and payment tracking
+ * compared to V1. Migration from V1 automatically copies existing fields and initializes
+ * new fields with default values.
  *
  * @author dviggiano
  */
@@ -53,15 +56,22 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         record.lastUpdate = new Date();
 
         record.jobId = jobId;
-        record.date = json.has(META_DATE) ? DateUtils.parseDateTime(json.getString(META_DATE)) : new Date();
-        record.moduleId = json.has(META_MODULE) ? json.getInt(META_MODULE) : -1;
-        record.duration = json.has(META_DURATION) ? json.getString(META_DURATION) : "";
+        record.date = DateUtils.parseDateTime(json.getString(META_DATE));
+        record.moduleId = json.getInt(META_MODULE);
+        record.duration = json.getString(META_DURATION);
 
         return record;
     }
 
-    public int getModuleId() { return moduleId; }
-    public Date getDate() { return date; }
+    public int getModuleId() {
+        return moduleId;
+    }
 
-    public void setLastUpdate(Date date) { lastUpdate = date; }
+    public Date getDate() {
+        return date;
+    }
+
+    public void setLastUpdate(Date date) {
+        lastUpdate = date;
+    }
 }

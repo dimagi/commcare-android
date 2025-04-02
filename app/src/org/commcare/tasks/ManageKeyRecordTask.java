@@ -207,6 +207,10 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|captive portal detected");
                 receiver.raiseLoginMessage(StockMessages.Sync_CaptivePortal, true);
                 break;
+            case InsufficientRolePermission:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|insufficient role permission");
+                receiver.raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
+                break;
             default:
                 break;
         }

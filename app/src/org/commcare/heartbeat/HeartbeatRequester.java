@@ -1,6 +1,7 @@
 package org.commcare.heartbeat;
 
 
+import static org.commcare.AppUtils.getCurrentAppId;
 import static org.commcare.utils.FirebaseMessagingUtil.FCM_TOKEN;
 import static org.commcare.utils.FirebaseMessagingUtil.FCM_TOKEN_TIME;
 
@@ -103,8 +104,7 @@ public class HeartbeatRequester extends GetAndParseActor {
         boolean disableBackgroundWork = responseAsJson.optBoolean("disable_background_work", false);
         HiddenPreferences.setDisableBackgroundWorkTime(disableBackgroundWork);
         if (disableBackgroundWork) {
-            WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(
-                    CommCareApplication.instance().getCurrentApp().getUniqueId());
+            WorkManager.getInstance(CommCareApplication.instance()).cancelAllWorkByTag(getCurrentAppId());
         }
     }
 

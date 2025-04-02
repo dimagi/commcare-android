@@ -25,8 +25,9 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -264,21 +265,14 @@ public class ConnectIDSignupFragment extends Fragment {
                 String finalPhone = phone;
                 switch (callingClass) {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
-                         ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
-                         ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
-                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
+                            ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
+                            ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
+                        binding.errorTextView.setVisibility(View.VISIBLE);
+                        if (existingAlternate != null && existingAlternate.equals(phone)) {
                             binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
-                            //Make sure the number isn't already in use
-//                            phone = phone.replaceAll("\\+", "%2b");
-                            binding.errorTextView.setVisibility(View.VISIBLE);
                             binding.errorTextView.setText(getString(R.string.connect_phone_checking));
-
-                                    ApiConnectId.checkPhoneAvailable(getContext(), phone,
+                            ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
@@ -296,7 +290,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                         @Override
                                         public void processFailure(int responseCode, IOException e) {
                                             skipPhoneNumberCheck = false;
-                                            if(responseCode==406){
+                                            if (responseCode == 406) {
                                                 skipPhoneNumberCheck = false;
                                                 updateButtonEnabled();
                                                 binding.errorTextView.setVisibility(View.VISIBLE);
@@ -335,8 +329,8 @@ public class ConnectIDSignupFragment extends Fragment {
                                             binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
                                         }
                                     });
-
                         }
+
                     }
                     case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
@@ -383,7 +377,7 @@ public class ConnectIDSignupFragment extends Fragment {
                                 user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
                             }
 
-                            ConnectDatabaseHelper.storeUser(context, user);
+                            ConnectUserDatabaseUtil.storeUser(context, user);
 
                             //            ConnectUserRecord dbUser = ConnectDatabaseHelper.getUser(getActivity());
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);

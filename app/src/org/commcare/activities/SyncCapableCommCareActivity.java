@@ -274,6 +274,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
         }
+        CommCareApplication.instance().scheduleEntityCacheInvalidation();
     }
 
     public void updateUiForFormUploadResult(String message, boolean success) {
