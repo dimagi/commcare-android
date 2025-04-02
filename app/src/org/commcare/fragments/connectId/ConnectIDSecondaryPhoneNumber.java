@@ -122,7 +122,14 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 binding.connectPrimaryPhoneInput.getText().toString());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-
+        String userPrimaryNumber = ConnectManager.getUser(requireActivity()).getPrimaryPhone();
+        if (userPrimaryNumber.equals(phone)) {
+            binding.errorTextView.setVisibility(View.VISIBLE);
+            binding.errorTextView.setText("Primary and alternate phone number are same");
+            valid = false;
+        }else{
+            binding.errorTextView.setVisibility(View.GONE);
+        }
         binding.continueButton.setEnabled(valid);
     }
 
