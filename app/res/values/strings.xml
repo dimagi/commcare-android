@@ -613,6 +613,10 @@
     <string name="connect_results_summary_earned">Earned</string>
     <string name="connect_results_summary_remaining">Remaining</string>
     <string name="connect_results_summary_remaining_days">%d in %d days</string>
+    <string name="connect_results_summary_remaining_tomorrow">%d by tomorrow</string>
+    <string name="connect_results_summary_remaining_today">%d by today</string>
+    <string name="connect_results_summary_visits_done">All Visits Done</string>
+    <string name="connect_results_summary_days_over">Days Over</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
 

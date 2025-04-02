@@ -19,6 +19,8 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     public static final String STORAGE_KEY = "connect_payment_units";
 
     public static final String META_JOB_ID = "job_id";
+    //NOTE: Server sends id, but local DB already using unit_id
+    public static final String META_ID = "id";
     public static final String META_UNIT_ID = "unit_id";
     public static final String META_NAME = "name";
     public static final String META_TOTAL = "max_total";
@@ -58,7 +60,7 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
             ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
 
             paymentUnit.jobId = jobId;
-            paymentUnit.unitId = json.getInt(META_UNIT_ID);
+            paymentUnit.unitId = json.getInt(META_ID);
             paymentUnit.name = json.getString(META_NAME);
             paymentUnit.maxTotal = json.getInt(META_TOTAL);
             paymentUnit.maxDaily = json.getInt(META_DAILY);

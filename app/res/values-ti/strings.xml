@@ -491,6 +491,10 @@
     <string name="connect_results_summary_all">ኩሎም</string>
     <string name="connect_results_summary_remaining">ዝተረፈ</string>
     <string name="connect_results_summary_remaining_days">%d ኣብ ውሽጢ %d መዓልቲ</string>
+    <string name="connect_results_summary_remaining_tomorrow">%d ብ ጽባሕ</string>
+    <string name="connect_results_summary_remaining_today">%d ብ ሎሚ</string>
+    <string name="connect_results_summary_visits_done">ኩሉ ዝተገብረ ምብጻሕ</string>
+    <string name="connect_results_summary_days_over">መዓልታት ተወዲኡ</string>
     <string name="connect_results_payment_confirm">ኣረጋግፅ</string>
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
