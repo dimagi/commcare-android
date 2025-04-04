@@ -48,15 +48,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         mContext = parent.getContext();
         // Inflate the layout for each item using View Binding
         if(viewType==NON_CORRUPT_JOB_VIEW){
-            ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false);
+            ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
             return new NonCorruptJobViewHolder(binding);
         }else{
-            ItemLoginConnectHomeCorruptAppsBinding binding = ItemLoginConnectHomeCorruptAppsBinding.inflate(
-                    LayoutInflater.from(parent.getContext()), parent, false);
+            ItemLoginConnectHomeCorruptAppsBinding binding = ItemLoginConnectHomeCorruptAppsBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
             return new CorruptJobViewHolder(binding);
         }
-
     }
 
     @Override
