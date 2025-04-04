@@ -435,10 +435,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public int getDaysRemaining() {
         long millis = projectEndDate.getTime() - (startDate).getTime();
-        //(since the end date has 00:00 time, but project is valid until midnight)
+        //End date has 00:00 time, but project is valid until midnight
+        //So add just under one day to the difference
+        millis += 86399999; //one ms less than 24 hours
         int days = (int)TimeUnit.MILLISECONDS.toDays(millis);
         //Now plus 1 so we report i.e. 1 day remaining on the last day
-        return days >= 0 ? (days + 1) : 0;
+        //But for any negative difference, we return 0
+        return millis >= 0 ? (days + 1) : 0;
     }
 
     public String getWorkingHours() {
