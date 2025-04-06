@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import androidx.exifinterface.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -595,6 +596,51 @@ public class FileUtil {
         return strings[strings.length - 1];
     }
 
+    private static void copyExifData(ExifInterface sourceExif, ExifInterface destExif, Bitmap scaledBitmap) {
+        String[] exifTags = {
+                ExifInterface.TAG_DATETIME,
+                ExifInterface.TAG_MAKE,
+                ExifInterface.TAG_MODEL,
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.TAG_GPS_LATITUDE,
+                ExifInterface.TAG_GPS_LONGITUDE,
+                ExifInterface.TAG_GPS_LATITUDE_REF,
+                ExifInterface.TAG_GPS_LONGITUDE_REF,
+                ExifInterface.TAG_FLASH,
+                ExifInterface.TAG_EXPOSURE_TIME,
+        };
+
+        for (String tag : exifTags) {
+            String value = sourceExif.getAttribute(tag);
+            if (value != null) {
+                destExif.setAttribute(tag, value);
+            }
+        }
+
+        // Update dimensions for the scaled image
+        destExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(scaledBitmap.getWidth()));
+        destExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(scaledBitmap.getHeight()));
+    }
+
+    private static void logExifAttributesToCheckRetention(ExifInterface src, ExifInterface dest) {
+        String[] exifTags = {
+                ExifInterface.TAG_DATETIME,
+                ExifInterface.TAG_MAKE,
+                ExifInterface.TAG_MODEL,
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.TAG_GPS_LATITUDE,
+                ExifInterface.TAG_GPS_LONGITUDE,
+                ExifInterface.TAG_GPS_LATITUDE_REF,
+                ExifInterface.TAG_GPS_LONGITUDE_REF,
+                ExifInterface.TAG_FLASH,
+                ExifInterface.TAG_EXPOSURE_TIME
+        };
+
+        for (String tag : exifTags) {
+            Log.i("ImageTest", tag + " : " + src.getAttribute(tag) + " -> " + dest.getAttribute(tag));
+        }
+    }
+
     /**
      * @return whether or not originalImage was scaled down according to maxDimen, and saved to
      * the location given by finalFilePath
@@ -609,16 +655,31 @@ public class FileUtil {
             return false;
         }
 
+        // Read original EXIF data form the original image file
+        ExifInterface originalExif;
+        try {
+            originalExif = new ExifInterface(originalImage.getAbsolutePath());
+        } catch (IOException e) {
+            return false;
+        }
+
         Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
         if (bitmapAndScaledBool.second) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
                     "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
         }
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
+
+        // Save scaled image and copy EXIF data
+        File scaledFile = new File(finalFilePath);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             try {
-                writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, new File(finalFilePath));
+                writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, scaledFile);
+                ExifInterface newExif = new ExifInterface(scaledFile.getAbsolutePath());
+                copyExifData(originalExif, newExif, scaledBitmap);
+                logExifAttributesToCheckRetention(originalExif, newExif); // comment this line if logging is not required
+                newExif.saveAttributes();
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
