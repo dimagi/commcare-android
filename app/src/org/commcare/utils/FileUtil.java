@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
@@ -64,6 +65,19 @@ public class FileUtil {
     private static final int WARNING_SIZE = 3000;
 
     private static final String LOG_TOKEN = "cc-file-util";
+
+    private static final String[] EXIF_TAGS = {
+            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_MAKE,
+            ExifInterface.TAG_MODEL,
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.TAG_GPS_LATITUDE,
+            ExifInterface.TAG_GPS_LONGITUDE,
+            ExifInterface.TAG_GPS_LATITUDE_REF,
+            ExifInterface.TAG_GPS_LONGITUDE_REF,
+            ExifInterface.TAG_FLASH,
+            ExifInterface.TAG_EXPOSURE_TIME
+    };
 
     public static boolean deleteFileOrDir(String path) {
         return deleteFileOrDir(new File(path));
@@ -597,20 +611,7 @@ public class FileUtil {
     }
 
     private static void copyExifData(ExifInterface sourceExif, ExifInterface destExif, Bitmap scaledBitmap) {
-        String[] exifTags = {
-                ExifInterface.TAG_DATETIME,
-                ExifInterface.TAG_MAKE,
-                ExifInterface.TAG_MODEL,
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.TAG_GPS_LATITUDE,
-                ExifInterface.TAG_GPS_LONGITUDE,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                ExifInterface.TAG_FLASH,
-                ExifInterface.TAG_EXPOSURE_TIME,
-        };
-
-        for (String tag : exifTags) {
+        for (String tag : EXIF_TAGS) {
             String value = sourceExif.getAttribute(tag);
             if (value != null) {
                 destExif.setAttribute(tag, value);
@@ -623,21 +624,8 @@ public class FileUtil {
     }
 
     private static void logExifAttributesToCheckRetention(ExifInterface src, ExifInterface dest) {
-        String[] exifTags = {
-                ExifInterface.TAG_DATETIME,
-                ExifInterface.TAG_MAKE,
-                ExifInterface.TAG_MODEL,
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.TAG_GPS_LATITUDE,
-                ExifInterface.TAG_GPS_LONGITUDE,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                ExifInterface.TAG_FLASH,
-                ExifInterface.TAG_EXPOSURE_TIME
-        };
-
-        for (String tag : exifTags) {
-            Log.i("ImageTest", tag + " : " + src.getAttribute(tag) + " -> " + dest.getAttribute(tag));
+        for (String tag : EXIF_TAGS) {
+            Log.i(LOG_TOKEN, tag + " : " + src.getAttribute(tag) + " -> " + dest.getAttribute(tag));
         }
     }
 
@@ -678,7 +666,9 @@ public class FileUtil {
                 writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, scaledFile);
                 ExifInterface newExif = new ExifInterface(scaledFile.getAbsolutePath());
                 copyExifData(originalExif, newExif, scaledBitmap);
-                logExifAttributesToCheckRetention(originalExif, newExif); // comment this line if logging is not required
+                if (BuildConfig.DEBUG) {
+                    logExifAttributesToCheckRetention(originalExif, newExif);
+                }
                 newExif.saveAttributes();
                 return true;
             } catch (Exception e) {
