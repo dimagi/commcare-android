@@ -228,18 +228,28 @@ public class ConnectIdPinFragment extends Fragment {
                         }
 
                         @Override
-                        public void processFailure(int responseCode, IOException e) {
+                        public void processFailure(int responseCode) {
                             handleWrongPin();
                         }
 
                         @Override
                         public void processNetworkFailure() {
-                            ConnectNetworkHelper.showNetworkError(getActivity());
+                            ConnectNetworkHelper.showNetworkError(requireActivity());
+                        }
+
+                        @Override
+                        public void processTokenUnavailableError() {
+                            ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                        }
+
+                        @Override
+                        public void processTokenRequestDeniedError() {
+                            ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
                         }
 
                         @Override
                         public void processOldApiError() {
-                            ConnectNetworkHelper.showOutdatedApiError(getActivity());
+                            ConnectNetworkHelper.showOutdatedApiError(requireActivity());
                         }
                     });
         } else if (isRecovery) {
@@ -294,18 +304,28 @@ public class ConnectIdPinFragment extends Fragment {
                         }
 
                         @Override
-                        public void processFailure(int responseCode, IOException e) {
+                        public void processFailure(int responseCode) {
                             handleWrongPin();
                         }
 
                         @Override
                         public void processNetworkFailure() {
-                            ConnectNetworkHelper.showNetworkError(getActivity());
+                            ConnectNetworkHelper.showNetworkError(requireActivity());
+                        }
+
+                        @Override
+                        public void processTokenUnavailableError() {
+                            ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                        }
+
+                        @Override
+                        public void processTokenRequestDeniedError() {
+                            ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
                         }
 
                         @Override
                         public void processOldApiError() {
-                            ConnectNetworkHelper.showOutdatedApiError(getActivity());
+                            ConnectNetworkHelper.showOutdatedApiError(requireActivity());
                         }
                     });
         } else if (pin.equals(user.getPin())) {
@@ -333,19 +353,29 @@ public class ConnectIdPinFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Toast.makeText(context, getString(R.string.connect_recovery_failure),
                         Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getActivity());
+                ConnectNetworkHelper.showNetworkError(requireActivity());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
             }
 
             @Override
             public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
+                ConnectNetworkHelper.showOutdatedApiError(requireActivity());
             }
         });
     }

@@ -29,6 +29,7 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
@@ -274,6 +275,14 @@ public class ConnectIDSignupFragment extends Fragment {
                             binding.errorTextView.setText(getString(R.string.connect_phone_checking));
                             ApiConnectId.checkPhoneAvailable(getContext(), phone,
                                     new IApiCallback() {
+                                        
+                                        private void showError(int errorStringId) {
+                                            skipPhoneNumberCheck = false;
+                                            updateButtonEnabled();
+                                            binding.errorTextView.setVisibility(View.VISIBLE);
+                                            binding.errorTextView.setText(errorStringId);
+                                        }
+                                        
                                         @Override
                                         public void processSuccess(int responseCode, InputStream responseData) {
                                             skipPhoneNumberCheck = false;
@@ -288,21 +297,10 @@ public class ConnectIDSignupFragment extends Fragment {
                                         }
 
                                         @Override
-                                        public void processFailure(int responseCode, IOException e) {
+                                        public void processFailure(int responseCode) {
                                             skipPhoneNumberCheck = false;
-                                            if (responseCode == 406) {
-                                                skipPhoneNumberCheck = false;
-                                                updateButtonEnabled();
-                                                binding.errorTextView.setVisibility(View.VISIBLE);
-                                                binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
-                                            }
-                                            if (e != null) {
-                                                Logger.exception("Checking phone number", e);
-                                            }
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                                                 updateButtonEnabled();
-                                                binding.errorTextView.setVisibility(View.VISIBLE);
-                                                binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
                                                 directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                                                 Navigation.findNavController(binding.continueButton).navigate(directions);
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
@@ -315,18 +313,22 @@ public class ConnectIDSignupFragment extends Fragment {
 
                                         @Override
                                         public void processNetworkFailure() {
-                                            skipPhoneNumberCheck = false;
-                                            updateButtonEnabled();
-                                            binding.errorTextView.setVisibility(View.VISIBLE);
-                                            binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
+                                            showError(R.string.recovery_network_unavailable);
+                                        }
+
+                                        @Override
+                                        public void processTokenUnavailableError() {
+                                            showError(R.string.recovery_network_token_unavailable);
+                                        }
+
+                                        @Override
+                                        public void processTokenRequestDeniedError() {
+                                            showError(R.string.recovery_network_token_request_rejected);
                                         }
 
                                         @Override
                                         public void processOldApiError() {
-                                            skipPhoneNumberCheck = false;
-                                            updateButtonEnabled();
-                                            binding.errorTextView.setVisibility(View.VISIBLE);
-                                            binding.errorTextView.setText(getString(R.string.recovery_network_outdated));
+                                            showError(R.string.recovery_network_outdated);
                                         }
                                     });
                         }
@@ -357,7 +359,7 @@ public class ConnectIDSignupFragment extends Fragment {
                 binding.nameTextValue.getText().toString(), "");
 
         final Context context = getActivity();
-                ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
+        ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
                 tempUser.getName(), phoneNo, new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
@@ -390,7 +392,7 @@ public class ConnectIDSignupFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, IOException e) {
+                    public void processFailure(int responseCode) {
                         binding.errorTextView.setVisibility(View.VISIBLE);
                         binding.errorTextView.setText(String.format(Locale.getDefault(), "Registration error: %d",
                                 responseCode));
@@ -403,8 +405,18 @@ public class ConnectIDSignupFragment extends Fragment {
                     }
 
                     @Override
+                    public void processTokenUnavailableError() {
+                        ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                    }
+
+                    @Override
                     public void processOldApiError() {
-                        Toast.makeText(requireActivity(), R.string.recovery_network_outdated, Toast.LENGTH_SHORT).show();
+                        ConnectNetworkHelper.showOutdatedApiError(requireActivity());
                     }
                 });
     }

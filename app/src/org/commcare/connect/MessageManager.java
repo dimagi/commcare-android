@@ -11,32 +11,23 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class MessageManager {
-
-    private static MessageManager manager = null;
-
-    public static MessageManager getInstance() {
-        if (manager == null) {
-            manager = new MessageManager();
-        }
-
-        return manager;
-    }
-
     public static ConnectMessagingMessageRecord handleReceivedMessage(Context context, Map<String, String> payloadData) {
         ConnectMessagingMessageRecord message = null;
         String channelId = payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
@@ -46,7 +37,14 @@ public class MessageManager {
         if(channel != null && channel.getConsented()) {
             if(Strings.isNullOrEmpty(channel.getKey())) {
                 //Attempt to get the encryption key now if we don't have it yet
-                ApiConnectId.retrieveChannelEncryptionKeySync(context, channel);
+                try {
+                    ConnectUserRecord user = ConnectManager.getUser(context);
+                    AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context, user);
+                    ApiConnectId.retrieveChannelEncryptionKeySync(context, channel, auth);
+                } catch (TokenRequestDeniedException | TokenUnavailableException e) {
+                    Logger.exception("Retrieving channel encryption key", e);
+                    return null;
+                }
             }
 
             //If we still don't have a key, this will return null and we'll ignore the message
@@ -73,7 +71,7 @@ public class MessageManager {
                 try {
                     String responseAsString = new String(
                             StreamsUtil.inputStreamToByteArray(responseData));
-                    Log.e("DEBUG_TESTING", "processSuccess: " + responseAsString);
+
                     List<ConnectMessagingChannelRecord> channels = new ArrayList<>();
                     List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
                     if(responseAsString.length() > 0) {
@@ -107,39 +105,38 @@ public class MessageManager {
 
                     if(messages.size() > 0) {
                         MessageManager.updateReceivedMessages(context, success -> {
-                            Log.d("Check", Boolean.toString(success));
+                            //Do nothing
                         });
                     }
 
                     listener.connectActivityComplete(true);
                 } catch(Exception e) {
-                    Log.e("Error", "Oops", e);
                     listener.connectActivityComplete(false);
                 }
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
-                Log.e("DEBUG_TESTING", "processFailure: " + responseCode);
+            public void processFailure(int responseCode) {
                 listener.connectActivityComplete(false);
-
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
             }
 
             @Override
             public void processNetworkFailure() {
-                Log.e("DEBUG_TESTING", "processNetworkFailure: ");
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
                 listener.connectActivityComplete(false);
             }
 
             @Override
             public void processOldApiError() {
-                Log.e("DEBUG_TESTING", "processOldApiError: ");
                 listener.connectActivityComplete(false);
             }
         };
@@ -172,28 +169,29 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Log.e("DEBUG_TESTING", "processFailure: " + responseCode);
                 //listener.connectActivityComplete(false);
                 getChannelEncryptionKey(context, channel, listener);
-
-                String message = "";
-                if (responseCode > 0) {
-                    message = String.format(Locale.getDefault(), "(%d)", responseCode);
-                } else if (e != null) {
-                    message = e.toString();
-                }
             }
 
             @Override
             public void processNetworkFailure() {
-                Log.e("DEBUG_TESTING", "processNetworkFailure: ");
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                listener.connectActivityComplete(false);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
                 listener.connectActivityComplete(false);
             }
 
             @Override
             public void processOldApiError() {
-                Log.e("DEBUG_TESTING", "processOldApiError: ");
                 listener.connectActivityComplete(false);
             }
         };
@@ -209,41 +207,53 @@ public class MessageManager {
 
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
                                                ConnectManager.ConnectActivityCompleteListener listener) {
-        ApiConnectId.retrieveChannelEncryptionKey(context, channel.getChannelId(), channel.getKeyUrl(),
+        ConnectUserRecord user = ConnectManager.getUser(context);
+        ApiConnectId.retrieveChannelEncryptionKey(context, user, channel.getChannelId(), channel.getKeyUrl(),
                 new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                ApiConnectId.handleReceivedEncryptionKey(context, responseData, channel);
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        ApiConnectId.handleReceivedEncryptionKey(context, responseData, channel);
 
-                if (listener != null) {
-                    listener.connectActivityComplete(true);
-                }
-            }
+                        if (listener != null) {
+                            listener.connectActivityComplete(true);
+                        }
+                    }
 
-            @Override
-            public void processFailure(int responseCode, IOException e) {
-                Log.d("DEBUG", "Chcek");
-                if(listener != null) {
-                    listener.connectActivityComplete(false);
-                }
-            }
+                    @Override
+                    public void processFailure(int responseCode) {
+                        if (listener != null) {
+                            listener.connectActivityComplete(false);
+                        }
+                    }
 
-            @Override
-            public void processNetworkFailure() {
-                Log.d("DEBUG", "Chcek");
-                if(listener != null) {
-                    listener.connectActivityComplete(false);
-                }
-            }
+                    @Override
+                    public void processNetworkFailure() {
+                        if (listener != null) {
+                            listener.connectActivityComplete(false);
+                        }
+                    }
 
-            @Override
-            public void processOldApiError() {
-                Log.d("DEBUG", "Chcek");
-                if(listener != null) {
-                    listener.connectActivityComplete(false);
-                }
-            }
-        });
+                    @Override
+                    public void processTokenUnavailableError() {
+                        if (listener != null) {
+                            listener.connectActivityComplete(false);
+                        }
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        if (listener != null) {
+                            listener.connectActivityComplete(false);
+                        }
+                    }
+
+                    @Override
+                    public void processOldApiError() {
+                        if (listener != null) {
+                            listener.connectActivityComplete(false);
+                        }
+                    }
+                });
     }
 
     public static void updateReceivedMessages(Context context, ConnectManager.ConnectActivityCompleteListener listener) {
@@ -270,12 +280,22 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
+                public void processFailure(int responseCode) {
                     listener.connectActivityComplete(false);
                 }
 
                 @Override
                 public void processNetworkFailure() {
+                    listener.connectActivityComplete(false);
+                }
+
+                @Override
+                public void processTokenUnavailableError() {
+                    listener.connectActivityComplete(false);
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
                     listener.connectActivityComplete(false);
                 }
 
@@ -314,12 +334,22 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
+                public void processFailure(int responseCode) {
                     listener.connectActivityComplete(false);
                 }
 
                 @Override
                 public void processNetworkFailure() {
+                    listener.connectActivityComplete(false);
+                }
+
+                @Override
+                public void processTokenUnavailableError() {
+                    listener.connectActivityComplete(false);
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
                     listener.connectActivityComplete(false);
                 }
 

@@ -150,7 +150,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
+                public void processFailure(int responseCode) {
                     skipPhoneNumberCheck = false;
                     Toast.makeText(getContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
@@ -160,6 +160,18 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 public void processNetworkFailure() {
                     skipPhoneNumberCheck = false;
                     ConnectNetworkHelper.showNetworkError(getContext());
+                }
+
+                @Override
+                public void processTokenUnavailableError() {
+                    skipPhoneNumberCheck = false;
+                    ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
+                    skipPhoneNumberCheck = false;
+                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
                 }
 
                 @Override

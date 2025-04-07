@@ -39,9 +39,10 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -136,7 +137,8 @@ public class ConnectJobsListsFragment extends Fragment {
 
     public void refreshData() {
         corruptJobs.clear();
-        ApiConnect.getConnectOpportunities(getContext(), new IApiCallback() {
+        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ApiConnect.getConnectOpportunities(getContext(), user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 int totalJobs = 0;
@@ -174,7 +176,7 @@ public class ConnectJobsListsFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
                 reportApiCall(false, 0, 0);
@@ -194,6 +196,23 @@ public class ConnectJobsListsFragment extends Fragment {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
                 ConnectNetworkHelper.showOutdatedApiError(getContext());
                 reportApiCall(false, 0, 0);
+                refreshUi();
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
+                ConnectNetworkHelper.handleTokenUnavailableException(getContext());
+                reportApiCall(false, 0, 0);
+                refreshUi();
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
+                ConnectNetworkHelper.handleTokenRequestDeniedException(getContext());
+                reportApiCall(false, 0, 0);
+                refreshUi();
             }
         });
 

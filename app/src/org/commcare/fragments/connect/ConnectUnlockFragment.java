@@ -10,6 +10,7 @@ import com.google.common.base.Strings;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
@@ -76,7 +77,8 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     public void retrieveOpportunities() {
-        ApiConnect.getConnectOpportunities(requireContext(), new IApiCallback() {
+        ConnectUserRecord user = ConnectManager.getUser(requireContext());
+        ApiConnect.getConnectOpportunities(requireContext(), user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -106,7 +108,7 @@ public class ConnectUnlockFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 setFragmentRedirection();
                 Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
@@ -115,14 +117,24 @@ public class ConnectUnlockFragment extends Fragment {
             @Override
             public void processNetworkFailure() {
                 setFragmentRedirection();
-                Toast.makeText(requireContext(), R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
-                Logger.log("ERROR", "Failed (network)");
+                ConnectNetworkHelper.showNetworkError(requireContext());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                setFragmentRedirection();
+                ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                setFragmentRedirection();
+                ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
             }
 
             @Override
             public void processOldApiError() {
                 setFragmentRedirection();
-                Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 ConnectNetworkHelper.showOutdatedApiError(requireContext());
             }
         });
