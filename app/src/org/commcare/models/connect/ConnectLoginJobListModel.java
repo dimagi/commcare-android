@@ -69,6 +69,13 @@ public class ConnectLoginJobListModel implements Parcelable {
     public ConnectLoginJobListModel() {
     }
 
+    public ConnectLoginJobListModel(
+            String name,
+            ConnectJobRecord job
+    ) {
+        this.name = name;
+        this.job = job;
+    }
     protected ConnectLoginJobListModel(Parcel in) {
         name = in.readString();
         id = in.readString();

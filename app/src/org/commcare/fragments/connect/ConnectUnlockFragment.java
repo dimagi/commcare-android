@@ -88,15 +88,20 @@ public class ConnectUnlockFragment extends Fragment {
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
                         for (int i = 0; i < json.length(); i++) {
-                            JSONObject obj = (JSONObject) json.get(i);
-                            ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
-                            jobs.add(job);
+                            try {
+                                JSONObject obj = (JSONObject) json.get(i);
+                                ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
+                                jobs.add(job);
+                            }catch (JSONException  e) {
+                                Logger.exception("Parsing return from Opportunities request", e);
+                            }
                         }
                         new JobStoreManager(requireContext()).storeJobs(requireContext(), jobs, true);
                     }
-                } catch (IOException | JSONException | ParseException e) {
+                } catch (IOException | JSONException e) {
                     Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                     Logger.exception("Parsing return from Opportunities request", e);
+                    throw new RuntimeException(e);
                 }
 
                 setFragmentRedirection();

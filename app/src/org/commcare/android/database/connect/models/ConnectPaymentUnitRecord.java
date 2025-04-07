@@ -55,7 +55,7 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
     }
 
-    public static ConnectPaymentUnitRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
+    public static ConnectPaymentUnitRecord fromJson(JSONObject json, int jobId) throws JSONException {
         try {
             ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
 

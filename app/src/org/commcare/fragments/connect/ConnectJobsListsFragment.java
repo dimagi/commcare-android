@@ -14,6 +14,8 @@ import static org.commcare.connect.ConnectManager.isAppInstalled;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,7 +58,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -73,6 +74,7 @@ public class ConnectJobsListsFragment extends Fragment {
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
+    ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
     View view;
 
 
@@ -134,6 +136,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     public void refreshData() {
+        corruptJobs.clear();
         ConnectUserRecord user = ConnectManager.getUser(getContext());
         ApiConnect.getConnectOpportunities(getContext(), user, new IApiCallback() {
             @Override
@@ -148,8 +151,14 @@ public class ConnectJobsListsFragment extends Fragment {
                         JSONArray json = new JSONArray(responseAsString);
                         List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
                         for (int i = 0; i < json.length(); i++) {
-                            JSONObject obj = (JSONObject) json.get(i);
-                            jobs.add(ConnectJobRecord.fromJson(obj));
+                            JSONObject obj=null;
+                            try {
+                                obj = (JSONObject)json.get(i);
+                                jobs.add(ConnectJobRecord.fromJson(obj));
+                            }catch (JSONException  e) {
+                                Logger.exception("Parsing return from Opportunities request", e);
+                                handleCorruptJob(obj);
+                            }
                         }
 
                         //Store retrieved jobs
@@ -157,8 +166,9 @@ public class ConnectJobsListsFragment extends Fragment {
                         newJobs =  ConnectJobUtils.storeJobs(getContext(), jobs, true);
                         setJobListData(jobs);
                     }
-                } catch (IOException | JSONException | ParseException e) {
-                    Logger.exception("Parsing return from Opportunities request", e);
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Parsing / database error return from Opportunities request", e);
+                    throw new RuntimeException(e);
                 }
 
                 reportApiCall(true, totalJobs, newJobs);
@@ -221,6 +231,16 @@ public class ConnectJobsListsFragment extends Fragment {
         }
     }
 
+    private void handleCorruptJob(JSONObject obj) {
+        if(obj!=null) {
+            try {
+                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobfromJson(obj)));
+            } catch (JSONException e) {
+                Logger.exception("JSONException while retrieving corrupt opportunity title", e);
+            }
+        }
+    }
+
     private void updateSecondaryPhoneConfirmationTile(Context context) {
         boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(context);
 
@@ -239,9 +259,9 @@ public class ConnectJobsListsFragment extends Fragment {
         RecyclerView rvJobList = view.findViewById(R.id.rvJobList);
 
         TextView noJobsText = view.findViewById(R.id.connect_no_jobs_text);
-        noJobsText.setVisibility(jobList.size() > 0 ? View.GONE : View.VISIBLE);
+        noJobsText.setVisibility((corruptJobs.size()>0 || jobList.size() > 0) ? View.GONE : View.VISIBLE);
 
-        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList, (job, isLearning, appId, jobType) -> {
+        JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList,corruptJobs, (job, isLearning, appId, jobType) -> {
             if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
                 launchJobInfo(job);
             } else {
@@ -369,6 +389,15 @@ public class ConnectJobsListsFragment extends Fragment {
                 job.getCompletedLearningModules(),
                 jobType,
                 appType,
+                job
+        );
+    }
+
+    private ConnectLoginJobListModel createJobModel(    // Keeping only title as of now as other information might be corrupt
+            ConnectJobRecord job
+    ) {
+        return new ConnectLoginJobListModel(
+                job.getTitle(),
                 job
         );
     }
