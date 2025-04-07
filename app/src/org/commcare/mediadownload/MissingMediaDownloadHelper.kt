@@ -3,6 +3,7 @@ package org.commcare.mediadownload
 import androidx.annotation.WorkerThread
 import androidx.work.*
 import kotlinx.coroutines.*
+import org.commcare.AppUtils.getCurrentAppId
 import org.commcare.CommCareApplication
 import org.commcare.android.resource.installers.MediaFileAndroidInstaller
 import org.commcare.dalvik.R
@@ -49,7 +50,7 @@ object MissingMediaDownloadHelper : TableStateListener {
                 .build()
 
         val downloadMissingMediaRequest = OneTimeWorkRequest.Builder(MissingMediaDownloadWorker::class.java)
-                .addTag(CommCareApplication.instance().currentApp.appRecord.applicationId)
+                .addTag(getCurrentAppId())
                 .setConstraints(constraints)
                 .setBackoffCriteria(
                         BackoffPolicy.EXPONENTIAL,
@@ -66,8 +67,7 @@ object MissingMediaDownloadHelper : TableStateListener {
 
     // Returns Unique request name for the UpdateWorker Request
     private fun getMissingMediaDownloadRequestName(): String {
-        val appId = CommCareApplication.instance().currentApp.uniqueId
-        return REQUEST_NAME + "_" + appId
+        return REQUEST_NAME + "_" + getCurrentAppId()
     }
 
 

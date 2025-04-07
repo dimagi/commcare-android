@@ -40,7 +40,7 @@
             <com.google.android.material.button.MaterialButton
                 android:layout_height="wrap_content"
                 app:backgroundTint="@color/solid_green"
-                android:textSize="@dimen/font_size_xlargest"
+                android:textSize="@dimen/font_size_xlarge"
                 android:layout_margin="16dp"
                 android:layout_width="wrap_content"
                 android:id="@+id/action_button"/>

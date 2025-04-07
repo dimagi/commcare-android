@@ -23,6 +23,7 @@ repositories {
         dirs 'libs'
     }
     maven { url 'https://jitpack.io' }
+    maven {url 'https://repository.liferay.com/nexus/content/repositories/public/'}
 }
 
 configurations {
@@ -44,6 +45,8 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20231013'
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.json:json:20140107'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     androidTestImplementation 'androidx.test:runner:1.4.0'
@@ -69,11 +72,7 @@ dependencies {
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
-    implementation (name: 'LibSimprints-1.0.12', ext: 'aar')
-    implementation (name: 'mapbox-android-accounts-0.2.0', ext: 'aar')
-    implementation (name: 'realm-android-library-4.1.1', ext: 'aar')
-    implementation (name: 'volley-1.1.0', ext: 'aar')
-    implementation (name: 'storage-2.1.0', ext: 'aar')
+    implementation 'com.simprints:libsimprints:2024.2.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
@@ -85,6 +84,9 @@ dependencies {
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:android-database-sqlcipher:4.5.3@aar'
     implementation 'androidx.sqlite:sqlite:2.2.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
@@ -102,7 +104,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
     implementation 'com.google.firebase:firebase-perf:21.0.1'
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation (name: 'rtl-viewpager-2.0.0', ext: 'aar')
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
@@ -117,12 +118,13 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:$markwon_version"
     implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 
+    // Kujaku
+    implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.snatik:storage:2.1.0'
     implementation('io.ona.kujaku:library:0.9.0') {
         exclude module: 'xpp3'
         exclude module: 'volley'
         exclude module: 'storage'
-        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
-        exclude group: 'io.realm'
     }
     implementation 'androidx.work:work-runtime:2.10.0'
     implementation 'androidx.work:work-runtime-ktx:2.10.0'
@@ -285,9 +287,7 @@ android {
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_LIVE', "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_DEV', "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
-
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
-
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
 
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
@@ -565,7 +565,7 @@ tasks.configureEach { task ->
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
-    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest') {
+    if (isInstrumentationTestTask(task)) {
         android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }
@@ -647,4 +647,9 @@ def getConsumerAppPassword(isConsumerApp) {
 downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
+}
+
+static def isInstrumentationTestTask(task){
+    def instrumentationTestTaskNamePattern = /^(assemble|connected).*AndroidTest/
+    return task.name ==~ instrumentationTestTaskNamePattern
 }

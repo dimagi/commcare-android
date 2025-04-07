@@ -27,8 +27,6 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -71,6 +69,11 @@
         android:label="@string/permission_external_action_label"
         />
 
+    <permission-group
+        android:name="commcare.permission-group.INTERNAL_ACTION"
+        android:label="@string/permission_group_internal_action_label"
+        />
+
     <permission
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
@@ -85,6 +88,14 @@
         android:label="@string/permission_commcare_logout_label"
         android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
         android:protectionLevel="dangerous">
+    </permission>
+
+    <permission
+        android:name="${applicationId}.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+        android:label="@string/permission_protect_falsely_exposed_components_label"
+        android:description="@string/permission_protect_falsely_exposed_components_description"
+        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:protectionLevel="signature">
     </permission>
 
     <queries>
@@ -162,7 +173,15 @@
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
-
+        <service android:name="com.google.android.gms.metadata.ModuleDependencies"
+            android:enabled="false"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+            </intent-filter>
+            <meta-data android:name="photopicker_activity:0:required" android:value="" />
+        </service>
         <provider
             android:name="org.commcare.provider.FormsProvider"
             android:exported="false"
@@ -346,7 +365,8 @@
 
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:exported="false">
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
 
@@ -399,8 +419,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="false"
-            android:name="org.commcare.android.nfc.NfcWriteActivity">
+            android:exported="true"
+            android:name="org.commcare.android.nfc.NfcWriteActivity"
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
 
@@ -408,8 +429,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="false"
-            android:name="org.commcare.android.nfc.NfcReadActivity">
+            android:exported="true"
+            android:name="org.commcare.android.nfc.NfcReadActivity"
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
 
@@ -427,9 +449,9 @@
         </receiver>
 
         <receiver
-            android:exported="true"
             android:name="org.commcare.provider.CommCareLogoutReceiver"
-            android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT">
+            android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.CommCareLogoutAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -503,8 +525,8 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Dialog.NoTitle">
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
 

@@ -11,7 +11,9 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
-
+    <string name="ConnectFetchDbKeyURL">/users/fetch_db_key</string>
+    <string name="ConnectTokenURL">/o/token/</string>
+    <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
@@ -152,6 +154,11 @@
     <string name="permission_external_action_description">Allows this app to trigger operations like login, logout and sync in CommCare</string>
     <string name="permission_commcare_logout_label">Allow Auto CommCare Logout</string>
     <string name="permission_commcare_logout_description">Allows this app to logout a user from CommmCare App</string>
+
+    <string name="permission_protect_falsely_exposed_components_label">Protect internal components</string>
+    <string name="permission_protect_falsely_exposed_components_description">Restricts external apps from accessing internal components</string>
+
+    <string name="permission_group_internal_action_label">Permission group for CommCare Internal Actions</string>
 
     <string name="title_activity_report_problem">ReportProblemActivity</string>
     <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
@@ -384,6 +391,7 @@
     <string name="recovery_forms_send_error" cc:translatable="true">Error while sending forms</string>
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
@@ -456,4 +464,14 @@
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
+
+    <!--    Entity List Progresss Indicators-->
+    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
+    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
+    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
+    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+
+
+    <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
 </resources>
