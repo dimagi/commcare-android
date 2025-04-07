@@ -547,6 +547,7 @@
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
     <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
+    <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
     <string name="connect_job_intro_title">Opportunity</string>
 
