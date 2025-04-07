@@ -67,16 +67,25 @@ public class FileUtil {
     private static final String LOG_TOKEN = "cc-file-util";
 
     private static final String[] EXIF_TAGS = {
-            ExifInterface.TAG_DATETIME,
-            ExifInterface.TAG_MAKE,
-            ExifInterface.TAG_MODEL,
-            ExifInterface.TAG_ORIENTATION,
             ExifInterface.TAG_GPS_LATITUDE,
-            ExifInterface.TAG_GPS_LONGITUDE,
             ExifInterface.TAG_GPS_LATITUDE_REF,
+            ExifInterface.TAG_GPS_LONGITUDE,
             ExifInterface.TAG_GPS_LONGITUDE_REF,
-            ExifInterface.TAG_FLASH,
-            ExifInterface.TAG_EXPOSURE_TIME
+            ExifInterface.TAG_GPS_TIMESTAMP,
+            ExifInterface.TAG_GPS_DATESTAMP,
+            ExifInterface.TAG_GPS_ALTITUDE,
+            ExifInterface.TAG_GPS_ALTITUDE_REF,
+            ExifInterface.TAG_GPS_AREA_INFORMATION,
+            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_DATETIME_DIGITIZED,
+            ExifInterface.TAG_DATETIME_ORIGINAL,
+            ExifInterface.TAG_OFFSET_TIME,
+            ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+            ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
+            ExifInterface.TAG_COPYRIGHT,
+            ExifInterface.TAG_IMAGE_DESCRIPTION,
+            ExifInterface.TAG_EXIF_VERSION,
+            ExifInterface.TAG_ORIENTATION
     };
 
     public static boolean deleteFileOrDir(String path) {
@@ -611,6 +620,9 @@ public class FileUtil {
     }
 
     private static void copyExifData(ExifInterface sourceExif, ExifInterface destExif, Bitmap scaledBitmap) {
+        if (sourceExif == null || destExif == null) {
+          return;
+        }
         for (String tag : EXIF_TAGS) {
             String value = sourceExif.getAttribute(tag);
             if (value != null) {
@@ -644,11 +656,11 @@ public class FileUtil {
         }
 
         // Read original EXIF data form the original image file
-        ExifInterface originalExif;
+        ExifInterface originalExif = null;
         try {
             originalExif = new ExifInterface(originalImage.getAbsolutePath());
         } catch (IOException e) {
-            return false;
+            Logger.exception("Failed to read EXIF data", e);
         }
 
         Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
