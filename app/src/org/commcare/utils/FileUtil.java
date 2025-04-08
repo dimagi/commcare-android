@@ -22,7 +22,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
