@@ -102,7 +102,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private boolean manuallySwitchedToPasswordMode;
     private ConnectIDManager.ConnectAppMangement connectAppState;
-    private boolean loginManagedByConnectId;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -493,7 +492,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected boolean loginManagedByConnectId() {
-        return loginManagedByConnectId;
+        return connectAppState == ConnectIDManager.ConnectAppMangement.ConnectId ||
+                connectAppState == ConnectIDManager.ConnectAppMangement.Connect;
     }
 
     public void setConnectButtonVisible(Boolean visible) {
@@ -534,10 +534,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
         loginButton.setText(text);
 
-        /**
-         * included these lines because when a user changes the language from the system settings while in the app,
-         * the strings should be translate correctly when they return to the app. That's why I added this code.
-         */
+        //handle language changes from system setttings
+
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
         passwordOrPin.setBackgroundColor(getResources().getColor(unmanaged ? R.color.white : R.color.grey_light));

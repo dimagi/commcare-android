@@ -618,7 +618,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 //Special case when user forgets ConnectID account and last app in the list is selected
                 position = appNames.size() - 1;
             }
-        } else if (appIdDropdownList.contains(currAppId)) {
+        } else {
             position = appIdDropdownList.indexOf(currAppId);
         }
 
@@ -823,7 +823,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void registerConnectIdUser() {
-        selectedAppIndex = -1;
         connectIDManager.launchConnectId(this, success -> {
             //Do nothing, just return to login page
         });

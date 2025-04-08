@@ -115,9 +115,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
             case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
-                if (success) {
-                    successFlow(activity);
-                }
+                successFlow(activity);
                 break;
             //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
             case ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE:
