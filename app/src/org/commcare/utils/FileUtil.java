@@ -635,12 +635,6 @@ public class FileUtil {
         destExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(scaledBitmap.getHeight()));
     }
 
-    private static void logExifAttributesToCheckRetention(ExifInterface src, ExifInterface dest) {
-        for (String tag : EXIF_TAGS) {
-            Log.i(LOG_TOKEN, tag + " : " + src.getAttribute(tag) + " -> " + dest.getAttribute(tag));
-        }
-    }
-
     /**
      * @return whether or not originalImage was scaled down according to maxDimen, and saved to
      * the location given by finalFilePath
@@ -678,9 +672,6 @@ public class FileUtil {
                 writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, scaledFile);
                 ExifInterface newExif = new ExifInterface(scaledFile.getAbsolutePath());
                 copyExifData(originalExif, newExif, scaledBitmap);
-                if (BuildConfig.DEBUG) {
-                    logExifAttributesToCheckRetention(originalExif, newExif);
-                }
                 newExif.saveAttributes();
                 return true;
             } catch (Exception e) {
