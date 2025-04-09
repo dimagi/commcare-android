@@ -84,6 +84,12 @@ public class ConnectIDSignupFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void setListeners() {
         binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
         ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher = getPhoneNumberHintLauncher();

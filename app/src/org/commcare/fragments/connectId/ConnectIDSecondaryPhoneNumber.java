@@ -61,6 +61,12 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         outState.putString(KEY_METHOD, method);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void getLoadState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             method = savedInstanceState.getString(KEY_METHOD);

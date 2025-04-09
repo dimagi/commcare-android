@@ -154,6 +154,12 @@ public class ConnectIdPhoneFragment extends Fragment {
         outState.putInt(KEY_CALLING_CLASS, callingClass);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void finish(boolean success, String phone) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());

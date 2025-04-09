@@ -255,6 +255,12 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void registerBrodcastReciever() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
 

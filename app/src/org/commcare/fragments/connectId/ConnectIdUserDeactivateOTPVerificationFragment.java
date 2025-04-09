@@ -141,6 +141,12 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void handleDeactivateButton() {
         binding.connectResendButton.setVisibility(View.GONE);
     }

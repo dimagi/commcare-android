@@ -91,6 +91,12 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         outState.putString(KEY_SECRET_KEY, secretKey);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void getSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
@@ -226,7 +232,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
 
                 @Override
                 public void processNetworkFailure() {
-                    ConnectNetworkHelper.showOutdatedApiError(activity.getApplicationContext());
+                    ConnectNetworkHelper.showNetworkError(activity.getApplicationContext());
                 }
 
                 @Override

@@ -51,7 +51,7 @@
                     android:visibility="gone" />
 
                 <TextView
-                android:textStyle="bold"
+                    android:textStyle="bold"
                     android:id="@+id/login_or"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

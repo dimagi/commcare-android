@@ -72,6 +72,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
     @Override
     public void onResume() {
+        updateState();
         super.onResume();
     }
 
@@ -90,8 +91,13 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
         binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
         requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
-        updateState();
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private void loadSavedState(Bundle savedInstanceState) {

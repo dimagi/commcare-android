@@ -159,7 +159,7 @@
                     </LinearLayout>
 
                     <TextView
-                android:textStyle="bold"
+                        android:textStyle="bold"
                         android:id="@+id/errorTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -194,7 +194,7 @@
                     android:textSize="13sp" />
 
                 <TextView
-                android:textStyle="bold"
+                    android:textStyle="bold"
                     android:id="@+id/checkText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -242,7 +242,7 @@
                 android:gravity="center_vertical|center_horizontal">
 
                 <TextView
-                android:textStyle="bold"
+                    android:textStyle="bold"
                     android:id="@+id/button_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -259,7 +259,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/connect_recover"
                     />
-
 
             </LinearLayout>
         </LinearLayout>
