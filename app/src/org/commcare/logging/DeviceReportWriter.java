@@ -129,7 +129,8 @@ public class DeviceReportWriter {
         }
     }
 
-    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
+    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException,
+            IOException {
         serializer.startTag(XMLNS, element);
         try {
             serializer.text(text);
