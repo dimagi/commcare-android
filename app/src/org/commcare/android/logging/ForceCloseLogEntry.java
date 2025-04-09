@@ -26,7 +26,6 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
     public static final String STORAGE_KEY = "forcecloses";
 
     private int appBuildNumber;
-    // TODO: Drop android_version and device_model as these are part of the report header now
     private String androidVersion;
     private String deviceModel;
     private String readableSessionString;
