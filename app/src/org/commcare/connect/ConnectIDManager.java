@@ -298,14 +298,14 @@ public class ConnectIDManager {
         return null;
     }
 
-    private void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
+    private void launchConnectId(CommCareActivity<?> parent, String task) {
         Intent intent = new Intent(parent, ConnectIdActivity.class);
         intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
     }
 
-    public void launchConnectId(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
-        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, callback);
+    public void launchConnectId(CommCareActivity<?> parent) {
+        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION);
     }
 
     private static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {

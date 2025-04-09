@@ -629,12 +629,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectIDManager.getInstance().launchConnectId(this, success -> {
-                    updateConnectButton();
-                    if(success) {
-//                        ConnectManager.goToConnectJobsList(this);
-                    }
-                });
+                ConnectIDManager.getInstance().launchConnectId(this);
                 break;
             case MENU_CONNECT_FORGET:
                 ConnectIDManager.forgetUser(AnalyticsParamValue.FORGOT_USER_REASON_3);

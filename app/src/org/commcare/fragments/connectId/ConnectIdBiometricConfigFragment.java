@@ -30,7 +30,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import static android.app.Activity.RESULT_OK;
 import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
 
 public class ConnectIdBiometricConfigFragment extends Fragment {
@@ -282,7 +281,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 if (success) {
                     ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                    requireActivity().setResult(RESULT_OK);
+                    requireActivity().setResult(ConnectConstants.CONNECTID_SUCCESS_REQUEST_CODE);
                     requireActivity().finish();
 
                 }

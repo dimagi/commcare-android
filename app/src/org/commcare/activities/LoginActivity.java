@@ -22,6 +22,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -324,7 +325,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else {
+        } else if(resultCode== ConnectConstants.CONNECTID_SUCCESS_REQUEST_CODE){
             connectIDManager.handleFinishedActivity(this, requestCode, resultCode, intent);
         }
         super.onActivityResult(requestCode, resultCode, intent);
@@ -823,9 +824,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void registerConnectIdUser() {
-        connectIDManager.launchConnectId(this, success -> {
-            //Do nothing, just return to login page
-        });
+        connectIDManager.launchConnectId(this);
     }
 
     protected boolean seatAppIfNeeded(String appId) {

@@ -202,7 +202,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
         }
         if (directions == null) {
-            throw new RuntimeException("Navigation directions is null. Unable to navigate.");
+            throw new IllegalStateException("Navigation directions is null. Unable to navigate.");
         }
         Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
