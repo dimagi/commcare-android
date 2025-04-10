@@ -24,26 +24,29 @@ class EntityLoaderHelper(
     detail: Detail,
     sessionDatum: EntityDatum?,
     evalCtx: EvaluationContext,
-    inBackground: Boolean
+    inBackground: Boolean,
+    var factory: NodeEntityFactory? = null
 ) : Cancellable {
 
     var focusTargetIndex: Int = -1
     private var stopLoading: Boolean = false
-    var factory: NodeEntityFactory
 
     init {
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
-        if (detail.shouldOptimize()) {
-            val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache, inBackground)
-        } else if (detail.useAsyncStrategy()) {
-            // legacy cache and index
-            val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
-            factory = AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache, inBackground)
-        } else {
-            factory = NodeEntityFactory(detail, evalCtx)
-            if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
-                factory.activateDebugTraceOutput()
+        if (factory == null) {
+            if (detail.shouldOptimize()) {
+                val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
+                factory =
+                    AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache, inBackground)
+            } else if (detail.useAsyncStrategy()) {
+                // legacy cache and index
+                val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
+                factory = AsyncNodeEntityFactory(detail, evalCtx, entityStorageCache, inBackground)
+            } else {
+                factory = NodeEntityFactory(detail, evalCtx)
+                if (DeveloperPreferences.collectAndDisplayEntityTraces()) {
+                    factory!!.activateDebugTraceOutput()
+                }
             }
         }
     }
@@ -60,11 +63,11 @@ class EntityLoaderHelper(
             CommCareApplication.instance().currentApp.primeEntityCacheHelper.cancelWork()
         }
         try {
-            val references = factory.expandReferenceList(nodeset)
+            val references = factory!!.expandReferenceList(nodeset)
             val entities = loadEntitiesWithReferences(references, progressListener)
             entities?.let {
-                factory.prepareEntities(entities)
-                factory.printAndClearTraces("build")
+                factory!!.prepareEntities(entities)
+                factory!!.printAndClearTraces("build")
                 return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
             }
         } finally {
@@ -80,14 +83,14 @@ class EntityLoaderHelper(
      *  Primes the entity cache
      */
     fun cacheEntities(nodeset: TreeReference): Pair<List<Entity<TreeReference>>, List<TreeReference>> {
-        val references = factory.expandReferenceList(nodeset)
+        val references = factory!!.expandReferenceList(nodeset)
         val entities = loadEntitiesWithReferences(references, null)
         cacheEntities(entities)
         return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
     }
 
     fun cacheEntities(entities: MutableList<Entity<TreeReference>>?) {
-        factory.cacheEntities(entities)
+        factory!!.cacheEntities(entities)
     }
 
     /**
@@ -109,7 +112,7 @@ class EntityLoaderHelper(
             if (stopLoading) {
                 return null
             }
-            val e = factory.getEntity(ref)
+            val e = factory!!.getEntity(ref)
             if (e != null) {
                 entities.add(e)
                 if (e.shouldReceiveFocus()) {
@@ -123,6 +126,6 @@ class EntityLoaderHelper(
 
     override fun cancel() {
         stopLoading = true
-        factory.markAsCancelled()
+        factory!!.markAsCancelled()
     }
 }

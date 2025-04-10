@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.runBlocking
 import org.commcare.AppUtils.getCurrentAppId
 import org.commcare.CommCareApplication
+import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityLoadingProgressListener
 import org.commcare.suite.model.Detail
@@ -131,11 +132,12 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         commandId: String,
         detail: Detail,
         entityDatum: EntityDatum,
-        entities: MutableList<Entity<TreeReference>>
+        entities: MutableList<Entity<TreeReference>>,
+        factory: AsyncNodeEntityFactory? = null
     ) {
         checkPreConditions()
         try {
-            primeCacheForDetail(commandId, detail, entityDatum, entities)
+            primeCacheForDetail(commandId, detail, entityDatum, entities, false, factory)
         } finally {
             clearState()
             runBlocking {
@@ -184,12 +186,13 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         entityDatum: EntityDatum,
         entities: MutableList<Entity<TreeReference>>? = null,
         inBackground: Boolean = false,
+        factory: AsyncNodeEntityFactory? = null
     ) {
         if (!detail.isCacheEnabled() || cancelled) return
         currentDatumInProgress = entityDatum.dataId
         currentDetailInProgress = detail.id
-        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId), inBackground).also {
-            it.factory.setEntityProgressListener(this)
+        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId), inBackground, factory).also {
+            it.factory!!.setEntityProgressListener(this)
         }
         // Handle the cache operation based on the available input
         val cachedEntities = when {
