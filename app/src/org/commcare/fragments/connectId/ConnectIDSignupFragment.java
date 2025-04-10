@@ -264,10 +264,9 @@ public class ConnectIDSignupFragment extends Fragment {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            updateUi("");
-                        } else if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            updateUi(getString(R.string.connect_phone_not_alt));
+                        binding.errorTextView.setVisibility(View.VISIBLE);
+                        if (existingAlternate != null && existingAlternate.equals(phone)) {
+                            binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
                         } else {
                             updateUi(getString(R.string.connect_phone_checking));
                             callPhoneAvailableApi(phone);
@@ -302,14 +301,8 @@ public class ConnectIDSignupFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, IOException e) {
+                    public void processFailure(int responseCode) {
                         skipPhoneNumberCheck = false;
-                        if (responseCode == 406) {
-                            updateUi(getString(R.string.recovery_network_outdated));
-                        }
-                        if (e != null) {
-                            Logger.exception("Checking phone number", e);
-                        }
                         if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                             updateUi(getString(R.string.connect_phone_unavailable));
                             NavDirections directions = navigateToPhonenNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
@@ -331,6 +324,16 @@ public class ConnectIDSignupFragment extends Fragment {
                     public void processOldApiError() {
                         skipPhoneNumberCheck = false;
                         updateUi(getString(R.string.recovery_network_outdated));
+                    }
+
+                    @Override
+                    public void processTokenUnavailableError() {
+                        updateUi(getResources().getString(R.string.recovery_network_token_unavailable));
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        updateUi(getResources().getString(R.string.recovery_network_token_request_rejected));
                     }
                 });
     }
@@ -372,13 +375,23 @@ public class ConnectIDSignupFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, IOException e) {
+                    public void processFailure(int responseCode) {
                         updateUi("Registration error: " + responseCode);
                     }
 
                     @Override
                     public void processNetworkFailure() {
                         updateUi(getResources().getString(R.string.recovery_network_unavailable));
+                    }
+
+                    @Override
+                    public void processTokenUnavailableError() {
+                        updateUi(getResources().getString(R.string.recovery_network_token_unavailable));
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        updateUi(getResources().getString(R.string.recovery_network_token_request_rejected));
                     }
 
                     @Override

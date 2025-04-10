@@ -283,6 +283,9 @@
         <action
             android:id="@+id/action_connectid_signup_fragment_self"
             app:destination="@id/connectid_signup_fragment" />
+        <action
+            android:id="@+id/action_connectid_signup_fragment_to_connectid_secondary_phone_fragment"
+            app:destination="@id/connectid_secondary_phone_fragment" />
     </fragment>
 
     <fragment

@@ -241,13 +241,23 @@ public class ConnectIdPinFragment extends Fragment {
                         }
 
                         @Override
-                        public void processFailure(int responseCode, IOException e) {
+                        public void processFailure(int responseCode) {
                             handleWrongPin();
                         }
 
                         @Override
                         public void processNetworkFailure() {
                             ConnectNetworkHelper.showNetworkError(getActivity());
+                        }
+
+                        @Override
+                        public void processTokenUnavailableError() {
+                            ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                        }
+
+                        @Override
+                        public void processTokenRequestDeniedError() {
+                            ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
                         }
 
                         @Override
@@ -295,13 +305,23 @@ public class ConnectIdPinFragment extends Fragment {
                         }
 
                         @Override
-                        public void processFailure(int responseCode, IOException e) {
+                        public void processFailure(int responseCode) {
                             handleWrongPin();
                         }
 
                         @Override
                         public void processNetworkFailure() {
                             ConnectNetworkHelper.showNetworkError(getActivity());
+                        }
+
+                        @Override
+                        public void processTokenUnavailableError() {
+                            ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                        }
+
+                        @Override
+                        public void processTokenRequestDeniedError() {
+                            ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
                         }
 
                         @Override
@@ -333,7 +353,7 @@ public class ConnectIdPinFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Toast.makeText(context, getString(R.string.connect_recovery_failure),
                         Toast.LENGTH_SHORT).show();
             }
@@ -341,6 +361,16 @@ public class ConnectIdPinFragment extends Fragment {
             @Override
             public void processNetworkFailure() {
                 ConnectNetworkHelper.showNetworkError(getActivity());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
             }
 
             @Override
@@ -403,6 +433,7 @@ public class ConnectIdPinFragment extends Fragment {
                         user.setLastPinDate(new Date());
                         ConnectUserDatabaseUtil.storeUser(getActivity(), user);
                     }
+                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
                 } else {
                     directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.valueOf(
                             ConnectIDManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(), false);

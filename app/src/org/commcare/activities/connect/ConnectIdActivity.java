@@ -103,7 +103,10 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS:
                         navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
                         break;
-
+                    case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE :
+                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentToConnectidSecondaryPhoneFragment(
+                                phase, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                        break;
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN:
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN:
                     case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN:

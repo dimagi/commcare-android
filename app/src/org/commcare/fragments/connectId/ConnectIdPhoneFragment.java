@@ -270,7 +270,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
+                public void processFailure(int responseCode) {
                     skipPhoneNumberCheck = false;
                     Toast.makeText(getContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
@@ -280,6 +280,18 @@ public class ConnectIdPhoneFragment extends Fragment {
                 public void processNetworkFailure() {
                     skipPhoneNumberCheck = false;
                     ConnectNetworkHelper.showNetworkError(getContext());
+                }
+
+                @Override
+                public void processTokenUnavailableError() {
+                    skipPhoneNumberCheck = false;
+                    ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
+                    skipPhoneNumberCheck = false;
+                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
                 }
 
                 @Override
@@ -345,11 +357,8 @@ public class ConnectIdPhoneFragment extends Fragment {
                                         }
 
                                         @Override
-                                        public void processFailure(int responseCode, IOException e) {
+                                        public void processFailure(int responseCode) {
                                             completeCall();
-                                            if (e != null) {
-                                                Logger.exception("Checking phone number", e);
-                                            }
                                             binding.errorTextView.setText(getString(R.string.connect_phone_unavailable));
                                             binding.connectPrimaryPhoneButton.setEnabled(false);
                                         }
@@ -358,6 +367,18 @@ public class ConnectIdPhoneFragment extends Fragment {
                                         public void processNetworkFailure() {
                                             completeCall();
                                             binding.errorTextView.setText(getString(R.string.recovery_network_unavailable));
+                                        }
+
+                                        @Override
+                                        public void processTokenUnavailableError() {
+                                            completeCall();
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_token_unavailable));
+                                        }
+
+                                        @Override
+                                        public void processTokenRequestDeniedError() {
+                                            completeCall();
+                                            binding.errorTextView.setText(getString(R.string.recovery_network_token_request_rejected));
                                         }
 
                                         @Override

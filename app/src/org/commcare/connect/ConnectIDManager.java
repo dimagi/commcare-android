@@ -19,6 +19,8 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -368,15 +370,25 @@ public class ConnectIDManager {
                                 appRecordFinal.linkToConnectId(password);
                                 ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
 
-                                //Link the HQ user by aqcuiring the SSO token for the first time
-                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, username, true, auth -> {
-                                    if (auth == null) {
-                                        //Toast.makeText(activity, "Failed to acquire SSO token", Toast.LENGTH_SHORT).show();
-                                        //TODO: Re-enable when token working again
-                                        //ConnectManager.forgetAppCredentials(appId, username);
+                                //Link the HQ user by acquiring the SSO token for the first time
+                                ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
+                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, appRecordFinal, username, true, new ConnectSsoHelper.TokenCallback() {
+                                    @Override
+                                    public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                                        callback.connectActivityComplete(true);
                                     }
 
-                                    callback.connectActivityComplete(true);
+                                    @Override
+                                    public void tokenUnavailable() {
+                                        ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                                        callback.connectActivityComplete(false);
+                                    }
+
+                                    @Override
+                                    public void tokenRequestDenied() {
+                                        ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
+                                        callback.connectActivityComplete(false);
+                                    }
                                 });
                             } else {
                                 callback.connectActivityComplete(false);
@@ -525,7 +537,7 @@ public class ConnectIDManager {
             }
 
             @Override
-            public void processFailure(int responseCode, IOException e) {
+            public void processFailure(int responseCode) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
             }
 
@@ -534,6 +546,15 @@ public class ConnectIDManager {
                 Logger.log("ERROR", "Failed (network)");
             }
 
+            @Override
+            public void processTokenUnavailableError() {
+                Logger.log("ERROR", "Failed (token unavailable)");
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+            }
             @Override
             public void processOldApiError() {
                 ConnectNetworkHelper.showOutdatedApiError(context);
@@ -566,6 +587,20 @@ public class ConnectIDManager {
         activeJob = job;
     }
 
+    public boolean isSeatedAppLinkedToConnectId(String username) {
+        try {
+            if (getInstance().isLoggedIN()) {
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(
+                        CommCareApplication.instance(), seatedAppId, username);
+                return appRecord != null && appRecord.getWorkerLinked();
+            }
+        } catch (Exception e){
+            Logger.exception("Error while checking ConnectId status after failed token auth", e);
+        }
+
+        return false;
+    }
 
     public ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
         ConnectAppRecord record = getAppRecord(context, appId);
@@ -576,6 +611,25 @@ public class ConnectIDManager {
         return getCredentialsForApp(appId, userId) != null ?
                 ConnectAppMangement.ConnectId :
                 ConnectAppMangement.Unmanaged;
+    }
+
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
+        if (!manager.isLoggedIN()) {
+            return null;
+        }
+
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        if (user == null) {
+            return null;
+        }
+
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, seatedAppId, username);
+        if(appRecord == null) {
+            return null;
+        }
+
+        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username, false);
     }
 
     public BiometricManager getBiometricManager(CommCareActivity<?> parent) {

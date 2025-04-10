@@ -859,15 +859,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if(appState == ConnectIDManager.ConnectAppMangement.ConnectId) {
             int selectorIndex = uiController.getSelectedAppIndex();
-            if (selectorIndex > 0) {
-                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
-
-                if (MultipleAppsUtil.getUsableAppRecords().size()>1 && !selectedAppId.equals(seatedAppId)) {
-                    appState = ConnectIDManager.ConnectAppMangement.Unmanaged;
-                }
-            } else {
-                //Connect jobs selected from dropdown
-                appState = ConnectIDManager.ConnectAppMangement.Connect;
+            String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
+            if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                appState = ConnectIDManager.ConnectAppMangement.Unmanaged;
             }
         }
 

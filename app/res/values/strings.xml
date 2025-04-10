@@ -392,6 +392,8 @@
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
+    <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue, please try again.</string>
+    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost ConnectID configuration with server, please recover account.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
@@ -788,6 +790,7 @@
     <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
     <string name="confirm_code">Confirm Code</string>
+    <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Recovery Code</string>
     <string name="learn_more">Learn More</string>
