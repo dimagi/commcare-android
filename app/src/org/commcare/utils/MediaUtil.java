@@ -382,7 +382,7 @@ public class MediaUtil {
             ExifInterface exif = new ExifInterface(imageFilepath);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         } catch (IOException e) {
-            Log.e("ImageScaling", "Unable to read EXIF data: " + e.getMessage());
+            Log.e(TAG, "Unable to read EXIF data: " + e.getMessage());
         }
 
         // Rotate the bitmap if needed
@@ -441,8 +441,12 @@ public class MediaUtil {
             default:
                 return bitmap;
         }
-
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        try {
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        } catch (OutOfMemoryError e) {
+            Log.d(TAG, "Ran out of memory attempting to rotate bitmap");
+            return bitmap;
+        }
     }
 
     private static int getApproxScaleDownFactor(int newWidth, int originalWidth) {
