@@ -257,6 +257,8 @@ public class ConnectManager {
         } else {
             callback.connectActivityComplete(false);
             Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+
+            Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable), Toast.LENGTH_SHORT).show();
         }
     }
 

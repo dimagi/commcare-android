@@ -406,6 +406,7 @@
     <string name="connect_unlock_message">ንኽትቅጽል በጃኹም ክትከፍቱ ንላቦ</string>
     <string name="connect_unlock_button_pin">ብፒን ኽፈት።</string>
     <string name="connect_unlock_button_password">ብ Password ኽፈት።</string>
+    <string name="connect_unlock_unavailable">በጃኹም ናይ ስክሪን ምኽፋት መካኒዝም ኣዋቕሩ</string>
     <string name="connect_unlock_trouble_message">ፀገም ምኽፋት?</string>
     <string name="connect_unlock_fingerprint_title">ብመንገዲ ኣሰር ኣፃብዕቲ ምኽፋት።</string>
     <string name="connect_unlock_fingerprint_message">ንምቕፃል ኣሰር ኣፃብዕትኻ ተጠቐም</string>
@@ -424,6 +425,7 @@
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>
     <string name="connect_verify_use_pin_long">ንምትእስሳር ፒን ተጠቐም</string>
     <string name="connect_verify_pin_configured">ፒንካ በቃ ተዋቒሩ ኣሎ፡ ንConnectID ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
+    <string name="connect_verify_configuration_failed">ውቅር ኣይተዓወተን፣ በጃኻ እንደገና ፈትን።</string>
     <string name="connect_verify_configure_pin">ፒን ምውቃር</string>
     <string name="connect_verify_agree">ስምምዕ &amp; ቀፅል</string>
     <string name="connect_verify_phone_title">ናይ ምርግጋፅ ኮድ</string>
