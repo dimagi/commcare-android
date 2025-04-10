@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.AudioManager;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -370,21 +372,78 @@ public class MediaUtil {
         int approximateScaleDownFactor = getApproxScaleDownFactor(newWidth, originalWidth);
         Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
+        if (b == null) {
+            return null; // Handle case where bitmap loading fails
+        }
+
+        // Get the EXIF orientation
+        int orientation = ExifInterface.ORIENTATION_NORMAL;
+        try {
+            ExifInterface exif = new ExifInterface(imageFilepath);
+            orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        } catch (IOException e) {
+            Log.e("ImageScaling", "Unable to read EXIF data: " + e.getMessage());
+        }
+
+        // Rotate the bitmap if needed
+        Bitmap rotatedBitmap = rotateBitmap(b, orientation);
+        if (rotatedBitmap != b) {
+            b.recycle(); // Free up memory from the original bitmap
+        }
+
         if (scaleByContainerOnly && !respectBoundsExactly) {
             // Not worth performance loss of creating an exact scaled bitmap in this case
-            return b;
+            return rotatedBitmap;
         } else {
             try {
                 // Here we want to be more precise because we have a target width and height, or
                 // specified that respecting the bounding container precisely is important
-                return Bitmap.createScaledBitmap(b, newWidth, newHeight, false);
+                return Bitmap.createScaledBitmap(rotatedBitmap, newWidth, newHeight, false);
             } catch (OutOfMemoryError e) {
                 Log.d(TAG, "Ran out of memory attempting to scale image at: " + imageFilepath);
+                rotatedBitmap.recycle();
                 return null;
             }
         }
     }
 
+    // Helper method to rotate the bitmap based on EXIF orientation that we previously retained
+    private static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
+        if (bitmap == null || orientation == ExifInterface.ORIENTATION_NORMAL) {
+            return bitmap;
+        }
+
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.postRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.postRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.postRotate(270);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.postScale(1, -1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.postRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.postRotate(270);
+                matrix.postScale(-1, 1);
+                break;
+            default:
+                return bitmap;
+        }
+
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
 
     private static int getApproxScaleDownFactor(int newWidth, int originalWidth) {
         if (newWidth == 0) {
