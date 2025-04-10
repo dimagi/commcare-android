@@ -23,5 +23,12 @@ public class ApiEndPoints {
     public static final String resetPassword = "/users/recover/reset_password";
     public static final String changePassword = "/users/change_password";
     public static final String confirmPassword = "/users/recover/confirm_password";
-
+    public static final String connectOpportunitiesURL = "https://%s/api/opportunity/";
+    public static final String connectStartLearningURL = "https://%s/users/start_learn_app/";
+    public static final String connectLearnProgressURL = "https://%s/api/opportunity/%d/learn_progress";
+    public static final String connectClaimJobURL = "https://%s/api/opportunity/%d/claim";
+    public static final String connectDeliveriesURL = "https://%s/api/opportunity/%d/delivery_progress";
+    public static final String connectPaymentConfirmationURL = "https://%s/api/payment/%s/confirm";
+    public static final String connectInitiateUserAccountDeactivationURL = "https://connectid.dimagi.com/users/recover/initiate_deactivation";
+    public static final String connectConfirmUserAccountDeactivationURL = "https://connectid.dimagi.com/users/recover/confirm_deactivation";
 }

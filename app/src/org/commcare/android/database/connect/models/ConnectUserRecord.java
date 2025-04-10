@@ -171,7 +171,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public Date getSecondaryPhoneVerifyByDate() {
-        return secondaryPhoneVerified ? verifySecondaryPhoneByDate : null;
+        return  verifySecondaryPhoneByDate;
     }
 
     public void setSecondaryPhoneVerifyByDate(Date date) {
@@ -207,9 +207,14 @@ public class ConnectUserRecord extends Persisted {
         return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
-    public void updateConnectToken(SsoToken token) {
-        connectToken = token.getToken();
-        connectTokenExpiration = token.getExpiration();
+    public void updateConnectToken(String token, Date expirationDate) {
+        connectToken = token;
+        connectTokenExpiration = expirationDate;
+    }
+
+    public void clearConnectToken() {
+        connectToken = null;
+        connectTokenExpiration = new Date();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -218,6 +223,10 @@ public class ConnectUserRecord extends Persisted {
         }
 
         return null;
+    }
+
+    public Date getConnectTokenExpiration(){
+        return connectTokenExpiration;
     }
 
     public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
