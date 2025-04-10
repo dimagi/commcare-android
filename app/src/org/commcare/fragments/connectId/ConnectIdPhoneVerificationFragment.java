@@ -597,7 +597,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                         directions = navigateToConnectidUserDeactivateOtpVerify((refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, password);
                     }
                 } else {
-                    directions = navigateToConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                    directions = navigateToConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(
                             ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, "", "");
                 }
             }

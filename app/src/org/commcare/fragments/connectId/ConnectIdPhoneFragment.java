@@ -61,6 +61,8 @@ public class ConnectIdPhoneFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for getContext() fragment
         binding = ScreenConnectPrimaryPhoneBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
 
         activity = requireActivity();
 
@@ -85,7 +87,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneMessage.setText(message);
         displayNumber(existing);
         activity.setTitle(R.string.connect_phone_title_primary);
-        return binding.getRoot();
+        return view;
     }
 
     @Override
@@ -181,7 +183,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                     ConnectUserDatabaseUtil.storeUser(getActivity(), user);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE);
                 }
-                directions = navigateToPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
+                directions = navigateToPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.valueOf(
                         ConnectIdPhoneVerificationFragment.MethodRegistrationPrimary), phone, user.getUserId(), user.getPassword(), null, false);
             }
             case ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
@@ -191,13 +193,13 @@ public class ConnectIdPhoneFragment extends Fragment {
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
-                directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
+                directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.valueOf(
                         ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.valueOf(
                             ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null, false);
                 } else {
                     directions = navigateToMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
@@ -237,7 +239,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
         String codeText = "";
         if (code > 0) {
-            codeText = String.format(Locale.getDefault(), "%d", code);
+            codeText = String.valueOf(code);
             if (!codeText.startsWith("+")) {
                 codeText = "+" + codeText;
             }

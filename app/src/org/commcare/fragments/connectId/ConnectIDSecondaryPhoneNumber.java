@@ -42,6 +42,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSecondaryPhoneNumberBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
         getLoadState(savedInstanceState);
         setListener();
         method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
@@ -51,7 +52,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding.countryCode.setText(code);
         updateButtonEnabled();
         requireActivity().setTitle(R.string.connect_phone_title_alternate);
-        return binding.getRoot();
+        return view;
     }
 
     @Override

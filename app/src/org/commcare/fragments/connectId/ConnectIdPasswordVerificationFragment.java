@@ -265,8 +265,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     private NavDirections navigateToConnectidPhoneVerifyForRecoveryPrimaryPhone() {
-        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.format(Locale.getDefault(), "%d",
-                ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null, false);
+        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null, false);
     }
 
     private NavDirections navigateToConnectidPhoneNoForRecoverPrimary() {

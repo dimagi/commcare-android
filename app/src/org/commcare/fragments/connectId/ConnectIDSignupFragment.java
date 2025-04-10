@@ -218,7 +218,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
         String codeText = "";
         if (code > 0) {
-            codeText = String.format(String.valueOf(code));
+            codeText = String.valueOf(code);
             if (!codeText.startsWith("+")) {
                 codeText = "+" + codeText;
             }

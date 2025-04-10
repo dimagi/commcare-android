@@ -57,7 +57,7 @@ public class ApiConnect {
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
                 String url = String.format(ApiEndPoints.connectStartLearningURL, BuildConfig.CCC_HOST);
                 HashMap<String, Object> params = new HashMap<>();
-                params.put("opportunity", String.format(Locale.getDefault(), "%d", jobId));
+                params.put("opportunity", String.valueOf(jobId));
 
                 ConnectNetworkHelper.post(context, url, API_VERSION_CONNECT, token, params, true, false, handler);
             }
