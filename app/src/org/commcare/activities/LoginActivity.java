@@ -202,9 +202,36 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
         LoginMode loginMode = uiController.getLoginMode();
+        //See whether login is managed by ConnectID
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String username = uiController.getEnteredUsername();
 
-        if ("".equals(uiController.getEnteredPasswordOrPin()) &&
-                loginMode != LoginMode.PRIMED) {
+        if (appLaunchedFromConnect) {
+            //Auto login
+            doLogin(loginMode, restoreSession, "AUTO");
+        } else if (uiController.loginManagedByConnectId()) {
+            //Unlock and then auto login
+            ConnectIDManager.getInstance().unlockConnect(this, success -> {
+                if (success) {
+                    String pass = ConnectIDManager.getInstance().getStoredPasswordForApp(seatedAppId, username);
+                    doLogin(loginMode, restoreSession, pass);
+                }
+            });
+        } else {
+            //Manual login
+            String passwordOrPin = uiController.getEnteredPasswordOrPin();
+            doLogin(loginMode, restoreSession, passwordOrPin);
+        }
+
+    }
+
+    @Override
+    public String getActivityTitle() {
+        return null;
+    }
+
+    private void doLogin(LoginMode loginMode, boolean restoreSession, String passwordOrPin) {
+        if ("".equals(passwordOrPin) && loginMode != LoginMode.PRIMED) {
             if (loginMode == LoginMode.PASSWORD) {
                 raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
             } else {
@@ -217,20 +244,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
         if (loginMode == LoginMode.PASSWORD) {
-            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
+            DevSessionRestorer.tryAutoLoginPasswordSave(passwordOrPin, false);
         }
 
-        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(uiController.getEnteredUsername())) {
+        if (ResourceInstallUtils.isUpdateReadyToInstall() && !UpdateActivity.isUpdateBlockedOnSync(
+                uiController.getEnteredUsername())) {
             // install update, which triggers login upon completion
             installPendingUpdate();
         } else {
             localLoginOrPullAndLogin(restoreSession);
         }
-    }
-
-    @Override
-    public String getActivityTitle() {
-        return null;
     }
 
     @Override
@@ -733,6 +756,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
             case AUTH_FAILED:
+                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("Token Auth failed during login for a ConnectID managed app"));
+                }
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BAD_DATA_REQUIRES_INTERVENTION:

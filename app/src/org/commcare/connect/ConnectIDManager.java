@@ -494,6 +494,11 @@ public class ConnectIDManager {
         return ConnectJobUtils.getAppRecord(context, appId);
     }
 
+    public static String getStoredPasswordForApp(String appId, String userId) {
+        AuthInfo.ProvidedAuth auth = getInstance().getCredentialsForApp(appId, userId);
+        return auth != null ? auth.password : null;
+    }
+
     @Nullable
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, appId,
