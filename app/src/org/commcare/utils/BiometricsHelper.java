@@ -11,11 +11,14 @@ import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import java.util.Locale;
 
 /**
  * Helper class for biometric configuration and verification
@@ -40,7 +43,7 @@ public class BiometricsHelper {
     }
 
     public static boolean isFingerprintConfigured(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, StrongBiometric) == ConfigurationStatus.Configured;
+        return checkFingerprintStatus(context, biometricManager) == ConfigurationStatus.Configured;
     }
 
     public static boolean configureFingerprint(Activity activity) {
@@ -55,20 +58,11 @@ public class BiometricsHelper {
 
 
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            return checkStatus(context, biometricManager, PinBiometric);
-        } else {
-            KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
-            boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                    manager.isDeviceSecure() :
-                    manager.isKeyguardSecure();
-
-            return isSecure ? ConfigurationStatus.Configured : ConfigurationStatus.NotConfigured;
-        }
+        return checkStatus(context, biometricManager, PinBiometric);
     }
 
     public static boolean isPinConfigured(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, PinBiometric) == ConfigurationStatus.Configured;
+        return checkPinStatus(context, biometricManager) == ConfigurationStatus.Configured;
     }
 
     public static boolean configurePin(Activity activity) {
@@ -123,9 +117,15 @@ public class BiometricsHelper {
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 return ConfigurationStatus.NotConfigured;
             }
-        }
+            default -> {
+                Logger.exception("Unhandled biometric status", new Exception(
+                        String.format(Locale.getDefault(), "Mode %d encountered unexpected status %d",
+                                authenticator, val)
+                ));
 
-        return ConfigurationStatus.NotAvailable;
+                return ConfigurationStatus.NotAvailable;
+            }
+        }
     }
 
     private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
@@ -155,6 +155,8 @@ public class BiometricsHelper {
             enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
         } else {
             //No way to enroll, have to fail
+            Logger.exception("Biometric config failed", new Exception(String.format(Locale.getDefault(),
+                    "No available enroll activity for authenticator %d", authenticator)));
             return false;
         }
 
