@@ -210,9 +210,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             doLogin(loginMode, restoreSession, "AUTO");
         } else if (uiController.loginManagedByConnectId()) {
             //Unlock and then auto login
-            ConnectIDManager.getInstance().unlockConnect(this, success -> {
+            connectIDManager.unlockConnect(this, success -> {
                 if (success) {
-                    String pass = ConnectIDManager.getInstance().getStoredPasswordForApp(seatedAppId, username);
+                    String pass = connectIDManager.getStoredPasswordForApp(seatedAppId, username);
                     doLogin(loginMode, restoreSession, pass);
                 }
             });
@@ -443,7 +443,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
         if(navigateToConnectJobs) {
-            connectIDManager.setPendingAction(ConnectIDManager.getInstance().PENDING_ACTION_OPP_STATUS);
+            connectIDManager.setPendingAction(connectIDManager.PENDING_ACTION_OPP_STATUS);
         }
 
         Intent i = new Intent();
@@ -456,19 +456,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void handleFailedConnectSignIn() {
-        ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
+        if(connectIDManager.isLoggedIN()) {
+            ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
 
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
-                record.getUniqueId(), getUniformUsername());
+            ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+                    record.getUniqueId(), getUniformUsername());
 
-        switch(appState) {
-            case Connect -> {
-                FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-            }
-            case ConnectId -> {
-                //TODO: Display an additional message that the user will need to login with their password to restore CID login
-                //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
-                //setConnectAppState();
+            switch (appState) {
+                case Connect -> {
+                    FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
+                }
+                case ConnectId -> {
+                    //TODO: Display an additional message that the user will need to login with their password to restore CID login
+                    //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
+                    //setConnectAppState();
+                }
             }
         }
     }
@@ -521,7 +523,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerConnectIdUser();
                 return true;
             case MENU_CONNECT_FORGET:
-                ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
+                connectIDManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
                 uiController.setConnectIdLoginState(ConnectIDManager.ConnectAppMangement.Unmanaged);
@@ -755,7 +757,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
             case AUTH_FAILED:
-                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
+                if(connectIDManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("Token Auth failed during login for a ConnectID managed app"));
                 }
