@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_notification"
+        android:id="@+id/action_messaging"
         android:icon="@drawable/ic_connect_messaging_base"
-        android:title="Notification"
+        android:title="@string/connect_messaging_title"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_sync"
         android:icon="@drawable/backup"
         android:iconTint="@color/white"
-        android:title="Menu"
+        android:title="@string/sync"
         app:showAsAction="always" />
 </menu>

@@ -15,9 +15,8 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -31,7 +30,6 @@ import javax.annotation.Nullable;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavController;
@@ -114,7 +112,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onResume() {
         super.onResume();
-        updateMessagingIcon();
+        MessageManager.updateMessagingIcon(this, messagingMenuItem);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
                 new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
@@ -129,7 +127,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateMessagingIcon();
+            MessageManager.updateMessagingIcon(context, messagingMenuItem);
         }
     };
 
@@ -152,8 +150,8 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         MenuItem notification = menu.findItem(R.id.action_sync);
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        messagingMenuItem = menu.findItem(R.id.action_notification);
-        updateMessagingIcon();
+        messagingMenuItem = menu.findItem(R.id.action_messaging);
+        MessageManager.updateMessagingIcon(this, messagingMenuItem);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -161,23 +159,13 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
-        menu.findItem(R.id.action_notification).setVisible(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_messaging).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
-    }
-
-    public void updateMessagingIcon() {
-        if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_messaging_unread;
-            }
-            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
-        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_notification) {
+        if (item.getItemId() == R.id.action_messaging) {
             ConnectManager.goToMessaging(this);
             return true;
         }
