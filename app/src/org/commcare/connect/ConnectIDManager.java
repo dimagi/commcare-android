@@ -78,7 +78,7 @@ public class ConnectIDManager {
 
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
-    public static final int PENDING_ACTION_OPP_STATUS = 2;
+    public final int PENDING_ACTION_OPP_STATUS = 2;
     public static final int PENDING_ACTION_NONE = 0;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
@@ -115,14 +115,12 @@ public class ConnectIDManager {
     }
 
     public void init(Context parent) {
-        ConnectIDManager manager = getInstance();
-        manager.parentActivity = parent;
-
-        if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        parentActivity = parent;
+        if (connectStatus == ConnectIdStatus.NotIntroduced) {
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
-                manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+                connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -222,9 +220,7 @@ public class ConnectIDManager {
     }
 
     public void completeSignin() {
-        ConnectIDManager instance = getInstance();
-        instance.connectStatus = ConnectIdStatus.LoggedIn;
-
+        connectStatus = ConnectIdStatus.LoggedIn;
         scheduleHearbeat();
         CrashUtil.registerConnectUser();
     }
@@ -258,7 +254,7 @@ public class ConnectIDManager {
                         loginManagedByConnectId, appId,
                         username,
                         enteredPasswordPin, success -> {
-                            ConnectIDManager.updateAppAccess(context, appId, username);
+                           updateAppAccess(context, appId, username);
                             result.set(false);
                         });
             }
@@ -270,8 +266,7 @@ public class ConnectIDManager {
     }
 
 
-    public static void forgetUser(String reason) {
-        ConnectIDManager manager = getInstance();
+    public void forgetUser(String reason) {
 
         if (ConnectDatabaseHelper.dbExists(manager.parentActivity)) {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
@@ -310,7 +305,7 @@ public class ConnectIDManager {
         launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION);
     }
 
-    private static void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
+    private void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
         if (record != null) {
             record.setLastAccessed(new Date());
@@ -505,8 +500,8 @@ public class ConnectIDManager {
         return ConnectJobUtils.getAppRecord(context, appId);
     }
 
-    public static String getStoredPasswordForApp(String appId, String userId) {
-        AuthInfo.ProvidedAuth auth = getInstance().getCredentialsForApp(appId, userId);
+    public String getStoredPasswordForApp(String appId, String userId) {
+        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
         return auth != null ? auth.password : null;
     }
 
@@ -605,7 +600,7 @@ public class ConnectIDManager {
 
     public boolean isSeatedAppLinkedToConnectId(String username) {
         try {
-            if (getInstance().isLoggedIN()) {
+            if (isLoggedIN()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(
                         CommCareApplication.instance(), seatedAppId, username);
@@ -649,12 +644,11 @@ public class ConnectIDManager {
     }
 
     public BiometricManager getBiometricManager(CommCareActivity<?> parent) {
-        ConnectIDManager instance = getInstance();
-        if (instance.biometricManager == null) {
-            instance.biometricManager = BiometricManager.from(parent);
+        if (biometricManager == null) {
+            biometricManager = BiometricManager.from(parent);
         }
 
-        return instance.biometricManager;
+        return biometricManager;
     }
 
     public int getFailureAttempt() {

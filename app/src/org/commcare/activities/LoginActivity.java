@@ -45,7 +45,6 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -439,12 +438,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
         boolean result = connectIDManager.handleConnectSignIn(this,getUniformUsername(), uiController.getEnteredPasswordOrPin(), uiController.loginManagedByConnectId());
-        navigateToConnectJobs(result);
+        setResultAndFinish(result);
     }
 
-    private void navigateToConnectJobs(boolean goToJobInfo) {
-        if(goToJobInfo) {
-            connectIDManager.setPendingAction(ConnectIDManager.PENDING_ACTION_OPP_STATUS);
+    private void setResultAndFinish(boolean navigateToConnectJobs) {
+        if(navigateToConnectJobs) {
+            connectIDManager.setPendingAction(ConnectIDManager.getInstance().PENDING_ACTION_OPP_STATUS);
         }
 
         Intent i = new Intent();
@@ -522,7 +521,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerConnectIdUser();
                 return true;
             case MENU_CONNECT_FORGET:
-                ConnectIDManager.forgetUser(AnalyticsParamValue.FORGOT_USER_REASON_1);
+                ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 uiController.refreshView();
                 uiController.setConnectIdLoginState(ConnectIDManager.ConnectAppMangement.Unmanaged);

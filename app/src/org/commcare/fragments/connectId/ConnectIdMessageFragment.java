@@ -22,7 +22,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import java.util.Locale;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -48,7 +47,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                              Bundle savedInstanceState) {
         binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        getLoadState(savedInstanceState);
+        loadSavedState(savedInstanceState);
         binding.connectMessageButton.setOnClickListener(v -> handleContinueButtonPress(false));
         binding.connectMessageButton2.setOnClickListener(v -> handleContinueButtonPress(true));
         loadArguments();
@@ -63,7 +62,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         setButton2Text(button2Text);
     }
 
-    private void getLoadState(Bundle savedInstanceState) {
+    private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             title = savedInstanceState.getString(KEY_TITLE);
             message = savedInstanceState.getString(KEY_MESSAGE);
@@ -209,7 +208,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS:
                 if (success) {
                     if (!secondButton) {
-                        ConnectIDManager.forgetUser(AnalyticsParamValue.FORGOT_USER_REASON_2);
+                        ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_DEACTIVATION);
                         activity.finish();
                     }
                 }

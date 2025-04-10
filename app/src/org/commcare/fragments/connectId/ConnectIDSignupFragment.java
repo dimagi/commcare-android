@@ -264,9 +264,8 @@ public class ConnectIDSignupFragment extends Fragment {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
                             ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        binding.errorTextView.setVisibility(View.VISIBLE);
                         if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
+                            updateUi(getString(R.string.connect_phone_not_alt));
                         } else {
                             updateUi(getString(R.string.connect_phone_checking));
                             callPhoneAvailableApi(phone);
@@ -339,8 +338,7 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     private void createAccount() {
-        binding.errorTextView.setText(null);
-        binding.errorTextView.setVisibility(View.GONE);
+        clearError();
         String phoneNo = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
         ConnectUserRecord tempUser = new ConnectUserRecord(phoneNo, generateUserId(), ConnectIDManager.getInstance().generatePassword(),
                 binding.nameTextValue.getText().toString(), "");
@@ -417,12 +415,21 @@ public class ConnectIDSignupFragment extends Fragment {
     void updateUi(String errorMessage) {
         updateButtonEnabled();
         if (errorMessage == null || errorMessage.isEmpty()) {
-            binding.errorTextView.setVisibility(View.GONE);
+            clearError();
         } else {
-            binding.errorTextView.setVisibility(View.VISIBLE);
-            binding.errorTextView.setText(errorMessage);
+            showError(errorMessage);
         }
     }
+
+    private void showError(String errorMessage){
+        binding.errorTextView.setVisibility(View.VISIBLE);
+        binding.errorTextView.setText(errorMessage);
+    }
+
+    private void clearError(){
+        binding.errorTextView.setVisibility(View.GONE);
+    }
+
 
     private NavDirections navigateToBiometricConfig(int phase) {
         return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);

@@ -634,7 +634,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 ConnectIDManager.getInstance().launchConnectId(this);
                 break;
             case MENU_CONNECT_FORGET:
-                ConnectIDManager.forgetUser(AnalyticsParamValue.FORGOT_USER_REASON_3);
+                ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
         }

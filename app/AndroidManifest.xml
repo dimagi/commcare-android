@@ -170,7 +170,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.commcare.activities.connect.ConnectIdActivity" />
+            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:label="@string/application_name"
             android:name="org.commcare.activities.LoginActivity"

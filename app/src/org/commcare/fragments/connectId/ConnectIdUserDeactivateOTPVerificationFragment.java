@@ -142,6 +142,13 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        registerBrodcastReciever();
+
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
