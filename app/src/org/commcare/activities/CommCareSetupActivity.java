@@ -424,8 +424,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-            default:
+            case ConnectConstants.CONNECTID_SUCCESS_REQUEST_CODE:
                 ConnectIDManager.getInstance().handleFinishedActivity(this, requestCode, resultCode, data);
+                return;
+            default:
                 return;
 
         }

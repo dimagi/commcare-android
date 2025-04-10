@@ -320,134 +320,145 @@ public class ConnectIDManager {
 
     private void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
         switch (getAppManagement(activity, appId, username)) {
-            case Unmanaged -> {
-                //ConnectID is NOT configured
-                boolean offerToLink = true;
-                boolean isSecondOffer = false;
+            case Unmanaged -> handleUnmanagedApp(activity, appId, username, password, callback);
+            case ConnectId -> handleConnectIdLinkedApp(activity, autoLoggedIn, appId, username, callback);
+            default -> callback.connectActivityComplete(false); // Managed apps, no action
+        }
+    }
 
-                ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
-                //See if we've offered to link already
-                Date firstOffer = linkedApp != null ? linkedApp.getLinkOfferDate1() : null;
-                if (firstOffer != null) {
-                    isSecondOffer = true;
-                    //See if we've done the second offer
-                    Date secondOffer = linkedApp.getLinkOfferDate2();
-                    if (secondOffer != null) {
-                        //They've declined twice, we won't bug them again
-                        offerToLink = false;
-                    } else {
-                        //Determine whether to do second offer
-                        int daysToSecondOffer = 30;
-                        long millis = (new Date()).getTime() - firstOffer.getTime();
-                        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-                        offerToLink = days >= daysToSecondOffer;
-                    }
-                }
+    private void handleUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+        OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
 
-                if (offerToLink) {
-                    if (linkedApp == null) {
-                        //Create the linked app record (even if just to remember that we offered)
-                        linkedApp = ConnectAppDatabaseUtil.storeApp(activity, appId, username, false, "", false, false);
-                    }
-
-                    //Update that we offered
-                    if (isSecondOffer) {
-                        linkedApp.setLinkOfferDate2(new Date());
-                    } else {
-                        linkedApp.setLinkOfferDate1(new Date());
-                    }
-
-                    final ConnectLinkedAppRecord appRecordFinal = linkedApp;
-                    StandardAlertDialog d = new StandardAlertDialog(activity,
-                            activity.getString(R.string.login_link_connectid_title),
-                            activity.getString(R.string.login_link_connectid_message));
-
-                    d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
-                        activity.dismissAlertDialog();
-
-                        unlockConnect(activity, success -> {
-                            if (success) {
-                                appRecordFinal.linkToConnectId(password);
-                                ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
-
-                                //Link the HQ user by acquiring the SSO token for the first time
-                                ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-                                ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, appRecordFinal, username, true, new ConnectSsoHelper.TokenCallback() {
-                                    @Override
-                                    public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                                        callback.connectActivityComplete(true);
-                                    }
-
-                                    @Override
-                                    public void tokenUnavailable() {
-                                        ConnectNetworkHelper.handleTokenUnavailableException(activity);
-                                        callback.connectActivityComplete(false);
-                                    }
-
-                                    @Override
-                                    public void tokenRequestDenied() {
-                                        ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
-                                        callback.connectActivityComplete(false);
-                                    }
-                                });
-                            } else {
-                                callback.connectActivityComplete(false);
-                            }
-                        });
-                    });
-
-                    d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
-                        activity.dismissAlertDialog();
-
-                        //Save updated record indicating that we offered
-                        ConnectAppDatabaseUtil.storeApp(activity, appRecordFinal);
-
-                        callback.connectActivityComplete(false);
-                    });
-
-                    activity.showAlertDialog(d);
-                    return;
-                }
-            }
-            case ConnectId -> {
-                if (!autoLoggedIn) {
-                    //See if user wishes to permanently sever the connection
-                    StandardAlertDialog d = new StandardAlertDialog(activity,
-                            activity.getString(R.string.login_unlink_connectid_title),
-                            activity.getString(R.string.login_unlink_connectid_message));
-
-                    d.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (dialog, which) -> {
-                        activity.dismissAlertDialog();
-
-                        unlockConnect(activity, success -> {
-                            if (success) {
-                                ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
-                                if (linkedApp != null) {
-                                    linkedApp.severConnectIdLink();
-                                    ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
-                                }
-                            }
-
-                            callback.connectActivityComplete(success);
-                        });
-                    });
-
-                    d.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (dialog, which) -> {
-                        activity.dismissAlertDialog();
-
-                        callback.connectActivityComplete(false);
-                    });
-
-                    activity.showAlertDialog(d);
-                    return;
-                }
-            }
-            default -> {
-                //Connect managed app, nothing to do
-            }
+        if (!offerCheck.shouldOffer) {
+            callback.connectActivityComplete(false);
+            return;
         }
 
-        callback.connectActivityComplete(false);
+        if (linkedApp == null) {
+            linkedApp = ConnectAppDatabaseUtil.storeApp(activity, appId, username, false, "", false, false);
+        }
+
+        updateLinkOfferDate(linkedApp, offerCheck.isSecondOffer);
+        showLinkDialog(activity, linkedApp, username, password, callback);
+    }
+
+    private static class OfferCheckResult {
+        boolean shouldOffer;
+        boolean isSecondOffer;
+
+        OfferCheckResult(boolean shouldOffer, boolean isSecondOffer) {
+            this.shouldOffer = shouldOffer;
+            this.isSecondOffer = isSecondOffer;
+        }
+    }
+
+    private OfferCheckResult evaluateLinkOffer(ConnectLinkedAppRecord linkedApp) {
+        if (linkedApp == null) {
+            return new OfferCheckResult(true, false);
+        }
+
+        Date firstOffer = linkedApp.getLinkOfferDate1();
+        if (firstOffer == null) {
+            return new OfferCheckResult(true, false);
+        }
+
+        Date secondOffer = linkedApp.getLinkOfferDate2();
+        if (secondOffer != null) {
+            return new OfferCheckResult(false, true);  // Already offered twice
+        }
+
+        long millis = new Date().getTime() - firstOffer.getTime();
+        long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
+        return new OfferCheckResult(days >= 30, true);  // Should offer again if 30+ days passed
+    }
+
+    private void updateLinkOfferDate(ConnectLinkedAppRecord linkedApp, boolean isSecondOffer) {
+        if (isSecondOffer) {
+            linkedApp.setLinkOfferDate2(new Date());
+        } else {
+            linkedApp.setLinkOfferDate1(new Date());
+        }
+    }
+
+
+    private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username, String password, ConnectActivityCompleteListener callback) {
+        final ConnectLinkedAppRecord finalRecord = linkedApp;
+        StandardAlertDialog dialog = new StandardAlertDialog(activity,
+                activity.getString(R.string.login_link_connectid_title),
+                activity.getString(R.string.login_link_connectid_message));
+
+        dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
+            activity.dismissAlertDialog();
+            unlockAndLinkConnect(activity, finalRecord, username, password, callback);
+        });
+
+        dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
+            activity.dismissAlertDialog();
+            ConnectAppDatabaseUtil.storeApp(activity, finalRecord);
+            callback.connectActivityComplete(false);
+        });
+
+        activity.showAlertDialog(dialog);
+    }
+
+    private void unlockAndLinkConnect(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username, String password, ConnectActivityCompleteListener callback) {
+        unlockConnect(activity, success -> {
+            if (!success) {
+                callback.connectActivityComplete(false);
+                return;
+            }
+
+            linkedApp.linkToConnectId(password);
+            ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
+
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
+            ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, linkedApp, username, true, new ConnectSsoHelper.TokenCallback() {
+                public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                    callback.connectActivityComplete(true);
+                }
+                public void tokenUnavailable() {
+                    ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                    callback.connectActivityComplete(false);
+                }
+                public void tokenRequestDenied() {
+                    ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
+                    callback.connectActivityComplete(false);
+                }
+            });
+        });
+    }
+
+    private void handleConnectIdLinkedApp(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, ConnectActivityCompleteListener callback) {
+        if (autoLoggedIn) {
+            callback.connectActivityComplete(false);
+            return;
+        }
+
+        StandardAlertDialog dialog = new StandardAlertDialog(activity,
+                activity.getString(R.string.login_unlink_connectid_title),
+                activity.getString(R.string.login_unlink_connectid_message));
+
+        dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
+            activity.dismissAlertDialog();
+            unlockConnect(activity, success -> {
+                if (success) {
+                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+                    if (linkedApp != null) {
+                        linkedApp.severConnectIdLink();
+                        ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
+                    }
+                }
+                callback.connectActivityComplete(success);
+            });
+        });
+
+        dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
+            activity.dismissAlertDialog();
+            callback.connectActivityComplete(false);
+        });
+
+        activity.showAlertDialog(dialog);
     }
 
     ///TODO update the code with connect code
