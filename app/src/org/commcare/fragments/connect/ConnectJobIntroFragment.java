@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -87,7 +88,8 @@ public class ConnectJobIntroFragment extends Fragment {
             button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.download_app));
             button.setOnClickListener(v -> {
                 //First, need to tell Connect we're starting learning so it can create a user on HQ
-                ApiConnect.startLearnApp(getContext(), job.getJobId(), new IApiCallback() {
+                ConnectUserRecord user = ConnectManager.getUser(getContext());
+                ApiConnect.startLearnApp(getContext(), user, job.getJobId(), new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         reportApiCall(true);
@@ -106,15 +108,26 @@ public class ConnectJobIntroFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, IOException e) {
+                    public void processFailure(int responseCode) {
                         Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
                         reportApiCall(false);
-                        //TODO: Log the message from the server
                     }
 
                     @Override
                     public void processNetworkFailure() {
                         ConnectNetworkHelper.showNetworkError(getContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processTokenUnavailableError() {
+                        ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
                         reportApiCall(false);
                     }
 
@@ -137,7 +150,7 @@ public class ConnectJobIntroFragment extends Fragment {
         ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
         ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
@@ -145,7 +158,7 @@ public class ConnectJobIntroFragment extends Fragment {
         });
 
         tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setText(job.getDescription());
+        tvJobDescription.setText(job.getDescription());
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();

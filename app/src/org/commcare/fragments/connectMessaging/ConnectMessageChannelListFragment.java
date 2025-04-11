@@ -16,6 +16,7 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.ChannelAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -82,6 +83,11 @@ public class ConnectMessageChannelListFragment extends Fragment {
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();
         });
+
+        if(getActivity()!=null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar()!=null){
+            ((CommCareActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
     }
 
     @Override

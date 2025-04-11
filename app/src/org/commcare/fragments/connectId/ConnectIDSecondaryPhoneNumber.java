@@ -122,7 +122,14 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 binding.connectPrimaryPhoneInput.getText().toString());
 
         boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-
+        String userPrimaryNumber = ConnectManager.getUser(requireActivity()).getPrimaryPhone();
+        if (userPrimaryNumber.equals(phone)) {
+            binding.errorTextView.setVisibility(View.VISIBLE);
+            binding.errorTextView.setText(R.string.primary_and_alternate_phone_number);
+            valid = false;
+        }else{
+            binding.errorTextView.setVisibility(View.GONE);
+        }
         binding.continueButton.setEnabled(valid);
     }
 
@@ -143,7 +150,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
+                public void processFailure(int responseCode) {
                     skipPhoneNumberCheck = false;
                     Toast.makeText(getContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
@@ -153,6 +160,18 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 public void processNetworkFailure() {
                     skipPhoneNumberCheck = false;
                     ConnectNetworkHelper.showNetworkError(getContext());
+                }
+
+                @Override
+                public void processTokenUnavailableError() {
+                    skipPhoneNumberCheck = false;
+                    ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
+                    skipPhoneNumberCheck = false;
+                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
                 }
 
                 @Override

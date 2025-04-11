@@ -34,7 +34,8 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
-            getCurrentFragment().onActivityResult(requestCode, resultCode, data);
+            //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
+            getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
         } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
             handleRedirection(data);
         }
@@ -100,7 +101,10 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                             break;
 //                        case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> fragmentId = R.id.connectid_phone_verify;
 //                        case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> fragmentId = R.id.connectid_phoneNo;
-//                        case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> fragmentId = R.id.connectid_secondary_phone_fragment;
+                        case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE :
+                            navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentToConnectidSecondaryPhoneFragment(
+                                    phase, ConnectConstants.METHOD_CHANGE_ALTERNATE, "");
+                            break;
                         case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN:
                         case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN:
                         case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN:

@@ -557,15 +557,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if(appState == ConnectManager.ConnectAppMangement.ConnectId) {
             int selectorIndex = uiController.getSelectedAppIndex();
-            if (selectorIndex > 0) {
-                String selectedAppId = appIdDropdownList.size() > 0 ? appIdDropdownList.get(selectorIndex) : "";
+            String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
 
-                if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
-                    appState = ConnectManager.ConnectAppMangement.Unmanaged;
-                }
-            } else {
-                //Connect jobs selected from dropdown
-                appState = ConnectManager.ConnectAppMangement.Connect;
+            if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                appState = ConnectManager.ConnectAppMangement.Unmanaged;
             }
         }
 
@@ -878,6 +873,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
             case AUTH_FAILED:
+                if(ConnectManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("Token Auth failed during login for a ConnectID managed app"));
+                }
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BAD_DATA_REQUIRES_INTERVENTION:
