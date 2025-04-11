@@ -69,8 +69,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             allowPassword = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
         }
 
-        updateState();
-
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
         binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
         handleAppBar(view);
@@ -119,7 +117,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Logger.exception("Fingerprint failed", new Exception("Fingerprint authentication failed"));
                 Toast.makeText(requireActivity().getApplicationContext(), "Authentication failed",
                                 Toast.LENGTH_SHORT)
                         .show();
@@ -143,7 +140,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             Logger.exception("No biometrics", new Exception(
                     "No biometric options available during biometric config"));
 
-            //Skip to password-only workflow (except that no longer exists... TODO)
             finish(true, true);
             return;
         }
@@ -236,7 +232,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
-            //Non-fatal exception already reported in the call above
             finish(true, true);
         }
     }
@@ -246,7 +241,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
             performPinUnlock();
         } else if (!BiometricsHelper.configurePin(getActivity())) {
-            //Non-fatal exception already reported in the call above
             finish(true, true);
         }
     }
