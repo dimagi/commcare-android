@@ -778,11 +778,10 @@
     <string name="connect_appbar_title_password_verification">Password Verification</string>
 
     <!--    Entity List Progresss Indicators-->
+
     <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
-    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
-    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
-    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
-    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+    <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
 
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>

@@ -264,6 +264,7 @@ public class ResourceInstallUtils {
         }
 
         if(exception.getCause() instanceof SSLException){
+            Logger.exception("Encountered SSLException while trying to install a resource", exception);
             return AppInstallStatus.BadSslCertificate;
         }
 

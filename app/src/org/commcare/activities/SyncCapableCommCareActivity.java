@@ -22,6 +22,7 @@ import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
@@ -274,7 +275,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
         }
-        CommCareApplication.instance().scheduleEntityCacheInvalidation();
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
     }
 
     public void updateUiForFormUploadResult(String message, boolean success) {
