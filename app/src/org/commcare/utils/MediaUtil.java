@@ -372,8 +372,14 @@ public class MediaUtil {
         int approximateScaleDownFactor = getApproxScaleDownFactor(newWidth, originalWidth);
         Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
+        try {
+            b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
+        } catch (Exception e) {
+            Logger.exception("Failed to inflate image: ", e);
+        }
+
         if (b == null) {
-            return null; // Handle case where bitmap loading fails
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Fallback
         }
 
         // Get the EXIF orientation
