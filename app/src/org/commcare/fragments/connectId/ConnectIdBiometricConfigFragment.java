@@ -140,7 +140,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             Logger.exception("No biometrics", new Exception(
                     "No biometric options available during biometric config"));
 
-            //Skip to password-only workflow (except that no longer exists... TODO)
             finish(true, true);
             return;
         }
