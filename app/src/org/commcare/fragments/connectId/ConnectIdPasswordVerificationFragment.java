@@ -59,7 +59,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSavedState(savedInstanceState);
+        loadSavedState(savedInstanceState);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         binding = null;
     }
 
-    private void getSavedState(Bundle savedInstanceState) {
+    private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
             phone = savedInstanceState.getString(KEY_PHONE);

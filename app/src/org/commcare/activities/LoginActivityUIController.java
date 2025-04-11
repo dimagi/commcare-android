@@ -538,7 +538,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
-        passwordOrPin.setBackgroundColor(getResources().getColor(unmanaged ? R.color.white : R.color.grey_light));
         if (!unmanaged) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();

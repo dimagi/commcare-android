@@ -72,8 +72,8 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
     @Override
     public void onResume() {
-        updateState();
         super.onResume();
+        updateState();
     }
 
     @Override
