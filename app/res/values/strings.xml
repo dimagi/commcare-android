@@ -492,6 +492,7 @@
     <string name="connect_unlock_message">Please unlock to continue</string>
     <string name="connect_unlock_button_pin">Unlock with PIN</string>
     <string name="connect_unlock_button_password">Unlock with Password</string>
+    <string name="connect_unlock_unavailable">Please configure a screen unlock mechanism</string>
 
     <string name="connect_unlock_trouble_message">Trouble unlocking?</string>
     <string name="connect_unlock_fingerprint_title">Unlock via fingerprint</string>
@@ -514,6 +515,7 @@
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
     <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
     <string name="connect_verify_pin_configured">Your PIN has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configuration_failed">Configuration failed, please try again</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
