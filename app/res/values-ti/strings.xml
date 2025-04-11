@@ -425,7 +425,7 @@
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>
     <string name="connect_verify_use_pin_long">ንምትእስሳር ፒን ተጠቐም</string>
     <string name="connect_verify_pin_configured">ፒንካ በቃ ተዋቒሩ ኣሎ፡ ንConnectID ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
-    <string name="connect_verify_configuration_failed">ውቅር ኣይተዓወተን፣ በጃኻ እንደገና ፈትን።</string>
+    <string name="connect_verify_configuration_failed">ውቅር ኣይተዓወተን፣ በጃኻ እንደገና ፈትን።  %s</string>
     <string name="connect_verify_configure_pin">ፒን ምውቃር</string>
     <string name="connect_verify_agree">ስምምዕ &amp; ቀፅል</string>
     <string name="connect_verify_phone_title">ናይ ምርግጋፅ ኮድ</string>

@@ -434,7 +434,7 @@
     <string name="connect_verify_configure_fingerprint">Sanidi Alama ya Kidole</string>
     <string name="connect_verify_use_pin_long">Tumia PIN Kuunganisha</string>
     <string name="connect_verify_pin_configured">PIN yako tayari imesanidiwa na itatumika kufungua ConnectID.</string>
-    <string name="connect_verify_configuration_failed">Usanidi haukufaulu, tafadhali jaribu tena</string>
+    <string name="connect_verify_configuration_failed">Usanidi haukufaulu, tafadhali jaribu tena. %s</string>
     <string name="connect_verify_configure_pin">Sanidi PIN</string>
     <string name="connect_verify_agree">Kubali na Uendelee</string>
     <string name="connect_verify_phone_title">Nambari ya Uthibitishaji</string>

@@ -100,10 +100,12 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                     }
                 }
 
-                Logger.exception("Exhausted biometrics", new Exception(
-                        "Fingerprint error and PIN isn't configured/allowed: " + allowPassword));
+                String whyNoPin = allowPassword ? "configured" : "allowed";
+                Logger.exception("Exhausted biometrics", new Exception(String.format(Locale.getDefault(),
+                        "Fingerprint error and PIN isn't %s: %s (%d)", whyNoPin, errString, errorCode)));
 
-                Toast.makeText(context, R.string.connect_verify_configuration_failed, Toast.LENGTH_SHORT).show();
+                String message = context.getString(R.string.connect_verify_configuration_failed, errString);
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             }
 
             @Override
