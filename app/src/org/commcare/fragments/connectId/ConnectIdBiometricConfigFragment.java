@@ -119,7 +119,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Logger.exception("Fingerprint failed", new Exception("Fingerprint authentication failed"));
                 Toast.makeText(requireActivity().getApplicationContext(), "Authentication failed",
                                 Toast.LENGTH_SHORT)
                         .show();
