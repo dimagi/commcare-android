@@ -69,8 +69,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             allowPassword = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
         }
 
-        updateState();
-
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
         binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
         handleAppBar(view);
