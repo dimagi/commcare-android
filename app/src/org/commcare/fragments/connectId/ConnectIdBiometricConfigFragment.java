@@ -233,7 +233,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
-            //Non-fatal exception already reported in the call above
             finish(true, true);
         }
     }
@@ -243,7 +242,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
             performPinUnlock();
         } else if (!BiometricsHelper.configurePin(getActivity())) {
-            //Non-fatal exception already reported in the call above
             finish(true, true);
         }
     }
