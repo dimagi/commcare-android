@@ -379,7 +379,7 @@ public class MediaUtil {
         }
 
         if (b == null) {
-            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Fallback
+            return Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888); //return bitmap with expected width and height
         }
 
         // Get the EXIF orientation
