@@ -370,21 +370,8 @@ public class MediaUtil {
         }
 
         int approximateScaleDownFactor = getApproxScaleDownFactor(newWidth, originalWidth);
-        Bitmap b = null;
+        Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
-        try {
-            b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
-        } catch (Exception e) {
-            Logger.exception("Failed to inflate image: ", e);
-        }
-
-        // If inflation failed, return a blank Bitmap with the expected dimensions
-        // don't wanna return null
-        if (b == null) {
-            return Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888); //return bitmap with expected width and height
-        }
-
-        // Get the EXIF orientation
         int orientation = ExifInterface.ORIENTATION_NORMAL;
         try {
             ExifInterface exif = new ExifInterface(imageFilepath);
@@ -394,9 +381,10 @@ public class MediaUtil {
         }
 
         // Rotate the bitmap if needed
-        Bitmap rotatedBitmap = rotateBitmap(b, orientation);
-        if (rotatedBitmap != b) {
-            b.recycle(); // Free up memory from the original bitmap
+        Bitmap rotatedBitmap = b;
+        if (orientation != ExifInterface.ORIENTATION_NORMAL)
+        {
+            rotatedBitmap = rotateBitmap(b, orientation);
         }
 
         if (scaleByContainerOnly && !respectBoundsExactly) {
