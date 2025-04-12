@@ -405,7 +405,10 @@ public class MediaUtil {
 
     // Helper method to rotate the bitmap based on EXIF orientation that we previously retained
     private static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
-        if (bitmap == null || orientation == ExifInterface.ORIENTATION_NORMAL) {
+        if (bitmap == null) {
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        }
+        if (orientation == ExifInterface.ORIENTATION_NORMAL) {
             return bitmap;
         }
 
