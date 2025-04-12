@@ -370,7 +370,7 @@ public class MediaUtil {
         }
 
         int approximateScaleDownFactor = getApproxScaleDownFactor(newWidth, originalWidth);
-        Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
+        Bitmap b = null;
 
         try {
             b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
@@ -378,6 +378,8 @@ public class MediaUtil {
             Logger.exception("Failed to inflate image: ", e);
         }
 
+        // If inflation failed, return a blank Bitmap with the expected dimensions
+        // don't wanna return null
         if (b == null) {
             return Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888); //return bitmap with expected width and height
         }
@@ -406,7 +408,7 @@ public class MediaUtil {
                 // specified that respecting the bounding container precisely is important
                 return Bitmap.createScaledBitmap(rotatedBitmap, newWidth, newHeight, false);
             } catch (OutOfMemoryError e) {
-                Logger.exception( "Ran out of memory attempting to scale image at: ", e);
+                Logger.exception("Ran out of memory attempting to scale image at: ", e);
                 rotatedBitmap.recycle();
                 return null;
             }
