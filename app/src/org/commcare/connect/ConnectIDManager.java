@@ -241,7 +241,7 @@ public class ConnectIDManager {
         }
     }
 
-    public boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin, boolean loginManagedByConnectId) {
+    public boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
         AtomicBoolean result = new AtomicBoolean(false);
         if (isLoggedIN()) {
             completeSignin();
@@ -257,7 +257,7 @@ public class ConnectIDManager {
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login
                 checkConnectIdLink(context,
-                        loginManagedByConnectId, appId,
+                        appId,
                         username,
                         enteredPasswordPin, success -> {
                             updateAppAccess(context, appId, username);
@@ -319,17 +319,18 @@ public class ConnectIDManager {
         }
     }
 
-    private void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+    private void checkConnectIdLink(CommCareActivity<?> activity, String appId,
+            String username, String password, ConnectActivityCompleteListener callback) {
         switch (evalAppState(activity, appId, username)) {
-            case Unmanaged -> handleUnmanagedApp(activity, appId, username, password, callback);
-            case ConnectId -> handleConnectIdLinkedApp(activity, autoLoggedIn, appId, username, callback);
+            case Unmanaged -> linkUnmanagedApp(activity, appId, username, password, callback);
+            case ConnectId -> delinkConnectIdApp(activity, appId, username, callback);
             case Connect -> callback.connectActivityComplete(true);
             default -> {
             }
         }
     }
 
-    private void handleUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+    private void linkUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
         ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectAppRecord(activity, appId, username);
         OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
 
@@ -433,12 +434,7 @@ public class ConnectIDManager {
         });
     }
 
-    private void handleConnectIdLinkedApp(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, ConnectActivityCompleteListener callback) {
-        if (autoLoggedIn) {
-            callback.connectActivityComplete(false);
-            return;
-        }
-
+    private void delinkConnectIdApp(CommCareActivity<?> activity, String appId, String username, ConnectActivityCompleteListener callback) {
         StandardAlertDialog dialog = new StandardAlertDialog(activity,
                 activity.getString(R.string.login_unlink_connectid_title),
                 activity.getString(R.string.login_unlink_connectid_message));

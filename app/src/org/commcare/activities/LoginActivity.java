@@ -437,7 +437,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CrashUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-        boolean result = connectIDManager.handleConnectSignIn(this, getUniformUsername(), uiController.getEnteredPasswordOrPin(), uiController.loginManagedByConnectId());
+        boolean result = connectIDManager.handleConnectSignIn(this, getUniformUsername(),
+                uiController.getEnteredPasswordOrPin());
         setResultAndFinish(result);
     }
 
