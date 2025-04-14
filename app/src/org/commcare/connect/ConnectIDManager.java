@@ -241,8 +241,15 @@ public class ConnectIDManager {
         }
     }
 
+    /**
+     * Handles sign in into a connect app
+     * @param context Android activity we are signing in from
+     * @param username Username for user signing in
+     * @param enteredPasswordPin user entered password or pin for non-connect apps
+     * @return Whether the app is all set up as connect managed app or not
+     */
     public boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
-        AtomicBoolean result = new AtomicBoolean(false);
+        AtomicBoolean isAppFullySetupForConnect = new AtomicBoolean(false);
         if (isLoggedIN()) {
             completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -251,21 +258,21 @@ public class ConnectIDManager {
             if (job != null) {
                 updateAppAccess(context, appId, username);
                 //Update job status
-                updateJobProgress(context, job, success -> {
-                    result.set(job.getIsUserSuspended());
-                });
+                updateJobProgress(context, job, success -> isAppFullySetupForConnect.set(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login
                 checkConnectIdLink(context,
                         appId,
                         username,
-                        enteredPasswordPin, success -> {
+                        enteredPasswordPin,
+                        success -> {
                             updateAppAccess(context, appId, username);
-                            result.set(false);
-                        });
+                            isAppFullySetupForConnect.set(success);
+                        }
+                );
             }
 
-            return result.get();
+            return isAppFullySetupForConnect.get();
         }
 
         return true;
@@ -449,13 +456,13 @@ public class ConnectIDManager {
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
                     }
                 }
-                callback.connectActivityComplete(success);
+                callback.connectActivityComplete(!success);
             });
         });
 
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
             activity.dismissAlertDialog();
-            callback.connectActivityComplete(false);
+            callback.connectActivityComplete(true);
         });
 
         activity.showAlertDialog(dialog);
