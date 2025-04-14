@@ -371,7 +371,7 @@ public class ConnectIDManager {
 
         long millis = new Date().getTime() - firstOffer.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-        return new OfferCheckResult(days >= DAYS_TO_SECOND_OFFER, true);
+        return new OfferCheckResult(days >= DAYS_TO_SECOND_OFFER, false);
     }
 
     private void updateLinkOfferDate(ConnectLinkedAppRecord linkedApp, boolean isSecondOffer) {
