@@ -2,13 +2,18 @@ package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
+import android.view.View;
 import android.view.ViewTreeObserver;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.HiddenPreferences;
@@ -27,6 +32,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
 
     private HomeScreenAdapter adapter;
+    private CardView connectTile;
+
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
         this.activity = activity;
@@ -35,6 +42,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
+        connectTile = activity.findViewById(R.id.connect_alert_tile);
+        connectTile.setVisibility(View.GONE);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
@@ -97,5 +106,11 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         // Manually route message payloads since RecyclerView payloads are a pain in the ass
         adapter.setMessagePayload(adapter.getSyncButtonPosition(), message);
         adapter.notifyItemChanged(adapter.getSyncButtonPosition());
+    }
+
+    public void updateConnectTile(boolean show) {
+        ConnectIDManager.getInstance().updateSecondaryPhoneConfirmationTile(activity, connectTile, show, v -> {
+            activity.performSecondaryPhoneVerification();
+        });
     }
 }

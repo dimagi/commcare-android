@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectId;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import static android.app.Activity.RESULT_OK;
 import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
 /**
  * {@link Fragment} subclass for helping the user choose or configure their biometric.
@@ -290,7 +292,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 if (success) {
                     ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                    requireActivity().setResult(ConnectConstants.CONNECTID_SUCCESS_REQUEST_CODE);
+                    requireActivity().setResult(RESULT_OK);
                     requireActivity().finish();
 
                 }

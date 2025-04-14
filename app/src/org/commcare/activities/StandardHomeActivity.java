@@ -8,6 +8,8 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -51,6 +53,12 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -273,5 +281,15 @@ public class StandardHomeActivity
     @Override
     void refreshCCUpdateOption() {
         invalidateOptionsMenu();
+    }
+
+    private void updateSecondaryPhoneConfirmationTile() {
+        boolean show = getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false) && ConnectIDManager.shouldShowSecondaryPhoneConfirmationTile(this);
+
+        uiController.updateConnectTile(show);
+    }
+
+    public void performSecondaryPhoneVerification() {
+        ConnectIDManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
     }
 }

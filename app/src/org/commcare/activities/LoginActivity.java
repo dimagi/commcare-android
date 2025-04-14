@@ -347,8 +347,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else if(resultCode== ConnectConstants.CONNECTID_SUCCESS_REQUEST_CODE){
-            connectIDManager.handleFinishedActivity(this, requestCode, resultCode, intent);
+        } else if(resultCode== ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE){
+            connectIDManager.handleFinishedActivity(this, resultCode);
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -843,7 +843,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void registerConnectIdUser() {
-        connectIDManager.launchConnectId(this);
+        connectIDManager.launchConnectId(this,ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE);
     }
 
     protected boolean seatAppIfNeeded(String appId) {

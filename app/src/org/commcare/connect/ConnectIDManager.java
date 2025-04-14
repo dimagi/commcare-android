@@ -2,7 +2,11 @@ package org.commcare.connect;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
@@ -56,6 +60,7 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import static org.apache.http.client.utils.DateUtils.formatDate;
 import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
 
 /**
@@ -228,13 +233,10 @@ public class ConnectIDManager {
         CrashUtil.registerConnectUser();
     }
 
-    public void handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
+    public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
         parentActivity = activity;
-
-        if (!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode)) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
-                goToConnectJobsList(activity);
-            }
+        if (resultCode == AppCompatActivity.RESULT_OK) {
+            goToConnectJobsList(activity);
         }
     }
 
@@ -271,11 +273,11 @@ public class ConnectIDManager {
 
     public void forgetUser(String reason) {
 
-        if (ConnectDatabaseHelper.dbExists(manager.parentActivity)) {
+        if (ConnectDatabaseHelper.dbExists(parentActivity)) {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
 
-        ConnectUserDatabaseUtil.forgetUser(manager.parentActivity);
+        ConnectUserDatabaseUtil.forgetUser(parentActivity);
         ConnectIdActivity connectIdActivity = new ConnectIdActivity();
         connectIdActivity.reset();
         manager.connectStatus = ConnectIdStatus.NotIntroduced;
@@ -283,7 +285,7 @@ public class ConnectIDManager {
 
     public AuthInfo.TokenAuth getConnectToken() {
         if (isLoggedIN()) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             Date currentDate = new Date();
             if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
@@ -298,14 +300,14 @@ public class ConnectIDManager {
         return null;
     }
 
-    private void launchConnectId(CommCareActivity<?> parent, String task) {
-        Intent intent = new Intent(parent, ConnectIdActivity.class);
-        intent.putExtra(ConnectConstants.TASK, task);
-        parent.startActivityForResult(intent, CONNECTID_REQUEST_CODE);
+    public void launchConnectId(CommCareActivity<?> parent,int requestCode) {
+        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION,requestCode);
     }
 
-    public void launchConnectId(CommCareActivity<?> parent) {
-        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION);
+    private void launchConnectId(CommCareActivity<?> parent, String task,int requestCode) {
+        Intent intent = new Intent(parent, ConnectIdActivity.class);
+        intent.putExtra(ConnectConstants.TASK, task);
+        parent.startActivityForResult(intent, requestCode);
     }
 
     private void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
@@ -460,7 +462,7 @@ public class ConnectIDManager {
     }
 
     ///TODO update the code with connect code
-    private static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    private  void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
 //                updateLearningProgress(context, job, listener);
@@ -595,7 +597,41 @@ public class ConnectIDManager {
     public String getConnectUsername(Context context) {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
     }
+    public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
+        boolean show = false;
 
+        if (manager.isLoggedIN()) {
+            ConnectUserRecord user = getInstance().getUser(context);
+            show = !user.getSecondaryPhoneVerified();
+        }
+
+        return show;
+    }
+
+    public void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
+        tile.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        if (show) {
+            ConnectUserRecord user = getInstance().getUser(context);
+            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
+            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
+
+            TextView view = tile.findViewById(R.id.connect_phone_label);
+            view.setText(message);
+
+            MaterialButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            yesButton.setOnClickListener(listener);
+
+            MaterialButton noButton = tile.findViewById(R.id.connect_phone_no_button);
+            noButton.setOnClickListener(v -> {
+                tile.setVisibility(View.GONE);
+            });
+        }
+    }
+
+    public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
+        manager.launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
+    }
 
     public void setActiveJob(ConnectJobRecord job) {
         activeJob = job;

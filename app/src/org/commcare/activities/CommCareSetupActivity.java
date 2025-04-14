@@ -424,8 +424,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
-            case ConnectConstants.CONNECTID_SUCCESS_REQUEST_CODE:
-                ConnectIDManager.getInstance().handleFinishedActivity(this, requestCode, resultCode, data);
+            case ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE:
+                ConnectIDManager.getInstance().handleFinishedActivity(this,resultCode);
                 return;
             default:
                 return;
@@ -631,7 +631,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectIDManager.getInstance().launchConnectId(this);
+                ConnectIDManager.getInstance().launchConnectId(this,ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
                 break;
             case MENU_CONNECT_FORGET:
                 ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
