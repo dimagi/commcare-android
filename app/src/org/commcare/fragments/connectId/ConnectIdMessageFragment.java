@@ -110,123 +110,97 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private void handleContinueButtonPress(boolean secondButton) {
-        finish(true, secondButton);
+        finish(secondButton);
     }
 
-    private void finish(boolean success, boolean secondButton) {
+    private void finish(boolean secondButton) {
         NavDirections directions = null;
         Activity activity = requireActivity();
         ConnectIdActivity connectIdActivity = (ConnectIdActivity)activity;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
-            case ConnectConstants.CONNECT_REGISTRATION_SUCCESS:
+            case ConnectConstants.CONNECT_REGISTRATION_SUCCESS, ConnectConstants.CONNECT_RECOVERY_SUCCESS:
                 successFlow(activity);
                 break;
             //CONNECT_RECOVERY_ALT_PHONE_MESSAGE
             case ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE:
-                if (success) {
-                    if (secondButton) {
-                        directions = navigateToDeactivateAccount();
-                    } else {
-                        directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
-                    }
+                if (secondButton) {
+                    directions = navigateToDeactivateAccount();
+                } else {
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
                 }
-                break;
-            case ConnectConstants.CONNECT_RECOVERY_SUCCESS:
-                successFlow(activity);
                 break;
             case ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL:
-                if (success) {
                     SettingsHelper.launchSecuritySettings(activity);
-                } else {
-                    directions = navigateToBiometricConfig();
-                }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
-                if (success) {
-                    if (connectIdActivity.forgotPassword) {
+                   if (connectIdActivity.forgotPassword) {
                         directions = navigateToMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, userName, password);
                     } else {
                         directions = navigateToPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, true, true);
                     }
-                } else {
-                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary, connectIdActivity.recoverPhone, connectIdActivity.recoverPhone, null, null);
-                }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD:
-                if (success) {
-                    directions = navigateToPassword(connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
-                }
+                directions = navigateToPassword(connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
                 break;
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
-                if (success) {
-                    if (secondButton) {
-                        directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
-                    } else {
-                        directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
-                    }
+                if (secondButton) {
+                    directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                } else {
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
                 }
+
                 break;
             //CONNECT_RECOVERY_WRONG_PIN
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
-                if (success) {
-                    if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
-                        directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
-                        ConnectIDManager.getInstance().setFailureAttempt(0);
-                    } else {
-                        directions = navigateToPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, false, true);
-                    }
+                if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
+                    ConnectIDManager.getInstance().setFailureAttempt(0);
+                } else {
+                    directions = navigateToPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, false, true);
                 }
+
                 break;
             case ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN:
-                if (success) {
-                    if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
-                        directions = navigateToPin(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "", true, false);
-                    } else {
-                        directions = navigateToPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "", false, false);
-                    }
+                if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
+                    directions = navigateToPin(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "", true, false);
+                } else {
+                    directions = navigateToPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "", false, false);
                 }
+
                 break;
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE:
-                if (success) {
-                    if (secondButton) {
-                        directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
-                    } else {
-                        directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
-                    }
+                if (secondButton) {
+                    directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                } else {
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
                 }
+
                 break;
             case ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION:
-                if (success) {
-                    if (!secondButton) {
-                        directions = navigateToUserDeactivateOtpVerify(connectIdActivity.recoverPhone, userName, password);
-                    } else {
-                        NavHostFragment.findNavController(this).popBackStack();
-                    }
+                if (!secondButton) {
+                    directions = navigateToUserDeactivateOtpVerify(connectIdActivity.recoverPhone, userName, password);
+                } else {
+                    NavHostFragment.findNavController(this).popBackStack();
                 }
+
                 break;
             case ConnectConstants.CONNECT_USER_DEACTIVATE_SUCCESS:
-                if (success) {
-                    if (!secondButton) {
-                        ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_DEACTIVATION);
-                        activity.finish();
-                    }
+                if (!secondButton) {
+                    ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_DEACTIVATION);
+                    activity.finish();
                 }
+
                 break;
         }
-        if (success) {
-            if (directions != null) {
-                NavHostFragment.findNavController(this).navigate(directions);
-            }
+        if (directions != null) {
+            NavHostFragment.findNavController(this).navigate(directions);
+
         }
     }
 
     private NavDirections navigateToDeactivateAccount() {
         return ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_message), ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION, getString(R.string.connect_deactivate_account_delete), getString(R.string.connect_deactivate_account_go_back), userName, password);
-    }
-
-    private NavDirections navigateToBiometricConfig() {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
     }
 
     private NavDirections navigateToMessage(String title, String message, int callingClass, String button2Text, String button1Text, String userName, String password) {

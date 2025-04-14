@@ -3,14 +3,13 @@ package org.commcare.activities.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
+import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
-import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -43,10 +42,8 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
-            Fragment currentFragment = getCurrentFragment();
-            if (currentFragment instanceof ConnectIdBiometricConfigFragment) {
-                currentFragment.onActivityResult(requestCode, resultCode, data);
-            }
+            //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
+            getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
         } else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
             handleRedirection(data);
         }
@@ -70,8 +67,15 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    private Fragment getCurrentFragment() {
-        return getHostFragment().getChildFragmentManager().getPrimaryNavigationFragment();
+    private ConnectIdBiometricConfigFragment getCurrentFragment() {
+        NavHostFragment navHostFragment =
+                (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
+        Fragment currentFragment =
+                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
+        if (currentFragment instanceof ConnectIdBiometricConfigFragment) {
+            return (ConnectIdBiometricConfigFragment)currentFragment;
+        }
+        return null;
     }
 
     private NavHostFragment getHostFragment() {

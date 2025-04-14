@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -96,12 +97,19 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.login_or)
     private TextView orLabel;
 
+    @UiElement(value = R.id.login_via_connect)
+    private TextView loginViaConnectLabel;
+
+    @UiElement(value = R.id.password_wrapper)
+    private RelativeLayout passwordWrapper;
+
     protected final LoginActivity activity;
 
     private LoginMode loginMode;
 
     private boolean manuallySwitchedToPasswordMode;
     private ConnectIDManager.ConnectAppMangement connectAppState;
+
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -137,6 +145,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     public LoginActivityUIController(LoginActivity activity) {
         this.activity = activity;
         this.loginMode = LoginMode.PASSWORD;
+        this.connectAppState = ConnectIDManager.ConnectAppMangement.Unmanaged;
     }
 
     @Override
@@ -202,9 +211,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
-        setLoginInputsVisibility(!noApps);
-        if (!ConnectIDManager.getInstance().isLoggedIN() && readyApps.size() == 1 || presetAppRecord != null) {
-            setLoginInputsVisibility(true);
+        setLoginInputsVisibility(!noApps || !(ConnectIDManager.getInstance().isLoggedIN()));
+        if (readyApps.size() == 1 || presetAppRecord != null) {
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
@@ -511,7 +519,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     public void setLoginInputsVisibility(boolean visible) {
         username.setVisibility(visible ? View.VISIBLE : View.GONE);
-        passwordOrPin.setVisibility(visible ? View.VISIBLE : View.GONE);
+        passwordWrapper.setVisibility(visible ? View.VISIBLE : View.GONE);
+        loginViaConnectLabel.setVisibility(visible ? View.GONE : View.VISIBLE);
     }
 
     protected void setConnectIdLoginState(ConnectIDManager.ConnectAppMangement appState) {

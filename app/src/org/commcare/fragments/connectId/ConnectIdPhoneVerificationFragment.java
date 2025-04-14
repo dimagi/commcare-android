@@ -119,7 +119,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLoadState(savedInstanceState);
+        loadSavedState(savedInstanceState);
     }
 
     @Override
@@ -201,7 +201,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         outState.putBoolean(KEY_DEACTIVATE_BUTTON, deactivateButton);
     }
 
-    private void getLoadState(Bundle savedInstanceState) {
+    private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
             method = savedInstanceState.getInt(KEY_METHOD);

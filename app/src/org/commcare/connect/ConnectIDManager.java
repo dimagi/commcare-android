@@ -2,6 +2,7 @@ package org.commcare.connect;
 
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
@@ -216,6 +217,8 @@ public class ConnectIDManager {
         } else {
             callback.connectActivityComplete(false);
             Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+            Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable), Toast.LENGTH_SHORT).show();
+
         }
     }
 

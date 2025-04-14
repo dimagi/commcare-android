@@ -115,6 +115,18 @@
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone" />
 
+                            <TextView
+                                android:id="@+id/login_via_connect"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="@dimen/content_min_margin"
+                                android:textStyle="bold"
+                                android:text="@string/login_via_connect"
+                                android:textColor="@color/cc_neutral_color"
+                                android:textSize="@dimen/text_medium"
+                                android:visibility="gone"/>
+
                             <AutoCompleteTextView
                                 android:id="@+id/edit_username"
                                 style="@style/LoginEditTextV2"
@@ -135,6 +147,7 @@
                             </AutoCompleteTextView>
 
                             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                android:id="@+id/password_wrapper"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content">
 
@@ -170,7 +183,6 @@
                                     android:textSize="@dimen/font_size_dp_medium"
                                     android:visibility="invisible" />
                             </RelativeLayout>
-
 
                             <CheckBox
                                 android:id="@+id/restore_session_checkbox"

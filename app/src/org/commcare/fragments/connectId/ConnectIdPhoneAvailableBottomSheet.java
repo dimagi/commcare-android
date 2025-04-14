@@ -38,7 +38,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         if (getArguments() != null) {
             phoneNumber = ConnectIdPhoneAvailableBottomSheetArgs.fromBundle(getArguments()).getPhone();
         }
-        getLoadState(savedInstanceState);
+        loadSavedState(savedInstanceState);
 
         phoneTextView.setText(phoneNumber != null ? phoneNumber : "");
 
@@ -50,7 +50,7 @@ public class ConnectIdPhoneAvailableBottomSheet extends BottomSheetDialogFragmen
         return view;
     }
 
-    private void getLoadState(Bundle outState) {
+    private void loadSavedState(Bundle outState) {
         if (outState != null) {
             phoneNumber = outState.getString(KEY_PHONE);
         }

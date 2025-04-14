@@ -456,7 +456,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void handleFailedConnectSignIn() {
-        if(connectIDManager.isLoggedIN()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
 
             ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
@@ -472,7 +471,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     //setConnectAppState();
                 }
             }
-        }
     }
 
     @Override
@@ -574,7 +572,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             CommCareApplication.notificationManager().reportNotificationMessage(message);
         }
         uiController.setErrorMessageUI(toastText, showTop);
-        handleFailedConnectSignIn();
+        if(uiController.loginManagedByConnectId()) {
+            handleFailedConnectSignIn();
+        }
     }
 
     /**

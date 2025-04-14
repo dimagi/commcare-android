@@ -72,7 +72,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
         setLisetner();
         setArguments();
-        getLoadState(savedInstanceState);
+        loadSavedState(savedInstanceState);
 
         //Special case for initial reg. screen. Remembering phone number before account has been created
 
@@ -142,7 +142,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         }
     }
 
-    private void getLoadState(Bundle outState) {
+    private void loadSavedState(Bundle outState) {
         existingPhone = outState.getString(KEY_PHONE);
         method = outState.getString(KEY_METHOD);
         callingClass = outState.getInt(KEY_CALLING_CLASS);

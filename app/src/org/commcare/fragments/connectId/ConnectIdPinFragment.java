@@ -104,7 +104,7 @@ public class ConnectIdPinFragment extends Fragment {
         clearPinFields();
         getArgument();
         setOnClickListener();
-        getLoadState(savedInstanceState);
+        loadSavedState(savedInstanceState);
         titleId = isChanging ? R.string.connect_pin_title_set :
                 R.string.connect_pin_title_confirm;
         setPinLength(pinLength);
@@ -208,7 +208,7 @@ public class ConnectIdPinFragment extends Fragment {
         outState.putBoolean(KEY_CHANGING, isChanging);
     }
 
-    private void getLoadState(Bundle savedInstanceState) {
+    private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             phone = savedInstanceState.getString(KEY_PHONE);
             secret = savedInstanceState.getString(KEY_SECRET);

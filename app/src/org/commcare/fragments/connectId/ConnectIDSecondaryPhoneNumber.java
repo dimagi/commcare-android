@@ -43,7 +43,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSecondaryPhoneNumberBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        getLoadState(savedInstanceState);
+        loadSavedState(savedInstanceState);
         setListener();
         method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
@@ -68,7 +68,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding = null;
     }
 
-    private void getLoadState(Bundle savedInstanceState) {
+    private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             method = savedInstanceState.getString(KEY_METHOD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
