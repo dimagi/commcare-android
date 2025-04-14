@@ -836,4 +836,5 @@
     <string name="add_secondary_phone_number">Add Secondary Phone Number</string>
     <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
     <string name="login_via_connect">Ready to login!\n</string>
+    <string name="failed_to_login_with_connectid">Failed to login with Connectid try again later or manually</string>
 </resources>

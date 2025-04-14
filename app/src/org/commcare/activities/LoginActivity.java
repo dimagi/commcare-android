@@ -466,9 +466,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
                 }
                 case ConnectId -> {
-                    //TODO: Display an additional message that the user will need to login with their password to restore CID login
-                    //ConnectManager.forgetAppCredentials(record.getUniqueId(), getUniformUsername());
-                    //setConnectAppState();
+                    uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
                 }
             }
     }
