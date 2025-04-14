@@ -323,7 +323,9 @@ public class ConnectIDManager {
         switch (evalAppState(activity, appId, username)) {
             case Unmanaged -> handleUnmanagedApp(activity, appId, username, password, callback);
             case ConnectId -> handleConnectIdLinkedApp(activity, autoLoggedIn, appId, username, callback);
-            default -> callback.connectActivityComplete(false); // Managed apps, no action
+            case Connect -> callback.connectActivityComplete(true);
+            default -> {
+            }
         }
     }
 
@@ -384,19 +386,18 @@ public class ConnectIDManager {
 
 
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username, String password, ConnectActivityCompleteListener callback) {
-        final ConnectLinkedAppRecord finalRecord = linkedApp;
         StandardAlertDialog dialog = new StandardAlertDialog(activity,
                 activity.getString(R.string.login_link_connectid_title),
                 activity.getString(R.string.login_link_connectid_message));
 
         dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
             activity.dismissAlertDialog();
-            unlockAndLinkConnect(activity, finalRecord, username, password, callback);
+            unlockAndLinkConnect(activity, linkedApp, username, password, callback);
         });
 
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
             activity.dismissAlertDialog();
-            ConnectAppDatabaseUtil.storeApp(activity, finalRecord);
+            ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
             callback.connectActivityComplete(false);
         });
 
