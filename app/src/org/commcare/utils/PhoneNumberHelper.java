@@ -19,7 +19,26 @@ import java.util.Locale;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
+
+import android.content.Context;
+import android.widget.Toast;
+
+import java.io.InputStream;
+
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 /**
  * Helper class for functionality related to phone numbers
  * Includes frequent usage of PhoneNumberUtil
@@ -129,4 +148,42 @@ public class PhoneNumberHelper {
         }
         return "";
     }
+
+    public String formatCountryCode(int code) {
+        if (code > 0) {
+            String codeText = String.valueOf(code);
+            return codeText.startsWith("+") ? codeText : "+" + codeText;
+        }
+        return "";
+    }
+
+    public String removeCountryCode(String fullNumber, String codeText) {
+        return fullNumber.startsWith(codeText) ? fullNumber.substring(codeText.length()) : fullNumber;
+    }
+
+    public static TextWatcher getCountryCodeWatcher(EditText editText) {
+        return new TextWatcher() {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().startsWith("+")) {
+                    editText.setText("+" + s);
+                    editText.setSelection(editText.getText().length());
+                }
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void afterTextChanged(Editable s) {}
+        };
+    }
+
+    public void storeAlternatePhone(Context context, ConnectUserRecord user, String phone) {
+        user.setAlternatePhone(phone);
+        ConnectUserDatabaseUtil.storeUser(context, user);
+        ConnectDatabaseHelper.setRegistrationPhase(context, ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
+    }
+
+    public void storePrimaryPhone(Context context, ConnectUserRecord user, String phone) {
+        user.setPrimaryPhone(phone);
+        ConnectUserDatabaseUtil.storeUser(context, user);
+    }
 }
+

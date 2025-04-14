@@ -48,7 +48,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         PhoneNumberHelper.getInstance(requireActivity());
-        String code = "+" + phoneNumberHelper.getCountryCodeFromLocale(requireActivity());
+        String code = phoneNumberHelper.formatCountryCode(phoneNumberHelper.getCountryCodeFromLocale(requireActivity()));
         binding.countryCode.setText(code);
         updateButtonEnabled();
         requireActivity().setTitle(R.string.connect_phone_title_alternate);
@@ -76,25 +76,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     }
 
     private void setListener() {
-        binding.countryCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().contains("+")) {
-                    binding.countryCode.setText("+" + binding.countryCode.getText());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
+        TextWatcher codeWatcher = phoneNumberHelper.getCountryCodeWatcher(binding.countryCode);
+        binding.countryCode.addTextChangedListener(codeWatcher);
         binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -204,9 +187,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
             case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 if (success) {
-                    user.setAlternatePhone(phone);
-                    ConnectUserDatabaseUtil.storeUser(getActivity(), user);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
+                    phoneNumberHelper.storeAlternatePhone(getActivity(), user, phone);
                     directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, false, false);
                 } else {
                     directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, false, true);

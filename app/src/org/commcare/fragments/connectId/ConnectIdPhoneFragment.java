@@ -169,9 +169,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
             case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 if (success) {
-                    user.setAlternatePhone(phone);
-                    ConnectUserDatabaseUtil.storeUser(getActivity(), user);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
+                    phoneNumberHelper.storeAlternatePhone(getActivity(), user, phone);
                     directions = navigateToPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, "");
                 } else {
                     directions = navigateToPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, "");
@@ -179,8 +177,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE -> {
                 if (success) {
-                    user.setPrimaryPhone(phone);
-                    ConnectUserDatabaseUtil.storeUser(getActivity(), user);
+                    phoneNumberHelper.storePrimaryPhone(getActivity(), user, phone);
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE);
                 }
                 directions = navigateToPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.valueOf(
@@ -233,20 +230,10 @@ public class ConnectIdPhoneFragment extends Fragment {
 
     private void displayNumber(String fullNumber) {
         int code = phoneNumberHelper.getCountryCodeFromLocale(activity);
-        if (fullNumber != null && fullNumber.length() > 0) {
-            code = phoneNumberHelper.getCountryCode(fullNumber);
-        }
-
-        String codeText = "";
-        if (code > 0) {
-            codeText = String.valueOf(code);
-            if (!codeText.startsWith("+")) {
-                codeText = "+" + codeText;
-            }
-        }
-
-        if (fullNumber != null && fullNumber.startsWith(codeText)) {
-            fullNumber = fullNumber.substring(codeText.length());
+        String codeText = phoneNumberHelper.formatCountryCode(code);
+        if (fullNumber != null && !fullNumber.isEmpty()) {
+            codeText = phoneNumberHelper.formatCountryCode(code);
+            fullNumber = phoneNumberHelper.removeCountryCode(fullNumber, codeText);
         }
         skipPhoneNumberCheck = false;
         binding.connectPrimaryPhoneInput.setText(fullNumber);
