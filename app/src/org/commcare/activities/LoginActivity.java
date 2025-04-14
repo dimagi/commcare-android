@@ -653,17 +653,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
         // Retrieve the app record corresponding to the app selected
         selectedAppIndex = position;
         String appId = appIdDropdownList.get(selectedAppIndex);
-        if (appId.length() > 0) {
-            uiController.setLoginInputsVisibility(true);
-            if (!seatAppIfNeeded(appId)) {
-                setConnectAppState();
-            }
-        }
-
+        seatAppIfNeeded(appId);
     }
 
     @Override
