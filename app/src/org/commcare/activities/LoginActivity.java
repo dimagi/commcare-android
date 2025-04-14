@@ -457,8 +457,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void handleFailedConnectSignIn() {
         ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+        ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
                 record.getUniqueId(), getUniformUsername());
 
         switch (appState) {
@@ -863,7 +862,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void setConnectAppState() {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+        ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
                 seatedAppId, uiController.getEnteredUsername());
 
         if (appLaunchedFromConnect && presetAppId != null) {

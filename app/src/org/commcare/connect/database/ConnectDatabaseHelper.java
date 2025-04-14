@@ -100,7 +100,7 @@ public class ConnectDatabaseHelper {
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(context, appId, userId);
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectAppRecord(context, appId, userId);
         record.updateHqToken(token);
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
