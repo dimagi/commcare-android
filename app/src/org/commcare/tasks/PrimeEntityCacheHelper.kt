@@ -4,12 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import io.reactivex.functions.Cancellable
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.runBlocking
 import org.commcare.AppUtils.getCurrentAppId
 import org.commcare.CommCareApplication
+import org.commcare.cases.entity.AsyncNodeEntityFactory
 import org.commcare.cases.entity.Entity
 import org.commcare.cases.entity.EntityLoadingProgressListener
 import org.commcare.suite.model.Detail
@@ -43,18 +49,19 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
     private var cancelled = false
 
 
-    private val _completionStatus = MutableStateFlow<Boolean>(false)
-    val completionStatus: StateFlow<Boolean> get() = _completionStatus
+    private val _completionStatus = MutableSharedFlow<Boolean>(replay = 0)
+    val completionStatus = _completionStatus.asSharedFlow()
 
-    private val _cachedEntitiesState = MutableStateFlow<Triple<String, String, List<Entity<TreeReference>>>?>(null)
-    val cachedEntitiesState: StateFlow<Triple<String, String, List<Entity<TreeReference>>>?> get() = _cachedEntitiesState
+    private val _cachedEntitiesState = MutableSharedFlow<Triple<String, String, List<Entity<TreeReference>>>?>(replay = 0)
+    val cachedEntitiesState = _cachedEntitiesState.asSharedFlow()
 
     private val _progressState = MutableLiveData<Triple<String, String, Array<Int>>>(null)
-    val progressState: LiveData<Triple<String, String, Array<Int>>> get() = _progressState
+    val progressState: LiveData<Triple<String, String, Array<Int>>?> get() = _progressState
 
 
     companion object {
         const val PRIME_ENTITY_CACHE_REQUEST = "prime-entity-cache-request"
+        const val ENTITY_CACHE_INVALIDATION_REQUEST = "entity-cache-invalidation-request"
 
         /**
          * Schedules a background worker request to prime cache for all
@@ -62,19 +69,35 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
          */
         @JvmStatic
         fun schedulePrimeEntityCacheWorker() {
-            val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java)
-                .addTag(getCurrentAppId())
-                .build()
-            WorkManager.getInstance(CommCareApplication.instance())
-                .enqueueUniqueWork(
-                    getWorkRequestName(),
-                    ExistingWorkPolicy.KEEP,
-                    primeEntityCacheRequest
-                )
+            if (CommCareApplication.isSessionActive() && CommCareApplication.instance().commCarePlatform.isEntityCachingEnabled()) {
+                val primeEntityCacheRequest = OneTimeWorkRequest.Builder(PrimeEntityCache::class.java)
+                    .addTag(getCurrentAppId())
+                    .build()
+                WorkManager.getInstance(CommCareApplication.instance())
+                    .enqueueUniqueWork(
+                        getWorkRequestName(),
+                        ExistingWorkPolicy.KEEP,
+                        primeEntityCacheRequest
+                    )
+            }
         }
 
         private fun getWorkRequestName(): String {
             return PRIME_ENTITY_CACHE_REQUEST + "_" + getCurrentAppId()
+        }
+
+        @JvmStatic
+        fun scheduleEntityCacheInvalidation() {
+            if (CommCareApplication.instance().commCarePlatform.isEntityCachingEnabled()) {
+                val entityCacheInvalidationRequest =
+                    OneTimeWorkRequest.Builder(EntityCacheInvalidationWorker::class.java)
+                        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                        .build()
+                WorkManager.getInstance(CommCareApplication.instance()).enqueueUniqueWork(
+                    ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
+                    entityCacheInvalidationRequest
+                )
+            }
         }
     }
 
@@ -94,7 +117,9 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
             primeEntityCacheForApp(CommCareApplication.instance().commCarePlatform)
         } finally {
             clearState()
-            _completionStatus.value = true
+            runBlocking {
+                _completionStatus.emit(true)
+            }
         }
     }
 
@@ -107,14 +132,17 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         commandId: String,
         detail: Detail,
         entityDatum: EntityDatum,
-        entities: MutableList<Entity<TreeReference>>
+        entities: MutableList<Entity<TreeReference>>,
+        factory: AsyncNodeEntityFactory? = null
     ) {
         checkPreConditions()
         try {
-            primeCacheForDetail(commandId, detail, entityDatum, entities)
+            primeCacheForDetail(commandId, detail, entityDatum, entities, false, factory)
         } finally {
             clearState()
-            _completionStatus.value = true
+            runBlocking {
+                _completionStatus.emit(true)
+            }
         }
     }
 
@@ -158,12 +186,13 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
         entityDatum: EntityDatum,
         entities: MutableList<Entity<TreeReference>>? = null,
         inBackground: Boolean = false,
+        factory: AsyncNodeEntityFactory? = null
     ) {
         if (!detail.isCacheEnabled() || cancelled) return
         currentDatumInProgress = entityDatum.dataId
         currentDetailInProgress = detail.id
-        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId), inBackground).also {
-            it.factory.setEntityProgressListener(this)
+        entityLoaderHelper = EntityLoaderHelper(detail, entityDatum, evalCtx(commandId), inBackground, factory).also {
+            it.factory!!.setEntityProgressListener(this)
         }
         // Handle the cache operation based on the available input
         val cachedEntities = when {
@@ -173,7 +202,9 @@ class PrimeEntityCacheHelper() : Cancellable, EntityLoadingProgressListener {
             }
             else -> entityLoaderHelper!!.cacheEntities(entityDatum.nodeset).first
         }
-        _cachedEntitiesState.value = Triple(entityDatum.dataId, detail.id, cachedEntities)
+        runBlocking {
+            _cachedEntitiesState.emit(Triple(entityDatum.dataId, detail.id, cachedEntities))
+        }
         currentDatumInProgress = null
         currentDetailInProgress = null
     }

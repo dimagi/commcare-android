@@ -499,11 +499,10 @@
     <string name="connect_phone_not_primary">Alt. number must be different than primary</string>
 
     <!--    Entity List Progresss Indicators-->
+
     <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
-    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
-    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
-    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
-    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+    <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
     <string name="connect_phone_not_found">Phone number not found</string>
     <string name="connect_phone_change_error">Error changing phone number</string>

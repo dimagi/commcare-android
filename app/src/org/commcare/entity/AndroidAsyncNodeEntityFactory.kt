@@ -57,7 +57,8 @@ class AndroidAsyncNodeEntityFactory(
                         getCurrentCommandId(),
                         detail,
                         entityDatum,
-                        entities
+                        entities,
+                        this
                     )
                     schedulePrimeEntityCacheWorker()
                 } else {
@@ -70,7 +71,8 @@ class AndroidAsyncNodeEntityFactory(
                     getCurrentCommandId(),
                     detail,
                     entityDatum,
-                    entities
+                    entities,
+                    this
                 )
             }
         }
