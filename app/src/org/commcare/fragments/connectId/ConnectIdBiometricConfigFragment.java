@@ -83,7 +83,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         biometricPromptCallbacks = preparePromptCallbacks();
         if (getArguments() != null) {
             callingActivity = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            allowPassword = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
         }
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
         binding.connectVerifyPinButton.setOnClickListener(v -> handlePinButton());
@@ -237,9 +236,7 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
 
     private void performFingerprintUnlock() {
         attemptingFingerprint = true;
-        boolean allowOtherOptions = BiometricsHelper.isPinConfigured(requireActivity(), biometricManager) ||
-                allowPassword;
-        BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, allowOtherOptions, biometricPromptCallbacks);
+        BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
 
     private void performPinUnlock() {
@@ -253,7 +250,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
-            //Non-fatal exception already reported in the call above
             finish(true, true);
         }
     }

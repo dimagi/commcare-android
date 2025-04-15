@@ -1,7 +1,7 @@
 package org.commcare.connect;
 
 import static org.apache.http.client.utils.DateUtils.formatDate;
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -85,7 +85,8 @@ public class ConnectIDManager {
 
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
-    public final int PENDING_ACTION_OPP_STATUS = 2;
+    public static final int PENDING_ACTION_CONNECT_HOME = 1;
+    public static final int PENDING_ACTION_OPP_STATUS = 2;
     public static final int PENDING_ACTION_NONE = 0;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
@@ -144,10 +145,6 @@ public class ConnectIDManager {
         String primed = primedAppIdForAutoLogin;
         primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
-    }
-
-    public void setPendingAction(int action) {
-        pendingAction = action;
     }
 
     public String generatePassword() {
@@ -217,7 +214,7 @@ public class ConnectIDManager {
         BiometricManager bioManager = getBiometricManager(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
             boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, allowOtherOptions, callbacks);
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks);
         } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
@@ -251,7 +248,7 @@ public class ConnectIDManager {
         ConnectUserDatabaseUtil.forgetUser(parentActivity);
         ConnectIdActivity connectIdActivity = new ConnectIdActivity();
         connectIdActivity.reset();
-        manager.connectStatus = ConnectIdStatus.NotIntroduced;
+        connectStatus = ConnectIdStatus.NotIntroduced;
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -453,14 +450,24 @@ public class ConnectIDManager {
         }
     }
 
-    private void goToConnectJobsList(Context parent) {
-        manager.parentActivity = parent;
+    public void goToConnectJobsList(Context parent) {
+        parentActivity = parent;
         completeSignin();
 //        Intent i = new Intent(parent, ConnectActivity.class);
 //        parent.startActivity(i);
     }
 
-    public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
+
+    public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
+        ///TODO uncomment with connect pahse pr
+//        completeSignin();
+//        Intent i = new Intent(activity, ConnectActivity.class);
+//        i.putExtra("info", true);
+//        i.putExtra("buttons", allowProgression);
+//        activity.startActivity(i);
+    }
+
+    private ConnectJobRecord setConnectJobForApp(Context context, String appId) {
         ConnectJobRecord job = null;
         ConnectAppRecord appRecord = getAppRecord(context, appId);
         if (appRecord != null) {
@@ -486,7 +493,7 @@ public class ConnectIDManager {
 
     @Nullable
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId,
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                 userId);
         if (record != null && record.getConnectIdLinked() && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
@@ -496,7 +503,7 @@ public class ConnectIDManager {
 
     public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isLoggedIN()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId,
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
@@ -504,6 +511,16 @@ public class ConnectIDManager {
         }
 
         return null;
+    }
+
+    public void setPendingAction(int action) {
+       pendingAction = action;
+    }
+
+    public int getPendingAction() {
+        int action = pendingAction;
+        pendingAction = PENDING_ACTION_NONE;
+        return action;
     }
 
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
@@ -569,14 +586,17 @@ public class ConnectIDManager {
     }
 
     public String getConnectUsername(Context context) {
-        return ConnectUserDatabaseUtil.getUser(context).getUserId();
+        if (isLoggedIN()) {
+            return ConnectUserDatabaseUtil.getUser(context).getUserId();
+        }
+        return null;
     }
 
-    public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
+    public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
 
-        if (manager.isLoggedIN()) {
-            ConnectUserRecord user = getInstance().getUser(context);
+        if (isLoggedIN()) {
+            ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
 
@@ -587,7 +607,7 @@ public class ConnectIDManager {
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
-            ConnectUserRecord user = getInstance().getUser(context);
+            ConnectUserRecord user = getUser(context);
             String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 
@@ -605,7 +625,7 @@ public class ConnectIDManager {
     }
 
     public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
-        manager.launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
+        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
     public void setActiveJob(ConnectJobRecord job) {
@@ -636,6 +656,14 @@ public class ConnectIDManager {
         return getCredentialsForApp(appId, userId) != null ?
                 ConnectAppMangement.ConnectId :
                 ConnectAppMangement.Unmanaged;
+    }
+
+    private boolean isConnectApp(Context context, String appId) {
+        return evalAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+    }
+
+    public boolean isLoggedInWithConnectApp(Context context, String appId) {
+        return isLoggedIN() && isConnectApp(context, appId);
     }
 
     public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {

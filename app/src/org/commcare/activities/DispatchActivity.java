@@ -12,6 +12,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
@@ -52,6 +53,8 @@ public class DispatchActivity extends AppCompatActivity {
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
     public static final int RECOVERY_MEASURES = 3;
+    private boolean connectIdManagedLogin;
+    private boolean connectManagedLogin;
 
 
     /**
@@ -195,7 +198,17 @@ public class DispatchActivity extends AppCompatActivity {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
                 } else {
-                    launchHomeScreen();
+                    int connectAction = ConnectIDManager.getInstance().getPendingAction();
+                    switch (connectAction) {
+                        case ConnectIDManager.PENDING_ACTION_CONNECT_HOME -> {
+                            CommCareApplication.instance().closeUserSession();
+                            ConnectIDManager.getInstance().goToConnectJobsList(this);
+                        }
+                        case ConnectIDManager.PENDING_ACTION_OPP_STATUS -> {
+                            ConnectIDManager.getInstance().goToActiveInfoForJob(this, true);
+                        }
+                        default -> launchHomeScreen();
+                    }
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
@@ -310,13 +323,19 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
+        i.putExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, connectIdManagedLogin);
         startFromLogin = false;
+        clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
     }
 
     public static boolean useRootMenuHomeActivity() {
         return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
                 CommCareApplication.instance().isConsumerApp();
+    }
+
+    private void clearSessionEndpointAppId() {
+        getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
     }
 
     /**
@@ -451,12 +470,17 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false);
+                    connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    shouldFinish = true;
+                    shouldFinish = !connectManagedLogin;
+                    if(connectManagedLogin) {
+                        ConnectIDManager.getInstance().setPendingAction(ConnectIDManager.PENDING_ACTION_CONNECT_HOME);
+                    }
                     return;
                 } else {
                     userTriggeredLogout = true;
