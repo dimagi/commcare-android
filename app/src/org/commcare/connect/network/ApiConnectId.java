@@ -1,7 +1,6 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
 import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -14,7 +13,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.connectId.ApiClient;
 import org.commcare.connect.network.connectId.ApiService;
 import org.commcare.core.network.AuthInfo;
@@ -121,7 +119,7 @@ public class ApiConnectId {
                 Date expiration = new Date();
                 key = ConnectConstants.CONNECT_KEY_EXPIRES;
                 int seconds = json.has(key) ? json.getInt(key) : 0;
-                expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
+                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
                 user.updateConnectToken(token, expiration);
                 ConnectUserDatabaseUtil.storeUser(context, user);
 
@@ -168,7 +166,7 @@ public class ApiConnectId {
                 Date expiration = new Date();
                 key = ConnectConstants.CONNECT_KEY_EXPIRES;
                 int seconds = json.has(key) ? json.getInt(key) : 0;
-                expiration.setTime(expiration.getTime() + ((long) seconds * 1000));
+                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
 
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 SsoToken ssoToken = new SsoToken(token, expiration);
@@ -220,7 +218,7 @@ public class ApiConnectId {
         showProgressDialog(context);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse( @NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 dismissProgressDialog(context);
                 if (response.isSuccessful() && response.body() != null) {
                     // Handle success

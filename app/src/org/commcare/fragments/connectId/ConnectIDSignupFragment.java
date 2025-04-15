@@ -62,7 +62,7 @@ public class ConnectIDSignupFragment extends Fragment {
         activity = requireActivity();
         View view = binding.getRoot();
         activity.setTitle(getString(R.string.connect_registration_title));
-        phoneNumberHelper =  PhoneNumberHelper.getInstance(activity);
+        phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
         setArguments();
@@ -421,12 +421,12 @@ public class ConnectIDSignupFragment extends Fragment {
         }
     }
 
-    private void showError(String errorMessage){
+    private void showError(String errorMessage) {
         binding.errorTextView.setVisibility(View.VISIBLE);
         binding.errorTextView.setText(errorMessage);
     }
 
-    private void clearError(){
+    private void clearError() {
         binding.errorTextView.setVisibility(View.GONE);
     }
 
@@ -436,9 +436,10 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     private NavDirections navigateToPhonenNotAvailable(String phone, int phase) {
-        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone,phase);
+        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, phase);
     }
+
     private NavDirections navigateToSelf(int phase) {
-        return  ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(phase);
+        return ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(phase);
     }
 }

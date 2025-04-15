@@ -128,7 +128,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-        connectIDManager=ConnectIDManager.getInstance();
+        connectIDManager = ConnectIDManager.getInstance();
 
         connectIDManager.init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
@@ -347,7 +347,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.refreshForNewApp();
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
-        } else if(resultCode== ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE){
+        } else if (resultCode == ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE) {
             connectIDManager.handleFinishedActivity(this, resultCode);
         }
         super.onActivityResult(requestCode, resultCode, intent);
@@ -437,12 +437,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CrashUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-        boolean result = connectIDManager.handleConnectSignIn(this,getUniformUsername(), uiController.getEnteredPasswordOrPin(), uiController.loginManagedByConnectId());
+        boolean result = connectIDManager.handleConnectSignIn(this, getUniformUsername(), uiController.getEnteredPasswordOrPin(), uiController.loginManagedByConnectId());
         setResultAndFinish(result);
     }
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
-        if(navigateToConnectJobs) {
+        if (navigateToConnectJobs) {
             connectIDManager.setPendingAction(connectIDManager.PENDING_ACTION_OPP_STATUS);
         }
 
@@ -456,19 +456,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void handleFailedConnectSignIn() {
-            ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
+        ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
 
-            ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
-                    record.getUniqueId(), getUniformUsername());
+        ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+                record.getUniqueId(), getUniformUsername());
 
-            switch (appState) {
-                case Connect -> {
-                    FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-                }
-                case ConnectId -> {
-                    uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
-                }
+        switch (appState) {
+            case Connect -> {
+                FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
             }
+            case ConnectId -> {
+                uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
+            }
+        }
     }
 
     @Override
@@ -570,7 +570,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             CommCareApplication.notificationManager().reportNotificationMessage(message);
         }
         uiController.setErrorMessageUI(toastText, showTop);
-        if(uiController.loginManagedByConnectId()) {
+        if (uiController.loginManagedByConnectId()) {
             handleFailedConnectSignIn();
         }
     }
@@ -637,7 +637,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (selectedAppIndex >= 0) {
             position = selectedAppIndex;
 
-            if(position >= appNames.size()) {
+            if (position >= appNames.size()) {
                 //Special case when user forgets ConnectID account and last app in the list is selected
                 position = appNames.size() - 1;
             }
@@ -748,7 +748,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
             case AUTH_FAILED:
-                if(connectIDManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
+                if (connectIDManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("Token Auth failed during login for a ConnectID managed app"));
                 }
@@ -843,7 +843,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void registerConnectIdUser() {
-        connectIDManager.launchConnectId(this,ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE);
+        connectIDManager.launchConnectId(this, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE);
     }
 
     protected boolean seatAppIfNeeded(String appId) {
@@ -866,7 +866,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
                 seatedAppId, uiController.getEnteredUsername());
 
-        if(appLaunchedFromConnect && presetAppId != null) {
+        if (appLaunchedFromConnect && presetAppId != null) {
             appState = ConnectIDManager.ConnectAppMangement.Connect;
 
             uiController.setConnectButtonVisible(false);
@@ -876,7 +876,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             }
         }
 
-        if(appState == ConnectIDManager.ConnectAppMangement.ConnectId) {
+        if (appState == ConnectIDManager.ConnectAppMangement.ConnectId) {
             int selectorIndex = uiController.getSelectedAppIndex();
             String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
             if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {

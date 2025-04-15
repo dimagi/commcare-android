@@ -3,6 +3,7 @@ package org.commcare.activities.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -107,7 +108,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS:
                         navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
                         break;
-                    case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE :
+                    case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE:
                         navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentToConnectidSecondaryPhoneFragment(
                                 phase, ConnectConstants.METHOD_CHANGE_ALTERNATE);
                         break;

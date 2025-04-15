@@ -72,7 +72,7 @@ import java.util.List;
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- *
+ * <p>
  * If the startup activity identifies that the app is installed properly it
  * should not ever require interaction or be visible to the user.
  *
@@ -170,7 +170,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (checkForMultipleAppsViolation()) {
             return;
         }
-        if(!fromManager) {
+        if (!fromManager) {
             ConnectIDManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
@@ -296,7 +296,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         // if we were in dependency dialog state and resumed CC, take the next step
         // that we otherwise would have taken on a successful app install
-        if(uiState.equals(UiState.DEPENDENCY_DIALOG)){
+        if (uiState.equals(UiState.DEPENDENCY_DIALOG)) {
             launchNextActivityOnAppInstall();
         }
     }
@@ -425,7 +425,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 finish();
                 return;
             case ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE:
-                ConnectIDManager.getInstance().handleFinishedActivity(this,resultCode);
+                ConnectIDManager.getInstance().handleFinishedActivity(this, resultCode);
                 return;
             default:
                 return;
@@ -509,19 +509,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
 
-
-
     /**
-         * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
-         * in response to Google play console policies for now. We are going to watch out for a while
-         * for any changes in policies in near future before completely removing the surrounding code
-         *
-         *
-         * Scan SMS messages for texts with profile references.
-         *
-         * @param installTriggeredManually if scan was triggered manually, then
-         *                                 install automatically if reference is found
-         */
+     * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
+     * in response to Google play console policies for now. We are going to watch out for a while
+     * for any changes in policies in near future before completely removing the surrounding code
+     * <p>
+     * <p>
+     * Scan SMS messages for texts with profile references.
+     *
+     * @param installTriggeredManually if scan was triggered manually, then
+     *                                 install automatically if reference is found
+     */
 
     private void performSMSInstall(boolean installTriggeredManually) {
         manualSMSInstall = installTriggeredManually;
@@ -631,7 +629,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectIDManager.getInstance().launchConnectId(this,ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
+                ConnectIDManager.getInstance().launchConnectId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
                 break;
             case MENU_CONNECT_FORGET:
                 ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
@@ -715,11 +713,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
                 startActivity(i);
             }
-        } else if (getCallingActivity()!= null && getCallingActivity().getPackageName().equals(BuildConfig.APPLICATION_ID)){
+        } else if (getCallingActivity() != null && getCallingActivity().getPackageName().equals(BuildConfig.APPLICATION_ID)) {
             Intent i = new Intent(getIntent());
             setResult(RESULT_OK, i);
-        }
-        else
+        } else
             fail(Localization.get("install.invalid.launch"));
 
         finish();

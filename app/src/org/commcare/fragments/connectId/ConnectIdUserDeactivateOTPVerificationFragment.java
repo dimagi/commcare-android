@@ -32,9 +32,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -358,14 +355,17 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                 logRecoveryResult(false);
                 setErrorMessage(getString(R.string.connect_verify_phone_error));
             }
+
             @Override
             public void processTokenUnavailableError() {
                 setErrorMessage(getString(R.string.recovery_network_token_unavailable));
             }
+
             @Override
             public void processTokenRequestDeniedError() {
                 setErrorMessage(getString(R.string.recovery_network_token_request_rejected));
             }
+
             @Override
             public void processNetworkFailure() {
                 setErrorMessage(getString(R.string.recovery_network_unavailable));

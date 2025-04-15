@@ -19,6 +19,7 @@ import java.util.Locale;
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
+
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+
 /**
  * Helper class for functionality related to phone numbers
  * Includes frequent usage of PhoneNumberUtil
@@ -170,8 +172,11 @@ public class PhoneNumberHelper {
                 }
             }
 
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void afterTextChanged(Editable s) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            public void afterTextChanged(Editable s) {
+            }
         };
     }
 

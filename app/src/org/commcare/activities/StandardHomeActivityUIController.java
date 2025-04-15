@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
-
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;

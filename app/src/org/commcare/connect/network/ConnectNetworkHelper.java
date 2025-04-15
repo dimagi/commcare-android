@@ -1,11 +1,6 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.widget.Toast;
 
@@ -337,7 +332,7 @@ public class ConnectNetworkHelper {
                     handler.processOldApiError();
                 } else {
                     //400 error
-                    if(responseCode == 401 && usingTokenAuth) {
+                    if (responseCode == 401 && usingTokenAuth) {
                         Logger.exception("Invalid token", new Exception("Invalid token during API call"));
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();

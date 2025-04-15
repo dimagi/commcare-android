@@ -34,7 +34,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -223,6 +222,7 @@ public class ConnectIdPinFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
     private void verifyPin() {
         String pin = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
@@ -444,7 +444,7 @@ public class ConnectIdPinFragment extends Fragment {
                 if (success) {
                     if (forgot) {
                         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN);
-                        directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "",true, false);
+                        directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "", true, false);
 
                     } else {
                         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
@@ -494,7 +494,7 @@ public class ConnectIdPinFragment extends Fragment {
                 if (success) {
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
                 }
-                directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "",false,false);
+                directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "", false, false);
             }
         }
 
@@ -519,7 +519,7 @@ public class ConnectIdPinFragment extends Fragment {
         return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(phase, method);
     }
 
-    private NavDirections navigateToConnectidPinSelf(int phase, String phone, String message,boolean change, boolean isRecovery) {
+    private NavDirections navigateToConnectidPinSelf(int phase, String phone, String message, boolean change, boolean isRecovery) {
         return ConnectIdPinFragmentDirections.actionConnectidPinSelf(phase, phone, message).setChange(change).setRecover(isRecovery);
     }
 

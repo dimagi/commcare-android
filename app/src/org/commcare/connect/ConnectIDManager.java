@@ -61,7 +61,6 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import static org.apache.http.client.utils.DateUtils.formatDate;
-import static org.commcare.connect.ConnectConstants.CONNECTID_REQUEST_CODE;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -259,7 +258,7 @@ public class ConnectIDManager {
                         loginManagedByConnectId, appId,
                         username,
                         enteredPasswordPin, success -> {
-                           updateAppAccess(context, appId, username);
+                            updateAppAccess(context, appId, username);
                             result.set(false);
                         });
             }
@@ -300,11 +299,11 @@ public class ConnectIDManager {
         return null;
     }
 
-    public void launchConnectId(CommCareActivity<?> parent,int requestCode) {
-        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION,requestCode);
+    public void launchConnectId(CommCareActivity<?> parent, int requestCode) {
+        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, requestCode);
     }
 
-    private void launchConnectId(CommCareActivity<?> parent, String task,int requestCode) {
+    private void launchConnectId(CommCareActivity<?> parent, String task, int requestCode) {
         Intent intent = new Intent(parent, ConnectIdActivity.class);
         intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, requestCode);
@@ -417,10 +416,12 @@ public class ConnectIDManager {
                 public void tokenRetrieved(AuthInfo.TokenAuth token) {
                     callback.connectActivityComplete(true);
                 }
+
                 public void tokenUnavailable() {
                     ConnectNetworkHelper.handleTokenUnavailableException(activity);
                     callback.connectActivityComplete(false);
                 }
+
                 public void tokenRequestDenied() {
                     ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
                     callback.connectActivityComplete(false);
@@ -462,7 +463,7 @@ public class ConnectIDManager {
     }
 
     ///TODO update the code with connect code
-    private  void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    private void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
 //                updateLearningProgress(context, job, listener);
@@ -571,6 +572,7 @@ public class ConnectIDManager {
             public void processTokenRequestDeniedError() {
                 ConnectNetworkHelper.handleTokenRequestDeniedException(context);
             }
+
             @Override
             public void processOldApiError() {
                 ConnectNetworkHelper.showOutdatedApiError(context);
@@ -597,6 +599,7 @@ public class ConnectIDManager {
     public String getConnectUsername(Context context) {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
     }
+
     public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
 
@@ -645,7 +648,7 @@ public class ConnectIDManager {
                         CommCareApplication.instance(), seatedAppId, username);
                 return appRecord != null && appRecord.getWorkerLinked();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             Logger.exception("Error while checking ConnectId status after failed token auth", e);
         }
 
@@ -675,7 +678,7 @@ public class ConnectIDManager {
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, seatedAppId, username);
-        if(appRecord == null) {
+        if (appRecord == null) {
             return null;
         }
 

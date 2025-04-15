@@ -41,7 +41,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -460,6 +459,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             public void processNetworkFailure() {
                 setErrorMessage(getString(R.string.recovery_network_unavailable));
             }
+
             @Override
             public void processTokenUnavailableError() {
                 setErrorMessage(getString(R.string.recovery_network_token_unavailable));

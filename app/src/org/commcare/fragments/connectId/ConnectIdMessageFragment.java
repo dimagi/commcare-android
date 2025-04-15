@@ -131,14 +131,14 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 }
                 break;
             case ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL:
-                    SettingsHelper.launchSecuritySettings(activity);
+                SettingsHelper.launchSecuritySettings(activity);
                 break;
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD:
-                   if (connectIdActivity.forgotPassword) {
-                        directions = navigateToMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, userName, password);
-                    } else {
-                        directions = navigateToPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, true, true);
-                    }
+                if (connectIdActivity.forgotPassword) {
+                    directions = navigateToMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_RECOVERY_ALT_PHONE_MESSAGE, getString(R.string.connect_recovery_alt_button), null, userName, password);
+                } else {
+                    directions = navigateToPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, true, true);
+                }
                 break;
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PASSWORD:
                 directions = navigateToPassword(connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);

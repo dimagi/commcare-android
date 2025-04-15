@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -244,6 +243,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
                 public void processTokenRequestDeniedError() {
                     ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
                 }
+
                 @Override
                 public void processOldApiError() {
                     ConnectNetworkHelper.showOutdatedApiError(activity.getApplicationContext());

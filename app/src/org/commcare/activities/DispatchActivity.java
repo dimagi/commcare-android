@@ -13,17 +13,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -81,6 +77,7 @@ public class DispatchActivity extends AppCompatActivity {
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,7 +184,7 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
-                } else if (needAnotherAppLogin()){
+                } else if (needAnotherAppLogin()) {
                     CommCareApplication.instance().closeUserSession();
                     launchLoginScreen();
                 } else if (isExternalLaunch()) {
@@ -197,8 +194,7 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                }
-                else {
+                } else {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {

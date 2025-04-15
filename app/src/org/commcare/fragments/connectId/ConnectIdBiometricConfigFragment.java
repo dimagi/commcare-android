@@ -1,6 +1,5 @@
 package org.commcare.fragments.connectId;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +32,7 @@ import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
 import static org.commcare.fragments.connectId.ConnectIdPasswordVerificationFragment.PASSWORD_LOCK;
+
 /**
  * {@link Fragment} subclass for helping the user choose or configure their biometric.
  */

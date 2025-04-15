@@ -11,7 +11,6 @@ import android.widget.Toast;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -20,7 +19,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSecondaryPhoneNumberBinding;
 import org.commcare.utils.PhoneNumberHelper;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import androidx.annotation.NonNull;
@@ -108,7 +106,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             binding.errorTextView.setVisibility(View.VISIBLE);
             binding.errorTextView.setText(R.string.primary_and_alternate_phone_number);
             valid = false;
-        }else{
+        } else {
             binding.errorTextView.setVisibility(View.GONE);
         }
         binding.continueButton.setEnabled(valid);
