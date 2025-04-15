@@ -16,6 +16,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
 import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
@@ -62,13 +68,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
 
 /**
  * @author ctsims
@@ -110,12 +109,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect;
-    private boolean connectLaunchPerformed = false;
     private String presetAppId;
     public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private ConnectIDManager connectIDManager;
-    private ConnectIDManager.ConnectActivityCompleteListener mListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -912,7 +909,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             uiController.setConnectButtonVisible(false);
             if (!seatAppIfNeeded(presetAppId)) {
-                connectLaunchPerformed = true;
                 initiateLoginAttempt(uiController.isRestoreSessionChecked());
             }
         }
