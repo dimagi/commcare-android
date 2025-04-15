@@ -289,11 +289,11 @@ public class ConnectIDManager {
         }
     }
 
-    public void checkConnectIdLink(CommCareActivity<?> activity, String appId,
+    public void checkConnectIdLink(CommCareActivity<?> activity, boolean connectIdManagedLogin, String appId,
             String username, String password, ConnectActivityCompleteListener callback) {
         switch (evalAppState(activity, appId, username)) {
             case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
-            case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, password, callback);
+            case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, connectIdManagedLogin, callback);
             case Connect -> callback.connectActivityComplete(true);
         }
     }
@@ -403,9 +403,9 @@ public class ConnectIDManager {
     }
 
     private void promptToDelinkConnectIdApp(CommCareActivity<?> activity, String appId, String username,
-            String password, ConnectActivityCompleteListener callback) {
-        // we only want to prompt when password was specified by user instead of auto login
-        if (StringUtils.isEmpty(password)) {
+            boolean connectIdManagedLogin, ConnectActivityCompleteListener callback) {
+        // we only want to prompt when user chose non connect Id managed login
+        if (connectIdManagedLogin) {
             callback.connectActivityComplete(false);
             return;
         }

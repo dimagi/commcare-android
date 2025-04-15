@@ -465,6 +465,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login
                 connectIDManager.checkConnectIdLink(context,
+                        uiController.loginManagedByConnectId(),
                         appId,
                         username,
                         enteredPasswordPin,
