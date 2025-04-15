@@ -687,11 +687,11 @@ public class ConnectIDManager {
     }
 
     private boolean isConnectApp(Context context, String appId) {
-        return ConnectIDManager.getInstance().getAppManagement(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+        return getAppManagement(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
     }
 
     public boolean isLoggedInWithConnectApp(Context context, String appId) {
-        return ConnectIDManager.getInstance().isLoggedIN() && isConnectApp(context, appId);
+        return isLoggedIN() && isConnectApp(context, appId);
     }
 
     public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
