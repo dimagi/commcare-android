@@ -1,13 +1,28 @@
 package org.commcare.connect;
 
+import static org.apache.http.client.utils.DateUtils.formatDate;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import com.google.android.material.button.MaterialButton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
@@ -46,21 +61,6 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
-import static org.apache.http.client.utils.DateUtils.formatDate;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -293,7 +293,7 @@ public class ConnectIDManager {
             String username, String password, ConnectActivityCompleteListener callback) {
         switch (evalAppState(activity, appId, username)) {
             case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
-            case ConnectId -> promptTodelinkConnectIdApp(activity, appId, username, callback);
+            case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, password, callback);
             case Connect -> callback.connectActivityComplete(true);
         }
     }
@@ -402,7 +402,14 @@ public class ConnectIDManager {
         });
     }
 
-    private void promptTodelinkConnectIdApp(CommCareActivity<?> activity, String appId, String username, ConnectActivityCompleteListener callback) {
+    private void promptToDelinkConnectIdApp(CommCareActivity<?> activity, String appId, String username,
+            String password, ConnectActivityCompleteListener callback) {
+        // we only want to prompt when password was specified by user instead of auto login
+        if (StringUtils.isEmpty(password)) {
+            callback.connectActivityComplete(true);
+            return;
+        }
+
         StandardAlertDialog dialog = new StandardAlertDialog(activity,
                 activity.getString(R.string.login_unlink_connectid_title),
                 activity.getString(R.string.login_unlink_connectid_message));
@@ -411,7 +418,8 @@ public class ConnectIDManager {
             activity.dismissAlertDialog();
             unlockConnect(activity, success -> {
                 if (success) {
-                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId, username);
+                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                            activity, appId, username);
                     if (linkedApp != null) {
                         linkedApp.severConnectIdLink();
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
@@ -427,6 +435,7 @@ public class ConnectIDManager {
         });
 
         activity.showAlertDialog(dialog);
+
     }
 
     ///TODO update the code with connect code
