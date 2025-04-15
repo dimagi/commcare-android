@@ -16,11 +16,18 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.util.Pair;
+import androidx.preference.PreferenceManager;
+import androidx.work.WorkManager;
+
 import com.scottyab.rootbeer.RootBeer;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
@@ -62,12 +69,6 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.util.Pair;
-import androidx.preference.PreferenceManager;
-import androidx.work.WorkManager;
-
 /**
  * @author ctsims
  */
@@ -108,7 +109,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect;
-    private boolean connectLaunchPerformed = false;
     private String presetAppId;
     public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
@@ -437,9 +437,48 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CrashUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-        boolean result = connectIDManager.handleConnectSignIn(this, getUniformUsername(), uiController.getEnteredPasswordOrPin(), uiController.loginManagedByConnectId());
-        setResultAndFinish(result);
+        if(handleConnectSignIn(this, getUniformUsername(),
+                uiController.getEnteredPasswordOrPin())){
+            setResultAndFinish(false);
+        }
     }
+
+    /**
+     * Handles sign in related ops for Connect
+     * @param context Android activity we are signing in from
+     * @param username Username for user signing in
+     * @param enteredPasswordPin user entered password or pin for non-connect apps
+     * @return if we should finish after calling this method
+     */
+    private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
+        if (connectIDManager.isLoggedIN()) {
+            connectIDManager.completeSignin();
+            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            ConnectJobRecord job = connectIDManager.setConnectJobForApp(context, appId);
+
+            if (job != null) {
+                connectIDManager.updateAppAccess(context, appId, username);
+                connectIDManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+            } else {
+                //Possibly offer to link or de-link ConnectId-managed login
+                connectIDManager.checkConnectIdLink(context,
+                        uiController.loginManagedByConnectId(),
+                        appId,
+                        username,
+                        enteredPasswordPin,
+                        success -> {
+                            connectIDManager.updateAppAccess(context, appId, username);
+                            setResultAndFinish(success);
+                        }
+                );
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
         if (navigateToConnectJobs) {
@@ -458,10 +497,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private void handleFailedConnectSignIn() {
         if (uiController.loginManagedByConnectId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-
-            ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+            ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
                     record.getUniqueId(), getUniformUsername());
-
             switch (appState) {
                 case Connect -> {
                     FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
@@ -864,7 +901,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public void setConnectAppState() {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+        ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
                 seatedAppId, uiController.getEnteredUsername());
 
         if (appLaunchedFromConnect && presetAppId != null) {
@@ -872,7 +909,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             uiController.setConnectButtonVisible(false);
             if (!seatAppIfNeeded(presetAppId)) {
-                connectLaunchPerformed = true;
                 initiateLoginAttempt(uiController.isRestoreSessionChecked());
             }
         }

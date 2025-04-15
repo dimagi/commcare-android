@@ -146,7 +146,7 @@ public class ConnectSsoHelper {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
 
         if(username != null) {
-            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, username);
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId, username);
             if (appRecord != null) {
                 appRecord.clearHqToken();
                 ConnectAppDatabaseUtil.storeApp(context, appRecord);

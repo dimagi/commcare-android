@@ -1,5 +1,6 @@
 package org.commcare.connect;
 
+import static org.apache.http.client.utils.DateUtils.formatDate;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -7,8 +8,21 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import com.google.android.material.button.MaterialButton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
@@ -47,21 +61,6 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
-import static org.apache.http.client.utils.DateUtils.formatDate;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -69,6 +68,8 @@ import static org.apache.http.client.utils.DateUtils.formatDate;
  * @author dviggiano
  */
 public class ConnectIDManager {
+    private static final long DAYS_TO_SECOND_OFFER = 30;
+
     /**
      * Enum representing the current state of ConnectID
      */
@@ -237,36 +238,6 @@ public class ConnectIDManager {
         }
     }
 
-    public boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin, boolean loginManagedByConnectId) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        if (isLoggedIN()) {
-            completeSignin();
-            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = setConnectJobForApp(context, appId);
-
-            if (job != null) {
-                updateAppAccess(context, appId, username);
-                //Update job status
-                updateJobProgress(context, job, success -> {
-                    result.set(job.getIsUserSuspended());
-                });
-            } else {
-                //Possibly offer to link or de-link ConnectId-managed login
-                checkConnectIdLink(context,
-                        loginManagedByConnectId, appId,
-                        username,
-                        enteredPasswordPin, success -> {
-                            updateAppAccess(context, appId, username);
-                            result.set(false);
-                        });
-            }
-
-            return result.get();
-        }
-
-        return true;
-    }
-
 
     public void forgetUser(String reason) {
 
@@ -307,24 +278,25 @@ public class ConnectIDManager {
         parent.startActivityForResult(intent, requestCode);
     }
 
-    private void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+    public void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId, username);
         if (record != null) {
             record.setLastAccessed(new Date());
             ConnectAppDatabaseUtil.storeApp(activity, record);
         }
     }
 
-    private void checkConnectIdLink(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, String password, ConnectActivityCompleteListener callback) {
-        switch (getAppManagement(activity, appId, username)) {
-            case Unmanaged -> handleUnmanagedApp(activity, appId, username, password, callback);
-            case ConnectId -> handleConnectIdLinkedApp(activity, autoLoggedIn, appId, username, callback);
-            default -> callback.connectActivityComplete(false); // Managed apps, no action
+    public void checkConnectIdLink(CommCareActivity<?> activity, boolean connectIdManagedLogin, String appId,
+            String username, String password, ConnectActivityCompleteListener callback) {
+        switch (evalAppState(activity, appId, username)) {
+            case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
+            case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, connectIdManagedLogin, callback);
+            case Connect -> callback.connectActivityComplete(true);
         }
     }
 
-    private void handleUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
-        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+    private void promptTolinkUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId, username);
         OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
 
         if (!offerCheck.shouldOffer) {
@@ -362,12 +334,12 @@ public class ConnectIDManager {
 
         Date secondOffer = linkedApp.getLinkOfferDate2();
         if (secondOffer != null) {
-            return new OfferCheckResult(false, true);  // Already offered twice
+            return new OfferCheckResult(false, true);
         }
 
         long millis = new Date().getTime() - firstOffer.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
-        return new OfferCheckResult(days >= 30, true);  // Should offer again if 30+ days passed
+        return new OfferCheckResult(days >= DAYS_TO_SECOND_OFFER, false);
     }
 
     private void updateLinkOfferDate(ConnectLinkedAppRecord linkedApp, boolean isSecondOffer) {
@@ -380,19 +352,18 @@ public class ConnectIDManager {
 
 
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username, String password, ConnectActivityCompleteListener callback) {
-        final ConnectLinkedAppRecord finalRecord = linkedApp;
         StandardAlertDialog dialog = new StandardAlertDialog(activity,
                 activity.getString(R.string.login_link_connectid_title),
                 activity.getString(R.string.login_link_connectid_message));
 
         dialog.setPositiveButton(activity.getString(R.string.login_link_connectid_yes), (d, w) -> {
             activity.dismissAlertDialog();
-            unlockAndLinkConnect(activity, finalRecord, username, password, callback);
+            unlockAndLinkConnect(activity, linkedApp, username, password, callback);
         });
 
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
             activity.dismissAlertDialog();
-            ConnectAppDatabaseUtil.storeApp(activity, finalRecord);
+            ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
             callback.connectActivityComplete(false);
         });
 
@@ -412,7 +383,7 @@ public class ConnectIDManager {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
             ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, linkedApp, username, true, new ConnectSsoHelper.TokenCallback() {
                 public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                    callback.connectActivityComplete(true);
+                    callback.connectActivityComplete(false);
                 }
 
                 public void tokenUnavailable() {
@@ -428,8 +399,10 @@ public class ConnectIDManager {
         });
     }
 
-    private void handleConnectIdLinkedApp(CommCareActivity<?> activity, boolean autoLoggedIn, String appId, String username, ConnectActivityCompleteListener callback) {
-        if (autoLoggedIn) {
+    private void promptToDelinkConnectIdApp(CommCareActivity<?> activity, String appId, String username,
+            boolean connectIdManagedLogin, ConnectActivityCompleteListener callback) {
+        // we only want to prompt when user chose non connect Id managed login
+        if (connectIdManagedLogin) {
             callback.connectActivityComplete(false);
             return;
         }
@@ -442,13 +415,14 @@ public class ConnectIDManager {
             activity.dismissAlertDialog();
             unlockConnect(activity, success -> {
                 if (success) {
-                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getAppData(activity, appId, username);
+                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                            activity, appId, username);
                     if (linkedApp != null) {
                         linkedApp.severConnectIdLink();
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
                     }
                 }
-                callback.connectActivityComplete(success);
+                callback.connectActivityComplete(false);
             });
         });
 
@@ -458,10 +432,11 @@ public class ConnectIDManager {
         });
 
         activity.showAlertDialog(dialog);
+
     }
 
     ///TODO update the code with connect code
-    private void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
 //                updateLearningProgress(context, job, listener);
@@ -482,6 +457,7 @@ public class ConnectIDManager {
 //        parent.startActivity(i);
     }
 
+
     public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
         ///TODO uncomment with connect pahse pr
 //        completeSignin();
@@ -493,14 +469,11 @@ public class ConnectIDManager {
 
     private ConnectJobRecord setConnectJobForApp(Context context, String appId) {
         ConnectJobRecord job = null;
-
         ConnectAppRecord appRecord = getAppRecord(context, appId);
         if (appRecord != null) {
             job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
         }
-
         setActiveJob(job);
-
         return job;
     }
 
@@ -520,18 +493,17 @@ public class ConnectIDManager {
 
     @Nullable
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(parentActivity, appId,
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                 userId);
-        if (record != null && record.getConnectIdLinked() && record.getPassword().length() > 0) {
+        if (record != null && record.getConnectIdLinked() && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
-
         return null;
     }
 
     public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isLoggedIN()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(parentActivity, appId,
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
@@ -664,7 +636,7 @@ public class ConnectIDManager {
         try {
             if (isLoggedIN()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(
+                ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                         CommCareApplication.instance(), seatedAppId, username);
                 return appRecord != null && appRecord.getWorkerLinked();
             }
@@ -675,7 +647,7 @@ public class ConnectIDManager {
         return false;
     }
 
-    public ConnectAppMangement getAppManagement(Context context, String appId, String userId) {
+    public ConnectAppMangement evalAppState(Context context, String appId, String userId) {
         ConnectAppRecord record = getAppRecord(context, appId);
         if (record != null) {
             return ConnectAppMangement.Connect;
@@ -687,7 +659,7 @@ public class ConnectIDManager {
     }
 
     private boolean isConnectApp(Context context, String appId) {
-        return getAppManagement(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+        return evalAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
     }
 
     public boolean isLoggedInWithConnectApp(Context context, String appId) {
@@ -705,8 +677,8 @@ public class ConnectIDManager {
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, seatedAppId, username);
-        if (appRecord == null) {
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
+        if(appRecord == null) {
             return null;
         }
 
