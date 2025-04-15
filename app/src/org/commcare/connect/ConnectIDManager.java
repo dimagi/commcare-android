@@ -277,7 +277,7 @@ public class ConnectIDManager {
         ConnectUserDatabaseUtil.forgetUser(parentActivity);
         ConnectIdActivity connectIdActivity = new ConnectIdActivity();
         connectIdActivity.reset();
-        manager.connectStatus = ConnectIdStatus.NotIntroduced;
+        connectStatus = ConnectIdStatus.NotIntroduced;
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -476,7 +476,7 @@ public class ConnectIDManager {
     }
 
     public void goToConnectJobsList(Context parent) {
-        manager.parentActivity = parent;
+        parentActivity = parent;
         completeSignin();
 //        Intent i = new Intent(parent, ConnectActivity.class);
 //        parent.startActivity(i);
@@ -520,7 +520,7 @@ public class ConnectIDManager {
 
     @Nullable
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, appId,
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(parentActivity, appId,
                 userId);
         if (record != null && record.getConnectIdLinked() && record.getPassword().length() > 0) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
@@ -531,7 +531,7 @@ public class ConnectIDManager {
 
     public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isLoggedIN()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(manager.parentActivity, appId,
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getAppData(parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
@@ -542,12 +542,12 @@ public class ConnectIDManager {
     }
 
     public void setPendingAction(int action) {
-        getInstance().pendingAction = action;
+       pendingAction = action;
     }
 
     public int getPendingAction() {
-        int action = getInstance().pendingAction;
-        getInstance().pendingAction = PENDING_ACTION_NONE;
+        int action = pendingAction;
+        pendingAction = PENDING_ACTION_NONE;
         return action;
     }
 
@@ -614,17 +614,17 @@ public class ConnectIDManager {
     }
 
     public String getConnectUsername(Context context) {
-        if (manager.isLoggedIN()) {
+        if (isLoggedIN()) {
             return ConnectUserDatabaseUtil.getUser(context).getUserId();
         }
         return null;
     }
 
-    public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
+    public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
 
-        if (manager.isLoggedIN()) {
-            ConnectUserRecord user = getInstance().getUser(context);
+        if (isLoggedIN()) {
+            ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
 
@@ -635,7 +635,7 @@ public class ConnectIDManager {
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
-            ConnectUserRecord user = getInstance().getUser(context);
+            ConnectUserRecord user = getUser(context);
             String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 
@@ -653,7 +653,7 @@ public class ConnectIDManager {
     }
 
     public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
-        manager.launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
+        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
     public void setActiveJob(ConnectJobRecord job) {
