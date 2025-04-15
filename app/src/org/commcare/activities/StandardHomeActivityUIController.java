@@ -89,7 +89,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
-            tvJobDescription.setText(job.getDescription());
+            tvJobDescription.setText(job.getShortDescription());
             connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
             String workingHours = job.getWorkingHours();
