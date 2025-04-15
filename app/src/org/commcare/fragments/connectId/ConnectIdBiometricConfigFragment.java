@@ -250,7 +250,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
-            //Non-fatal exception already reported in the call above
             finish(true, true);
         }
     }

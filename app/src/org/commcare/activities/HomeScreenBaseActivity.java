@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -571,6 +573,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    protected void userPressedOpportunityStatus() {
+        ConnectIDManager.getInstance().setPendingAction(ConnectIDManager.PENDING_ACTION_OPP_STATUS);
         setResult(RESULT_OK);
         finish();
     }

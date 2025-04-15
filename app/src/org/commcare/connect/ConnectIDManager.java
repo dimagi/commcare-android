@@ -1,5 +1,6 @@
 package org.commcare.connect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
@@ -83,7 +84,8 @@ public class ConnectIDManager {
 
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
-    public final int PENDING_ACTION_OPP_STATUS = 2;
+    public static final int PENDING_ACTION_CONNECT_HOME = 1;
+    public static final int PENDING_ACTION_OPP_STATUS = 2;
     public static final int PENDING_ACTION_NONE = 0;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
@@ -142,10 +144,6 @@ public class ConnectIDManager {
         String primed = primedAppIdForAutoLogin;
         primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
-    }
-
-    public void setPendingAction(int action) {
-        pendingAction = action;
     }
 
     public String generatePassword() {
@@ -477,11 +475,20 @@ public class ConnectIDManager {
         }
     }
 
-    private void goToConnectJobsList(Context parent) {
+    public void goToConnectJobsList(Context parent) {
         manager.parentActivity = parent;
         completeSignin();
 //        Intent i = new Intent(parent, ConnectActivity.class);
 //        parent.startActivity(i);
+    }
+
+    public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
+        ///TODO uncomment with connect pahse pr
+//        completeSignin();
+//        Intent i = new Intent(activity, ConnectActivity.class);
+//        i.putExtra("info", true);
+//        i.putExtra("buttons", allowProgression);
+//        activity.startActivity(i);
     }
 
     private ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -532,6 +539,16 @@ public class ConnectIDManager {
         }
 
         return null;
+    }
+
+    public void setPendingAction(int action) {
+        getInstance().pendingAction = action;
+    }
+
+    public int getPendingAction() {
+        int action = getInstance().pendingAction;
+        getInstance().pendingAction = PENDING_ACTION_NONE;
+        return action;
     }
 
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
@@ -667,6 +684,14 @@ public class ConnectIDManager {
         return getCredentialsForApp(appId, userId) != null ?
                 ConnectAppMangement.ConnectId :
                 ConnectAppMangement.Unmanaged;
+    }
+
+    private boolean isConnectApp(Context context, String appId) {
+        return ConnectIDManager.getInstance().getAppManagement(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+    }
+
+    public boolean isLoggedInWithConnectApp(Context context, String appId) {
+        return ConnectIDManager.getInstance().isLoggedIN() && isConnectApp(context, appId);
     }
 
     public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
