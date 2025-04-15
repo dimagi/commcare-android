@@ -319,7 +319,7 @@ public class ConnectIDManager {
     }
 
     private void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectAppRecord(activity, appId, username);
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId, username);
         if (record != null) {
             record.setLastAccessed(new Date());
             ConnectAppDatabaseUtil.storeApp(activity, record);
@@ -329,16 +329,14 @@ public class ConnectIDManager {
     private void checkConnectIdLink(CommCareActivity<?> activity, String appId,
             String username, String password, ConnectActivityCompleteListener callback) {
         switch (evalAppState(activity, appId, username)) {
-            case Unmanaged -> linkUnmanagedApp(activity, appId, username, password, callback);
-            case ConnectId -> delinkConnectIdApp(activity, appId, username, callback);
+            case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
+            case ConnectId -> promptTodelinkConnectIdApp(activity, appId, username, callback);
             case Connect -> callback.connectActivityComplete(true);
-            default -> {
-            }
         }
     }
 
-    private void linkUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
-        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectAppRecord(activity, appId, username);
+    private void promptTolinkUnmanagedApp(CommCareActivity<?> activity, String appId, String username, String password, ConnectActivityCompleteListener callback) {
+        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId, username);
         OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
 
         if (!offerCheck.shouldOffer) {
@@ -441,7 +439,7 @@ public class ConnectIDManager {
         });
     }
 
-    private void delinkConnectIdApp(CommCareActivity<?> activity, String appId, String username, ConnectActivityCompleteListener callback) {
+    private void promptTodelinkConnectIdApp(CommCareActivity<?> activity, String appId, String username, ConnectActivityCompleteListener callback) {
         StandardAlertDialog dialog = new StandardAlertDialog(activity,
                 activity.getString(R.string.login_unlink_connectid_title),
                 activity.getString(R.string.login_unlink_connectid_message));
@@ -450,7 +448,7 @@ public class ConnectIDManager {
             activity.dismissAlertDialog();
             unlockConnect(activity, success -> {
                 if (success) {
-                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectAppRecord(activity, appId, username);
+                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId, username);
                     if (linkedApp != null) {
                         linkedApp.severConnectIdLink();
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
@@ -519,7 +517,7 @@ public class ConnectIDManager {
 
     @Nullable
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectAppRecord(manager.parentActivity, appId,
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId,
                 userId);
         if (record != null && record.getConnectIdLinked() && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
@@ -529,7 +527,7 @@ public class ConnectIDManager {
 
     public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isLoggedIN()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectAppRecord(manager.parentActivity, appId,
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
@@ -649,7 +647,7 @@ public class ConnectIDManager {
         try {
             if (isLoggedIN()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectAppRecord(
+                ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                         CommCareApplication.instance(), seatedAppId, username);
                 return appRecord != null && appRecord.getWorkerLinked();
             }
@@ -682,7 +680,7 @@ public class ConnectIDManager {
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectAppRecord(manager.parentActivity, seatedAppId, username);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
         if(appRecord == null) {
             return null;
         }

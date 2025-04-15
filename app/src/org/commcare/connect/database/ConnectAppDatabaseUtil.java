@@ -9,7 +9,7 @@ import org.commcare.models.database.SqlStorage;
 import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
-    public static ConnectLinkedAppRecord getConnectAppRecord(Context context, String appId, String username) {
+    public static ConnectLinkedAppRecord getConnectLinkedAppRecord(Context context, String appId, String username) {
         if (ConnectIDManager.getInstance().isLoggedIN()) {
             Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
                     .getRecordsForValues(
@@ -40,7 +40,7 @@ public class ConnectAppDatabaseUtil {
      */
     public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked, boolean localPassphrase) {
 
-        ConnectLinkedAppRecord record = getConnectAppRecord(context, appId, userId);
+        ConnectLinkedAppRecord record = getConnectLinkedAppRecord(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
         } else if (!record.getPassword().equals(passwordOrPin)) {
