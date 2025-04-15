@@ -467,7 +467,7 @@ public class ConnectIDManager {
 //        activity.startActivity(i);
     }
 
-    private ConnectJobRecord setConnectJobForApp(Context context, String appId) {
+    public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
         ConnectJobRecord job = null;
         ConnectAppRecord appRecord = getAppRecord(context, appId);
         if (appRecord != null) {
