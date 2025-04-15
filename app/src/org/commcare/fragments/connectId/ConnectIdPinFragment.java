@@ -427,7 +427,7 @@ public class ConnectIdPinFragment extends Fragment {
                 if (success) {
                     connectIdActivity.forgotPin = false;
                     ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
-                    directions = navigateToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                    directions = navigateToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
                     if (user != null) {
                         user.setPin(pin);
                         user.setLastPinDate(new Date());
@@ -454,7 +454,7 @@ public class ConnectIdPinFragment extends Fragment {
                     if (!forgot) {
                         directions = navigateToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectIDManager.getInstance().getFailureAttempt() > 2 ? getString(R.string.connect_pin_confirm_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null, phone, secret);
                     } else {
-                        directions = navigateToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                        directions = navigateToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
                     }
                 }
             }
@@ -515,8 +515,8 @@ public class ConnectIdPinFragment extends Fragment {
         return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(phase, method, phone, userId, password, secretKey, isRecovery);
     }
 
-    private NavDirections navigateToConnectidSecondaryPhoneFragment(int phase, String method) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(phase, method);
+    private NavDirections navigateToConnectidSecondaryPhoneFragment(int phase) {
+        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(phase);
     }
 
     private NavDirections navigateToConnectidPinSelf(int phase, String phone, String message, boolean change, boolean isRecovery) {

@@ -145,7 +145,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 break;
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE:
                 if (secondButton) {
-                    directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                    directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE);
                 } else {
                     directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
                 }
@@ -171,7 +171,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 break;
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE:
                 if (secondButton) {
-                    directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE, ConnectConstants.METHOD_CHANGE_ALTERNATE);
+                    directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE);
                 } else {
                     directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
                 }
@@ -219,8 +219,8 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPassword(phone, secret, callingClass);
     }
 
-    private NavDirections navigateToSecondaryPhoneFragment(int fragmentType, String method) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(fragmentType, method);
+    private NavDirections navigateToSecondaryPhoneFragment(int fragmentType) {
+        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(fragmentType);
     }
 
     private NavDirections navigateToUserDeactivateOtpVerify(String phone, String userName, String password) {

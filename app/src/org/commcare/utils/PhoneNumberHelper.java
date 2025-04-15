@@ -163,7 +163,7 @@ public class PhoneNumberHelper {
         return fullNumber.startsWith(codeText) ? fullNumber.substring(codeText.length()) : fullNumber;
     }
 
-    public static TextWatcher getCountryCodeWatcher(EditText editText) {
+    public TextWatcher getCountryCodeWatcher(EditText editText) {
         return new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!s.toString().startsWith("+")) {
