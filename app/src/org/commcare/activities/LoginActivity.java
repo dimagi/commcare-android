@@ -21,6 +21,7 @@ import com.scottyab.rootbeer.RootBeer;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
@@ -61,6 +62,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -113,6 +115,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private ConnectIDManager connectIDManager;
+    private ConnectIDManager.ConnectActivityCompleteListener mListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -437,10 +440,47 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CrashUtil.registerUserData();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
         CommCareApplication.notificationManager().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-        boolean navigateToConnectJobs = connectIDManager.handleConnectSignIn(this, getUniformUsername(),
-                uiController.getEnteredPasswordOrPin());
-        setResultAndFinish(navigateToConnectJobs);
+        if(handleConnectSignIn(this, getUniformUsername(),
+                uiController.getEnteredPasswordOrPin())){
+            setResultAndFinish(false);
+        }
     }
+
+    /**
+     * Handles sign in related ops for Connect
+     * @param context Android activity we are signing in from
+     * @param username Username for user signing in
+     * @param enteredPasswordPin user entered password or pin for non-connect apps
+     * @return if we should finish after calling this method
+     */
+    private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
+        if (connectIDManager.isLoggedIN()) {
+            connectIDManager.completeSignin();
+            String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            ConnectJobRecord job = connectIDManager.setConnectJobForApp(context, appId);
+
+            if (job != null) {
+                connectIDManager.updateAppAccess(context, appId, username);
+                connectIDManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+            } else {
+                //Possibly offer to link or de-link ConnectId-managed login
+                connectIDManager.checkConnectIdLink(context,
+                        appId,
+                        username,
+                        enteredPasswordPin,
+                        success -> {
+                            connectIDManager.updateAppAccess(context, appId, username);
+                            setResultAndFinish(false);
+                        }
+                );
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
         if (navigateToConnectJobs) {
