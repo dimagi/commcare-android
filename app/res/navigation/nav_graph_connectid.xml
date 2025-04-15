@@ -38,10 +38,6 @@
             android:name="callingClass"
             app:argType="integer"
             app:nullable="false" />
-        <argument
-            android:name="allowPassword"
-            android:defaultValue="false"
-            app:argType="boolean" />
     </fragment>
 
     <fragment

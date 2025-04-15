@@ -215,7 +215,7 @@ public class ConnectIDManager {
         BiometricManager bioManager = getBiometricManager(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
             boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, allowOtherOptions, callbacks);
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks);
         } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
@@ -597,7 +597,10 @@ public class ConnectIDManager {
     }
 
     public String getConnectUsername(Context context) {
-        return ConnectUserDatabaseUtil.getUser(context).getUserId();
+        if (manager.isLoggedIN()) {
+            return ConnectUserDatabaseUtil.getUser(context).getUserId();
+        }
+        return null;
     }
 
     public static boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
