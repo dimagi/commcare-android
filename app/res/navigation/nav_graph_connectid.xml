@@ -306,9 +306,6 @@
             android:name="callingClass"
             app:argType="integer"
             app:nullable="false" />
-        <argument
-            android:name="method"
-            app:argType="string" />
     </fragment>
 
     <fragment

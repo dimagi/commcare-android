@@ -215,8 +215,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             // Set this app as the last selected app, for use in choosing what app to initialize
             // on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
-            setLoginInputsVisibility(!noApps || !(ConnectIDManager.getInstance().isLoggedIN() &&
-                    ConnectIDManager.getInstance().getAppManagement(activity, r.getUniqueId(), "") == ConnectIDManager.ConnectAppMangement.Connect));
+            setLoginInputsVisibility(!noApps || !(isLoggedInWithConnectApp(r.getUniqueId())));
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
             setSingleAppUIState();
@@ -244,6 +243,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
+    }
+
+    private boolean isConnectApp(String appId) {
+        return ConnectIDManager.getInstance().getAppManagement(activity, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+    }
+
+    private boolean isLoggedInWithConnectApp(String appId) {
+        return ConnectIDManager.getInstance().isLoggedIN() && isConnectApp(appId);
     }
 
     @Nullable

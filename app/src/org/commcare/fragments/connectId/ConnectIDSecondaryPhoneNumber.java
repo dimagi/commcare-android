@@ -27,10 +27,8 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 public class ConnectIDSecondaryPhoneNumber extends Fragment {
-    private String method;
     private int callingClass;
     private PhoneNumberHelper phoneNumberHelper;
-    private static final String KEY_METHOD = "method";
     private static final String KEY_CALLING_CLASS = "calling_class";
 
     FragmentSecondaryPhoneNumberBinding binding;
@@ -43,7 +41,6 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
         setListener();
-        method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
         PhoneNumberHelper.getInstance(requireActivity());
         String code = phoneNumberHelper.formatCountryCode(phoneNumberHelper.getCountryCodeFromLocale(requireActivity()));
@@ -57,7 +54,6 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CALLING_CLASS, callingClass);
-        outState.putString(KEY_METHOD, method);
     }
 
     @Override
@@ -68,7 +64,6 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
     private void loadSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            method = savedInstanceState.getString(KEY_METHOD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
         }
     }
@@ -120,10 +115,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
-        String existing = user.getPrimaryPhone();
-        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-            existing = user.getAlternatePhone();
-        }
+        String existing = user.getAlternatePhone();
         if (existing != null && !existing.equals(phone)) {
             IApiCallback callback = new IApiCallback() {
                 @Override
@@ -165,13 +157,8 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             };
 
             //Update the phone number with the server
-            if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-                ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
-                        null, phone, callback);
-            } else {
-                ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
-                        existing, phone, callback);
-            }
+            ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
+                    null, phone, callback);
 
         } else {
             finish(true, phone);

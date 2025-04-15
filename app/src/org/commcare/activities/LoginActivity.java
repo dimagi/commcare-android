@@ -456,17 +456,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void handleFailedConnectSignIn() {
-        ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
+        if (uiController.loginManagedByConnectId()) {
+            ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
 
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
-                record.getUniqueId(), getUniformUsername());
+            ConnectIDManager.ConnectAppMangement appState = connectIDManager.getAppManagement(this,
+                    record.getUniqueId(), getUniformUsername());
 
-        switch (appState) {
-            case Connect -> {
-                FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
-            }
-            case ConnectId -> {
-                uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
+            switch (appState) {
+                case Connect -> {
+                    FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
+                }
+                case ConnectId -> {
+                    uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
+                }
             }
         }
     }
@@ -570,9 +572,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             CommCareApplication.notificationManager().reportNotificationMessage(message);
         }
         uiController.setErrorMessageUI(toastText, showTop);
-        if (uiController.loginManagedByConnectId()) {
-            handleFailedConnectSignIn();
-        }
+        handleFailedConnectSignIn();
+
     }
 
     /**
