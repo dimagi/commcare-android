@@ -470,7 +470,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         enteredPasswordPin,
                         success -> {
                             connectIDManager.updateAppAccess(context, appId, username);
-                            setResultAndFinish(false);
+                            setResultAndFinish(success);
                         }
                 );
             }

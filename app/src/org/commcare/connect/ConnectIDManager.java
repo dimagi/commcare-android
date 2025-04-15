@@ -386,7 +386,7 @@ public class ConnectIDManager {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
             ConnectSsoHelper.retrieveHqSsoTokenAsync(activity, user, linkedApp, username, true, new ConnectSsoHelper.TokenCallback() {
                 public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                    callback.connectActivityComplete(true);
+                    callback.connectActivityComplete(false);
                 }
 
                 public void tokenUnavailable() {
@@ -406,7 +406,7 @@ public class ConnectIDManager {
             String password, ConnectActivityCompleteListener callback) {
         // we only want to prompt when password was specified by user instead of auto login
         if (StringUtils.isEmpty(password)) {
-            callback.connectActivityComplete(true);
+            callback.connectActivityComplete(false);
             return;
         }
 
@@ -425,7 +425,7 @@ public class ConnectIDManager {
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
                     }
                 }
-                callback.connectActivityComplete(success);
+                callback.connectActivityComplete(false);
             });
         });
 
