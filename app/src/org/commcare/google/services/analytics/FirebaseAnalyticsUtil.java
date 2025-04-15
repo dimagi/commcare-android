@@ -511,4 +511,8 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
                 CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
     }
+
+    public static void reportRekeyedDatabase() {
+        reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
+    }
 }
