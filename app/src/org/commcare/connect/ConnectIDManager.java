@@ -699,6 +699,16 @@ public class ConnectIDManager {
         failedPinAttempts = failureAttempt;
     }
 
+    public boolean shouldShowJobStatus(Context context, String appId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        if(record == null || activeJob == null) {
+            return false;
+        }
+
+        //Only time not to show is when we're in learn app but job is in delivery state
+        return !record.getIsLearning() || activeJob.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
+    }
+
 
     /**
      * Interface for handling callbacks when a ConnectID activity finishes

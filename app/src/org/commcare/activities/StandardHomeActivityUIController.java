@@ -52,7 +52,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
     }
 
-    private static Vector<String> getHiddenButtons() {
+    private Vector<String> getHiddenButtons() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
 
@@ -71,7 +71,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-
+        if (!ConnectIDManager.getInstance().shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+            hiddenButtons.add("connect");
+        }
         return hiddenButtons;
     }
 
