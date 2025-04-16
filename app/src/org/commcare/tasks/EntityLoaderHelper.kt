@@ -97,9 +97,6 @@ class EntityLoaderHelper(
                 index,
                 references.size
             )
-            if (stopLoading) {
-                return null
-            }
             val e = factory.getEntity(ref)
             if (e != null) {
                 entities.add(e)
