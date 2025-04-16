@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Unmanaged;
+
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -145,7 +147,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     public LoginActivityUIController(LoginActivity activity) {
         this.activity = activity;
         this.loginMode = LoginMode.PASSWORD;
-        this.connectAppState = ConnectIDManager.ConnectAppMangement.Unmanaged;
+        this.connectAppState = Unmanaged;
     }
 
     @Override
@@ -167,6 +169,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         notificationButton.setText(Localization.get("error.button.text"));
         notificationButton.setOnClickListener(view -> CommCareNoficationManager.performIntentCalloutToNotificationsView(activity));
+        setUpConnectUiListeners();
+    }
+
+    private void setUpConnectUiListeners() {
+        connectLoginButton.setOnClickListener(arg0 -> activity.handleConnectButtonPress());
+        passwordOrPin.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                setConnectIdLoginState(Unmanaged);
+            }
+        });
     }
 
     private void setTextChangeListeners() {
@@ -239,7 +251,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         } else {
             checkEnteredUsernameForMatch();
         }
-        activity.setConnectAppState();
+        activity.evaluateConnectAppState();
         if (!CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             notificationButtonView.setVisibility(View.GONE);
         }
@@ -524,9 +536,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void setConnectIdLoginState(ConnectIDManager.ConnectAppMangement appState) {
-        boolean unmanaged = appState == ConnectIDManager.ConnectAppMangement.Unmanaged;
+        boolean unmanaged = appState == Unmanaged;
         if (unmanaged &&
-                connectAppState != ConnectIDManager.ConnectAppMangement.Unmanaged) {
+                connectAppState != Unmanaged) {
             setPasswordOrPin("");
         }
 

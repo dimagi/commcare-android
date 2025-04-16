@@ -22,7 +22,6 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.button.MaterialButton;
 
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
@@ -284,7 +283,7 @@ public class ConnectIDManager {
 
     public void checkConnectIdLink(CommCareActivity<?> activity, boolean connectIdManagedLogin, String appId,
             String username, String password, ConnectActivityCompleteListener callback) {
-        switch (evalAppState(activity, appId, username)) {
+        switch (evaluateAppState(activity, appId, username)) {
             case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
             case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, connectIdManagedLogin, callback);
             case Connect -> callback.connectActivityComplete(true);
@@ -628,7 +627,7 @@ public class ConnectIDManager {
         return false;
     }
 
-    public ConnectAppMangement evalAppState(Context context, String appId, String userId) {
+    public ConnectAppMangement evaluateAppState(Context context, String appId, String userId) {
         ConnectAppRecord record = getAppRecord(context, appId);
         if (record != null) {
             return ConnectAppMangement.Connect;
@@ -640,7 +639,7 @@ public class ConnectIDManager {
     }
 
     private boolean isConnectApp(Context context, String appId) {
-        return evalAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+        return evaluateAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
     }
 
     public boolean isLoggedInWithConnectApp(Context context, String appId) {

@@ -492,10 +492,21 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         finish();
     }
 
+    public void handleConnectButtonPress() {
+        selectedAppIndex = -1;
+        connectIDManager.unlockConnect(this, success -> {
+            if(success) {
+                connectIDManager.goToConnectJobsList(this);
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+    }
+
     private void handleFailedConnectSignIn() {
         if (uiController.loginManagedByConnectId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-            ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
+            ConnectIDManager.ConnectAppMangement appState = connectIDManager.evaluateAppState(this,
                     record.getUniqueId(), getUniformUsername());
             switch (appState) {
                 case Connect -> {
@@ -897,14 +908,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return selectedNewApp;
     }
 
-    protected void setConnectAppState() {
+    protected void evaluateConnectAppState() {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
+        ConnectIDManager.ConnectAppMangement appState = connectIDManager.evaluateAppState(this,
                 seatedAppId, uiController.getEnteredUsername());
 
         if (appLaunchedFromConnect && presetAppId != null) {
             appState = ConnectIDManager.ConnectAppMangement.Connect;
-
             uiController.setConnectButtonVisible(false);
             if (!seatAppIfNeeded(presetAppId)) {
                 initiateLoginAttempt(uiController.isRestoreSessionChecked());
