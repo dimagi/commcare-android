@@ -915,7 +915,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if (appLaunchedFromConnect && presetAppId != null) {
             appState = ConnectIDManager.ConnectAppMangement.Connect;
-            uiController.setConnectButtonVisible(false);
             if (!seatAppIfNeeded(presetAppId)) {
                 initiateLoginAttempt(uiController.isRestoreSessionChecked());
             }

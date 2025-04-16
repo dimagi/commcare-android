@@ -516,7 +516,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
                 connectAppState == ConnectIDManager.ConnectAppMangement.Connect;
     }
 
-    public void setConnectButtonVisible(Boolean visible) {
+    private void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
         orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
@@ -556,6 +556,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginButton.setText(text);
 
         //handle language changes from system setttings
+        setConnectButtonVisible(!connect);
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
         passwordOrPin.setBackgroundColor(getResources().getColor(unmanaged ? R.color.white : R.color.grey_light));
