@@ -75,6 +75,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_UNIT = "payment_unit";
     public static final String META_MAX_VISITS = "max_visits";
 
+    private static final String working_hours_source_format ="HH:mm:ss";
+    private static final String working_hours_target_format ="h:mm a";
+    private static final String working_hours_pattern = "%s - %s";
+
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
     @Persisting(1)
@@ -456,18 +460,18 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         try {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 //DateTimeFormatter is more efficient than SimpleDateFormat
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(working_hours_source_format);
                 LocalTime start = LocalTime.parse(dailyStart, formatter);
                 LocalTime end = LocalTime.parse(dailyFinish, formatter);
-                formatter = DateTimeFormatter.ofPattern("h:mm a");
-                return formatter.format(start) + " - " + formatter.format(end);
+                formatter = DateTimeFormatter.ofPattern(working_hours_target_format);
+                return String.format(working_hours_pattern,formatter.format(start),formatter.format(end));
             }else{
                 // remove this code whenever we change minSdk to 26
-                SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+                SimpleDateFormat formatter = new SimpleDateFormat(working_hours_source_format);
                 Date start = formatter.parse(dailyStart);
                 Date end = formatter.parse(dailyFinish);
-                formatter = new SimpleDateFormat("h:mm a");
-                return formatter.format(start) + " - " + formatter.format(end);
+                formatter = new SimpleDateFormat(working_hours_target_format);
+                return String.format(working_hours_pattern,formatter.format(start),formatter.format(end));
             }
         } catch(Exception e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
