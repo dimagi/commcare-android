@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -453,12 +454,21 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            LocalTime start = LocalTime.parse(dailyStart, formatter);
-            LocalTime end = LocalTime.parse(dailyFinish, formatter);
-            formatter = DateTimeFormatter.ofPattern("h:mm a");
-
-            return formatter.format(start) + " - " + formatter.format(end);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                //DateTimeFormatter is more efficient than SimpleDateFormat
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                LocalTime start = LocalTime.parse(dailyStart, formatter);
+                LocalTime end = LocalTime.parse(dailyFinish, formatter);
+                formatter = DateTimeFormatter.ofPattern("h:mm a");
+                return formatter.format(start) + " - " + formatter.format(end);
+            }else{
+                // remove this code whenever we change minSdk to 26
+                SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+                Date start = formatter.parse(dailyStart);
+                Date end = formatter.parse(dailyFinish);
+                formatter = new SimpleDateFormat("h:mm a");
+                return formatter.format(start) + " - " + formatter.format(end);
+            }
         } catch(Exception e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
             return null;
