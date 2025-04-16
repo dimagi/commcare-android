@@ -378,9 +378,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private String getUniformUsername() {
         String username = uiController.getEnteredUsername();
-        String connectIdUsername = connectIDManager.getConnectUsername(this);
-        if (connectIDManager.isLoggedIN() && appLaunchedFromConnect && connectIdUsername != null) {
-            username = connectIdUsername;
+        if (connectIDManager.isLoggedIN() && appLaunchedFromConnect) {
+            username = connectIDManager.getConnectUsername(this);
         }
         return username.toLowerCase().trim();
     }

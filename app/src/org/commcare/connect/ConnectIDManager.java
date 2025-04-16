@@ -572,10 +572,7 @@ public class ConnectIDManager {
     }
 
     public String getConnectUsername(Context context) {
-        if (isLoggedIN()) {
-            return ConnectUserDatabaseUtil.getUser(context).getUserId();
-        }
-        return null;
+        return ConnectUserDatabaseUtil.getUser(context).getUserId();
     }
 
     public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
