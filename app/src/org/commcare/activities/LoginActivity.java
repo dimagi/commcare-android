@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Unmanaged;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -115,6 +116,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECTID_MANAGED_LOGIN = "connectid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private ConnectIDManager connectIDManager;
+    private ConnectIDManager.ConnectAppMangement connectAppState = Unmanaged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,7 +212,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (appLaunchedFromConnect) {
             //Auto login
             doLogin(loginMode, restoreSession, "AUTO");
-        } else if (uiController.loginManagedByConnectId()) {
+        } else if (loginManagedByConnectId()) {
             //Unlock and then auto login
             connectIDManager.unlockConnect(this, success -> {
                 if (success) {
@@ -463,7 +465,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             } else {
                 //Possibly offer to link or de-link ConnectId-managed login
                 connectIDManager.checkConnectIdLink(context,
-                        uiController.loginManagedByConnectId(),
+                        loginManagedByConnectId(),
                         appId,
                         username,
                         enteredPasswordPin,
@@ -486,7 +488,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
-        i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || uiController.loginManagedByConnectId());
+        i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || loginManagedByConnectId());
         i.putExtra(CONNECT_MANAGED_LOGIN, appLaunchedFromConnect);
         setResult(RESULT_OK, i);
         finish();
@@ -504,7 +506,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void handleFailedConnectSignIn() {
-        if (uiController.loginManagedByConnectId()) {
+        if (loginManagedByConnectId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
             ConnectIDManager.ConnectAppMangement appState = connectIDManager.evaluateAppState(this,
                     record.getUniqueId(), getUniformUsername());
@@ -569,8 +571,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case MENU_CONNECT_FORGET:
                 connectIDManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
+                setConnectAppState(Unmanaged);
                 uiController.refreshView();
-                uiController.setConnectIdLoginState(ConnectIDManager.ConnectAppMangement.Unmanaged);
                 return true;
             default:
                 return otherResult;
@@ -927,8 +929,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 appState = ConnectIDManager.ConnectAppMangement.Unmanaged;
             }
         }
-
-        uiController.setConnectIdLoginState(appState);
+        setConnectAppState(appState);
     }
 
+    protected boolean loginManagedByConnectId() {
+        return connectAppState == ConnectIDManager.ConnectAppMangement.ConnectId ||
+                connectAppState == ConnectIDManager.ConnectAppMangement.Connect;
+    }
+
+    public void setConnectAppState(ConnectIDManager.ConnectAppMangement connectAppState) {
+        this.connectAppState = connectAppState;
+    }
+
+    protected ConnectIDManager.ConnectAppMangement getConnectAppState() {
+        return connectAppState;
+    }
 }
