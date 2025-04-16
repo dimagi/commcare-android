@@ -594,12 +594,10 @@ public class ConnectIDManager {
 
     public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
-
         if (isLoggedIN()) {
             ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
-
         return show;
     }
 

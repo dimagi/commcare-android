@@ -30,7 +30,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
 
     private HomeScreenAdapter adapter;
-    private CardView connectTile;
 
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
@@ -40,10 +39,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        connectTile = activity.findViewById(R.id.connect_alert_tile);
-        connectTile.setVisibility(View.GONE);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
+        updateSecondaryPhoneConfirmationTile();
     }
 
     @Override
@@ -106,7 +104,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         adapter.notifyItemChanged(adapter.getSyncButtonPosition());
     }
 
-    public void updateConnectTile(boolean show) {
+    private void updateSecondaryPhoneConfirmationTile() {
+        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false)
+                && ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
+        updateConnectTile(show);
+    }
+
+    private void updateConnectTile(boolean show) {
+        View connectTile = activity.findViewById(R.id.connect_alert_tile);
         ConnectIDManager.getInstance().updateSecondaryPhoneConfirmationTile(activity, connectTile, show, v -> {
             activity.performSecondaryPhoneVerification();
         });

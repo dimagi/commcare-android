@@ -58,7 +58,6 @@ public class StandardHomeActivity
     @Override
     protected void onResume() {
         super.onResume();
-        updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -281,12 +280,6 @@ public class StandardHomeActivity
     @Override
     void refreshCCUpdateOption() {
         invalidateOptionsMenu();
-    }
-
-    private void updateSecondaryPhoneConfirmationTile() {
-        boolean show = getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false) && ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(this);
-
-        uiController.updateConnectTile(show);
     }
 
     public void performSecondaryPhoneVerification() {
