@@ -544,7 +544,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         super.onDestroy();
         if (loader != null) {
             if (isFinishing()) {
-                loader.cancel(false);
+                loader.cancel(true);
             } else {
                 loader.detachActivity();
             }
