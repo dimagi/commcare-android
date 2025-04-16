@@ -544,14 +544,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginButton.setText(text);
 
         //handle language changes from system setttings
-
         connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
 
+        passwordOrPin.setBackgroundColor(getResources().getColor(unmanaged ? R.color.white : R.color.grey_light));
         if (!unmanaged) {
             passwordOrPin.setText(R.string.login_password_by_connect);
             passwordOrPin.clearFocus();
         }
-
         passwordOrPin.setInputType(unmanaged ?
                 (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD) :
                 InputType.TYPE_CLASS_TEXT);

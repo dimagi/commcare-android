@@ -418,7 +418,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.exception("Error while local login", e);
             return false;
         }
     }
@@ -897,7 +897,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return selectedNewApp;
     }
 
-    public void setConnectAppState() {
+    protected void setConnectAppState() {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectIDManager.ConnectAppMangement appState = connectIDManager.evalAppState(this,
                 seatedAppId, uiController.getEnteredUsername());
