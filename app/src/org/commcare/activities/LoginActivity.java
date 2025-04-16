@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -481,11 +483,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
-        if (navigateToConnectJobs) {
-            connectIDManager.setPendingAction(connectIDManager.PENDING_ACTION_OPP_STATUS);
-        }
-
         Intent i = new Intent();
+        i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         i.putExtra(CONNECTID_MANAGED_LOGIN, appLaunchedFromConnect || uiController.loginManagedByConnectId());

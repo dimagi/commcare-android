@@ -85,9 +85,6 @@ public class ConnectIDManager {
 
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
-    public static final int PENDING_ACTION_CONNECT_HOME = 1;
-    public static final int PENDING_ACTION_OPP_STATUS = 2;
-    public static final int PENDING_ACTION_NONE = 0;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     public static final int MethodRegistrationPrimary = 1;
@@ -99,7 +96,6 @@ public class ConnectIDManager {
     private Context parentActivity;
     private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
-    private int pendingAction = PENDING_ACTION_NONE;
     private ConnectJobRecord activeJob = null;
 
 
@@ -511,16 +507,6 @@ public class ConnectIDManager {
         }
 
         return null;
-    }
-
-    public void setPendingAction(int action) {
-       pendingAction = action;
-    }
-
-    public int getPendingAction() {
-        int action = pendingAction;
-        pendingAction = PENDING_ACTION_NONE;
-        return action;
     }
 
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
