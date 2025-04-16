@@ -1,11 +1,8 @@
 package org.commcare.connect;
 
-import static org.apache.http.client.utils.DateUtils.formatDate;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,8 +16,6 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
-
-import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
@@ -581,27 +576,6 @@ public class ConnectIDManager {
             show = !user.getSecondaryPhoneVerified();
         }
         return show;
-    }
-
-    public void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
-        tile.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if (show) {
-            ConnectUserRecord user = getUser(context);
-            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
-            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
-
-            TextView view = tile.findViewById(R.id.connect_phone_label);
-            view.setText(message);
-
-            MaterialButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
-            yesButton.setOnClickListener(listener);
-
-            MaterialButton noButton = tile.findViewById(R.id.connect_phone_no_button);
-            noButton.setOnClickListener(v -> {
-                tile.setVisibility(View.GONE);
-            });
-        }
     }
 
     public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {

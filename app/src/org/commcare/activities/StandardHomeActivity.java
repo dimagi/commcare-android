@@ -56,8 +56,9 @@ public class StandardHomeActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public void onResumeSessionSafe() {
+        super.onResumeSessionSafe();
+        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
