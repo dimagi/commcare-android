@@ -28,6 +28,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
@@ -544,12 +545,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.clearFocus();
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-
-        if (appState != Connect) {
-            setLoginInputsVisibility(true);
-        } else {
+        setLoginInputsVisibility(appState != Connect);
+        if (ConnectIDManager.getInstance().isLoggedIN()) {
             connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
             setConnectButtonVisible(true);
+            String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
+                    ConnectUserDatabaseUtil.getUser(activity).getName());
+            welcomeMessage.setText(welcomeText);
+        } else {
+            setConnectButtonVisible(false);
         }
     }
 }
