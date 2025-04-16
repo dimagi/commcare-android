@@ -228,10 +228,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         if (readyApps.size() == 1 || presetAppRecord != null) {
-            // Set this app as the last selected app, for use in choosing what app to initialize
-            // on first startup
+            // Set this app as the last selected app, for use in choosing what app to initialize on first startup
             ApplicationRecord r = presetAppRecord != null ? presetAppRecord : readyApps.get(0);
-            setLoginInputsVisibility(!noApps || !(ConnectIDManager.getInstance().isLoggedInWithConnectApp(activity, r.getUniqueId())));
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
             prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).apply();
             setSingleAppUIState();
