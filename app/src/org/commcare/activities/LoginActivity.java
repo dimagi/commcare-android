@@ -1,6 +1,8 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.ConnectId;
 import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Unmanaged;
 
 import android.annotation.TargetApi;
@@ -911,30 +913,33 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     protected void evaluateConnectAppState() {
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectIDManager.ConnectAppMangement appState = connectIDManager.evaluateAppState(this,
-                seatedAppId, uiController.getEnteredUsername());
+        if (connectIDManager.isLoggedIN()) {
+            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            ConnectIDManager.ConnectAppMangement appState = connectIDManager.evaluateAppState(this,
+                    seatedAppId, uiController.getEnteredUsername());
 
-        if (appLaunchedFromConnect && presetAppId != null) {
-            appState = ConnectIDManager.ConnectAppMangement.Connect;
-            if (!seatAppIfNeeded(presetAppId)) {
-                initiateLoginAttempt(uiController.isRestoreSessionChecked());
+            if (appLaunchedFromConnect && presetAppId != null) {
+                appState = Connect;
+                if (!seatAppIfNeeded(presetAppId)) {
+                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
+                }
             }
-        }
 
-        if (appState == ConnectIDManager.ConnectAppMangement.ConnectId) {
-            int selectorIndex = uiController.getSelectedAppIndex();
-            String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
-            if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
-                appState = ConnectIDManager.ConnectAppMangement.Unmanaged;
+            if (appState == ConnectId) {
+                int selectorIndex = uiController.getSelectedAppIndex();
+                String selectedAppId = !appIdDropdownList.isEmpty() ? appIdDropdownList.get(selectorIndex) : "";
+                if (uiController.isAppSelectorVisible() && !selectedAppId.equals(seatedAppId)) {
+                    appState = Unmanaged;
+                }
             }
+            setConnectAppState(appState);
+        } else {
+            setConnectAppState(Unmanaged);
         }
-        setConnectAppState(appState);
     }
 
     protected boolean loginManagedByConnectId() {
-        return connectAppState == ConnectIDManager.ConnectAppMangement.ConnectId ||
-                connectAppState == ConnectIDManager.ConnectAppMangement.Connect;
+        return connectAppState == ConnectId || connectAppState == Connect;
     }
 
     public void setConnectAppState(ConnectIDManager.ConnectAppMangement connectAppState) {
