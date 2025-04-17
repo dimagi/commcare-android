@@ -53,7 +53,7 @@ public class ImageInflationTest {
 
     @Before
     public void init() {
-        imageFilepath = "/images/100x100.jpg";
+        imageFilepath = "/images/100x100.png";
         lowDensityDevice = createFakeDisplayMetrics(DisplayMetrics.DENSITY_LOW);
         mediumDensityDevice = createFakeDisplayMetrics(DisplayMetrics.DENSITY_MEDIUM);
         highDensityDevice = createFakeDisplayMetrics(DisplayMetrics.DENSITY_HIGH);

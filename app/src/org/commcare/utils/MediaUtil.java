@@ -373,16 +373,18 @@ public class MediaUtil {
         Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
         int orientation = ExifInterface.ORIENTATION_NORMAL;
-        try {
-            ExifInterface exif = new ExifInterface(imageFilepath);
-            orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        } catch (IOException e) {
-            Logger.exception("Unable to read EXIF data: ", e);
+        if (!imageFilepath.endsWith("png")) {
+            try {
+                ExifInterface exif = new ExifInterface(imageFilepath);
+                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            } catch (IOException e) {
+                Logger.exception("Unable to read EXIF data: ", e);
+            }
         }
 
         // Rotate the bitmap if needed
         Bitmap rotatedBitmap = b;
-        if (orientation != ExifInterface.ORIENTATION_NORMAL)
+        if (orientation != ExifInterface.ORIENTATION_NORMAL && !imageFilepath.endsWith(".png"))
         {
             rotatedBitmap = rotateBitmap(b, orientation);
         }
