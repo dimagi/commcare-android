@@ -504,7 +504,7 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
     private NavDirections navigateToConnectidPhoneNo(String method, String phone, int phase) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneNo(method, phone, phase);
+        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSignupFragment().setCallingClass(phase).setPhone(phone);
     }
 
     private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret) {

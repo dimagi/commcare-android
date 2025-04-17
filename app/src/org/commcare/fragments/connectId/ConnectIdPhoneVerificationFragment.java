@@ -632,7 +632,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     }
 
     private NavDirections navigateToConnectidPhoneNo(String method, String phone, int phase) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(method, phone, phase);
+        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidSignupFragment().setPhone(phone).setCallingClass(phase);
     }
 
     private NavDirections navigateToConnectidPin(int phase, String phone, String password, boolean recover, boolean change) {

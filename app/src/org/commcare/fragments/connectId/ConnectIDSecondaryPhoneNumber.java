@@ -40,9 +40,9 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         binding = FragmentSecondaryPhoneNumberBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
+        phoneNumberHelper=PhoneNumberHelper.getInstance(requireActivity());
         setListener();
         callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
-        PhoneNumberHelper.getInstance(requireActivity());
         String code = phoneNumberHelper.formatCountryCode(phoneNumberHelper.getCountryCodeFromLocale(requireActivity()));
         binding.countryCode.setText(code);
         updateButtonEnabled();

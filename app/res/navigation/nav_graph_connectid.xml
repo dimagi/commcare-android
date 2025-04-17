@@ -96,11 +96,11 @@
             android:name="deactivateButton"
             app:argType="boolean" />
         <action
-            android:id="@+id/action_connectid_phone_verify_to_connectid_phoneNo"
-            app:destination="@id/connectid_phoneNo" />
-        <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_user_deactivate_otp_verify"
             app:destination="@id/connectid_user_deactivate_otp_verify" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_signup_fragment2"
+            app:destination="@id/connectid_signup_fragment" />
     </fragment>
 
     <dialog
@@ -131,9 +131,6 @@
         <action
             android:id="@+id/action_connectid_message_self"
             app:destination="@id/connectid_message" />
-        <action
-            android:id="@+id/action_connectid_message_to_connectid_phone"
-            app:destination="@id/connectid_phoneNo" />
         <action
             android:id="@+id/action_connectid_message_to_connectid_secondary_phone_fragment"
             app:destination="@id/connectid_secondary_phone_fragment" />
@@ -186,9 +183,6 @@
             app:destination="@id/connectid_password"
             app:popUpTo="@id/connectid_pin" />
         <action
-            android:id="@+id/action_connectid_pin_to_connectid_phoneNo"
-            app:destination="@id/connectid_phoneNo" />
-        <action
             android:id="@+id/action_connectid_pin_to_connectid_secondary_phone_fragment"
             app:destination="@id/connectid_secondary_phone_fragment" />
         <argument
@@ -211,6 +205,9 @@
             android:name="change"
             android:defaultValue="false"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_connectid_pin_to_connectid_signup_fragment"
+            app:destination="@id/connectid_signup_fragment" />
     </fragment>
 
     <fragment
@@ -230,9 +227,6 @@
             android:id="@+id/action_connectid_password_to_connectid_pin"
             app:destination="@id/connectid_pin"
             app:popUpTo="@id/connectid_password" />
-        <action
-            android:id="@+id/action_connectid_password_to_connectid_phoneNo"
-            app:destination="@id/connectid_phoneNo" />
         <argument
             android:name="phone"
             app:argType="string"
@@ -245,6 +239,9 @@
             android:name="callingClass"
             app:argType="integer"
             app:nullable="false" />
+        <action
+            android:id="@+id/action_connectid_password_to_connectid_signup_fragment"
+            app:destination="@id/connectid_signup_fragment" />
     </fragment>
 
     <fragment
@@ -298,40 +295,6 @@
         <action
             android:id="@+id/action_connectid_secondary_phone_fragment_to_connectid_pin"
             app:destination="@id/connectid_pin" />
-        <argument
-            android:name="callingClass"
-            app:argType="integer"
-            app:nullable="false" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/connectid_phoneNo"
-        android:name="org.commcare.fragments.connectId.ConnectIdPhoneFragment"
-        android:label="fragment_connectid_phoneNo"
-        tools:layout="@layout/screen_connect_primary_phone">
-        <action
-            android:id="@+id/action_connectid_phoneNo_to_connectid_pin"
-            app:destination="@id/connectid_pin"
-            app:popUpTo="@id/connectid_phoneNo" />
-        <action
-            android:id="@+id/action_connectid_phoneNo_to_connectid_phone_verify"
-            app:destination="@id/connectid_phone_verify"
-            app:popUpTo="@id/connectid_phoneNo" />
-        <action
-            android:id="@+id/action_connectid_phoneNo_to_connectid_biometric_config"
-            app:destination="@id/connectid_biometric_config"
-            app:popUpTo="@id/connectid_phoneNo" />
-        <action
-            android:id="@+id/action_connectid_phoneNo_to_connectid_message"
-            app:destination="@id/connectid_message"
-            app:popUpTo="@id/connectid_phoneNo" />
-        <argument
-            android:name="method"
-            app:argType="string" />
-        <argument
-            android:name="phone"
-            app:argType="string"
-            app:nullable="true" />
         <argument
             android:name="callingClass"
             app:argType="integer"
