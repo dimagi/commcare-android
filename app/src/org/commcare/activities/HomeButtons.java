@@ -28,7 +28,7 @@ import java.util.Vector;
 public class HomeButtons {
 
     private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+            new String[]{"start", "training", "saved", "incomplete","connect", "sync", "report", "logout"};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with

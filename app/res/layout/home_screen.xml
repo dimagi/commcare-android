@@ -18,6 +18,7 @@
         android:layout_marginBottom="2dp"
         android:clickable="true"
         android:focusable="true"
+        android:visibility="gone"
         android:shadowColor="@color/connect_light_grey_transparent"
         android:shadowDx="30"
         android:shadowDy="30"

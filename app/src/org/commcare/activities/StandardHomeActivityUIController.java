@@ -1,21 +1,27 @@
 package org.commcare.activities;
 
+import static org.apache.http.client.utils.DateUtils.formatDate;
+
 import android.annotation.SuppressLint;
-import androidx.cardview.widget.CardView;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import android.view.View;
-import android.view.ViewTreeObserver;
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 
 import java.util.Vector;
@@ -30,7 +36,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
 
     private HomeScreenAdapter adapter;
-    private CardView connectTile;
 
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
@@ -40,8 +45,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        connectTile = activity.findViewById(R.id.connect_alert_tile);
-        connectTile.setVisibility(View.GONE);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
@@ -54,7 +57,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
     }
 
-    private static Vector<String> getHiddenButtons() {
+    private Vector<String> getHiddenButtons() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
 
@@ -73,7 +76,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-
+        if (!ConnectIDManager.getInstance().shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+            hiddenButtons.add("connect");
+        }
         return hiddenButtons;
     }
 
@@ -106,9 +111,31 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         adapter.notifyItemChanged(adapter.getSyncButtonPosition());
     }
 
-    public void updateConnectTile(boolean show) {
-        ConnectIDManager.getInstance().updateSecondaryPhoneConfirmationTile(activity, connectTile, show, v -> {
-            activity.performSecondaryPhoneVerification();
-        });
+    public void updateSecondaryPhoneConfirmationTile() {
+        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false)
+                && ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
+        View connectTile = activity.findViewById(R.id.connect_alert_tile);
+        updateSecondaryPhoneConfirmationTile(activity, connectTile, show);
+    }
+
+    private void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show) {
+        tile.setVisibility(show ? View.VISIBLE : View.GONE);
+
+        if (show) {
+            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(context);
+            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
+            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
+
+            TextView view = tile.findViewById(R.id.connect_phone_label);
+            view.setText(message);
+
+            MaterialButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            yesButton.setOnClickListener(v -> activity.performSecondaryPhoneVerification());
+
+            MaterialButton noButton = tile.findViewById(R.id.connect_phone_no_button);
+            noButton.setOnClickListener(v -> {
+                tile.setVisibility(View.GONE);
+            });
+        }
     }
 }

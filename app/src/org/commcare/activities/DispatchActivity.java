@@ -49,6 +49,8 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
     public static final String SESSION_REBUILD_REQUEST = "session_rebuild_request";
+
+    public static final String REDIRECT_TO_CONNECT_OPPORTUNITY_INFO = "redirect-to-connect-opportunity-info";
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
@@ -80,6 +82,8 @@ public class DispatchActivity extends AppCompatActivity {
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
+    private boolean redirectToConnectHome = false;
+    private boolean redirectToConnectOpportunityInfo = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,18 +201,15 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
+                } else if(redirectToConnectHome) {
+                    redirectToConnectHome = false;
+                    CommCareApplication.instance().closeUserSession();
+                    ConnectIDManager.getInstance().goToConnectJobsList(this);
+                } else if(redirectToConnectOpportunityInfo) {
+                    redirectToConnectOpportunityInfo = false;
+                    ConnectIDManager.getInstance().goToActiveInfoForJob(this, true);
                 } else {
-                    int connectAction = ConnectIDManager.getInstance().getPendingAction();
-                    switch (connectAction) {
-                        case ConnectIDManager.PENDING_ACTION_CONNECT_HOME -> {
-                            CommCareApplication.instance().closeUserSession();
-                            ConnectIDManager.getInstance().goToConnectJobsList(this);
-                        }
-                        case ConnectIDManager.PENDING_ACTION_OPP_STATUS -> {
-                            ConnectIDManager.getInstance().goToActiveInfoForJob(this, true);
-                        }
-                        default -> launchHomeScreen();
-                    }
+                    launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
@@ -441,8 +442,9 @@ public class DispatchActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (intent != null && intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false)) {
-            this.needToExecuteRecoveryMeasures = true;
+        if (intent != null) {
+            needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
+            redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -479,7 +481,7 @@ public class DispatchActivity extends AppCompatActivity {
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = !connectManagedLogin;
                     if(connectManagedLogin) {
-                        ConnectIDManager.getInstance().setPendingAction(ConnectIDManager.PENDING_ACTION_CONNECT_HOME);
+                        redirectToConnectHome = true;
                     }
                     return;
                 } else {

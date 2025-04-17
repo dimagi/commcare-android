@@ -1,11 +1,8 @@
 package org.commcare.connect;
 
-import static org.apache.http.client.utils.DateUtils.formatDate;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,9 +17,6 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import com.google.android.material.button.MaterialButton;
-
-import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
@@ -85,9 +79,6 @@ public class ConnectIDManager {
 
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
-    public static final int PENDING_ACTION_CONNECT_HOME = 1;
-    public static final int PENDING_ACTION_OPP_STATUS = 2;
-    public static final int PENDING_ACTION_NONE = 0;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
     public static final int MethodRegistrationPrimary = 1;
@@ -99,7 +90,6 @@ public class ConnectIDManager {
     private Context parentActivity;
     private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
-    private int pendingAction = PENDING_ACTION_NONE;
     private ConnectJobRecord activeJob = null;
 
 
@@ -288,7 +278,7 @@ public class ConnectIDManager {
 
     public void checkConnectIdLink(CommCareActivity<?> activity, boolean connectIdManagedLogin, String appId,
             String username, String password, ConnectActivityCompleteListener callback) {
-        switch (evalAppState(activity, appId, username)) {
+        switch (evaluateAppState(activity, appId, username)) {
             case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
             case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, connectIdManagedLogin, callback);
             case Connect -> callback.connectActivityComplete(true);
@@ -513,16 +503,6 @@ public class ConnectIDManager {
         return null;
     }
 
-    public void setPendingAction(int action) {
-       pendingAction = action;
-    }
-
-    public int getPendingAction() {
-        int action = pendingAction;
-        pendingAction = PENDING_ACTION_NONE;
-        return action;
-    }
-
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
         ApiConnectId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
@@ -586,42 +566,16 @@ public class ConnectIDManager {
     }
 
     public String getConnectUsername(Context context) {
-        if (isLoggedIN()) {
-            return ConnectUserDatabaseUtil.getUser(context).getUserId();
-        }
-        return null;
+        return ConnectUserDatabaseUtil.getUser(context).getUserId();
     }
 
     public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
-
         if (isLoggedIN()) {
             ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
-
         return show;
-    }
-
-    public void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
-        tile.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if (show) {
-            ConnectUserRecord user = getUser(context);
-            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
-            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
-
-            TextView view = tile.findViewById(R.id.connect_phone_label);
-            view.setText(message);
-
-            MaterialButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
-            yesButton.setOnClickListener(listener);
-
-            MaterialButton noButton = tile.findViewById(R.id.connect_phone_no_button);
-            noButton.setOnClickListener(v -> {
-                tile.setVisibility(View.GONE);
-            });
-        }
     }
 
     public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
@@ -647,7 +601,7 @@ public class ConnectIDManager {
         return false;
     }
 
-    public ConnectAppMangement evalAppState(Context context, String appId, String userId) {
+    public ConnectAppMangement evaluateAppState(Context context, String appId, String userId) {
         ConnectAppRecord record = getAppRecord(context, appId);
         if (record != null) {
             return ConnectAppMangement.Connect;
@@ -659,7 +613,7 @@ public class ConnectIDManager {
     }
 
     private boolean isConnectApp(Context context, String appId) {
-        return evalAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
+        return evaluateAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
     }
 
     public boolean isLoggedInWithConnectApp(Context context, String appId) {
@@ -699,6 +653,16 @@ public class ConnectIDManager {
 
     public void setFailureAttempt(int failureAttempt) {
         failedPinAttempts = failureAttempt;
+    }
+
+    public boolean shouldShowJobStatus(Context context, String appId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        if(record == null || activeJob == null) {
+            return false;
+        }
+
+        //Only time not to show is when we're in learn app but job is in delivery state
+        return !record.getIsLearning() || activeJob.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
     }
 
 
