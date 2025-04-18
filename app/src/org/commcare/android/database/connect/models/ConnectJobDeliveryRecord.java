@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -35,6 +36,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public static final String META_SLUG = "deliver_unit_slug";
     public static final String META_ENTITY_ID = "entity_id";
     public static final String META_ENTITY_NAME = "entity_name";
+    public static final String META_FLAGS = "flags";
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -67,6 +69,8 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     @MetaField(META_REASON)
     private String reason;
 
+    private List<ConnectJobDeliveryFlagRecord> flags;
+
     public ConnectJobDeliveryRecord() {
         date = new Date();
         lastUpdate = new Date();
@@ -90,6 +94,8 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
             delivery.entityId = json.getString(META_ENTITY_ID);
             delivery.entityName = json.getString(META_ENTITY_NAME);
             delivery.reason = json.getString(META_REASON);
+
+            delivery.flags = ConnectJobDeliveryFlagRecord.fromJson(json.getJSONObject(META_FLAGS), deliveryId);
 
             return delivery;
         } catch (Exception e) {
@@ -140,7 +146,11 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public String getReason() {
-        return reason;
+        return reason != null && reason.equals("null") ? null : reason;
+    }
+
+    public List<ConnectJobDeliveryFlagRecord> getFlags() {
+        return flags;
     }
 
     public static ConnectJobDeliveryRecord fromV2(ConnectJobDeliveryRecordV2 oldRecord) {
