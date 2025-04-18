@@ -133,7 +133,13 @@ public class StandardHomeActivity
     @Override
     protected void onResume() {
         super.onResume();
-        MessageManager.updateMessagingIcon(this, messagingMenuItem);
+
+        if(shouldShowMessaging()) {
+            MessageManager.updateMessagingIcon(this, messagingMenuItem);
+            MessageManager.retrieveMessages(this, success -> {
+                MessageManager.updateMessagingIcon(this, messagingMenuItem);
+            });
+        }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
                 new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
@@ -152,6 +158,10 @@ public class StandardHomeActivity
         }
     };
 
+    private boolean shouldShowMessaging() {
+        return getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_app_home, menu);
@@ -166,7 +176,8 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_update_commcare).setTitle(Localization.get("home.menu.update.commcare"));
 
         messagingMenuItem = menu.findItem(R.id.action_messaging);
-        messagingMenuItem.setVisible(ConnectManager.isConnectIdConfigured());
+        messagingMenuItem.setVisible(shouldShowMessaging());
+        MessageManager.updateMessagingIcon(this, messagingMenuItem);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -184,8 +195,6 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_advanced).setVisible(enableMenus);
         menu.findItem(R.id.action_about).setVisible(enableMenus);
         menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
-
-        MessageManager.updateMessagingIcon(this, messagingMenuItem);
 
         preparePinMenu(menu, enableMenus);
         return true;
