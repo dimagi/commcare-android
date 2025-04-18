@@ -35,13 +35,18 @@ public class ConnectDatabaseHelper {
         try {
             //Rekey the DB if the remote passphrase is different than local
             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
-            if (connectDatabase != null && connectDatabase.isOpen() && !remotePassphrase.equals(localPassphrase)) {
+            boolean rekey = connectDatabase != null && connectDatabase.isOpen() && !remotePassphrase.equals(localPassphrase);
+            if (rekey) {
                 DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
-                FirebaseAnalyticsUtil.reportRekeyedDatabase();
             }
 
             //Store the received passphrase as what's in use locally
             ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
+
+            if(rekey) {
+                //Wait to log the analytics event until the new local passphrase has been stored
+                FirebaseAnalyticsUtil.reportRekeyedDatabase();
+            }
         } catch (Exception e) {
             Logger.exception("Handling received DB passphrase", e);
             handleCorruptDb(context);
