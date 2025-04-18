@@ -1,7 +1,6 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
 import android.os.Handler;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -14,7 +13,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.connectId.ApiClient;
 import org.commcare.connect.network.connectId.ApiService;
 import org.commcare.core.network.AuthInfo;
@@ -37,6 +35,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 
+import androidx.annotation.NonNull;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,12 +46,11 @@ import retrofit2.Response;
 public class ApiConnectId {
     private static final String API_VERSION_NONE = null;
     public static final String API_VERSION_CONNECT_ID = "1.0";
-    private static final int NETWORK_ACTIVITY_ID = 7000;
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
     public static void linkHqWorker(Context context, String hqUsername, ConnectLinkedAppRecord appRecord, String connectToken) {
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("token", connectToken);
 
         String host;
@@ -83,91 +81,108 @@ public class ApiConnectId {
         }
     }
 
-    public static AuthInfo.TokenAuth retrieveHqTokenApi(Context context, String hqUsername, String connectToken) throws MalformedURLException {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("client_id", HQ_CLIENT_ID);
-        params.put("scope", "mobile_access sync");
-        params.put("grant_type", "password");
-        params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
-        params.put("password", connectToken);
-
-        String url = ServerUrls.buildEndpoint("oauth/token/");
-
-        ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
-        if (postResult.responseCode == 200) {
-            try {
-                SsoToken token = SsoToken.fromResponseStream(postResult.responseStream);
-
-                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, token);
-
-                return new AuthInfo.TokenAuth(token.getToken());
-            } catch (IOException | JSONException e) {
-                CrashUtil.log("In retrieveHqTokenApi function");
-                CrashUtil.reportException(e);
-            }
-        }
-
-        return null;
-    }
-
-    public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context) {
+    public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
             params.put("fcm_token", token);
             boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, retrieveConnectIdTokenSync(context), params, useFormEncoding, true);
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, auth, params, useFormEncoding, true);
         }
 
         return new ConnectNetworkHelper.PostResult(-1, null, null);
     }
 
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context) {
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user) throws
+            TokenRequestDeniedException, TokenUnavailableException {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("scope", "openid");
+        params.put("grant_type", "password");
+        params.put("username", user.getUserId());
+        params.put("password", user.getPassword());
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
-        if (user != null) {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("client_id", CONNECT_CLIENT_ID);
-            params.put("scope", "openid");
-            params.put("grant_type", "password");
-            params.put("username", user.getUserId());
-            params.put("password", user.getPassword());
+        ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
+        if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
+            try {
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
+                        postResult.responseStream));
+                postResult.responseStream.close();
+                JSONObject json = new JSONObject(responseAsString);
+                String key = ConnectConstants.CONNECT_KEY_TOKEN;
+                String token = json.getString(key);
+                Date expiration = new Date();
+                key = ConnectConstants.CONNECT_KEY_EXPIRES;
+                int seconds = json.has(key) ? json.getInt(key) : 0;
+                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+                user.updateConnectToken(token, expiration);
+                ConnectUserDatabaseUtil.storeUser(context, user);
 
-            String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
-
-            ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                    API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
-            if (postResult.responseCode == 200) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
-                            postResult.responseStream));
-                    JSONObject json = new JSONObject(responseAsString);
-                    String key = ConnectConstants.CONNECT_KEY_TOKEN;
-                    if (json.has(key)) {
-                        String token = json.getString(key);
-                        Date expiration = new Date();
-                        key = ConnectConstants.CONNECT_KEY_EXPIRES;
-                        int seconds = json.has(key) ? json.getInt(key) : 0;
-                        expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
-                        user.updateConnectToken(new SsoToken(token, expiration));
-                        ConnectUserDatabaseUtil.storeUser(context, user);
-
-                        return new AuthInfo.TokenAuth(token);
-                    }
-                    postResult.responseStream.close();
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing return from Connect OIDC call", e);
-                }
+                return new AuthInfo.TokenAuth(token);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                Logger.exception("Parsing return from ConnectID token call", e);
             }
-
+        } else if (postResult.responseCode == 400) {
+            throw new TokenRequestDeniedException();
         }
 
-        return null;
+        throw new TokenUnavailableException();
     }
+
+    public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken) throws TokenUnavailableException {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
+        params.put("scope", "mobile_access sync");
+        params.put("grant_type", "password");
+        params.put("username", hqUsername + "@" + HiddenPreferences.getUserDomain());
+        params.put("password", connectToken);
+
+        String host;
+        try {
+            host = (new URL(ServerUrls.getKeyServer())).getHost();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+
+        String url = "https://" + host + "/oauth/token/";
+
+        ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
+                API_VERSION_NONE, new AuthInfo.NoAuth(), params, true, false);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "OAuth Token Post Result " + postResult.responseCode);
+        if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
+            try {
+                String responseAsString = new String(StreamsUtil.inputStreamToByteArray(
+                        postResult.responseStream));
+                JSONObject json = new JSONObject(responseAsString);
+                String key = ConnectConstants.CONNECT_KEY_TOKEN;
+                String token = json.getString(key);
+                Date expiration = new Date();
+                key = ConnectConstants.CONNECT_KEY_EXPIRES;
+                int seconds = json.has(key) ? json.getInt(key) : 0;
+                expiration.setTime(expiration.getTime() + ((long)seconds * 1000));
+
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                SsoToken ssoToken = new SsoToken(token, expiration);
+                ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken);
+
+                return new AuthInfo.TokenAuth(token);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                Logger.exception("Parsing return from HQ token call", e);
+            }
+        }
+
+        throw new TokenUnavailableException();
+    }
+
 
     public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
@@ -182,7 +197,7 @@ public class ApiConnectId {
             Handler handler = new Handler(context.getMainLooper());
             handler.post(() -> {
                 try {
-                    ((CommCareActivity<?>)context).showProgressDialog(NETWORK_ACTIVITY_ID);
+                    ((CommCareActivity<?>)context).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID);
                 } catch (Exception e) {
                     //Ignore, ok if showing fails
                 }
@@ -194,7 +209,7 @@ public class ApiConnectId {
         if (context instanceof CommCareActivity<?>) {
             Handler handler = new Handler(context.getMainLooper());
             handler.post(() -> {
-                ((CommCareActivity<?>)context).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+                ((CommCareActivity<?>)context).dismissProgressDialogForTask(ConnectConstants.NETWORK_ACTIVITY_ID);
             });
         }
     }
@@ -203,7 +218,7 @@ public class ApiConnectId {
         showProgressDialog(context);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 dismissProgressDialog(context);
                 if (response.isSuccessful() && response.body() != null) {
                     // Handle success
@@ -211,12 +226,12 @@ public class ApiConnectId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code(), e);
+                        callback.processFailure(response.code());
                     }
                 } else {
                     // Handle validation errors
                     handleApiError(response);
-                    callback.processFailure(response.code(), null);
+                    callback.processFailure(response.code());
                 }
             }
 

@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
+import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -18,6 +19,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -39,6 +41,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -571,6 +574,13 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return;
         }
         CommCareApplication.instance().closeUserSession();
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    protected void userPressedOpportunityStatus() {
+        Intent i = new Intent();
+        i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, true);
         setResult(RESULT_OK);
         finish();
     }

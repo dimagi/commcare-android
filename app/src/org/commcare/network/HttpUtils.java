@@ -28,7 +28,8 @@ public class HttpUtils {
 
     public static String getCredential(AuthInfo authInfo) {
         if (authInfo instanceof AuthInfo.ProvidedAuth) {
-            return getCredential(buildDomainUser(authInfo.username), authInfo.password);
+            String username = ((AuthInfo.ProvidedAuth)authInfo).wrapDomain ? buildDomainUser(authInfo.username) : authInfo.username;
+            return getCredential(username, authInfo.password);
         } else if (authInfo instanceof AuthInfo.CurrentAuth) {
             // use the logged in user
             User user = getUser();
