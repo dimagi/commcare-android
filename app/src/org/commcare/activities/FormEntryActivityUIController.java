@@ -587,7 +587,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         // event. This can be fixed, but the dialog click listeners closures
         // capture refences to the old activity, so we need to redo our
         // infrastructure to forward new activities.
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(activity);
     }
 
     protected void next() {

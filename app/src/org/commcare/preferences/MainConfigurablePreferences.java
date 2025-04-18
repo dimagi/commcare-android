@@ -137,7 +137,7 @@ public class MainConfigurablePreferences
         f.setNegativeButton(Localization.get("option.cancel"),
                 (dialog, which) -> dialog.dismiss());
 
-        f.showNonPersistentDialog();
+        f.showNonPersistentDialog(getActivity());
     }
 
     @Override

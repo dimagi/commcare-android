@@ -12,21 +12,12 @@ import android.view.View;
  */
 public class CustomViewAlertDialog extends CommCareAlertDialog {
 
-    private final AlertDialog.Builder builder;
-
     public CustomViewAlertDialog(Context context, View view) {
-        this.builder = new AlertDialog.Builder(context);
-        builder.setView(view);
+        setView(view);
     }
 
     public void setPositiveButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        builder.setPositiveButton(displayText, buttonListener);
+        setPositiveButtonText(displayText);
+        setPositiveButtonListener(buttonListener);
     }
-
-    @Override
-    public void finalizeView() {
-        dialog = builder.create();
-        super.finalizeView();
-    }
-
 }

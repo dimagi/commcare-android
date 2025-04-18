@@ -290,7 +290,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
                         getClearUserDataPositiveOption(numUnsentAndIncompleteForms)),
                 listener);
         d.setNegativeButton(StringUtils.getStringRobust(activity, R.string.cancel), listener);
-        d.showNonPersistentDialog();
+        d.showNonPersistentDialog(activity);
     }
 
     private static String getClearUserDataMessage(int numUnsentAndIncompleteForms) {

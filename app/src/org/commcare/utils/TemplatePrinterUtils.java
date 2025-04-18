@@ -151,7 +151,7 @@ public abstract class TemplatePrinterUtils {
             if (finishActivity) {
                 activity.finish();
             }
-        }).showNonPersistentDialog();
+        }).showNonPersistentDialog(activity);
     }
 
     public static void showPrintStatusDialog(final AppCompatActivity activity, String title, String msg,
@@ -165,7 +165,7 @@ public abstract class TemplatePrinterUtils {
                     intent.putExtra(IntentCallout.INTENT_RESULT_EXTRAS_BUNDLE, responses);
                     activity.setResult(AppCompatActivity.RESULT_OK, intent);
                     activity.finish();
-                }).showNonPersistentDialog();
+                }).showNonPersistentDialog(activity);
 
     }
 }

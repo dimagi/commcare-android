@@ -1,6 +1,9 @@
 package org.commcare.views.dialogs;
 
 import androidx.appcompat.app.AlertDialog;
+
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
 
@@ -18,11 +21,15 @@ public abstract class CommCareAlertDialog {
     protected AlertDialog dialog;
     private DialogInterface.OnCancelListener cancelListener;
     private DialogInterface.OnDismissListener dismissListener;
+
+    private CharSequence positiveButtonText;
+    private DialogInterface.OnClickListener positiveButtonListener;
+
     protected View view;
     // false by default, can be overridden if desired
     protected boolean isCancelable;
 
-    public void finalizeView() {
+    private void finalizeView() {
         dialog.setCancelable(isCancelable);
         if (cancelListener != null) {
             dialog.setOnCancelListener(cancelListener);
@@ -70,9 +77,46 @@ public abstract class CommCareAlertDialog {
 
     // IMPORTANT: Should ONLY be used to show dialogs in activities that are NOT CommCareActivities
     // (and therefore cannot use the DialogController infrastructure set up there)
-    public void showNonPersistentDialog() {
-        finalizeView();
+    public void showNonPersistentDialog(Context context) {
+        buildDialog(context);
         dialog.show();
     }
 
+    /**
+     * Builds the dialog with the context given. This must be called to create the dialog
+     * in order to be able to show it on screen.
+     * @param context context we want to attach to the dialog
+     * @return created dialog
+     */
+    public Dialog buildDialog(Context context) {
+        if (view == null) {
+            throw new IllegalStateException("Dialog view is null; cannot rebuild dialog");
+        }
+
+        // Deattach view from previous view
+        if (view.getParent() != null && view.getParent() instanceof View) {
+            ((android.view.ViewGroup) view.getParent()).removeView(view);
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(view);
+        if (positiveButtonText != null) {
+            builder.setPositiveButton(positiveButtonText, positiveButtonListener);
+        }
+        dialog = builder.create();
+        finalizeView();
+        return dialog;
+    }
+
+    protected void setView(View view) {
+        this.view = view;
+    }
+
+    protected void setPositiveButtonText(CharSequence positiveButtonText) {
+        this.positiveButtonText = positiveButtonText;
+    }
+
+    protected void setPositiveButtonListener(DialogInterface.OnClickListener positiveButtonListener) {
+        this.positiveButtonListener = positiveButtonListener;
+    }
 }

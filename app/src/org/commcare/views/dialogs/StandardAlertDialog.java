@@ -27,15 +27,11 @@ import androidx.appcompat.app.AlertDialog;
 public class StandardAlertDialog extends CommCareAlertDialog {
 
     public StandardAlertDialog(Context context, String title, String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
-
         TextView titleView = view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(title);
         TextView messageView = view.findViewById(R.id.dialog_message);
         messageView.setText(msg);
-
-        dialog = builder.create();
     }
 
     /**

@@ -503,7 +503,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                         SMS_PERMISSIONS_REQUEST,
                         Localization.get("permission.sms.install.title"),
-                        Localization.get("permission.sms.install.message")).showNonPersistentDialog();
+                        Localization.get("permission.sms.install.message")).showNonPersistentDialog(this);
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }

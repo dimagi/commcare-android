@@ -5,6 +5,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import org.commcare.fragments.ContainerViewModel;
 
 /**
  * Wrapper for CommCareAlertDialogs that allows them to persist across screen orientation changes,
@@ -19,7 +22,6 @@ public class AlertDialogFragment extends DialogFragment {
     private CommCareAlertDialog underlyingDialog;
 
     public static AlertDialogFragment fromCommCareAlertDialog(CommCareAlertDialog d) {
-        d.finalizeView();
         AlertDialogFragment frag = new AlertDialogFragment();
         frag.setUnderlyingDialog(d);
         frag.setCancelable(d.isCancelable());
@@ -33,7 +35,14 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+
+        ContainerViewModel<CommCareAlertDialog> viewModel =
+                new ViewModelProvider(this).get(ContainerViewModel.class);
+        if (underlyingDialog != null) {
+            viewModel.setData(underlyingDialog);
+        } else if (viewModel.getData() != null) {
+            setUnderlyingDialog(viewModel.getData());
+        }
     }
 
     @Override
@@ -57,15 +66,6 @@ public class AlertDialogFragment extends DialogFragment {
             dismiss();
             return super.onCreateDialog(savedInstanceState);
         }
-        return underlyingDialog.getDialog();
-    }
-
-    @Override
-    public void onDestroyView() {
-        // Ohh, you know, just a 5 year old Android bug ol' G hasn't fixed yet
-        if (getDialog() != null && getRetainInstance()) {
-            getDialog().setDismissMessage(null);
-        }
-        super.onDestroyView();
+        return underlyingDialog.buildDialog(requireContext());
     }
 }

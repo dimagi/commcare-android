@@ -320,7 +320,7 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
 
         dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(this);
     }
 
     @Override

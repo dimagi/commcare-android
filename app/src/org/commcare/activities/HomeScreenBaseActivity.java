@@ -501,7 +501,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private void showPinFutureAccessDialog() {
         StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
+                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog(this);
     }
 
     protected void launchPinAuthentication() {

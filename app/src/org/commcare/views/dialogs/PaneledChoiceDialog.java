@@ -28,7 +28,6 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
 
     public PaneledChoiceDialog(Context context, String title) {
         this.context = context;
-        this.dialog = new AlertDialog.Builder(context).create();
         this.view = LayoutInflater.from(context).inflate(getLayoutFile(), null);
         setTitle(title);
         isCancelable = true; // cancelable by default
