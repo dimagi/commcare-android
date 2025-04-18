@@ -15,6 +15,7 @@ import androidx.navigation.Navigation;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -109,7 +110,8 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                 proceedAfterJobClaimed(button, job, appInstalled);
             } else {
                 //Claim job
-                ApiConnect.claimJob(getContext(), job.getJobId(), new IApiCallback() {
+                ConnectUserRecord user = ConnectManager.getUser(getContext());
+                ApiConnect.claimJob(getContext(), user, job.getJobId(), new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         proceedAfterJobClaimed(button, job, appInstalled);
@@ -117,7 +119,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, IOException e) {
+                    public void processFailure(int responseCode) {
                         Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
                         reportApiCall(false);
                     }
@@ -125,6 +127,18 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     @Override
                     public void processNetworkFailure() {
                         ConnectNetworkHelper.showNetworkError(getContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processTokenUnavailableError() {
+                        ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+                        reportApiCall(false);
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
                         reportApiCall(false);
                     }
 

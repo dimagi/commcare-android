@@ -9,13 +9,11 @@ import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.javarosa.core.services.Logger;
 
 public class ConnectUserDatabaseUtil {
-    private static final Object LOCK = new Object();
 
     public static ConnectUserRecord getUser(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-        synchronized (LOCK) {
             if (!ConnectDatabaseHelper.dbExists(context)) {
                 return null;
             }
@@ -31,7 +29,6 @@ public class ConnectUserDatabaseUtil {
                 ConnectDatabaseHelper.dbBroken = true;
                 throw new RuntimeException("Failed to access Connect database", e);
             }
-        }
     }
 
     public static void storeUser(Context context, ConnectUserRecord user) {
@@ -41,13 +38,11 @@ public class ConnectUserDatabaseUtil {
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-        synchronized (LOCK) {
             try {
                 ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
             } catch (Exception e) {
                 Logger.exception("Failed to store user", e);
                 throw new RuntimeException("Failed to store user in Connect database", e);
-            }
         }
     }
 
@@ -55,11 +50,11 @@ public class ConnectUserDatabaseUtil {
         if (context == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-        synchronized (LOCK) {
             try {
                 DatabaseConnectOpenHelper.deleteDb(context);
                 CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
                 ConnectDatabaseHelper.dbBroken = false;
+                ConnectDatabaseHelper.teardown();
             } catch (IllegalStateException e) {
                 Logger.exception("Database access error while forgetting user", e);
                 throw new RuntimeException("Failed to access database while cleaning up", e);
@@ -70,6 +65,5 @@ public class ConnectUserDatabaseUtil {
                 Logger.exception("Failed to forget user", e);
                 throw new RuntimeException("Failed to clean up Connect database", e);
             }
-        }
     }
 }

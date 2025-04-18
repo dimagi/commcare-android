@@ -11,11 +11,14 @@ import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import java.util.Locale;
 
 /**
  * Helper class for biometric configuration and verification
@@ -40,7 +43,7 @@ public class BiometricsHelper {
     }
 
     public static boolean isFingerprintConfigured(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, StrongBiometric) == ConfigurationStatus.Configured;
+        return checkFingerprintStatus(context, biometricManager) == ConfigurationStatus.Configured;
     }
 
     public static boolean configureFingerprint(Activity activity) {
@@ -49,47 +52,17 @@ public class BiometricsHelper {
 
     public static void authenticateFingerprint(FragmentActivity activity,
                                                BiometricManager biometricManager,
-                                               boolean allowExtraOptions,
                                                BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
-        if (BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                //For newer versions, PIN prompt will handle all unlock
-                authenticatePin(activity, biometricManager, biometricPromptCallback);
-            } else {
-                BiometricPrompt prompt = new BiometricPrompt(activity,
-                        ContextCompat.getMainExecutor(activity),
-                        biometricPromptCallback);
-
-                BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
-                        .setTitle(activity.getString(R.string.connect_unlock_fingerprint_title))
-                        .setSubtitle(activity.getString(R.string.connect_unlock_fingerprint_message))
-                        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG);
-
-                if (allowExtraOptions) {
-                    builder.setNegativeButtonText(activity.getString(R.string.connect_unlock_other_options));
-                }
-
-                prompt.authenticate(builder.build());
-            }
-        }
+        authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
     }
 
 
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            return checkStatus(context, biometricManager, PinBiometric);
-        } else {
-            KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
-            boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
-                    manager.isDeviceSecure() :
-                    manager.isKeyguardSecure();
-
-            return isSecure ? ConfigurationStatus.Configured : ConfigurationStatus.NotConfigured;
-        }
+        return checkStatus(context, biometricManager, PinBiometric);
     }
 
     public static boolean isPinConfigured(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, PinBiometric) == ConfigurationStatus.Configured;
+        return checkPinStatus(context, biometricManager) == ConfigurationStatus.Configured;
     }
 
     public static boolean configurePin(Activity activity) {
@@ -100,28 +73,23 @@ public class BiometricsHelper {
 
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
-        if (BiometricsHelper.isPinConfigured(activity, biometricManager)) {
-            //TODO: Won't get success callback when this is called as the fallback from fingerprint authentication. Why not?
-            //NOTE: Works as expected the first time...
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-//                BiometricPrompt prompt = new BiometricPrompt(activity,
-//                        ContextCompat.getMainExecutor(activity),
-//                        biometricPromptCallback);
-//
-//                prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
-//                        .setTitle(activity.getString(R.string.connect_unlock_pin_title))
-//                        .setSubtitle(activity.getString(R.string.connect_unlock_pin_message))
-//                        .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-//                        .build());
-//            } else {
-                biometricPromptCallbackHolder = biometricPromptCallback;
-                KeyguardManager manager = (KeyguardManager)activity.getSystemService(Context.KEYGUARD_SERVICE);
-                activity.startActivityForResult(
-                        manager.createConfirmDeviceCredentialIntent(
-                                activity.getString(R.string.connect_unlock_title),
-                                activity.getString(R.string.connect_unlock_message)),
-                        ConnectConstants.CONNECT_UNLOCK_PIN);
-//            }
+
+        authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
+    }
+
+    public static void authenticatePinOrBiometric(FragmentActivity activity, BiometricManager biometricManager,
+                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback){
+        if (BiometricsHelper.isPinConfigured(activity, biometricManager)|| BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
+            BiometricPrompt prompt = new BiometricPrompt(activity,
+                    ContextCompat.getMainExecutor(activity),
+                    biometricPromptCallback);
+
+            prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
+                    .setTitle(activity.getString(R.string.connect_unlock_title))
+                    .setSubtitle(activity.getString(R.string.connect_unlock_message))
+                    .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
+                            BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK)
+                    .build());
         }
     }
 
@@ -149,9 +117,15 @@ public class BiometricsHelper {
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 return ConfigurationStatus.NotConfigured;
             }
-        }
+            default -> {
+                Logger.exception("Unhandled biometric status", new Exception(
+                        String.format(Locale.getDefault(), "Mode %d encountered unexpected status %d",
+                                authenticator, val)
+                ));
 
-        return ConfigurationStatus.NotAvailable;
+                return ConfigurationStatus.NotAvailable;
+            }
+        }
     }
 
     private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
@@ -181,6 +155,8 @@ public class BiometricsHelper {
             enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
         } else {
             //No way to enroll, have to fail
+            Logger.exception("Biometric config failed", new Exception(String.format(Locale.getDefault(),
+                    "No available enroll activity for authenticator %d", authenticator)));
             return false;
         }
 

@@ -317,6 +317,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
+    //Handles async network response from ModernHttpTask
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
             Context context, String url, boolean usingTokenAuth, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
@@ -341,9 +342,10 @@ public class ConnectNetworkHelper {
                     if(responseCode == 401 && usingTokenAuth) {
                         Logger.exception("Invalid token", new Exception("Invalid token during API call"));
                         ConnectSsoHelper.discardTokens(context, null);
+                        handler.processTokenUnavailableError();
+                    } else {
+                        handler.processFailure(responseCode);
                     }
-
-                    handler.processFailure(responseCode, null);
                 }
             }
 
@@ -355,7 +357,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode, null);
+                handler.processFailure(responseCode);
             }
 
             @Override
@@ -365,7 +367,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode, null);
+                handler.processFailure(responseCode);
             }
 
             @Override
@@ -374,7 +376,8 @@ public class ConnectNetworkHelper {
                 if (exception instanceof UnknownHostException) {
                     handler.processNetworkFailure();
                 } else {
-                    handler.processFailure(-1, exception);
+                    Logger.exception("IO Exception during API call", exception);
+                    handler.processFailure(-1);
                 }
             }
 
@@ -427,6 +430,16 @@ public class ConnectNetworkHelper {
 
     public static void showOutdatedApiError(Context context) {
         Toast.makeText(context, context.getString(R.string.recovery_network_outdated),
+                Toast.LENGTH_LONG).show();
+    }
+
+    public static void handleTokenUnavailableException(Context context) {
+        Toast.makeText(context, context.getString(R.string.recovery_network_token_unavailable),
+                Toast.LENGTH_LONG).show();
+    }
+
+    public static void handleTokenRequestDeniedException(Context context) {
+        Toast.makeText(context, context.getString(R.string.recovery_network_token_request_rejected),
                 Toast.LENGTH_LONG).show();
     }
 

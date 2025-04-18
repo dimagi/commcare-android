@@ -18,9 +18,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.FragmentNavigator;
 
-import com.google.firebase.BuildConfig;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
 import org.commcare.connect.ConnectManager;
@@ -510,5 +510,9 @@ public class FirebaseAnalyticsUtil {
     public static void reportNotificationType(String notificationType) {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
                 CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
+    }
+
+    public static void reportRekeyedDatabase() {
+        reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
     }
 }

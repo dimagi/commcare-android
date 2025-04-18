@@ -206,8 +206,8 @@ post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
 post.conflict.error=You have already claimed this case.
 
-version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
-version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
+version.id.long=CommCare Android, version "${0}"(${1}). App v${4}. CommCare Version ${0}. Build ${2}, built on: ${3}
+version.id.short=CCDroid:"${0}"(${1}). v${4} CC${0}b[${2}] on ${3}
 commcare.version=CommCare Android, version "${0}"(${1}), built on: ${2}
 
 auth.request.not.using.https=${0} is an invalid URL. CommCare can't connect with authentication to an insecure (HTTP) server.
@@ -555,6 +555,14 @@ notification.bad.certificate.title=Couldn't securely connect to the server.
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
 notification.bad.certificate.button=Go to settings
+
+notification.token.unavailable.title=Couldn't connect to the server.
+notification.token.unavailable.detail=CommCare had an issue authenticating the user.
+notification.token.unavailable.action=Check your device's time and date to make sure they are correct, then try again.
+
+notification.token.denied.title=Couldn't connect to the server.
+notification.token.denied.detail=CommCare can no longer communicate with the ConnectID server.
+notification.token.denied.action=Please recover your ConnectID account, then try again.
 
 notification.restore.storagefull.title=Couldn't save your application's resources
 notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.

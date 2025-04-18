@@ -328,6 +328,8 @@
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
+    <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue, please try again.</string>
+    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost ConnectID configuration with server, please recover account.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
     <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
@@ -490,6 +492,7 @@
     <string name="connect_unlock_message">Please unlock to continue</string>
     <string name="connect_unlock_button_pin">Unlock with PIN</string>
     <string name="connect_unlock_button_password">Unlock with Password</string>
+    <string name="connect_unlock_unavailable">Please configure a screen unlock mechanism</string>
 
     <string name="connect_unlock_trouble_message">Trouble unlocking?</string>
     <string name="connect_unlock_fingerprint_title">Unlock via fingerprint</string>
@@ -512,6 +515,7 @@
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
     <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
     <string name="connect_verify_pin_configured">Your PIN has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configuration_failed">Configuration failed, please try again. %s</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
@@ -547,6 +551,7 @@
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
     <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
+    <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
     <string name="connect_job_intro_title">Opportunity</string>
 
@@ -611,6 +616,10 @@
     <string name="connect_results_summary_earned">Earned</string>
     <string name="connect_results_summary_remaining">Remaining</string>
     <string name="connect_results_summary_remaining_days">%d in %d days</string>
+    <string name="connect_results_summary_remaining_tomorrow">%d by tomorrow</string>
+    <string name="connect_results_summary_remaining_today">%d by today</string>
+    <string name="connect_results_summary_visits_done">All Visits Done</string>
+    <string name="connect_results_summary_days_over">Days Over</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
 
@@ -772,11 +781,10 @@
     <string name="connect_appbar_title_password_verification">Password Verification</string>
 
     <!--    Entity List Progresss Indicators-->
+
     <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
-    <string name="entity_list_processing" cc:translatable="true">Processing cases: %s</string>
-    <string name="entity_list_loading_cache" cc:translatable="true">Loading Cache…</string>
-    <string name="entity_list_calculating" cc:translatable="true">Calculating cases %s</string>
-    <string name="entity_list_finishing" cc:translatable="true">Finishing case calculations…</string>
+    <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
+    <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
 
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
@@ -790,4 +798,5 @@
     <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
     <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
     <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
+    <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
 </resources>

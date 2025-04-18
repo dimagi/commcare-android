@@ -6,6 +6,8 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 
@@ -57,8 +59,10 @@ public class TimedStatsTracker {
             editor.putLong(KEY_LAST_SESSION_START_TIME, currentTime())
                     .putString(KEY_LAST_LOGGED_IN_USER, currentUserId)
                     .commit();
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Registered session start for user " + currentUserId);
         } else {
-            Log.i(TAG, "Attempting to report starting a session with no logged in user available");
+            Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                    "Attempting to report starting a session with no logged in user available");
         }
     }
 

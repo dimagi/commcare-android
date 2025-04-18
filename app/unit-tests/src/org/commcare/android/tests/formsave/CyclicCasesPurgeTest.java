@@ -1,7 +1,14 @@
 package org.commcare.android.tests.formsave;
 
+import static org.commcare.android.database.user.models.FormRecord.STATUS_QUARANTINED;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import android.app.Dialog;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -17,14 +24,9 @@ import org.commcare.session.CommCareSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import static org.commcare.android.database.user.models.FormRecord.STATUS_QUARANTINED;
 
 /**
  * Test Scenarios related to cyclic case relationships encountered during the case purge process.
@@ -54,10 +56,15 @@ public class CyclicCasesPurgeTest {
         FormEntryActivity formEntryActivity = ActivityLaunchUtils.launchFormEntry();
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
         ShadowLooper.idleMainLooper();
-        ShadowLooper.idleMainLooper();
+
         // verify that form save results into an error
-        String message = ((TextView)formEntryActivity.getCurrentAlertDialog().getUnderlyingDialog().getDialog().findViewById(R.id.dialog_message)).getText().toString();
+        Dialog latestDialog = ShadowDialog.getLatestDialog();
+        assertNotNull(latestDialog);
+        assertTrue(latestDialog.isShowing());
+
+        String message = ((TextView)latestDialog.findViewById(R.id.dialog_message)).getText().toString();
         assert message.contentEquals(formEntryActivity.getString(R.string.invalid_case_graph_error));
 
         // Verify that the form record was quarantined

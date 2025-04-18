@@ -50,5 +50,6 @@ public class CCAnalyticsEvent {
     static final String CCC_PAYMENT_CONFIRMATION_DISPLAY = "ccc_payment_confirmation_display";
     static final String CCC_PAYMENT_CONFIRMATION_INTERACT = "ccc_payment_confirmation_interact";
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
+    static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
 
 }
