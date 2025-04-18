@@ -3,6 +3,7 @@ package org.commcare.tasks
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import org.commcare.CommCareApplication
 import org.commcare.engine.cases.CaseUtils
 import org.commcare.models.database.user.models.CommCareEntityStorageCache
 import org.javarosa.core.services.Logger
@@ -13,10 +14,15 @@ class EntityCacheInvalidationWorker(context: Context, workerParams: WorkerParame
     override suspend fun doWork(): Result {
         try {
             val entityStorageCache: CommCareEntityStorageCache = CommCareEntityStorageCache("case")
-            entityStorageCache.processShallowRecords()
+            if (!entityStorageCache.isEmpty) {
+                entityStorageCache.processShallowRecords()
+            }
         } catch (e: Exception) {
             Logger.exception("Error encountered while invalidating entity cache", e)
             return Result.failure()
+        } finally {
+            // we want to schedule the Prime worker irrespective of result of this task
+            PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker()
         }
         return Result.success()
     }
