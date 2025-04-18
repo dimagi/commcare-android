@@ -155,20 +155,23 @@
                         android:background="@color/connect_darker_blue_color"
                         android:padding="16dp">
 
-                        <LinearLayout
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/linearLayout"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:orientation="vertical"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginRight="2dp"
+                            app:layout_constraintEnd_toStartOf="@+id/connect_delivery_button"
                             app:layout_constraintTop_toTopOf="parent">
 
                             <org.commcare.views.connect.connecttextview.ConnectRegularTextView
                                 android:id="@+id/connect_delivery_action_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
                                 android:text="@string/connect_job_info_start_visit"
                                 android:textColor="@color/white"
                                 android:textSize="16sp"
@@ -178,12 +181,13 @@
                                 android:id="@+id/connect_delivery_action_details"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/connect_delivery_action_title"
                                 android:text="@string/connect_job_info_download_delivery"
-                                android:textAlignment="center"
                                 android:textColor="@color/grey"
                                 android:textSize="14sp" />
 
-                        </LinearLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/connect_delivery_button"

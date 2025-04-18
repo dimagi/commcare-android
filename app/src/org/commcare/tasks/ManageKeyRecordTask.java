@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -122,6 +123,8 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
+                Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
+                        "logged in user null after successfully completing key record request");
                 CommCareApplication.instance().releaseUserResourcesAndServices();
                 keysReadyForSync(receiver);
                 return;
@@ -134,7 +137,8 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 result = HttpCalloutOutcomes.NetworkFailureBadPassword;
             }
         }
-
+        Logger.log(LogTypes.TYPE_MAINTENANCE,
+                "Closing user session due to key record task failing with " + result);
         //For any other result make sure we're logged out.
         CommCareApplication.instance().releaseUserResourcesAndServices();
 
@@ -510,11 +514,12 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         try {
             User u = CommCareApplication.instance().getSession().getLoggedInUser();
             if (u != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Setting up logged in user " + u);
                 u.setCachedPwd(password);
                 loggedIn = u;
             }
         } catch (SessionUnavailableException sue) {
-
+            Logger.log(LogTypes.TYPE_USER, "Could not get active session after login");
         }
     }
 

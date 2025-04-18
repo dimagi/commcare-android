@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import androidx.exifinterface.media.ExifInterface;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -63,6 +64,28 @@ public class FileUtil {
     private static final int WARNING_SIZE = 3000;
 
     private static final String LOG_TOKEN = "cc-file-util";
+
+    private static final String[] EXIF_TAGS = {
+            ExifInterface.TAG_GPS_LATITUDE,
+            ExifInterface.TAG_GPS_LATITUDE_REF,
+            ExifInterface.TAG_GPS_LONGITUDE,
+            ExifInterface.TAG_GPS_LONGITUDE_REF,
+            ExifInterface.TAG_GPS_TIMESTAMP,
+            ExifInterface.TAG_GPS_DATESTAMP,
+            ExifInterface.TAG_GPS_ALTITUDE,
+            ExifInterface.TAG_GPS_ALTITUDE_REF,
+            ExifInterface.TAG_GPS_AREA_INFORMATION,
+            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_DATETIME_DIGITIZED,
+            ExifInterface.TAG_DATETIME_ORIGINAL,
+            ExifInterface.TAG_OFFSET_TIME,
+            ExifInterface.TAG_OFFSET_TIME_ORIGINAL,
+            ExifInterface.TAG_OFFSET_TIME_DIGITIZED,
+            ExifInterface.TAG_COPYRIGHT,
+            ExifInterface.TAG_IMAGE_DESCRIPTION,
+            ExifInterface.TAG_EXIF_VERSION,
+            ExifInterface.TAG_ORIENTATION
+    };
 
     public static boolean deleteFileOrDir(String path) {
         return deleteFileOrDir(new File(path));
@@ -595,6 +618,22 @@ public class FileUtil {
         return strings[strings.length - 1];
     }
 
+    private static void copyExifData(ExifInterface sourceExif, ExifInterface destExif, Bitmap scaledBitmap) {
+        if (sourceExif == null || destExif == null) {
+          return;
+        }
+        for (String tag : EXIF_TAGS) {
+            String value = sourceExif.getAttribute(tag);
+            if (value != null) {
+                destExif.setAttribute(tag, value);
+            }
+        }
+
+        // Update dimensions for the scaled image
+        destExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(scaledBitmap.getWidth()));
+        destExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(scaledBitmap.getHeight()));
+    }
+
     /**
      * @return whether or not originalImage was scaled down according to maxDimen, and saved to
      * the location given by finalFilePath
@@ -609,16 +648,30 @@ public class FileUtil {
             return false;
         }
 
+        // Read original EXIF data form the original image file
+        ExifInterface originalExif = null;
+        try {
+            originalExif = new ExifInterface(originalImage.getAbsolutePath());
+        } catch (IOException e) {
+            Logger.exception("Failed to read EXIF data", e);
+        }
+
         Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
         if (bitmapAndScaledBool.second) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY,
                     "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
         }
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
+
+        // Save scaled image and copy EXIF data
+        File scaledFile = new File(finalFilePath);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             try {
-                writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, new File(finalFilePath));
+                writeBitmapToDiskAndCleanupHandles(scaledBitmap, type, scaledFile);
+                ExifInterface newExif = new ExifInterface(scaledFile.getAbsolutePath());
+                copyExifData(originalExif, newExif, scaledBitmap);
+                newExif.saveAttributes();
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
