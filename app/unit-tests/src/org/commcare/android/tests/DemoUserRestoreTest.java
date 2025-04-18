@@ -34,6 +34,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.work.WorkManager;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -106,7 +107,8 @@ public class DemoUserRestoreTest {
 
         assertEquals(1, CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).getNumRecords());
 
-        EntitySelectActivity entitySelectActivity =
+        ((CommCareTestApplication)CommCareApplication.instance()).initWorkManager();
+         EntitySelectActivity entitySelectActivity =
                 ActivityLaunchUtils.launchEntitySelectActivity("m0-f0");
 
         // check that the demo user has 2 entries in the case list

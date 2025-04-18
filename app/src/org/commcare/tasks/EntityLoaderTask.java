@@ -42,7 +42,7 @@ public class EntityLoaderTask
      * @param evalCtx     evaluation context
      */
     public EntityLoaderTask(Detail detail, @Nullable EntityDatum entityDatum, EvaluationContext evalCtx) {
-        entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx, false);
+        entityLoaderHelper = new EntityLoaderHelper(detail, entityDatum, evalCtx, false, null);
         // we only want to provide progress updates for the new caching config
         provideDetailProgressUpdates = detail.shouldOptimize();
     }
