@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -49,8 +50,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.10 - Added last_accessed column to ConnectLinkedAppRecord
      * V.11 - Added daily start and finish times to ConnectJobRecord
      * V.12 - Added ConnectMessagingChannelRecord table and ConnectMessagingMessageRecord table
+     * V.13 - Added ConnectJobDeliveryFlagRecord table
      */
-    private static final int CONNECT_DB_VERSION = 12;
+    private static final int CONNECT_DB_VERSION = 13;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -121,6 +123,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectMessagingMessageRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
