@@ -80,7 +80,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             byte[] newBytes = Base64.decode(newPassphrase);
             String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
 
-            db.execSQL("PRAGMA rekey = '" + newKeyEncoded + "';");
+            db.query("PRAGMA rekey = '" + newKeyEncoded + "';");
             db.close();
         }
     }
