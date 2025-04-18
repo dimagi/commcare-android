@@ -35,9 +35,7 @@ import org.javarosa.core.services.Logger;
 import java.util.Locale;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link ConnectIdBiometricConfigFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * {@link Fragment} subclass for helping the user choose or configure their biometric.
  */
 public class ConnectIdBiometricConfigFragment extends Fragment {
     private BiometricManager biometricManager;
@@ -53,20 +51,13 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ConnectIdBiometricConfigFragment newInstance(String param1, String param2) {
-        ConnectIdBiometricConfigFragment fragment = new ConnectIdBiometricConfigFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = ScreenConnectVerifyBinding.inflate(inflater, container, false);
@@ -76,16 +67,6 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (getArguments() != null) {
             callingActivity = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getCallingClass();
             allowPassword = ConnectIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getAllowPassword();
-        }
-        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
-                biometricManager);
-        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);
-        if (fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable &&
-                pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
-            //Skip to password-only workflow
-            finish(true, true);
-        } else {
-            updateState(fingerprint, pin);
         }
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> handleFingerprintButton());
@@ -113,13 +94,18 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                     attemptingFingerprint = false;
                     if (BiometricsHelper.isPinConfigured(context, biometricManager) &&
                             allowPassword) {
-                        //Automatically try password, it's the only option
+                        //Automatically try PIN
                         performPinUnlock();
-                    } else {
-                        //Automatically try password, it's the only option
-                        performPasswordUnlock();
+                        return;
                     }
                 }
+
+                String whyNoPin = allowPassword ? "configured" : "allowed";
+                Logger.exception("Exhausted biometrics", new Exception(String.format(Locale.getDefault(),
+                        "Fingerprint error and PIN isn't %s: %s (%d)", whyNoPin, errString, errorCode)));
+
+                String message = context.getString(R.string.connect_verify_configuration_failed, errString);
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -146,30 +132,42 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         FirebaseAnalyticsUtil.reportCccSignIn(method);
     }
 
-    public void updateState(BiometricsHelper.ConfigurationStatus fingerprintStatus,
-                            BiometricsHelper.ConfigurationStatus pinStatus) {
+    public void updateState() {
+        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
+                biometricManager);
+        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);
+
+        if (fingerprint == BiometricsHelper.ConfigurationStatus.NotAvailable &&
+                pin == BiometricsHelper.ConfigurationStatus.NotAvailable) {
+            Logger.exception("No biometrics", new Exception(
+                    "No biometric options available during biometric config"));
+
+            finish(true, true);
+            return;
+        }
+
         String titleText = getString(R.string.connect_verify_title);
         String messageText = getString(R.string.connect_verify_message);
         String fingerprintButtonText = null;
         String pinButtonText = null;
-        if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {
+        if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             //Show fingerprint but not PIN
             titleText = getString(R.string.connect_verify_use_fingerprint_long);
             messageText = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButtonText = getString(R.string.connect_verify_agree);
-        } else if (pinStatus == BiometricsHelper.ConfigurationStatus.Configured) {
+        } else if (pin == BiometricsHelper.ConfigurationStatus.Configured) {
             //Show PIN, and fingerprint if configurable
             titleText = getString(R.string.connect_verify_use_pin_long);
             messageText = getString(R.string.connect_verify_pin_configured);
             pinButtonText = getString(R.string.connect_verify_agree);
-            fingerprintButtonText = fingerprintStatus == BiometricsHelper.ConfigurationStatus.NotConfigured ?
+            fingerprintButtonText = fingerprint == BiometricsHelper.ConfigurationStatus.NotConfigured ?
                     getString(R.string.connect_verify_configure_fingerprint) : null;
         } else {
             //Show anything configurable
-            if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.NotConfigured) {
+            if (fingerprint == BiometricsHelper.ConfigurationStatus.NotConfigured) {
                 fingerprintButtonText = getString(R.string.connect_verify_configure_fingerprint);
             }
-            if (pinStatus == BiometricsHelper.ConfigurationStatus.NotConfigured) {
+            if (pin == BiometricsHelper.ConfigurationStatus.NotConfigured) {
                 pinButtonText = getString(R.string.connect_verify_configure_pin);
             }
         }
@@ -205,33 +203,19 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
-                biometricManager);
-        BiometricsHelper.ConfigurationStatus pin = BiometricsHelper.checkPinStatus(getActivity(), biometricManager);
-        updateState(fingerprint, pin);
+        updateState();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        super.onActivityResult(requestCode, resultCode, intent);
+    public void handleFinishedPinActivity(int requestCode, int resultCode, Intent intent) {
         if (requestCode == PASSWORD_LOCK) {
+            //This route was for when the user failed to enter the correct password several times
+            //Obsolete now, should be removed
+            Logger.exception("Biometric enrollment failed", new Exception(
+                    "Hit the PASSWORD_LOCK path, should never happen"));
             finish(true, true);
         }
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             finish(true, false);
-        }
-    }
-
-    public void callAuthentication() {
-        if (BiometricsHelper.isFingerprintConfigured(requireActivity(), biometricManager)) {
-            //Automatically try fingerprint first
-            performFingerprintUnlock();
-        } else if (BiometricsHelper.isPinConfigured(requireActivity(), biometricManager)) {
-            performPinUnlock();
-        } else if (allowPassword) {
-            performPasswordUnlock();
-        } else {
-            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
         }
     }
 
@@ -240,20 +224,15 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
 
-    public void performPasswordUnlock() {
-    }
-
     public void performPinUnlock() {
         BiometricsHelper.authenticatePin(requireActivity(), biometricManager, biometricPromptCallbacks);
     }
-
 
     public void handleFingerprintButton() {
         BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
         if (fingerprint == BiometricsHelper.ConfigurationStatus.Configured) {
             performFingerprintUnlock();
-//            finish(true, true);
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
             finish(true, true);
         }
@@ -305,6 +284,5 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (directions != null) {
             Navigation.findNavController(binding.connectVerifyMessage).navigate(directions);
         }
-
     }
 }

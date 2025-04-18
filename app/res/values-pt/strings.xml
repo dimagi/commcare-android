@@ -418,6 +418,7 @@
     <string name="connect_unlock_message">Por favor, desbloqueie para continuar</string>
     <string name="connect_unlock_button_pin">Desbloqueio com PIN</string>
     <string name="connect_unlock_button_password">Desbloqueie com senha</string>
+    <string name="connect_unlock_unavailable">Por favor configure um mecanismo de desbloqueio de tela</string>
     <string name="connect_unlock_trouble_message">Problemas para desbloquear?</string>
     <string name="connect_unlock_fingerprint_title">Desbloqueio através de impressão digital</string>
     <string name="connect_unlock_fingerprint_message">Utilize a sua impressão digital para continuar</string>
@@ -436,6 +437,7 @@
     <string name="connect_verify_configure_fingerprint">Configurar impressão digital</string>
     <string name="connect_verify_use_pin_long">Utilizar o PIN para ligar</string>
     <string name="connect_verify_pin_configured">O seu PIN já foi configurado e será utilizado para desbloquear o ConnectID.</string>
+    <string name="connect_verify_configuration_failed">A configuração falhou, tente novamente. %s</string>
     <string name="connect_verify_configure_pin">Configurar PIN</string>
     <string name="connect_verify_agree">Concordo &amp; Continuar</string>
     <string name="connect_verify_phone_title">Código de verificação</string>

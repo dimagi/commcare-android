@@ -415,6 +415,7 @@
     <string name="connect_unlock_message">Tafadhali fungua ili kuendelea</string>
     <string name="connect_unlock_button_pin">Fungua kwa PIN</string>
     <string name="connect_unlock_button_password">Fungua kwa Nenosiri</string>
+    <string name="connect_unlock_unavailable">Tafadhali sanidi utaratibu wa kufungua skrini</string>
     <string name="connect_unlock_trouble_message">Je, una tatizo la kufungua?</string>
     <string name="connect_unlock_fingerprint_title">Fungua kupitia alama ya vidole</string>
     <string name="connect_unlock_fingerprint_message">Tumia alama ya vidole ili kuendelea</string>
@@ -433,6 +434,7 @@
     <string name="connect_verify_configure_fingerprint">Sanidi Alama ya Kidole</string>
     <string name="connect_verify_use_pin_long">Tumia PIN Kuunganisha</string>
     <string name="connect_verify_pin_configured">PIN yako tayari imesanidiwa na itatumika kufungua ConnectID.</string>
+    <string name="connect_verify_configuration_failed">Usanidi haukufaulu, tafadhali jaribu tena. %s</string>
     <string name="connect_verify_configure_pin">Sanidi PIN</string>
     <string name="connect_verify_agree">Kubali na Uendelee</string>
     <string name="connect_verify_phone_title">Nambari ya Uthibitishaji</string>
