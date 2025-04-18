@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
 import com.jakewharton.rxbinding2.widget.RxAdapterView;
@@ -37,7 +38,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.ContainerFragment;
+import org.commcare.fragments.ContainerViewModel;
 import org.commcare.gis.EntityMapActivity;
 import org.commcare.gis.EntityMapboxActivity;
 import org.commcare.models.AndroidSessionWrapper;
@@ -153,7 +154,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean rightFrameSetup = false;
     private NodeEntityFactory factory;
 
-    private ContainerFragment<EntityListAdapter> containerFragment;
+    private ContainerViewModel<EntityListAdapter> containerViewModel;
     private EntitySelectRefreshTimer refreshTimer;
 
     // Function handler for handling XPath evaluation of the function here().
@@ -338,21 +339,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void persistAdapterState(AdapterView view) {
-        FragmentManager fm = this.getSupportFragmentManager();
-
-        containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
-
-        // stateHolder and its previous state aren't null if the activity is
-        // being created due to an orientation change.
-        if (containerFragment == null) {
-            containerFragment = new ContainerFragment<>();
-            fm.beginTransaction().add(containerFragment, "entity-adapter").commit();
-        } else {
-            adapter = containerFragment.getData();
-            // on orientation change
-            if (adapter != null) {
-                setupUIFromAdapter(view);
-            }
+        if (containerViewModel == null) {
+            containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
+        }
+        if (containerViewModel.getData() != null) {
+            adapter = containerViewModel.getData();
+            setupUIFromAdapter(view);
         }
     }
 
@@ -877,7 +869,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
-        containerFragment.setData(adapter);
+        containerViewModel.setData(adapter);
 
         if (entitySelectSearchUI != null) {
             entitySelectSearchUI.restoreSearchString();

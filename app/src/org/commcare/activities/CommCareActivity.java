@@ -30,7 +30,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarFragment;
-import org.commcare.fragments.ContainerFragment;
+import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
@@ -67,6 +67,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewbinding.ViewBinding;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -127,7 +128,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * on activity pause/resume.
      */
     private int dialogId = -1;
-    private ContainerFragment<Bundle> managedUiState;
+    private ContainerViewModel<Bundle> containerViewModel;
     private boolean isMainScreenBlocked;
 
     private DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver;
@@ -160,7 +161,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
 
         if (!isFinishing()) {
-            persistManagedUiState(fm);
+            persistManagedUiState();
 
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setLogo(org.commcare.dalvik.R.drawable.commcare_actionbar_logo_spacing);
@@ -189,23 +190,17 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return null;
     }
 
-    private void persistManagedUiState(FragmentManager fm) {
+    private void persistManagedUiState() {
         if (isManagedUiActivity()) {
-            managedUiState = (ContainerFragment)fm.findFragmentByTag("ui-state");
-
-            if (managedUiState == null) {
-                managedUiState = new ContainerFragment<>();
-                fm.beginTransaction().add(managedUiState, "ui-state").commit();
-                loadUiElementState(null);
-            } else {
-                loadUiElementState(managedUiState.getData());
+            if (containerViewModel == null) {
+                containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
             }
+            loadUiElementState(containerViewModel.getData());
         }
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
         ManagedUiFramework.setContentView(this);
-
         if (savedInstanceState != null) {
             ManagedUiFramework.restoreUiElements(this, savedInstanceState);
         } else {
@@ -335,7 +330,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onPause();
 
         if (isManagedUiActivity()) {
-            managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
+            containerViewModel.setData(ManagedUiFramework.saveUiStateToBundle(this));
         }
 
         areFragmentsPaused = true;
