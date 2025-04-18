@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 public class ConnectJobUtils {
@@ -214,6 +215,8 @@ public class ConnectJobUtils {
 
             //Now insert/update the delivery
             storage.write(incomingRecord);
+
+            storeDeliveryFlags(context, incomingRecord.getFlags(), incomingRecord.getDeliveryId());
         }
     }
 
@@ -227,7 +230,7 @@ public class ConnectJobUtils {
         for (ConnectJobDeliveryFlagRecord existing : existingFlags) {
             boolean stillExists = false;
             for (ConnectJobDeliveryFlagRecord incoming : flags) {
-                if (existing.getDeliveryId() == incoming.getDeliveryId()) {
+                if (existing.getDeliveryId() == incoming.getDeliveryId() && Objects.equals(existing.getCode(), incoming.getCode())) {
                     incoming.setID(existing.getID());
                     stillExists = true;
                     break;
