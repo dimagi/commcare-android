@@ -6,7 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.AudioManager;
-import android.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -81,7 +81,7 @@ public class MediaUtil {
             }
 
             DisplayMetrics displayMetrics = new DisplayMetrics();
-            ((WindowManager)context.getSystemService(Context.WINDOW_SERVICE))
+            ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay()
                     .getMetrics(displayMetrics);
 
@@ -111,7 +111,7 @@ public class MediaUtil {
 
     public static int getActionBarHeightInPixels(Context context) {
         final TypedArray styledAttributes = context.getTheme().obtainStyledAttributes(
-                new int[] { android.R.attr.actionBarSize });
+                new int[]{android.R.attr.actionBarSize});
         int actionBarSize = (int) styledAttributes.getDimension(0, 0);
         styledAttributes.recycle();
 
@@ -130,7 +130,7 @@ public class MediaUtil {
     /**
      * Attempt to inflate an image source into a bitmap whose final dimensions are based upon
      * 2 factors:
-     *
+     * <p>
      * 1) The application of a scaling factor, which is derived from the relative values of the
      * target density declared by the app and the current device's actual density
      * 2) The absolute dimensions of the bounding container into which this image is being inflated
@@ -156,8 +156,8 @@ public class MediaUtil {
         int imageWidth = o.outWidth;
 
         double scaleFactor = computeInflationScaleFactor(metrics, targetDensity);
-        int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
-        int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
+        int calculatedHeight = Math.round((float) (imageHeight * scaleFactor));
+        int calculatedWidth = Math.round((float) (imageWidth * scaleFactor));
 
         Bitmap toReturn;
 
@@ -190,10 +190,10 @@ public class MediaUtil {
     /**
      * Attempts to load a cached filepath from the given location and tag, and returns the
      * location for the cached file either way.
-     *
+     * <p>
      * If caching is unavailable, null should be returned. If an object is returned, the first
      * argument must be non-null, and must have the same extension as the input filepath.
-     *
+     * <p>
      * The cache key/object will handle its own file path/modified clearance, the tag provided
      * should differentiate between different ways of inflating the provided image path
      */
@@ -210,13 +210,13 @@ public class MediaUtil {
             } catch (RuntimeException e) {
                 try {
                     cacheKey.delete();
-                    Log.d(TAG, "Removed potentially invalid cache from " +cacheKey.toString());
+                    Log.d(TAG, "Removed potentially invalid cache from " + cacheKey.toString());
                 } catch (Exception inner) {
 
                 }
             }
         }
-        return new Pair<>(cacheKey,b);
+        return new Pair<>(cacheKey, b);
     }
 
     private static File getCacheFileLocation(String imageFilepath, String tag) {
@@ -266,7 +266,7 @@ public class MediaUtil {
      */
     public static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
         final int SCREEN_DENSITY = metrics.densityDpi;
-        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
+        double customDpiScaleFactor = (double) SCREEN_DENSITY / targetDensity;
         double proportionalAdjustmentFactor = getCustomAndroidAdjustmentFactor(metrics);
         return customDpiScaleFactor * proportionalAdjustmentFactor;
     }
@@ -278,7 +278,7 @@ public class MediaUtil {
         // Android is taking other factors into consideration (such as straight up screen size)
         // when it re-sizes an image for this device, so we want to incorporate that proportionally
         // into our own version of the scale factor
-        double standardNativeScaleFactor = (double)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+        double standardNativeScaleFactor = (double) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
 
         double actualNativeScaleFactor = metrics.density;
         if (actualNativeScaleFactor > standardNativeScaleFactor) {
@@ -294,7 +294,7 @@ public class MediaUtil {
     /**
      * @return A bitmap representation of the given image file, scaled down to the smallest
      * size that still fills the container
-     *
+     * <p>
      * More precisely, preserves the following 2 conditions:
      * 1. The larger of the 2 sides takes on the size of the corresponding container dimension
      * (e.g. if its width is larger than its height, then the new width should = containerWidth)
@@ -302,11 +302,11 @@ public class MediaUtil {
      * down proportionally with the width)
      */
     public static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
-                                                     int containerWidth,
+                                                    int containerWidth,
                                                     boolean respectBoundsExactly) {
 
         Pair<File, Bitmap> cacheKey = getCacheFileLocationAndBitmap(imageFilepath,
-                String.format("container_%d_%d_%b",containerHeight, containerWidth,
+                String.format("container_%d_%d_%b", containerHeight, containerWidth,
                         respectBoundsExactly));
 
         if (cacheKey != null && cacheKey.second != null) {
@@ -343,7 +343,6 @@ public class MediaUtil {
      *                             of an exact size based on a target width and height. In this
      *                             case, targetWidth and targetHeight are ignored and the 2nd case
      *                             below is used.
-     *
      * @return A bitmap representation of the given image file, scaled down if necessary such that
      * the new dimensions of the image are the SMALLER of the following 2 options:
      * 1) targetHeight and targetWidth
@@ -373,19 +372,16 @@ public class MediaUtil {
         Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
         int orientation = ExifInterface.ORIENTATION_NORMAL;
-        if (!imageFilepath.endsWith("png")) {
-            try {
-                ExifInterface exif = new ExifInterface(imageFilepath);
-                orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            } catch (IOException e) {
-                Logger.exception("Unable to read EXIF data: ", e);
-            }
+        try {
+            ExifInterface exif = new ExifInterface(imageFilepath);
+            orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        } catch (IOException e) {
+            Logger.exception("Unable to read EXIF data: ", e);
         }
 
         // Rotate the bitmap if needed
         Bitmap rotatedBitmap = b;
-        if (orientation != ExifInterface.ORIENTATION_NORMAL && !imageFilepath.endsWith(".png"))
-        {
+        if (orientation != ExifInterface.ORIENTATION_NORMAL) {
             rotatedBitmap = rotateBitmap(b, orientation);
         }
 
@@ -445,7 +441,7 @@ public class MediaUtil {
         try {
             return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         } catch (OutOfMemoryError e) {
-            Logger.exception( "Ran out of memory attempting to rotate bitmap", e);
+            Logger.exception("Ran out of memory attempting to rotate bitmap", e);
             return bitmap;
         }
     }
@@ -478,14 +474,14 @@ public class MediaUtil {
             return new Pair<>(originalWidth, originalHeight);
         }
 
-        double heightScaleDownFactor = (double)boundingHeight / originalHeight;
-        double widthScaleDownFactor =  (double)boundingWidth / originalWidth;
+        double heightScaleDownFactor = (double) boundingHeight / originalHeight;
+        double widthScaleDownFactor = (double) boundingWidth / originalWidth;
         // Choosing the larger of the scale down factors, so that the image still fills the entire
         // container
         double dominantScaleDownFactor = Math.max(widthScaleDownFactor, heightScaleDownFactor);
 
-        int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleDownFactor);
-        int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleDownFactor);
+        int widthImposedByContainer = (int) Math.round(originalWidth * dominantScaleDownFactor);
+        int heightImposedByContainer = (int) Math.round(originalHeight * dominantScaleDownFactor);
         return new Pair<>(widthImposedByContainer, heightImposedByContainer);
 
     }
@@ -528,12 +524,12 @@ public class MediaUtil {
                                                                int originalWidth,
                                                                int boundingHeight,
                                                                int boundingWidth) {
-        double heightScaleFactor = (double)boundingHeight / originalHeight;
-        double widthScaleFactor =  (double)boundingWidth / originalWidth;
+        double heightScaleFactor = (double) boundingHeight / originalHeight;
+        double widthScaleFactor = (double) boundingWidth / originalWidth;
         double dominantScaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
 
-        int scaledUpWidthImposedByContainer = (int)Math.round(originalWidth * dominantScaleFactor);
-        int scaledUpHeightImposedByContainer = (int)Math.round(originalHeight * dominantScaleFactor);
+        int scaledUpWidthImposedByContainer = (int) Math.round(originalWidth * dominantScaleFactor);
+        int scaledUpHeightImposedByContainer = (int) Math.round(originalHeight * dominantScaleFactor);
         return new Pair<>(scaledUpWidthImposedByContainer, scaledUpHeightImposedByContainer);
     }
 
@@ -572,7 +568,7 @@ public class MediaUtil {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public static boolean isRecordingActive(Context context){
+    public static boolean isRecordingActive(Context context) {
         return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
                 .getActiveRecordingConfigurations().size() > 0;
     }
