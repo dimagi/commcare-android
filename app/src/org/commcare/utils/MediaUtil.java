@@ -376,7 +376,9 @@ public class MediaUtil {
             ExifInterface exif = new ExifInterface(imageFilepath);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
         } catch (IOException e) {
-            Logger.exception("Unable to read EXIF data: ", e);
+            Logger.exception("Unable to read image file from disk: ", e);
+        } catch (Exception e) {
+            Logger.exception("Unable to read exif data from image file: ", e);
         }
 
         // Rotate the bitmap if needed
