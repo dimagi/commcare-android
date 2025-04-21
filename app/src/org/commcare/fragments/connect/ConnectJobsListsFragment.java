@@ -40,6 +40,7 @@ import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
@@ -242,7 +243,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void updateSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(context);
+        boolean show = ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(context);
 
         ConnectManager.updateSecondaryPhoneConfirmationTile(context, connectTile, show, v -> {
             ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {

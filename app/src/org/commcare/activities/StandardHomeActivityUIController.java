@@ -34,6 +34,7 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.DeveloperPreferences;
@@ -84,7 +85,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private void updateJobTileDetails() {
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean show = record != null;
 
@@ -117,7 +118,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private void updateOpportunityMessage() {
         String warningText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectManager.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         if (record != null) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
             if (job.isFinished()) {
@@ -192,12 +193,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
 
         updateConnectProgress();
-    }
-
-    public void updateConnectTile(boolean show) {
-        ConnectManager.updateSecondaryPhoneConfirmationTile(activity, connectTile, show, v -> {
-            activity.performSecondaryPhoneVerification();
-        });
     }
 
     public void updateConnectProgress() {
