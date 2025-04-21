@@ -37,7 +37,7 @@ public class AlertDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 
         ContainerViewModel<CommCareAlertDialog> viewModel =
-                new ViewModelProvider(this).get(ContainerViewModel.class);
+                new ViewModelProvider(requireActivity()).get(ContainerViewModel.class);
         if (underlyingDialog != null) {
             viewModel.setData(underlyingDialog);
         } else if (viewModel.getData() != null) {
