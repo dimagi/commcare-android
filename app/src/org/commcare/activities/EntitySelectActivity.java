@@ -78,6 +78,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -154,7 +155,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean rightFrameSetup = false;
     private NodeEntityFactory factory;
 
-    private ContainerViewModel<EntityListAdapter> containerViewModel;
+    private ContainerViewModel<WeakReference<EntityListAdapter>> containerViewModel;
     private EntitySelectRefreshTimer refreshTimer;
 
     // Function handler for handling XPath evaluation of the function here().
@@ -343,7 +344,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
         }
         if (containerViewModel.getData() != null) {
-            adapter = containerViewModel.getData();
+            adapter = containerViewModel.getData().get();
             setupUIFromAdapter(view);
         }
     }
@@ -869,7 +870,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
-        containerViewModel.setData(adapter);
+        containerViewModel.setData(new WeakReference<>(adapter));
 
         if (entitySelectSearchUI != null) {
             entitySelectSearchUI.restoreSearchString();
