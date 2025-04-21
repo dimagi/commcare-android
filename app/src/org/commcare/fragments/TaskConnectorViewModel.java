@@ -39,6 +39,12 @@ public class TaskConnectorViewModel<R> extends ViewModel {
         }
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        releaseWakeLock();
+    }
+
     public boolean isCurrentTaskRunning() {
         return this.currentTask != null &&
                 this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
@@ -51,8 +57,8 @@ public class TaskConnectorViewModel<R> extends ViewModel {
     public void detach() {
         if (currentTask != null) {
             currentTask.disconnect();
-            releaseWakeLock();
         }
+        releaseWakeLock();
     }
 
     public void cancelTask() {
