@@ -2,47 +2,39 @@ package org.commcare.fragments;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.fragment.app.Fragment;
-import android.util.Log;
+import androidx.lifecycle.ViewModel;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.tasks.templates.CommCareTask;
 
 /**
- * Hold a reference to current task to report its progress and results The
- * Android framework will pass us a reference to the newly created Activity
- * after each configuration change.
- *
- * @author ctsims
+ * Hold a reference to current task to report its progress and results.
+ * An activity is responsible to attach and deattach itself to the current task
+ * by calling related hooks in this class.
  */
-public class TaskConnectorFragment<R> extends Fragment {
+public class TaskConnectorViewModel<R> extends ViewModel {
+
+    @Nullable
     private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setRetainInstance(true);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
+    /**
+     * Must be called from the created activity that might want to attach to an existing task
+     * @param context
+     */
+    public void attach(Context context) {
         if (context instanceof CommCareActivity) {
             if (isCurrentTaskRunning()) {
                 CommCareActivity activity = (CommCareActivity)context;
-                // connecting to a task requires the activity's state holder to
-                // be set; which we're in the middle of, so take a shortcut
-                activity.setStateHolder(this);
-                this.currentTask.connect(activity);
+                if (currentTask != null) {
+                    this.currentTask.connect(activity);
+                }
             }
         }
     }
@@ -52,12 +44,12 @@ public class TaskConnectorFragment<R> extends Fragment {
                 this.currentTask.getStatus() == AsyncTask.Status.RUNNING;
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
+    /**
+     * Detaches the current Task from the existing activity connector.
+     * An activity should call this method before destroying to release the current connector.
+     */
+    public void detach() {
         if (currentTask != null) {
-            Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
             currentTask.disconnect();
             releaseWakeLock();
         }

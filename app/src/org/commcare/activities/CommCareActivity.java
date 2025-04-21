@@ -27,11 +27,18 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewbinding.ViewBinding;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerViewModel;
-import org.commcare.fragments.TaskConnectorFragment;
+import org.commcare.fragments.TaskConnectorViewModel;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
@@ -63,13 +70,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.viewbinding.ViewBinding;
-
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -90,7 +90,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private static final int UNDEFINED_TASK_ID = -1;
 
     private int invalidTaskIdMessageThrown = -2;
-    private TaskConnectorFragment<R> stateHolder;
+    private TaskConnectorViewModel<R> stateHolder;
 
     CompositeDisposable disposableEventHost = new CompositeDisposable();
 
@@ -142,16 +142,11 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
 
         FragmentManager fm = this.getSupportFragmentManager();
+        stateHolder = new ViewModelProvider(this).get(TaskConnectorViewModel.class);
+        stateHolder.attach(this);
 
-        stateHolder = (TaskConnectorFragment<R>)fm.findFragmentByTag("state");
-
-        // stateHolder and its previous state aren't null if the activity is
-        // being created due to an orientation change.
-        if (stateHolder == null) {
-            stateHolder = new TaskConnectorFragment<>();
-            fm.beginTransaction().add(stateHolder, "state").commit();
-            // entering new activity, not just rotating one, so release old
-            // media
+        if (savedInstanceState == null) {
+            // entering new activity, not just rotating one, so release old media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
@@ -289,6 +284,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
     }
 
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -344,6 +341,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stateHolder.detach();
         disposableEventHost.dispose();
     }
 
@@ -943,7 +941,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return ManagedUiFramework.isManagedUi(getUIManager().getClass());
     }
 
-    public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
+    public void setStateHolder(TaskConnectorViewModel<R> stateHolder) {
         this.stateHolder = stateHolder;
     }
 
@@ -956,7 +954,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     protected boolean shouldShowBreadcrumbBar() {
-        return true;
+        return false;
     }
 
     @Override
