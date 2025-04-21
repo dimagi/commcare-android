@@ -36,7 +36,7 @@ import androidx.viewbinding.ViewBinding;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.fragments.BreadcrumbBarFragment;
+import org.commcare.fragments.BreadcrumbBarViewModel;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorViewModel;
 import org.commcare.interfaces.WithUIController;
@@ -132,6 +132,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private boolean isMainScreenBlocked;
 
     private DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver;
+    private BreadcrumbBarViewModel breadcrumbBarViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,13 +169,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                 }
 
                 // Add breadcrumb bar
-                BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
-
-                // If the state holder is null, create a new one for this activity
-                if (bar == null) {
-                    bar = new BreadcrumbBarFragment();
-                    fm.beginTransaction().add(bar, "breadcrumbs").commit();
-                }
+                breadcrumbBarViewModel = new ViewModelProvider(this).get(BreadcrumbBarViewModel.class);
+                breadcrumbBarViewModel.attachBreadcrumbBar(this);
             }
 
             mGestureDetector = new GestureDetector(this, this);
@@ -825,10 +821,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        FragmentManager fm = this.getSupportFragmentManager();
-        BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
-        if (bar != null) {
-            if (bar.collapseTileIfExpanded(this)) {
+        if (breadcrumbBarViewModel != null) {
+            if (breadcrumbBarViewModel.collapseTileIfExpanded(this)) {
                 return;
             }
         }
@@ -907,9 +901,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     public void refreshActionBar() {
         if (shouldShowBreadcrumbBar()) {
-            FragmentManager fm = this.getSupportFragmentManager();
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
-            bar.refresh(this);
+            breadcrumbBarViewModel.attachBreadcrumbBar(this);
         }
     }
 

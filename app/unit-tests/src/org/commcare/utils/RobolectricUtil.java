@@ -1,18 +1,14 @@
 package org.commcare.utils;
 
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+
 import org.commcare.activities.CommCareActivity;
-import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.fragments.TaskConnectorViewModel;
 import org.commcare.tasks.templates.CommCareTask;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.concurrent.ExecutionException;
-
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
-
-import static android.os.Looper.getMainLooper;
-import static org.robolectric.Shadows.shadowOf;
 
 /**
  * @author $|-|!˅@M
