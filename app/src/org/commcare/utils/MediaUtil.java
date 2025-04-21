@@ -375,8 +375,6 @@ public class MediaUtil {
         try {
             ExifInterface exif = new ExifInterface(imageFilepath);
             orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        } catch (IOException e) {
-            Logger.exception("Unable to read image file from disk: ", e);
         } catch (Exception e) {
             Logger.exception("Unable to read exif data from image file: ", e);
         }
@@ -396,7 +394,7 @@ public class MediaUtil {
                 // specified that respecting the bounding container precisely is important
                 return Bitmap.createScaledBitmap(rotatedBitmap, newWidth, newHeight, false);
             } catch (OutOfMemoryError e) {
-                Logger.exception("Ran out of memory attempting to scale image at: ", e);
+                Logger.exception("Ran out of memory attempting to scale image at: " + imageFilepath + " with exception: ", e);
                 rotatedBitmap.recycle();
                 return null;
             }
