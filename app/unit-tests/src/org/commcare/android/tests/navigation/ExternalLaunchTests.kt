@@ -6,18 +6,21 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.FormEntryActivity
+import org.commcare.activities.LoginActivity
 import org.commcare.activities.StandardHomeActivity
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.TestUtils
-import org.junit.Assert
-import org.junit.Assert.assertEquals
+import org.commcare.commcaresupportlibrary.CommCareLauncher
+import org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID
+import org.commcare.util.screen.CommCareSessionException
+import org.commcare.utils.SessionUnavailableException
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import java.util.ArrayList
 
 
 @Config(application = CommCareTestApplication::class)
@@ -31,6 +34,39 @@ class ExternalLaunchTests {
                 "jr://resource/commcare-apps/index_and_cache_test/profile.ccpr",
                 "test", "123")
         TestUtils.processResourceTransactionIntoAppDb("/commcare-apps/case_list_lookup/restore.xml")
+    }
+
+    @Test
+    fun testLaunchWithAppId() {
+        // verify initial state
+        val indexAndCacheTestAppId = "000b3b9ecb0806331fbd1526616eb718"
+        assertEquals(indexAndCacheTestAppId, CommCareTestApplication.instance().currentApp.uniqueId)
+        assertEquals("test", CommCareTestApplication.instance().session.loggedInUser.username)
+
+        // Install another app, this will also seat this app as current app
+        TestAppInstaller.installApp("jr://resource/commcare-apps/archive_form_tests/profile.ccpr")
+        val archiveFormTestsAppId = "6a03772aedd992c9f2c9c2198a248184"
+        assertEquals(archiveFormTestsAppId, CommCareTestApplication.instance().currentApp.uniqueId)
+        assertEquals("test", CommCareTestApplication.instance().session.loggedInUser.username)
+
+        // Request launch for seated app, since user is logged in already we should end up on app home screen
+        launchAndVerifyCCWithAppId(archiveFormTestsAppId, StandardHomeActivity::class.java.name)
+
+        // Request launch for non seated app, this should cause user to log out and show user Login Screen
+        launchAndVerifyCCWithAppId(indexAndCacheTestAppId, LoginActivity::class.java.name)
+        assertThrows(SessionUnavailableException::class.java) {
+            CommCareTestApplication.instance().session.loggedInUser
+        }
+    }
+
+    private fun launchAndVerifyCCWithAppId(appId: String, nextScreen: String) {
+        val intent = Intent("org.commcare.dalvik.action.CommCareSession")
+        intent.putExtra(SESSION_ENDPOINT_APP_ID, appId)
+        var dispathActivity =
+            Robolectric.buildActivity(DispatchActivity::class.java, intent).create().resume().get()
+        var recordedNextIntent = Shadows.shadowOf(dispathActivity).nextStartedActivity
+        var intentActivityName: String = recordedNextIntent.component!!.className
+        assertEquals(nextScreen, intentActivityName)
     }
 
     @Test
@@ -67,7 +103,7 @@ class ExternalLaunchTests {
 
     private fun verifyNextIntent(nextIntent: Intent, header: String) {
         val intentActivityName: String = nextIntent.component!!.className
-        Assert.assertEquals(FormEntryActivity::class.java.name, intentActivityName)
+        assertEquals(FormEntryActivity::class.java.name, intentActivityName)
         assertEquals(nextIntent.extras!!.getString(FormEntryActivity.KEY_HEADER_STRING), header)
     }
 

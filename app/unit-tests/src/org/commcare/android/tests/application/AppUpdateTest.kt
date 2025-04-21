@@ -82,7 +82,7 @@ class AppUpdateTest {
         UpdateUtils.installUpdate(profileRef,
                 AppInstallStatus.UpToDate,
                 AppInstallStatus.UnknownFailure)
-        checkUpdateComplete(6, true, false)
+        checkUpdateComplete(6, true, true)
     }
 
     @Test

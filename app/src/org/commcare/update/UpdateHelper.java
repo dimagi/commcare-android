@@ -18,7 +18,6 @@ import org.commcare.preferences.PrefValues;
 import org.commcare.resources.ResourceInstallContext;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.InstallRequestSource;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
@@ -37,6 +36,7 @@ import java.util.Vector;
 import androidx.core.util.Pair;
 import androidx.work.WorkManager;
 
+import static org.commcare.AppUtils.getCurrentAppId;
 import static org.commcare.CommCareApplication.areAutomatedActionsInvalid;
 
 /**
@@ -84,7 +84,7 @@ public class UpdateHelper implements TableStateListener {
 
     // Main UpdateHelper function for staging updates
     public ResultAndError<AppInstallStatus> update(String profileRef, ResourceInstallContext resourceInstallContext) {
-        setupUpdate(profileRef);
+        setupUpdate(profileRef, resourceInstallContext);
 
         try {
             return new ResultAndError<>(stageUpdate(profileRef, resourceInstallContext));
@@ -123,10 +123,10 @@ public class UpdateHelper implements TableStateListener {
         }
     }
 
-    private void setupUpdate(String profileRef) {
+    private void setupUpdate(String profileRef, ResourceInstallContext resourceInstallContext) {
         ResourceInstallUtils.recordUpdateAttemptTime(mApp);
         Logger.log(LogTypes.TYPE_RESOURCES,
-                "Beginning install attempt for profile " + profileRef);
+                "Beginning install attempt as " + resourceInstallContext.getInstallRequestSource() + " for profile " + profileRef);
 
         if (isAutoUpdate) {
             ResourceInstallUtils.recordAutoUpdateStart(mApp);
@@ -150,7 +150,7 @@ public class UpdateHelper implements TableStateListener {
 
         AppInstallStatus result = mResourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, mAuthority, resourceInstallContext);
 
-        if (result == AppInstallStatus.UpdateStaged) {
+        if (result == AppInstallStatus.UpdateStaged || result == AppInstallStatus.UpToDate) {
             RequestStats.markSuccess(resourceInstallContext.getInstallRequestSource());
         }
 
@@ -225,11 +225,12 @@ public class UpdateHelper implements TableStateListener {
      * @param ctx For launching notification and localizing text.
      */
     public void startPinnedNotification(Context ctx) {
-        mPinnedNotificationProgress =
-                new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
-                        "updates.pinned.progress", R.drawable.update_download_icon);
+        if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
+            mPinnedNotificationProgress =
+                    new PinnedNotificationWithProgress(ctx, "updates.pinned.download",
+                            "updates.pinned.progress", R.drawable.update_download_icon);
+        }
     }
-
 
     public void updateNotification(Integer... values) {
         if (mPinnedNotificationProgress != null) {
@@ -238,7 +239,6 @@ public class UpdateHelper implements TableStateListener {
     }
 
     public void OnUpdateCancelled() {
-
         if (mPinnedNotificationProgress != null) {
             mPinnedNotificationProgress.handleTaskCancellation();
         }
@@ -274,7 +274,7 @@ public class UpdateHelper implements TableStateListener {
 
     // Returns Unique request name for the UpdateWorker Request
     public static String getUpdateRequestName() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        String appId = getCurrentAppId();
         return UPDATE_REQUEST_NAME + "_" + appId;
     }
 

@@ -16,13 +16,15 @@ import org.commcare.interfaces.CommCareActivityUIController
 import org.commcare.session.RemoteQuerySessionManager
 import org.commcare.session.RemoteQuerySessionManager.extractMultipleChoices
 import org.commcare.suite.model.QueryPrompt
-import org.commcare.utils.DateRangeUtils
+import org.commcare.util.DateRangeUtils
+import org.commcare.utils.AndroidXUtils
 import org.commcare.views.ManagedUi
 import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
 import org.commcare.views.widgets.SpinnerWidget
 import org.commcare.views.widgets.WidgetUtils
 import org.javarosa.core.model.SelectChoice
+import org.javarosa.core.services.Logger
 import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
@@ -69,7 +71,7 @@ class QueryRequestUiController(
     }
     fun reloadStateUsingAnswers(answeredPrompts: MutableMap<String, String>) {
         answeredPrompts.forEach { entry ->
-            remoteQuerySessionManager.answerUserPrompt(entry.key, entry.value)
+            answerUserPrompt(entry.key, entry.value)
             val promptView = promptsBoxes[entry.key]
             val queryPrompt = remoteQuerySessionManager.neededUserInputDisplays[entry.key]
             if (queryPrompt!!.isSelect) {
@@ -176,18 +178,27 @@ class QueryRequestUiController(
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
-                remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, s.toString())
+                answerUserPrompt(queryPrompt.key, s.toString())
                 updateAnswerAndRefresh(queryPrompt, s.toString())
             }
         })
         return promptEditText
     }
 
+    private fun answerUserPrompt(key: String, value: String) {
+        // todo mobile don't support blank search yet
+        if ("".equals(value)) {
+            remoteQuerySessionManager.answerUserPrompt(key, null)
+        } else {
+            remoteQuerySessionManager.answerUserPrompt(key, value)
+        }
+    }
+
     private fun updateAnswerAndRefresh(queryPrompt: QueryPrompt, answer: String) {
         val userAnswers = remoteQuerySessionManager.userAnswers
         val oldAnswer = userAnswers[queryPrompt.key]
-        if (oldAnswer == null || !oldAnswer.contentEquals(answer)) {
-            remoteQuerySessionManager.answerUserPrompt(queryPrompt.key, answer)
+        if ((oldAnswer == null && !"".equals(answer)) || (oldAnswer != null && !oldAnswer.contentEquals(answer))) {
+            answerUserPrompt(queryPrompt.key, answer)
             remoteQuerySessionManager.refreshItemSetChoices()
             refreshView()
         }
@@ -339,10 +350,10 @@ class QueryRequestUiController(
         val currentDateRangeText = promptEditText.text.toString()
         if (!TextUtils.isEmpty(currentDateRangeText)) {
             try {
-                dateRangePickerBuilder.setSelection(DateRangeUtils.parseHumanReadableDate(currentDateRangeText))
+                val humanReadableDate = DateRangeUtils.parseHumanReadableDate(currentDateRangeText)
+                dateRangePickerBuilder.setSelection(AndroidXUtils.toPair(humanReadableDate!!.first, humanReadableDate.second))
             } catch (e: ParseException) {
-                // do nothing
-                e.printStackTrace()
+                Logger.exception("Error parsing date range $currentDateRangeText", e)
             }
         }
         val dateRangePicker = dateRangePickerBuilder.build()
@@ -351,10 +362,7 @@ class QueryRequestUiController(
                 selection!!.first
             )
             val endDate = DateRangeUtils.getDateFromTime(selection.second)
-            remoteQuerySessionManager.answerUserPrompt(
-                queryPrompt.key,
-                DateRangeUtils.formatDateRangeAnswer(startDate, endDate)
-            )
+            answerUserPrompt(queryPrompt.key, DateRangeUtils.formatDateRangeAnswer(startDate, endDate))
             promptEditText.setText(DateRangeUtils.getHumanReadableDateRange(startDate, endDate))
         }
         dateRangePicker.show(queryRequestActivity.supportFragmentManager, DATE_PICKER_FRAGMENT_TAG)

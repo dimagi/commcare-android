@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.ListView;
 
@@ -37,6 +35,7 @@ public class HomeNavDrawerController {
     private static final String LOGOUT_DRAWER_ITEM_ID = "home-logout";
     private static final String TRAINING_DRAWER_ITEM_ID = "training";
     private static final String UPDATE_CC_DRAWER_ITEM_ID = "update-cc";
+    private static final String INCOMPLETE_FORMS_ITEM_ID = "incomplete-forms";
 
     protected static final String KEY_DRAWER_WAS_OPEN = "drawer-open-before-rotation";
 
@@ -105,17 +104,21 @@ public class HomeNavDrawerController {
     private void determineDrawerItemsToInclude() {
         boolean hideSavedFormsItem = !HiddenPreferences.isSavedFormsEnabled();
         boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
+        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
+        boolean hideIncompleteFormsItem = !HiddenPreferences.isIncompleteFormsEnabled();
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
                 - (hideSavedFormsItem ? 1 : 0)
+                - (hideTrainingItem ? 1 : 0)
+                - (hideIncompleteFormsItem ? 1 : 0)
                 - (activity.showCommCareUpdateMenu ? 0 : 1);
-        boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
-            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem, !activity.showCommCareUpdateMenu)) {
+            if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem,
+                    !activity.showCommCareUpdateMenu, hideIncompleteFormsItem)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
@@ -123,9 +126,11 @@ public class HomeNavDrawerController {
     }
 
     private boolean excludeItem(String itemId, boolean hideChangeLanguageItem,
-                                boolean hideSavedFormsItem, boolean hideTrainingItem, boolean hideCCUpdateItem) {
+                                boolean hideSavedFormsItem, boolean hideTrainingItem, boolean hideCCUpdateItem,
+                                boolean hideIncompleteFormsItem) {
         return (itemId.equals(CHANGE_LANGUAGE_DRAWER_ITEM_ID) && hideChangeLanguageItem) ||
                 (itemId.equals(SAVED_FORMS_ITEM_ID) && hideSavedFormsItem) ||
+                (itemId.equals(INCOMPLETE_FORMS_ITEM_ID) && hideIncompleteFormsItem) ||
                 (itemId.equals(TRAINING_DRAWER_ITEM_ID) && hideTrainingItem) ||
                 (itemId.equals(UPDATE_CC_DRAWER_ITEM_ID) && hideCCUpdateItem);
     }
@@ -164,6 +169,9 @@ public class HomeNavDrawerController {
                 case UPDATE_CC_DRAWER_ITEM_ID:
                     activity.startCommCareUpdate();
                     break;
+                case INCOMPLETE_FORMS_ITEM_ID:
+                    activity.goToFormArchive(true);
+                    break;
             }
         };
     }
@@ -172,7 +180,8 @@ public class HomeNavDrawerController {
         return new String[]{
                 ABOUT_CC_DRAWER_ITEM_ID, TRAINING_DRAWER_ITEM_ID, SETTINGS_DRAWER_ITEM_ID,
                 ADVANCED_DRAWER_ITEM_ID, CHANGE_LANGUAGE_DRAWER_ITEM_ID, SAVED_FORMS_ITEM_ID,
-                UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID, LOGOUT_DRAWER_ITEM_ID};
+                INCOMPLETE_FORMS_ITEM_ID, UPDATE_DRAWER_ITEM_ID, SYNC_DRAWER_ITEM_ID, UPDATE_CC_DRAWER_ITEM_ID,
+                LOGOUT_DRAWER_ITEM_ID};
     }
 
     private static String getItemTitle(String id) {
@@ -191,6 +200,8 @@ public class HomeNavDrawerController {
                 return Localization.get("home.sync");
             case SAVED_FORMS_ITEM_ID:
                 return Localization.get("home.menu.saved.forms");
+            case INCOMPLETE_FORMS_ITEM_ID:
+                return Localization.get("app.workflow.incomplete.heading");
             case LOGOUT_DRAWER_ITEM_ID:
                 return Localization.get("home.logout");
             case TRAINING_DRAWER_ITEM_ID:
@@ -217,10 +228,14 @@ public class HomeNavDrawerController {
                 return R.drawable.ic_sync_nav_drawer;
             case SAVED_FORMS_ITEM_ID:
                 return R.drawable.ic_saved_forms_nav_drawer;
+            case INCOMPLETE_FORMS_ITEM_ID:
+                return R.drawable.incomplete_nav_drawer;
             case LOGOUT_DRAWER_ITEM_ID:
                 return R.drawable.ic_logout_nav_drawer;
             case TRAINING_DRAWER_ITEM_ID:
                 return R.drawable.ic_training_nav_drawer;
+            case UPDATE_CC_DRAWER_ITEM_ID:
+                return R.drawable.ic_cc_update;
         }
         return -1;
     }

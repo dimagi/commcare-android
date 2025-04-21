@@ -16,6 +16,8 @@
     <dimen name="title_padding">10dp</dimen>
     <dimen name="title_paddingLeft">20dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
+    <dimen name="detail_view_tab_indicator_height">3dp</dimen>
+    <dimen name="detail_view_tab_padding_horizontal">24dp</dimen>
 
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="standard_spacer_half">4dp</dimen>
@@ -24,6 +26,8 @@
     <dimen name="standard_spacer_large">24dp</dimen>
     <dimen name="standard_title_margin_bottom">20dp</dimen>
     <dimen name="min_button_height">52dp</dimen>
+    <dimen name="min_button_width">88dp</dimen>
+    <dimen name="rounded_button_corner_radius">22dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
     <dimen name="action_icon_size">60dp</dimen>
@@ -35,7 +39,7 @@
     <dimen name="list_icon_bounding_dimen">60dp</dimen>
     <dimen name="list_grid_bounding_dimension">180dp</dimen>
 
-    <dimen name="numeric_badge_width_for_list">20dp</dimen>
+    <dimen name="numeric_badge_width_for_list">28dp</dimen>
     <dimen name="numeric_badge_font_size_list">10dp</dimen>
 
     <dimen name="menu_grid_icon_size">120dp</dimen>
@@ -53,10 +57,10 @@
 
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="font_size_small">8sp</dimen>
-    <dimen name="font_size_medium">10sp</dimen>
-    <dimen name="font_size_large">12sp</dimen>
-    <dimen name="font_size_xlarge">14sp</dimen>
+    <dimen name="font_size_small">10sp</dimen>
+    <dimen name="font_size_medium">14sp</dimen>
+    <dimen name="font_size_large">16sp</dimen>
+    <dimen name="font_size_xlarge">21sp</dimen>
     <dimen name="font_size_xlarger">23sp</dimen>
     <dimen name="font_size_xlargest">28sp</dimen>
     <dimen name="font_size_40">40sp</dimen>
@@ -103,6 +107,8 @@
     <dimen name="new_progressbar_button_minheight">48dp</dimen>
     <dimen name="new_progressbar_button_minwidth">32dp</dimen>
     <dimen name="new_progressbar_button_padding">24dp</dimen>
+    <dimen name="modern_progressbar_radius">4dp</dimen>
+    <dimen name="progressbar_vertical_padding">16dp</dimen>
 
     <dimen name="submission_progressbar_height">10dp</dimen>
 

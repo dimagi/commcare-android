@@ -145,7 +145,6 @@ public abstract class ResourceEngineTask<R>
 
             return AppInstallStatus.Installed;
         } catch (Exception e) {
-            e.printStackTrace();
             ResourceInstallUtils.logInstallError(e,
                     "Unknown error ocurred during install|");
             return AppInstallStatus.UnknownFailure;

@@ -20,7 +20,7 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.modern.database.DatabaseIndexingUtils;
@@ -66,9 +66,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * v.26 - Adds a column for 'last_sync' in IndexedFixtureIndex
      * v.27 - Adds a column `descriptor` in FormRecord.
      * v.28 - Adds and indexes columns for Case state and category
+     * v.29 - Add columns for is_dirty and is_shallow in entity_cache table
      */
 
-    private static final int USER_DB_VERSION = 28;
+    private static final int USER_DB_VERSION = 29;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -162,8 +163,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
             DbUtil.createNumbersTable(database);
 
-            database.execSQL(EntityStorageCache.getTableDefinition());
-            EntityStorageCache.createIndexes(database);
+            database.execSQL(CommCareEntityStorageCache.getTableDefinition());
+            CommCareEntityStorageCache.createIndexes(database);
 
             database.execSQL(AndroidCaseIndexTable.getTableDefinition());
             AndroidCaseIndexTable.createIndexes(database);

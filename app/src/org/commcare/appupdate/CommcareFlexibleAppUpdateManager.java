@@ -161,8 +161,6 @@ public class CommcareFlexibleAppUpdateManager implements FlexibleAppUpdateContro
         if (mAppUpdateState == newState) {
             return;
         }
-        Logger.log(LogTypes.TYPE_CC_UPDATE, "Publishing status update to : " + newState.name() + ", from : "
-                + (mAppUpdateState != null ? mAppUpdateState.name() : "null"));
         mAppUpdateState = newState;
         mCallback.run();
     }

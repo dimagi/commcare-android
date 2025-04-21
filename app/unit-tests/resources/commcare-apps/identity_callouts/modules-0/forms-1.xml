@@ -1,0 +1,69 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+  <h:head>
+    <h:title>Registration with Templates</h:title>
+    <model>
+      <instance>
+        <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/E3900AF4-43AC-435A-B0BB-E043AD9608A1" uiVersion="1" version="24" name="Registration with Templates">
+          <register/>
+          <guid/>
+          <left_index_finger_template/>
+          <left_middle_finger_template/>
+          <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id="">
+            <create>
+              <case_name/>
+              <owner_id/>
+              <case_type>case</case_type>
+            </create>
+          </case>
+          <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+            <orx:deviceID/>
+            <orx:timeStart/>
+            <orx:timeEnd/>
+            <orx:username/>
+            <orx:userID/>
+            <orx:instanceID/>
+            <cc:appVersion/>
+            <orx:drift/>
+          </orx:meta>
+        </data>
+      </instance>
+      <instance id="commcaresession" src="jr://instance/session"/>
+      <bind nodeset="/data/register" type="intent" required="true()"/>
+      <bind nodeset="/data/guid"/>
+      <bind nodeset="/data/left_index_finger_template"/>
+      <bind nodeset="/data/left_middle_finger_template"/>
+      <itext>
+        <translation lang="en" default="">
+          <text id="register-label">
+            <value>Register</value>
+          </text>
+        </translation>
+      </itext>
+      <bind nodeset="/data/case/@date_modified" type="xsd:dateTime" calculate="/data/meta/timeEnd"/>
+      <bind nodeset="/data/case/@user_id" calculate="/data/meta/userID"/>
+      <setvalue ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_case_0" event="xforms-ready"/>
+      <bind nodeset="/data/case/create/case_name" calculate="/data/register"/>
+      <bind nodeset="/data/case/create/owner_id" calculate="/data/meta/userID"/>
+      <setvalue ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid" event="xforms-ready"/>
+      <setvalue ref="/data/meta/timeStart" value="now()" event="xforms-ready"/>
+      <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+      <setvalue ref="/data/meta/timeEnd" value="now()" event="xforms-revalidate"/>
+      <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+      <setvalue ref="/data/meta/username" value="instance('commcaresession')/session/context/username" event="xforms-ready"/>
+      <setvalue ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid" event="xforms-ready"/>
+      <setvalue ref="/data/meta/instanceID" value="uuid()" event="xforms-ready"/>
+      <setvalue ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion" event="xforms-ready"/>
+      <setvalue ref="/data/meta/drift" value="if(count(instance('commcaresession')/session/context/drift) = 1, instance('commcaresession')/session/context/drift, '')" event="xforms-revalidate"/>
+    </model>
+    <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="register" class="org.commcare.identity.bioenroll">
+      <response key="guid" ref="/data/guid"/>
+      <response key="left_index_finger_template" ref="/data/left_index_finger_template"/>
+      <response key="left_middle_finger_template" ref="/data/left_middle_finger_template"/>
+    </odkx:intent>
+  </h:head>
+  <h:body>
+    <input ref="/data/register" appearance="intent:register">
+      <label ref="jr:itext('register-label')"/>
+    </input>
+  </h:body>
+</h:html>

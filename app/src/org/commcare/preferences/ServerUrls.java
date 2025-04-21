@@ -6,6 +6,9 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * Created by amstone326 on 11/14/17.
  */
@@ -29,6 +32,30 @@ public class ServerUrls {
     public static String getDataServerKey() {
         return getServerProperty(PREFS_DATA_SERVER_KEY, CommCareApplication.instance()
                 .getString(R.string.ota_restore_url)) ;
+    }
+
+    /**
+     * Builds a complete URL by combining the key server URL with the given path.
+     *
+     * @param path The path to append to the key server URL
+     * @return The complete URL
+     * @throws IllegalArgumentException if path is null or key server URL is not set
+     * @throws MalformedURLException if the resulting URL is invalid
+     */
+    public static String buildEndpoint(String path) throws MalformedURLException {
+        if (path == null) {
+            throw new IllegalArgumentException("Path cannot be null");
+        }
+        String keyServer = getKeyServer();
+        if (keyServer == null) {
+            throw new IllegalArgumentException("Key server URL is not set");
+        }
+        try {
+            URL originalUrl = new URL(keyServer);
+            return new URL(originalUrl, path).toString();
+        } catch (MalformedURLException e) {
+            throw e;
+        }
     }
 
     public static String getKeyServer() {

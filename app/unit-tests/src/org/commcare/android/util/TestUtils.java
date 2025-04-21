@@ -20,7 +20,7 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -47,7 +47,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.test_utils.ExprEvalUtils;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.robolectric.RuntimeEnvironment;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -112,14 +112,14 @@ public class TestUtils {
                 //Note - this isn't even actually bulk processing. since this class is static
                 //there's no good lifecycle to manage the bulk processor in, but at least
                 //this will validate that the bulk processor works.
-                EntityStorageCache entityStorageCache = null;
+                CommCareEntityStorageCache commCareEntityStorageCache = null;
 
                 if (CommCareApplication.instance().getCurrentApp() != null) {
-                    entityStorageCache = new EntityStorageCache("case", db, AppUtils.getCurrentAppId());
+                    commCareEntityStorageCache = new CommCareEntityStorageCache("case", db, AppUtils.getCurrentAppId());
                 }
 
                 if (bulkProcessingEnabled) {
-                    return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
+                    return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), commCareEntityStorageCache, new AndroidCaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
@@ -127,7 +127,7 @@ public class TestUtils {
                     };
 
                 } else {
-                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), entityStorageCache, new AndroidCaseIndexTable(db)) {
+                    return new AndroidCaseXmlParser(parser, getCaseStorage(db), commCareEntityStorageCache, new AndroidCaseIndexTable(db)) {
                         @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
@@ -362,12 +362,19 @@ public class TestUtils {
         return new EvaluationContext(null, instances);
     }
 
-    public static void assertFormValue(String expr, Object expectedValue){
+    public static void assertFormValue(String expr, Object expectedValue) {
         FormDef formDef = FormEntryActivity.mFormController.getFormEntryController().getModel().getForm();
         FormInstance instance = formDef.getMainInstance();
 
         String errorMsg;
         errorMsg = ExprEvalUtils.expectedEval(expr, instance, null, expectedValue, null);
         assertTrue(errorMsg, "".equals(errorMsg));
+    }
+
+    public static Object getFormValue(String expr) throws XPathSyntaxException {
+        FormDef formDef = FormEntryActivity.mFormController.getFormEntryController().getModel().getForm();
+        FormInstance instance = formDef.getMainInstance();
+        EvaluationContext ec = new EvaluationContext(instance);
+        return ExprEvalUtils.xpathEval(ec, expr);
     }
 }

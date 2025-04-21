@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,13 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+
+import androidx.appcompat.widget.SwitchCompat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
@@ -27,7 +24,6 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.modern.util.Pair;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.tasks.ModernHttpTask;
@@ -48,10 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-
-import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.common.collect.ImmutableMultimap;
 
@@ -95,14 +88,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setInitialValues(savedInstanceState);
-        setupUI();
+        setupUi();
         if (errorMessage != null) {
             enterErrorState(errorMessage);
         }
         loadPreviouslyRetrievedAvailableApps();
     }
 
-    private void setupUI() {
+    private void setupUi() {
         setContentView(R.layout.user_get_available_apps);
         errorMessageBox = findViewById(R.id.error_message);
         authenticateView = findViewById(R.id.authenticate_view);
@@ -228,10 +221,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     /**
+     * Initiates remote request for an updated app list
      * @return whether a request was initiated
      */
     private boolean requestAppList(String username, String password) {
-        String urlToTry = getURLToTry();
+        String urlToTry = getUrlToTry();
         if (urlToTry != null) {
             this.lastUsernameUsed = username;
             this.lastPasswordUsed = password;
@@ -286,7 +280,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         }
     }
 
-    private String getURLToTry() {
+    private String getUrlToTry() {
         if (!requestedFromProd) {
             urlCurrentlyRequestingFrom = PROD_URL;
         } else if (!requestedFromIndia) {
@@ -306,7 +300,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
+    public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
         processResponseIntoAppsList(responseData);
         saveLastSuccessfulCredentials();
         repeatRequestOrShowResultsAfterSuccess();
@@ -317,7 +311,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
             KXmlParser baseParser = ElementParser.instantiateParser(responseData);
             List<AppAvailableToInstall> apps = (new AvailableAppsParser(baseParser)).parse();
             availableApps.addAll(apps);
-        } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
+        } catch (IOException | InvalidStructureException |
+                 XmlPullParserException |UnfullfilledRequirementsException e) {
             Logger.log(LogTypes.TYPE_RESOURCES, "Error encountered while parsing apps available for install");
         }
     }
@@ -346,7 +341,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public void handleIOException(IOException exception) {
         if (exception instanceof AuthenticationInterceptor.PlainTextPasswordException) {
-            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE, "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
+            Logger.log(LogTypes.TYPE_ERROR_CONFIG_STRUCTURE,
+                    "Encountered PlainTextPasswordException while sending get available apps request: Sending password over HTTP");
             new UserfacingErrorHandling<>().createErrorDialog(this, Localization.get("auth.over.http"), true);
         } else if (exception instanceof IOException) {
             Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS,
@@ -418,7 +414,8 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     private void sortAppList() {
-        Collections.sort(this.availableApps, (o1, o2) -> o1.getAppName().toLowerCase().compareTo(o2.getAppName().toLowerCase()));
+        Collections.sort(this.availableApps,
+                (o1, o2) -> o1.getAppName().toLowerCase().compareTo(o2.getAppName().toLowerCase()));
     }
 
     @Override

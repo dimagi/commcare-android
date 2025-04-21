@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -19,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
@@ -47,7 +50,6 @@ import java.io.File;
 import javax.crypto.spec.SecretKeySpec;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -93,7 +95,7 @@ public class ImageWidget extends QuestionWidget {
         mErrorTextView.setText("Selected file is not a valid image");
 
         // setup capture button
-        mCaptureButton = new AppCompatButton(getContext());
+        mCaptureButton = new MaterialButton(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_image),
                 !mPrompt.isReadOnly());
@@ -119,7 +121,7 @@ public class ImageWidget extends QuestionWidget {
         });
 
         // setup chooser button
-        mChooseButton = new AppCompatButton(getContext());
+        mChooseButton = new MaterialButton(getContext());
         WidgetUtils.setupButton(mChooseButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.choose_image),
                 !mPrompt.isReadOnly());
@@ -134,12 +136,11 @@ public class ImageWidget extends QuestionWidget {
                 ImageCaptureProcessing.setCustomImagePath(null);
             } else {
                 mErrorTextView.setVisibility(View.GONE);
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/*");
 
                 try {
-                    ((AppCompatActivity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.IMAGE_CHOOSER);
+                    ((AppCompatActivity)getContext())
+                            .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "image/*"),
+                                    FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -151,7 +152,7 @@ public class ImageWidget extends QuestionWidget {
         });
 
         // setup discard button
-        mDiscardButton = new AppCompatButton(getContext());
+        mDiscardButton = new MaterialButton(getContext());
         WidgetUtils.setupButton(mDiscardButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
                 !mPrompt.isReadOnly());

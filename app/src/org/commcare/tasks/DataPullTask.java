@@ -1,8 +1,7 @@
 package org.commcare.tasks;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
+
 import androidx.core.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -22,10 +21,9 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
-import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
@@ -83,7 +81,7 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
     public static final int PROGRESS_AUTHED = 2;
-    private static final int PROGRESS_DONE = 4;
+    public static final int PROGRESS_DONE = 4;
     public static final int PROGRESS_RECOVERY_NEEDED = 8;
     public static final int PROGRESS_RECOVERY_STARTED = 16;
     private static final int PROGRESS_RECOVERY_FAIL_SAFE = 32;
@@ -100,10 +98,12 @@ public abstract class DataPullTask<R>
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
+    private boolean skipFixtures;
 
     public DataPullTask(String username, String password, String userId,
                         String server, Context context, DataPullRequester dataPullRequester,
-                        boolean blockRemoteKeyManagement) {
+                        boolean blockRemoteKeyManagement, boolean skipFixtures) {
+        this.skipFixtures = skipFixtures;
         this.server = server;
         this.username = username;
         this.password = password;
@@ -113,14 +113,13 @@ public abstract class DataPullTask<R>
         this.requestor = dataPullRequester.getHttpGenerator(username, password, userId);
         this.asyncRestoreHelper = CommCareApplication.instance().getAsyncRestoreHelper(this);
         this.blockRemoteKeyManagement = blockRemoteKeyManagement;
-
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password, String userId,
-                        String server, Context context) {
+                        String server, Context context, boolean skipFixtures) {
         this(username, password, userId, server, context, CommCareApplication.instance().getDataPullRequester(),
-                false);
+                false, skipFixtures);
     }
 
     // TODO PLM: once this task is refactored into manageable components, it should use the
@@ -154,7 +153,6 @@ public abstract class DataPullTask<R>
 
         publishProgress(PROGRESS_STARTED);
         HiddenPreferences.setPostUpdateSyncNeeded(false);
-        Logger.log(LogTypes.TYPE_USER, "Starting Sync");
         determineIfLoginNeeded();
 
         AndroidTransactionParserFactory factory = getTransactionParserFactory();
@@ -311,7 +309,7 @@ public abstract class DataPullTask<R>
             throws IOException, UnknownSyncError {
 
         RemoteDataPullResponse pullResponse =
-                dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
+                dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded, skipFixtures);
 
         int responseCode = pullResponse.responseCode;
         Logger.log(LogTypes.TYPE_USER,
@@ -453,6 +451,7 @@ public abstract class DataPullTask<R>
         recordSuccessfulSyncTime(username);
 
         ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
@@ -460,6 +459,10 @@ public abstract class DataPullTask<R>
 
         Logger.log(LogTypes.TYPE_USER, "User Sync Successful|" + username);
         updateCurrentUser(password);
+
+        // Disable pending background syncs
+        HiddenPreferences.clearPendingSyncRequest(username);
+
         this.publishProgress(PROGRESS_DONE);
     }
 
@@ -477,6 +480,7 @@ public abstract class DataPullTask<R>
 
     private void wipeLoginIfItOccurred() {
         if (wasKeyLoggedIn) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Wiping user login");
             CommCareApplication.instance().releaseUserResourcesAndServices();
         }
     }
@@ -514,7 +518,7 @@ public abstract class DataPullTask<R>
         try {
             // Make a new request without all of the flags
             RemoteDataPullResponse pullResponse =
-                    dataPullRequester.makeDataPullRequest(this, requestor, server, false);
+                    dataPullRequester.makeDataPullRequest(this, requestor, server, false, skipFixtures);
 
             if (!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
                 return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE,
@@ -577,7 +581,7 @@ public abstract class DataPullTask<R>
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
-        EntityStorageCache.wipeCacheForCurrentAppWithoutCommit(userDb);
+        CommCareEntityStorageCache.wipeCacheForCurrentAppWithoutCommit(userDb);
     }
 
     private void updateCurrentUser(String password) {

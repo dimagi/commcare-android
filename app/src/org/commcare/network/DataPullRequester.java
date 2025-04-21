@@ -24,7 +24,8 @@ public interface DataPullRequester {
     RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
                                                CommcareRequestEndpoints requestor,
                                                String server,
-                                               boolean includeSyncToken) throws IOException;
+                                               boolean includeSyncToken,
+                                               boolean skipFixtures) throws IOException;
 
     CommcareRequestEndpoints getHttpGenerator(String username, String password, String userId);
 }

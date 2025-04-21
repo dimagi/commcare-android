@@ -166,14 +166,14 @@
                                 android:textSize="@dimen/font_size_medium"
                                 android:visibility="gone" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="bottom"
+                                android:textAllCaps="true"
                                 android:nextFocusUp="@+id/edit_password"
-                                android:paddingBottom="@dimen/content_start"
-                                android:paddingTop="@dimen/content_start" />
+                               />
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
@@ -203,7 +203,6 @@
                                         android:id="@+id/btn_view_notifications"
                                         android:layout_width="match_parent"
                                         android:layout_height="@dimen/rectangle_button_height"
-
                                         RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
                                         RectangleButtonWithText:img="@drawable/ic_list_error"
                                         RectangleButtonWithText:textColor="@color/cc_attention_negative_text" />

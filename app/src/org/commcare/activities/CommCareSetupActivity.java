@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
@@ -25,10 +24,10 @@ import androidx.fragment.app.FragmentTransaction;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.InstallConfirmFragment;
@@ -45,11 +44,11 @@ import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
-import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
-import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -60,8 +59,8 @@ import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.PropertyUtils;
 
 import java.io.IOException;
 import java.security.SignatureException;
@@ -460,101 +459,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void startResourceInstall() {
         if (startAllowed) {
-            ccApp = getCommCareApp();
-            containerFragment.setData(ccApp);
-
             CustomProgressDialog lastDialog = getCurrentProgressDialog();
             // used to tell the ResourceEngineTask whether or not it should
             // sleep before it starts, set based on whether we are currently
             // in keep trying mode.
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
-            ResourceEngineTask<CommCareSetupActivity> task =
-                    new ResourceEngineTask<CommCareSetupActivity>(ccApp,
-                            DIALOG_INSTALL_PROGRESS, shouldSleep, false) {
-
-                        @Override
-                        protected void deliverResult(CommCareSetupActivity receiver,
-                                                     AppInstallStatus result) {
-                            handleAppInstallResult(this, receiver, result);
-                        }
-
-                        @Override
-                        protected void deliverUpdate(CommCareSetupActivity receiver,
-                                                     int[]... update) {
-                            receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
-                        }
-
-                        @Override
-                        protected void deliverError(CommCareSetupActivity receiver,
-                                                    Exception e) {
-                            receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                        }
-                    };
-
-            task.connect(this);
-            task.executeParallel(incomingRef);
+            ccApp = ResourceInstallUtils.startAppInstallAsync(shouldSleep, DIALOG_INSTALL_PROGRESS, this, incomingRef);
+            containerFragment.setData(ccApp);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
-    }
-
-    public static void handleAppInstallResult(ResourceEngineTask resourceEngineTask, ResourceEngineListener receiver, AppInstallStatus result) {
-        switch (result) {
-            case Installed:
-                receiver.reportSuccess(true);
-                break;
-            case UpToDate:
-                receiver.reportSuccess(false);
-                break;
-            case MissingResourcesWithMessage:
-                // fall through to more general case:
-            case MissingResources:
-                receiver.failMissingResource(resourceEngineTask.getMissingResourceException(), result);
-                break;
-            case InvalidResource:
-                receiver.failInvalidResource(resourceEngineTask.getInvalidResourceException(), result);
-                break;
-            case InvalidReference:
-                receiver.failInvalidReference(resourceEngineTask.getInvalidReferenceException(), result);
-                break;
-            case IncompatibleReqs:
-                receiver.failBadReqs(resourceEngineTask.getVersionRequired(),
-                        resourceEngineTask.getVersionAvailable(), resourceEngineTask.isMajorIsProblem());
-                break;
-            case NoLocalStorage:
-                receiver.failWithNotification(AppInstallStatus.NoLocalStorage);
-                break;
-            case NoConnection:
-                receiver.failWithNotification(AppInstallStatus.NoConnection);
-                break;
-            case BadSslCertificate:
-                receiver.failWithNotification(AppInstallStatus.BadSslCertificate, NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS);
-                break;
-            case DuplicateApp:
-                receiver.failWithNotification(AppInstallStatus.DuplicateApp);
-                break;
-            case IncorrectTargetPackage:
-                receiver.failTargetMismatch();
-                break;
-            case ReinstallFromInvalidCcz:
-                receiver.failUnknown(AppInstallStatus.ReinstallFromInvalidCcz);
-                break;
-            case CaptivePortal:
-                receiver.failWithNotification(AppInstallStatus.CaptivePortal);
-                break;
-            default:
-                receiver.failUnknown(AppInstallStatus.UnknownFailure);
-                break;
-        }
-    }
-
-    public static CommCareApp getCommCareApp() {
-        ApplicationRecord newRecord =
-                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
-                        ApplicationRecord.STATUS_UNINITIALIZED);
-
-        return new CommCareApp(newRecord);
     }
 
     @Override
@@ -862,6 +777,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void onStartInstallClicked() {
         if (lastInstallMode != INSTALL_MODE_OFFLINE && isNetworkNotConnected()) {
             failWithNotification(AppInstallStatus.NoConnection);
+            Logger.log(LogTypes.TYPE_NETWORK, "No Internet");
         } else {
             startResourceInstall();
         }

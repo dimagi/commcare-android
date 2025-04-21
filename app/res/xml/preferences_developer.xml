@@ -166,4 +166,16 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-allow-space-in-select-choices"
         android:title="Allow Space in Select Choices"/>
+    <androidx.preference.ListPreference
+        android:defaultValue="no"
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-enable-certificate-transparency"
+        android:title="Certificate Transparency"/>
+    <EditTextPreference
+        android:dialogMessage="The URL must use the HTTPS protocol"
+        android:enabled="true"
+        android:key="log_receiver_url"
+        android:title="Override Log Submission Server"/>
 </PreferenceScreen>

@@ -20,6 +20,7 @@ import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
@@ -232,23 +233,23 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     public void handleFormUploadResult(FormUploadResult result, String formLabel, boolean userTriggered) {
         switch (result) {
             case FULL_SUCCESS:
-                handleFormSendResult(formLabel, true);
+                updateUiForFormUploadResult(formLabel, true);
                 break;
             case BAD_CERTIFICATE:
                 CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSslCertificate,
                                 NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
 
-                handleFormSendResult(Localization.get(result.getLocaleKeyBase()), false);
+                updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
             case ACTIONABLE_FAILURE:
-                handleFormSendResult(result.getErrorMessage(), false);
+                updateUiForFormUploadResult(result.getErrorMessage(), false);
                 break;
             case RATE_LIMITED:
                 showRateLimitError(userTriggered);
                 break;
             case CANCELLED:
-                handleFormSendResult(Localization.get(result.getLocaleKeyBase())
+                updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase())
                         + " " + formLabel, false);
                 break;
             case AUTH_FAILURE:
@@ -258,12 +259,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case INVALID_CASE_GRAPH:
             case FAILURE:
             default:
-                handleFormSendResult(Localization.get(result.getLocaleKeyBase()), false);
+                updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
         }
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
     }
 
-    public void handleFormSendResult(String message, boolean success) {
+    public void updateUiForFormUploadResult(String message, boolean success) {
         updateUiAfterDataPullOrSend(message, success);
         if (success) {
             // Since we know that we just had connectivity, now is a great time to try this
@@ -273,7 +275,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     public void showRateLimitError(boolean userTriggered) {
         if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
-            handleFormUploadResult(FormUploadResult.RATE_LIMITED, null, userTriggered);
+            updateUiForFormUploadResult(Localization.get(FormUploadResult.RATE_LIMITED.getLocaleKeyBase()), false);
             return;
         }
         String title = Localization.get("form.send.rate.limit.error.title");

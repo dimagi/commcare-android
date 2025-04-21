@@ -1,5 +1,9 @@
 package org.commcare.android.tests;
 
+
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -9,14 +13,12 @@ import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
-
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 /**
  * Coverage for different DataPullTask codepaths.
@@ -39,6 +41,11 @@ public class DataPullTaskTest {
      */
     private static ResultAndError<DataPullTask.PullTaskResult> dataPullResult;
     private static DataPullTask pullTask;
+
+    @Before
+    public void setUp() {
+        ((CommCareTestApplication)CommCareTestApplication.instance()).initWorkManager();
+    }
 
     @Test
     public void dataPullWithMissingRemoteKeyRecordTest() {
@@ -163,7 +170,9 @@ public class DataPullTaskTest {
         LocalReferencePullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
-                new DataPullTask<Object>("test", "123", null, "fake.server.com", ApplicationProvider.getApplicationContext(), LocalReferencePullResponseFactory.INSTANCE, false) {
+                new DataPullTask<Object>("test", "123", null,
+                        "fake.server.com", ApplicationProvider.getApplicationContext(),
+                        LocalReferencePullResponseFactory.INSTANCE, false, false) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
                         dataPullResult = pullTaskResultResultAndError;

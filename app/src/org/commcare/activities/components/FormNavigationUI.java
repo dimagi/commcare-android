@@ -62,10 +62,10 @@ public class FormNavigationUI {
                 findViewById(R.id.nav_btn_finish);
 
         if (!details.relevantBeforeCurrentScreen) {
-            prevButton.setImageResource(R.drawable.icon_close_darkwarm);
+            prevButton.setImageResource(R.drawable.icon_close_white);
             prevButton.setTag(FormEntryConstants.NAV_STATE_QUIT);
         } else {
-            prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
+            prevButton.setImageResource(R.drawable.icon_chevron_left_white);
             prevButton.setTag(FormEntryConstants.NAV_STATE_BACK);
         }
 
@@ -99,7 +99,7 @@ public class FormNavigationUI {
             expandAndShowFinishButton(context, finishButton);
         }
 
-        progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
+        progressBar.setProgressDrawable(context.getDrawable(R.drawable.progressbar_full));
         progressBar.setProgress(details.totalQuestions);
 
         Log.i("Questions", "Form complete");
@@ -148,7 +148,7 @@ public class FormNavigationUI {
             finishButton.setVisibility(View.GONE);
         }
 
-        progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
+        progressBar.setProgressDrawable(context.getDrawable(R.drawable.progressbar_modern));
         progressBar.setProgress(details.completedQuestions);
     }
 

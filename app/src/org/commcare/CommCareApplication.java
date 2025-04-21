@@ -1,7 +1,10 @@
 package org.commcare;
 
+import static org.commcare.AppUtils.getCurrentAppId;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +20,10 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.multidex.MultiDexApplication;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.preference.PreferenceManager;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -73,7 +79,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.session.SessionWrapper;
@@ -81,7 +87,7 @@ import org.commcare.modern.util.PerformanceTuningUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
-import org.commcare.network.ISRGCertConfig;
+import org.commcare.network.OkHttpBuilderCustomConfig;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
@@ -93,6 +99,7 @@ import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
@@ -105,6 +112,7 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -116,6 +124,7 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.condition.RequestAbandonedException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -137,10 +146,12 @@ import javax.crypto.SecretKey;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
+import io.reactivex.exceptions.UndeliverableException;
+import io.reactivex.plugins.RxJavaPlugins;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class CommCareApplication extends MultiDexApplication {
+public class CommCareApplication extends Application implements LifecycleEventObserver {
 
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
@@ -195,6 +206,9 @@ public class CommCareApplication extends MultiDexApplication {
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
+    private EncryptionKeyProvider encryptionKeyProvider;
+
+    private boolean backgroundSyncSafe;
 
     @Override
     public void onCreate() {
@@ -219,8 +233,6 @@ public class CommCareApplication extends MultiDexApplication {
         // Workaround because android is written by 7 year-olds (re-uses http connection pool
         // improperly, so the second https request in a short time period will flop)
         System.setProperty("http.keepAlive", "false");
-
-        attachISRGCert();
 
         Thread.setDefaultUncaughtExceptionHandler(new CommCareExceptionHandler(Thread.getDefaultUncaughtExceptionHandler(), this));
 
@@ -249,10 +261,15 @@ public class CommCareApplication extends MultiDexApplication {
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
-    }
 
-    protected void attachISRGCert() {
-        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new ISRGCertConfig());
+        //Create standard provider
+        setEncryptionKeyProvider(new EncryptionKeyProvider());
+
+        customiseOkHttp();
+
+        setRxJavaGlobalHandler();
+
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
     protected void loadSqliteLibs() {
@@ -270,7 +287,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         LocalePreferences.saveDeviceLocale(newConfig.locale);
     }
@@ -289,6 +306,14 @@ public class CommCareApplication extends MultiDexApplication {
         } else if (isFirstRunAfterUpdate()) {
             DataChangeLogger.log(new DataChangeLog.CommCareUpdate());
         }
+    }
+
+    public void setBackgroundSyncSafe(boolean backgroundSyncSafe) {
+        this.backgroundSyncSafe = backgroundSyncSafe;
+    }
+
+    public boolean isBackgroundSyncSafe() {
+        return this.backgroundSyncSafe;
     }
 
     // Whether user is running CommCare for the first time after installation
@@ -328,11 +353,11 @@ public class CommCareApplication extends MultiDexApplication {
         // md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
-        ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
-                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
+                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap((long) memoryClass * 1024 * 1024));
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
@@ -341,6 +366,7 @@ public class CommCareApplication extends MultiDexApplication {
             // CommCareSessionService, close it and open a new one
             SessionRegistrationHelper.unregisterSessionExpiration();
             if (this.sessionServiceIsBound) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session to start a new one");
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
@@ -353,6 +379,7 @@ public class CommCareApplication extends MultiDexApplication {
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session");
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
@@ -366,10 +393,10 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     protected void cancelWorkManagerTasks() {
-        // Cancel form Submissions for this user
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+            currentApp.getPrimeEntityCacheHelper().cancelWork();
         }
     }
 
@@ -408,12 +435,13 @@ public class CommCareApplication extends MultiDexApplication {
             analyticsInstance = FirebaseAnalytics.getInstance(this);
         }
         analyticsInstance.setUserId(getUserIdOrNull());
+
         return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
         String[] components = BuildConfig.VERSION_NAME.split("\\.");
-        int[] versions = new int[] {0, 0, 0};
+        int[] versions = new int[]{0, 0, 0};
         for (int i = 0; i < components.length; i++) {
             versions[i] = Integer.parseInt(components[i]);
         }
@@ -458,7 +486,7 @@ public class CommCareApplication extends MultiDexApplication {
 
     @NonNull
     public String getPhoneId() {
-        /**
+        /*
          * https://source.android.com/devices/tech/config/device-identifiers
          * https://issuetracker.google.com/issues/129583175#comment10
          * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
@@ -502,7 +530,7 @@ public class CommCareApplication extends MultiDexApplication {
     private void initializeAnAppOnStartup() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)) {
+        if (!lastAppId.isEmpty()) {
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 AppUtils.initFirstUsableAppRecord();
@@ -533,13 +561,16 @@ public class CommCareApplication extends MultiDexApplication {
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
-            e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
             FirebaseAnalyticsUtil.reportCorruptAppState();
         }
         app.setAppResourceState(resourceState);
+
+        // This is part of the CommCare app initialization because it needs to be applied during
+        // app initialization, update and when switching the seated app
+        customiseOkHttp();
     }
 
     /**
@@ -555,7 +586,7 @@ public class CommCareApplication extends MultiDexApplication {
     public void unseat(ApplicationRecord record) {
         // cancel all Workmanager tasks for the unseated record
         WorkManager.getInstance(CommCareApplication.instance())
-                .cancelAllWorkByTag(record.getApplicationId());
+                .cancelAllWorkByTag(record.getUniqueId());
         MissingMediaDownloadHelper.cancelAllDownloads();
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
@@ -715,7 +746,7 @@ public class CommCareApplication extends MultiDexApplication {
                 synchronized (serviceLock) {
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-                    mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+                    mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
                     mBoundService.showLoggedInNotification(null);
 
                     // Don't let anyone touch this until it's logged in
@@ -769,13 +800,15 @@ public class CommCareApplication extends MultiDexApplication {
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
 
-                        if (EntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
-                            EntityStorageCache.wipeCacheForCurrentApp();
+                        if (CommCareEntityStorageCache.getEntityCacheWipedPref(user.getUniqueId()) < ReportingUtils.getAppVersion()) {
+                            CommCareEntityStorageCache.wipeCacheForCurrentApp();
                         }
 
                         purgeLogs();
                         cleanRawMedia();
 
+                        getCurrentApp().getPrimeEntityCacheHelper().clearState();
+                        PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -828,7 +861,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         PeriodicWorkRequest formSubmissionRequest =
                 new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                        .addTag(getCurrentAppId())
                         .setConstraints(constraints)
                         .setBackoffCriteria(
                                 BackoffPolicy.EXPONENTIAL,
@@ -837,7 +870,7 @@ public class CommCareApplication extends MultiDexApplication {
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),
+                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentAppId()),
                 ExistingPeriodicWorkPolicy.KEEP,
                 formSubmissionRequest
         );
@@ -854,7 +887,7 @@ public class CommCareApplication extends MultiDexApplication {
 
             PeriodicWorkRequest updateRequest =
                     new PeriodicWorkRequest.Builder(UpdateWorker.class, UpdateHelper.getAutoUpdatePeriodicity(), TimeUnit.HOURS)
-                            .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                            .addTag(getCurrentAppId())
                             .setConstraints(constraints)
                             .setBackoffCriteria(
                                     BackoffPolicy.EXPONENTIAL,
@@ -901,7 +934,6 @@ public class CommCareApplication extends MultiDexApplication {
 
     /**
      * Whether the current login is a "demo" mode login.
-     *
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {
@@ -956,8 +988,7 @@ public class CommCareApplication extends MultiDexApplication {
     public static boolean isSessionActive() {
         try {
             return CommCareApplication.instance().getSession() != null;
-        }
-        catch (SessionUnavailableException e){
+        } catch (SessionUnavailableException e) {
             return false;
         }
     }
@@ -1137,6 +1168,14 @@ public class CommCareApplication extends MultiDexApplication {
         invalidateCacheOnRestore = b;
     }
 
+    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) {
+        encryptionKeyProvider = provider;
+    }
+
+    public EncryptionKeyProvider getEncryptionKeyProvider() {
+        return encryptionKeyProvider;
+    }
+
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
@@ -1163,7 +1202,7 @@ public class CommCareApplication extends MultiDexApplication {
 
         CommCareNetworkService networkService;
         if (authInfo instanceof AuthInfo.NoAuth) {
-            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService();
+            networkService = CommCareNetworkServiceGenerator.createNoAuthCommCareNetworkService(params);
         } else {
             networkService = CommCareNetworkServiceGenerator.createCommCareNetworkService(
                     HttpUtils.getCredential(authInfo),
@@ -1192,4 +1231,30 @@ public class CommCareApplication extends MultiDexApplication {
         return true;
     }
 
+    public void customiseOkHttp() {
+        CommCareNetworkServiceGenerator.customizeRetrofitSetup(new OkHttpBuilderCustomConfig());
+    }
+
+    private void setRxJavaGlobalHandler() {
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            if (throwable instanceof UndeliverableException) {
+                throwable = throwable.getCause();
+            }
+            // Swallow RequestAbandonedException
+            if (throwable instanceof RequestAbandonedException) {
+                return;
+            }
+
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), throwable);
+        });
+    }
+
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        switch (event) {
+            case ON_DESTROY:
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
+                break;
+        }
+    }
 }
