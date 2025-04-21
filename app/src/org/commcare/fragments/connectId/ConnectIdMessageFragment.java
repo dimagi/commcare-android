@@ -30,6 +30,7 @@ import static android.app.Activity.RESULT_OK;
 public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private String title;
     private String message;
+    private String buttonText;
     private String button2Text;
     private String userName;
     private String password;
@@ -59,6 +60,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         super.onResume();
         binding.connectMessageTitle.setText(title);
         binding.connectMessageMessage.setText(message);
+        binding.connectMessageButton.setText(buttonText);
         setButton2Text(button2Text);
     }
 
@@ -87,6 +89,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private void loadArguments() {
         title = org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getTitle();
         message = org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getMessage();
+        buttonText = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButtonText();
         callingClass = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getCallingClass();
         userName = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getPhone();
         password = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getPassword();

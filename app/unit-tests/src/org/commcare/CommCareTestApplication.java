@@ -6,6 +6,9 @@ import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 
+import androidx.work.Configuration;
+
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
@@ -44,8 +47,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.Configuration;
@@ -86,11 +89,21 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+
+        Configuration config = new Configuration.Builder()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .setExecutor(new SynchronousExecutor())
+                .build();
+
+        // Initialize WorkManager for instrumentation tests.
+        WorkManagerTestInitHelper.initializeTestWorkManager(
+                this, config);
     }
 
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
     }
+
     @Override
     protected void turnOnStrictMode() {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
@@ -161,7 +174,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String[] baseODK = new String[]{BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
-                        , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
+                    , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
@@ -271,6 +284,13 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void afterTest(Method method) {
+        CommCareApp app = getCurrentApp();
+        if(app != null) {
+            app.teardownSandbox();
+        }
+
+        ConnectDatabaseHelper.teardown();
+
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
                 throwable.printStackTrace();

@@ -111,23 +111,37 @@ public class ConnectAppRecord extends Persisted implements Serializable {
         return domain;
     }
 
+    public List<ConnectLearnModuleSummaryRecord> getLearnModules() { return learnModules; }
+    public String getInstallUrl() { return installUrl; }
+    public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) { learnModules = modules; }
+    public void setLastUpdate(Date lastUpdate) { this.lastUpdate = lastUpdate; }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getPassingScore() {
         return passingScore;
     }
 
-    public List<ConnectLearnModuleSummaryRecord> getLearnModules() {
-        return learnModules;
-    }
-
-    public String getInstallUrl() {
-        return installUrl;
-    }
-
-    public void setLearnModules(List<ConnectLearnModuleSummaryRecord> modules) {
-        learnModules = modules;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
 }

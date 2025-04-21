@@ -58,6 +58,10 @@ public class ConnectJobUtils {
         return new ArrayList<>(jobs);
     }
 
+    public static int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
+        return new JobStoreManager(context).storeJobs(context, jobs, pruneMissing);
+    }
+
     private static void populateJobs(Context context, Vector<ConnectJobRecord> jobs) {
         SqlStorage<ConnectAppRecord> appInfoStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);

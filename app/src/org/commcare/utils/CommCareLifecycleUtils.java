@@ -1,7 +1,8 @@
 package org.commcare.utils;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.UnrecoverableErrorActivity;

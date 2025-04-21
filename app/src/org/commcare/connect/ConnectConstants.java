@@ -28,6 +28,10 @@ public class ConnectConstants {
     public static final String METHOD_CHANGE_PRIMARY = "CHANGE_PRIMARY";
     public static final String METHOD_CHANGE_ALTERNATE = "CHANGE_ALTERNATE";
     public static final String METHOD_RECOVER_PRIMARY = "RECOVER_PRIMARY";
+    public static final String CCC_DEST_OPPORTUNITY_SUMMARY_PAGE = "ccc_opportunity_summary_page";
+    public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
+    public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
+    public static final String CCC_DEST_PAYMENTS = "ccc_payment";
     public static final String CONNECT_KEY_USERNAME = "username";
     public static final String CONNECT_KEY_NAME = "name";
     public static final String CONNECT_KEY_SECRET = "secret";

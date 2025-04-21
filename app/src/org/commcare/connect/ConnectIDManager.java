@@ -19,6 +19,7 @@ import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -249,7 +250,7 @@ public class ConnectIDManager {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
                         "Found a valid existing Connect Token with current date set to " + currentDate +
                                 " and record expiration date being " + user.getConnectTokenExpiration());
-                return new AuthInfo.TokenAuth(user.getConnectToken().bearerToken);
+                return new AuthInfo.TokenAuth(user.getConnectToken());
             } else if (user != null) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
@@ -443,8 +444,8 @@ public class ConnectIDManager {
     public void goToConnectJobsList(Context parent) {
         parentActivity = parent;
         completeSignin();
-//        Intent i = new Intent(parent, ConnectActivity.class);
-//        parent.startActivity(i);
+        Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
     }
 
 
