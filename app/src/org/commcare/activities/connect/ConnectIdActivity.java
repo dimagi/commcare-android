@@ -19,6 +19,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.commcare.utils.CommCareNavController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
@@ -28,7 +29,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     public static String recoverPhone;
     public static String recoverSecret;
     public static String recoveryAltPhone;
-    public static NavController controller;
+    private NavController controller;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -131,9 +132,8 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                 break;
         }
 
-        if (navDirections != null) {
-            controller.navigate(navDirections);
-        }
+        CommCareNavController.navigateSafely(controller,navDirections);
+
     }
 
     private void beginSecondaryPhoneVerification(Context parent) {

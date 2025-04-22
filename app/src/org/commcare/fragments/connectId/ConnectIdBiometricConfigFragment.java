@@ -29,6 +29,7 @@ import org.commcare.dalvik.databinding.ScreenConnectVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.BiometricsHelper;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.javarosa.core.services.Logger;
 
@@ -281,8 +282,8 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
                 }
             }
         }
-        if (directions != null) {
-            Navigation.findNavController(binding.connectVerifyMessage).navigate(directions);
-        }
+
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.connectVerifyMessage),directions);
+
     }
 }

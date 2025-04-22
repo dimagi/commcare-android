@@ -38,6 +38,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.io.StreamsUtil;
@@ -611,9 +612,8 @@ public class ConnectIdPhoneVerificationFragmnet extends Fragment {
             }
         }
 
-        if (directions != null) {
-            Navigation.findNavController(binding.connectPhoneVerifyButton).navigate(directions);
-        }
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.connectPhoneVerifyButton),directions);
+
     }
 
     public void showYesNoDialog() {

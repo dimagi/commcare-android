@@ -33,6 +33,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.ConnectIdAppBarUtils;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
@@ -244,12 +245,12 @@ public class ConnectIDSignupFragment extends Fragment {
     void handleRecoverButtonPress() {
         ConnectManager.forgetUser("Initiating account recovery");
         directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
-        Navigation.findNavController(binding.continueButton).navigate(directions);
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
     }
 
     void handleSignupButtonPress() {
         directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-        Navigation.findNavController(binding.continueButton).navigate(directions);
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
     }
 
     public void checkPhoneNumber() {
@@ -302,12 +303,12 @@ public class ConnectIDSignupFragment extends Fragment {
                                             if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                                                 updateButtonEnabled();
                                                 directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-                                                Navigation.findNavController(binding.continueButton).navigate(directions);
+                                                CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
                                             } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                                                 ConnectIdActivity.recoverPhone = finalPhone;
                                                 updateButtonEnabled();
                                                 directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
-                                                Navigation.findNavController(binding.continueButton).navigate(directions);
+                                                CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
                                             }
                                         }
 
@@ -384,7 +385,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             //            ConnectUserRecord dbUser = ConnectDatabaseHelper.getUser(getActivity());
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
-                            Navigation.findNavController(binding.continueButton).navigate(directions);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
                         } catch (IOException | JSONException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
                         }
