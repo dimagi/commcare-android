@@ -36,6 +36,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -541,8 +542,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!connectIDManager.isLoggedIN());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(connectIDManager.isLoggedIN());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!connectIDManager.isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(connectIDManager.isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
         return true;
     }
 

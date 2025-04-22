@@ -26,6 +26,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -499,12 +500,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isLoggedIN());
+            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isLoggedIN());
+            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
         }
         return true;
     }
