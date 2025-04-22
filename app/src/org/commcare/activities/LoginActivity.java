@@ -542,8 +542,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!connectIDManager.isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(connectIDManager.isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!connectIDManager.isLoggedIN());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(connectIDManager.isLoggedIN());
         return true;
     }
 

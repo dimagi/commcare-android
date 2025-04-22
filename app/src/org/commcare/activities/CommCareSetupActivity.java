@@ -500,12 +500,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
+            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isLoggedIN());
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isLoggedIN() && ConnectDatabaseHelper.dbExists(this));
+            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isLoggedIN());
         }
         return true;
     }
