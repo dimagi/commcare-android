@@ -216,6 +216,8 @@ public class FormHierarchyBuilder {
                 return R.drawable.avatar_vellum_audio_capture;
             case Constants.CONTROL_VIDEO_CAPTURE:
                 return R.drawable.avatar_vellum_video;
+            case Constants.CONTROL_DOCUMENT_UPLOAD:
+                return R.drawable.avatar_vellum_group;
             case Constants.CONTROL_TRIGGER:
                 return R.drawable.avatar_vellum_question_list;
             case Constants.CONTROL_IMAGE_CHOOSE:
