@@ -91,11 +91,12 @@ public class StandardAlertDialog extends CommCareAlertDialog {
     public void setNegativeButton(CharSequence displayText,
                                   final DialogInterface.OnClickListener buttonListener,
                                   boolean usePositiveButtonStyle) {
-        Button negativeButton = this.view.findViewById(R.id.negative_button);
+        Button negativeButton = view.findViewById(R.id.negative_button);
         if (usePositiveButtonStyle) {
-            negativeButton.setTextAppearance(this.view.getContext(), R.style.Commcare_Button_Primary_Rounded);
-            negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_PX,this.getDialog().getContext().getResources().getDimensionPixelSize(R.dimen.font_size_medium));
-            negativeButton.setBackgroundColor(this.view.getResources().getColor(R.color.cc_brand_color));
+            negativeButton.setTextAppearance(view.getContext(), R.style.Commcare_Button_Primary_Rounded);
+            negativeButton.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                    view.getContext().getResources().getDimensionPixelSize(R.dimen.font_size_medium));
+            negativeButton.setBackgroundColor(view.getResources().getColor(R.color.cc_brand_color));
         }
         negativeButton.setText(displayText);
         negativeButton.setOnClickListener(v -> buttonListener.onClick(dialog, AlertDialog.BUTTON_NEGATIVE));
