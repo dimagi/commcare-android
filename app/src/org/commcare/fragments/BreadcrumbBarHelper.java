@@ -14,7 +14,6 @@ import android.widget.RelativeLayout;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBar.LayoutParams;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
@@ -45,7 +44,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class BreadcrumbBarViewModel extends ViewModel {
+public class BreadcrumbBarHelper {
 
     private TabbedDetailView mInternalDetailView = null;
     private View tile;

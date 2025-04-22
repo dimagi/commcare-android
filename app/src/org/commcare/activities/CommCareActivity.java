@@ -36,7 +36,7 @@ import androidx.viewbinding.ViewBinding;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.fragments.BreadcrumbBarViewModel;
+import org.commcare.fragments.BreadcrumbBarHelper;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorViewModel;
 import org.commcare.interfaces.WithUIController;
@@ -132,7 +132,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private boolean isMainScreenBlocked;
 
     private DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver;
-    private BreadcrumbBarViewModel breadcrumbBarViewModel;
+    private BreadcrumbBarHelper mBreadcrumbBarHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,9 +167,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().setDisplayShowCustomEnabled(true);
                 }
-                breadcrumbBarViewModel = new ViewModelProvider(this).get(BreadcrumbBarViewModel.class);
+                mBreadcrumbBarHelper = new BreadcrumbBarHelper();
             }
-
             mGestureDetector = new GestureDetector(this, this);
         }
     }
@@ -280,8 +279,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (breadcrumbBarViewModel != null) {
-            breadcrumbBarViewModel.attachBreadcrumbBar(this);
+        if (mBreadcrumbBarHelper != null) {
+            mBreadcrumbBarHelper.attachBreadcrumbBar(this);
         }
     }
 
@@ -824,8 +823,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (breadcrumbBarViewModel != null) {
-            if (breadcrumbBarViewModel.collapseTileIfExpanded(this)) {
+        if (mBreadcrumbBarHelper != null) {
+            if (mBreadcrumbBarHelper.collapseTileIfExpanded(this)) {
                 return;
             }
         }
@@ -904,7 +903,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     public void refreshActionBar() {
         if (shouldShowBreadcrumbBar()) {
-            breadcrumbBarViewModel.attachBreadcrumbBar(this);
+            mBreadcrumbBarHelper.attachBreadcrumbBar(this);
         }
     }
 
