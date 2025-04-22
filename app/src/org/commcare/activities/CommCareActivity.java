@@ -163,7 +163,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                 getSupportActionBar().setLogo(org.commcare.dalvik.R.drawable.commcare_actionbar_logo_spacing);
             }
 
-            if (shouldShowBreadcrumbBar()) {
+             if (shouldShowBreadcrumbBar()) {
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().setDisplayShowCustomEnabled(true);
                 }
@@ -946,7 +946,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     protected boolean shouldShowBreadcrumbBar() {
-        return false;
+        return true;
     }
 
     @Override
