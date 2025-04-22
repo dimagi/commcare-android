@@ -7,6 +7,7 @@ import org.commcare.modern.models.MetaField;
 import org.commcare.util.Base64;
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -146,6 +147,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             String encoded = Base64.encode(bytes.array());
             return EncryptionUtils.decrypt(encoded, key);
         } catch (Exception e) {
+            Logger.exception("Decrypting message", e);
             return null;
         }
     }
