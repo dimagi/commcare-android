@@ -1,7 +1,6 @@
 package org.commcare.android.database.connect.models;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -12,6 +11,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -75,6 +75,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     public ConnectJobDeliveryRecord() {
         date = new Date();
         lastUpdate = new Date();
+        flags = new ArrayList<>();
     }
 
     public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
