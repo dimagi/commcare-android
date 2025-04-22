@@ -359,6 +359,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
+        updateConnectButton();
     }
 
     private Fragment restoreInstallSetupFragment() {
