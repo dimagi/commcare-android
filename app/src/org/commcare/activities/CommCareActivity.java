@@ -163,14 +163,11 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                 getSupportActionBar().setLogo(org.commcare.dalvik.R.drawable.commcare_actionbar_logo_spacing);
             }
 
-             if (shouldShowBreadcrumbBar()) {
+            if (shouldShowBreadcrumbBar()) {
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().setDisplayShowCustomEnabled(true);
                 }
-
-                // Add breadcrumb bar
                 breadcrumbBarViewModel = new ViewModelProvider(this).get(BreadcrumbBarViewModel.class);
-                breadcrumbBarViewModel.attachBreadcrumbBar(this);
             }
 
             mGestureDetector = new GestureDetector(this, this);
@@ -280,7 +277,13 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
     }
 
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (breadcrumbBarViewModel != null) {
+            breadcrumbBarViewModel.attachBreadcrumbBar(this);
+        }
+    }
 
     @Override
     protected void onResume() {
