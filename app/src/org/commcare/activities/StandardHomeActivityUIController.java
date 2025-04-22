@@ -61,8 +61,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private View viewJobCard;
     private CardView connectMessageCard;
 
-    private CardView connectTile;
-
     private HomeScreenAdapter adapter;
     List<ConnectDeliveryPaymentSummaryInfo> deliveryPaymentInfoList = new ArrayList<>();
 
@@ -73,8 +71,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        connectTile = activity.findViewById(R.id.connect_alert_tile);
-        connectTile.setVisibility(View.GONE);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
         updateConnectProgress();

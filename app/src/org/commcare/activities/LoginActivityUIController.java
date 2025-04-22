@@ -113,7 +113,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private LoginMode loginMode;
 
     private boolean manuallySwitchedToPasswordMode;
-    private ConnectIDManager.ConnectAppMangement connectAppState;
 
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
