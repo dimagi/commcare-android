@@ -408,7 +408,7 @@ public class ConnectJobUtils {
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
-        if (ConnectIDManager.getInstance().isLoggedIN()) {
+        if (ConnectIDManager.getInstance().isloggedIn()) {
             Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
                     new String[]{ConnectAppRecord.META_APP_ID},
                     new Object[]{appId});

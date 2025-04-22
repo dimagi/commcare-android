@@ -36,7 +36,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -383,7 +382,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private String getUniformUsername() {
         String username = uiController.getEnteredUsername();
-        if (connectIDManager.isLoggedIN() && appLaunchedFromConnect) {
+        if (connectIDManager.isloggedIn() && appLaunchedFromConnect) {
             username = connectIDManager.getConnectUsername(this);
         }
         return username.toLowerCase().trim();
@@ -457,7 +456,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      * @return if we should finish after calling this method
      */
     private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
-        if (connectIDManager.isLoggedIN()) {
+        if (connectIDManager.isloggedIn()) {
             connectIDManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = connectIDManager.setConnectJobForApp(context, appId);
@@ -542,8 +541,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!connectIDManager.isLoggedIN());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(connectIDManager.isLoggedIN());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!connectIDManager.isloggedIn());
+        menu.findItem(MENU_CONNECT_FORGET).setVisible(connectIDManager.isloggedIn());
         return true;
     }
 
@@ -914,7 +913,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     protected void evaluateConnectAppState() {
-        if (connectIDManager.isLoggedIN()) {
+        if (connectIDManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectIDManager.ConnectAppMangement appState = connectIDManager.evaluateAppState(this,
                     seatedAppId, uiController.getEnteredUsername());

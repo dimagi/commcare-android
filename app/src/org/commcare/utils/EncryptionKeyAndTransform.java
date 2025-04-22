@@ -17,8 +17,7 @@ public class EncryptionKeyAndTransform {
         }
         if (transformation == null || transformation.trim().isEmpty()) {
             throw new IllegalArgumentException("Transformation string cannot be null or empty");
-        }
-      else {
+        } else {
             this.key = key;
         }
         this.transformation = transformation;
