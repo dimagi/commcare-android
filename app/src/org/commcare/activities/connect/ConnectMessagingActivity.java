@@ -10,6 +10,7 @@ import androidx.navigation.ui.NavigationUI;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -70,7 +71,7 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
     private void handleRedirect(String action) {
         if(action.equals(CCC_MESSAGE)) {
             ConnectManager.init(this);
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectIDManager.getInstance().unlockConnect(this, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);

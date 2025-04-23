@@ -410,7 +410,6 @@
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
-    <string name="login_via_connect">Ready to login!</string>
 
     <!-- ConnectID strings -->
     <string name="connect_registration_title">ConnectID Signup</string>
@@ -785,8 +784,109 @@
     <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
     <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
+    <string name="connect_password_title">Set Password</string>
+    <string name="connect_password_message">Please choose a password</string>
+    <string name="connect_password_message_recovery">Please choose a password for recovery</string>
+    <string name="connect_password">Enter Password</string>
+    <string name="connect_password_repeat">Confirm Password</string>
+    <string name="connect_password_mismatch">Passwords must match</string>
+    <string name="connect_password_weak">Please choose a stronger password</string>
+    <string name="connect_password_error">Error changing password</string>
+    <string name="connect_pin_fail_button">OK</string>
+    <string name="connect_recovery_title2">Identify Existing Account</string>
+    <string name="connect_unlock_pin_title">Unlock via PIN</string>
+    <string name="connect_unlock_pin_message">Enter your PIN to continue</string>
+    <string name="connect_register_title">Create Account</string>
+    <string name="connect_register_title2">ConnectID</string>
+    <string name="connect_register_dob">Date of Birth (YYYY-MM-DD)</string>
+    <string name="connect_register_phone">Phone Number (+18887776666)</string>
+    <string name="connect_register_phone_alt">Alternate Phone Number</string>
+    <string name="connect_register_create">Continue</string>
+    <string name="connect_register_error_id">ID can not be empty</string>
+    <string name="connect_register_error_name">Name can not be empty</string>
 
+    <string name="connect_register_error_phone">Valid phone number required</string>
+    <string name="connect_register_error_same_number">Primary and alt phones must be different</string>
+    <string name="connect_verify_use_fingerprint">Use Fingerprint</string>
+    <string name="connect_verify_use_pin">Use PIN</string>
+    <string name="connect_verify_password_only">Create a password instead</string>
+    <string name="connect_verify_fingerprint">Fingerprint</string>
+    <string name="connect_verify_pin">PIN</string>
+    <string name="connect_verify_button_configured">Continue</string>
+    <string name="connect_verify_button_password">Use Password Only</string>
+    <string name="connect_verify_phone_title2">Enter verification code</string>
+    <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
+    <string name="connect_jobs_all">ALL JOBS</string>
+    <string name="connect_jobs_mine">MY JOBS</string>
+    <string name="connect_job_new">NEW</string>
+    <string name="connect_job_visits">Cover %d Households in %d Days</string>
 
+    <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
+    <string name="connect_job_needs_assessment">Assessment Required</string>
+    <string name="connect_job_passed_assessment">Assessment Completed</string>
+    <string name="connect_job_training_progress">%s %d%% Complete</string>
+    <string name="connect_job_visits_completed">Completed %d visits</string>
+    <string name="connect_job_remaining">%d days remaining%s</string>
+    <string name="connect_job_remaining_from"> from %s</string>
+
+    <string name="connect_job_learning">Learning</string>
+    <string name="connect_job_learning_not_completed">Learning not completed</string>
+    <string name="connect_job_assessment_not_completed">Assessment not completed</string>
+    <string name="connect_job">Job</string>
+    <string name="connect_job_none_training">You\'re not training for any jobs right now</string>
+    <string name="connect_job_none_active">You don\'t have any active jobs right now</string>
+    <string name="connect_job_training">Jobs I\'m Training For</string>
+    <string name="connect_job_claimed">Jobs In Delivery</string>
+    <string name="connect_job_ended">Ended Jobs</string>
+    <string name="connect_job_completed">Ended %s</string>
+    <string name="connect_job_start_training">Start Training for this Job</string>
+    <string name="connect_end_date">Complete Project by %s</string>
+    <string name="connect_job_download_learn_app">Download Learn App</string>
+    <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
+    <string name="connect_delivery_title">Delivery Details</string>
+    <string name="connect_delivery_review_title">Review Job Details</string>
+    <string name="connect_delivery_days_remaining">%d days to complete from %s</string>
+    <string name="connect_delivery_today">today</string>
+    <string name="connect_delivery_latest_start">Latest start: %s</string>
+    <string name="connect_delivery_max_visits">%d Visits in %d Days</string>
+    <string name="connect_delivery_earn_single">Earn %s per visit</string>
+    <string name="connect_delivery_max_daily_visits">%d Maximum Visits per Day</string>
+    <string name="connect_delivery_ready_to_claim">Ready to Start Visits?</string>
+    <string name="connect_delivery_expired">Opportunity Expired</string>
+    <string name="connect_delivery_ready_to_claim_detailed">Claim Job Below and Download Deliver App</string>
+    <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
+    <string name="connect_delivery_claim">Claim Job</string>
+    <string name="connect_delivery_get_app">Download App</string>
+    <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>
+    <string name="connect_progress_expired_dialog_title">Project Expired</string>
+    <string name="connect_progress_max_visits_dialog_title">Max Visits Reached</string>
+    <string name="connect_progress_expired">The last date for the project is over and visits will not count towards payment.</string>
+    <string name="connect_progress_visits_completed">You have reached the maximum number of visits, additional visits will not count towards payment.</string>
+    <string name="connect_progress_paid">PAID</string>
+    <string name="connect_progress_warning">Not seeing your expected progress?</string>
+    <string name="connect_progress_warning_learn">Learn why</string>
+    <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
+    <string name="connect_results_summary_verifications_title">Verification Status</string>
+    <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
+    <string name="connect_results_summary_view_deliveries">View Deliveries</string>
+    <string name="connect_results_summary_payments_title">Payments</string>
+    <string name="connect_results_summary_view_payments">View Payments</string>
+    <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>
+    <string name="connect_home_progress_today">Today\'s Visits: %d</string>
+    <string name="suspended">Suspended</string>
+    <string name="select_phone_number">Select Phone Number</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
+    <string name="learn_more">Learn More</string>
+    <string name="click_to_sync">Click to sync progress</string>
+    <string name="connect_commcare_app">CommCare App</string>
+    <string name="login_button_connect">Unlock ConnectID</string>
+    <string name="login_welcome_connect_signed_out">Unlock ConnectID first and then enter your app.</string>
+    <string name="default_welcome_message">Welcome</string>
+    <string name="connect_navigation_error">Navigation issue</string>
+    <string name="connect_biometric_error">Authentication Failed</string>
+    <string name="login_input_auto">AUTO</string>
+    <string name="connect_consent_title">Consent</string>
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
     <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
     <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
@@ -799,4 +899,8 @@
     <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
     <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
     <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
+    <string name="add_secondary_phone_number">Add Secondary Phone Number</string>
+    <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
+    <string name="login_via_connect">Ready to login!\n</string>
+    <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
 </resources>

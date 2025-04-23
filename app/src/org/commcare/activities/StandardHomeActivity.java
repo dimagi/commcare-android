@@ -13,8 +13,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -52,8 +54,12 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+    }
 
-        updateSecondaryPhoneConfirmationTile();
+    @Override
+    public void onResumeSessionSafe() {
+        super.onResumeSessionSafe();
+        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -307,25 +313,17 @@ public class StandardHomeActivity
     }
 
     @Override
-    public void refreshUi() {
+    public void refreshUI() {
         uiController.refreshView();
     }
 
     @Override
-    void refreshCcUpdateOption() {
+    void refreshCCUpdateOption() {
         invalidateOptionsMenu();
     }
 
-    private void updateSecondaryPhoneConfirmationTile() {
-        boolean show = getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false) && ConnectManager.shouldShowSecondaryPhoneConfirmationTile(this);
-
-        uiController.updateConnectTile(show);
-    }
-
     public void performSecondaryPhoneVerification() {
-        ConnectManager.beginSecondaryPhoneVerification(this, success -> {
-            updateSecondaryPhoneConfirmationTile();
-        });
+        ConnectIDManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
     }
 
     public void updateConnectJobProgress() {
