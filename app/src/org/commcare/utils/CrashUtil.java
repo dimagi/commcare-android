@@ -66,7 +66,7 @@ public class CrashUtil {
      * Crashlytics to aid debugging.
      */
     public static void registerConnectUser() {
-        if (crashlyticsEnabled && ConnectIDManager.getInstance().isLoggedIN()) {
+        if (crashlyticsEnabled && ConnectIDManager.getInstance().isloggedIn()) {
             try {
                 String userId = ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
                 FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, userId);

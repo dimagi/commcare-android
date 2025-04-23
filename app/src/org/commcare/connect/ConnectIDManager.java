@@ -179,7 +179,7 @@ public class ConnectIDManager {
     }
 
 
-    public boolean isLoggedIN() {
+    public boolean isloggedIn() {
         return AppManagerDeveloperPreferences.isConnectIdEnabled()
                 && connectStatus == ConnectIdStatus.LoggedIn;
     }
@@ -231,19 +231,15 @@ public class ConnectIDManager {
 
 
     public void forgetUser(String reason) {
-
         if (ConnectDatabaseHelper.dbExists(parentActivity)) {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
-
         ConnectUserDatabaseUtil.forgetUser(parentActivity);
-        ConnectIdActivity connectIdActivity = new ConnectIdActivity();
-        connectIdActivity.reset();
         connectStatus = ConnectIdStatus.NotIntroduced;
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
-        if (isLoggedIN()) {
+        if (isloggedIn()) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             Date currentDate = new Date();
             if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
@@ -493,7 +489,7 @@ public class ConnectIDManager {
     }
 
     public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
-        if (isLoggedIN()) {
+        if (isloggedIn()) {
             ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                     userId);
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
@@ -572,7 +568,7 @@ public class ConnectIDManager {
 
     public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
         boolean show = false;
-        if (isLoggedIN()) {
+        if (isloggedIn()) {
             ConnectUserRecord user = getUser(context);
             show = !user.getSecondaryPhoneVerified();
         }
@@ -589,7 +585,7 @@ public class ConnectIDManager {
 
     public boolean isSeatedAppLinkedToConnectId(String username) {
         try {
-            if (isLoggedIN()) {
+            if (isloggedIn()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                         CommCareApplication.instance(), seatedAppId, username);
@@ -618,11 +614,11 @@ public class ConnectIDManager {
     }
 
     public boolean isLoggedInWithConnectApp(Context context, String appId) {
-        return isLoggedIN() && isConnectApp(context, appId);
+        return isloggedIn() && isConnectApp(context, appId);
     }
 
     public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
-        if (!manager.isLoggedIN()) {
+        if (!manager.isloggedIn()) {
             return null;
         }
 
