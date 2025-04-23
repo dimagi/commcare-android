@@ -359,6 +359,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
+        updateConnectButton();
     }
 
     private Fragment restoreInstallSetupFragment() {
@@ -498,12 +499,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isLoggedIN());
+            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isloggedIn());
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isLoggedIN());
+            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn());
         }
         return true;
     }
@@ -640,7 +641,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.getInstance().isLoggedIN(), v -> {
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn(), v -> {
             ConnectIDManager.getInstance().unlockConnect(this, success -> {
 //                ConnectManager.goToConnectJobsList(this);
             });

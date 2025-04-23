@@ -11,7 +11,7 @@ public class ConnectConstants {
     public static final int CONNECTID_REQUEST_CODE = 1034;
     public static final int LOGIN_CONNECT_LAUNCH_REQUEST_CODE = 1050;
     public static final int COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE = 1051;
-    public static final int STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE = 1051;
+    public static final int STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE = 1052;
     public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";

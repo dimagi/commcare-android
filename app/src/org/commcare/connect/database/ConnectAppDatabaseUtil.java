@@ -10,7 +10,7 @@ import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
     public static ConnectLinkedAppRecord getConnectLinkedAppRecord(Context context, String appId, String username) {
-        if (ConnectIDManager.getInstance().isLoggedIN()) {
+        if (ConnectIDManager.getInstance().isloggedIn()) {
             Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
                     .getRecordsForValues(
                             new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
