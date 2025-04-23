@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
@@ -106,7 +106,7 @@ public class ConnectSsoHelper {
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
             throws TokenRequestDeniedException, TokenUnavailableException {
         //See if we already have a valid token
-        AuthInfo.TokenAuth connectToken = ConnectManager.getConnectToken();
+        AuthInfo.TokenAuth connectToken = ConnectIDManager.getInstance().getConnectToken();
         if (connectToken != null) {
             return connectToken;
         }
@@ -118,7 +118,7 @@ public class ConnectSsoHelper {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
+        AuthInfo.TokenAuth hqTokenAuth = ConnectIDManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
         if(hqTokenAuth != null) {
             return hqTokenAuth;
         }
@@ -146,7 +146,7 @@ public class ConnectSsoHelper {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
 
         if(username != null) {
-            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, username);
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId, username);
             if (appRecord != null) {
                 appRecord.clearHqToken();
                 ConnectAppDatabaseUtil.storeApp(context, appRecord);

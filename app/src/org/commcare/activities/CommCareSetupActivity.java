@@ -15,7 +15,8 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -98,8 +99,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
 
-
-
     /**
      * UI configuration states.
      */
@@ -172,11 +171,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (checkForMultipleAppsViolation()) {
             return;
         }
-
-        if(!fromManager) {
-            ConnectManager.init(this);
+        if (!fromManager) {
+            ConnectIDManager.getInstance().init(this);
         }
-
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
 
@@ -300,7 +297,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         // if we were in dependency dialog state and resumed CC, take the next step
         // that we otherwise would have taken on a successful app install
-        if(uiState.equals(UiState.DEPENDENCY_DIALOG)){
+        if (uiState.equals(UiState.DEPENDENCY_DIALOG)) {
             launchNextActivityOnAppInstall();
         }
     }
@@ -363,7 +360,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
-
         updateConnectButton();
     }
 
@@ -430,8 +426,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
+            case ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE:
+                ConnectIDManager.getInstance().handleFinishedActivity(this, resultCode);
+                return;
             default:
-                ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
                 return;
 
         }
@@ -501,17 +499,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onPrepareOptionsMenu(menu);
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
-        if(item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignInMenuOption());
+        if (item != null) {
+            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isloggedIn());
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
-        if(item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectManager.shouldShowSignOutMenuOption());
+        if (item != null) {
+            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn());
         }
-
         return true;
     }
+
 
     /**
      * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
@@ -633,15 +631,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectManager.registerUser(this, success -> {
-                    updateConnectButton();
-                    if(success) {
-                        ConnectManager.goToConnectJobsList(this);
-                    }
-                });
+                ConnectIDManager.getInstance().launchConnectId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
                 break;
             case MENU_CONNECT_FORGET:
-                ConnectManager.forgetUser("User initiated from setup page");
+                ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
         }
@@ -649,11 +642,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectManager.isConnectIdConfigured(), v -> {
-            ConnectManager.unlockConnect(this, success -> {
-                if(success) {
-                    ConnectManager.goToConnectJobsList(this);
-                }
+        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn(), v -> {
+            ConnectIDManager.getInstance().unlockConnect(this, success -> {
+//                ConnectManager.goToConnectJobsList(this);
             });
         });
     }
@@ -724,11 +715,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
                 startActivity(i);
             }
-        } else if (getCallingActivity()!= null && getCallingActivity().getPackageName().equals(BuildConfig.APPLICATION_ID)){
+        } else if (getCallingActivity() != null && getCallingActivity().getPackageName().equals(BuildConfig.APPLICATION_ID)) {
             Intent i = new Intent(getIntent());
             setResult(RESULT_OK, i);
-        }
-        else
+        } else
             fail(Localization.get("install.invalid.launch"));
 
         finish();
