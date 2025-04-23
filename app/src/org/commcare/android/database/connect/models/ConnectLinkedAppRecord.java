@@ -121,6 +121,11 @@ public class ConnectLinkedAppRecord extends Persisted {
         return connectIdLinked;
     }
 
+    public void clearHqToken() {
+        hqToken = null;
+        hqTokenExpiration = new Date();
+    }
+
     public void setConnectIdLinked(boolean linked) {
         connectIdLinked = linked;
     }
@@ -153,11 +158,6 @@ public class ConnectLinkedAppRecord extends Persisted {
     public void setLinkOfferDate2(Date date) {
         linkOffered2 = true;
         linkOfferDate2 = date;
-    }
-
-    public void clearHqToken() {
-        hqToken = null;
-        hqTokenExpiration = new Date();
     }
 
     public boolean isUsingLocalPassphrase() {

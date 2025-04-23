@@ -3,8 +3,10 @@ package org.commcare.adapters;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import android.widget.TextView;
 import org.commcare.dalvik.databinding.ItemChatLeftViewBinding;
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding;
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData;
@@ -12,9 +14,6 @@ import org.commcare.utils.MarkupUtil;
 import org.javarosa.core.model.utils.DateUtils;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -31,13 +30,6 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyDataSetChanged();
     }
 
-    private static void bindCommon(TextView messageView, TextView userNameView, ConnectMessageChatData chat) {
-        SpannableStringBuilder builder = new SpannableStringBuilder();
-        builder.append(chat.getMessage());
-        MarkupUtil.setMarkdown(messageView, builder, new SpannableStringBuilder());
-        userNameView.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
-    }
-
     public static class LeftViewHolder extends RecyclerView.ViewHolder {
         ItemChatLeftViewBinding binding;
 
@@ -47,7 +39,11 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         public void bind(ConnectMessageChatData chat) {
-            bindCommon(binding.tvChatMessage, binding.tvUserName, chat);
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            builder.append(chat.getMessage());
+            MarkupUtil.setMarkdown(binding.tvChatMessage, builder, new SpannableStringBuilder());
+
+            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
         }
     }
 
@@ -60,7 +56,11 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         public void bind(ConnectMessageChatData chat) {
-            bindCommon(binding.tvChatMessage, binding.tvUserName, chat);
+            SpannableStringBuilder builder = new SpannableStringBuilder();
+            builder.append(chat.getMessage());
+            MarkupUtil.setMarkdown(binding.tvChatMessage, builder, new SpannableStringBuilder());
+
+            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
         }
     }
 
@@ -81,13 +81,10 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConnectMessageChatData chat = messages.get(position);
-        if (chat == null) {
-            return;
-        }
         if (getItemViewType(position) == LEFTVIEW) {
-            ((LeftViewHolder)holder).bind(chat);
+            ((LeftViewHolder) holder).bind(chat);
         } else {
-            ((RightViewHolder)holder).bind(chat);
+            ((RightViewHolder) holder).bind(chat);
         }
     }
 

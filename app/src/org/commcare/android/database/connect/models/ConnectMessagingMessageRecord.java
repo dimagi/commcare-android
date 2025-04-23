@@ -6,9 +6,7 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.util.Base64;
 import org.commcare.util.EncryptionUtils;
-import org.commcare.util.LogTypes;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,8 +16,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
 
 @Table(ConnectMessagingMessageRecord.STORAGE_KEY)
 public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
@@ -69,14 +65,14 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     @MetaField(META_MESSAGE_USER_VIEWED)
     private boolean userViewed;
 
-    public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException {
+    public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
         ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
 
         connectMessagingMessageRecord.messageId = json.getString(META_MESSAGE_ID);
         connectMessagingMessageRecord.channelId = json.getString(META_MESSAGE_CHANNEL_ID);
 
         ConnectMessagingChannelRecord channel = getChannel(channels, connectMessagingMessageRecord.channelId);
-        if (channel == null) {
+        if(channel == null) {
             return null;
         }
 
@@ -89,7 +85,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
         String decrypted = decrypt(cipherText, nonce, tag, channel.getKey());
 
-        if (decrypted == null) {
+        if(decrypted == null) {
             return null;
         }
 
@@ -109,7 +105,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         String nonce = payloadData.get("nonce");
         String decrypted = decrypt(cipher, nonce, tag, encryptionKey);
 
-        if (decrypted == null) {
+        if(decrypted == null) {
             return null;
         }
 
@@ -126,8 +122,8 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     }
 
     private static ConnectMessagingChannelRecord getChannel(List<ConnectMessagingChannelRecord> channels, String channelId) {
-        for (ConnectMessagingChannelRecord channel : channels) {
-            if (channel.getChannelId().equals(channelId)) {
+        for(ConnectMessagingChannelRecord channel : channels) {
+            if(channel.getChannelId().equals(channelId)) {
                 return channel;
             }
         }
@@ -149,16 +145,12 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
             String encoded = Base64.encode(bytes.array());
             return EncryptionUtils.decrypt(encoded, key);
-        } catch (IllegalArgumentException e) {
-            Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Invalid Base64 encoding in message");
-            return null;
         } catch (Exception e) {
-            Logger.log(LogTypes.TYPE_ERROR_CRYPTO, "Decryption failed: " + e.getMessage());
             return null;
         }
     }
 
-    public static String[] encrypt(@NonNull String text, @NonNull String key) {
+    public static String[] encrypt(String text, String key) {
         try {
             String encoded = EncryptionUtils.encrypt(text, key);
             byte[] bytes = Base64.decode(encoded);
@@ -180,8 +172,8 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             buffer.get(tagBytes);
             String tag = Base64.encode(tagBytes);
 
-            return new String[]{cipherText, nonce, tag};
-        } catch (Exception e) {
+            return new String[] { cipherText, nonce, tag };
+        } catch(Exception e) {
             throw new RuntimeException(e);
         }
     }

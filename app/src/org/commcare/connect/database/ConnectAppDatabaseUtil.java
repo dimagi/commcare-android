@@ -3,17 +3,21 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
-    public static ConnectLinkedAppRecord getAppData(Context context, String appId, String username) {
-        Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
-                .getRecordsForValues(
-                        new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
-                        new Object[]{appId, username});
-        return records.isEmpty() ? null : records.firstElement();
+    public static ConnectLinkedAppRecord getConnectLinkedAppRecord(Context context, String appId, String username) {
+        if (ConnectIDManager.getInstance().isloggedIn()) {
+            Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
+                    .getRecordsForValues(
+                            new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
+                            new Object[]{appId, username});
+            return records.isEmpty() ? null : records.firstElement();
+        }
+        return null;
     }
 
     public static void deleteAppData(Context context, ConnectLinkedAppRecord record) {
@@ -36,7 +40,7 @@ public class ConnectAppDatabaseUtil {
      */
     public static ConnectLinkedAppRecord storeApp(Context context, String appId, String userId, boolean connectIdLinked, String passwordOrPin, boolean workerLinked, boolean localPassphrase) {
 
-        ConnectLinkedAppRecord record = getAppData(context, appId, userId);
+        ConnectLinkedAppRecord record = getConnectLinkedAppRecord(context, appId, userId);
         if (record == null) {
             record = new ConnectLinkedAppRecord(appId, userId, connectIdLinked, passwordOrPin);
         } else if (!record.getPassword().equals(passwordOrPin)) {

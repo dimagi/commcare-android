@@ -8,14 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -24,30 +19,19 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSecondaryPhoneNumberBinding;
 import org.commcare.utils.PhoneNumberHelper;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class ConnectIDSecondaryPhoneNumber extends Fragment {
-    private String method;
-    private String existingPhone;
     private int callingClass;
-    protected boolean skipPhoneNumberCheck = false;
+    private PhoneNumberHelper phoneNumberHelper;
+    private static final String KEY_CALLING_CLASS = "calling_class";
+
     FragmentSecondaryPhoneNumberBinding binding;
-
-
-    public ConnectIDSecondaryPhoneNumber() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIDSecondaryPhoneNumber newInstance() {
-        return new ConnectIDSecondaryPhoneNumber();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,32 +39,38 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentSecondaryPhoneNumberBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        if (getArguments() != null) {
-            method = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getMethod();
-            existingPhone = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getPhone();
-            callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
-        }
-        String code = "+" + String.valueOf(PhoneNumberHelper.getCountryCode(requireActivity()));
+        loadSavedState(savedInstanceState);
+        phoneNumberHelper=PhoneNumberHelper.getInstance(requireActivity());
+        setListener();
+        callingClass = ConnectIDSecondaryPhoneNumberArgs.fromBundle(getArguments()).getCallingClass();
+        String code = phoneNumberHelper.formatCountryCode(phoneNumberHelper.getCountryCodeFromLocale(requireActivity()));
         binding.countryCode.setText(code);
-        binding.countryCode.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        updateButtonEnabled();
+        requireActivity().setTitle(R.string.connect_phone_title_alternate);
+        return view;
+    }
 
-            }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_CALLING_CLASS, callingClass);
+    }
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().contains("+")) {
-                    binding.countryCode.setText("+" + binding.countryCode.getText());
-                }
-            }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 
-            @Override
-            public void afterTextChanged(Editable s) {
+    private void loadSavedState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+        }
+    }
 
-            }
-        });
-
+    private void setListener() {
+        TextWatcher codeWatcher = phoneNumberHelper.getCountryCodeWatcher(binding.countryCode);
+        binding.countryCode.addTextChangedListener(codeWatcher);
         binding.connectPrimaryPhoneInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -98,47 +88,44 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             }
         });
 
-        binding.continueButton.setOnClickListener(v -> handleButtonPress());
-        binding.secondaryPhoneTitle.setText(getString(R.string.connect_phone_title_alternate));
-        binding.secondaryPhoneSubTitle.setText(getString(R.string.connect_phone_message_alternate));
-        updateButtonEnabled();
-        requireActivity().setTitle(R.string.connect_phone_title_alternate);
-        return view;
+        binding.continueButton.setOnClickListener(v -> onContinuePress());
     }
 
-    public void updateButtonEnabled() {
+    private void updateButtonEnabled() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-
+        boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
+        String userPrimaryNumber = ConnectIDManager.getInstance().getUser(requireActivity()).getPrimaryPhone();
+        if (userPrimaryNumber.equals(phone)) {
+            binding.errorTextView.setVisibility(View.VISIBLE);
+            binding.errorTextView.setText(R.string.primary_and_alternate_phone_number);
+            valid = false;
+        } else {
+            binding.errorTextView.setVisibility(View.GONE);
+        }
         binding.continueButton.setEnabled(valid);
     }
 
-    public void handleButtonPress() {
-        if(getContext()==null){
+    private void onContinuePress() {
+        if (getContext() == null) {
             return;
         }
         binding.continueButton.setEnabled(false);
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
-        String existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-            existing = user != null ? user.getAlternatePhone() : null;
-        }
-        if (user != null && existing != null && !existing.equals(phone)) {
+        ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
+        String existing = user.getAlternatePhone();
+        if (existing != null && !existing.equals(phone)) {
             IApiCallback callback = new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     finish(true, phone);
                 }
 
                 @Override
-                public void processFailure(int responseCode, IOException e) {
-                    skipPhoneNumberCheck = false;
+                public void processFailure(int responseCode) {
                     binding.continueButton.setEnabled(true);
                     Toast.makeText(getContext(), getString(R.string.connect_phone_change_error),
                             Toast.LENGTH_SHORT).show();
@@ -146,59 +133,60 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
 
                 @Override
                 public void processNetworkFailure() {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     ConnectNetworkHelper.showNetworkError(getContext());
                 }
 
                 @Override
+                public void processTokenUnavailableError() {
+                    binding.continueButton.setEnabled(true);
+                    ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                }
+
+                @Override
+                public void processTokenRequestDeniedError() {
+                    binding.continueButton.setEnabled(true);
+                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                }
+
+                @Override
                 public void processOldApiError() {
-                    skipPhoneNumberCheck = false;
                     binding.continueButton.setEnabled(true);
                     ConnectNetworkHelper.showOutdatedApiError(getContext());
                 }
             };
 
             //Update the phone number with the server
-            if (method.equals(ConnectConstants.METHOD_CHANGE_ALTERNATE)) {
-               ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
-                        null, phone, callback);
-            } else {
-            ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
-                        existing, phone, callback);
-            }
+            ApiConnectId.updateUserProfile(getContext(), user.getUserId(), user.getPassword(),
+                    null, phone, callback);
 
         } else {
             finish(true, phone);
         }
     }
 
-    public void finish(boolean success, String phone) {
+    private void finish(boolean success, String phone) {
         NavDirections directions = null;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
         switch (callingClass) {
 
             case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE -> {
                 if (success) {
-                    user.setAlternatePhone(phone);
-                    ConnectUserDatabaseUtil.storeUser(getActivity(), user);
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, "").setRecover(false).setChange(false);
+                    phoneNumberHelper.storeAlternatePhone(getActivity(), user, phone);
+                    directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, phone, false, false);
                 } else {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, "").setRecover(false).setChange(true);
+                    directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, phone, false, true);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
-                directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                        ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null, false);
 
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE -> {
                 if (success) {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, String.format(Locale.getDefault(), "%d",
-                            ConnectIdPhoneVerificationFragment.MethodVerifyAlternate), null, user.getUserId(), user.getPassword(), null,false).setAllowChange(false);
+                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null, false);
                 } else {
-                    directions = ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
+                    directions = navigateToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), null, null);
                 }
 
             }
@@ -206,9 +194,20 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
             }
         }
         if (directions == null) {
-            Toast.makeText(getContext(), R.string.connect_navigation_error, Toast.LENGTH_SHORT).show();
-            return;
+            throw new IllegalStateException(String.valueOf(R.string.connect_navigation_error));
         }
         Navigation.findNavController(binding.continueButton).navigate(directions);
+    }
+
+    private NavDirections navigateToConnectidPin(int phase, String phone, boolean recover, boolean change) {
+        return ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPin(phase, phone, "").setRecover(recover).setChange(change);
+    }
+
+    private NavDirections navigateToConnectidPhoneVerify(int phase, int method, String phone, String userId, String password, String secretKey, boolean isRecovery) {
+        return ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidPhoneVerify(phase, String.valueOf(method), phone, userId, password, secretKey, isRecovery);
+    }
+
+    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret) {
+        return ConnectIDSecondaryPhoneNumberDirections.actionConnectidSecondaryPhoneFragmentToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret);
     }
 }

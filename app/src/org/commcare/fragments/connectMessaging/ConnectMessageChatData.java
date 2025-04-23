@@ -2,8 +2,6 @@ package org.commcare.fragments.connectMessaging;
 
 import java.util.Date;
 
-import androidx.annotation.NonNull;
-
 public class ConnectMessageChatData {
 
     private int type;
@@ -14,13 +12,12 @@ public class ConnectMessageChatData {
     private boolean isMessageRead;
 
     // Constructor with parameters
-    public ConnectMessageChatData(int type, @NonNull String message, @NonNull String userName, @NonNull Date timestamp, boolean isMessageRead) {
+    public ConnectMessageChatData(int type, String message, String userName, Date timestamp, boolean isMessageRead) {
         this.type = type;
         this.message = message;
         this.userName = userName;
         this.timestamp = timestamp;
         this.isMessageRead = isMessageRead;
-        this.countUnread = 0;
     }
 
     // Getters and setters
@@ -31,10 +28,7 @@ public class ConnectMessageChatData {
     public void setType(int type) {
         this.type = type;
     }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
+    public Date getTimestamp() { return timestamp; }
 
     public String getMessage() {
         return message;

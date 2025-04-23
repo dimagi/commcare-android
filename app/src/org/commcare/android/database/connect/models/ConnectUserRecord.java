@@ -4,8 +4,6 @@ import android.content.Intent;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.SsoToken;
-import org.commcare.core.network.AuthInfo;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -171,7 +169,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public Date getSecondaryPhoneVerifyByDate() {
-        return secondaryPhoneVerified ? verifySecondaryPhoneByDate : null;
+        return  verifySecondaryPhoneByDate;
     }
 
     public void setSecondaryPhoneVerifyByDate(Date date) {
@@ -199,15 +197,6 @@ public class ConnectUserRecord extends Persisted {
         return forcePin;
     }
 
-    public void clearConnectToken() {
-        connectToken = null;
-        connectTokenExpiration = new Date();
-    }
-
-    public Date getConnectTokenExpiration() {
-        return connectTokenExpiration;
-    }
-
     public boolean shouldRequireSecondaryPhoneVerification() {
         if (secondaryPhoneVerified) {
             return false;
@@ -221,8 +210,17 @@ public class ConnectUserRecord extends Persisted {
         connectTokenExpiration = expirationDate;
     }
 
+    public void clearConnectToken() {
+        connectToken = null;
+        connectTokenExpiration = new Date();
+    }
+
     public String getConnectToken() {
         return connectToken;
+    }
+
+    public Date getConnectTokenExpiration() {
+        return connectTokenExpiration;
     }
 
     public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {

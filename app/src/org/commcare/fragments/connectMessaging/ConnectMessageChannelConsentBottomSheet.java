@@ -10,8 +10,9 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.database.ConnectMessageUtils;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
 
 import androidx.annotation.NonNull;
@@ -28,13 +29,8 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         ConnectMessageChannelConsentBottomSheetArgs args = ConnectMessageChannelConsentBottomSheetArgs
                 .fromBundle(getArguments());
 
-        ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(requireContext(),
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(),
                 args.getChannelId());
-        if (channel == null) {
-            Toast.makeText(requireContext(), "Channel not found", Toast.LENGTH_SHORT).show();
-            NavHostFragment.findNavController(this).popBackStack();
-            return null;
-        }
 
         binding.channelName.setText(channel.getChannelName());
 
@@ -42,13 +38,13 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
             channel.setAnsweredConsent(true);
             channel.setConsented(true);
             MessageManager.updateChannelConsent(requireContext(), channel, success -> {
-                if (success) {
+                if(success) {
                     NavDirections directions = ConnectMessageChannelConsentBottomSheetDirections
                             .actionChannelConsentToConnectMessageFragment(channel.getChannelId());
                     NavHostFragment.findNavController(this).navigate(directions);
                 } else {
                     Context context = getContext();
-                    if (context != null) {
+                    if(context != null) {
                         Toast.makeText(context, "Failed to grant consent to channel", Toast.LENGTH_SHORT).show();
                     }
 
@@ -61,14 +57,9 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
             channel.setAnsweredConsent(true);
             channel.setConsented(false);
             MessageManager.updateChannelConsent(requireContext(), channel, success -> {
-                if (!success) {
-                    Context context = getContext();
-                    if (context != null) {
-                        Toast.makeText(context, "Failed to decline channel consent", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                NavHostFragment.findNavController(this).popBackStack();
+
             });
+            NavHostFragment.findNavController(this).popBackStack();
         });
 
         return binding.getRoot();

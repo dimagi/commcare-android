@@ -22,12 +22,14 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.database.ConnectMessageUtils;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
@@ -159,7 +161,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                         return;
                     }
 
-                    ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(this,
+                    ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(this,
                             message.getChannelId());
 
                     notificationTitleId = R.string.connect_messaging_message_notification_title;
@@ -194,13 +196,12 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
                     intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
                 }
             } else {
-                ///TODO TO uncomment the code with connect code
                 //Intent for ConnectActivity
-//                intent = new Intent(getApplicationContext(), ConnectActivity.class);
-//                intent.putExtra("action", action);
-//                if(payloadData.containsKey(OPPORTUNITY_ID)) {
-//                    intent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
-//                }
+                intent = new Intent(getApplicationContext(), ConnectActivity.class);
+                intent.putExtra("action", action);
+                if(payloadData.containsKey(OPPORTUNITY_ID)) {
+                    intent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
+                }
             }
         } else {
             intent = new Intent(this, DispatchActivity.class);

@@ -6,25 +6,25 @@
     app:startDestination="@+id/channelListFragment">
     <dialog
         android:id="@+id/connect_messaging_channel_consent"
-        android:label="fragment_connect_messaging_consent_fragment"
         android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelConsentBottomSheet"
+        android:label="fragment_connect_messaging_consent_fragment"
         tools:layout="@layout/fragment_channel_consent_bottom_sheet">
-        <action
-            android:id="@+id/action_channelConsent_to_connectMessageFragment"
-            app:destination="@id/connectMessageFragment" />
-        <argument
-            android:name="name"
-            app:argType="string" />
         <argument
             android:name="channelId"
             app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_channelConsent_to_connectMessageFragment"
+            app:destination="@id/connectMessageFragment" />
     </dialog>
 
     <fragment
         android:id="@+id/channelListFragment"
-        android:label="@string/connect_messaging_title"
         android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment"
-        tools:layout="@layout/fragment_channel_list">
+        android:label="@string/connect_messaging_title"
+        tools:layout="@layout/fragment_channel_list" >
         <action
             android:id="@+id/action_channelListFragment_to_channelConsentBottomSheet"
             app:destination="@id/connect_messaging_channel_consent" />
@@ -35,12 +35,12 @@
 
     <fragment
         android:id="@+id/connectMessageFragment"
-        android:label="Channel Name"
         android:name="org.commcare.fragments.connectMessaging.ConnectMessageFragment"
+        android:label="Channel Name"
         tools:layout="@layout/fragment_connect_message">
         <argument
             android:name="channel_id"
             app:argType="string"
-            app:nullable="false" />
+            app:nullable="false"/>
     </fragment>
 </navigation>

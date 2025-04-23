@@ -1,9 +1,13 @@
 package org.commcare.engine.resource;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.PromptApkUpdateActivity;
+import org.commcare.activities.TargetMismatchErrorActivity;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
@@ -26,6 +30,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.net.MalformedURLException;
@@ -146,6 +151,29 @@ public class ResourceInstallUtils {
     }
 
     /**
+     * Shows Apk update prompt to user
+     * @param context current context
+     * @param versionRequired apk version required
+     * @param versionAvailable apk version available
+     */
+    public static void showApkUpdatePrompt(Context context, String versionRequired, String versionAvailable) {
+        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
+        Intent intent = new Intent(context, PromptApkUpdateActivity.class);
+        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
+        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
+        context.startActivity(intent);
+    }
+
+    /**
+     * Show target mismatch error during CC App installation
+     * @param context current context
+     */
+    public static void showTargetMismatchError(Context context) {
+        Intent intent = new Intent(context, TargetMismatchErrorActivity.class);
+        context.startActivity(intent);
+    }
+
+    /**
      * @return Version from profile in the app's upgrade table; -1 if upgrade
      * profile not found.
      */
@@ -236,6 +264,7 @@ public class ResourceInstallUtils {
         }
 
         if(exception.getCause() instanceof SSLException){
+            Logger.exception("Encountered SSLException while trying to install a resource", exception);
             return AppInstallStatus.BadSslCertificate;
         }
 

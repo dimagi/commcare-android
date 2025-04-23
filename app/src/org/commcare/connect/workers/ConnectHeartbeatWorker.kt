@@ -1,47 +1,28 @@
 package org.commcare.connect.workers
 
 import android.content.Context
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.commcare.connect.ConnectManager
+import org.commcare.connect.ConnectIDManager
 import org.commcare.connect.network.ApiConnectId
+import org.commcare.connect.network.ConnectSsoHelper
 
 class ConnectHeartbeatWorker(context: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(context, workerParams) {
+        CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-                    try {
-                        if (!ConnectManager.isConnectIdConfigured()) {
-                            Log.w(TAG, "Connect ID not configured, skipping heartbeat")
-                            return@withContext Result.failure()
-                        }
-                        //NOTE: Using trad'l code route instead until we can get the commented code to work
-                        //val connectNetworkService = ConnectNetworkServiceFactory.createConnectIdNetworkSerive()
-                        //val fcmToken = FirebaseMessagingUtil.getFCMToken();
-                        //val requestBody = HeartBeatBody(fcmToken)
-                        //val response = connectNetworkService.makeHeartbeatRequest(requestBody)!!.execute()
-                        //return@withContext if (response.isSuccessful) Result.success() else Result.failure()
+            if (!ConnectIDManager.getInstance().isloggedIn()) {
+                return@withContext Result.failure()
+            }
 
-                        val result = ApiConnectId.makeHeartbeatRequestSync(applicationContext)
-                        return@withContext if (result.responseCode in 200..299) {
-                            Result.success()
-                        } else {
-                            Log.e(TAG, "Heartbeat failed with response code: ${result.responseCode}")
-                            Result.failure()
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error during heartbeat", e)
-                        return@withContext Result.failure()
-                    }
-
-
+            //First, need to tell Connect we're starting learning so it can create a user on HQ
+            val user = ConnectIDManager.getInstance().getUser(applicationContext)
+            val auth = ConnectSsoHelper.retrieveConnectIdTokenSync(applicationContext, user)
+            val result = ApiConnectId.makeHeartbeatRequestSync(applicationContext, auth)
+            return@withContext if (result.responseCode in 200..299) Result.success() else Result.failure()
         }
-    }
-    private companion object {
-        private const val TAG = "ConnectHeartbeatWorker"
     }
 }

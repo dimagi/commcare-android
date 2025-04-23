@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/connect_fragment_jobs_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/connect_background_color"
+    tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
+
+    <ImageView
+        android:id="@+id/connect_jobs_refresh"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@string/refresh"
+        android:src="@drawable/cloud_backup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:id="@+id/connect_jobs_last_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/connect_jobs_refresh"
+        app:layout_constraintEnd_toStartOf="@id/connect_jobs_refresh"
+        app:layout_constraintTop_toTopOf="@+id/connect_jobs_refresh" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/connect_alert_tile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="2dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:shadowColor="@color/connect_light_grey_transparent"
+        android:shadowDx="30"
+        android:shadowDy="30"
+        android:shadowRadius="50"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/connect_secondary_phone_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/phone_heart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
+
+            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                android:id="@+id/connect_phone_label"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_phone_yes_button"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="@string/connect_payment_confirm_yes"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/blue"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
+                app:roundButtonBackgroundColor="@color/connect_blue_color"
+                app:roundButtonBorderRadius="@dimen/dp48"
+                app:roundButtonIconLeftAlign="false"
+                app:roundButtonTextColor="@color/white"
+                app:roundButtonTextSize="5.0sp" />
+
+            <org.commcare.views.connect.RoundedButton
+                android:id="@+id/connect_phone_no_button"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/connect_payment_confirm_no"
+                android:textColor="@color/blue"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
+                app:roundButtonBorderColor="@color/connect_blue_color"
+                app:roundButtonBorderVisible="true"
+                app:roundButtonBorderWidth="0.5dp"
+                app:roundButtonIconTintColor="@color/white"
+                app:roundButtonTextColor="@color/connect_blue_color"
+                app:roundButtonTextSize="5.0sp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        android:id="@+id/connect_no_jobs_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:text="@string/connect_no_jobs"
+        android:textAlignment="center"
+        android:textColor="@color/blue"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvJobList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"
+        tools:listitem="@layout/item_login_connect_home_apps" />
+</androidx.constraintlayout.widget.ConstraintLayout>

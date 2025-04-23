@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -21,7 +22,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
@@ -106,7 +106,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
-    private static final int MENU_MAP = Menu.FIRST + 2;
+    private static final int MENU_SCAN = Menu.FIRST + 2;
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
@@ -496,7 +496,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             PrimeEntityCacheHelper primeEntityCacheHelper =
                     CommCareApplication.instance().getCurrentApp().getPrimeEntityCacheHelper();
             primeEntityCacheHelper.getProgressState().observe(this, triple -> {
-                if (triple.getFirst().contentEquals(selectDatum.getDataId()) &&
+                if (triple != null && triple.getFirst().contentEquals(selectDatum.getDataId()) &&
                         triple.getSecond().contentEquals(shortSelect.getId())) {
                     deliverProgress(triple.getThird());
                 }
@@ -725,8 +725,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if (isMappingEnabled) {
-            menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
-                    android.R.drawable.ic_menu_mapmode);
+            menu.add(0, MENU_SCAN, MENU_SCAN, Localization.get("select.menu.scan")).setIcon(
+                   R.drawable.startup_barcode);
         }
 
         if (entitySelectSearchUI != null) {
@@ -763,6 +763,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
+        if(isMappingEnabled) {
+            menu.findItem(R.id.highlight_action_bar).setIcon(R.drawable.ic_marker);
+        }
 
         if (menu.findItem(R.id.menu_settings) != null) {
             // For the same reason as in onCreateOptionsMenu(), we may be trying to call this
@@ -782,15 +785,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             case MENU_SORT:
                 createSortMenu();
                 return true;
-            case MENU_MAP:
-                Intent i = new Intent(this,
-                        HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
-                this.startActivityForResult(i, MAP_SELECT);
+            case MENU_SCAN:
+                barcodeScanOnClickListener.onClick(null);
                 return true;
             // handling click on the barcode scanner's actionbar
             // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
-            case R.id.barcode_scan_action_bar:
-                barcodeScanOnClickListener.onClick(null);
+            case R.id.highlight_action_bar:
+                if(isMappingEnabled){
+                    Intent intent = new Intent(this,
+                            HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
+                    this.startActivityForResult(intent, MAP_SELECT);
+                }else {
+                    barcodeScanOnClickListener.onClick(null);
+                }
                 return true;
             // this is needed because superclasses do not implement the menu_settings click
             case R.id.menu_settings:
@@ -1013,20 +1020,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void deliverProgress(Integer[] values) {
         EntityLoadingProgressListener.EntityLoadingProgressPhase phase =
                 EntityLoadingProgressListener.EntityLoadingProgressPhase.fromInt(values[0]);
-        int progress = values[1] * 100 / values[2];
-        if (progress != lastProgress) {
-            lastProgress = progress;
-            String progressDisplay = progress + "%";
-            switch (phase) {
-                case PHASE_PROCESSING -> setProgressText(
-                        StringUtils.getStringRobust(this, R.string.entity_list_processing,
-                                new String[]{progressDisplay}));
-                case PHASE_CACHING -> setProgressText(
-                        StringUtils.getStringRobust(this, R.string.entity_list_loading_cache));
-                case PHASE_UNCACHED_CALCULATION -> setProgressText(
-                        StringUtils.getStringRobust(this, R.string.entity_list_calculating,
-                                new String[]{progressDisplay}));
-            }
+        int phaseProgress = values[1] * 100 / values[2];
+        int totalPhases = 1;
+        if(shortSelect.isCacheEnabled()){
+            // with caching we deliver progress in 3 separate phases
+            totalPhases = 3;
+        }
+        int weightedProgress = (phase.getValue() - 1) * 100 / totalPhases + phaseProgress / totalPhases;
+        if (weightedProgress != lastProgress) {
+            lastProgress = weightedProgress;
+            String progressDisplay = weightedProgress + "%";
+            setProgressText(
+                    StringUtils.getStringRobust(this, R.string.entity_list_loading,
+                            new String[]{progressDisplay}));
         }
     }
 

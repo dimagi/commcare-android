@@ -11,13 +11,13 @@ import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import org.commcare.dalvik.R;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+
+import org.commcare.dalvik.R;
 
 public class ConnectEditText extends AppCompatEditText {
 
@@ -135,7 +135,7 @@ public class ConnectEditText extends AppCompatEditText {
 
     // New method to set hint size directly
     public void setHintTextSize(float size) {
-        setHintTextSize(size);
+        setTextSize(size);
     }
 
     private void setBorder(int borderWidth, int cornerRadius, int borderColor) {
@@ -168,21 +168,14 @@ public class ConnectEditText extends AppCompatEditText {
             int paddingRight,
             int drawablePadding
     ) {
-        if (drawableWidth <= 0 || drawableHeight <= 0) {
-            return;
-        }
         if (drawableStart != null && drawableStartVisible) {
             drawableStart.setBounds(paddingLeft, 0, drawableWidth + paddingLeft, drawableHeight);
-            if (drawableStart.mutate().getConstantState() != null) {
-                drawableStart.setTint(tintColor);
-            }
+            drawableStart.setTint(tintColor);
         }
 
         if (drawableEnd != null && drawableEndVisible) {
             drawableEnd.setBounds(-paddingRight, 0, drawableWidth - paddingRight, drawableHeight);
-            if (drawableEnd.mutate().getConstantState() != null) {
-                drawableEnd.setTint(tintColor);
-            }
+            drawableEnd.setTint(tintColor);
         }
 
         setCompoundDrawables(drawableStartVisible ? drawableStart : null, null, drawableEndVisible ? drawableEnd : null, null);

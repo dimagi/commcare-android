@@ -13,9 +13,9 @@ import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import org.commcare.dalvik.R;
-
 import androidx.annotation.Nullable;
+
+import org.commcare.dalvik.R;
 
 public class CustomOtpView extends LinearLayout {
 
@@ -72,7 +72,7 @@ public class CustomOtpView extends LinearLayout {
 
     private EditText createOtpEditText(int index) {
         EditText editText = new EditText(getContext());
-        LayoutParams params = new LayoutParams(
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 0, LayoutParams.WRAP_CONTENT, 1.0f
         );
         params.setMargins(8, 8, 8, 8);

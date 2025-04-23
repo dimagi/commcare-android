@@ -32,6 +32,10 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public static final String META_KEY_URL = "key_url";
     public static final String META_KEY = "key";
 
+    public ConnectMessagingChannelRecord() {
+
+    }
+
     @Persisting(1)
     @MetaField(META_CHANNEL_ID)
     private String channelId;
@@ -62,12 +66,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
     private SpannableString preview;
 
-    private List<ConnectMessagingMessageRecord> messages;
-
-
-    public ConnectMessagingChannelRecord() {
-        messages = new ArrayList<>();
-    }
+    private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
 
     public static ConnectMessagingChannelRecord fromJson(JSONObject json) throws JSONException, ParseException {
         ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
@@ -85,20 +84,17 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     }
 
     public static ConnectMessagingChannelRecord fromMessagePayload(Map<String, String> payloadData) {
-        if (payloadData == null || !payloadData.containsKey(META_CHANNEL_ID)
-                || !payloadData.containsKey(META_CONSENT)
-                || !payloadData.containsKey(META_CHANNEL_NAME)
-                || !payloadData.containsKey(META_KEY_URL)) {
-            throw new IllegalArgumentException("Missing required fields in payload data");
-        }
         ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
+
         connectMessagingChannelRecord.channelId = payloadData.get(META_CHANNEL_ID);
         connectMessagingChannelRecord.consented = payloadData.get(META_CONSENT).equals("true");
         connectMessagingChannelRecord.channelName = payloadData.get(META_CHANNEL_NAME);
         connectMessagingChannelRecord.keyUrl = payloadData.get(META_KEY_URL);
+
         connectMessagingChannelRecord.channelCreated = new Date();
         connectMessagingChannelRecord.answeredConsent = false;
         connectMessagingChannelRecord.key = "";
+
         return connectMessagingChannelRecord;
     }
 
@@ -157,10 +153,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public void setKey(String key) {
         this.key = key;
     }
-
-    public List<ConnectMessagingMessageRecord> getMessages() {
-        return messages;
-    }
+    public List<ConnectMessagingMessageRecord> getMessages() { return messages; }
 
     public void setPreview(SpannableString preview) {
         this.preview = preview;

@@ -1,12 +1,17 @@
 package org.commcare.adapters;
 
-import android.util.Log;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemChannelBinding;
 import org.javarosa.core.model.utils.DateUtils;
 
@@ -15,17 +20,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelViewHolder> {
 
     private List<ConnectMessagingChannelRecord> channels;
     private final OnChannelClickListener clickListener;
 
-    public ChannelAdapter(List<ConnectMessagingChannelRecord> channels, OnChannelClickListener clickListener) {
+    public ChannelAdapter(List<ConnectMessagingChannelRecord> channels,  OnChannelClickListener clickListener) {
         this.channels = channels;
         this.clickListener = clickListener;
     }
@@ -60,27 +61,17 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             this.binding = binding;
         }
 
-        private String formatLastDate(Date lastDate) {
-            if (DateUtils.dateDiff(new Date(), lastDate) == 0) {
-                return DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
-            } else {
-                SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-                outputFormat.setTimeZone(TimeZone.getDefault());
-                return outputFormat.format(lastDate);
-            }
-        }
-
         public void bind(ItemChannelBinding binding, ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
             binding.tvChannelName.setText(channel.getChannelName());
 
             Date lastDate = null;
             int unread = 0;
-            for (ConnectMessagingMessageRecord message : channel.getMessages()) {
-                if (lastDate == null || lastDate.before(message.getTimeStamp())) {
+            for(ConnectMessagingMessageRecord message : channel.getMessages()) {
+                if(lastDate == null || lastDate.before(message.getTimeStamp())) {
                     lastDate = message.getTimeStamp();
                 }
 
-                if (!message.getUserViewed()) {
+                if(!message.getUserViewed()) {
                     unread++;
                 }
             }
@@ -89,13 +80,21 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             boolean showDate = lastDate != null;
             binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);
-            if (showDate) {
-                binding.tvLastChatTime.setText(formatLastDate(lastDate));
+            if(showDate) {
+                String lastText;
+                if(DateUtils.dateDiff(new Date(), lastDate) == 0) {
+                    lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
+                } else {
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+                    lastText = outputFormat.format(lastDate);
+                }
+
+                binding.tvLastChatTime.setText(lastText);
             }
 
             boolean showUnread = unread > 0;
             binding.tvUnreadCount.setVisibility(showUnread ? View.VISIBLE : View.GONE);
-            if (showUnread) {
+            if(showUnread) {
                 binding.tvUnreadCount.setText(String.valueOf(unread));
             }
 
@@ -110,14 +109,12 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     private static String formatDate(String dateStr) {
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-            inputFormat.setTimeZone(TimeZone.getDefault());
             SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-            outputFormat.setTimeZone(TimeZone.getDefault());
             Date date = inputFormat.parse(dateStr);
             return outputFormat.format(date);
         } catch (ParseException e) {
-            Log.e("ChannelAdapter", "Error parsing date: " + dateStr, e);
-            return "Unknown Date";
+            e.printStackTrace();
+            return null;
         }
     }
 

@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -12,7 +10,12 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.AnimRes;
+import androidx.annotation.LayoutRes;
+
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -20,6 +23,7 @@ import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
@@ -28,11 +32,8 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-
-import androidx.annotation.AnimRes;
-import androidx.annotation.LayoutRes;
-import androidx.core.view.MenuItemCompat;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -105,6 +106,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
             case AUTH_FAILED:
+                String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
+
+                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("Token Auth failed during sync for a ConnectID managed app"));
+                }
+
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:
@@ -112,7 +120,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
                 break;
             case DOWNLOAD_SUCCESS:
-                CommCareApplication.notificationManager().clearNotifications(NotificationMessageFactory.StockMessages.BadSslCertificate.getCategory());
+                CommCareApplication.notificationManager().clearNotifications(
+                        NotificationMessageFactory.StockMessages.BadSslCertificate
+                                .getCategory());
                 updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
                 break;
             case SERVER_ERROR:
@@ -153,7 +163,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case BAD_CERTIFICATE:
                 CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSslCertificate,
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.BadSslCertificate,
                                 NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.badcert"), FAIL);
                 break;
@@ -162,7 +173,9 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         String syncTriggerParam =
                 userTriggeredSync ? AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO;
 
-        String syncModeParam = formsToSend ? AnalyticsParamValue.SYNC_MODE_SEND_FORMS : AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
+        String syncModeParam = formsToSend ?
+                AnalyticsParamValue.SYNC_MODE_SEND_FORMS :
+                AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
 
         FirebaseAnalyticsUtil.reportSyncResult(result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS,
                 syncTriggerParam,
@@ -217,7 +230,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         Integer denominator = update[2];
         // If denominator is less than the numerator, use numerator instead to avoid confusion
         denominator = Math.max(numerator, denominator);
-        return Localization.get("sync.progress", new String[]{String.valueOf(numerator), String.valueOf(denominator)});
+        return Localization.get("sync.progress", new String[]{String.valueOf(numerator),
+                String.valueOf(denominator)});
     }
 
     @Override
@@ -236,7 +250,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 break;
             case BAD_CERTIFICATE:
                 CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.BadSslCertificate,
+                        NotificationMessageFactory.message(
+                                NotificationMessageFactory.StockMessages.BadSslCertificate,
                                 NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
 
                 updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
@@ -261,7 +276,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
         }
-        CommCareApplication.instance().scheduleEntityCacheInvalidation();
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
     }
 
     public void updateUiForFormUploadResult(String message, boolean success) {
@@ -441,7 +456,8 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
+        String title;
+        String message;
         CustomProgressDialog dialog;
         switch (taskId) {
             case ProcessAndSendTask.SEND_PHASE_ID:

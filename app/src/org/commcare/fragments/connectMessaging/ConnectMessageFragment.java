@@ -12,12 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectMessageUtils;
+import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 import org.commcare.services.CommCareFirebaseMessagingService;
 
@@ -25,11 +30,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class ConnectMessageFragment extends Fragment {
     public static String activeChannel;
@@ -49,7 +49,7 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
-        ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(requireContext(), channelId);
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
         getActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
@@ -122,7 +122,7 @@ public class ConnectMessageFragment extends Fragment {
         });
 
         binding.etMessage.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
+            if(hasFocus) {
 
                 binding.rvChat.postDelayed(() -> {
                     RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
@@ -137,13 +137,9 @@ public class ConnectMessageFragment extends Fragment {
         });
 
         binding.imgSendMessage.setOnClickListener(v -> {
-            String messageText = binding.etMessage.getText().toString().trim();
-            if (messageText.isEmpty()) {
-                return;
-            }
-            ConnectMessagingMessageRecord message = new ConnectMessagingMessageRecord();
+            ConnectMessagingMessageRecord message =  new ConnectMessagingMessageRecord();
             message.setMessageId(UUID.randomUUID().toString());
-            message.setMessage(messageText);
+            message.setMessage(binding.etMessage.getText().toString());
             message.setChannelId(channelId);
             message.setTimeStamp(new Date());
             message.setIsOutgoing(true);
@@ -152,7 +148,7 @@ public class ConnectMessageFragment extends Fragment {
 
             binding.etMessage.setText("");
 
-            ConnectMessageUtils.storeMessagingMessage(requireContext(), message);
+            ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
             refreshUi();
 
             MessageManager.sendMessage(requireContext(), message, success -> {
@@ -172,8 +168,8 @@ public class ConnectMessageFragment extends Fragment {
 
     public void refreshUi() {
         Context context = getContext();
-        if (context != null && adapter != null) {
-            List<ConnectMessagingMessageRecord> messages = ConnectMessageUtils.getMessagingMessagesForChannel(context, channelId);
+        if(context != null) {
+            List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesForChannel(context, channelId);
 
             List<ConnectMessageChatData> chats = new ArrayList<>();
             for (ConnectMessagingMessageRecord message : messages) {
@@ -186,7 +182,7 @@ public class ConnectMessageFragment extends Fragment {
 
                 if (!message.getUserViewed()) {
                     message.setUserViewed(true);
-                    ConnectMessageUtils.storeMessagingMessage(context, message);
+                    ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
                 }
             }
 

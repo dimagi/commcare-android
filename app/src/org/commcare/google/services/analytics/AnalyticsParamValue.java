@@ -90,6 +90,7 @@ public class AnalyticsParamValue {
     public static final String LOGOUT_BUTTON = "logout";
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
+    public static final String CONNECT_BUTTON = "connect_info";
 
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";
@@ -107,6 +108,7 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+    public static final String ENABLE_CONNECT_ID = "enable_connect_id";
     public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
     public static final String ENABLE_MANUAL_FORM_QUARANTINE = "enable_manual_form_quarantine";
     public static final String APP_MANAGER_DEVELOPER_OPTIONS = "app_manager_developer_options";
@@ -155,7 +157,11 @@ public class AnalyticsParamValue {
     public static final String CCC_RECOVERY_METHOD_PIN = "pin";
 
     // Param values for Form Submission Event
+
     public static final String USER_TRIGGERED = "user_triggered";
     public static final String SYSTEM_TRIGGERED = "system_triggered";
 
+    public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
+    public static final String CCC_FORGOT_USER_DEACTIVATION = "account_deactivation";
+    public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
 }

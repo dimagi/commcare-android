@@ -9,22 +9,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.commcare.adapters.ChannelAdapter;
-import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
-import org.commcare.connect.MessageManager;
-import org.commcare.connect.database.ConnectMessageUtils;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentChannelListBinding;
-import org.commcare.services.CommCareFirebaseMessagingService;
-
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import org.commcare.activities.CommCareActivity;
+import org.commcare.adapters.ChannelAdapter;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentChannelListBinding;
+import org.commcare.services.CommCareFirebaseMessagingService;
+
+import java.util.List;
 
 public class ConnectMessageChannelListFragment extends Fragment {
 
@@ -49,7 +51,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        List<ConnectMessagingChannelRecord> channels = ConnectMessageUtils.getMessagingChannels(getContext());
+        List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(getContext());
 
         channelAdapter = new ChannelAdapter(channels, this::selectChannel);
 
@@ -62,8 +64,8 @@ public class ConnectMessageChannelListFragment extends Fragment {
         MessageManager.sendUnsentMessages(requireActivity());
 
         String channelId = getArguments() != null ? getArguments().getString("channel_id") : null;
-        if (channelId != null) {
-            ConnectMessagingChannelRecord channel = ConnectMessageUtils.getMessagingChannel(requireContext(), channelId);
+        if(channelId != null) {
+            ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
         }
 
@@ -81,6 +83,11 @@ public class ConnectMessageChannelListFragment extends Fragment {
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();
         });
+
+        if(getActivity()!=null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar()!=null){
+            ((CommCareActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
     }
 
     @Override
@@ -99,7 +106,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
         NavDirections directions;
-        if (channel.getConsented()) {
+        if(channel.getConsented()) {
             directions = ConnectMessageChannelListFragmentDirections
                     .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
         } else {
@@ -120,8 +127,8 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
     public void refreshUi() {
         Context context = getContext();
-        if (context != null && channelAdapter != null) {
-            List<ConnectMessagingChannelRecord> channels = ConnectMessageUtils.getMessagingChannels(context);
+        if(context != null) {
+            List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
             channelAdapter.setChannels(channels);
         }
     }

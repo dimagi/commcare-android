@@ -9,9 +9,14 @@ public class ConnectConstants {
     public static final int CONNECT_ID_TASK_ID_OFFSET = 1000;
     public final static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final int CONNECTID_REQUEST_CODE = 1034;
+    public static final int LOGIN_CONNECT_LAUNCH_REQUEST_CODE = 1050;
+    public static final int COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE = 1051;
+    public static final int STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE = 1052;
+    public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
     public static final String PIN = "PIN";
+    public static final String TASK = "TASK";
     public static final String NAME = "NAME";
     public static final String PHONE = "PHONE";
     public static final String ALT_PHONE = "ALT_PHONE";
@@ -23,6 +28,10 @@ public class ConnectConstants {
     public static final String METHOD_CHANGE_PRIMARY = "CHANGE_PRIMARY";
     public static final String METHOD_CHANGE_ALTERNATE = "CHANGE_ALTERNATE";
     public static final String METHOD_RECOVER_PRIMARY = "RECOVER_PRIMARY";
+    public static final String CCC_DEST_OPPORTUNITY_SUMMARY_PAGE = "ccc_opportunity_summary_page";
+    public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
+    public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
+    public static final String CCC_DEST_PAYMENTS = "ccc_payment";
     public static final String CONNECT_KEY_USERNAME = "username";
     public static final String CONNECT_KEY_NAME = "name";
     public static final String CONNECT_KEY_SECRET = "secret";
@@ -35,8 +44,6 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-    public static final String CCC_DEST_PAYMENTS = "ccc_payment";
-
     public final static int CONNECT_NO_ACTIVITY = ConnectConstants.CONNECT_ID_TASK_ID_OFFSET;
     public final static int CONNECT_REGISTRATION_PRIMARY_PHONE = ConnectConstants.CONNECT_ID_TASK_ID_OFFSET + 2;
     public final static int CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS = ConnectConstants.CONNECT_ID_TASK_ID_OFFSET + 5;

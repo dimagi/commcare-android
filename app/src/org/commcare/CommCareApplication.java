@@ -18,23 +18,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.text.format.DateUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ProcessLifecycleOwner;
-import androidx.preference.PreferenceManager;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.OutOfQuotaPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -43,11 +26,14 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectManager;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -99,7 +85,6 @@ import org.commcare.sync.FormSubmissionWorker;
 import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
-import org.commcare.tasks.EntityCacheInvalidationWorker;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
@@ -145,6 +130,20 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.preference.PreferenceManager;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
@@ -168,7 +167,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private static final long BACKOFF_DELAY_FOR_UPDATE_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long BACKOFF_DELAY_FOR_FORM_SUBMISSION_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final long PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS = 1;
-    private static final String ENTITY_CACHE_INVALIDATION_REQUEST = "entity-cache-invalidation-request";
     private static Markwon markwon;
 
 
@@ -369,6 +367,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             // CommCareSessionService, close it and open a new one
             SessionRegistrationHelper.unregisterSessionExpiration();
             if (this.sessionServiceIsBound) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session to start a new one");
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
@@ -381,6 +380,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session");
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
@@ -437,6 +437,15 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
         analyticsInstance.setUserId(getUserIdOrNull());
 
+        ConnectUserRecord user = ConnectManager.getUser(this);
+        if (user != null) {
+            analyticsInstance.setUserProperty("user_cid", user.getUserId());
+        }
+
+        ConnectJobRecord activeJob = ConnectManager.getActiveJob();
+        if (activeJob != null) {
+            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(activeJob.getJobId()));
+        }
         return analyticsInstance;
     }
 
@@ -807,6 +816,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
                         purgeLogs();
                         cleanRawMedia();
+
+                        getCurrentApp().getPrimeEntityCacheHelper().clearState();
                         PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
@@ -1254,19 +1265,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             case ON_DESTROY:
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
-        }
-    }
-
-    public void scheduleEntityCacheInvalidation() {
-        CommCareEntityStorageCache entityStorageCache = new CommCareEntityStorageCache("case");
-        if (!entityStorageCache.isEmpty()) {
-            OneTimeWorkRequest entityCacheInvalidationRequest = new OneTimeWorkRequest.Builder(
-                    EntityCacheInvalidationWorker.class)
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    .build();
-            WorkManager wm = WorkManager.getInstance(CommCareApplication.instance());
-            wm.enqueueUniqueWork(ENTITY_CACHE_INVALIDATION_REQUEST, ExistingWorkPolicy.REPLACE,
-                    entityCacheInvalidationRequest);
         }
     }
 }

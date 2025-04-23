@@ -25,10 +25,6 @@ import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
 import androidx.work.WorkManager;
 
 import com.google.common.collect.ArrayListMultimap;

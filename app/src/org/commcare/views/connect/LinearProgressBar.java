@@ -9,9 +9,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import org.commcare.dalvik.R;
-
 import androidx.core.content.ContextCompat;
+
+import org.commcare.dalvik.R;
 
 public class LinearProgressBar extends View {
 

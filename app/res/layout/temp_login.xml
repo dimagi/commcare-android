@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:viewBindingIgnore="true">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/screen_login_main"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent">
+
+            <LinearLayout
+                android:id="@+id/screen_login_bottom_pane"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                    android:id="@+id/str_version"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/VersionIdText" />
+            </LinearLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="0dp"
+                android:scrollbars="none">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="@dimen/mapbox_internalMinSpan24"
+                        android:background="@drawable/shape_border_8px_white"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:id="@+id/screen_login_banner_pane"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/standard_spacer_half"
+                            android:paddingLeft="@dimen/standard_spacer_half"
+                            android:paddingEnd="@dimen/standard_spacer_half"
+                            android:paddingRight="@dimen/standard_spacer_half"
+                            android:visibility="gone">
+
+                            <include layout="@layout/grid_header_top_banner" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:id="@+id/LinearLayout01"
+                            android:layout_width="match_parent"
+                            android:layout_height="0px"
+                            android:layout_weight=".8"
+                            android:gravity="center_vertical"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:paddingLeft="@dimen/login_box_margins"
+                                android:paddingEnd="@dimen/login_box_margins"
+                                android:paddingRight="@dimen/login_box_margins"
+                                android:paddingBottom="@dimen/content_start">
+
+                                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                    android:id="@+id/welcome_msg"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_margin="@dimen/content_min_margin"
+                                    android:textColor="@color/cc_neutral_color"
+                                    android:textSize="@dimen/text_medium"
+                                    android:visibility="gone" />
+
+                                <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                                    android:id="@+id/tvLoginIntoApp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/content_min_margin"
+                                    android:text="Apps"
+                                    android:textColor="@color/connect_blue_color"
+                                    android:textSize="18sp" />
+
+                                <org.commcare.views.connect.ConnectEditText
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="16dp"
+                                    RectangleButtonWithText:editTextDrawableEnd="@drawable/connect_arrow_down"
+                                    RectangleButtonWithText:editTextDrawableEndVisible="true"
+                                    RectangleButtonWithText:editTextDrawableStart="@drawable/connect_ic_inventory"
+                                    RectangleButtonWithText:editTextDrawableStartVisible="true"
+                                    RectangleButtonWithText:editTextEditable="false"
+                                    RectangleButtonWithText:editTextText="Select app" />
+
+                                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                    android:id="@+id/tvNewAppAvailable"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="5dp"
+                                    android:text="New App Available"
+                                    android:textColor="@color/connect_yellowish_orange_color"
+                                    android:textSize="@dimen/text_small" />
+
+                                <Button
+                                    android:id="@+id/connect_login_button"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="bottom"
+                                    android:paddingTop="@dimen/content_start"
+                                    android:paddingBottom="@dimen/content_start"
+                                    android:text="@string/connect_button_logged_in"
+                                    android:visibility="gone" />
+
+                                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                    android:id="@+id/login_or"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_margin="@dimen/content_min_margin"
+                                    android:text="@string/choice_or"
+                                    android:textColor="@color/cc_neutral_color"
+                                    android:textSize="@dimen/text_medium"
+                                    android:visibility="gone" />
+
+                                <Spinner
+                                    android:id="@+id/app_selection_spinner"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginBottom="@dimen/cell_padding_vertical"
+                                    android:gravity="center"
+                                    android:textSize="@dimen/text_medium"
+                                    android:visibility="gone" />
+
+                                <View
+                                    android:layout_width="30dp"
+                                    android:layout_height="5dp"
+                                    android:layout_gravity="center_horizontal"
+                                    android:layout_marginTop="16dp"
+                                    android:background="@drawable/shape_border_10px_blue" />
+
+                                <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                                    android:id="@+id/tvAppsTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="20dp"
+                                    android:text="Login into the App"
+                                    android:textColor="@color/connect_blue_color"
+                                    android:textSize="18sp" />
+
+                                <org.commcare.views.connect.ConnectEditText
+                                    android:id="@+id/edit_username"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="16dp"
+                                    RectangleButtonWithText:editTextDrawableEnd="@drawable/connect_edittext_cancel"
+                                    RectangleButtonWithText:editTextDrawableEndVisible="true"
+                                    RectangleButtonWithText:editTextDrawableStart="@drawable/icon_user_neutral50"
+                                    RectangleButtonWithText:editTextDrawableStartVisible="true"
+                                    RectangleButtonWithText:editTextEditable="true"
+                                    RectangleButtonWithText:editTextHint="Username" />
+
+                                <!--<AutoCompleteTextView
+                                    android:id="@+id/edit_username"
+                                    style="@style/LoginEditTextV2"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:background="@drawable/login_edit_text"
+                                    android:drawableStart="@drawable/icon_user_neutral50"
+                                    android:drawableLeft="@drawable/icon_user_neutral50"
+                                    android:hint="Username"
+                                    android:imeOptions="actionNext"
+                                    android:inputType="text"
+                                    android:nextFocusDown="@+id/edit_password"
+                                    android:textAlignment="viewStart"
+                                    android:textSize="@dimen/text_medium"
+                                    tools:ignore="RtlCompat">
+
+                                    <requestFocus />
+                                </AutoCompleteTextView>-->
+
+                                <org.commcare.views.connect.ConnectEditText
+                                    android:id="@+id/edit_password"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="16dp"
+                                    RectangleButtonWithText:editTextDrawableEnd="@drawable/connect_edittext_cancel"
+                                    RectangleButtonWithText:editTextDrawableEndVisible="true"
+                                    RectangleButtonWithText:editTextDrawableStart="@drawable/icon_lock_neutral50"
+                                    RectangleButtonWithText:editTextDrawableStartVisible="true"
+                                    RectangleButtonWithText:editTextEditable="true"
+                                    RectangleButtonWithText:editTextHint="Password" />
+
+
+                                <!-- <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                     android:layout_width="wrap_content"
+                                     android:layout_height="wrap_content">
+
+                                     <EditText
+                                         android:id="@+id/edit_password"
+                                         style="@style/LoginEditTextV2"
+                                         android:layout_width="fill_parent"
+                                         android:layout_height="wrap_content"
+                                         android:layout_marginBottom="@dimen/content_start"
+                                         android:background="@drawable/login_edit_text"
+                                         android:drawableStart="@drawable/icon_lock_neutral50"
+                                         android:drawableLeft="@drawable/icon_lock_neutral50"
+                                         android:hint="Password"
+                                         android:imeOptions="actionDone"
+                                         android:inputType="textPassword"
+                                         android:nextFocusUp="@+id/edit_username"
+                                         android:textAlignment="viewStart"
+                                         android:textSize="@dimen/text_medium"
+                                         tools:ignore="RtlCompat" />
+
+                                     <Button
+                                         android:id="@+id/show_password"
+                                         android:layout_width="wrap_content"
+                                         android:layout_height="wrap_content"
+                                         android:layout_alignTop="@+id/edit_password"
+                                         android:layout_alignEnd="@+id/edit_password"
+                                         android:layout_alignRight="@+id/edit_password"
+                                         android:layout_alignBottom="@+id/edit_password"
+                                         android:background="@android:color/transparent"
+                                         android:padding="@dimen/spacer_small"
+                                         android:src="@drawable/close_cross_icon"
+                                         android:textColor="@color/cc_brand_color"
+                                         android:textSize="@dimen/font_size_dp_medium"
+                                         android:visibility="invisible" />
+                                 </RelativeLayout>-->
+
+
+                                <CheckBox
+                                    android:id="@+id/restore_session_checkbox"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="@dimen/standard_spacer"
+                                    android:text="@string/restore_session_prompt"
+                                    android:textSize="16dp"
+                                    android:visibility="gone" />
+
+                                <TextView
+                                    android:id="@+id/primed_password_message"
+                                    android:layout_width="fill_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="@dimen/standard_spacer"
+                                    android:textSize="@dimen/font_size_medium"
+                                    android:visibility="gone" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/login_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="end"
+                                    android:layout_marginVertical="24dp"
+                                    android:text="Login with Connect ID"
+                                    app:icon="@drawable/connect_right_arrow"
+                                    app:iconGravity="end"
+                                    />
+
+
+                                <LinearLayout
+                                    android:id="@+id/screen_login_error_view"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/content_min_margin"
+                                    android:layout_marginBottom="24dp"
+                                    android:orientation="vertical"
+                                    android:visibility="gone">
+
+                                    <TextView
+                                        android:id="@+id/screen_login_bad_password"
+                                        android:layout_width="fill_parent"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="center"
+                                        android:textColor="@color/red"
+                                        android:textStyle="bold" />
+
+                                    <FrameLayout
+                                        android:id="@+id/btn_view_errors_container"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:background="@drawable/tile_drop_shadow_small_margins"
+                                        android:visibility="gone">
+
+                                        <org.commcare.views.RectangleButtonWithText
+                                            android:id="@+id/btn_view_notifications"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="@dimen/rectangle_button_height"
+
+                                            RectangleButtonWithText:backgroundColor="@color/cc_attention_negative_bg"
+                                            RectangleButtonWithText:img="@drawable/ic_list_error"
+                                            RectangleButtonWithText:textColor="@color/cc_attention_negative_text" />
+
+                                    </FrameLayout>
+                                </LinearLayout>
+
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </RelativeLayout>
+            </ScrollView>
+        </RelativeLayout>
+
+        <include
+            layout="@layout/component_drop_shadow"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
+    <LinearLayout
+        android:id="@+id/dummy_focusable_view"
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal" />
+
+</LinearLayout>

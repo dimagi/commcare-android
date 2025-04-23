@@ -307,6 +307,12 @@
         <item name="android:windowBackground">"@color/black"</item>
         <item name="android:navigationBarColor">@color/black</item>
     </style>
+    <style name="TabTextStyle">
+        <item name="textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/roboto_medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 
     <style name="AlertDialogButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:background">@drawable/rounded_button_shape</item>
