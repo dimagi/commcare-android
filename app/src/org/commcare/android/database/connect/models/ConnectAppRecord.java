@@ -13,11 +13,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Stores meta data specific to a CommCare App linked to a Connect Job
+ */
 @Table(ConnectAppRecord.STORAGE_KEY)
 public class ConnectAppRecord extends Persisted implements Serializable {
-    /**
-     * Name of table that stores app info for Connect jobs
-     */
+
     public static final String STORAGE_KEY = "connect_apps";
 
     public static final String META_JOB_ID = "job_id";

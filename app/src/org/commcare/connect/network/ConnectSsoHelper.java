@@ -3,11 +3,12 @@ package org.commcare.connect.network;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import androidx.annotation.NonNull;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.network.AuthInfo;
@@ -15,7 +16,6 @@ import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -25,17 +25,34 @@ import java.net.MalformedURLException;
 public class ConnectSsoHelper {
     public interface TokenCallback {
         void tokenRetrieved(AuthInfo.TokenAuth token);
+        void tokenUnavailable();
+        void tokenRequestDenied();
     }
 
-    //Used for aynchronously retrieving HQ or SSO token
+    //Used for asynchronously retrieving HQ or SSO token
     private static class TokenTask extends AsyncTask<Void, Void, AuthInfo.TokenAuth> {
         private final WeakReference<Context> weakContext;
+        private final ConnectUserRecord user;
+        private final ConnectLinkedAppRecord appRecord;
         private final String hqUsername; //null for ConnectId
         private final boolean linkHqUser;
         final TokenCallback callback;
-        TokenTask(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
+        private Exception caughtException;
+        TokenTask(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
             super();
             this.weakContext = new WeakReference<>(context);
+            this.user = user;
+            this.appRecord = null;
+            this.hqUsername = null;
+            this.linkHqUser = false;
+            this.callback = callback;
+        }
+
+        TokenTask(Context context, @NonNull ConnectUserRecord user, ConnectLinkedAppRecord appRecord, String hqUsername, boolean linkHqUser, TokenCallback callback) {
+            super();
+            this.weakContext = new WeakReference<>(context);
+            this.user = user;
+            this.appRecord = appRecord;
             this.hqUsername = hqUsername;
             this.linkHqUser = linkHqUser;
             this.callback = callback;
@@ -43,67 +60,84 @@ public class ConnectSsoHelper {
 
         @Override
         protected AuthInfo.TokenAuth doInBackground(Void... voids) {
-            Context context = weakContext.get();
-            if(hqUsername == null) {
-                return ApiConnectId.retrieveConnectIdTokenSync(context);
-            }
+            try {
+                Context context = weakContext.get();
+                if (hqUsername == null) {
+                    return retrieveConnectIdTokenSync(context, user);
+                }
 
-            return retrieveHqSsoTokenSync(context, hqUsername, linkHqUser);
+                return retrieveHqSsoTokenSync(context, user, appRecord, hqUsername, linkHqUser);
+            } catch(TokenUnavailableException | TokenRequestDeniedException e) {
+                caughtException = e;
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(AuthInfo.TokenAuth token) {
-            callback.tokenRetrieved(token);
-        }
-    }
-
-    public static void retrieveHqSsoTokenAsync(Context context, String hqUsername, boolean linkHqUser, TokenCallback callback) {
-        TokenTask task = new TokenTask(context, hqUsername, linkHqUser, callback);
-
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-
-    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, String hqUsername, boolean performLink) {
-        if (!ConnectManager.isConnectIdConfigured()) {
-            return null;
-        }
-
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, hqUsername);
-        if (appRecord == null) {
-            return null;
-        }
-
-        //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectManager.getTokenCredentialsForApp(seatedAppId, hqUsername);
-        if (hqTokenAuth == null && (performLink || appRecord.getWorkerLinked())) {
-            //First get a valid ConnectId token
-            AuthInfo.TokenAuth connectIdToken = ApiConnectId.retrieveConnectIdTokenSync(context);
-
-            //If we can't get a valid Connect token there's no point continuing
-            if (connectIdToken != null) {
-                if(!appRecord.getWorkerLinked()) {
-                    //Link user if necessary
-                    ApiConnectId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
+            if(caughtException != null) {
+                if(caughtException instanceof TokenUnavailableException) {
+                    Logger.exception("Token unavailable", caughtException);
+                    callback.tokenUnavailable();
+                } else {
+                    Logger.exception("Token request denied", caughtException);
+                    callback.tokenRequestDenied();
                 }
-
-                //Retrieve HQ token
-                try {
-                    hqTokenAuth = ApiConnectId.retrieveHqTokenApi(context, hqUsername, connectIdToken.bearerToken);
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
+            } else {
+                callback.tokenRetrieved(token);
             }
         }
-
-        return hqTokenAuth;
     }
 
-    public static void retrieveConnectTokenAsync(Context context, TokenCallback callback) {
-        TokenTask task = new TokenTask(context, null, false, callback);
+    public static void retrieveConnectIdTokenAsync(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, user, callback);
 
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static void retrieveHqSsoTokenAsync(Context context, @NonNull ConnectUserRecord user,
+                                               @NonNull ConnectLinkedAppRecord appRecord, String hqUsername,
+                                               boolean linkHqUser, TokenCallback callback) {
+        TokenTask task = new TokenTask(context, user, appRecord, hqUsername, linkHqUser, callback);
+
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
+            throws TokenRequestDeniedException, TokenUnavailableException {
+        //See if we already have a valid token
+        AuthInfo.TokenAuth connectToken = ConnectIDManager.getInstance().getConnectToken();
+        if (connectToken != null) {
+            return connectToken;
+        }
+
+        return ApiConnectId.retrieveConnectIdTokenSync(context, user);
+    }
+
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws TokenRequestDeniedException, TokenUnavailableException {
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+
+        //See if we already have a valid token
+        AuthInfo.TokenAuth hqTokenAuth = ConnectIDManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
+        if(hqTokenAuth != null) {
+            return hqTokenAuth;
+        }
+
+        //Need a new token, and may need to perform HQ-ConnectID linking
+        if (performLink || appRecord.getWorkerLinked()) {
+            //First get a valid ConnectId token
+            AuthInfo.TokenAuth connectIdToken = retrieveConnectIdTokenSync(context, user);
+
+            if (!appRecord.getWorkerLinked()) {
+                //Link user if necessary
+                ApiConnectId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
+            }
+
+            //Retrieve HQ token
+            return ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
+        }
+
+        throw new TokenUnavailableException();
     }
 
     public static void discardTokens(Context context, String username) {
@@ -112,7 +146,7 @@ public class ConnectSsoHelper {
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
 
         if(username != null) {
-            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getAppData(context, seatedAppId, username);
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId, username);
             if (appRecord != null) {
                 appRecord.clearHqToken();
                 ConnectAppDatabaseUtil.storeApp(context, appRecord);

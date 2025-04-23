@@ -11,24 +11,24 @@ import org.javarosa.core.services.Logger
  */
 class PrimeEntityCache(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
 
-    lateinit var primeEntityCacheHelper : PrimeEntityCacheHelper
+    var primeEntityCacheHelper : PrimeEntityCacheHelper? = null
 
     override fun doWork(): Result {
         try {
             if (CommCareApplication.isSessionActive()) {
                 primeEntityCacheHelper = CommCareApplication.instance().currentApp.primeEntityCacheHelper
-                primeEntityCacheHelper.primeEntityCache()
+                primeEntityCacheHelper!!.primeEntityCache()
                 return Result.success()
             }
         } catch (e: Exception) {
             Logger.exception("Error while priming cache in worker", e)
         } finally {
-            primeEntityCacheHelper.clearState()
+            primeEntityCacheHelper?.clearState()
         }
         return Result.failure()
     }
 
     override fun onStopped() {
-        primeEntityCacheHelper.cancel()
+        primeEntityCacheHelper?.cancel()
     }
 }

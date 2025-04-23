@@ -2,6 +2,9 @@ package org.commcare.fragments.connect;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,6 +16,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
@@ -23,8 +27,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -74,6 +82,24 @@ public class ConnectLearningProgressFragment extends Fragment {
         updateUi(view);
         refreshData();
 
+        MenuHost host = (MenuHost)requireActivity();
+        host.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                //Activity loads the menu
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.action_sync) {
+                    refreshData();
+                    return true;
+                }
+
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+
         jobCardDataHandle(view, job);
         return view;
     }
@@ -82,7 +108,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectManager.isConnectIdConfigured()) {
+        if(ConnectIDManager.getInstance().isloggedIn()) {
             refreshData();
         }
     }
@@ -278,13 +304,13 @@ public class ConnectLearningProgressFragment extends Fragment {
         ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
         ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
         ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDiscrepation = viewJobCard.findViewById(R.id.tv_job_discrepation);
+        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
         ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setVisibility(View.GONE);
 
         tvJobTitle.setText(job.getTitle());
-        tvJobDiscrepation.setText(job.getDescription());
+        tvJobDescription.setText(job.getDescription());
         connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();

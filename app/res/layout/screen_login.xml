@@ -26,7 +26,7 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/str_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -47,10 +47,10 @@
                         android:id="@+id/screen_login_banner_pane"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingStart="@dimen/standard_spacer_half"
-                        android:paddingLeft="@dimen/standard_spacer_half"
                         android:paddingEnd="@dimen/standard_spacer_half"
-                        android:paddingRight="@dimen/standard_spacer_half">
+                        android:paddingLeft="@dimen/standard_spacer_half"
+                        android:paddingRight="@dimen/standard_spacer_half"
+                        android:paddingStart="@dimen/standard_spacer_half">
 
                         <include layout="@layout/grid_header_top_banner" />
                     </FrameLayout>
@@ -67,13 +67,14 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:paddingStart="@dimen/login_box_margins"
-                            android:paddingLeft="@dimen/login_box_margins"
+                            android:paddingBottom="@dimen/content_start"
                             android:paddingEnd="@dimen/login_box_margins"
+                            android:paddingLeft="@dimen/login_box_margins"
                             android:paddingRight="@dimen/login_box_margins"
-                            android:paddingBottom="@dimen/content_start">
+                            android:paddingStart="@dimen/login_box_margins">
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/welcome_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -92,7 +93,8 @@
                                 android:text="@string/connect_button_logged_in"
                                 android:visibility="gone"/>
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/login_or"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -100,7 +102,8 @@
                                 android:layout_margin="@dimen/content_min_margin"
                                 android:text="@string/choice_or"
                                 android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium" />
+                                android:textSize="@dimen/text_medium"
+                                android:visibility="gone"/>
 
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
@@ -112,12 +115,13 @@
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone" />
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
                                 android:id="@+id/login_via_connect"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_margin="@dimen/content_min_margin"
+                                android:textStyle="bold"
                                 android:text="@string/login_via_connect"
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium"
@@ -143,7 +147,7 @@
                                 <requestFocus />
                             </AutoCompleteTextView>
 
-                            <RelativeLayout
+                            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                 android:id="@+id/password_wrapper"
                                 android:layout_width="wrap_content"
                                 android:layout_height="50dp"
@@ -171,10 +175,10 @@
                                     android:id="@+id/show_password"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_alignTop="@+id/edit_password"
+                                    android:layout_alignBottom="@+id/edit_password"
                                     android:layout_alignEnd="@+id/edit_password"
                                     android:layout_alignRight="@+id/edit_password"
-                                    android:layout_alignBottom="@+id/edit_password"
+                                    android:layout_alignTop="@+id/edit_password"
                                     android:background="@android:color/transparent"
                                     android:padding="@dimen/spacer_small"
                                     android:src="@drawable/close_cross_icon"
@@ -182,7 +186,6 @@
                                     android:textSize="@dimen/font_size_dp_medium"
                                     android:visibility="invisible" />
                             </RelativeLayout>
-
 
                             <CheckBox
                                 android:id="@+id/restore_session_checkbox"
@@ -209,12 +212,13 @@
                                 android:textAllCaps="true"
                                 android:nextFocusUp="@+id/edit_password"
                                />
+
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/content_min_margin"
                                 android:layout_marginBottom="24dp"
+                                android:layout_marginTop="@dimen/content_min_margin"
                                 android:orientation="vertical"
                                 android:visibility="gone">
 

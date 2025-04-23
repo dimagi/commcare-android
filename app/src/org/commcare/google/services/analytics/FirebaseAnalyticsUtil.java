@@ -1,5 +1,27 @@
 package org.commcare.google.services.analytics;
 
+import android.os.Bundle;
+import android.os.Environment;
+import android.text.TextUtils;
+
+import com.google.firebase.BuildConfig;
+import com.google.firebase.analytics.FirebaseAnalytics;
+
+import org.commcare.CommCareApplication;
+import org.commcare.DiskUtils;
+import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.preferences.MainConfigurablePreferences;
+import org.commcare.suite.model.OfflineUserRestore;
+import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.FormUploadResult;
+
+import java.util.Date;
+
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
+
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
@@ -9,28 +31,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_U
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_MOST;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_OTHER;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_PARTIAL;
-
-import android.os.Bundle;
-import android.os.Environment;
-import android.text.TextUtils;
-
-import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
-import androidx.navigation.fragment.FragmentNavigator;
-
-import com.google.firebase.BuildConfig;
-import com.google.firebase.analytics.FirebaseAnalytics;
-
-import org.commcare.CommCareApplication;
-import org.commcare.DiskUtils;
-import org.commcare.connect.ConnectManager;
-import org.commcare.android.logging.ReportingUtils;
-import org.commcare.preferences.MainConfigurablePreferences;
-import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.utils.EncryptionUtils;
-import org.commcare.utils.FormUploadResult;
-
-import java.util.Date;
 
 /**
  * Created by amstone326 on 10/13/17.
@@ -73,8 +73,6 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
-        analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
-
         String domain = ReportingUtils.getDomain();
         if (!TextUtils.isEmpty(domain)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CCHQ_DOMAIN, domain);
@@ -101,7 +99,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(ConnectManager.isConnectIdConfigured()));
+                String.valueOf(ConnectIDManager.getInstance().isloggedIn()));
     }
 
     private static String getFreeDiskBucket() {
@@ -478,6 +476,7 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
     }
 
+
     public static void reportCccSignOut() {
         reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
     }
@@ -510,5 +509,9 @@ public class FirebaseAnalyticsUtil {
     public static void reportNotificationType(String notificationType) {
         reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
                 CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
+    }
+
+    public static void reportRekeyedDatabase() {
+        reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
     }
 }

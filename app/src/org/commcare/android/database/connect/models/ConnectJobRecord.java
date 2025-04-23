@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -73,6 +74,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_UNITS = "payment_units";
     public static final String META_PAYMENT_UNIT = "payment_unit";
     public static final String META_MAX_VISITS = "max_visits";
+
+    private static final String WORKING_HOURS_SOURCE_FORMAT ="HH:mm:ss";
+    private static final String WORKING_HOURS_TARGET_FORMAT ="h:mm a";
+    private static final String WORKING_HOURS_PATTERN = "%s - %s";
 
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
@@ -176,7 +181,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dailyFinishTime = "";
     }
 
-    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
+    public static ConnectJobRecord corruptJobfromJson(JSONObject json)throws JSONException{
+        ConnectJobRecord job = new ConnectJobRecord();
+        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
+        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
+        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
+        return job;
+    }
+
+    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
@@ -204,7 +217,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
 
-        job.isActive = !json.optBoolean(META_IS_ACTIVE, true);
+        job.isActive = json.optBoolean(META_IS_ACTIVE, true);
 
         job.isUserSuspended = json.optBoolean(META_USER_SUSPENDED, false);
 
@@ -435,10 +448,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public int getDaysRemaining() {
         long millis = projectEndDate.getTime() - (startDate).getTime();
-        //(since the end date has 00:00 time, but project is valid until midnight)
+        //End date has 00:00 time, but project is valid until midnight
+        //So add just under one day to the difference
+        millis += 86399999; //one ms less than 24 hours
         int days = (int)TimeUnit.MILLISECONDS.toDays(millis);
         //Now plus 1 so we report i.e. 1 day remaining on the last day
-        return days >= 0 ? (days + 1) : 0;
+        //But for any negative difference, we return 0
+        return millis >= 0 ? (days + 1) : 0;
     }
 
     public String getWorkingHours() {
@@ -450,12 +466,21 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-            LocalTime start = LocalTime.parse(dailyStart, formatter);
-            LocalTime end = LocalTime.parse(dailyFinish, formatter);
-            formatter = DateTimeFormatter.ofPattern("h:mm a");
-
-            return formatter.format(start) + " - " + formatter.format(end);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                //DateTimeFormatter is more efficient than SimpleDateFormat
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_SOURCE_FORMAT);
+                LocalTime start = LocalTime.parse(dailyStart, formatter);
+                LocalTime end = LocalTime.parse(dailyFinish, formatter);
+                formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_TARGET_FORMAT);
+                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
+            }else{
+                // remove this code whenever we change minSdk to 26
+                SimpleDateFormat formatter = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT);
+                Date start = formatter.parse(dailyStart);
+                Date end = formatter.parse(dailyFinish);
+                formatter = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT);
+                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
+            }
         } catch(Exception e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
             return null;

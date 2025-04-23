@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.56">
+          android:versionName="2.57">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -52,6 +52,10 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false"/>
+
+    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool, com.simprints.libsimprints,
+    ru.noties.markwon.il, ru.noties.markwon.view, ru.noties.markwon.renderer,
+    com.google.firebase.crashlytics, com.google.firebase.iid, com.appmattus.certificatetransparency"/>
 
     <permission-group
         android:name="commcare.permission-group.DATABASE"
@@ -118,38 +122,36 @@
     </queries>
 
     <application
-        android:name="org.commcare.CommCareApplication"
         android:allowBackup="false"
-        android:enableOnBackInvokedCallback="false"
-        android:hardwareAccelerated="true"
+        tools:replace="android:label,android:icon,android:theme, android:allowBackup"
+        android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/commcare_launcher"
-        android:label="@string/application_name"
         android:supportsRtl="true"
-        android:theme="@style/AppBaseTheme"
+        android:label="@string/application_name"
+        android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
-        tools:replace="android:label,android:icon,android:theme, android:allowBackup">
-        <activity
-            android:name="org.commcare.activities.connect.ConnectMessagingActivity"
-            android:exported="true" >
-        </activity>
+        android:theme="@style/AppBaseTheme"
+        android:enableOnBackInvokedCallback="false">
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
-
         <receiver
             android:name="org.commcare.connect.SMSBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED" />
+                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
             </intent-filter>
         </receiver>
-
         <activity
-            android:name="org.commcare.activities.DispatchActivity"
+            android:name="org.commcare.activities.connect.ConnectMessagingActivity"
+            android:exported="true" >
+        </activity>
+        <activity
+            android:label="@string/application_name"
             android:exported="true"
-            android:label="@string/application_name">
+            android:name="org.commcare.activities.DispatchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -171,6 +173,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize" />
@@ -180,9 +185,6 @@
         <activity android:name="org.commcare.activities.StandardHomeActivity" />
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
-        <activity
-            android:name="org.commcare.activities.connect.ConnectIdActivity"
-            android:theme="@style/NoAppBarTheme" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity" />
         <activity android:name="org.commcare.activities.AppSelectActivity" />

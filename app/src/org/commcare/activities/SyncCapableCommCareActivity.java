@@ -14,6 +14,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -22,6 +23,7 @@ import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
@@ -30,6 +32,7 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
@@ -103,9 +106,13 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
             case AUTH_FAILED:
-                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-                ConnectManager.forgetAppCredentials(seatedAppId, username);
+
+                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("Token Auth failed during sync for a ConnectID managed app"));
+                }
+
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:
@@ -269,7 +276,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
                 break;
         }
-        CommCareApplication.instance().scheduleEntityCacheInvalidation();
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
     }
 
     public void updateUiForFormUploadResult(String message, boolean success) {

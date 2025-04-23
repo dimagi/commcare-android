@@ -14,8 +14,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'androidx.navigation.safeargs'
 apply from: 'jacoco.gradle'
+apply plugin: "androidx.navigation.safeargs"
 
 repositories {
     // for local aar inclusion
@@ -23,6 +23,7 @@ repositories {
         dirs 'libs'
     }
     maven { url 'https://jitpack.io' }
+    maven {url 'https://repository.liferay.com/nexus/content/repositories/public/'}
 }
 
 configurations {
@@ -31,6 +32,7 @@ configurations {
 }
 
 dependencies {
+    implementation 'androidx.exifinterface:exifinterface:1.3.6'
     testImplementation 'junit:junit:4.13.2'
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
@@ -71,11 +73,7 @@ dependencies {
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
-    implementation (name: 'LibSimprints-1.0.12', ext: 'aar')
-    implementation (name: 'mapbox-android-accounts-0.2.0', ext: 'aar')
-    implementation (name: 'realm-android-library-4.1.1', ext: 'aar')
-    implementation (name: 'volley-1.1.0', ext: 'aar')
-    implementation (name: 'storage-2.1.0', ext: 'aar')
+    implementation 'com.simprints:libsimprints:2024.2.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
@@ -107,9 +105,10 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
-    implementation 'com.google.firebase:firebase-analytics:17.5.0'
+    implementation 'com.google.firebase:firebase-analytics:20.1.2'
     implementation 'com.google.firebase:firebase-messaging:21.1.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    implementation 'com.google.firebase:firebase-crashlytics:18.3.7'
+
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
@@ -125,12 +124,13 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:$markwon_version"
     implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
 
+    // Kujaku
+    implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.snatik:storage:2.1.0'
     implementation('io.ona.kujaku:library:0.9.0') {
         exclude module: 'xpp3'
         exclude module: 'volley'
         exclude module: 'storage'
-        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-accounts'
-        exclude group: 'io.realm'
     }
     implementation 'androidx.work:work-runtime:2.10.0'
     implementation 'androidx.work:work-runtime-ktx:2.10.0'
@@ -148,15 +148,16 @@ dependencies {
 
     implementation 'com.appmattus.certificatetransparency:certificatetransparency-android:2.5.4'
 
-    // Dependency required for API desugaring
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_minimal:2.1.3'
-
     implementation 'androidx.biometric:biometric:1.1.0'
 
     implementation 'io.michaelrocks:libphonenumber-android:8.13.11'
     implementation 'com.nulab-inc:zxcvbn:1.7.0'
-
-    def nav_version = '2.8.5'
+    // Dependency required for API desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_minimal:2.1.3'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
+    implementation 'com.google.android.gms:play-services-auth-api-phone:18.1.0'
+    implementation 'com.google.android.gms:play-services-identity:18.1.0'
+    implementation 'com.google.android.gms:play-services-base:18.5.0'
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
     implementation "androidx.navigation:navigation-dynamic-features-fragment:$nav_version"
@@ -315,6 +316,7 @@ android {
 
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 
     applicationVariants.all { variant ->
@@ -584,7 +586,7 @@ tasks.configureEach { task ->
             && "true" == isConsumerApp && "true" == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
-    if (task.name == 'assembleCommcareReleaseAndroidTest' || task.name == 'assembleCommcareDebugAndroidTest') {
+    if (isInstrumentationTestTask(task)) {
         android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
         android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
     }
@@ -666,4 +668,9 @@ def getConsumerAppPassword(isConsumerApp) {
 downloadLicenses {
     includeProjectDependencies = true
     dependencyConfiguration = 'compile'
+}
+
+static def isInstrumentationTestTask(task){
+    def instrumentationTestTaskNamePattern = /^(assemble|connected).*AndroidTest/
+    return task.name ==~ instrumentationTestTaskNamePattern
 }

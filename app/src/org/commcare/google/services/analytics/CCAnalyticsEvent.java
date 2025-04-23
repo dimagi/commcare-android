@@ -31,7 +31,6 @@ public class CCAnalyticsEvent {
     static final String MENU_SCREEN_ITEM_CLICK = "menu_screen_item_click";
     static final String IN_APP_UPDATE_EVENT = "in_app_update_event";
     static final String LOGIN_CLICK = "login_click";
-
     static final String CCC_SIGN_IN = "ccc_sign_in";
     static final String CCC_SIGN_OUT = "ccc_sign_out";
     static final String CCC_RECOVERY = "ccc_recovery";
@@ -50,5 +49,6 @@ public class CCAnalyticsEvent {
     static final String CCC_PAYMENT_CONFIRMATION_DISPLAY = "ccc_payment_confirmation_display";
     static final String CCC_PAYMENT_CONFIRMATION_INTERACT = "ccc_payment_confirmation_interact";
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
+    static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
 
 }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * UIController for running LoginActivity without showing anything on the screen
  */
-public class BlankLoginActivityUiController extends LoginActivityUiController {
+public class BlankLoginActivityUiController extends LoginActivityUIController {
 
     private EditText username;
     private EditText password;
@@ -46,7 +46,7 @@ public class BlankLoginActivityUiController extends LoginActivityUiController {
     }
 
     @Override
-    protected void setErrorMessageUi(String message, boolean shownotification) {
+    protected void setErrorMessageUI(String message, boolean shownotification) {
 
     }
 

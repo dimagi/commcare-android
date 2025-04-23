@@ -2,6 +2,7 @@ package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
 import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
+import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -18,6 +19,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -39,7 +41,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -577,7 +579,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void userPressedOpportunityStatus() {
-        ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_OPP_STATUS);
+        Intent i = new Intent();
+        i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, true);
         setResult(RESULT_OK);
         finish();
     }
@@ -617,7 +620,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_INCOMPLETE_FORM:
                     //TODO: We might need to load this from serialized state?
                     if (resultCode == RESULT_CANCELED) {
-                        refreshUi();
+                        refreshUI();
                         return;
                     } else if (resultCode == RESULT_OK) {
                         int record = intent.getIntExtra("FORMRECORDS", -1);
@@ -804,7 +807,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // We're stepping back from either the root module menu or the training root menu, so
             // go home
             currentState.reset();
-            refreshUi();
+            refreshUI();
             return false;
         } else {
             currentState.getSession().stepBack(currentState.getEvaluationContext());
@@ -819,7 +822,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             String localizationKey = intent.getStringExtra(
                     AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY);
             displayToast(Localization.get(localizationKey, new String[]{"" + formProcessCount}));
-            refreshUi();
+            refreshUI();
         }
     }
 
@@ -924,7 +927,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
                 startUnsentFormsTask(false, false);
-                refreshUi();
+                refreshUI();
 
                 if (exitFromExternalLaunch()) {
                     currentState.reset();
@@ -998,7 +1001,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             setResult(RESULT_CANCELED);
             this.finish();
         }
-        refreshUi();
+        refreshUI();
         if (shouldWarnUser) {
             showSessionRefreshWarning();
         }
@@ -1105,7 +1108,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (terminateSuccesful) {
             sessionNavigator.startNextSessionStep();
         } else {
-            refreshUi();
+            refreshUI();
         }
     }
 
@@ -1311,7 +1314,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
         }
 
-        refreshUi();
+        refreshUI();
         sendFormsOrSync(false);
     }
 
@@ -1346,7 +1349,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         if (!checkForPendingAppHealthActions()) {
             // Display the home screen!
-            refreshUi();
+            refreshUI();
         }
     }
 
@@ -1505,9 +1508,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    abstract void refreshUi();
+    abstract void refreshUI();
 
-    abstract void refreshCcUpdateOption();
+    abstract void refreshCCUpdateOption();
 
     @Override
     protected void onDestroy() {
@@ -1538,7 +1541,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         String.valueOf(appUpdateController.availableVersionCode()))
                         > MAX_CC_UPDATE_CANCELLATION) {
                     showCommCareUpdateMenu = true;
-                    refreshCcUpdateOption();
+                    refreshCCUpdateOption();
                     return;
                 }
                 startCommCareUpdate();
@@ -1553,7 +1556,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 if (showCommCareUpdateMenu) {
                     // Once downloading is started, we shouldn't show the update menu anymore.
                     showCommCareUpdateMenu = false;
-                    refreshCcUpdateOption();
+                    refreshCCUpdateOption();
                 }
                 break;
             case DOWNLOADED:

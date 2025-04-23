@@ -208,7 +208,7 @@
     <string name="form_scan_finished">ኣለሻ ቅጥዕታት ተዛዚሙ</string>
     <string name="access_error">ጌጋ ኣብ እዋን ምርካብ /ምድላይ</string>
     <string name="manifest_server_error"></string>
-    <string name="root_element_error">እዚ ዋና ፀገሙ ኣይኮነን &amp;lt;manifest\&gt; -- was %s</string>
+    <string name="root_element_error">እዚ ዋና ፀገሙ ኣይኮነን &lt;manifest\&gt; -- was %s</string>
     <string name="root_namespace_error"></string>
     <string name="manifest_tag_error"></string>
     <string name="form_download_progress">ፋይላት ሚድያ ምርካብ</string>
@@ -406,6 +406,7 @@
     <string name="connect_unlock_message">ንኽትቅጽል በጃኹም ክትከፍቱ ንላቦ</string>
     <string name="connect_unlock_button_pin">ብፒን ኽፈት።</string>
     <string name="connect_unlock_button_password">ብ Password ኽፈት።</string>
+    <string name="connect_unlock_unavailable">በጃኹም ናይ ስክሪን ምኽፋት መካኒዝም ኣዋቕሩ</string>
     <string name="connect_unlock_trouble_message">ፀገም ምኽፋት?</string>
     <string name="connect_unlock_fingerprint_title">ብመንገዲ ኣሰር ኣፃብዕቲ ምኽፋት።</string>
     <string name="connect_unlock_fingerprint_message">ንምቕፃል ኣሰር ኣፃብዕትኻ ተጠቐም</string>
@@ -424,6 +425,7 @@
     <string name="connect_verify_configure_fingerprint">ኣሰር ኣፃብዕቲ ምውቃር</string>
     <string name="connect_verify_use_pin_long">ንምትእስሳር ፒን ተጠቐም</string>
     <string name="connect_verify_pin_configured">ፒንካ በቃ ተዋቒሩ ኣሎ፡ ንConnectID ንምኽፋት ድማ ክጥቀመሉ እዩ።</string>
+    <string name="connect_verify_configuration_failed">ውቅር ኣይተዓወተን፣ በጃኻ እንደገና ፈትን።  %s</string>
     <string name="connect_verify_configure_pin">ፒን ምውቃር</string>
     <string name="connect_verify_agree">ስምምዕ &amp; ቀፅል</string>
     <string name="connect_verify_phone_title">ናይ ምርግጋፅ ኮድ</string>
@@ -491,6 +493,10 @@
     <string name="connect_results_summary_all">ኩሎም</string>
     <string name="connect_results_summary_remaining">ዝተረፈ</string>
     <string name="connect_results_summary_remaining_days">%d ኣብ ውሽጢ %d መዓልቲ</string>
+    <string name="connect_results_summary_remaining_tomorrow">%d ብ ጽባሕ</string>
+    <string name="connect_results_summary_remaining_today">%d ብ ሎሚ</string>
+    <string name="connect_results_summary_visits_done">ኩሉ ዝተገብረ ምብጻሕ</string>
+    <string name="connect_results_summary_days_over">መዓልታት ተወዲኡ</string>
     <string name="connect_results_payment_confirm">ኣረጋግፅ</string>
     <string name="connect_results_payment_confirm_undo">ምርፅጋፅ መልስ</string>
     <string name="connect_results_payment_confirmed">ተረጋጊፁ</string>
