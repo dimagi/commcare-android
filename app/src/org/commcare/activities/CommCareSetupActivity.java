@@ -84,7 +84,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         RuntimePermissionRequester {
 
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
-
     private static final String KEY_UI_STATE = "current_install_ui_state";
     private static final String KEY_LAST_INSTALL_MODE = "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
