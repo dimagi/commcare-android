@@ -1,11 +1,12 @@
 package org.commcare.views.dialogs;
 
-import androidx.appcompat.app.AlertDialog;
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.KeyEvent;
 import android.view.View;
+
+import androidx.appcompat.app.AlertDialog;
 
 /**
  * Framework for all alert-type dialogs used across CommCare. Any specific implementations
@@ -28,8 +29,9 @@ public abstract class CommCareAlertDialog {
     protected View view;
     // false by default, can be overridden if desired
     protected boolean isCancelable;
+    private boolean dismissOnBackPress = false;
 
-    private void finalizeView() {
+    protected void finalizeView(Context context) {
         dialog.setCancelable(isCancelable);
         if (cancelListener != null) {
             dialog.setOnCancelListener(cancelListener);
@@ -40,6 +42,18 @@ public abstract class CommCareAlertDialog {
         if (view != null) {
             dialog.setView(view);
         }
+        if(dismissOnBackPress){
+            dialog.setOnKeyListener((dialog, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    dialog.dismiss();
+                }
+                return true;
+            });
+        }
+    }
+
+    public void dismissOnBackPress() {
+        dismissOnBackPress = true;
     }
 
     public void performCancel(DialogInterface dialog) {
@@ -89,6 +103,7 @@ public abstract class CommCareAlertDialog {
      * @return created dialog
      */
     public Dialog buildDialog(Context context) {
+        initView(context);
         if (view == null) {
             throw new IllegalStateException("Dialog view is null; cannot rebuild dialog");
         }
@@ -104,8 +119,12 @@ public abstract class CommCareAlertDialog {
             builder.setPositiveButton(positiveButtonText, positiveButtonListener);
         }
         dialog = builder.create();
-        finalizeView();
+        finalizeView(context);
         return dialog;
+    }
+
+    protected void initView(Context context) {
+        // nothing required here, implementations can use this to init any views before building dialog
     }
 
     protected void setView(View view) {

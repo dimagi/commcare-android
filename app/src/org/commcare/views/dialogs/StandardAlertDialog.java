@@ -1,10 +1,8 @@
 package org.commcare.views.dialogs;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -13,10 +11,10 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
-
-import androidx.appcompat.app.AlertDialog;
 
 /**
  * An implementation of CommCareAlertDialog that utilizes a pre-set view template, with the ability
@@ -26,7 +24,17 @@ import androidx.appcompat.app.AlertDialog;
  */
 public class StandardAlertDialog extends CommCareAlertDialog {
 
+    private final String title;
+    private final String msg;
+
     public StandardAlertDialog(Context context, String title, String msg) {
+       this.title = title;
+       this.msg = msg;
+    }
+
+    @Override
+    protected void initView(Context context) {
+        super.initView(context);
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
         TextView titleView = view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(title);
@@ -114,15 +122,6 @@ public class StandardAlertDialog extends CommCareAlertDialog {
         TextView tv = this.view.findViewById(R.id.emphasized_message);
         tv.setVisibility(View.VISIBLE);
         tv.setText(text);
-    }
-
-    public void dismissOnBackPress() {
-        dialog.setOnKeyListener((dialog, keyCode, event) -> {
-            if (keyCode == KeyEvent.KEYCODE_BACK) {
-                dialog.dismiss();
-            }
-            return true;
-        });
     }
 
     public void setCheckbox(CharSequence displayText, CompoundButton.OnCheckedChangeListener checkboxListener) {

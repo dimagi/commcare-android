@@ -1,7 +1,5 @@
 package org.commcare.views.dialogs;
 
-import androidx.appcompat.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
 
@@ -12,7 +10,7 @@ import android.view.View;
  */
 public class CustomViewAlertDialog extends CommCareAlertDialog {
 
-    public CustomViewAlertDialog(Context context, View view) {
+    public CustomViewAlertDialog(View view) {
         setView(view);
     }
 

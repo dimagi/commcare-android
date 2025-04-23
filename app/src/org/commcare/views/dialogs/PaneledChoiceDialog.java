@@ -1,9 +1,7 @@
 package org.commcare.views.dialogs;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +9,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import org.commcare.dalvik.R;
 import org.commcare.preferences.LocalePreferences;
@@ -24,12 +24,12 @@ import org.commcare.preferences.LocalePreferences;
  */
 public class PaneledChoiceDialog extends CommCareAlertDialog {
 
-    protected final Context context;
+    private final String title;
+    private DialogChoiceItem[] choiceItems;
+    private AdapterView.OnItemClickListener listClickListener;
 
     public PaneledChoiceDialog(Context context, String title) {
-        this.context = context;
-        this.view = LayoutInflater.from(context).inflate(getLayoutFile(), null);
-        setTitle(title);
+        this.title = title;
         isCancelable = true; // cancelable by default
     }
 
@@ -37,16 +37,26 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
         return R.layout.choice_dialog_view;
     }
 
+    @Override
+    protected void initView(Context context) {
+        super.initView(context);
+        this.view = LayoutInflater.from(context).inflate(getLayoutFile(), null);
+        ListView listView = setupListAdapter(context, choiceItems);
+        listView.setOnItemClickListener(listClickListener);
+        setTitle(title);
+    }
+
     public void setChoiceItems(DialogChoiceItem[] choiceItems) {
-        setupListAdapter(choiceItems);
+        this.choiceItems = choiceItems;
     }
 
     public void setChoiceItems(DialogChoiceItem[] choiceItems,
                                AdapterView.OnItemClickListener listClickListener) {
-        setupListAdapter(choiceItems).setOnItemClickListener(listClickListener);
+        setChoiceItems(choiceItems);
+        this.listClickListener = listClickListener;
     }
 
-    private ListView setupListAdapter(DialogChoiceItem[] choiceItems) {
+    private ListView setupListAdapter(Context context, DialogChoiceItem[] choiceItems) {
         ListView lv = view.findViewById(R.id.choices_list_view);
         lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
         return lv;
