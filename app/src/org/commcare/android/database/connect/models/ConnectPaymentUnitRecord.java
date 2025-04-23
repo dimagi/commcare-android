@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 
 @Table(ConnectPaymentUnitRecord.STORAGE_KEY)
 public class ConnectPaymentUnitRecord extends Persisted implements Serializable {

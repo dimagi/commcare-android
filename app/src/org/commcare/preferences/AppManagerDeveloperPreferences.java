@@ -25,7 +25,6 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
     private static final String ENABLE_CONNECT_ID = "enable-connect-id";
     private static final String DEVELOPER_PREFERENCES_ENABLED = "developer-preferences-enabled";
     private static final String CONNECT_ID_ENABLED = "connect_id-enabled";
-
     private static final Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
@@ -98,7 +97,6 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
     }
 
     public static boolean isConnectIdEnabled() {
-        //NOTE: Setting default case to true for initial user testing, but production should keep the default false
         return GlobalPrivilegesManager.getGlobalPrefsRecord().getBoolean(CONNECT_ID_ENABLED, true);
     }
 }

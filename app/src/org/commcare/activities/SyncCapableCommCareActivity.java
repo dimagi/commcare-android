@@ -14,6 +14,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -107,7 +108,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case AUTH_FAILED:
                 String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
 
-                if(ConnectManager.isSeatedAppLinkedToConnectId(username)) {
+                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("Token Auth failed during sync for a ConnectID managed app"));
                 }
