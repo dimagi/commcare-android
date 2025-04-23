@@ -108,7 +108,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectIDManager.getInstance().isLoggedIN()) {
+        if(ConnectIDManager.getInstance().isloggedIn()) {
             refreshData();
         }
     }
