@@ -1,18 +1,30 @@
 package org.commcare.recovery.measures;
 
+import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
+import static org.commcare.engine.resource.ResourceInstallUtils.handleAppInstallResult;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL;
+import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPDATE;
+import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_EXECUTED;
+import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_FAILED;
+import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
+
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.AppManagerActivity;
-import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.PromptActivity;
 import org.commcare.activities.PromptApkUpdateActivity;
@@ -33,30 +45,14 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.update.UpdateTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CczUtils;
-import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.ZipUtils;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-
-import static org.commcare.engine.resource.ResourceInstallUtils.getProfileReference;
-import static org.commcare.engine.resource.ResourceInstallUtils.handleAppInstallResult;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_OFFLINE_REINSTALL_AND_UPDATE;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_REINSTALL_AND_UPDATE;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_APP_UPDATE;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_REINSTALL;
-import static org.commcare.recovery.measures.RecoveryMeasure.MEASURE_TYPE_CC_UPDATE;
-import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_EXECUTED;
-import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_FAILED;
-import static org.commcare.recovery.measures.RecoveryMeasure.STATUS_WAITING;
 
 public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, TaskListener<Integer, ResultAndError<AppInstallStatus>> {
 
@@ -290,7 +286,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
         String message = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_detail);
         StandardAlertDialog d = new StandardAlertDialog(mActivity, title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
-            mActivity.dismissAlertDialog();
+            dialog.dismiss();
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 doOnlineAppInstall();
             } else if (which == AlertDialog.BUTTON_NEGATIVE) {

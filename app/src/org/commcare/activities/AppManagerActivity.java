@@ -11,6 +11,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
@@ -23,8 +25,6 @@ import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
-
-import androidx.appcompat.app.AlertDialog;
 
 /**
  * The activity that starts up when a user launches into the app manager.
@@ -165,7 +165,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     String msg = getString(R.string.skipped_verification_warning);
                     showAlertDialog(
                             StandardAlertDialog.getBasicAlertDialog(
-                                    this, title, msg, (dialog, which) -> dismissAlertDialog()));
+                                    this, title, msg, (dialog, which) -> dialog.dismiss()));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -197,7 +197,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         String message = getString(R.string.logout_warning);
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 CommCareApplication.instance().expireUserSession();
                 installApp();

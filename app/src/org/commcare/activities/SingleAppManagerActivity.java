@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +8,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.CommCareSessionService;
@@ -306,7 +307,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
         StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.uninstalling),
                 getString(R.string.uninstall_reboot_warning));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 uninstall();
             }
@@ -324,7 +325,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
         StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.logging_out),
                 getString(R.string.logout_warning));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 CommCareApplication.instance().expireUserSession();
                 switch (actionKey) {

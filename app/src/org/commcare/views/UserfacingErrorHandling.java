@@ -1,17 +1,14 @@
 package org.commcare.views;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.FormHierarchyActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.AlertDialogController;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.xpath.XPathException;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Dialog logic for showing errors to user.
@@ -58,7 +55,7 @@ public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogCo
                         activity.setResult(AppCompatActivity.RESULT_CANCELED);
                         activity.finish();
                     }
-                    activity.dismissAlertDialog();
+                    dialog.dismiss();
                 };
         factory.setOnCancelListener(cancelListener);
 
@@ -70,7 +67,7 @@ public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogCo
                         activity.setResult(AppCompatActivity.RESULT_CANCELED);
                         activity.finish();
                     }
-                    activity.dismissAlertDialog();
+                    dialog.dismiss();
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
         return factory;

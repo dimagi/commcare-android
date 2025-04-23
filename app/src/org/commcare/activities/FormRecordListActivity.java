@@ -463,7 +463,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             if (AdvancedActionsPreferences.isManualFormQuarantineAllowed()) {
                 dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
                     manuallyQuarantineRecord(record);
-                    dismissAlertDialog();
+                    dialog1.dismiss();
                     AdvancedActionsPreferences.setManualFormQuarantine(false);
                 });
             }

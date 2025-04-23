@@ -84,10 +84,10 @@ public class PromptApkUpdateActivity extends PromptActivity {
                         null);
                 dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"), (dialog1, which) -> {
                     flexibleAppUpdateController.completeUpdate();
-                    dismissAlertDialog();
+                    dialog1.dismiss();
                 });
                 dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"), (dialog1, which) -> {
-                    dismissAlertDialog();
+                    dialog1.dismiss();
                 });
                 showAlertDialog(dialog);
                 break;

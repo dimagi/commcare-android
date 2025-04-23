@@ -284,7 +284,7 @@ public class CommCareWiFiDirectActivity
                     beSender();
                     break;
             }
-            dismissAlertDialog();
+            dialog.dismiss();
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
         d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener, true);

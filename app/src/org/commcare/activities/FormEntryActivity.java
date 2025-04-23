@@ -425,7 +425,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         String title = Localization.get("file.oversize.error.title");
         String msg = Localization.get("file.oversize.error.message");
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
-                this, title, msg, (dialog1, which) -> dismissAlertDialog());
+                this, title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
     }
 
@@ -877,7 +877,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void setFormLanguage(String[] languages, int index) {
         TextToSpeechConverter.INSTANCE.changeLocale(languages[index]);
         mFormController.setLanguage(languages[index]);
-        dismissAlertDialog();
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(false);
         }

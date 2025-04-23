@@ -474,16 +474,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.yes"), -1, v -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             launchPinCreateScreen(loginMode);
         });
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.not.now"), -1, v -> dismissAlertDialog());
+                Localization.get("pin.dialog.not.now"), -1, v -> dialog.dismiss());
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.never"), -1, v -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .edit()
                     .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
@@ -533,7 +533,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 uiController.setupUI();
             }
             rebuildOptionsMenu();
-            dismissAlertDialog();
+            dialog.dismiss();
         };
 
         dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
@@ -1081,7 +1081,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         EvaluationContext ec = asw.getEvaluationContext();
         Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
         createErrorDialog(text.evaluate(ec), (dialog, i) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             asw.getSession().stepBack(asw.getEvaluationContext());
             HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
         });
@@ -1421,7 +1421,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     formEntry(platform.getFormDefId(state.getSession().getForm()),
                             state.getFormRecord());
             }
-            dismissAlertDialog();
+            dialog.dismiss();
         };
         d.setPositiveButton(Localization.get("option.yes"), listener);
         d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"),
@@ -1559,11 +1559,11 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"),
                         (dialog1, which) -> {
                             appUpdateController.completeUpdate();
-                            dismissAlertDialog();
+                            dialog1.dismiss();
                         });
                 dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"),
                         (dialog1, which) -> {
-                            dismissAlertDialog();
+                            dialog1.dismiss();
                         });
                 showAlertDialog(dialog);
                 FirebaseAnalyticsUtil.reportInAppUpdateResult(true,

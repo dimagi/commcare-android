@@ -102,10 +102,6 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
         button.setOnClickListener(listener);
     }
 
-    public void dismiss() {
-        dialog.dismiss();
-    }
-
     public void addCollapsibleInfoPane(String messageContent) {
         View extraInfoContainer = view.findViewById(R.id.extra_info_container);
         extraInfoContainer.setVisibility(View.VISIBLE);

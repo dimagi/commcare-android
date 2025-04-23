@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
@@ -813,11 +812,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
-        dialog.setChoiceItems(getSortOptionsList());
+        dialog.setChoiceItems(getSortOptionsList(dialog));
         showAlertDialog(dialog);
     }
 
-    private DialogChoiceItem[] getSortOptionsList() {
+    private DialogChoiceItem[] getSortOptionsList(PaneledChoiceDialog dialog) {
         DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
@@ -852,7 +851,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             View.OnClickListener listener = v -> {
                 adapter.sortEntities(new int[]{keyArray[index]});
                 adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
-                dismissAlertDialog();
+                dialog.dismiss();
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
             choiceItems[i] = item;

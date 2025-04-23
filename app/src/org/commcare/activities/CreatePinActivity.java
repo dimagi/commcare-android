@@ -207,7 +207,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
                 Localization.get("remember.password.confirm.message"));
 
         d.setPositiveButton(Localization.get("dialog.ok"), (dialog, which) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             userRecord.setPrimedPassword(unhashedUserPassword);
             CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
             Intent i = new Intent();
@@ -216,7 +216,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             finish();
         });
 
-        d.setNegativeButton(Localization.get("option.cancel"), (dialog, which) -> dismissAlertDialog());
+        d.setNegativeButton(Localization.get("option.cancel"), (dialog, which) -> dialog.dismiss());
 
         showAlertDialog(d);
     }

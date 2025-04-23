@@ -56,6 +56,15 @@ public abstract class CommCareAlertDialog {
         dismissOnBackPress = true;
     }
 
+    /**
+     * Dismisses underlying dialog
+     */
+    public void dismiss(){
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
     public void performCancel(DialogInterface dialog) {
         if (cancelListener != null) {
             cancelListener.onCancel(dialog);
