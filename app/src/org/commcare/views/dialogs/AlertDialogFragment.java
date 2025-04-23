@@ -19,6 +19,7 @@ import org.commcare.fragments.ContainerViewModel;
  */
 public class AlertDialogFragment extends DialogFragment {
 
+    private static final String UNDERLYING_DIALOG_KEY = "underlying-dialog-key";
     private CommCareAlertDialog underlyingDialog;
 
     public static AlertDialogFragment fromCommCareAlertDialog(CommCareAlertDialog d) {
@@ -39,9 +40,9 @@ public class AlertDialogFragment extends DialogFragment {
         ContainerViewModel<CommCareAlertDialog> viewModel =
                 new ViewModelProvider(requireActivity()).get(ContainerViewModel.class);
         if (underlyingDialog != null) {
-            viewModel.setData(underlyingDialog);
-        } else if (viewModel.getData() != null) {
-            setUnderlyingDialog(viewModel.getData());
+            viewModel.setData(UNDERLYING_DIALOG_KEY, underlyingDialog);
+        } else if (viewModel.getData(UNDERLYING_DIALOG_KEY) != null) {
+            setUnderlyingDialog(viewModel.getData(UNDERLYING_DIALOG_KEY));
         }
     }
 

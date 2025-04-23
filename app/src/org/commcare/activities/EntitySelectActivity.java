@@ -90,6 +90,7 @@ import io.reactivex.functions.Consumer;
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements EntityLoaderListener, HereFunctionHandlerListener {
+    private static final String ADAPTER_STATE_KEY = "adapter-state-key";
     private SessionWrapper session;
     private AndroidSessionWrapper asw;
 
@@ -342,8 +343,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (containerViewModel == null) {
             containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
         }
-        if (containerViewModel.getData() != null) {
-            adapter = containerViewModel.getData().get();
+        if (containerViewModel.getData(ADAPTER_STATE_KEY) != null) {
+            WeakReference<EntityListAdapter> adapterWeakRef = containerViewModel.getData(ADAPTER_STATE_KEY);
+            adapter = adapterWeakRef.get();
             setupUIFromAdapter(view);
         }
     }
@@ -806,7 +808,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             return;
         }
 
-        activity.setResult(HomeScreenBaseActivity.RESULT_RESTART);
+        activity.setResult(RESULT_RESTART);
         activity.finish();
     }
 
@@ -848,7 +850,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
-            View.OnClickListener listener = v -> {
+            OnClickListener listener = v -> {
                 adapter.sortEntities(new int[]{keyArray[index]});
                 adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
                 dialog.dismiss();
@@ -869,7 +871,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
-        containerViewModel.setData(new WeakReference<>(adapter));
+        containerViewModel.setData(ADAPTER_STATE_KEY, new WeakReference<>(adapter));
 
         if (entitySelectSearchUI != null) {
             entitySelectSearchUI.restoreSearchString();

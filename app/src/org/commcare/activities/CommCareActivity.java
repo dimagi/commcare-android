@@ -88,6 +88,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
     private static final int UNDEFINED_TASK_ID = -1;
+    private static final String MANAGED_UI_STATE_KEY = "managed-ui-state-key";
 
     private int invalidTaskIdMessageThrown = -2;
     private TaskConnectorViewModel<R> stateHolder;
@@ -182,7 +183,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             if (containerViewModel == null) {
                 containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
             }
-            loadUiElementState(containerViewModel.getData());
+            loadUiElementState(containerViewModel.getData(MANAGED_UI_STATE_KEY));
         }
     }
 
@@ -325,7 +326,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onPause();
 
         if (isManagedUiActivity()) {
-            containerViewModel.setData(ManagedUiFramework.saveUiStateToBundle(this));
+            containerViewModel.setData(MANAGED_UI_STATE_KEY, ManagedUiFramework.saveUiStateToBundle(this));
         }
 
         areFragmentsPaused = true;

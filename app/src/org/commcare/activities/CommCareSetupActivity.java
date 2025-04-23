@@ -97,6 +97,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
+    private static final String COMMCARE_APP_DATA_KEY = "commcare-app-data-key";
 
     /**
      * UI configuration states.
@@ -237,8 +238,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private void persistCommCareAppState() {
         containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
-        if (containerViewModel.getData() != null) {
-            ccApp = containerViewModel.getData();
+        if (containerViewModel.getData(COMMCARE_APP_DATA_KEY) != null) {
+            ccApp = containerViewModel.getData(COMMCARE_APP_DATA_KEY);
         }
     }
 
@@ -461,7 +462,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
             ccApp = ResourceInstallUtils.startAppInstallAsync(shouldSleep, DIALOG_INSTALL_PROGRESS, this, incomingRef);
-            containerViewModel.setData(ccApp);
+            containerViewModel.setData(COMMCARE_APP_DATA_KEY, ccApp);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
