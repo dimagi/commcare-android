@@ -39,7 +39,7 @@ public class UnrecoverableErrorActivity extends AppCompatActivity {
         if (useExtraMessage) {
             message = message + "\n\n" + Localization.get("app.handled.error.explanation");
         }
-        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(title, message);
         DialogInterface.OnClickListener buttonListener = (dialog, i) -> {
             if (restart) {
                 CommCareLifecycleUtils.restartCommCare(UnrecoverableErrorActivity.this, true);

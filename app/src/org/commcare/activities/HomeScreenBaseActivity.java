@@ -499,7 +499,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void showPinFutureAccessDialog() {
-        StandardAlertDialog.getBasicAlertDialog(this,
+        StandardAlertDialog.getBasicAlertDialog(
                 Localization.get("pin.dialog.set.later.title"),
                 Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog(this);
     }
@@ -998,22 +998,22 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void showSessionRefreshWarning() {
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                 Localization.get("session.refresh.error.title"),
                 Localization.get("session.refresh.error.message"), null));
     }
 
     private void showDemoModeWarning() {
-        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(this,
+        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(
                 Localization.get("demo.mode.warning.title"),
                 Localization.get("demo.mode.warning.main"),
                 android.R.drawable.ic_dialog_info, null);
-        d.addEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"));
+        d.setEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"));
         showAlertDialog(d);
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(
                 Localization.get("app.handled.error.title"), errorMsg,
                 android.R.drawable.ic_dialog_info, errorListener));
     }
@@ -1402,7 +1402,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
-        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(title, msg);
         DialogInterface.OnClickListener listener = (dialog, i) -> {
             switch (i) {
                 case DialogInterface.BUTTON_POSITIVE:
@@ -1552,7 +1552,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             case DOWNLOADED:
                 CommCareApplication.notificationManager().clearNotifications(
                         APP_UPDATE_NOTIFICATION);
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                         Localization.get("in.app.update.installed.title"),
                         Localization.get("in.app.update.installed.detail"),
                         null);

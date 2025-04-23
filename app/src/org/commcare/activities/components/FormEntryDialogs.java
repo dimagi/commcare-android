@@ -107,9 +107,7 @@ public class FormEntryDialogs {
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(activity, R.string.clearanswer_confirm, question).toString();
-        StandardAlertDialog d = new StandardAlertDialog(activity, title, msg);
-        d.setIcon(android.R.drawable.ic_dialog_info);
-
+        StandardAlertDialog d = new StandardAlertDialog(title, msg, null, android.R.drawable.ic_dialog_info);
         DialogInterface.OnClickListener quitListener = (dialog, i) -> {
             switch (i) {
                 case DialogInterface.BUTTON_POSITIVE:

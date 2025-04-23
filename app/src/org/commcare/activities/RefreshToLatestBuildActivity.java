@@ -108,7 +108,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
             finish();
         };
 
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, listener));
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(title, message, listener));
     }
 
     private String getCurrentUserPassword() {

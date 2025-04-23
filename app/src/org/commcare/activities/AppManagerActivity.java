@@ -165,7 +165,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     String msg = getString(R.string.skipped_verification_warning);
                     showAlertDialog(
                             StandardAlertDialog.getBasicAlertDialog(
-                                    this, title, msg, (dialog, which) -> dialog.dismiss()));
+                                    title, msg, (dialog, which) -> dialog.dismiss()));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -195,7 +195,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     private void triggerLogoutWarning() {
         String title = getString(R.string.logging_out);
         String message = getString(R.string.logout_warning);
-        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             dialog.dismiss();
             if (which == AlertDialog.BUTTON_POSITIVE) {

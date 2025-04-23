@@ -154,7 +154,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
                     String msg = getString(R.string.skipped_verification_warning_2);
-                    showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, msg, null));
+                    showAlertDialog(StandardAlertDialog.getBasicAlertDialog(title, msg, null));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -304,7 +304,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
     public void rebootAlertDialog(View v) {
-        StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.uninstalling),
+        StandardAlertDialog d = new StandardAlertDialog(getString(R.string.uninstalling),
                 getString(R.string.uninstall_reboot_warning));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             dialog.dismiss();
@@ -322,7 +322,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * session being logged out
      */
     private void triggerLogoutWarning(final int actionKey) {
-        StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.logging_out),
+        StandardAlertDialog d = new StandardAlertDialog(getString(R.string.logging_out),
                 getString(R.string.logout_warning));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             dialog.dismiss();

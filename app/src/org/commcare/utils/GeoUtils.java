@@ -123,7 +123,7 @@ public class GeoUtils {
                                                          DialogInterface.OnClickListener onChange,
                                                          DialogInterface.OnCancelListener onCancel) {
         StandardAlertDialog factory =
-                new StandardAlertDialog(context,
+                new StandardAlertDialog(
                         StringUtils.getStringRobust(context, R.string.no_gps_title),
                         StringUtils.getStringRobust(context, R.string.no_gps_message));
         factory.setPositiveButton(StringUtils.getStringRobust(context, R.string.change_settings), onChange);

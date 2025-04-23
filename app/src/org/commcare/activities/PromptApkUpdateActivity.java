@@ -78,7 +78,7 @@ public class PromptApkUpdateActivity extends PromptActivity {
                 break;
             case DOWNLOADED:
                 CommCareApplication.notificationManager().clearNotifications(APP_UPDATE_NOTIFICATION);
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                         Localization.get("in.app.update.installed.title"),
                         Localization.get("in.app.update.installed.detail"),
                         null);

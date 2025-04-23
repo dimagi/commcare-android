@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -212,7 +211,7 @@ public class CommCareWiFiDirectActivity
     }
 
     public void showChangeStateDialog() {
-        showDialog(this, localize("wifi.direct.change.state.title").toString(),
+        showDialog(localize("wifi.direct.change.state.title").toString(),
                 localize("wifi.direct.change.state.text").toString());
     }
 
@@ -270,8 +269,8 @@ public class CommCareWiFiDirectActivity
         uiController.refreshView();
     }
 
-    private void showDialog(AppCompatActivity activity, String title, String message) {
-        StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
+    private void showDialog(String title, String message) {
+        StandardAlertDialog d = new StandardAlertDialog(title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             switch (which) {
                 case AlertDialog.BUTTON_POSITIVE:
@@ -997,7 +996,7 @@ public class CommCareWiFiDirectActivity
     }
 
     private void showNearbyWiFiPermissionRationale() {
-        StandardAlertDialog d = new StandardAlertDialog(this,
+        StandardAlertDialog d = new StandardAlertDialog(
                 Localization.get("wifi.direct.permission.nearby.wifi.title"),
                 Localization.get("wifi.direct.permission.nearby.wifi.message"));
         DialogInterface.OnClickListener listener = (dialog, which) -> {
@@ -1016,7 +1015,6 @@ public class CommCareWiFiDirectActivity
 
     private void informUserAboutFeatureUnavailability() {
         StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialog(
-                this,
                 Localization.get("wifi.direct.permission.nearby.wifi.title"),
                 Localization.get("wifi.direct.permission.nearby.wifi.denial"),
                 (dialog, which) -> {

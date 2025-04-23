@@ -201,7 +201,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         @Override
         public void voiceDataMissing(String language) {
             StandardAlertDialog dialog = new StandardAlertDialog(
-                    FormEntryActivity.this,
                     Localization.get("tts.data.missing.title"),
                     Localization.get("tts.data.missing.message", language));
             dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
@@ -425,7 +424,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         String title = Localization.get("file.oversize.error.title");
         String msg = Localization.get("file.oversize.error.message");
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
-                this, title, msg, (dialog1, which) -> dialog1.dismiss());
+                title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
     }
 
@@ -1640,7 +1639,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             HiddenPreferences.setPendingSyncRequest(fcmMessageData);
 
             if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(
                         Localization.get("background.sync.pending.form.entry.title"),
                         Localization.get("background.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
                             HiddenPreferences.setPendingSyncDialogDisabled(isChecked);

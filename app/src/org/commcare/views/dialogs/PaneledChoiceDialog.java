@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import org.commcare.dalvik.R;
@@ -25,8 +26,14 @@ import org.commcare.preferences.LocalePreferences;
 public class PaneledChoiceDialog extends CommCareAlertDialog {
 
     private final String title;
-    private DialogChoiceItem[] choiceItems;
+    protected DialogChoiceItem[] choiceItems;
     private AdapterView.OnItemClickListener listClickListener;
+    @Nullable
+    private View.OnClickListener optionalButtonListener;
+    @Nullable
+    private String optionalButtonText;
+    @Nullable
+    private String extraInfoMessage;
 
     public PaneledChoiceDialog(Context context, String title) {
         this.title = title;
@@ -41,9 +48,39 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
     protected void initView(Context context) {
         super.initView(context);
         this.view = LayoutInflater.from(context).inflate(getLayoutFile(), null);
-        ListView listView = setupListAdapter(context, choiceItems);
-        listView.setOnItemClickListener(listClickListener);
+        setupListAdapter(context);
         setTitle(title);
+        setUpOptionalButton();
+        setUpExtraInfoPanel();
+    }
+
+    private void setUpExtraInfoPanel() {
+        View extraInfoContainer = view.findViewById(R.id.extra_info_container);
+        if (extraInfoContainer != null) {
+            if (extraInfoMessage != null) {
+                extraInfoContainer.setVisibility(View.VISIBLE);
+                TextView extraInfoContent = view.findViewById(R.id.extra_info_content);
+                extraInfoContent.setText(extraInfoMessage);
+                final ImageButton extraInfoButton = view.findViewById(R.id.extra_info_button);
+                extraInfoButton.setVisibility(View.VISIBLE);
+                extraInfoButton.setOnClickListener(v -> toggleExtraInfoVisibility());
+            } else {
+                extraInfoContainer.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void setUpOptionalButton() {
+        Button optionalButton = view.findViewById(R.id.optional_button);
+        if (optionalButton != null) {
+            if (optionalButtonListener != null) {
+                optionalButton.setText(optionalButtonText);
+                optionalButton.setVisibility(View.VISIBLE);
+                optionalButton.setOnClickListener(optionalButtonListener);
+            } else {
+                optionalButton.setVisibility(View.GONE);
+            }
+        }
     }
 
     public void setChoiceItems(DialogChoiceItem[] choiceItems) {
@@ -56,9 +93,12 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
         this.listClickListener = listClickListener;
     }
 
-    private ListView setupListAdapter(Context context, DialogChoiceItem[] choiceItems) {
+    private ListView setupListAdapter(Context context) {
         ListView lv = view.findViewById(R.id.choices_list_view);
-        lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
+        if (lv != null) {
+            lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
+            lv.setOnItemClickListener(listClickListener);
+        }
         return lv;
     }
 
@@ -96,22 +136,12 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
     }
 
     public void addButton(String text, View.OnClickListener listener) {
-        Button button = view.findViewById(R.id.optional_button);
-        button.setText(text);
-        button.setVisibility(View.VISIBLE);
-        button.setOnClickListener(listener);
+        optionalButtonListener = listener;
+        optionalButtonText = text;
     }
 
     public void addCollapsibleInfoPane(String messageContent) {
-        View extraInfoContainer = view.findViewById(R.id.extra_info_container);
-        extraInfoContainer.setVisibility(View.VISIBLE);
-
-        TextView extraInfoContent = view.findViewById(R.id.extra_info_content);
-        extraInfoContent.setText(messageContent);
-
-        final ImageButton extraInfoButton = view.findViewById(R.id.extra_info_button);
-        extraInfoButton.setVisibility(View.VISIBLE);
-        extraInfoButton.setOnClickListener(v -> toggleExtraInfoVisibility());
+        extraInfoMessage = messageContent;
     }
 
     private void toggleExtraInfoVisibility() {

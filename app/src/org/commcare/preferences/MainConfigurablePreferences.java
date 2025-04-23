@@ -124,7 +124,7 @@ public class MainConfigurablePreferences
     }
 
     private void showAnalyticsOptOutDialog() {
-        StandardAlertDialog f = new StandardAlertDialog(getActivity(),
+        StandardAlertDialog f = new StandardAlertDialog(
                 Localization.get("analytics.opt.out.title"),
                 Localization.get("analytics.opt.out.message"));
 

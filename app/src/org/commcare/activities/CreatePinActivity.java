@@ -1,13 +1,11 @@
 package org.commcare.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -202,7 +200,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     }
 
     private void launchRememberPasswordConfirmDialog() {
-        StandardAlertDialog d = new StandardAlertDialog(this,
+        StandardAlertDialog d = new StandardAlertDialog(
                 Localization.get("remember.password.confirm.title"),
                 Localization.get("remember.password.confirm.message"));
 

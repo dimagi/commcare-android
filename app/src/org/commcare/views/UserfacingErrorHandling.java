@@ -46,8 +46,7 @@ public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogCo
 
     public StandardAlertDialog getErrorDialog(final T activity, String errorMsg,
                                                      String dialogTitle, final boolean shouldExit) {
-        StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
+        StandardAlertDialog factory = new StandardAlertDialog(dialogTitle, errorMsg, null, android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnCancelListener cancelListener =
                 dialog -> {

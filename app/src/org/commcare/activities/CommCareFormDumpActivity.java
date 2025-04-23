@@ -182,7 +182,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     private void showWarningMessage() {
-        StandardAlertDialog d = new StandardAlertDialog(this,
+        StandardAlertDialog d = new StandardAlertDialog(
                 Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
         DialogInterface.OnClickListener listener = (dialog, id) -> {
             dialog.dismiss();

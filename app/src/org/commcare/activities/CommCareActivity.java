@@ -272,7 +272,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         String[] messageAndTitle = CommCareApplication.instance().getPendingUserMessage();
         if (messageAndTitle != null) {
             showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
-                    this, messageAndTitle[1], messageAndTitle[0], null));
+                    messageAndTitle[1], messageAndTitle[0], null));
             CommCareApplication.instance().clearPendingUserMessage();
         }
     }
@@ -453,7 +453,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                     break;
             }
         };
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(title,
                 message, android.R.drawable.ic_dialog_info, listener));
     }
 

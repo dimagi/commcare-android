@@ -284,7 +284,7 @@ public class ExecuteRecoveryMeasuresPresenter implements BasePresenterContract, 
     private void showInstallMethodChooser() {
         String title = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_method);
         String message = StringUtils.getStringRobust(mActivity, R.string.recovery_measure_reinstall_detail);
-        StandardAlertDialog d = new StandardAlertDialog(mActivity, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             dialog.dismiss();
             if (which == AlertDialog.BUTTON_POSITIVE) {

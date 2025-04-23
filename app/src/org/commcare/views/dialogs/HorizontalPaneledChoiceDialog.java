@@ -14,11 +14,8 @@ import org.commcare.dalvik.R;
  */
 public class HorizontalPaneledChoiceDialog extends PaneledChoiceDialog {
 
-    private DialogChoiceItem[] choiceItems;
-
     public HorizontalPaneledChoiceDialog(Context context, String title) {
         super(context, title);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
     @Override
@@ -27,14 +24,15 @@ public class HorizontalPaneledChoiceDialog extends PaneledChoiceDialog {
     }
 
     @Override
-    public void setChoiceItems(DialogChoiceItem[] choiceItems) {
-        this.choiceItems = choiceItems;
+    protected void initView(Context context) {
+        super.initView(context);
+        setupThreePanelView(context);
     }
 
     @Override
     protected void finalizeView(Context context) {
         super.finalizeView(context);
-        setupThreePanelView(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
     private void setupThreePanelView(Context context) {
