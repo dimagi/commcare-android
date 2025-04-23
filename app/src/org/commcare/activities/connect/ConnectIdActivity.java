@@ -143,7 +143,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
                         parent.getString(R.string.connect_password_fail_button),
                         parent.getString(R.string.connect_recovery_alt_change_button),null,null);
-        controller.navigate(navDirections);
+        CommCareNavController.navigateSafely(controller,navDirections);
     }
 
     public static void reset() {
