@@ -65,10 +65,6 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
                     forceCloseEntry.getMessage(), serializer);
             AndroidLogSerializer.writeText("app_build",
                     forceCloseEntry.getAppBuildNumber() + "", serializer);
-            AndroidLogSerializer.writeText("android_version",
-                    forceCloseEntry.getAndroidVersion(), serializer);
-            AndroidLogSerializer.writeText("device_model",
-                    forceCloseEntry.getDeviceModel(), serializer);
             AndroidLogSerializer.writeText("session_readable",
                     forceCloseEntry.getReadableSession(), serializer);
             AndroidLogSerializer.writeText("session_serialized",

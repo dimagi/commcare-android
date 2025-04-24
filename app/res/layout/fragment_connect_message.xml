@@ -45,7 +45,6 @@
                 android:textColorHint="@color/black"
                 android:inputType="textMultiLine"
                 android:gravity="center_vertical"
-                android:fontFamily="@font/roboto_medium"
                 android:paddingVertical="10dp"
                 android:textColor="@color/black"
                 android:paddingStart="15dp"

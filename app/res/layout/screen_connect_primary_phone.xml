@@ -39,7 +39,7 @@
             android:layout_marginTop="40dp"
             android:background="@color/connect_light_grey" />
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/connect_primary_phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,9 +49,10 @@
             android:layout_marginEnd="16dp"
             android:text="@string/connect_phone_title_primary"
             android:textColor="@color/connect_blue_color"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/connect_primary_phone_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -61,7 +62,8 @@
             android:gravity="start"
             android:text="@string/connect_phone_message_primary"
             android:textColor="@color/connect_subtext"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:id="@+id/phone_layout"
@@ -130,7 +132,7 @@
                         android:textColorHint="@color/connect_grey" />
                 </LinearLayout>
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
                     android:id="@+id/errorTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -138,13 +140,14 @@
                     android:paddingTop="4dp"
                     android:textSize="14sp"
                     android:textColor="@android:color/holo_red_light"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
 
         </LinearLayout>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/connect_primary_phone_availability"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -153,7 +156,8 @@
             android:layout_marginEnd="16dp"
             android:gravity="start"
             android:textColor="@color/connect_subtext"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/connect_primary_phone_button"

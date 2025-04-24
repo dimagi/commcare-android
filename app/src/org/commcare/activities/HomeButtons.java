@@ -6,7 +6,6 @@ import android.text.Spannable;
 import android.view.View;
 import android.widget.Toast;
 
-import org.commcare.connect.ConnectManager;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
@@ -19,6 +18,7 @@ import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Vector;
+
 
 /**
  * Build objects that contain all info needed to draw home screen buttons
@@ -132,6 +132,13 @@ public class HomeButtons {
         };
     }
 
+    private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
+            activity.userPressedOpportunityStatus();
+        };
+    }
+
     private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
             try {
@@ -218,13 +225,6 @@ public class HomeButtons {
 
     private static void reportButtonClick(String buttonLabel) {
         FirebaseAnalyticsUtil.reportHomeButtonClick(buttonLabel);
-    }
-
-    private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
-        return v -> {
-            reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
-            activity.userPressedOpportunityStatus();
-        };
     }
 
     public interface TextSetter {

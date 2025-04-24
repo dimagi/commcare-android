@@ -2,16 +2,20 @@ package org.commcare.network;
 
 import org.commcare.CommCareApplication;
 import org.commcare.core.network.AuthInfo;
+import org.commcare.modern.util.Pair;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.CredentialUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+
+import javax.annotation.Nullable;
 
 import okhttp3.Credentials;
 import okhttp3.ResponseBody;

@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.provider.Settings;
 
 public class SettingsHelper {
     public static void launchDateSettings(Context context) {

@@ -37,7 +37,7 @@
                         android:contentDescription="@null"
                         android:src="@drawable/ic_connect_delivery_progress" />
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -47,7 +47,8 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        />
 
                 </LinearLayout>
 
@@ -67,7 +68,7 @@
                         android:background="@color/connect_blue_color"
                         android:padding="16dp">
 
-                        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                        <TextView
                             android:id="@+id/connect_progress_status_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -78,7 +79,8 @@
                             android:textSize="15sp"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:textStyle="bold"/>
 
                         <org.commcare.views.connect.CircleProgressBar
                             android:id="@+id/connect_progress_progress_bar"
@@ -102,20 +104,22 @@
                             app:layout_constraintStart_toStartOf="@id/connect_progress_progress_bar"
                             app:layout_constraintTop_toTopOf="@id/connect_progress_progress_bar">
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
                                 android:id="@+id/connect_progress_progress_text"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:textAlignment="center"
                                 android:textColor="@color/white"
-                                android:textSize="20sp" />
+                                android:textSize="20sp"
+                                android:textStyle="bold"/>
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/connect_learn_complete"
                                 android:textColor="@color/white"
-                                android:visibility="gone" />
+                                android:visibility="gone"
+                                android:textStyle="bold"/>
                         </LinearLayout>
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -139,7 +143,7 @@
                         android:background="@color/connect_blue_color_10"
                         android:padding="16dp">
 
-                        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                        <TextView
                             android:id="@+id/connectRegularTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -158,7 +162,6 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            android:fontFamily= "@font/roboto_medium"
                             android:drawableRight= "@drawable/ic_connect_directory_sync"
                             android:drawablePadding="5dp" />
 
