@@ -46,6 +46,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        this.setCancelable(false);
         binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
