@@ -32,7 +32,7 @@ public class DocumentWidget extends MediaWidget {
             try {
                 ((AppCompatActivity)getContext())
                         .startActivityForResult(WidgetUtils.createPickMediaIntent(getContext(), "application/*,text/*"),
-                                FormEntryConstants.AUDIO_VIDEO_FETCH);
+                                FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),
@@ -41,11 +41,6 @@ public class DocumentWidget extends MediaWidget {
                         Toast.LENGTH_SHORT).show();
             }
         });
-
-        String acq = mPrompt.getAppearanceHint();
-        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
-            mChooseButton.setVisibility(View.GONE);
-        }
     }
 
     @Override
