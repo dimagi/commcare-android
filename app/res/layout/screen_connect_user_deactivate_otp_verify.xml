@@ -26,17 +26,17 @@
             android:layout_marginTop="40dp"
             android:background="@color/connect_light_grey" />
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/connect_phone_verify_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/roboto_medium"
             android:text="@string/enter_otp"
             android:textColor="@color/connect_dark_blue_color"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,13 +48,14 @@
             android:layout_marginEnd="16dp"
             android:orientation="horizontal">
 
-            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            <TextView
                 android:id="@+id/connect_phone_verify_label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="@color/connect_secondary_text"
                 android:textSize="16sp"
+                android:textStyle="normal"
                 tools:text="+91 7748962888" />
         </LinearLayout>
 
@@ -98,7 +99,8 @@
 
         </LinearLayout>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+            android:textStyle="bold"
             android:id="@+id/connect_phone_verify_error"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -108,13 +110,13 @@
             android:textSize="14sp"
             android:visibility="gone" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+            android:textStyle="bold"
             android:id="@+id/connect_phone_verify_resend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto_medium"
             android:text="Resend OTP in 60s"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="12sp" />

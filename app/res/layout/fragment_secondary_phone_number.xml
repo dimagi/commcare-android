@@ -12,20 +12,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/llTopBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <include
-                    android:id="@+id/commonAppBar"
-                    layout="@layout/connectid_common_title_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -58,20 +44,20 @@
                         android:layout_marginTop="40dp"
                         android:background="@android:color/darker_gray" />
 
-                    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                    <TextView
                         android:id="@+id/secondary_phone_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/divider"
+                        android:textStyle="bold"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="Add Secondary Phone Number"
+                        android:text="@string/connect_phone_title_alternate"
                         android:textColor="@color/connect_dark_blue_color"
                         android:textSize="18sp" />
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:id="@+id/secondary_phone_sub_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -79,8 +65,8 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="Add secondary phone number to reset your Recovery Code."
+                        android:textStyle="bold"
+                        android:text="@string/connect_phone_message_alternate"
                         android:textColor="@color/connect_subtext_80"
                         android:textSize="12sp" />
 
@@ -152,7 +138,8 @@
                                     android:textColorHint="@color/connect_grey" />
                             </LinearLayout>
 
-                            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                            <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/errorTextView"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

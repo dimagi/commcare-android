@@ -12,7 +12,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
@@ -49,6 +49,7 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
     public static final String SESSION_REBUILD_REQUEST = "session_rebuild_request";
+    public static final String REDIRECT_TO_CONNECT_OPPORTUNITY_INFO = "redirect-to-connect-opportunity-info";
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
@@ -79,6 +80,9 @@ public class DispatchActivity extends AppCompatActivity {
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
+    private boolean redirectToConnectHome = false;
+    private boolean redirectToConnectOpportunityInfo = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,7 +189,7 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
-                } else if (needAnotherAppLogin()){
+                } else if (needAnotherAppLogin()) {
                     CommCareApplication.instance().closeUserSession();
                     launchLoginScreen();
                 } else if (isExternalLaunch()) {
@@ -195,18 +199,15 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
+                } else if(redirectToConnectHome) {
+                    redirectToConnectHome = false;
+                    CommCareApplication.instance().closeUserSession();
+                    ConnectIDManager.getInstance().goToConnectJobsList(this);
+                } else if(redirectToConnectOpportunityInfo) {
+                    redirectToConnectOpportunityInfo = false;
+                    ConnectIDManager.getInstance().goToActiveInfoForJob(this, true);
                 } else {
-                    int connectAction = ConnectManager.getPendingAction();
-                    switch(connectAction) {
-                        case ConnectManager.PENDING_ACTION_CONNECT_HOME -> {
-                            CommCareApplication.instance().closeUserSession();
-                            ConnectManager.goToConnectJobsList(this);
-                        }
-                        case ConnectManager.PENDING_ACTION_OPP_STATUS -> {
-                            ConnectManager.goToActiveInfoForJob(this, true);
-                        }
-                        default -> launchHomeScreen();
-                    }
+                    launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
@@ -293,7 +294,6 @@ public class DispatchActivity extends AppCompatActivity {
             if (sesssionEndpointAppID != null) {
                 i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
             }
-
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -308,11 +308,6 @@ public class DispatchActivity extends AppCompatActivity {
     private String getSessionEndpointAppId() {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
-
-    private void clearSessionEndpointAppId() {
-        getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
-    }
-
 
     private void launchHomeScreen() {
         Intent i;
@@ -336,6 +331,10 @@ public class DispatchActivity extends AppCompatActivity {
     public static boolean useRootMenuHomeActivity() {
         return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
                 CommCareApplication.instance().isConsumerApp();
+    }
+
+    private void clearSessionEndpointAppId() {
+        getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
     }
 
     /**
@@ -441,8 +440,9 @@ public class DispatchActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (intent != null && intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false)) {
-            this.needToExecuteRecoveryMeasures = true;
+        if (intent != null) {
+            needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
+            redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -479,7 +479,7 @@ public class DispatchActivity extends AppCompatActivity {
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = !connectManagedLogin;
                     if(connectManagedLogin) {
-                        ConnectManager.setPendingAction(ConnectManager.PENDING_ACTION_CONNECT_HOME);
+                        redirectToConnectHome = true;
                     }
                     return;
                 } else {

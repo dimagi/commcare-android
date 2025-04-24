@@ -40,6 +40,7 @@ import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
@@ -242,7 +243,7 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void updateSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = ConnectManager.shouldShowSecondaryPhoneConfirmationTile(context);
+        boolean show = ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(context);
 
         ConnectManager.updateSecondaryPhoneConfirmationTile(context, connectTile, show, v -> {
             ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {
@@ -426,11 +427,11 @@ public class ConnectJobsListsFragment extends Fragment {
             String learnAppId = job.getLearnAppInfo().getAppId();
             String deliverAppId = job.getDeliveryAppInfo().getAppId();
             if (jobType.equalsIgnoreCase(JOB_LEARNING)) {
-                ConnectLinkedAppRecord learnRecord = ConnectAppDatabaseUtil.getAppData(getActivity(), learnAppId, "");
+                ConnectLinkedAppRecord learnRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(getActivity(), learnAppId, "");
                 return learnRecord != null ? learnRecord.getLastAccessed() : lastAssessedDate;
 
             } else if (jobType.equalsIgnoreCase(JOB_DELIVERY)) {
-                ConnectLinkedAppRecord deliverRecord = ConnectAppDatabaseUtil.getAppData(getActivity(), deliverAppId, "");
+                ConnectLinkedAppRecord deliverRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(getActivity(), deliverAppId, "");
                 return deliverRecord != null ? deliverRecord.getLastAccessed() : lastAssessedDate;
             }
         } catch (Exception e) {

@@ -13,27 +13,20 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
-import org.commcare.utils.ConnectIdAppBarUtils;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
@@ -43,8 +36,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
-import java.util.Random;
+import java.security.SecureRandom;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class ConnectIDSignupFragment extends Fragment {
     private String existingPhone = "";
@@ -52,64 +52,55 @@ public class ConnectIDSignupFragment extends Fragment {
     protected boolean skipPhoneNumberCheck = false;
     private FragmentSignupBinding binding;
     private boolean showhPhoneDialog = true;
-    private ConnectUserRecord user;
-    NavDirections directions = null;
-
-    public ConnectIDSignupFragment() {
-        // Required empty public constructor
-    }
-
-    public static ConnectIDSignupFragment newInstance() {
-        ConnectIDSignupFragment fragment = new ConnectIDSignupFragment();
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    PhoneNumberHelper phoneNumberHelper;
+    private Activity activity;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentSignupBinding.inflate(inflater, container, false);
+        activity = requireActivity();
         View view = binding.getRoot();
+        activity.setTitle(getString(R.string.connect_registration_title));
+        phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
+        setListeners();
+        setArguments();
+
+        binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
+
+        updateButtonEnabled();
+        setupUi();
+        if (!existingPhone.isEmpty()) {
+            displayNumber(existingPhone);
+        }
+        return view;
+    }
+
+    private void setArguments() {
         if (getArguments() != null) {
             callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
             existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    private void setListeners() {
+        binding.connectConsentCheck.setOnClickListener(v -> updateButtonEnabled());
+        ActivityResultLauncher<IntentSenderRequest> phoneNumberHintLauncher = getPhoneNumberHintLauncher();
 
         View.OnFocusChangeListener listener = (v, hasFocus) -> {
             if (hasFocus && showhPhoneDialog) {
-                PhoneNumberHelper.requestPhoneNumberHint(getActivity());
+                PhoneNumberHelper.requestPhoneNumberHint(phoneNumberHintLauncher, activity);
                 showhPhoneDialog = false;
             }
         };
-
-        PhoneNumberHelper.phoneNumberHintLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartIntentSenderForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        Intent data = result.getData();
-                        String phoneNumber;
-                        try {
-                            phoneNumber = Identity.getSignInClient(requireActivity()).getPhoneNumberFromIntent(data);
-                            displayNumber(phoneNumber);
-                        } catch (ApiException e) {
-                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
-                            throw new RuntimeException(e);
-                        }
-
-                    }
-                }
-        );
-
-        binding.countryCode.setText(PhoneNumberHelper.setDefaultCountryCode(getContext()));
-        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
-        binding.countryCode.setOnFocusChangeListener(listener);
 
         TextWatcher buttonUpdateWatcher = new TextWatcher() {
             @Override
@@ -127,6 +118,7 @@ public class ConnectIDSignupFragment extends Fragment {
 
             }
         };
+
 
         binding.nameTextValue.addTextChangedListener(buttonUpdateWatcher);
         binding.connectPrimaryPhoneInput.addTextChangedListener(buttonUpdateWatcher);
@@ -149,22 +141,29 @@ public class ConnectIDSignupFragment extends Fragment {
 
             }
         });
-        updateButtonEnabled();
-        setupUi();
-        if (!existingPhone.isEmpty()) {
-            displayNumber(existingPhone);
-        }
 
-        handleAppBar(view);
-        return view;
+        binding.connectPrimaryPhoneInput.setOnFocusChangeListener(listener);
+        binding.countryCode.setOnFocusChangeListener(listener);
     }
 
-    private void handleAppBar(View view) {
-        View appBarView = view.findViewById(R.id.commonAppBar);
-        ConnectIdAppBarUtils.setTitle(appBarView, getString(R.string.connect_registration_title));
-        ConnectIdAppBarUtils.setBackButtonWithCallBack(appBarView, R.drawable.ic_connect_arrow_back, true, click -> {
-            getActivity().finish();
-        });
+    private ActivityResultLauncher<IntentSenderRequest> getPhoneNumberHintLauncher() {
+        return registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        String phoneNumber;
+                        try {
+                            phoneNumber = Identity.getSignInClient(activity).getPhoneNumberFromIntent(data);
+                            displayNumber(phoneNumber);
+                        } catch (ApiException e) {
+                            Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
+                            throw new RuntimeException(e);
+                        }
+
+                    }
+                }
+        );
     }
 
     void setupUi() {
@@ -196,7 +195,7 @@ public class ConnectIDSignupFragment extends Fragment {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
-        boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
+        boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
 
         boolean isEnabled = valid && (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE ||
                 (binding.nameTextValue.getText().toString().length() > 0 &&
@@ -213,14 +212,14 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void displayNumber(String fullNumber) {
-        int code = PhoneNumberHelper.getCountryCode(getContext());
+        int code = phoneNumberHelper.getCountryCodeFromLocale(activity);
         if (fullNumber != null && fullNumber.length() > 0) {
-            code = PhoneNumberHelper.getCountryCode(getContext(), fullNumber);
+            code = phoneNumberHelper.getCountryCode(fullNumber);
         }
 
         String codeText = "";
         if (code > 0) {
-            codeText = String.format(Locale.getDefault(), "%d", code);
+            codeText = String.valueOf(code);
             if (!codeText.startsWith("+")) {
                 codeText = "+" + codeText;
             }
@@ -237,186 +236,166 @@ public class ConnectIDSignupFragment extends Fragment {
     }
 
     void handleContinueButtonPress() {
-        user = ConnectManager.getUser(getActivity());
         checkPhoneNumber();
     }
 
     void handleRecoverButtonPress() {
-        ConnectManager.forgetUser("Initiating account recovery");
-        directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
-        Navigation.findNavController(binding.continueButton).navigate(directions);
+        ConnectUserDatabaseUtil.forgetUser(requireContext());
+        NavDirections directions = navigateToSelf(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
     }
 
     void handleSignupButtonPress() {
-        directions = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-        Navigation.findNavController(binding.continueButton).navigate(directions);
+        NavDirections directions = navigateToSelf(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
     }
 
-    public void checkPhoneNumber() {
+    private void checkPhoneNumber() {
         if (!skipPhoneNumberCheck) {
             String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                     binding.connectPrimaryPhoneInput.getText().toString());
 
-            boolean valid = PhoneNumberHelper.isValidPhoneNumber(getContext(), phone);
-            ConnectUserRecord user = ConnectManager.getUser(getContext());
+            boolean valid = phoneNumberHelper.isValidPhoneNumber(phone);
+            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
 
             if (valid) {
                 String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;
                 String existingAlternate = user != null ? user.getAlternatePhone() : null;
-                String finalPhone = phone;
                 switch (callingClass) {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
-                            ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
-                            ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
-                        binding.errorTextView.setVisibility(View.VISIBLE);
+                         ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
+                         ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                         if (existingAlternate != null && existingAlternate.equals(phone)) {
-                            binding.errorTextView.setText(getString(R.string.connect_phone_not_alt));
+                            updateUi(getString(R.string.connect_phone_not_alt));
                         } else {
-                            binding.errorTextView.setText(getString(R.string.connect_phone_checking));
-                            ApiConnectId.checkPhoneAvailable(getContext(), phone,
-                                    new IApiCallback() {
-                                        
-                                        private void showError(int errorStringId) {
-                                            skipPhoneNumberCheck = false;
-                                            updateButtonEnabled();
-                                            binding.errorTextView.setVisibility(View.VISIBLE);
-                                            binding.errorTextView.setText(errorStringId);
-                                        }
-                                        
-                                        @Override
-                                        public void processSuccess(int responseCode, InputStream responseData) {
-                                            skipPhoneNumberCheck = false;
-                                            if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                                                binding.errorTextView.setVisibility(View.GONE);
-                                                updateButtonEnabled();
-                                                createAccount();
-                                            } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                                                binding.errorTextView.setVisibility(View.VISIBLE);
-                                                binding.errorTextView.setText(getString(R.string.connect_phone_not_found));
-                                            }
-                                        }
-
-                                        @Override
-                                        public void processFailure(int responseCode) {
-                                            skipPhoneNumberCheck = false;
-                                            if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
-                                                updateButtonEnabled();
-                                                directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(finalPhone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-                                                Navigation.findNavController(binding.continueButton).navigate(directions);
-                                            } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
-                                                ConnectIdActivity.recoverPhone = finalPhone;
-                                                updateButtonEnabled();
-                                                directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
-                                                Navigation.findNavController(binding.continueButton).navigate(directions);
-                                            }
-                                        }
-
-                                        @Override
-                                        public void processNetworkFailure() {
-                                            showError(R.string.recovery_network_unavailable);
-                                        }
-
-                                        @Override
-                                        public void processTokenUnavailableError() {
-                                            showError(R.string.recovery_network_token_unavailable);
-                                        }
-
-                                        @Override
-                                        public void processTokenRequestDeniedError() {
-                                            showError(R.string.recovery_network_token_request_rejected);
-                                        }
-
-                                        @Override
-                                        public void processOldApiError() {
-                                            showError(R.string.recovery_network_outdated);
-                                        }
-                                    });
+                            updateUi(getString(R.string.connect_phone_checking));
+                            callPhoneAvailableApi(phone);
                         }
-
                     }
                     case ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE -> {
                         if (existingPrimary != null && existingPrimary.equals(phone)) {
-                            binding.errorTextView.setVisibility(View.VISIBLE);
-                            binding.errorTextView.setText(getString(R.string.connect_phone_not_primary));
+                            updateUi(getString(R.string.connect_phone_not_primary));
                         } else {
-                            binding.errorTextView.setVisibility(View.GONE);
-                            binding.errorTextView.setText("");
+                            updateUi("");
                         }
                     }
                 }
             } else {
-                binding.errorTextView.setVisibility(View.VISIBLE);
-                binding.errorTextView.setText(getString(R.string.connect_phone_invalid));
+                updateUi(getString(R.string.connect_phone_invalid));
             }
         }
     }
 
-    public void createAccount() {
-        binding.errorTextView.setText(null);
-        binding.errorTextView.setVisibility(View.GONE);
+    private void callPhoneAvailableApi(String phone) {
+        ApiConnectId.checkPhoneAvailable(getContext(), phone,
+                new IApiCallback() {
+                    @Override
+                    public void processSuccess(int responseCode, InputStream responseData) {
+                        skipPhoneNumberCheck = false;
+                        if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
+                            updateUi(null);
+                            createAccount();
+                        } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
+                            updateUi(getString(R.string.connect_phone_not_found));
+                        }
+                    }
+
+                    @Override
+                    public void processFailure(int responseCode) {
+                        skipPhoneNumberCheck = false;
+                        if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
+                            updateUi(getString(R.string.connect_phone_unavailable));
+                            NavDirections directions = navigateToPhonenNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
+                        } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
+                            ((ConnectIdActivity)activity).recoverPhone = phone;
+                            NavDirections directions = navigateToBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
+                        }
+                    }
+
+                    @Override
+                    public void processNetworkFailure() {
+                        skipPhoneNumberCheck = false;
+                        updateUi(getString(R.string.recovery_network_unavailable));
+                    }
+
+                    @Override
+                    public void processOldApiError() {
+                        skipPhoneNumberCheck = false;
+                        updateUi(getString(R.string.recovery_network_outdated));
+                    }
+
+                    @Override
+                    public void processTokenUnavailableError() {
+                        updateUi(getResources().getString(R.string.recovery_network_token_unavailable));
+                    }
+
+                    @Override
+                    public void processTokenRequestDeniedError() {
+                        updateUi(getResources().getString(R.string.recovery_network_token_request_rejected));
+                    }
+                });
+    }
+
+    private void createAccount() {
+        clearError();
         String phoneNo = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
-        ConnectUserRecord tempUser = new ConnectUserRecord(phoneNo, generateUserId(), ConnectManager.generatePassword(),
+        ConnectUserRecord tempUser = new ConnectUserRecord(phoneNo, generateUserId(), ConnectIDManager.getInstance().generatePassword(),
                 binding.nameTextValue.getText().toString(), "");
 
         final Context context = getActivity();
-        ApiConnectId.registerUser(requireActivity(), tempUser.getUserId(), tempUser.getPassword(),
+        ApiConnectId.registerUser(activity, tempUser.getUserId(), tempUser.getPassword(),
                 tempUser.getName(), phoneNo, new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
-                        user = tempUser;
+
+                        ConnectUserRecord user = tempUser;
                         try {
                             String responseAsString = new String(
                                     StreamsUtil.inputStreamToByteArray(responseData));
                             JSONObject json = new JSONObject(responseAsString);
-                            String key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                            if (json.has(key)) {
-                                ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                            }
-
-                            key = ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY;
-                            user.setSecondaryPhoneVerified(!json.has(key) || json.isNull(key));
+                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
+                            user.setSecondaryPhoneVerified(!json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY) || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY));
                             if (!user.getSecondaryPhoneVerified()) {
-                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(key)));
+                                user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
                             }
 
                             ConnectUserDatabaseUtil.storeUser(context, user);
-
-                            //            ConnectUserRecord dbUser = ConnectDatabaseHelper.getUser(getActivity());
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
-                            directions = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
-                            Navigation.findNavController(binding.continueButton).navigate(directions);
-                        } catch (IOException | JSONException e) {
+                            NavDirections directions = navigateToBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
+                        } catch (IOException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
                         }
 
                     }
 
                     @Override
                     public void processFailure(int responseCode) {
-                        binding.errorTextView.setVisibility(View.VISIBLE);
-                        binding.errorTextView.setText(String.format(Locale.getDefault(), "Registration error: %d",
-                                responseCode));
+                        updateUi("Registration error: " + responseCode);
                     }
 
                     @Override
                     public void processNetworkFailure() {
-                        Toast.makeText(requireActivity(), R.string.recovery_network_unavailable, Toast.LENGTH_SHORT).show();
-
+                        updateUi(getResources().getString(R.string.recovery_network_unavailable));
                     }
 
                     @Override
                     public void processTokenUnavailableError() {
-                        ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                        updateUi(getResources().getString(R.string.recovery_network_token_unavailable));
                     }
 
                     @Override
                     public void processTokenRequestDeniedError() {
-                        ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                        updateUi(getResources().getString(R.string.recovery_network_token_request_rejected));
                     }
 
                     @Override
                     public void processOldApiError() {
-                        ConnectNetworkHelper.showOutdatedApiError(requireActivity());
+                        updateUi(getResources().getString(R.string.recovery_network_outdated));
                     }
                 });
     }
@@ -426,10 +405,42 @@ public class ConnectIDSignupFragment extends Fragment {
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder userId = new StringBuilder();
+        SecureRandom secureRandom = new SecureRandom();
         for (int i = 0; i < idLength; i++) {
-            userId.append(charSet.charAt(new Random().nextInt(charSet.length())));
+            userId.append(charSet.charAt(secureRandom.nextInt(charSet.length())));
         }
 
         return userId.toString();
+    }
+
+    void updateUi(String errorMessage) {
+        updateButtonEnabled();
+        if (errorMessage == null || errorMessage.isEmpty()) {
+            clearError();
+        } else {
+            showError(errorMessage);
+        }
+    }
+
+    private void showError(String errorMessage) {
+        binding.errorTextView.setVisibility(View.VISIBLE);
+        binding.errorTextView.setText(errorMessage);
+    }
+
+    private void clearError() {
+        binding.errorTextView.setVisibility(View.GONE);
+    }
+
+
+    private NavDirections navigateToBiometricConfig(int phase) {
+        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
+    }
+
+    private NavDirections navigateToPhonenNotAvailable(String phone, int phase) {
+        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, phase);
+    }
+
+    private NavDirections navigateToSelf(int phase) {
+        return ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(phase);
     }
 }

@@ -21,14 +21,15 @@
         android:layout_height="match_parent"
         android:padding="16dp">
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tvDeliveryTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:id="@+id/linearLayout5"
@@ -66,30 +67,33 @@
                     android:layout_marginStart="6dp"
                     android:orientation="vertical">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/connect_results_summary_approved"
                         android:textColor="@color/connect_grey"
-                        android:textSize="11sp" />
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
 
-                    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                    <TextView
                         android:id="@+id/tvApproved"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:text="10"
                         android:textColor="@color/connect_green"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
-                    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                    <TextView
                         android:id="@+id/tvDeliveryTotalAmount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:text="10,000 MWK"
                         android:textColor="@color/connect_green"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
             </LinearLayout>
@@ -119,14 +123,15 @@
                     android:layout_marginStart="6dp"
                     android:orientation="vertical">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/connect_results_summary_remaining"
                         android:textColor="@color/connect_grey"
-                        android:textSize="11sp" />
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
 
-                    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                    <TextView
                         android:id="@+id/tvRemaining"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -135,7 +140,8 @@
                         android:gravity="center_vertical"
                         android:text="6 in 3 days"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

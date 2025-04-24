@@ -26,7 +26,7 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/str_version"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -84,21 +84,23 @@
                                 android:paddingRight="@dimen/login_box_margins"
                                 android:paddingBottom="@dimen/content_start">
 
-                                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                <TextView
                                     android:id="@+id/welcome_msg"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
+                                    android:textStyle="bold"
                                     android:layout_margin="@dimen/content_min_margin"
                                     android:textColor="@color/cc_neutral_color"
                                     android:textSize="@dimen/text_medium"
                                     android:visibility="gone" />
 
-                                <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                                <TextView
                                     android:id="@+id/tvLoginIntoApp"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="@dimen/content_min_margin"
+                                    android:textStyle="bold"
                                     android:text="Apps"
                                     android:textColor="@color/connect_blue_color"
                                     android:textSize="18sp" />
@@ -114,14 +116,15 @@
                                     RectangleButtonWithText:editTextEditable="false"
                                     RectangleButtonWithText:editTextText="Select app" />
 
-                                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                <TextView
                                     android:id="@+id/tvNewAppAvailable"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="5dp"
                                     android:text="New App Available"
                                     android:textColor="@color/connect_yellowish_orange_color"
-                                    android:textSize="@dimen/text_small" />
+                                    android:textSize="@dimen/text_small"
+                                    android:textStyle="bold"/>
 
                                 <Button
                                     android:id="@+id/connect_login_button"
@@ -133,7 +136,7 @@
                                     android:text="@string/connect_button_logged_in"
                                     android:visibility="gone" />
 
-                                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                                <TextView
                                     android:id="@+id/login_or"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -142,7 +145,8 @@
                                     android:text="@string/choice_or"
                                     android:textColor="@color/cc_neutral_color"
                                     android:textSize="@dimen/text_medium"
-                                    android:visibility="gone" />
+                                    android:visibility="gone"
+                                    android:textStyle="bold"/>
 
                                 <Spinner
                                     android:id="@+id/app_selection_spinner"
@@ -161,14 +165,15 @@
                                     android:layout_marginTop="16dp"
                                     android:background="@drawable/shape_border_10px_blue" />
 
-                                <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+                                <TextView
                                     android:id="@+id/tvAppsTitle"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="20dp"
                                     android:text="Login into the App"
                                     android:textColor="@color/connect_blue_color"
-                                    android:textSize="18sp" />
+                                    android:textSize="18sp"
+                                    android:textStyle="bold"/>
 
                                 <org.commcare.views.connect.ConnectEditText
                                     android:id="@+id/edit_username"

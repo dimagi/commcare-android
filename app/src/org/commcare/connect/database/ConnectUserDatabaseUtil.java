@@ -43,8 +43,9 @@ public class ConnectUserDatabaseUtil {
             } catch (Exception e) {
                 Logger.exception("Failed to store user", e);
                 throw new RuntimeException("Failed to store user in Connect database", e);
+            }
         }
-    }
+
 
     public static void forgetUser(Context context) {
         if (context == null) {
@@ -65,5 +66,6 @@ public class ConnectUserDatabaseUtil {
                 Logger.exception("Failed to forget user", e);
                 throw new RuntimeException("Failed to clean up Connect database", e);
             }
-    }
+        }
+
 }

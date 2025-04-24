@@ -28,7 +28,6 @@ public class ConnectEditText extends AppCompatEditText {
     private static final int DEFAULT_TINT_COLOR = R.color.connect_light_grey;
     private static final float DEFAULT_HINT_SIZE = 7f;
     private static final float DEFAULT_TEXT_SIZE = 7f;
-    private static final int DEFAULT_FONT_RES_ID = R.font.roboto_regular;
     private boolean drawableStartVisible = false, drawableEndVisible = false;
     private OnDrawableStartClickListener onDrawableStartClickListener;
     private OnDrawableEndClickListener onDrawableEndClickListener;
@@ -77,7 +76,6 @@ public class ConnectEditText extends AppCompatEditText {
                 int paddingBottom = a.getDimensionPixelSize(R.styleable.CustomEditText_editTextPaddingBottom, dpToPx(20));
                 int paddingStart = a.getDimensionPixelSize(R.styleable.CustomEditText_editTextPaddingStart, dpToPx(10));
                 int paddingEnd = a.getDimensionPixelSize(R.styleable.CustomEditText_editTextPaddingEnd, dpToPx(0));
-                int fontFamily = a.getResourceId(R.styleable.CustomEditText_editTextFontFamily, DEFAULT_FONT_RES_ID);
 
                 // New attributes for text, textSize, hint, and hintSize
                 String text = a.getString(R.styleable.CustomEditText_editTextText);
@@ -115,7 +113,6 @@ public class ConnectEditText extends AppCompatEditText {
 
                 setPadding(paddingStart, paddingTop, paddingEnd, paddingBottom);
 
-                setFontFamily(fontFamily);
             } finally {
                 a.recycle();
             }

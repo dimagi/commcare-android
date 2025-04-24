@@ -37,7 +37,7 @@
                 android:src="@drawable/ic_contact_support_30"/>
         </androidx.cardview.widget.CardView>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tvChannelName"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -46,11 +46,11 @@
             android:text="Channel Name"
             android:textColor="@color/black"
             android:textSize="19sp"
-            android:fontFamily="@font/roboto_bold"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/imgChannel"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/tvChannelDescription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -59,12 +59,11 @@
             android:text="message preview on top of the card..."
             android:textColor="@color/connect_grey"
             android:textSize="14sp"
-            android:fontFamily="@font/roboto_bold"
             app:layout_constraintEnd_toStartOf="@+id/tvLastChatTime"
             app:layout_constraintStart_toEndOf="@+id/imgChannel"
             app:layout_constraintBottom_toBottomOf="@+id/imgChannel" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/tvLastChatTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,7 +75,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:background="@drawable/shape_border_10px_blue"
             android:id="@+id/tvUnreadCount"
             android:layout_height="wrap_content"

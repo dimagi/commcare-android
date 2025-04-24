@@ -191,4 +191,5 @@
     <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorPrimary">@color/connect_dark_blue_color</item>
     </style>
+
 </resources>
