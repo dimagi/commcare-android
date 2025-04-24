@@ -155,7 +155,7 @@
                         android:padding="16dp">
 
 
-                        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                        <TextView
                             android:id="@+id/connectRegularTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -174,7 +174,6 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            android:fontFamily= "@font/roboto_medium"
                             app:iconSize="24dp"
                             app:icon="@drawable/ic_connect_directory_sync"
                             app:iconGravity="end"

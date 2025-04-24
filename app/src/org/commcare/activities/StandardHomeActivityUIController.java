@@ -40,9 +40,8 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,12 +86,12 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show) {
-            ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-            ConnectMediumTextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
-            ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
-            ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-            ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-            ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+            TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+            TextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
+            TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
+            TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+            TextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+            TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);

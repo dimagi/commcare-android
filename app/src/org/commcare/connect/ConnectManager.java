@@ -4,24 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -30,11 +19,9 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -42,35 +29,21 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.TokenRequestDeniedException;
-import org.commcare.connect.network.TokenUnavailableException;
-import org.commcare.connect.workers.ConnectHeartbeatWorker;
-import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
-import org.commcare.util.LogTypes;
-import org.commcare.utils.BiometricsHelper;
-import org.commcare.utils.CrashUtil;
-import org.commcare.views.connect.RoundedButton;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
-import org.commcare.views.dialogs.StandardAlertDialog;
+
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -80,8 +53,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -196,13 +167,13 @@ public class ConnectManager {
             String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 
-            ConnectRegularTextView view = tile.findViewById(R.id.connect_phone_label);
+            TextView view = tile.findViewById(R.id.connect_phone_label);
             view.setText(message);
 
-            RoundedButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
+            Button yesButton = tile.findViewById(R.id.connect_phone_yes_button);
             yesButton.setOnClickListener(listener);
 
-            RoundedButton noButton = tile.findViewById(R.id.connect_phone_no_button);
+            Button noButton = tile.findViewById(R.id.connect_phone_no_button);
             noButton.setOnClickListener(v -> {
                 tile.setVisibility(View.GONE);
             });

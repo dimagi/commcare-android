@@ -19,9 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
 
 import java.util.Date;
 import java.util.List;
@@ -300,12 +298,12 @@ public class ConnectLearningProgressFragment extends Fragment {
 
     private void jobCardDataHandle(View view, ConnectJobRecord job) {
         View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
-        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+        TextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        TextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
+        TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setVisibility(View.GONE);
 

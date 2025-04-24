@@ -28,8 +28,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
 
 public class ConnectResultsSummaryListFragment extends Fragment {
     private TextView earnedAmount;
@@ -188,9 +187,9 @@ public class ConnectResultsSummaryListFragment extends Fragment {
         }
 
         public static class PaymentViewHolder extends RecyclerView.ViewHolder {
-            final ConnectBoldTextView nameText;
-            final ConnectRegularTextView dateText;
-            final ConnectRegularTextView tvPaymentStatus;
+            final TextView nameText;
+            final TextView dateText;
+            final TextView tvPaymentStatus;
             final CardView confirmText;
             final ImageView imgPaymentStatusIcon;
             final ImageView imgReceived;
