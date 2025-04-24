@@ -310,7 +310,6 @@
     <style name="TabTextStyle">
         <item name="textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
-        <item name="fontFamily">@font/roboto_medium</item>
         <item name="android:textStyle">bold</item>
     </style>
 

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -20,7 +21,7 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.CircleProgressBar;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -83,7 +84,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
         progress.setProgressColor(ContextCompat.getColor(requireContext(), R.color.connect_aquva));
         progress.setProgress(percent);
 
-        ConnectMediumTextView textView = view.findViewById(R.id.connect_progress_progress_text);
+        TextView textView = view.findViewById(R.id.connect_progress_progress_text);
         textView.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
         textView = view.findViewById(R.id.connect_progress_status_text);

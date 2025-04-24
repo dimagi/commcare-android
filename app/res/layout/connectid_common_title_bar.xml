@@ -24,17 +24,17 @@
             android:tint="@color/white"
             android:visibility="invisible" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
-            android:fontFamily="@font/roboto_medium"
             android:text=""
             android:textColor="#FFFFFF"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:textStyle="bold"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

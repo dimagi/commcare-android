@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
@@ -25,7 +26,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +60,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_connect_delivery_details, container, false);
 
-        ConnectRegularTextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
+        TextView textView = view.findViewById(R.id.connect_delivery_total_visits_text);
         int maxPossibleVisits = job.getMaxPossibleVisits();
         int daysRemaining = job.getDaysRemaining();
         textView.setText(getString(R.string.connect_job_info_visit, maxPossibleVisits));

@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,10 +33,8 @@ import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.views.connect.RoundedButton;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
+
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,13 +91,13 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
         paymentAlertTile = view.findViewById(R.id.connect_delivery_progress_alert_tile);
         paymentAlertText = view.findViewById(R.id.connect_payment_confirm_label);
-        RoundedButton paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
+        Button paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
         paymentAlertNoButton.setOnClickListener(v -> {
             updatePaymentConfirmationTile(getContext(), true);
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
         });
 
-        RoundedButton paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
+        Button paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
         paymentAlertYesButton.setOnClickListener(v -> {
             final ConnectJobPaymentRecord payment = paymentToConfirm;
             //Dismiss the tile
@@ -197,12 +196,12 @@ public class ConnectDeliveryProgressFragment extends Fragment {
 
     private void jobCardDataHandle(View view, ConnectJobRecord job) {
         View viewJobCard = view.findViewById(R.id.viewJobCard);
-        ConnectMediumTextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
-        ConnectBoldTextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-        ConnectBoldTextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-        ConnectBoldTextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        ConnectMediumTextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
-        ConnectRegularTextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+        TextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
+        TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
+        TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+        TextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
+        TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
+        TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
             Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
