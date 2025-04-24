@@ -26,6 +26,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentSignupBinding;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
@@ -241,12 +242,12 @@ public class ConnectIDSignupFragment extends Fragment {
     void handleRecoverButtonPress() {
         ConnectUserDatabaseUtil.forgetUser(requireContext());
         NavDirections directions = navigateToSelf(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
-        Navigation.findNavController(binding.continueButton).navigate(directions);
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
     }
 
     void handleSignupButtonPress() {
         NavDirections directions = navigateToSelf(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-        Navigation.findNavController(binding.continueButton).navigate(directions);
+        CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
     }
 
     private void checkPhoneNumber() {
@@ -262,8 +263,8 @@ public class ConnectIDSignupFragment extends Fragment {
                 String existingAlternate = user != null ? user.getAlternatePhone() : null;
                 switch (callingClass) {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE,
-                            ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
-                            ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
+                         ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE,
+                         ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE -> {
                         if (existingAlternate != null && existingAlternate.equals(phone)) {
                             updateUi(getString(R.string.connect_phone_not_alt));
                         } else {
@@ -305,11 +306,11 @@ public class ConnectIDSignupFragment extends Fragment {
                         if (callingClass == ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE) {
                             updateUi(getString(R.string.connect_phone_unavailable));
                             NavDirections directions = navigateToPhonenNotAvailable(phone, ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-                            Navigation.findNavController(binding.continueButton).navigate(directions);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
                         } else if (callingClass == ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE) {
                             ((ConnectIdActivity)activity).recoverPhone = phone;
                             NavDirections directions = navigateToBiometricConfig(ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS);
-                            Navigation.findNavController(binding.continueButton).navigate(directions);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
                         }
                     }
 
@@ -363,7 +364,7 @@ public class ConnectIDSignupFragment extends Fragment {
                             ConnectUserDatabaseUtil.storeUser(context, user);
                             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
                             NavDirections directions = navigateToBiometricConfig(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS);
-                            Navigation.findNavController(binding.continueButton).navigate(directions);
+                            CommCareNavController.navigateSafely(Navigation.findNavController(binding.continueButton),directions);
                         } catch (IOException e) {
                             Logger.exception("Parsing return from confirm_secondary_otp", e);
                         } catch (JSONException e) {

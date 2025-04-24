@@ -27,7 +27,7 @@
                 android:background="@color/connect_dark_blue_color"
                 android:padding="16dp">
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
                     android:id="@+id/connect_delivery_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -36,9 +36,10 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_review"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -59,7 +60,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/connect_delivery_total_visits_text" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_total_visits_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -82,7 +83,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/connect_delivery_days_text" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_days_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -104,7 +105,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/connect_delivery_max_daily_text" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_max_daily_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -126,7 +127,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/connect_delivery_budget_text" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_budget_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -166,7 +167,7 @@
                             app:layout_constraintEnd_toStartOf="@+id/connect_delivery_button"
                             app:layout_constraintTop_toTopOf="parent">
 
-                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                            <TextView
                                 android:id="@+id/connect_delivery_action_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -177,7 +178,7 @@
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
-                            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                            <TextView
                                 android:id="@+id/connect_delivery_action_details"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -198,7 +199,6 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             android:backgroundTint= "@color/white"
-                            android:fontFamily= "@font/roboto_medium"
                             android:drawableRight= "@drawable/ic_connect_arrow_forward_24px"
                             android:textColor= "@color/cc_brand_color"
                             app:iconTint="@color/cc_brand_color"

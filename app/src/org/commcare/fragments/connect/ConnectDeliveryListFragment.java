@@ -21,9 +21,8 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-import org.commcare.views.connect.connecttextview.ConnectBoldTextView;
-import org.commcare.views.connect.connecttextview.ConnectMediumTextView;
-import org.commcare.views.connect.connecttextview.ConnectRegularTextView;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -168,10 +167,10 @@ public class ConnectDeliveryListFragment extends Fragment {
         }
 
         static class VerificationViewHolder extends RecyclerView.ViewHolder {
-            final ConnectMediumTextView nameText;
-            final ConnectRegularTextView dateText;
-            final ConnectRegularTextView statusText;
-            final ConnectBoldTextView reasonText;
+            final TextView nameText;
+            final TextView dateText;
+            final TextView statusText;
+            final TextView reasonText;
             final LinearLayout llDeliveryStatus;
             final ImageView imgDeliveryStatus;
 

@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:padding="18dp">
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -33,6 +33,7 @@
             android:text=""
             android:textColor="@color/black"
             android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/llOpportunity"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +61,7 @@
                 android:contentDescription="@null"
                 android:src="@drawable/ic_connect_new_opportunity" />
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
                 android:id="@+id/tvJobType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -68,7 +69,8 @@
                 android:layout_marginEnd="10dp"
                 android:textColor="@color/connect_yellowish_orange_color"
                 android:textSize="12sp"
-                tools:text="@string/connect_new_opportunity" />
+                tools:text="@string/connect_new_opportunity"
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <org.commcare.views.connect.CircleProgressBar
@@ -91,7 +93,7 @@
             app:layout_constraintStart_toEndOf="@+id/progressBar"
             app:layout_constraintTop_toTopOf="@+id/llOpportunity"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

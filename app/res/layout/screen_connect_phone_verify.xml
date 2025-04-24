@@ -33,7 +33,6 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/roboto_medium"
             android:text="@string/enter_otp"
             android:textStyle="bold"
             android:textColor="@color/connect_dark_blue_color"
@@ -130,7 +129,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto_medium"
             android:text="Resend OTP in 60s"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="12sp" />
