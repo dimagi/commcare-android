@@ -52,16 +52,4 @@ public class DocumentWidget extends MediaWidget {
     public void setOnLongClickListener(OnLongClickListener l) {
         mChooseButton.setOnLongClickListener(l);
     }
-
-    @Override
-    public void unsetListeners() {
-        superUnsetListeners();
-        mChooseButton.setOnLongClickListener(null);
-    }
-
-    @Override
-    public void cancelLongPress() {
-        superCancelLongPress();
-        mChooseButton.cancelLongPress();
-    }
 }

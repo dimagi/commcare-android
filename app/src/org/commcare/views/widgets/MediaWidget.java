@@ -239,28 +239,30 @@ public abstract class MediaWidget extends QuestionWidget {
 
     @Override
     public void unsetListeners() {
-        superUnsetListeners();
-
-        mCaptureButton.setOnLongClickListener(null);
-        mChooseButton.setOnLongClickListener(null);
-        mPlayButton.setOnLongClickListener(null);
-    }
-    
-    protected void superUnsetListeners() {
         super.unsetListeners();
+        
+        // Checks necessary for DocumentWidget, which only initializes the mChooseButton
+        if (mCaptureButton != null) {
+            mCaptureButton.setOnLongClickListener(null);
+        }
+        mChooseButton.setOnLongClickListener(null);
+        if (mPlayButton != null) {
+            mPlayButton.setOnLongClickListener(null);
+        }
     }
 
     @Override
     public void cancelLongPress() {
-        superCancelLongPress();
-
-        mCaptureButton.cancelLongPress();
-        mChooseButton.cancelLongPress();
-        mPlayButton.cancelLongPress();
-    }
-    
-    protected void superCancelLongPress() {
         super.cancelLongPress();
+        
+        // Checks necessary for DocumentWidget, which only initializes the mChooseButton
+        if (mCaptureButton != null) {
+            mCaptureButton.cancelLongPress();
+        }
+        mChooseButton.cancelLongPress();
+        if (mPlayButton != null) {
+            mPlayButton.cancelLongPress();
+        }
     }
 
     @Override
