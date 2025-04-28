@@ -377,7 +377,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     ImageCaptureProcessing.processImageChooserResponse(this,
                             FormEntryInstanceState.getInstanceFolder(), intent);
                     break;
-                case FormEntryConstants.AUDIO_VIDEO_FETCH:
+                case FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH:
                     processChooserResponse(intent);
                     break;
                 case FormEntryConstants.LOCATION_CAPTURE:
@@ -435,7 +435,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         Uri media = intent.getData();
         if (media == null) {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                    "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+                    "AUDIO_VIDEO_DOCUMENT_FETCH intent data returns null " + intent.toString());
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
             uiController.questionsView.clearAnswer();
