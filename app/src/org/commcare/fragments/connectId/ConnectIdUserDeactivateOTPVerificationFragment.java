@@ -2,6 +2,7 @@ package org.commcare.fragments.connectId;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -41,13 +42,14 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.RECEIVER_EXPORTED;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     public static final int REQ_USER_CONSENT = 200;
     private String primaryPhone;
     private String username;
     private String password;
-    private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
     private ScreenConnectUserDeactivateOtpVerifyBinding binding;
 
@@ -94,13 +96,11 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
         binding.connectPhoneVerifyButton.setEnabled(false);
         getActivity().setTitle(getString(R.string.connect_verify_phone_title));
         buttonEnabled("");
-        SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
-        client.startSmsUserConsent(null);
 
         if (getArguments() != null) {
-            primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
-            username = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
-            password = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
+            primaryPhone = ConnectIdUserDeactivateOTPVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
+            username = ConnectIdUserDeactivateOTPVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
+            password = ConnectIdUserDeactivateOTPVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
         }
 
         loadSavedState(savedInstanceState);
@@ -141,8 +141,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        registerBrodcastReciever();
-
     }
 
     @Override
@@ -213,25 +211,10 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     public void onPause() {
         super.onPause();
         try {
-            requireActivity().unregisterReceiver(smsBroadcastReceiver);
             stopHandler();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
-    }
-
-    private void registerBrodcastReciever() {
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
-
-        smsBroadcastReceiver.setSmsListener(new SMSListener() {
-            @Override
-            public void onSuccess(Intent intent) {
-                startActivityForResult(intent, REQ_USER_CONSENT);
-            }
-        });
-
-        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        requireActivity().registerReceiver(smsBroadcastReceiver, intentFilter);
     }
 
     private void setErrorMessage(String message) {
@@ -285,8 +268,9 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
-
+                        if (json.has(ConnectConstants.CONNECT_KEY_SECRET)) {
+                            password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
+                        }
                         if (json.has(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
                             updateMessage();
                         }
