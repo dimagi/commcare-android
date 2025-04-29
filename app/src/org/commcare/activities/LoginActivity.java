@@ -36,6 +36,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -138,7 +139,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         connectIDManager.init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = connectIDManager.wasAppLaunchedFromConnect(presetAppId);
+        ///TODO uncommenct with connect code
+//        appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
+//        connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
             uiController.restoreLastUser();
