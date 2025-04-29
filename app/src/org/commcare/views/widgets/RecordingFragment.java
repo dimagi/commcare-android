@@ -304,9 +304,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void saveRecording() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            unregisterAudioRecordingConfigurationChangeCallback();
-        }
         if (inPausedState) {
             stopRecording();
         }
@@ -467,6 +464,9 @@ public class RecordingFragment extends DialogFragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbindAudioRecordingService();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            unregisterAudioRecordingConfigurationChangeCallback();
+        }
     }
 
     private void unbindAudioRecordingService() {
