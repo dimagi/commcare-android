@@ -62,6 +62,8 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
+        analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, ReportingUtils.getDeviceId());
+
         String domain = ReportingUtils.getDomain();
         if (!TextUtils.isEmpty(domain)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CCHQ_DOMAIN, domain);
