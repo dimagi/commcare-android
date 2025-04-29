@@ -54,7 +54,7 @@ public class AudioRecordingService extends Service {
         String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         setupRecorder(fileName);
         recorder.start();
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
