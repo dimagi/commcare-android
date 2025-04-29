@@ -5,6 +5,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
 import org.commcare.util.EncryptionUtils;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
@@ -175,7 +176,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             String tag = Base64.encode(tagBytes);
 
             return new String[] { cipherText, nonce, tag };
-        } catch(Exception e) {
+        } catch(EncryptionUtils.EncryptionException | Base64DecoderException e) {
             throw new RuntimeException(e);
         }
     }
