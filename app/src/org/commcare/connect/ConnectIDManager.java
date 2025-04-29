@@ -142,11 +142,6 @@ public class ConnectIDManager {
         }
     }
 
-    public boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = primedAppIdForAutoLogin;
-        primedAppIdForAutoLogin = null;
-        return primed != null && primed.equals(appId);
-    }
 
     public String generatePassword() {
         int passwordLength = 20;

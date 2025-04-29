@@ -54,6 +54,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
  *
@@ -64,15 +66,6 @@ public class ConnectManager {
 
     public static final int PENDING_ACTION_NONE = 0;
 
-    /**
-     * Enum representing the current state of ConnectID
-     */
-    public enum ConnectIdStatus {
-        NotIntroduced,
-        Registering,
-        LoggedIn
-    }
-
 
     /**
      * Interface for handling callbacks when a ConnectID activity finishes
@@ -82,10 +75,10 @@ public class ConnectManager {
     }
 
     private static ConnectManager manager = null;
-    private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
+    private ConnectIDManager.ConnectIdStatus connectStatus = ConnectIDManager.ConnectIdStatus.NotIntroduced;
     private Context parentActivity;
 
-    private String primedAppIdForAutoLogin = null;
+    private static String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -99,33 +92,15 @@ public class ConnectManager {
         return manager;
     }
 
-    public static ConnectIdStatus getStatus() {
-        return getInstance().connectStatus;
-    }
-
-    public static void setStatus(ConnectIdStatus connectStatus) {
-        getInstance().connectStatus = connectStatus;
-    }
-
-    public static void handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
-        getInstance().parentActivity = activity;
-
-//        if (!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode)) {
-//            if (requestCode == ConnectConstants.CONNECT_JOB_INFO && resultCode == AppCompatActivity.RESULT_OK) {
-//                goToConnectJobsList(activity);
-//            }
-//        }
-    }
-
     public static void init(Context parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
 
-        if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
+        if (manager.connectStatus == ConnectIDManager.ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
-                manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+                manager.connectStatus = registering ? ConnectIDManager.ConnectIdStatus.Registering : ConnectIDManager.ConnectIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -185,7 +160,13 @@ public class ConnectManager {
     }
 
     private ConnectJobRecord activeJob = null;
-    private int failedPinAttempts = 0;
+
+
+    public static boolean wasAppLaunchedFromConnect(String appId) {
+        String primed = primedAppIdForAutoLogin;
+        primedAppIdForAutoLogin = null;
+        return primed != null && primed.equals(appId);
+    }
 
     public static void setActiveJob(ConnectJobRecord job) {
         getInstance().activeJob = job;
