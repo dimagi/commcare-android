@@ -334,6 +334,8 @@
         </service>
         <service
             android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="true"
             android:foregroundServiceType="microphone"
             android:name="org.commcare.views.widgets.AudioRecordingService">
         </service>
