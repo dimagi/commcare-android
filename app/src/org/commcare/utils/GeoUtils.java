@@ -116,14 +116,14 @@ public class GeoUtils {
         StandardAlertDialog factory = setupAlertFactory(activity, onChange, onCancel);
 
         // NOTE PLM: this dialog will not persist through orientation changes.
-        factory.showNonPersistentDialog();
+        factory.showNonPersistentDialog(activity);
     }
 
     private static StandardAlertDialog setupAlertFactory(Context context,
                                                          DialogInterface.OnClickListener onChange,
                                                          DialogInterface.OnCancelListener onCancel) {
         StandardAlertDialog factory =
-                new StandardAlertDialog(context,
+                new StandardAlertDialog(
                         StringUtils.getStringRobust(context, R.string.no_gps_title),
                         StringUtils.getStringRobust(context, R.string.no_gps_message));
         factory.setPositiveButton(StringUtils.getStringRobust(context, R.string.change_settings), onChange);

@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,6 +9,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.AnimRes;
+import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -30,10 +31,6 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
-
-import androidx.annotation.AnimRes;
-import androidx.annotation.LayoutRes;
-import androidx.core.view.MenuItemCompat;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
@@ -280,15 +277,15 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
         String title = Localization.get("form.send.rate.limit.error.title");
         String message = Localization.get("form.send.rate.limit.error.message");
-        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(title,
                 message, null);
 
         dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
             HiddenPreferences.disableRateLimitPopup(true);
-            dismissAlertDialog();
+            dialog1.dismiss();
         });
         dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
-            dismissAlertDialog();
+            dialog1.dismiss();
         });
 
         showAlertDialog(dialog);

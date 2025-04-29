@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -31,7 +32,7 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
-import org.commcare.fragments.ContainerFragment;
+import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.InstallConfirmFragment;
 import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
@@ -99,6 +100,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
+    private static final String COMMCARE_APP_DATA_KEY = "commcare-app-data-key";
 
     /**
      * UI configuration states.
@@ -161,7 +163,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
     private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private final InstallPermissionsFragment permFragment = new InstallPermissionsFragment();
-    private ContainerFragment<CommCareApp> containerFragment;
+    private ContainerViewModel<CommCareApp> containerViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,15 +242,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void persistCommCareAppState() {
-        FragmentManager fm = this.getSupportFragmentManager();
-
-        containerFragment = (ContainerFragment<CommCareApp>)fm.findFragmentByTag("cc-app");
-
-        if (containerFragment == null) {
-            containerFragment = new ContainerFragment<>();
-            fm.beginTransaction().add(containerFragment, "cc-app").commit();
-        } else {
-            ccApp = containerFragment.getData();
+        containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
+        if (containerViewModel.getData(COMMCARE_APP_DATA_KEY) != null) {
+            ccApp = containerViewModel.getData(COMMCARE_APP_DATA_KEY);
         }
     }
 
@@ -477,7 +473,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
             ccApp = ResourceInstallUtils.startAppInstallAsync(shouldSleep, DIALOG_INSTALL_PROGRESS, this, incomingRef);
-            containerFragment.setData(ccApp);
+            containerViewModel.setData(COMMCARE_APP_DATA_KEY, ccApp);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
@@ -533,7 +529,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                         SMS_PERMISSIONS_REQUEST,
                         Localization.get("permission.sms.install.title"),
-                        Localization.get("permission.sms.install.message")).showNonPersistentDialog();
+                        Localization.get("permission.sms.install.message")).showNonPersistentDialog(this);
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }

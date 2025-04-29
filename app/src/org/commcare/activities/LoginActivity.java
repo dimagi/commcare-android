@@ -554,7 +554,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 loginDemoUser();
                 return true;
             case MENU_ABOUT:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
+                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
                 return true;
             case MENU_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
