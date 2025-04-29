@@ -46,7 +46,10 @@ public class CrashUtil {
 
     public static void registerUserData() {
         if (crashlyticsEnabled) {
-            FirebaseCrashlytics.getInstance().setUserId(ReportingUtils.getUser());
+            String user = ConnectIDManager.getInstance().isloggedIn() ?
+                    ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId() :
+                    ReportingUtils.getUser();
+            FirebaseCrashlytics.getInstance().setUserId(user);
         }
     }
 
@@ -61,6 +64,7 @@ public class CrashUtil {
      * <p>
      * If Crashlytics is enabled and a Connect ID is configured, this method retrieves
      * the user ID from ConnectManager and sets it as a custom key in Crashlytics.
+     * The method also calls registerUserData, which sets the Firebase user as the Connect ID
      * <p>
      * In case of any exceptions during this process, the exception is recorded in
      * Crashlytics to aid debugging.
@@ -68,6 +72,7 @@ public class CrashUtil {
     public static void registerConnectUser() {
         if (crashlyticsEnabled && ConnectIDManager.getInstance().isloggedIn()) {
             try {
+                registerUserData();
                 String userId = ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
                 FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, userId);
             } catch (Exception e) {
