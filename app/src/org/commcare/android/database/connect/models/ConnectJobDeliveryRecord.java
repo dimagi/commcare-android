@@ -4,19 +4,14 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
-import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-
-import javax.net.ssl.SSLException;
 
 /**
  * Data class for holding info related to a Connect job delivery
@@ -143,7 +138,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public String getReason() {
-        return reason != null && reason.equals("null") ? null : reason;
+        return reason;
     }
 
     public List<ConnectJobDeliveryFlagRecord> getFlags() {
@@ -162,7 +157,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         newRecord.entityId = oldRecord.getEntityId();
         newRecord.entityName = oldRecord.getEntityName();
         newRecord.lastUpdate = oldRecord.getLastUpdate();
-        newRecord.reason = "";
+        newRecord.reason = null;
 
         return newRecord;
     }

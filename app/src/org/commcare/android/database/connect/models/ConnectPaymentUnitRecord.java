@@ -4,11 +4,11 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 
 @Table(ConnectPaymentUnitRecord.STORAGE_KEY)
 public class ConnectPaymentUnitRecord extends Persisted implements Serializable {
@@ -52,7 +52,8 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
     }
 
-    public static ConnectPaymentUnitRecord fromJson(JSONObject json, int jobId) throws JSONException {
+    public static ConnectPaymentUnitRecord fromJson(JSONObject json, int jobId) {
+        try {
         ConnectPaymentUnitRecord paymentUnit = new ConnectPaymentUnitRecord();
 
         paymentUnit.jobId = jobId;
@@ -63,6 +64,10 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         paymentUnit.amount = json.getInt(META_AMOUNT);
 
         return paymentUnit;
+        } catch(JSONException e) {
+            Logger.exception("Parsing job payment", e);
+            return null;
+        }
     }
 
     public int getJobId() {

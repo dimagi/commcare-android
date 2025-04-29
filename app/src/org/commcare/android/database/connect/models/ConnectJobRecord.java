@@ -225,14 +225,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         String flagsKey = "verification_flags";
         JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
         if(flags != null) {
-            job.dailyStartTime = flags.has(META_DAILY_START_TIME) ? flags.getString(META_DAILY_START_TIME) : "";
-            if(job.dailyStartTime.equals("null")) {
-                job.dailyStartTime = "";
-            }
-            job.dailyFinishTime = flags.has(META_DAILY_FINISH_TIME) ? flags.getString(META_DAILY_FINISH_TIME) : "";
-            if(job.dailyFinishTime.equals("null")) {
-                job.dailyFinishTime = "";
-            }
+            job.dailyStartTime = flags.optString(META_DAILY_START_TIME, "");
+            job.dailyFinishTime = flags.optString(META_DAILY_FINISH_TIME, "");
         }
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
