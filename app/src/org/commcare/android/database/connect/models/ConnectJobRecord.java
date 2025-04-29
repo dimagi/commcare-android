@@ -6,7 +6,6 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.utils.DateUtils;
-import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,8 +21,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
 
 /**
  * Data class for holding info related to a Connect job
@@ -467,7 +464,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 LocalTime end = LocalTime.parse(dailyFinish, formatter);
                 formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_TARGET_FORMAT);
                 return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
-            }else{
+            } else {
                 // remove this code whenever we change minSdk to 26
                 SimpleDateFormat formatter = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT);
                 Date start = formatter.parse(dailyStart);
@@ -475,7 +472,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 formatter = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT);
                 return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
             }
-        } catch(Exception e) {
+        } catch(ParseException e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
             return null;
         }
