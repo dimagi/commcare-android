@@ -16,6 +16,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
@@ -90,7 +91,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
         } else {
             commandId = ((Menu)value).getId();
         }
-
+        FirebaseAnalyticsUtil.reportMenuItemClick(commandId);
         Intent i = new Intent(activity.getIntent());
         i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
         if (beingUsedInHomeScreen) {

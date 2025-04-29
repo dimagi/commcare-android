@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+
 import androidx.core.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -450,6 +451,7 @@ public abstract class DataPullTask<R>
         recordSuccessfulSyncTime(username);
 
         ExternalDataUpdateHelper.broadcastDataUpdate(context, null);
+        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
 
         if (loginNeeded) {
             CommCareApplication.instance().getAppStorage(UserKeyRecord.class).write(ukrForLogin);
@@ -478,6 +480,7 @@ public abstract class DataPullTask<R>
 
     private void wipeLoginIfItOccurred() {
         if (wasKeyLoggedIn) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Wiping user login");
             CommCareApplication.instance().releaseUserResourcesAndServices();
         }
     }

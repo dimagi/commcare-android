@@ -1,5 +1,8 @@
 package org.commcare.engine.cases;
 
+import static org.commcare.cases.model.Case.INDEX_CASE_ID;
+import static org.commcare.cases.util.CaseDBUtils.xordata;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -13,7 +16,6 @@ import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
-import org.commcare.modern.engine.cases.CaseIndexTable;
 import org.commcare.modern.util.Pair;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CommCareUtil;
@@ -24,15 +26,14 @@ import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageIterator;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.DAG;
 import org.javarosa.core.util.MD5;
 import org.javarosa.model.xform.XPathReference;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
-
-import static org.commcare.cases.util.CaseDBUtils.xordata;
 
 /**
  * Utilities for performing complex operations on the case database.
@@ -51,8 +52,8 @@ public class CaseUtils {
         boolean casesExist = false;
         long count = 0;
 
-        for (SqlStorageIterator i = storage.iterate(false, new String[]{Case.INDEX_CASE_ID}); i.hasMore(); ) {
-            byte[] current = MD5.hash(i.peekIncludedMetadata(Case.INDEX_CASE_ID).getBytes());
+        for (SqlStorageIterator i = storage.iterate(false, new String[]{INDEX_CASE_ID}); i.hasMore(); ) {
+            byte[] current = MD5.hash(i.peekIncludedMetadata(INDEX_CASE_ID).getBytes());
             data = xordata(data, current);
             casesExist = true;
             count++;
@@ -79,37 +80,11 @@ public class CaseUtils {
     public static void purgeCases() throws InvalidCaseGraphException {
         long start = System.currentTimeMillis();
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
-        Vector<String> owners = new Vector<>();
-        Vector<String> users = new Vector<>();
-        for (IStorageIterator<User> userIterator = CommCareApplication.instance()
-                .getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore(); ) {
-            String id = userIterator.nextRecord().getUniqueId();
-            owners.addElement(id);
-            users.addElement(id);
-        }
-
-        //Now add all of the relevant groups
-        //TODO: Wow. This is.... kind of megasketch
-        for (String userId : users) {
-            DataInstance instance = CommCareUtil.loadFixture("user-groups", userId);
-            if (instance == null) {
-                continue;
-            }
-            EvaluationContext ec = new EvaluationContext(instance);
-            for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
-                if (idelement.getValue() != null) {
-                    owners.addElement(idelement.getValue().uncast().getString());
-                }
-            }
-        }
-
-        SQLiteDatabase db;
-        db = CommCareApplication.instance().getUserDbHandle();
-
-        db.beginTransaction();
+        Vector<String> owners = getAllOwners();
+        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
         int removedCaseCount;
         int removedLedgers;
+        db.beginTransaction();
         try {
             SqlStorage<ACase> storage = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
             DAG<String, int[], String> fullCaseGraph = getFullCaseGraph(storage, new AndroidCaseIndexTable(), owners);
@@ -151,9 +126,67 @@ public class CaseUtils {
 
     }
 
+    private static Vector<String> getAllOwners() {
+        Vector<String> users = new Vector<>();
+        Vector<String> owners = new Vector<>();
+        SqlStorage<User> userStorage = CommCareApplication.instance().getUserStorage(User.STORAGE_KEY, User.class);
+        for (IStorageIterator<User> userIterator = userStorage.iterate(); userIterator.hasMore(); ) {
+            String id = userIterator.nextRecord().getUniqueId();
+            owners.addElement(id);
+            users.addElement(id);
+        }
+
+        //Now add all of the relevant groups
+        //TODO: Wow. This is.... kind of megasketch
+        for (String userId : users) {
+            DataInstance instance = CommCareUtil.loadFixture("user-groups", userId);
+            if (instance == null) {
+                continue;
+            }
+            EvaluationContext ec = new EvaluationContext(instance);
+            for (TreeReference ref : ec.expandReference(
+                    XPathReference.getPathExpr("/groups/group/@id").getReference())) {
+                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
+                if (idelement.getValue() != null) {
+                    owners.addElement(idelement.getValue().uncast().getString());
+                }
+            }
+        }
+        return owners;
+    }
+
+    /**
+     * Get records ids for all related cases for the given set of cases including the original set of cases
+     *
+     * @param recordIds databse ids for the cases we want to find related cases
+     * @return database ids for all related cases for the given set of cases
+     */
+    public static Vector<Integer> getRelatedCases(Set<String> recordIds) {
+        if (recordIds.isEmpty()) {
+            return new Vector<>();
+        }
+
+        SqlStorage<ACase> storage = CommCareApplication.instance().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+        DAG<String, int[], String> fullCaseGraph = getFullCaseGraph(storage, new AndroidCaseIndexTable(),
+                new Vector<>());
+        Set<String> caseIds = getCaseIdsFromRecordsIds(storage, recordIds);
+        Set<String> relatedCaseIds = fullCaseGraph.findConnectedRecords(caseIds);
+        return storage.getBulkIdsForIndex(INDEX_CASE_ID, relatedCaseIds);
+    }
+
+    private static Set<String> getCaseIdsFromRecordsIds(SqlStorage<ACase> storage, Set<String> recordIds) {
+        Set<String> caseIds = new HashSet<>(recordIds.size());
+        for (String recordId : recordIds) {
+            String[] result = storage.getMetaDataForRecord(Integer.parseInt(recordId),
+                    new String[]{INDEX_CASE_ID});
+            caseIds.add(result[0]);
+        }
+        return caseIds;
+    }
+
     public static DAG<String, int[], String> getFullCaseGraph(SqlStorage<ACase> caseStorage,
-                                                              AndroidCaseIndexTable indexTable,
-                                                              Vector<String> owners) {
+            AndroidCaseIndexTable indexTable,
+            Vector<String> owners) {
         DAG<String, int[], String> caseGraph = new DAG<>();
         Vector<Pair<String, String>> indexHolder = new Vector<>();
 
@@ -163,11 +196,11 @@ public class CaseUtils {
         // directed edge for each index (from the 'child' case pointing to the 'parent' case) with
         // the appropriate relationship tagged
         for (SqlStorageIterator<ACase> i = caseStorage.iterate(false, new String[]{
-                Case.INDEX_OWNER_ID, Case.INDEX_CASE_STATUS, Case.INDEX_CASE_ID}); i.hasMore(); ) {
+                Case.INDEX_OWNER_ID, Case.INDEX_CASE_STATUS, INDEX_CASE_ID}); i.hasMore(); ) {
 
             String ownerId = i.peekIncludedMetadata(Case.INDEX_OWNER_ID);
             boolean closed = i.peekIncludedMetadata(Case.INDEX_CASE_STATUS).equals("closed");
-            String caseID = i.peekIncludedMetadata(Case.INDEX_CASE_ID);
+            String caseID = i.peekIncludedMetadata(INDEX_CASE_ID);
             int caseRecordId = i.nextID();
 
 

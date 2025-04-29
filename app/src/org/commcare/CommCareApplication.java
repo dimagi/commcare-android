@@ -1,5 +1,7 @@
 package org.commcare;
 
+import static org.commcare.AppUtils.getCurrentAppId;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -97,6 +99,7 @@ import org.commcare.tasks.AsyncRestoreHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DeleteLogs;
 import org.commcare.tasks.LogSubmissionTask;
+import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.update.UpdateHelper;
@@ -109,6 +112,7 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -202,6 +206,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
+    private EncryptionKeyProvider encryptionKeyProvider;
 
     private boolean backgroundSyncSafe;
 
@@ -257,6 +262,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
         FirebaseMessagingUtil.verifyToken();
 
+        //Create standard provider
+        setEncryptionKeyProvider(new EncryptionKeyProvider());
+
         customiseOkHttp();
 
         setRxJavaGlobalHandler();
@@ -279,7 +287,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         LocalePreferences.saveDeviceLocale(newConfig.locale);
     }
@@ -300,11 +308,11 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
-    public void setBackgroundSyncSafe(boolean backgroundSyncSafe){
+    public void setBackgroundSyncSafe(boolean backgroundSyncSafe) {
         this.backgroundSyncSafe = backgroundSyncSafe;
     }
 
-    public boolean isBackgroundSyncSafe(){
+    public boolean isBackgroundSyncSafe() {
         return this.backgroundSyncSafe;
     }
 
@@ -345,11 +353,11 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         // md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
 
-        ActivityManager am = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
         int memoryClass = am.getMemoryClass();
 
         PerformanceTuningUtil.updateMaxPrefetchCaseBlock(
-                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap(memoryClass * 1024 * 1024));
+                PerformanceTuningUtil.guessLargestSupportedBulkCaseFetchSizeFromHeap((long) memoryClass * 1024 * 1024));
     }
 
     public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
@@ -358,6 +366,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             // CommCareSessionService, close it and open a new one
             SessionRegistrationHelper.unregisterSessionExpiration();
             if (this.sessionServiceIsBound) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session to start a new one");
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
@@ -370,6 +379,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session");
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
@@ -383,10 +393,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     protected void cancelWorkManagerTasks() {
-        // Cancel form Submissions for this user
         if (currentApp != null) {
             WorkManager.getInstance(this).cancelUniqueWork(
                     FormSubmissionHelper.getFormSubmissionRequestName(currentApp.getUniqueId()));
+            currentApp.getPrimeEntityCacheHelper().cancelWork();
         }
     }
 
@@ -425,12 +435,13 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             analyticsInstance = FirebaseAnalytics.getInstance(this);
         }
         analyticsInstance.setUserId(getUserIdOrNull());
+
         return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
         String[] components = BuildConfig.VERSION_NAME.split("\\.");
-        int[] versions = new int[] {0, 0, 0};
+        int[] versions = new int[]{0, 0, 0};
         for (int i = 0; i < components.length; i++) {
             versions[i] = Integer.parseInt(components[i]);
         }
@@ -475,7 +486,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     @NonNull
     public String getPhoneId() {
-        /**
+        /*
          * https://source.android.com/devices/tech/config/device-identifiers
          * https://issuetracker.google.com/issues/129583175#comment10
          * Starting from Android 10, apps cannot access non-resettable device ids unless they have special career permission.
@@ -519,7 +530,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private void initializeAnAppOnStartup() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
-        if (!"".equals(lastAppId)) {
+        if (!lastAppId.isEmpty()) {
             ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 AppUtils.initFirstUsableAppRecord();
@@ -550,7 +561,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         } catch (Exception e) {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
-            e.printStackTrace();
             ForceCloseLogger.reportExceptionInBg(e);
             CrashUtil.reportException(e);
             resourceState = STATE_CORRUPTED;
@@ -576,7 +586,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public void unseat(ApplicationRecord record) {
         // cancel all Workmanager tasks for the unseated record
         WorkManager.getInstance(CommCareApplication.instance())
-                .cancelAllWorkByTag(record.getApplicationId());
+                .cancelAllWorkByTag(record.getUniqueId());
         MissingMediaDownloadHelper.cancelAllDownloads();
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
@@ -736,7 +746,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                 synchronized (serviceLock) {
                     mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-                    mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
+                    mBoundService = ((CommCareSessionService.LocalBinder) service).getService();
                     mBoundService.showLoggedInNotification(null);
 
                     // Don't let anyone touch this until it's logged in
@@ -797,6 +807,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                         purgeLogs();
                         cleanRawMedia();
 
+                        getCurrentApp().getPrimeEntityCacheHelper().clearState();
+                        PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker();
                     }
 
                     TimedStatsTracker.registerStartSession();
@@ -849,7 +861,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
         PeriodicWorkRequest formSubmissionRequest =
                 new PeriodicWorkRequest.Builder(FormSubmissionWorker.class, PERIODICITY_FOR_FORM_SUBMISSION_IN_HOURS, TimeUnit.HOURS)
-                        .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                        .addTag(getCurrentAppId())
                         .setConstraints(constraints)
                         .setBackoffCriteria(
                                 BackoffPolicy.EXPONENTIAL,
@@ -858,7 +870,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                         .build();
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentApp().getUniqueId()),
+                FormSubmissionHelper.getFormSubmissionRequestName(getCurrentAppId()),
                 ExistingPeriodicWorkPolicy.KEEP,
                 formSubmissionRequest
         );
@@ -875,7 +887,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
             PeriodicWorkRequest updateRequest =
                     new PeriodicWorkRequest.Builder(UpdateWorker.class, UpdateHelper.getAutoUpdatePeriodicity(), TimeUnit.HOURS)
-                            .addTag(getCurrentApp().getAppRecord().getApplicationId())
+                            .addTag(getCurrentAppId())
                             .setConstraints(constraints)
                             .setBackoffCriteria(
                                     BackoffPolicy.EXPONENTIAL,
@@ -922,7 +934,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     /**
      * Whether the current login is a "demo" mode login.
-     *
      * Returns a provided default value if there is no active user login
      */
     public static boolean isInDemoMode(boolean defaultValue) {
@@ -977,8 +988,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public static boolean isSessionActive() {
         try {
             return CommCareApplication.instance().getSession() != null;
-        }
-        catch (SessionUnavailableException e){
+        } catch (SessionUnavailableException e) {
             return false;
         }
     }
@@ -1156,6 +1166,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     public void setInvalidateCacheFlag(boolean b) {
         invalidateCacheOnRestore = b;
+    }
+
+    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) {
+        encryptionKeyProvider = provider;
+    }
+
+    public EncryptionKeyProvider getEncryptionKeyProvider() {
+        return encryptionKeyProvider;
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {
