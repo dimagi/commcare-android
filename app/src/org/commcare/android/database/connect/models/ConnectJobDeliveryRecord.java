@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.net.ssl.SSLException;
+
 /**
  * Data class for holding info related to a Connect job delivery
  *
@@ -78,33 +80,26 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         flags = new ArrayList<>();
     }
 
-    public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException, ParseException {
+    public static ConnectJobDeliveryRecord fromJson(JSONObject json, int jobId) throws JSONException {
         int deliveryId = -1;
-        String dateString = "(error)";
-        try {
-            ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
-            delivery.jobId = jobId;
-            delivery.lastUpdate = new Date();
+        ConnectJobDeliveryRecord delivery = new ConnectJobDeliveryRecord();
+        delivery.jobId = jobId;
+        delivery.lastUpdate = new Date();
 
-            deliveryId = json.getInt(META_ID);
-            delivery.deliveryId = deliveryId;
-            dateString = json.getString(META_DATE);
-            delivery.date = DateUtils.parseDateTime(dateString);
-            delivery.status = json.getString(META_STATUS);
-            delivery.unitName = json.getString(META_UNIT_NAME);
-            delivery.slug = json.getString(META_SLUG);
-            delivery.entityId = json.getString(META_ENTITY_ID);
-            delivery.entityName = json.getString(META_ENTITY_NAME);
-            delivery.reason = json.getString(META_REASON);
+        deliveryId = json.getInt(META_ID);
+        delivery.deliveryId = deliveryId;
+        String dateString = json.getString(META_DATE);
+        delivery.date = DateUtils.parseDateTime(dateString);
+        delivery.status = json.getString(META_STATUS);
+        delivery.unitName = json.getString(META_UNIT_NAME);
+        delivery.slug = json.getString(META_SLUG);
+        delivery.entityId = json.getString(META_ENTITY_ID);
+        delivery.entityName = json.getString(META_ENTITY_NAME);
+        delivery.reason = json.getString(META_REASON);
 
-            delivery.flags = ConnectJobDeliveryFlagRecord.fromJson(json.getJSONObject(META_FLAGS), deliveryId);
+        delivery.flags = ConnectJobDeliveryFlagRecord.fromJson(json.getJSONObject(META_FLAGS), deliveryId);
 
-            return delivery;
-        } catch (Exception e) {
-            String message = String.format(Locale.getDefault(), "Error parsing delivery %d: date = '%s'", deliveryId, dateString);
-            CrashUtil.reportException(new Exception(message, e));
-            return null;
-        }
+        return delivery;
     }
 
     public int getDeliveryId() {
