@@ -111,7 +111,7 @@
                     android:layout_marginBottom="15dp"
                     android:paddingEnd="15dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:id="@+id/tvConnectMessage"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -119,6 +119,7 @@
                         android:layout_marginEnd="10dp"
                         android:textColor="@color/connect_warning_color"
                         android:textSize="14sp"
+                        android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
