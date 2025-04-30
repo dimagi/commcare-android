@@ -162,7 +162,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         lastWorkedDate = new Date();
     }
 
-    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException, ParseException {
+    public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
 
         job.jobId = json.getInt(META_JOB_ID);
@@ -190,7 +190,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
 
-        job.isActive = !json.optBoolean(META_IS_ACTIVE, true);
+        job.isActive = json.optBoolean(META_IS_ACTIVE, true);
 
         job.isUserSuspended = json.optBoolean(META_USER_SUSPENDED, false);
 
@@ -198,7 +198,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
         for (int i = 0; i < unitsJson.length(); i++) {
-            job.paymentUnits.add(ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId()));
+            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job.getJobId());
+            if(payment != null) {
+                job.paymentUnits.add(payment);
+            }
         }
 
         if (job.claimed) {

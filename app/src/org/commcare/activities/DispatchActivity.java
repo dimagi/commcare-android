@@ -12,18 +12,15 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
@@ -52,10 +49,14 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
     public static final String SESSION_REBUILD_REQUEST = "session_rebuild_request";
+
+    public static final String REDIRECT_TO_CONNECT_OPPORTUNITY_INFO = "redirect-to-connect-opportunity-info";
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
     public static final int RECOVERY_MEASURES = 3;
+    private boolean connectIdManagedLogin;
+    private boolean connectManagedLogin;
 
 
     /**
@@ -81,6 +82,9 @@ public class DispatchActivity extends AppCompatActivity {
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
+    private boolean redirectToConnectHome = false;
+    private boolean redirectToConnectOpportunityInfo = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,7 +191,7 @@ public class DispatchActivity extends AppCompatActivity {
                     }
                 } else if (!CommCareApplication.instance().getSession().isActive()) {
                     launchLoginScreen();
-                } else if (needAnotherAppLogin()){
+                } else if (needAnotherAppLogin()) {
                     CommCareApplication.instance().closeUserSession();
                     launchLoginScreen();
                 } else if (isExternalLaunch()) {
@@ -197,8 +201,14 @@ public class DispatchActivity extends AppCompatActivity {
                         !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
-                }
-                else {
+                } else if(redirectToConnectHome) {
+                    redirectToConnectHome = false;
+                    CommCareApplication.instance().closeUserSession();
+                    ConnectIDManager.getInstance().goToConnectJobsList(this);
+                } else if(redirectToConnectOpportunityInfo) {
+                    redirectToConnectOpportunityInfo = false;
+                    ConnectIDManager.getInstance().goToActiveInfoForJob(this, true);
+                } else {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
@@ -314,13 +324,19 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
+        i.putExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, connectIdManagedLogin);
         startFromLogin = false;
+        clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
     }
 
     public static boolean useRootMenuHomeActivity() {
         return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
                 CommCareApplication.instance().isConsumerApp();
+    }
+
+    private void clearSessionEndpointAppId() {
+        getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
     }
 
     /**
@@ -426,8 +442,9 @@ public class DispatchActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (intent != null && intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false)) {
-            this.needToExecuteRecoveryMeasures = true;
+        if (intent != null) {
+            needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
+            redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -455,12 +472,17 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false);
+                    connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
                 return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    shouldFinish = true;
+                    shouldFinish = !connectManagedLogin;
+                    if(connectManagedLogin) {
+                        redirectToConnectHome = true;
+                    }
                     return;
                 } else {
                     userTriggeredLogout = true;

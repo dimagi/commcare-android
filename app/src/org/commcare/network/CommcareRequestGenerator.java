@@ -8,6 +8,10 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.network.ConnectSsoHelper;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -16,9 +20,11 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -143,15 +149,18 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             params.put("skip_fixtures", "true");
         }
 
+        AuthInfo auth = buildAuth();
         requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 baseUri,
                 params,
                 getHeaders(syncToken),
-                new AuthInfo.ProvidedAuth(username, password),
+                auth,
                 null);
 
-        return requester.makeRequest();
+        Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
+        return response;
     }
 
     public static HashMap<String, String> getHeaders(String lastToken) {
@@ -165,9 +174,44 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return headers;
     }
 
+    private AuthInfo buildAuth() throws TokenRequestDeniedException, TokenUnavailableException {
+        if (username != null) {
+            AuthInfo.TokenAuth tokenAuth = ConnectIDManager.getHqTokenIfLinked(username);
+            if (tokenAuth != null) {
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
+                return tokenAuth;
+            } else {
+                if (ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
+                    Logger.exception("Token auth error for connect managed app",
+                            new Throwable("No token Auth available for a connect managed app"));
+                }
+
+                try {
+                    CommCareApplication.instance().getSession().getLoggedInUser();
+                    //Use CurrentAuth (possibly token) if we have an active session and logged in user
+                    return new AuthInfo.CurrentAuth();
+                } catch (Exception e) {
+                    Logger.exception("Error encountered while building auth", e);
+                    //No token if no session
+                    return new AuthInfo.ProvidedAuth(username, password);
+                }
+            }
+        }
+
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying no auth");
+        return new AuthInfo.NoAuth();
+    }
+
+    private void checkForTokenError(Response<ResponseBody> response, AuthInfo auth) {
+        if(response.code() == 401 && auth instanceof AuthInfo.TokenAuth) {
+            Logger.exception("Invalid HQ SSO token", new Exception("Invalid HQ token"));
+            ConnectSsoHelper.discardTokens(CommCareApplication.instance(), username);
+        }
+    }
+
     @Override
     public Response<ResponseBody> makeKeyFetchRequest(String baseUri, @Nullable Date lastRequest) throws IOException {
-        Multimap params = ArrayListMultimap.create();
+        Multimap<String, String> params = ArrayListMultimap.create();
 
         if (lastRequest != null) {
             params.put("last_issued", DateUtils.formatTime(lastRequest, DateUtils.FORMAT_ISO8601));
