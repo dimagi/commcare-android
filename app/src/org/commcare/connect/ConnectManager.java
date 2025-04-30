@@ -19,9 +19,11 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -53,6 +55,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -64,15 +69,6 @@ public class ConnectManager {
 
     public static final int PENDING_ACTION_NONE = 0;
 
-    /**
-     * Enum representing the current state of ConnectID
-     */
-    public enum ConnectIdStatus {
-        NotIntroduced,
-        Registering,
-        LoggedIn
-    }
-
 
     /**
      * Interface for handling callbacks when a ConnectID activity finishes
@@ -82,10 +78,10 @@ public class ConnectManager {
     }
 
     private static ConnectManager manager = null;
-    private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
+    private ConnectIDManager.ConnectIdStatus connectStatus = ConnectIDManager.ConnectIdStatus.NotIntroduced;
     private Context parentActivity;
 
-    private String primedAppIdForAutoLogin = null;
+    private static String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -99,33 +95,15 @@ public class ConnectManager {
         return manager;
     }
 
-    public static ConnectIdStatus getStatus() {
-        return getInstance().connectStatus;
-    }
-
-    public static void setStatus(ConnectIdStatus connectStatus) {
-        getInstance().connectStatus = connectStatus;
-    }
-
-    public static void handleFinishedActivity(CommCareActivity<?> activity, int requestCode, int resultCode, Intent intent) {
-        getInstance().parentActivity = activity;
-
-//        if (!BiometricsHelper.handlePinUnlockActivityResult(requestCode, resultCode)) {
-//            if (requestCode == ConnectConstants.CONNECT_JOB_INFO && resultCode == AppCompatActivity.RESULT_OK) {
-//                goToConnectJobsList(activity);
-//            }
-//        }
-    }
-
     public static void init(Context parent) {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
 
-        if (manager.connectStatus == ConnectIdStatus.NotIntroduced) {
+        if (manager.connectStatus == ConnectIDManager.ConnectIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
-                manager.connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+                manager.connectStatus = registering ? ConnectIDManager.ConnectIdStatus.Registering : ConnectIDManager.ConnectIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -185,7 +163,13 @@ public class ConnectManager {
     }
 
     private ConnectJobRecord activeJob = null;
-    private int failedPinAttempts = 0;
+
+
+    public static boolean wasAppLaunchedFromConnect(String appId) {
+        String primed = primedAppIdForAutoLogin;
+        primedAppIdForAutoLogin = null;
+        return primed != null && primed.equals(appId);
+    }
 
     public static void setActiveJob(ConnectJobRecord job) {
         getInstance().activeJob = job;
@@ -279,6 +263,56 @@ public class ConnectManager {
                 }
             }, installUrl);
         }
+    }
+
+    public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
+                                                           String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
+        if (ConnectIDManager.getInstance().isloggedIn()) {
+            if (appLaunchedFromConnect) {
+                //Configure some things if we haven't already
+                ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context,
+                        appId, username);
+                if (record == null) {
+                    record = prepareConnectManagedApp(context, appId, username);
+                }
+
+                passwordOrPin = record.getPassword();
+            } else if (uiInAutoLogin) {
+                String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId,
+                        username);
+                passwordOrPin = record != null ? record.getPassword() : null;
+
+                if (record != null && record.isUsingLocalPassphrase()) {
+                    //Report to analytics so we know when this stops happening
+                    FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(seatedAppId);
+                }
+            }
+        }
+
+        return passwordOrPin;
+    }
+
+    public static ConnectLinkedAppRecord prepareConnectManagedApp(Context context, String appId, String username) {
+        //Create app password
+        String password = generatePassword();
+
+        //Store ConnectLinkedAppRecord (note worker already linked)
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.storeApp(context, appId, username, true, password, true, false);
+
+        return appRecord;
+    }
+
+    public static String generatePassword() {
+        int passwordLength = 20;
+
+        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < passwordLength; i++) {
+            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
+        }
+
+        return password.toString();
     }
 
     public static void launchApp(Activity activity, boolean isLearning, String appId) {

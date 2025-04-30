@@ -336,7 +336,9 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
-                        password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
+                        if (json.has(ConnectConstants.CONNECT_KEY_SECRET)) {
+                            password = json.getString(ConnectConstants.CONNECT_KEY_SECRET);
+                        }
 
                         if (json.has(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE)) {
                             recoveryPhone = json.getString(ConnectConstants.CONNECT_KEY_SECONDARY_PHONE);
