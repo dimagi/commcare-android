@@ -50,7 +50,7 @@ public class Permissions {
                                 permRequestCode,
                                 Localization.get("permission.all.title"),
                                 Localization.get("permission.all.message"));
-                dialog.showNonPersistentDialog();
+                dialog.showNonPersistentDialog(activity);
             } else {
                 permRequester.requestNeededPermissions(permRequestCode);
             }

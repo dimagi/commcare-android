@@ -349,7 +349,7 @@ public class ConnectIDManager {
 
 
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username, String password, ConnectActivityCompleteListener callback) {
-        StandardAlertDialog dialog = new StandardAlertDialog(activity,
+        StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.login_link_connectid_title),
                 activity.getString(R.string.login_link_connectid_message));
 
@@ -404,7 +404,7 @@ public class ConnectIDManager {
             return;
         }
 
-        StandardAlertDialog dialog = new StandardAlertDialog(activity,
+        StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.login_unlink_connectid_title),
                 activity.getString(R.string.login_unlink_connectid_message));
 

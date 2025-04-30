@@ -267,6 +267,7 @@
     <string name="choose_sound" cc:translatable="true">Choose Sound</string>
     <string name="choose_video" cc:translatable="true">Choose Video</string>
     <string name="choose_image" cc:translatable="true">Choose Image</string>
+    <string name="choose_document" cc:translatable="true">Choose Document</string>
     <string name="selected" cc:translatable="true">Selected: </string>
     <string name="select_answer" cc:translatable="true">Select Answer</string>
     <string name="save_form_as" cc:translatable="true">Name this form:</string>

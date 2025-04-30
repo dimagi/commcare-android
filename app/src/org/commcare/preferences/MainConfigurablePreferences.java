@@ -124,7 +124,7 @@ public class MainConfigurablePreferences
     }
 
     private void showAnalyticsOptOutDialog() {
-        StandardAlertDialog f = new StandardAlertDialog(getActivity(),
+        StandardAlertDialog f = new StandardAlertDialog(
                 Localization.get("analytics.opt.out.title"),
                 Localization.get("analytics.opt.out.message"));
 
@@ -137,7 +137,7 @@ public class MainConfigurablePreferences
         f.setNegativeButton(Localization.get("option.cancel"),
                 (dialog, which) -> dialog.dismiss());
 
-        f.showNonPersistentDialog();
+        f.showNonPersistentDialog(getActivity());
     }
 
     @Override
