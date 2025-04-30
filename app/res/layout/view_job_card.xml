@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/rootJobCardView"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="15dp"
+    app:cardElevation="10dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_job_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Infant Child Vaccination By Rama"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_job_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Check vaccine status"
+            android:textColor="@color/connect_grey"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_title"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_view_more"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/connect_job_info_view_more"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
+            android:textStyle="bold"/>
+
+
+        <TextView
+            android:id="@+id/tvDailyVisitTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/connect_job_info_delivery_hours"
+            android:textColor="@color/connect_grey"
+            android:textSize="12sp"
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tv_job_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="8:00 AM - 5:00 PM"
+            android:textColor="@color/connect_dark_blue_color"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle"
+            android:textStyle="bold"/>
+
+
+        <TextView
+            android:id="@+id/connect_job_end_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:gravity="end"
+            android:text="Complete Project by 01/31/2024"
+            android:textColor="@color/connect_subtext_color"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_time" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

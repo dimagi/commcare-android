@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:paddingVertical="18dp"
+        android:paddingStart="16dp"
+        android:background="@color/connect_blue_color"
+        android:gravity="start"
+        tools:ignore="RtlSymmetry">
+
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_menu_bar"
+            android:tint="@color/white"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text=""
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/notification_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@null"
+                android:paddingHorizontal="8dp"
+                android:src="@drawable/ic_notifications_24"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/menu_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:contentDescription="@null"
+                android:paddingHorizontal="8dp"
+                android:visibility="gone"
+                android:src="@drawable/ic_connect_action_overflow" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@+id/appBar"
+        android:background="@drawable/bottom_shadow" />
+</RelativeLayout>
