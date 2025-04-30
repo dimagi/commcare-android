@@ -113,8 +113,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
 
         requestSmsCode();
 
-        startHandler();
-
         setListener();
 
         return view;
@@ -136,11 +134,6 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
             username = savedInstanceState.getString(KEY_USER_NAME);
             smsTime = new DateTime(savedInstanceState.getLong(KEY_SMS_TIME));
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -204,6 +197,7 @@ public class ConnectIdUserDeactivateOTPVerificationFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        startHandler();
         requestInputFocus();
     }
 
