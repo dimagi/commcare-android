@@ -234,7 +234,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        binding.connectPhoneVerifyChange.setVisibility(callingClass == ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE ? View.VISIBLE : View.GONE);
+        binding.connectPhoneVerifyChange.setVisibility(callingClass == ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE || callingClass == ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE ? View.VISIBLE : View.GONE);
         requestInputFocus();
     }
 
@@ -566,7 +566,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             case ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        directions = navigateToConnectidPhoneNo(ConnectConstants.METHOD_CHANGE_PRIMARY, primaryPhone, ConnectConstants.CONNECT_REGISTRATION_CHANGE_PRIMARY_PHONE);
+                        directions = navigateToConnectidChangePhoneNo(primaryPhone);
                     } else {
                         directions = navigateToConnectidPin(ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN, user.getPrimaryPhone(), password, false, true);
                     }
@@ -577,7 +577,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        directions = navigateToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+                        directions = navigateToConnectidPhoneNo(primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     } else {
                         (refrenceActivity).recoveryAltPhone = secondaryPhone;
                         directions = navigateToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, (refrenceActivity).recoverPhone, (refrenceActivity).recoverSecret, true, false);
@@ -633,8 +633,11 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     }
 
-    private NavDirections navigateToConnectidPhoneNo(String method, String phone, int phase) {
+    private NavDirections navigateToConnectidPhoneNo(String phone, int phase) {
         return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidSignupFragment().setPhone(phone).setCallingClass(phase);
+    }
+    private NavDirections navigateToConnectidChangePhoneNo(String phone) {
+        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(phone);
     }
 
     private NavDirections navigateToConnectidPin(int phase, String phone, String password, boolean recover, boolean change) {
