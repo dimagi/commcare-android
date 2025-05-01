@@ -462,13 +462,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         try {
             SimpleDateFormat utcFormat = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT, Locale.getDefault());
-            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // input is in UTC
-
-            Date startTime = utcFormat.parse(dailyStart); // parsed as UTC
-            Date endTime = utcFormat.parse(dailyFinish); // parsed as UTC
-
+            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date startTime = utcFormat.parse(dailyStart);
+            Date endTime = utcFormat.parse(dailyFinish);
             SimpleDateFormat localFormat = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT, Locale.getDefault());
-            localFormat.setTimeZone(TimeZone.getDefault()); // convert to local time zone
 
             String startTimeLocal = localFormat.format(startTime);
             String endTimeLocal = localFormat.format(endTime);
