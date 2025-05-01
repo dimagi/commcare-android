@@ -8,6 +8,8 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -42,6 +44,12 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+    }
+
+    @Override
+    public void onResumeSessionSafe() {
+        super.onResumeSessionSafe();
+        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -105,7 +113,7 @@ public class StandardHomeActivity
     }
 
     void syncSubTextPressed() {
-        if(CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             CommCareNoficationManager.performIntentCalloutToNotificationsView(this);
         }
     }
@@ -259,5 +267,9 @@ public class StandardHomeActivity
     @Override
     void refreshCCUpdateOption() {
         invalidateOptionsMenu();
+    }
+
+    public void performSecondaryPhoneVerification() {
+        ConnectIDManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
     }
 }

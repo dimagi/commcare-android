@@ -121,6 +121,11 @@ public class ConnectLinkedAppRecord extends Persisted {
         return connectIdLinked;
     }
 
+    public void clearHqToken() {
+        hqToken = null;
+        hqTokenExpiration = new Date();
+    }
+
     public void setConnectIdLinked(boolean linked) {
         connectIdLinked = linked;
     }
