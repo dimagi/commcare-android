@@ -1,14 +1,10 @@
 package org.commcare.utils;
 
 import junit.framework.Assert;
-
-import org.javarosa.core.storage.Shoe;
+import org.commcare.util.EncryptionUtils;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Vector;
-
-import static org.junit.Assert.assertThrows;
 
 /**
  * Unit test for the encryption and decryption of a string
