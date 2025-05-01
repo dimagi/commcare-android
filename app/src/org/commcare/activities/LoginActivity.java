@@ -36,7 +36,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -120,6 +119,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private ConnectIDManager connectIDManager;
     private ConnectIDManager.ConnectAppMangement connectAppState = Unmanaged;
+    private boolean connectLaunchPerformed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,9 +139,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         connectIDManager.init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        ///TODO uncommenct with connect code
-//        appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
-//        connectLaunchPerformed = false;
+        appLaunchedFromConnect = connectIDManager.wasAppLaunchedFromConnect(presetAppId);
+        connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
             uiController.restoreLastUser();
@@ -404,6 +403,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            ///TODO uncomment with connect code
+//            passwordOrPin = ConnectManager.checkAutoLoginAndOverridePassword(this,
+//                    presetAppId, username, passwordOrPin, appLaunchedFromConnect,
+//                    loginManagedByConnectId());
+
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
