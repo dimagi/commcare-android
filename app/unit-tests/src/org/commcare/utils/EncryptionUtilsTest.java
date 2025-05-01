@@ -1,5 +1,7 @@
 package org.commcare.utils;
 
+import android.util.Base64;
+
 import junit.framework.Assert;
 import org.commcare.util.EncryptionUtils;
 import org.junit.Test;
@@ -33,7 +35,7 @@ public class EncryptionUtilsTest {
 
         EncryptionKeyAndTransform kat = provider.getKey(null, true);
         String encryptedString = EncryptionUtils.encrypt(testBytes, kat.getKey(), kat.getTransformation(), true);
-        byte[] encrypted = encryptedString.getBytes(Charset.forName("UTF-8"));
+        byte[] encrypted = org.commcare.util.Base64.decode(encryptedString);
 
         kat = provider.getKey(null, false);
         byte[] decrypted = EncryptionUtils.decrypt(encrypted, kat.getKey(), kat.getTransformation(), true);
