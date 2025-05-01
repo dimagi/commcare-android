@@ -17,7 +17,6 @@ public class CrashUtil {
     private static final String APP_NAME = "app_name";
     private static final String DOMAIN = "domain";
     private static final String DEVICE_ID = "device_id";
-    private static final String CCC_USER = "ccc_user_id";
 
     private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
 
@@ -54,28 +53,6 @@ public class CrashUtil {
     public static void log(String message) {
         if (crashlyticsEnabled) {
             FirebaseCrashlytics.getInstance().log(message);
-        }
-    }
-
-    /**
-     * Registers the current Connect user with Firebase Crashlytics for error tracking.
-     * <p>
-     * If Crashlytics is enabled and a Connect ID is configured, this method retrieves
-     * the user ID from ConnectManager and sets it as a custom key in Crashlytics.
-     * The method also calls registerUserData, which sets the Firebase user as the Connect ID
-     * <p>
-     * In case of any exceptions during this process, the exception is recorded in
-     * Crashlytics to aid debugging.
-     */
-    public static void registerConnectUser() {
-        if (crashlyticsEnabled && ConnectIDManager.getInstance().isloggedIn()) {
-            try {
-                registerUserData();
-                String userId = ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
-                FirebaseCrashlytics.getInstance().setCustomKey(CCC_USER, userId);
-            } catch (Exception e) {
-                FirebaseCrashlytics.getInstance().recordException(e);
-            }
         }
     }
 }
