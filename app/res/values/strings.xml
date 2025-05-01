@@ -540,6 +540,7 @@
     <string name="connect_messaging_channel_preview_them">Them</string>
     <string name="connect_messaging_channel_consent_title">Consent to channel</string>
     <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
+    <string name="connect_messaging_channel_consent_failure_msg">Failed to grant consent to channel</string>
     <string name="connect_messaging_channel_consent_accept">Accept</string>
     <string name="connect_messaging_channel_consent_decline">Decline</string>
 
