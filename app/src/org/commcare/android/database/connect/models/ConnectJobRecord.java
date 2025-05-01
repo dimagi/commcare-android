@@ -6,24 +6,19 @@ import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.utils.DateUtils;
-import org.joda.time.LocalDate;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
 
 /**
  * Data class for holding info related to a Connect job
@@ -466,22 +461,20 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                //DateTimeFormatter is more efficient than SimpleDateFormat
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_SOURCE_FORMAT);
-                LocalTime start = LocalTime.parse(dailyStart, formatter);
-                LocalTime end = LocalTime.parse(dailyFinish, formatter);
-                formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_TARGET_FORMAT);
-                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
-            }else{
-                // remove this code whenever we change minSdk to 26
-                SimpleDateFormat formatter = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT);
-                Date start = formatter.parse(dailyStart);
-                Date end = formatter.parse(dailyFinish);
-                formatter = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT);
-                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
-            }
-        } catch(Exception e) {
+            SimpleDateFormat utcFormat = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT, Locale.getDefault());
+            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC")); // input is in UTC
+
+            Date startTime = utcFormat.parse(dailyStart); // parsed as UTC
+            Date endTime = utcFormat.parse(dailyFinish); // parsed as UTC
+
+            SimpleDateFormat localFormat = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT, Locale.getDefault());
+            localFormat.setTimeZone(TimeZone.getDefault()); // convert to local time zone
+
+            String startTimeLocal = localFormat.format(startTime);
+            String endTimeLocal = localFormat.format(endTime);
+
+            return String.format(WORKING_HOURS_PATTERN, startTimeLocal, endTimeLocal);
+        } catch (Exception e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
             return null;
         }
