@@ -44,7 +44,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 2;
     private int mDeveloperModeClicks = 0;
 
-    @Override 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_manager);
