@@ -221,6 +221,7 @@ public class RecordingFragment extends DialogFragment {
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 audioRecordingService = null;
+                audioRecordingServiceBounded = false;
             }
         };
     }
@@ -473,8 +474,6 @@ public class RecordingFragment extends DialogFragment {
 
     private void unbindAudioRecordingService() {
         if (audioRecordingServiceBounded) {
-            audioRecordingServiceBounded = false;
-
             requireActivity().unbindService(audioRecordingServiceConnection);
             requireActivity()
                     .stopService(new Intent(requireActivity(), AudioRecordingService.class));
