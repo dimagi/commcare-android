@@ -154,6 +154,6 @@ public class ReportingUtils {
             }
         }
 
-        return "";
+        return null;
     }
 }

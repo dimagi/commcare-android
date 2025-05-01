@@ -46,7 +46,9 @@ public class CrashUtil {
     public static void registerUserData() {
         if (crashlyticsEnabled) {
             String user = ReportingUtils.getUserForCrashes();
-            FirebaseCrashlytics.getInstance().setUserId(user);
+            if(user != null) {
+                FirebaseCrashlytics.getInstance().setUserId(user);
+            }
         }
     }
 
