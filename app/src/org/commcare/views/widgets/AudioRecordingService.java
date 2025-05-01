@@ -1,5 +1,7 @@
 package org.commcare.views.widgets;
 
+import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,6 +16,10 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
@@ -23,12 +29,13 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
-
-import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
-
+/**
+ * A bounded foreground service intended to be bound to the RecordingFragment for managing audio recording
+ * operations. Due to its persistent notification, the system treats it with higher importance, reducing the
+ * likelihood of interruptions during recordings.
+ *
+ * @author avazirna
+ **/
 public class AudioRecordingService extends Service {
     private static final int HEAAC_SAMPLE_RATE = 44100;
     private static final int AMRNB_SAMPLE_RATE = 8000;
@@ -63,7 +70,7 @@ public class AudioRecordingService extends Service {
         this.stopForeground(true);
     }
 
-    private void resetRecording(){
+    private void resetRecording() {
         if (recorder != null) {
             recorder.release();
             recorder = null;
@@ -130,7 +137,8 @@ public class AudioRecordingService extends Service {
             recorder.prepare();
             Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Preparing recording: " + fileName
                     + " | " + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
-                    + " | " + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC : MediaRecorder.AudioEncoder.AMR_NB));
+                    + " | " + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC :
+                    MediaRecorder.AudioEncoder.AMR_NB));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -174,7 +182,7 @@ public class AudioRecordingService extends Service {
         return recorder.getActiveRecordingConfiguration();
     }
 
-    public boolean isRecorderActive(){
+    public boolean isRecorderActive() {
         return recorder != null;
     }
 

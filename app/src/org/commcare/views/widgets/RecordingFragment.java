@@ -176,7 +176,8 @@ public class RecordingFragment extends DialogFragment {
     private void startRecording() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (MediaUtil.isRecordingActive(getContext())) {
-                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT)
+                        .show();
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording cancelled due to an ongoing recording");
                 return;
             }
@@ -192,7 +193,8 @@ public class RecordingFragment extends DialogFragment {
         } else {
             requireActivity().startService(serviceIntent);
         }
-        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(), Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(),
+                Context.BIND_AUTO_CREATE);
     }
 
     private ServiceConnection getAudioRecordingServiceConnection() {
@@ -209,8 +211,8 @@ public class RecordingFragment extends DialogFragment {
                 recordingInProgress();
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
 
-                // Extend the user extension if about to expire, this is to prevent the session from expiring in the
-                // middle of a recording
+                // Extend the user extension if about to expire, this is to prevent the session from expiring
+                // in the middle of a recording
                 CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
 
                 audioRecordingServiceBounded = true;
@@ -450,8 +452,8 @@ public class RecordingFragment extends DialogFragment {
             }
 
             Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream().filter(config ->
-                            config.getClientAudioSessionId() == audioRecordingService.getActiveRecordingConfiguration()
-                                    .getClientAudioSessionId())
+                    config.getClientAudioSessionId() == audioRecordingService.getActiveRecordingConfiguration()
+                            .getClientAudioSessionId())
                     .findAny();
             return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
         } else {
