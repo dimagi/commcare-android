@@ -403,11 +403,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
-            ///TODO uncomment with connect code
-//            passwordOrPin = ConnectManager.checkAutoLoginAndOverridePassword(this,
-//                    presetAppId, username, passwordOrPin, appLaunchedFromConnect,
-//                    loginManagedByConnectId());
-
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
