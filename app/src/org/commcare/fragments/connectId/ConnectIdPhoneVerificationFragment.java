@@ -577,7 +577,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
             case ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE -> {
                 if (success) {
                     if (changeNumber) {
-                        directions = navigateToConnectidPhoneNo(primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+                        directions = navigateToConnectidSignupFragment(primaryPhone, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
                     } else {
                         (refrenceActivity).recoveryAltPhone = secondaryPhone;
                         directions = navigateToConnectidPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, (refrenceActivity).recoverPhone, (refrenceActivity).recoverSecret, true, false);
@@ -633,7 +633,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     }
 
-    private NavDirections navigateToConnectidPhoneNo(String phone, int phase) {
+    private NavDirections navigateToConnectidSignupFragment(String phone, int phase) {
         return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidSignupFragment().setPhone(phone).setCallingClass(phase);
     }
     private NavDirections navigateToConnectidChangePhoneNo(String phone) {
