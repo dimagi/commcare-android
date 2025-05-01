@@ -131,6 +131,8 @@ public class ConnectIDManager {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
+                CrashUtil.registerUserData();
+
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
@@ -229,6 +231,7 @@ public class ConnectIDManager {
     public void completeSignin() {
         connectStatus = ConnectIdStatus.LoggedIn;
         scheduleHearbeat();
+        CrashUtil.registerUserData();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {

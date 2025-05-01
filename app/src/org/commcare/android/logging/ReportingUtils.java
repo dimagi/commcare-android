@@ -144,13 +144,16 @@ public class ReportingUtils {
     }
 
     public static String getUserForCrashes() {
-        try {
-            if(ConnectIDManager.getInstance().isloggedIn()) {
-                return ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+        String user = getUser();
+        if(user.isEmpty()) {
+            try {
+                if (ConnectIDManager.getInstance().isloggedIn()) {
+                    return ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+                }
+            } catch (Exception ignored) {
             }
-        } catch(Exception ignored) {
         }
 
-        return getUser();
+        return "";
     }
 }
