@@ -46,7 +46,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
-        } else if (requestCode == ConnectConstants.CONNECTID_REQUEST_CODE) {
+        } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
             handleRedirection(data);
         }
         if (requestCode == RESULT_OK) {

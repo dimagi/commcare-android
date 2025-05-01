@@ -581,7 +581,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void userPressedOpportunityStatus() {
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, true);
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, i);
         finish();
     }
 
