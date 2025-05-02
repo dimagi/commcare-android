@@ -45,7 +45,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            updateButtonEnabled();
+            validatePhoneAndUpdateButton();
         }
 
         @Override
@@ -80,7 +80,7 @@ public class ConnectIdPhoneFragment extends Fragment {
             existingPhone = ConnectIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
         }
         binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
-        binding.connectPrimaryPhoneButton.setOnClickListener(v -> checkPhoneNumber());
+        binding.connectPrimaryPhoneButton.setOnClickListener(v -> isPhoneNoValidAndAvailable());
         //Special case for initial reg. screen. Remembering phone number before account has been created
         ConnectUserRecord user = ConnectManager.getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
@@ -111,7 +111,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }
 
-    private void updateButtonEnabled() {
+    private void validatePhoneAndUpdateButton() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
 
@@ -119,7 +119,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneButton.setEnabled(valid);
     }
 
-    void displayNumber(String fullNumber) {
+    private void displayNumber(String fullNumber) {
         int code = PhoneNumberHelper.getInstance(getContext()).getCountryCodeFromLocale(getContext());
         if (fullNumber != null && fullNumber.length() > 0) {
             code = PhoneNumberHelper.getInstance(getContext()).getCountryCode(fullNumber);
@@ -140,7 +140,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.countryCode.setText(codeText);
     }
 
-    private void updatePhoneNumberCall() {
+    private void requestPhoneNumberUpdate() {
         String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
         ConnectUserRecord user = ConnectManager.getUser(getContext());
@@ -196,7 +196,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneButton.setEnabled(isButtonEnabled);
     }
 
-    private void checkPhoneNumber() {
+    private void isPhoneNoValidAndAvailable() {
         String phone =
                 binding.countryCode.getText().toString()
                         + binding.connectPrimaryPhoneInput.getText().toString();
@@ -216,7 +216,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                             public void processSuccess(int responseCode, InputStream responseData) {
                                 resetPhoneNumber();
                                 displayMessage(getString(R.string.connect_phone_available), true);
-                                updatePhoneNumberCall();
+                                requestPhoneNumberUpdate();
                             }
 
                             @Override
