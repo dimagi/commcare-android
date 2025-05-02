@@ -1,6 +1,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/PhoneFragment"
         android:layout_width="match_parent"
@@ -8,8 +8,15 @@
         android:background="@color/white"
         tools:context="org.commcare.fragments.connectId.ConnectIDSignupFragment">
 
-        <LinearLayout
+        <ScrollView
             android:id="@+id/firstLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/ll_recover"
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -217,13 +224,14 @@
                 android:drawableRight="@drawable/connect_right_arrow"
                 />
 
-        </LinearLayout>
-
+            </LinearLayout>
+        </ScrollView>
 
         <LinearLayout
+            android:id="@+id/ll_recover"
             android:layout_width="match_parent"
-            android:layout_gravity="bottom"
             android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_height="wrap_content">
 
             <View
@@ -262,5 +270,5 @@
 
             </LinearLayout>
         </LinearLayout>
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

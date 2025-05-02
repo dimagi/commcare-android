@@ -119,6 +119,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private ConnectIDManager connectIDManager;
     private ConnectIDManager.ConnectAppMangement connectAppState = Unmanaged;
+    private boolean connectLaunchPerformed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +140,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         connectIDManager.init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = connectIDManager.wasAppLaunchedFromConnect(presetAppId);
+        connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
             uiController.restoreLastUser();

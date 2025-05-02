@@ -201,7 +201,7 @@ public class BiometricsHelper {
             return false;
         }
 
-        activity.startActivityForResult(enrollIntent, IntentIntegrator.REQUEST_CODE);
+        activity.startActivityForResult(enrollIntent, ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE);
         return true;
     }
 }

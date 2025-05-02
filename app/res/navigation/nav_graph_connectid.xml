@@ -101,6 +101,9 @@
         <action
             android:id="@+id/action_connectid_phone_verify_to_connectid_signup_fragment2"
             app:destination="@id/connectid_signup_fragment" />
+        <action
+            android:id="@+id/action_connectid_phone_verify_to_connectid_phoneNo"
+            app:destination="@id/connectid_phoneNo" />
     </fragment>
 
     <dialog
@@ -319,6 +322,21 @@
             app:nullable="true" />
         <argument
             android:name="password"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectid_phoneNo"
+        android:name="org.commcare.fragments.connectId.ConnectIdPhoneFragment"
+        android:label="fragment_connectid_phoneNo"
+        tools:layout="@layout/screen_connect_primary_phone">
+        <action
+            android:id="@+id/action_connectid_phoneNo_to_connectid_phone_verify"
+            app:destination="@id/connectid_phone_verify"
+            app:popUpTo="@id/connectid_phoneNo" />
+        <argument
+            android:name="phone"
             app:argType="string"
             app:nullable="true" />
     </fragment>

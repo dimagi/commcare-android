@@ -131,11 +131,6 @@ public class ConnectIDManager {
         }
     }
 
-    public boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = primedAppIdForAutoLogin;
-        primedAppIdForAutoLogin = null;
-        return primed != null && primed.equals(appId);
-    }
 
     public String generatePassword() {
         int passwordLength = 20;
@@ -497,6 +492,12 @@ public class ConnectIDManager {
         }
 
         return null;
+    }
+
+    public boolean wasAppLaunchedFromConnect(String appId) {
+        String primed = primedAppIdForAutoLogin;
+        primedAppIdForAutoLogin = null;
+        return primed != null && primed.equals(appId);
     }
 
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
