@@ -49,14 +49,11 @@ public class DispatchActivity extends AppCompatActivity {
     public static final String START_FROM_LOGIN = "process_successful_login";
     public static final String EXECUTE_RECOVERY_MEASURES = "execute_recovery_measures";
     public static final String SESSION_REBUILD_REQUEST = "session_rebuild_request";
-
     public static final String REDIRECT_TO_CONNECT_OPPORTUNITY_INFO = "redirect-to-connect-opportunity-info";
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
     public static final int RECOVERY_MEASURES = 3;
-    private boolean connectIdManagedLogin;
-    private boolean connectManagedLogin;
 
 
     /**
@@ -68,7 +65,8 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
-
+    private boolean connectIdManagedLogin;
+    private boolean connectManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;

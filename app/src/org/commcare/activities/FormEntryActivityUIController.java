@@ -331,7 +331,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
                 //Did we jump at all? (not sure how we could have, but there might be a mismatch)
                 if (lastValidIndex.equals(startIndex)) {
-                    //If not, don't even bother changing the view. 
+                    //If not, don't even bother changing the view.
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
                     activity.triggerUserQuitInput();

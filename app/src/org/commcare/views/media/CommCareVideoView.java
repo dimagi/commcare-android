@@ -1,7 +1,6 @@
 package org.commcare.views.media;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.AttributeSet;
 import android.widget.VideoView;
 
