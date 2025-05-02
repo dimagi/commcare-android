@@ -8,247 +8,229 @@
         android:background="@color/white"
         tools:context="org.commcare.fragments.connectId.ConnectIDSignupFragment">
 
-
-        <LinearLayout
-            android:id="@+id/llTopBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <include
-                android:id="@+id/commonAppBar"
-                layout="@layout/connectid_common_title_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-
         <ScrollView
             android:id="@+id/firstLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@+id/llTopBar"
-            app:layout_constraintBottom_toTopOf="@+id/ll_recover"
+            app:layout_constraintStart_toStartOf="parent"
             android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/company_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginTop="60dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_dimagi_logo" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="40dp"
+                android:background="@color/connect_light_grey" />
+
+            <TextView
+                android:id="@+id/phone_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/connect_registration_title"
+                android:textColor="@color/connect_dark_blue_color"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/phone_sub_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:textStyle="normal"
+                android:text="@string/connect_registration_title"
+                android:textColor="@color/connect_subtext"
+                android:textSize="12sp" />
+
             <LinearLayout
+                android:id="@+id/name_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                >
-
-                <ImageView
-                    android:id="@+id/company_logo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="60dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/ic_dimagi_logo" />
-
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="fill_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="40dp"
-                    android:background="@color/connect_light_grey" />
-
-                <org.commcare.views.connect.connecttextview.ConnectBoldTextView
-                    android:id="@+id/phone_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="ConnectId Signup"
-                    android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="16sp" />
-
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                    android:id="@+id/phone_sub_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:fontFamily="@font/roboto_regular"
-                    android:text="ConnectId Signup"
-                    android:textColor="@color/connect_subtext"
-                    android:textSize="12sp" />
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="start"
+                android:orientation="horizontal">
 
                 <LinearLayout
-                    android:id="@+id/name_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="start"
-                    android:orientation="horizontal">
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/connect_side_icon_bg"
+                    android:gravity="center">
 
-                    <LinearLayout
-                        android:layout_width="42dp"
-                        android:layout_height="42dp"
-                        android:background="@drawable/connect_side_icon_bg"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="1dp"
-                            android:src="@drawable/ic_outline_person_24" />
-
-                    </LinearLayout>
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/nameTextValue"
-                        android:layout_width="match_parent"
-                        android:layout_height="55dp"
-                        android:layout_marginLeft="16dp"
-                        android:background="@drawable/connect_edit_text_bg"
-                        android:hint="@string/connect_register_name"
-                        android:imeOptions="actionNext"
-                        android:paddingStart="16dp"
-                        android:textColorHint="@color/connect_grey"
-                        tools:ignore="RtlSymmetry" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/phone_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="42dp"
-                        android:layout_height="42dp"
-                        android:background="@drawable/connect_side_icon_bg"
-                        android:gravity="center">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="1dp"
-                            android:src="@drawable/ic_outline_phone_24" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="16dp"
-                            android:background="@drawable/connect_edit_text_bg"
-                            android:padding="0dp">
-
-                            <EditText
-                                android:id="@+id/countryCode"
-                                android:layout_width="64dp"
-                                android:layout_height="55dp"
-                                android:background="@null"
-                                android:gravity="center"
-                                android:hint="@string/connect_phone_country_code_default"
-                                android:inputType="number"
-                                android:text="@string/connect_phone_country_code_default"
-                                android:textColorHint="@color/connect_grey" />
-
-                            <View
-                                android:layout_width="1dp"
-                                android:layout_height="match_parent"
-                                android:layout_marginVertical="10dp"
-                                android:background="@color/connect_blue_color_10" />
-
-                            <AutoCompleteTextView
-                                android:id="@+id/connect_primary_phone_input"
-                                android:layout_width="fill_parent"
-                                android:layout_height="55dp"
-                                android:background="@null"
-                                android:digits="1234567890"
-                                android:focusable="true"
-                                android:focusableInTouchMode="true"
-                                android:hint="@string/connect_phone_number_hint"
-                                android:inputType="numberDecimal"
-                                android:paddingStart="16dp"
-                                android:textAlignment="textStart"
-                                android:textColorHint="@color/connect_grey" />
-                        </LinearLayout>
-
-                        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                            android:id="@+id/errorTextView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="16dp"
-                            android:paddingTop="4dp"
-                            android:textColor="@android:color/holo_red_light"
-                            android:textSize="14sp"
-                            android:visibility="gone" />
-                    </LinearLayout>
-
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="55dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="20dp"
-                    android:gravity="start"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:id="@+id/connect_consent_check"
+                    <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginBottom="16dp"
-                        android:buttonTint="@color/connect_blue_color"
                         android:padding="1dp"
-                        android:textColor="@color/connect_subtext"
-                        android:textSize="13sp" />
+                        android:src="@drawable/ic_outline_person_24" />
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
-                        android:id="@+id/checkText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:text="@string/connect_consent_message_1"
-                        android:textColor="@color/connect_grey"
-                        android:textSize="16sp" />
                 </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/continue_button"
-                    style="@style/CustomButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="start|center"
-                    android:text="@string/review"
-                    android:drawableRight="@drawable/connect_right_arrow"
-                    />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/nameTextValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginLeft="16dp"
+                    android:background="@drawable/connect_edit_text_bg"
+                    android:hint="@string/connect_register_name"
+                    android:imeOptions="actionNext"
+                    android:paddingStart="16dp"
+                    android:textColorHint="@color/connect_grey"
+                    tools:ignore="RtlSymmetry" />
 
             </LinearLayout>
 
-        </ScrollView>
+            <LinearLayout
+                android:id="@+id/phone_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
 
+                <LinearLayout
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:background="@drawable/connect_side_icon_bg"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="1dp"
+                        android:src="@drawable/ic_outline_phone_24" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:background="@drawable/connect_edit_text_bg"
+                        android:padding="0dp">
+
+                        <EditText
+                            android:id="@+id/countryCode"
+                            android:layout_width="64dp"
+                            android:layout_height="55dp"
+                            android:background="@null"
+                            android:gravity="center"
+                            android:hint="@string/connect_phone_country_code_default"
+                            android:inputType="number"
+                            android:text="@string/connect_phone_country_code_default"
+                            android:textColorHint="@color/connect_grey" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginVertical="10dp"
+                            android:background="@color/connect_blue_color_10" />
+
+                        <AutoCompleteTextView
+                            android:id="@+id/connect_primary_phone_input"
+                            android:layout_width="fill_parent"
+                            android:layout_height="55dp"
+                            android:background="@null"
+                            android:digits="1234567890"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:hint="@string/connect_phone_number_hint"
+                            android:inputType="numberDecimal"
+                            android:paddingStart="16dp"
+                            android:textAlignment="textStart"
+                            android:textColorHint="@color/connect_grey" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:textStyle="bold"
+                        android:id="@+id/errorTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="16dp"
+                        android:paddingTop="4dp"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="55dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="start"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/connect_consent_check"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:buttonTint="@color/connect_blue_color"
+                    android:padding="1dp"
+                    android:textColor="@color/connect_subtext"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:textStyle="bold"
+                    android:id="@+id/checkText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:text="@string/connect_consent_message_1"
+                    android:textColor="@color/connect_grey"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/continue_button"
+                style="@style/CustomButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="start|center"
+                android:text="@string/review"
+                android:drawableRight="@drawable/connect_right_arrow"
+                />
+
+            </LinearLayout>
+        </ScrollView>
 
         <LinearLayout
             android:id="@+id/ll_recover"
             android:layout_width="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_height="wrap_content">
 
             <View
@@ -266,7 +248,8 @@
                 android:layout_margin="16dp"
                 android:gravity="center_vertical|center_horizontal">
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
+                    android:textStyle="bold"
                     android:id="@+id/button_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -281,9 +264,8 @@
                     style="@style/NegativeButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Recover"
+                    android:text="@string/connect_recover"
                     />
-
 
             </LinearLayout>
         </LinearLayout>

@@ -124,7 +124,7 @@ public class MainConfigurablePreferences
     }
 
     private void showAnalyticsOptOutDialog() {
-        StandardAlertDialog f = new StandardAlertDialog(getActivity(),
+        StandardAlertDialog f = new StandardAlertDialog(
                 Localization.get("analytics.opt.out.title"),
                 Localization.get("analytics.opt.out.message"));
 
@@ -137,7 +137,7 @@ public class MainConfigurablePreferences
         f.setNegativeButton(Localization.get("option.cancel"),
                 (dialog, which) -> dialog.dismiss());
 
-        f.showNonPersistentDialog();
+        f.showNonPersistentDialog(getActivity());
     }
 
     @Override
@@ -190,7 +190,6 @@ public class MainConfigurablePreferences
         }
         return app.getAppPreferences().getString(AUTO_SAVE_FORM_ON_PAUSE, PrefValues.NO).equals(PrefValues.YES);
     }
-
 
     public static boolean isTTSEnabled() {
         CommCareApp app = CommCareApplication.instance().getCurrentApp();

@@ -10,6 +10,7 @@ import androidx.navigation.ui.NavigationUI;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
@@ -71,7 +72,7 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
     private void handleRedirect(String action) {
         if(action.equals(CCC_MESSAGE)) {
             ConnectManager.init(this);
-            ConnectManager.unlockConnect(this, success -> {
+            ConnectIDManager.getInstance().unlockConnect(this, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
@@ -91,66 +92,4 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_connect_messaging, menu);
-//        MenuItem searchItem = menu.findItem(R.id.action_search);
-//
-//        if (searchItem != null) {
-//            SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-//
-//            searchView.setOnCloseListener(() -> false);
-//
-//            EditText searchPlate = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
-//            searchPlate.setHint("Search");
-//
-//            View searchPlateView = searchView.findViewById(androidx.appcompat.R.id.search_plate);
-//            searchPlateView.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent));
-//
-//            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//                @Override
-//                public boolean onQueryTextSubmit(String query) {
-//                    // Do your logic here
-//                    Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
-//                    sendSearchQueryToFragment(query);
-//                    return false;
-//                }
-//
-//                @Override
-//                public boolean onQueryTextChange(String newText) {
-//                    return false;
-//                }
-//            });
-//
-//            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-//        }
-//
-//        return super.onCreateOptionsMenu(menu);
-//    }
-//
-//    public void sendSearchQueryToFragment(String query) {
-//        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect_messaging);
-//        if (navHostFragment != null) {
-//            Fragment currentFragment = navHostFragment.getChildFragmentManager().getFragments().get(0);
-//            if (currentFragment instanceof ConnectMessageChannelListFragment) {
-//                ((ConnectMessageChannelListFragment) currentFragment).onSearchQueryReceived(query);
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        int id = item.getItemId();
-//        return switch (id) {
-//            case R.id.action_notification -> true;
-//            default -> super.onOptionsItemSelected(item);
-//        };
-//    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect_messaging);
-        return navHostFragment.getNavController().navigateUp() || super.onSupportNavigateUp();
-    }
 }

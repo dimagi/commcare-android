@@ -48,13 +48,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:id="@+id/tvFilterAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/connect_results_summary_all"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -80,13 +81,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterApproved"
                         android:text="@string/connect_results_summary_approved"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -112,13 +114,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterRejected"
                         android:text="@string/connect_results_summary_rejected"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -144,13 +147,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterPending"
                         android:text="@string/connect_results_summary_pending"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 

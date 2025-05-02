@@ -83,6 +83,14 @@ public class MessageManager {
                             channels.add(channel);
                         }
 
+                        ConnectMessagingDatabaseHelper.storeMessagingChannels(context, channels, true);
+
+                        for(ConnectMessagingChannelRecord channel : channels) {
+                            if(channel.getConsented() && channel.getKey().length() == 0) {
+                                getChannelEncryptionKey(context, channel, null);
+                            }
+                        }
+
                         JSONArray messagesJson = json.getJSONArray("messages");
                         List<ConnectMessagingChannelRecord> existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
                         for (int i = 0; i < messagesJson.length(); i++) {
@@ -94,14 +102,9 @@ public class MessageManager {
                         }
                     }
 
-                    ConnectMessagingDatabaseHelper.storeMessagingChannels(context, channels, true);
                     ConnectMessagingDatabaseHelper.storeMessagingMessages(context, messages, false);
 
-                    for(ConnectMessagingChannelRecord channel : channels) {
-                        if(channel.getConsented() && channel.getKey().length() == 0) {
-                            getChannelEncryptionKey(context, channel, null);
-                        }
-                    }
+
 
                     if(messages.size() > 0) {
                         MessageManager.updateReceivedMessages(context, success -> {

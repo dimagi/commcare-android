@@ -14,6 +14,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -107,7 +108,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
             case AUTH_FAILED:
                 String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
 
-                if(ConnectManager.isSeatedAppLinkedToConnectId(username)) {
+                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("Token Auth failed during sync for a ConnectID managed app"));
                 }
@@ -293,15 +294,15 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
         String title = Localization.get("form.send.rate.limit.error.title");
         String message = Localization.get("form.send.rate.limit.error.message");
-        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this, title,
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(title,
                 message, null);
 
         dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
             HiddenPreferences.disableRateLimitPopup(true);
-            dismissAlertDialog();
+            dialog1.dismiss();
         });
         dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
-            dismissAlertDialog();
+            dialog1.dismiss();
         });
 
         showAlertDialog(dialog);

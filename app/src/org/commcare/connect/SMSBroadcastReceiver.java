@@ -16,7 +16,12 @@ import com.google.android.gms.common.api.Status;
  * SmsRetriever.SMS_RETRIEVED_ACTION.
  */
 public class SMSBroadcastReceiver extends BroadcastReceiver {
-    public  SMSListener smsListener;
+    private volatile SMSListener smsListener;
+
+    public void setSmsListener(SMSListener listener) {
+        this.smsListener = listener;
+    }
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -24,7 +29,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
             Bundle extras = intent.getExtras();
             Status status = null;
             if (extras != null) {
-                status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
+                status = (Status)extras.get(SmsRetriever.EXTRA_STATUS);
             }
 
             if (status != null) {
@@ -32,7 +37,7 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
                     Intent messageIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
                     // Extract one-time code from the message and complete verification
                     // by sending the code back to your server.
-                    if (smsListener != null)
+                    if (messageIntent != null && smsListener != null)
                         smsListener.onSuccess(messageIntent);
                 }
             }

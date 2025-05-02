@@ -8,26 +8,11 @@
         android:background="@color/white"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/llTopBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <include
-                android:id="@+id/commonAppBar"
-                layout="@layout/connectid_common_title_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
         <ImageView
             android:id="@+id/company_logo"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_marginTop="40dp"
-            android:layout_below="@+id/llTopBar"
             android:layout_centerHorizontal="true"
             android:contentDescription="@null"
             android:src="@drawable/ic_dimagi_logo" />
@@ -41,11 +26,12 @@
             android:layout_marginTop="40dp"
             android:background="@android:color/darker_gray" />
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/recovery_code_tilte"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/divider"
+            android:textStyle="bold"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -53,7 +39,8 @@
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="18sp" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+            android:textStyle="bold"
             android:id="@+id/phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -156,7 +143,8 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
+            android:textStyle="bold"
             android:id="@+id/connect_pin_error_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

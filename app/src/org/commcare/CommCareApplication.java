@@ -390,6 +390,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
             // Switch loggers back over to using global storage, now that we don't have a session
             setupLoggerStorage(false);
+
+            CrashUtil.registerUserData();
         }
     }
 

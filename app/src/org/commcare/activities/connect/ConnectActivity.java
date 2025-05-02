@@ -15,7 +15,8 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.MessageManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -109,6 +110,8 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             bundle.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
             navController.navigate(R.id.connect_unlock_fragment, bundle, options);
         }
+
+        prepareConnectMessagingScreen();
     }
 
     @Override
@@ -142,7 +145,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
+        ConnectIDManager.getInstance().handleFinishedActivity(this, resultCode);
     }
 
     @Override
@@ -163,6 +166,12 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
         menu.findItem(R.id.action_notification).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void prepareConnectMessagingScreen(){
+        MessageManager.retrieveMessages(this, success -> {
+            updateMessagingIcon();
+        });
     }
 
     public void updateMessagingIcon() {

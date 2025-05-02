@@ -22,7 +22,6 @@
         android:layout_height="wrap_content"
         android:textFontWeight='500'
         android:text="Your Title"
-        android:fontFamily="@font/roboto_medium"
         android:layout_gravity="center"
         android:textSize="20sp"
         android:textColor="#FFFFFF"

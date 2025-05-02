@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,6 +16,9 @@ import android.os.IBinder;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -39,23 +44,13 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nullable;
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
-
-import static org.commcare.sync.ExternalDataUpdateHelper.sendBroadcastFailSafe;
 
 /**
  * The CommCare Session Service is a persistent service which maintains

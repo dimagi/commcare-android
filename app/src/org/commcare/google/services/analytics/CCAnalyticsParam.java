@@ -13,6 +13,7 @@ public class CCAnalyticsParam {
     static final String SERVER = "server";
     static final String FREE_DISK = "free_disk";
     static final String CCC_ENABLED = "ccc_enabled";
+    static final String DEVICE_ID = "device_id";
 
     static final String ACTION_TYPE = "action_type";
     static final String DIRECTION = "direction";

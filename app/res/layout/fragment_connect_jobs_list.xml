@@ -19,7 +19,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+    <TextView
         android:id="@+id/connect_jobs_last_update"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/black" />
 
-            <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+            <TextView
                 android:id="@+id/connect_phone_label"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -75,44 +75,30 @@
                 app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_phone_yes_button"
                 android:layout_width="wrap_content"
-                android:layout_height="35dp"
+                android:layout_height="wrap_content"
                 android:text="@string/connect_payment_confirm_yes"
                 android:layout_marginTop="10dp"
-                android:textColor="@color/blue"
-                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
-                app:roundButtonBackgroundColor="@color/connect_blue_color"
-                app:roundButtonBorderRadius="@dimen/dp48"
-                app:roundButtonIconLeftAlign="false"
-                app:roundButtonTextColor="@color/white"
-                app:roundButtonTextSize="5.0sp" />
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
 
-            <org.commcare.views.connect.RoundedButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_phone_no_button"
                 android:layout_width="wrap_content"
-                android:layout_height="35dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:text="@string/connect_payment_confirm_no"
-                android:textColor="@color/blue"
-                android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
                 app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
-                app:roundButtonBorderColor="@color/connect_blue_color"
-                app:roundButtonBorderVisible="true"
-                app:roundButtonBorderWidth="0.5dp"
-                app:roundButtonIconTintColor="@color/white"
-                app:roundButtonTextColor="@color/connect_blue_color"
-                app:roundButtonTextSize="5.0sp" />
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 
-    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+    <TextView
         android:id="@+id/connect_no_jobs_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -122,7 +108,8 @@
         android:textColor="@color/blue"
         android:textSize="18sp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile" />
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"
+        android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvJobList"

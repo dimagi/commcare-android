@@ -105,18 +105,18 @@ public class ConnectMessageChannelListFragment extends Fragment {
     };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
-        NavDirections directions;
-        if(channel.getConsented()) {
-            directions = ConnectMessageChannelListFragmentDirections
-                    .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
-        } else {
-            //Get consent for channel
-            directions = ConnectMessageChannelListFragmentDirections
-                    .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
-                            channel.getChannelName());
-        }
+        Navigation.findNavController(binding.rvChannel).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel):getChannelConsetBottomSheetDirection(channel));
+    }
 
-        Navigation.findNavController(binding.rvChannel).navigate(directions);
+    private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel){
+        return ConnectMessageChannelListFragmentDirections
+                .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
+    }
+
+    private NavDirections getChannelConsetBottomSheetDirection(ConnectMessagingChannelRecord channel){
+        return ConnectMessageChannelListFragmentDirections
+                .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
+                        channel.getChannelName());
     }
 
     @Override

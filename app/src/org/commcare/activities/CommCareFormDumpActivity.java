@@ -1,23 +1,22 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.ServerUrls;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.preferences.ServerUrls;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.util.LogTypes;
@@ -183,13 +182,13 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     private void showWarningMessage() {
-        StandardAlertDialog d = new StandardAlertDialog(this,
+        StandardAlertDialog d = new StandardAlertDialog(
                 Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
         DialogInterface.OnClickListener listener = (dialog, id) -> {
             dialog.dismiss();
             if (id == AlertDialog.BUTTON_POSITIVE) {
                 acknowledgedRisk = true;
-                dismissAlertDialog();
+                dialog.dismiss();
             } else {
                 exitDump();
             }

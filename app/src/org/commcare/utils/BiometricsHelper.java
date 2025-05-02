@@ -13,12 +13,12 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 
+import java.util.Locale;
+
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
-import java.util.Locale;
 
 /**
  * Helper class for biometric configuration and verification
@@ -26,29 +26,51 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class BiometricsHelper {
+
     /**
-     * Enum simplifying the availability of a biometric method
+     * Enum representing the availability and configuration status of a biometric method.
      */
     public enum ConfigurationStatus {
-        NotAvailable,
-        NotConfigured,
-        Configured
+        NotAvailable,  // Biometrics not available on the device
+        NotConfigured, // Biometrics available but not set up
+        Configured     // Biometrics set up and ready for authentication
     }
 
-    private static final int StrongBiometric = BiometricManager.Authenticators.BIOMETRIC_STRONG;
     private static final int PinBiometric = BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+    private static final int StrongBiometric = BiometricManager.Authenticators.BIOMETRIC_STRONG;
 
+    /**
+     * Checks the fingerprint authentication status.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return The fingerprint configuration status.
+     */
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
         return checkStatus(context, biometricManager, StrongBiometric);
     }
 
+    /**
+     * Determines if fingerprint authentication is configured on the device.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return True if fingerprint authentication is configured, false otherwise.
+     */
     public static boolean isFingerprintConfigured(Context context, BiometricManager biometricManager) {
         return checkFingerprintStatus(context, biometricManager) == ConfigurationStatus.Configured;
     }
 
+    /**
+     * Prompts the user to configure fingerprint authentication.
+     *
+     * @param activity The current activity.
+     * @return True if the configuration process starts successfully, false otherwise.
+     */
     public static boolean configureFingerprint(Activity activity) {
         return configureBiometric(activity, StrongBiometric);
     }
+
 
     public static void authenticateFingerprint(FragmentActivity activity,
                                                BiometricManager biometricManager,
@@ -56,21 +78,45 @@ public class BiometricsHelper {
         authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
     }
 
-
+    /**
+     * Checks the status of PIN-based authentication.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return The PIN configuration status.
+     */
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
         return checkStatus(context, biometricManager, PinBiometric);
     }
 
+    /**
+     * Determines if PIN authentication is configured on the device.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @return True if PIN authentication is configured, false otherwise.
+     */
     public static boolean isPinConfigured(Context context, BiometricManager biometricManager) {
         return checkPinStatus(context, biometricManager) == ConfigurationStatus.Configured;
     }
 
+    /**
+     * Prompts the user to configure PIN-based authentication.
+     *
+     * @param activity The current activity.
+     * @return True if the configuration process starts successfully, false otherwise.
+     */
     public static boolean configurePin(Activity activity) {
         return configureBiometric(activity, PinBiometric);
     }
 
-    private static BiometricPrompt.AuthenticationCallback biometricPromptCallbackHolder;
-
+    /**
+     * Initiates PIN-based authentication.
+     *
+     * @param activity                The fragment activity.
+     * @param biometricManager        The BiometricManager instance.
+     * @param biometricPromptCallback The callback for authentication results.
+     */
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
 
@@ -93,20 +139,14 @@ public class BiometricsHelper {
         }
     }
 
-    public static boolean handlePinUnlockActivityResult(int requestCode, int resultCode) {
-        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
-            if (resultCode == Activity.RESULT_OK) {
-                biometricPromptCallbackHolder.onAuthenticationSucceeded(null);
-            } else {
-                biometricPromptCallbackHolder.onAuthenticationFailed();
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
+    /**
+     * Checks the biometric authentication status for a specific authentication method.
+     *
+     * @param context          The application context.
+     * @param biometricManager The BiometricManager instance.
+     * @param authenticator    The authenticator type (e.g., fingerprint, PIN).
+     * @return The biometric configuration status.
+     */
     public static ConfigurationStatus checkStatus(Context context, BiometricManager biometricManager,
                                                   int authenticator) {
         int val = canAuthenticate(context, biometricManager, authenticator);

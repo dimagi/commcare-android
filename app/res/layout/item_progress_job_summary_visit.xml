@@ -6,7 +6,7 @@
     android:paddingVertical="8dp"
     android:layout_height="wrap_content">
 
-    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+    <TextView
         android:id="@+id/tv_primary_visit_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+    <TextView
         android:id="@+id/tv_primary_visit_count"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
