@@ -12,6 +12,9 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -220,14 +223,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         String flagsKey = "verification_flags";
         JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
         if(flags != null) {
-            job.dailyStartTime = flags.has(META_DAILY_START_TIME) ? flags.getString(META_DAILY_START_TIME) : "";
-            if(job.dailyStartTime.equals("null")) {
-                job.dailyStartTime = "";
-            }
-            job.dailyFinishTime = flags.has(META_DAILY_FINISH_TIME) ? flags.getString(META_DAILY_FINISH_TIME) : "";
-            if(job.dailyFinishTime.equals("null")) {
-                job.dailyFinishTime = "";
-            }
+            job.dailyStartTime = flags.optString(META_DAILY_START_TIME, "");
+            job.dailyFinishTime = flags.optString(META_DAILY_FINISH_TIME, "");
         }
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
@@ -461,17 +458,22 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         try {
-            SimpleDateFormat utcFormat = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT, Locale.getDefault());
-            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date startTime = utcFormat.parse(dailyStart);
-            Date endTime = utcFormat.parse(dailyFinish);
-            SimpleDateFormat localFormat = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT, Locale.getDefault());
-
-            String startTimeLocal = localFormat.format(startTime);
-            String endTimeLocal = localFormat.format(endTime);
-
-            return String.format(WORKING_HOURS_PATTERN, startTimeLocal, endTimeLocal);
-        } catch (Exception e) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                //DateTimeFormatter is more efficient than SimpleDateFormat
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_SOURCE_FORMAT);
+                LocalTime start = LocalTime.parse(dailyStart, formatter);
+                LocalTime end = LocalTime.parse(dailyFinish, formatter);
+                formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_TARGET_FORMAT);
+                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
+            } else {
+                // remove this code whenever we change minSdk to 26
+                SimpleDateFormat formatter = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT);
+                Date start = formatter.parse(dailyStart);
+                Date end = formatter.parse(dailyFinish);
+                formatter = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT);
+                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
+            }
+        } catch(ParseException e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
             return null;
         }

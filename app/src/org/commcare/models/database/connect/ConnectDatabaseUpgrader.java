@@ -1,12 +1,12 @@
 package org.commcare.models.database.connect;
 
 import android.content.Context;
-import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecordV2;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
@@ -95,6 +95,11 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 11) {
             upgradeElevenTwelve(db);
             oldVersion = 12;
+        }
+
+        if (oldVersion == 12) {
+            upgradeTwelveThirteen(db);
+            oldVersion = 13;
         }
     }
 
@@ -513,8 +518,12 @@ public class ConnectDatabaseUpgrader {
         addTableForNewModel(db, ConnectMessagingMessageRecord.STORAGE_KEY, new ConnectMessagingMessageRecord());
     }
 
+    private void upgradeTwelveThirteen(SQLiteDatabase db) {
+        addTableForNewModel(db, ConnectJobDeliveryFlagRecord.STORAGE_KEY, new ConnectJobDeliveryFlagRecord());
+    }
+
     private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
-                                               Persistable modelToAdd) {
+                                            Persistable modelToAdd) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(storageKey);
