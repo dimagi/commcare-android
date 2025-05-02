@@ -233,6 +233,9 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
         if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
             finish(true, false);
         }
+        if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
+            finish(true, false);
+        }
     }
 
     private void performFingerprintUnlock() {
