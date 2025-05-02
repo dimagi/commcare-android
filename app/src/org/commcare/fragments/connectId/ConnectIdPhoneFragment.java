@@ -2,6 +2,7 @@ package org.commcare.fragments.connectId;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -87,7 +89,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         String message = getString(R.string.connect_phone_message_primary);
         binding.connectPrimaryPhoneTitle.setText(title);
         binding.connectPrimaryPhoneMessage.setText(message);
-        displayNumber(existingPhone);
+        displayNumber();
         return binding.getRoot();
     }
 
@@ -119,37 +121,30 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneButton.setEnabled(valid);
     }
 
-    private void displayNumber(String fullNumber) {
-        int code = PhoneNumberHelper.getInstance(getContext()).getCountryCodeFromLocale(getContext());
-        if (fullNumber != null && fullNumber.length() > 0) {
-            code = PhoneNumberHelper.getInstance(getContext()).getCountryCode(fullNumber);
+    private void displayNumber() {
+        if (TextUtils.isEmpty(existingPhone)) {
+            return;
         }
+        PhoneNumberHelper phoneNumberHelper = PhoneNumberHelper.getInstance(getContext());
+        int code = phoneNumberHelper.getCountryCode(existingPhone);
+        String codeText = phoneNumberHelper.formatCountryCode(code);
 
-        String codeText = "";
-        if (code > 0) {
-            codeText = String.format(Locale.getDefault(), "%d", code);
-            if (!codeText.startsWith("+")) {
-                codeText = "+" + codeText;
-            }
+        String displayPhoneNumber = existingPhone;
+        if (displayPhoneNumber.startsWith(codeText)) {
+            displayPhoneNumber = displayPhoneNumber.substring(codeText.length());
         }
-
-        if (fullNumber != null && fullNumber.startsWith(codeText)) {
-            fullNumber = fullNumber.substring(codeText.length());
-        }
-        binding.connectPrimaryPhoneInput.setText(fullNumber);
+        binding.connectPrimaryPhoneInput.setText(displayPhoneNumber);
         binding.countryCode.setText(codeText);
     }
 
     private void requestPhoneNumberUpdate() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
+        String newPhoneNo = PhoneNumberHelper.buildPhoneNumber(binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString());
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
-        String existing = user != null ? user.getPrimaryPhone() : existingPhone;
-        if (user != null && existing != null && !existing.equals(phone)) {
+        if (!existingPhone.equals(newPhoneNo)) {
             IApiCallback callback = new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
-                    finish(phone);
+                    finish(newPhoneNo);
                 }
 
                 @Override
@@ -180,10 +175,11 @@ public class ConnectIdPhoneFragment extends Fragment {
             };
 
             //Update the phone number with the server
+            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(requireContext());
             ApiConnectId.changePhone(getContext(), user.getUserId(), user.getPassword(),
-                    existing, phone, callback);
+                    existingPhone, newPhoneNo, callback);
         } else {
-            finish(phone);
+            finish(newPhoneNo);
         }
     }
 
