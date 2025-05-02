@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -22,7 +21,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
 import com.jakewharton.rxbinding2.widget.RxAdapterView;
@@ -37,7 +37,7 @@ import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
 import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.ContainerFragment;
+import org.commcare.fragments.ContainerViewModel;
 import org.commcare.gis.EntityMapActivity;
 import org.commcare.gis.EntityMapboxActivity;
 import org.commcare.models.AndroidSessionWrapper;
@@ -77,6 +77,7 @@ import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -89,6 +90,7 @@ import io.reactivex.functions.Consumer;
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements EntityLoaderListener, HereFunctionHandlerListener {
+    private static final String ADAPTER_STATE_KEY = "adapter-state-key";
     private SessionWrapper session;
     private AndroidSessionWrapper asw;
 
@@ -153,7 +155,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean rightFrameSetup = false;
     private NodeEntityFactory factory;
 
-    private ContainerFragment<EntityListAdapter> containerFragment;
+    private ContainerViewModel<WeakReference<EntityListAdapter>> containerViewModel;
     private EntitySelectRefreshTimer refreshTimer;
 
     // Function handler for handling XPath evaluation of the function here().
@@ -338,21 +340,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void persistAdapterState(AdapterView view) {
-        FragmentManager fm = this.getSupportFragmentManager();
-
-        containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
-
-        // stateHolder and its previous state aren't null if the activity is
-        // being created due to an orientation change.
-        if (containerFragment == null) {
-            containerFragment = new ContainerFragment<>();
-            fm.beginTransaction().add(containerFragment, "entity-adapter").commit();
-        } else {
-            adapter = containerFragment.getData();
-            // on orientation change
-            if (adapter != null) {
-                setupUIFromAdapter(view);
-            }
+        if (containerViewModel == null) {
+            containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
+        }
+        if (containerViewModel.getData(ADAPTER_STATE_KEY) != null) {
+            WeakReference<EntityListAdapter> adapterWeakRef = containerViewModel.getData(ADAPTER_STATE_KEY);
+            adapter = adapterWeakRef.get();
+            setupUIFromAdapter(view);
         }
     }
 
@@ -821,17 +815,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             return;
         }
 
-        activity.setResult(HomeScreenBaseActivity.RESULT_RESTART);
+        activity.setResult(RESULT_RESTART);
         activity.finish();
     }
 
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
-        dialog.setChoiceItems(getSortOptionsList());
+        dialog.setChoiceItems(getSortOptionsList(dialog));
         showAlertDialog(dialog);
     }
 
-    private DialogChoiceItem[] getSortOptionsList() {
+    private DialogChoiceItem[] getSortOptionsList(PaneledChoiceDialog dialog) {
         DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
@@ -863,10 +857,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
-            View.OnClickListener listener = v -> {
+            OnClickListener listener = v -> {
                 adapter.sortEntities(new int[]{keyArray[index]});
                 adapter.filterByString(entitySelectSearchUI.getSearchText().toString());
-                dismissAlertDialog();
+                dialog.dismiss();
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
             choiceItems[i] = item;
@@ -884,7 +878,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 hideActionsFromEntityList, shortSelect.getCustomActions(evalContext()), inAwesomeMode);
         visibleView.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
-        containerFragment.setData(adapter);
+        containerViewModel.setData(ADAPTER_STATE_KEY, new WeakReference<>(adapter));
 
         if (entitySelectSearchUI != null) {
             entitySelectSearchUI.restoreSearchString();

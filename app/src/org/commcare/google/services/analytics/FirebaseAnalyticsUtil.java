@@ -15,6 +15,7 @@ import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.utils.EncryptionUtils;
 import org.commcare.utils.FormUploadResult;
+import org.javarosa.core.services.Logger;
 
 import java.util.Date;
 
@@ -50,16 +51,20 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void reportEvent(String eventName, String[] paramKeys, String[] paramVals) {
-        Bundle b = new Bundle();
-        for (int i = 0; i < paramKeys.length; i++) {
-            // https://firebase.google.com/docs/reference/android/com/google/firebase/analytics/FirebaseAnalytics.Param
-            // Param values can only be up to 100 characters.
-            if (paramVals[i].length() > 100) {
-                paramVals[i] = paramVals[i].substring(0, 100);
+        try {
+            Bundle b = new Bundle();
+            for (int i = 0; i < paramKeys.length; i++) {
+                // https://firebase.google.com/docs/reference/android/com/google/firebase/analytics/FirebaseAnalytics.Param
+                // Param values can only be up to 100 characters.
+                if (paramVals[i].length() > 100) {
+                    paramVals[i] = paramVals[i].substring(0, 100);
+                }
+                b.putString(paramKeys[i], paramVals[i]);
             }
-            b.putString(paramKeys[i], paramVals[i]);
+            reportEvent(eventName, b);
+        } catch(Exception e) {
+            Logger.exception("Error logging analytics event", e);
         }
-        reportEvent(eventName, b);
     }
 
     private static void reportEvent(String eventName, Bundle params) {
@@ -73,6 +78,8 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
+        analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, ReportingUtils.getDeviceId());
+
         String domain = ReportingUtils.getDomain();
         if (!TextUtils.isEmpty(domain)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CCHQ_DOMAIN, domain);

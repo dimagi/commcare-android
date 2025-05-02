@@ -267,6 +267,7 @@
     <string name="choose_sound" cc:translatable="true">Choose Sound</string>
     <string name="choose_video" cc:translatable="true">Choose Video</string>
     <string name="choose_image" cc:translatable="true">Choose Image</string>
+    <string name="choose_document" cc:translatable="true">Choose Document</string>
     <string name="selected" cc:translatable="true">Selected: </string>
     <string name="select_answer" cc:translatable="true">Select Answer</string>
     <string name="save_form_as" cc:translatable="true">Name this form:</string>
@@ -406,7 +407,7 @@
     <string name="login_password_by_connect">Via ConnectID (or press here)</string>
     <string name="login_welcome_connect_signed_in">Welcome %s!</string>
     <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using ConnectID.</string>
-    <string name="choice_or">_____________    OR    _____________</string>
+    <string name="choice_or">___________    OR    ___________</string>
     <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
 
     <string name="connect_button_logged_in">Go to Connect menu</string>
@@ -539,6 +540,7 @@
     <string name="connect_messaging_channel_preview_them">Them</string>
     <string name="connect_messaging_channel_consent_title">Consent to channel</string>
     <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
+    <string name="connect_messaging_channel_consent_failure_msg">Failed to grant consent to channel</string>
     <string name="connect_messaging_channel_consent_accept">Accept</string>
     <string name="connect_messaging_channel_consent_decline">Decline</string>
 

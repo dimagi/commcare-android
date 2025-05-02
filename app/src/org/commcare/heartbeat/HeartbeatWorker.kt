@@ -30,8 +30,8 @@ class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
                 }
                 else -> {
                     Logger.exception(
-                            "Encountered unexpected exception during heartbeat communications, stopping the heartbeat thread.",
-                            e
+                        "Encountered unexpected exception during heartbeat communications, stopping the heartbeat thread.",
+                        e
                     )
                     Result.failure()
                 }

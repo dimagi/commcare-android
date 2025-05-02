@@ -572,4 +572,5 @@ public class MediaUtil {
         return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
                 .getActiveRecordingConfigurations().size() > 0;
     }
+
 }

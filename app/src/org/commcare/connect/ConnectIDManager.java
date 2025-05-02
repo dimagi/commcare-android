@@ -131,6 +131,8 @@ public class ConnectIDManager {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
 
+                CrashUtil.registerUserData();
+
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
@@ -142,11 +144,6 @@ public class ConnectIDManager {
         }
     }
 
-    public boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = primedAppIdForAutoLogin;
-        primedAppIdForAutoLogin = null;
-        return primed != null && primed.equals(appId);
-    }
 
     public String generatePassword() {
         int passwordLength = 20;
@@ -229,7 +226,7 @@ public class ConnectIDManager {
     public void completeSignin() {
         connectStatus = ConnectIdStatus.LoggedIn;
         scheduleHearbeat();
-        CrashUtil.registerConnectUser();
+        CrashUtil.registerUserData();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
@@ -349,7 +346,7 @@ public class ConnectIDManager {
 
 
     private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username, String password, ConnectActivityCompleteListener callback) {
-        StandardAlertDialog dialog = new StandardAlertDialog(activity,
+        StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.login_link_connectid_title),
                 activity.getString(R.string.login_link_connectid_message));
 
@@ -404,7 +401,7 @@ public class ConnectIDManager {
             return;
         }
 
-        StandardAlertDialog dialog = new StandardAlertDialog(activity,
+        StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.login_unlink_connectid_title),
                 activity.getString(R.string.login_unlink_connectid_message));
 

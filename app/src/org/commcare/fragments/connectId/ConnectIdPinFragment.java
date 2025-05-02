@@ -454,7 +454,8 @@ public class ConnectIdPinFragment extends Fragment {
                     if (!forgot) {
                         directions = navigateToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectIDManager.getInstance().getFailureAttempt() > 2 ? getString(R.string.connect_pin_confirm_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null, phone, secret);
                     } else {
-                        directions = navigateToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
+                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN);
+                        directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "", true, false);
                     }
                 }
             }
