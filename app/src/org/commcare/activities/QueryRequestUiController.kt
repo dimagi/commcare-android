@@ -29,6 +29,8 @@ import org.javarosa.core.services.locale.Localizer
 import java.text.ParseException
 import java.util.*
 import kotlin.collections.ArrayList
+import org.commcare.views.dialogs.StandardAlertDialog;
+import android.content.DialogInterface
 
 @ManagedUi(R.layout.http_request_layout)
 class QueryRequestUiController(
@@ -135,6 +137,8 @@ class QueryRequestUiController(
                 LayoutInflater.from(queryRequestActivity)
                     .inflate(R.layout.query_prompt_layout, promptsLayout, false)
             setLabelText(promptView, queryPrompt)
+            setHintPlaceholder(promptView, queryPrompt)
+
             val inputView = buildPromptInputView(promptView, queryPrompt, isLastPrompt)
             setUpBarCodeScanButton(promptView, promptId, queryPrompt)
             promptsLayout.addView(promptView)
@@ -413,6 +417,32 @@ class QueryRequestUiController(
     private fun getLabel(queryPrompt: QueryPrompt): String {
         val displayData = queryPrompt.display.evaluate()
         return Localizer.processArguments(displayData.name, arrayOf("")).trim { it <= ' ' }
+    }
+
+    private fun setHintPlaceholder(promptView: View, queryPrompt: QueryPrompt) {
+        val hintText = getHintText(queryPrompt)
+        if (hintText != "") {
+            val promptHelpButton = promptView.findViewById<View>(R.id.prompt_hint_button)
+            promptHelpButton.visibility = View.VISIBLE
+
+            promptHelpButton.setOnClickListener {
+                queryRequestActivity.showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
+                        queryRequestActivity,
+                        "Hint",
+                        hintText,
+                        DialogInterface.OnClickListener { dialog, id ->
+                            dialog.dismiss()
+                        }
+                ))
+            }
+        }
+    }
+
+    private fun getHintText(queryPrompt: QueryPrompt): String {
+        val displayData = queryPrompt.display.evaluate()
+        val hintText = displayData.hintText ?: return "";
+
+        return Localizer.processArguments(hintText, arrayOf("")).trim { it <= ' ' }
     }
 
     // Thrown when we are setting an invalid value to the prompt,
