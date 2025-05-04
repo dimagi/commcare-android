@@ -5,8 +5,9 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.util.Base64;
+import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.EncryptionKeyAndTransform;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,13 @@ public class ConnectDatabaseUtils {
             if (passphrase == null || passphrase.length == 0) {
                 throw new IllegalArgumentException("Passphrase must not be null or empty");
             }
-            String encoded = EncryptionUtils.encryptToBase64String(context, passphrase);
+
+            EncryptionKeyAndTransform keyAndTransform = CommCareApplication.instance().getEncryptionKeyProvider()
+                    .getKey(context, true);
+
+            String encoded = EncryptionUtils.encrypt(passphrase, keyAndTransform.getKey(),
+                    keyAndTransform.getTransformation(), true);
+
             ConnectKeyRecord record = getKeyRecord(isLocal);
             if (record == null) {
                 record = new ConnectKeyRecord(encoded, isLocal);
@@ -69,10 +76,15 @@ public class ConnectDatabaseUtils {
         try {
             ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord(isLocal);
             if (record != null) {
-                return EncryptionUtils.decryptFromBase64String(context, record.getEncryptedPassphrase());
+                byte[] encrypted = Base64.decode(record.getEncryptedPassphrase());
+
+                EncryptionKeyAndTransform keyAndTransform = CommCareApplication.instance().getEncryptionKeyProvider()
+                        .getKey(context, false);
+
+                return EncryptionUtils.decrypt(encrypted, keyAndTransform.getKey(), keyAndTransform.getTransformation(), true);
             } else {
-                CrashUtil.log("We dont find paraphrase in db");
-                throw new RuntimeException("We dont find a record in db to get passphrase");
+                CrashUtil.log("We don't find paraphrase in db");
+                throw new RuntimeException("We don't find a record in db to get passphrase");
             }
         } catch (Exception e) {
             Logger.exception("Getting DB passphrase", e);

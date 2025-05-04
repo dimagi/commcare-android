@@ -43,7 +43,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
         } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {

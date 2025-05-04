@@ -220,36 +220,20 @@ public class ConnectJobUtils {
         }
     }
 
-    public static void storeDeliveryFlags(Context context, List<ConnectJobDeliveryFlagRecord> flags, int deliveryId) {
-        SqlStorage<ConnectJobDeliveryFlagRecord> storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobDeliveryFlagRecord.class);
+    public static void storeDeliveryFlags(Context context, List<ConnectJobDeliveryFlagRecord> flags,
+                                          int deliveryId) {
+        SqlStorage<ConnectJobDeliveryFlagRecord> storage = ConnectDatabaseHelper.getConnectStorage(context,
+                ConnectJobDeliveryFlagRecord.class);
+        ConnectDatabaseHelper.connectDatabase.beginTransaction();
 
-        List<ConnectJobDeliveryFlagRecord> existingFlags = getDeliveryFlags(context, deliveryId, storage);
+        storage.removeAll(storage.getIDsForValues(new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
+                new Object[]{deliveryId}));
 
-        //Delete flags that are no longer present
-        Vector<Integer> recordIdsToDelete = new Vector<>();
-        for (ConnectJobDeliveryFlagRecord existing : existingFlags) {
-            boolean stillExists = false;
-            for (ConnectJobDeliveryFlagRecord incoming : flags) {
-                if (existing.getDeliveryId() == incoming.getDeliveryId() && Objects.equals(existing.getCode(), incoming.getCode())) {
-                    incoming.setID(existing.getID());
-                    stillExists = true;
-                    break;
-                }
-            }
-
-            if (!stillExists) {
-                //Mark the flag for deletion
-                //Remember the ID so we can delete them all at once after the loop
-                recordIdsToDelete.add(existing.getID());
-            }
-        }
-
-        storage.removeAll(recordIdsToDelete);
-
-        //Now insert/update flags
         for (ConnectJobDeliveryFlagRecord incomingRecord : flags) {
             storage.write(incomingRecord);
         }
+
+        ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
     }
 
     public static void storePayment(Context context, ConnectJobPaymentRecord payment) {

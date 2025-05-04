@@ -523,7 +523,7 @@ public class ConnectDatabaseUpgrader {
     }
 
     private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
-                                               Persistable modelToAdd) {
+                                            Persistable modelToAdd) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(storageKey);

@@ -13,7 +13,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.utils.EncryptionUtils;
+import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 

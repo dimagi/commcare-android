@@ -68,7 +68,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
     private List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
 
-    public static ConnectMessagingChannelRecord fromJson(JSONObject json) throws JSONException, ParseException {
+    public static ConnectMessagingChannelRecord fromJson(JSONObject json) throws JSONException {
         ConnectMessagingChannelRecord connectMessagingChannelRecord = new ConnectMessagingChannelRecord();
 
         connectMessagingChannelRecord.channelId = json.getString(META_CHANNEL_ID);
