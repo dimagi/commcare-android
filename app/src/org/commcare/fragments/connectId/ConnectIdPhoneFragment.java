@@ -79,7 +79,6 @@ public class ConnectIdPhoneFragment extends Fragment {
         binding.connectPrimaryPhoneInput.addTextChangedListener(watcher);
         binding.connectPrimaryPhoneButton.setOnClickListener(v -> isPhoneNoValidAndAvailable());
         //Special case for initial reg. screen. Remembering phone number before account has been created
-        ConnectUserRecord user = ConnectManager.getUser(getActivity());
         String title = getString(R.string.connect_phone_title_primary);
         String message = getString(R.string.connect_phone_message_primary);
         binding.connectPrimaryPhoneTitle.setText(title);
@@ -193,7 +192,7 @@ public class ConnectIdPhoneFragment extends Fragment {
                         + binding.connectPrimaryPhoneInput.getText().toString();
 
         boolean valid = PhoneNumberHelper.getInstance(getContext()).isValidPhoneNumber(phone);
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ConnectUserRecord user = ConnectIDManager.getInstance().getUser(getContext());
 
         if (valid) {
             String existingPrimary = user != null ? user.getPrimaryPhone() : existingPhone;

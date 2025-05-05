@@ -536,7 +536,7 @@ public class ConnectManager {
                             job.setPayments(payments);
                         }
                     }
-                } catch (IOException | JSONException | ParseException e) {
+                } catch (IOException | JSONException e) {
                     Logger.exception("Parsing return from delivery progress request", e);
                     success = false;
                 }
