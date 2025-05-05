@@ -73,7 +73,7 @@ import java.util.List;
  * Responsible for identifying the state of the application (uninstalled,
  * installed) and performing any necessary setup to get to a place where
  * CommCare can load normally.
- * <p>
+ *
  * If the startup activity identifies that the app is installed properly it
  * should not ever require interaction or be visible to the user.
  *
@@ -86,8 +86,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         RuntimePermissionRequester {
 
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
-    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
-    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
+
     private static final String KEY_UI_STATE = "current_install_ui_state";
     private static final String KEY_LAST_INSTALL_MODE = "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
@@ -121,6 +120,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final int MENU_ARCHIVE = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_FROM_LIST = Menu.FIRST + 3;
+    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
+    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -510,8 +511,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
      * in response to Google play console policies for now. We are going to watch out for a while
      * for any changes in policies in near future before completely removing the surrounding code
-     * <p>
-     * <p>
+     *
+     *
      * Scan SMS messages for texts with profile references.
      *
      * @param installTriggeredManually if scan was triggered manually, then
@@ -639,7 +640,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn(), v -> {
             ConnectIDManager.getInstance().unlockConnect(this, success -> {
-//                ConnectManager.goToConnectJobsList(this);
+                ConnectIDManager.getInstance().goToConnectJobsList(this);
             });
         });
     }
@@ -740,11 +741,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failBadReqs(String versionRequired, String versionAvailable, boolean majorIsProblem) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
-        Intent intent = new Intent(this, PromptApkUpdateActivity.class);
-        intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
-        intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);
-        startActivity(intent);
+        ResourceInstallUtils.showApkUpdatePrompt(this, versionRequired, versionAvailable);
     }
 
     @Override
@@ -780,8 +777,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void failTargetMismatch() {
-        Intent intent = new Intent(this, TargetMismatchErrorActivity.class);
-        startActivity(intent);
+        ResourceInstallUtils.showTargetMismatchError(this);
     }
 
 

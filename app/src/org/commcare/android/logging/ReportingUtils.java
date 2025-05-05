@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
@@ -140,5 +141,19 @@ public class ReportingUtils {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public static String getUserForCrashes() {
+        String user = getUser();
+        if(user.isEmpty()) {
+            try {
+                if (ConnectIDManager.getInstance().isloggedIn()) {
+                    return ConnectIDManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return null;
     }
 }

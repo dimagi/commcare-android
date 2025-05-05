@@ -213,7 +213,7 @@ public class ConnectIDManager {
     public void completeSignin() {
         connectStatus = ConnectIdStatus.LoggedIn;
         scheduleHearbeat();
-        CrashUtil.registerConnectUser();
+        CrashUtil.registerUserData();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
