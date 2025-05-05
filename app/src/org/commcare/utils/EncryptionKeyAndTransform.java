@@ -17,17 +17,6 @@ public class EncryptionKeyAndTransform {
         }
         if (transformation == null || transformation.trim().isEmpty()) {
             throw new IllegalArgumentException("Transformation string cannot be null or empty");
-        }
-        if (!transformation.matches("[A-Za-z0-9]+/[A-Za-z0-9]+/[A-Za-z0-9]+Padding"))  {
-            throw new IllegalArgumentException("Invalid transformation format. Expected: Algorithm/Mode/Padding");
-        }
-        // Create defensive copy if key is not immutable
-        if (key instanceof javax.crypto.SecretKey) {
-            byte[] encodedKey = key.getEncoded();
-            if (encodedKey == null) {
-                throw new IllegalArgumentException("Key encoding is null or unsupported for this key type");
-            }
-            this.key = new javax.crypto.spec.SecretKeySpec(encodedKey, key.getAlgorithm());
         } else {
             this.key = key;
         }

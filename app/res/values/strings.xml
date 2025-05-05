@@ -393,6 +393,8 @@
     <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
+    <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue, please try again.</string>
+    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost ConnectID configuration with server, please recover account.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
 
@@ -463,8 +465,40 @@
     <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
     <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
+    <string name="app_select_message" cc:translatable="true">Select an app:</string>
+    <!-- ConnectID strings -->
+    <string name="choice_or">_____________    OR    _____________</string>
+    <string name="connect_registration_title">ConnectID Signup</string>
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
     <string name="audio_recording_notification">Audio Recording Notification</string>
+    <string name="connect_signup">Signup</string>
+    <string name="connect_recover">Recover</string>
+    <string name="connect_registration_have_account">Already have\nan Account?</string>
+    <string name="connect_recover_no_account">Don\'t have\nConnectID?</string>
+
+    <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
+    <string name="connect_consent_message_2">I acknowledge and understand that I may receive push notifications and SMS messages for the purpose of communication</string>
+    <string name="connect_consent_check">Click here to give consent</string>
+    <string name="connect_consent_button">OK</string>
+    <string name="connect_phone_page_title">Phone Number</string>
+    <string name="connect_phone_title_primary">Primary Phone</string>
+
+    <string name="connect_phone_message_primary">Please enter your primary phone number</string>
+
+    <string name="connect_phone_title_alternate">Alternate Phone</string>
+    <string name="connect_phone_message_alternate">Enter a phone number of a friend or family who can provide you an SMS OTP if you forget your Code.</string>
+
+    <string name="connect_phone_button">OK</string>
+    <string name="connect_phone_checking">Checking…</string>
+
+    <string name="connect_phone_country_code_default">+1</string>
+    <string name="connect_phone_number_hint">0000000000</string>
+
+    <string name="connect_phone_available">Phone number is available!</string>
+    <string name="connect_phone_unavailable">Phone number is already in use</string>
+    <string name="connect_phone_invalid">Enter a valid phone number</string>
+    <string name="connect_phone_not_alt">Can not use your alt. number</string>
+    <string name="connect_phone_not_primary">Alt. number must be different than primary</string>
 
     <!--    Entity List Progresss Indicators-->
 
@@ -472,6 +506,335 @@
     <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
+    <string name="connect_phone_not_found">Phone number not found</string>
+    <string name="connect_phone_change_error">Error changing phone number</string>
+    <string name="connect_password_title">Set Password</string>
+    <string name="connect_password_message">Please choose a password</string>
+    <string name="connect_password_message_recovery">Please choose a password for recovery</string>
+    <string name="connect_password_button">OK</string>
+    <string name="connect_password">Enter Password</string>
+    <string name="connect_password_repeat">Confirm Password</string>
+    <string name="connect_password_mismatch">Passwords must match</string>
+    <string name="connect_password_weak">Please choose a stronger password</string>
+    <string name="connect_password_error">Error changing password</string>
 
+    <string name="connect_pin_title_set">Recovery Code</string>
+    <string name="connect_pin_title_confirm">Confirm Recovery Code</string>
+    <string name="connect_pin_message_title">ConnectID Recovery Code</string>
+    <string name="connect_pin_message">Enter your 6-digit Recovery Code</string>
+    <string name="connect_pin">Enter Recovery Code</string>
+    <string name="connect_pin_repeat">Confirm Recovery Code</string>
+    <string name="connect_pin_length">Code must be %d digits</string>
+    <string name="connect_pin_mismatch">Codes must match</string>
+
+    <string name="connect_password_verify_title">Enter Your Password</string>
+    <string name="connect_password_verify_message">Please enter your recovery password to continue.</string>
+    <string name="connect_password_verify">Enter Password</string>
+    <string name="connect_password_verify_forgot">Don\'t have or forgot your password?</string>
+    <string name="connect_password_verify_button">Submit</string>
+    <string name="connect_password_fail_title">Wrong Password</string>
+    <string name="connect_password_fail_message">You entered the wrong password, please try again.</string>
+    <string name="connect_password_recovery_message">You entered the wrong password too many times, you will need to recover your account.</string>
+    <string name="connect_password_fail_button">OK</string>
+    <string name="connect_pin_fail_title">Wrong Code</string>
+    <string name="connect_pin_fail_message">You entered the wrong Code, please try again.</string>
+    <string name="connect_pin_recovery_message">You entered the wrong Code too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
+
+    <string name="connect_pin_confirm_message">You entered the wrong Code too many times, you will have to configure the code again.\n On the next screen, we\'ll redirect you to the configure code page.</string>
+    <string name="connect_pin_fail_button">OK</string>
+    <string name="connect_pin_verify_forgot">Forgot Code</string>
+    <string name="connect_recovery_title">ConnectID Recovery</string>
+    <string name="connect_recovery_title2">Identify Existing Account</string>
+    <string name="busy_message">We are still busy processing your previous request. Please try again in some time.</string>
+    <string name="connect_recovery_decision_new">Choose a step below</string>
+    <string name="connect_recovery_button_new">Create New ConnectID Account</string>
+    <string name="connect_recovery_button_recover">Recover Existing Account</string>
+    <string name="connect_recovery_decision_phone">Please enter the primary phone number you entered with your account</string>
+
+    <string name="connect_recovery_button_phone">Continue</string>
+    <string name="connect_recovery_button_extended">More Options</string>
+    <string name="connect_recovery_alt_title">Alternate Phone</string>
+    <string name="connect_recovery_alt_message">On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
+    <string name="connect_recovery_alt_button">Continue</string>
+    <string name="connect_recovery_alt_change_button">Change number</string>
+    <string name="connect_payment_dialog_no">No</string>
+    <string name="connect_payment_dialog_yes">Yes</string>
+    <string name="connect_recovery_success_title">Account Recovered</string>
+    <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your ConnectID.</string>
+    <string name="connect_recovery_success_button">OK</string>
+    <string name="connect_recovery_failure">Error finalizing recovery, please try again later</string>
+    <string name="connect_unlock_title">Unlock ConnectID</string>
+    <string name="connect_unlock_message">Please unlock to continue</string>
+    <string name="connect_unlock_button_pin">Unlock with PIN</string>
+    <string name="connect_unlock_button_password">Unlock with Password</string>
+    <string name="connect_unlock_unavailable">Please configure a screen unlock mechanism</string>
+    <string name="connect_unlock_trouble_message">Trouble unlocking?</string>
+    <string name="connect_unlock_fingerprint_title">Unlock via fingerprint</string>
+    <string name="connect_unlock_fingerprint_message">Use your fingerprint to continue</string>
+    <string name="connect_unlock_other_options">Other options</string>
+
+    <string name="connect_unlock_pin_title">Unlock via PIN</string>
+    <string name="connect_unlock_pin_message">Enter your PIN to continue</string>
+    <string name="connect_biometric_enroll_fail_title">Biometric Issue</string>
+    <string name="connect_biometric_enroll_fail_message">You will need to configure this biometric manually in the Android settings.</string>
+
+    <string name="connect_biometric_enroll_fail_button">Go to Settings</string>
+    <string name="connect_register_title">Create Account</string>
+    <string name="connect_register_title2">ConnectID</string>
+    <string name="connect_register_name">Name</string>
+    <string name="connect_register_dob">Date of Birth (YYYY-MM-DD)</string>
+    <string name="connect_register_phone">Phone Number (+18887776666)</string>
+    <string name="connect_register_phone_alt">Alternate Phone Number</string>
+    <string name="connect_register_create">Continue</string>
+    <string name="connect_register_error_id">ID can not be empty</string>
+    <string name="connect_register_error_name">Name can not be empty</string>
+
+    <string name="connect_register_error_phone">Valid phone number required</string>
+    <string name="connect_register_error_same_number">Primary and alt phones must be different</string>
+    <string name="connect_register_success_title">Account Created</string>
+
+    <string name="connect_register_success_message">Your ConnectID account has been successfully created and is now ready for you to use!</string>
+    <string name="connect_register_success_button">OK</string>
+    <string name="connect_verify_title">Unlock Options</string>
+    <string name="connect_verify_message">Please configure a method below to unlock both your device and ConnectID account</string>
+    <string name="connect_verify_use_fingerprint">Use Fingerprint</string>
+    <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
+    <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
+    <string name="connect_verify_use_pin">Use PIN</string>
+    <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
+    <string name="connect_verify_pin_configured">Your PIN has already been configured and will be used to unlock ConnectID.</string>
+    <string name="connect_verify_configuration_failed">Configuration failed, please try again. %s</string>
+
+    <string name="connect_verify_configure_pin">Configure PIN</string>
+    <string name="connect_verify_agree">Agree &amp; Continue</string>
+    <string name="connect_verify_password_only">Create a password instead</string>
+
+    <string name="connect_verify_fingerprint">Fingerprint</string>
+    <string name="connect_verify_pin">PIN</string>
+
+    <string name="connect_verify_button_configured">Continue</string>
+    <string name="connect_verify_button_password">Use Password Only</string>
+    <string name="connect_verify_phone_title">Verification Code</string>
+    <string name="connect_verify_phone_title2">Enter verification code</string>
+    <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
+    <string name="connect_verify_phone_label_secondary">We attempted to send you a SMS on your secondary phone number.</string>
+    <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
+    <string name="connect_verify_phone_label_deactivate">In order to deactivate your account, please enter the code sent by SMS to your primary phone number.</string>
+    <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
+    <string name="connect_verify_phone_error">Error verifying SMS code</string>
+    <string name="connect_verify_phone_resend_code">Resend Code</string>
+
+    <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
+    <string name="connect_verify_phone_change">Change</string>
+
+    <string name="connect_verify_phone_verify">Verify code</string>
+
+    <string name="connect_last_update">Updated: %s</string>
+    <string name="connect_title">Connect</string>
+    <string name="connect_jobs_all">ALL JOBS</string>
+    <string name="connect_jobs_mine">MY JOBS</string>
+    <string name="connect_job_new">NEW</string>
+    <string name="connect_no_jobs">You have not been invited to any active opportunities. Please come back later.</string>
+    <string name="connect_job_visits">Cover %d Households in %d Days</string>
+
+    <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
+    <string name="connect_job_needs_assessment">Assessment Required</string>
+    <string name="connect_job_passed_assessment">Assessment Completed</string>
+    <string name="connect_job_training_progress">%s %d%% Complete</string>
+    <string name="connect_job_visits_completed">Completed %d visits</string>
+    <string name="connect_job_remaining">%d days remaining%s</string>
+
+    <string name="connect_job_intro_title">Opportunity</string>
+
+    <string name="connect_job_remaining_from"> from %s</string>
+
+    <string name="connect_job_learning">Learning</string>
+    <string name="connect_job_learning_not_completed">Learning not completed</string>
+    <string name="connect_job_assessment_not_completed">Assessment not completed</string>
+    <string name="connect_job">Job</string>
+    <string name="connect_job_none_training">You\'re not training for any jobs right now</string>
+    <string name="connect_job_none_active">You don\'t have any active jobs right now</string>
+    <string name="connect_job_none_available">There are no available opportunities right now</string>
+    <string name="connect_job_training">Jobs I\'m Training For</string>
+    <string name="connect_job_claimed">Jobs In Delivery</string>
+    <string name="connect_job_ended">Ended Jobs</string>
+    <string name="connect_job_completed">Ended %s</string>
+    <string name="connect_job_learn_details">Learn Details</string>
+    <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
+    <string name="connect_job_start_training">Start Training for this Job</string>
+    <string name="connect_job_no_learning_required">No learning required</string>
+    <string name="connect_end_date">Complete Project by %s</string>
+    <string name="connect_job_go_to_learn_app">Go to Learn App</string>
+
+    <string name="connect_job_download_learn_app">Download Learn App</string>
+    <string name="connect_job_learn_summary">%d modules, %d hours</string>
+    <string name="connect_learn_progress_title">Learn Progress</string>
+    <string name="connect_learn_complete_title">Training Complete!</string>
+    <string name="connect_learn_need_assessment_title">Training Pending</string>
+    <string name="connect_learn_failed_title">Training Failed</string>
+    <string name="connect_learn_complete_by">Complete Project by %s</string>
+
+    <string name="connect_learn_title">Learning Progress</string>
+    <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
+    <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
+    <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
+    <string name="your_score">Score: %d</string>
+
+    <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
+    <string name="connect_learn_failed">Sorry, you did not earn a passing score on your assessment. Please try again.\nYour score: %d\nPassing score: %d</string>
+    <string name="connect_learn_complete">Complete</string>
+    <string name="connect_learn_certificate">Certificate</string>
+
+    <string name="connect_learn_completed">Completed on: %s</string>
+    <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
+    <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
+    <string name="connect_learn_review">Review Learning</string>
+    <string name="connect_learn_view_details">View Job Details</string>
+    <string name="connect_learn_go_to_assessment">Go To Assessment</string>
+    <string name="connect_learn_try_again">Try Again</string>
+    <string name="connect_learn_start">Start Learning</string>
+    <string name="connect_learn_continue">Continue Learning</string>
+    <string name="connect_delivery_title">Delivery Details</string>
+    <string name="connect_delivery_review_title">Review Job Details</string>
+    <string name="connect_delivery_days_remaining">%d days to complete from %s</string>
+    <string name="connect_delivery_today">today</string>
+    <string name="connect_delivery_latest_start">Latest start: %s</string>
+    <string name="connect_delivery_max_visits">%d Visits in %d Days</string>
+    <string name="connect_delivery_earn_single">Earn %s per visit</string>
+    <string name="connect_delivery_earn_multi">Pay per visit:</string>
+    <string name="connect_delivery_max_daily_visits">%d Maximum Visits per Day</string>
+    <string name="connect_delivery_ready_to_claim">Ready to Start Visits?</string>
+    <string name="connect_delivery_expired">Opportunity Expired</string>
+    <string name="connect_delivery_ready_to_claim_detailed">Claim Job Below and Download Deliver App</string>
+
+    <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
+    <string name="connect_delivery_claim">Claim Job</string>
+    <string name="connect_delivery_get_app">Download App</string>
+    <string name="connect_delivery_go">Go To App</string>
+    <string name="connect_progress_delivery">Delivery</string>
+    <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>
+    <string name="connect_progress_title">Delivery Progress</string>
+    <string name="connect_progress_status">You have completed %d of %d visits.</string>
+    <string name="connect_progress_begin_date">Project Begins %s\nComplete Delivery by %s</string>
+    <string name="connect_progress_complete_by">Complete Delivery by %s</string>
+    <string name="connect_progress_ended">Job ended %s</string>
+    <string name="connect_progress_expired_dialog_title">Project Expired</string>
+    <string name="connect_progress_max_visits_dialog_title">Max Visits Reached</string>
+    <string name="connect_progress_expired">The last date for the project is over and visits will not count towards payment.</string>
+    <string name="connect_progress_visits_completed">You have reached the maximum number of visits, additional visits will not count towards payment.</string>
+    <string name="connect_progress_review">Review Learning</string>
+
+    <string name="connect_progress_launch">Launch App</string>
+    <string name="connect_progress_paid">PAID</string>
+    <string name="connect_progress_warning">Not seeing your expected progress?</string>
+    <string name="connect_progress_warning_learn">Learn why</string>
+    <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
+    <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
+    <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
+    <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
+    <string name="connect_downloading_learn">Downloading Learn App</string>
+    <string name="connect_downloading_delivery">Downloading Delivery App</string>
+    <string name="connect_downloading_status">%d%% Complete</string>
+    <string name="connect_results_summary_verifications_title">Verification Status</string>
+    <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
+    <string name="connect_results_summary_view_deliveries">View Deliveries</string>
+    <string name="connect_results_summary_payments_title">Payments</string>
+    <string name="connect_results_summary_view_payments">View Payments</string>
+    <string name="connect_results_summary_all">All</string>
+    <string name="connect_results_summary_pending">Pending</string>
+    <string name="connect_results_summary_rejected">Rejected</string>
+    <string name="connect_results_summary_approved">Approved</string>
+    <string name="connect_results_summary_earned">Earned</string>
+    <string name="connect_results_summary_remaining">Remaining</string>
+    <string name="connect_results_summary_remaining_days">%d in %d days</string>
+
+    <string name="connect_results_summary_transferred">Transferred</string>
+
+    <string name="connect_results_payment_confirm">Confirm</string>
+    <string name="connect_results_payment_confirm_undo">Undo confirm</string>
+    <string name="connect_results_payment_confirmed">Confirmed</string>
+    <string name="connect_results_payment_not_confirmed">Not Confirmed</string>
+    <string name="connect_payment_confirm_text">You got paid!\n%s %s paid %s.\nHave you received the payment?</string>
+    <string name="connect_payment_confirm_yes">Yes!</string>
+    <string name="connect_payment_confirm_no">Ask later</string>
+    <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
+    <string name="login_button_connectid">Login with ConnectID</string>
+    <string name="login_link_connectid_title">Link to ConnectID?</string>
+    <string name="login_link_connectid_message">Do you want to link this login to your ConnectID account? You will not need to type your password in the future.</string>
+    <string name="login_unlink_connectid_title">Unlink ConnectID?</string>
+    <string name="login_unlink_connectid_message">I see you logged in with your password although ConnectID was configured for auto-login. Would you like to sever this login from ConnectID?</string>
+    <string name="login_link_connectid_yes">Yes</string>
+    <string name="login_link_connectid_no">No</string>
+    <string name="login_menu_connect_sign_in">Sign up for ConnectID</string>
+
+    <string name="login_menu_connect_sign_out">Sign out of ConnectID</string>
+    <string name="login_menu_connect_forget">Forget ConnectID user</string>
+
+    <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
+    <string name="connect_app_installed">App installed</string>
+    <string name="connect_home_progress_today">Today\'s Visits: %d</string>
+    <string name="suspended">Suspended</string>
+    <string name="user_suspended">User is Suspended. Please contact admin.</string>
+    <string name="select_phone_number">Select Phone Number</string>
+
+    <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
+    <string name="connect_payment_acknowledge_notification_yes">Yes</string>
+    <string name="connect_payment_acknowledge_notification_no">No</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="change">Change</string>
+    <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
+    <string name="confirm_code">Confirm Code</string>
+    <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
+    <string name="code">Code</string>
+    <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Recovery Code</string>
+    <string name="learn_more">Learn More</string>
+    <string name="download_app">Download</string>
+    <string name="progress">Progress</string>
+    <string name="click_to_sync">Click to sync progress</string>
+    <string name="sync">Sync</string>
+    <string name="back">Back</string>
+    <string name="recover">Recover</string>
+    <string name="connect_deactivate_account">Deactivate Account</string>
+    <string name="connect_deactivate_account_message">Are you sure you want to permanently deactivate this account? Once finished, you will need to register a new account for this phone number.</string>
+    <string name="connect_deactivate_account_delete">Deactivate Account</string>
+    <string name="connect_deactivate_account_go_back">Go Back</string>
+    <string name="connect_deactivate_account_deactivated">Account deactivated, you may now register a new account with your primary phone number</string>
+    <string name="connect_deactivate_account_creation">Ok</string>
+    <string name="connect_deactivate_dialog_title">Are you sure?</string>
+    <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
+    <string name="connect_new_opportunity">New Opportunity</string>
+    <string name="connect_learn">Learn</string>
+    <string name="connect_delivery">Delivery</string>
+    <string name="connect_expired">Expired</string>
+    <string name="connect_commcare_app">CommCare App</string>
+    <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
+    <string name="connect_job_tile_daily_limit">Over Limit</string>
+    <string name="connect_job_tile_daily_visits">Daily Visits</string>
+    <string name="connect_appbar_title_app_lock">App Lock</string>
+    <string name="connect_appbar_title_password_verification">Password Verification</string>
+    <string name="connect_id_enabled">ConnectID Enabled</string>
+    <string name="login_button_connect">Unlock ConnectID</string>
+    <string name="login_password_by_connect">Via ConnectID (or press here)</string>
+    <string name="login_welcome_connect_signed_out">Unlock ConnectID first and then enter your app.</string>
+    <string name="login_welcome_connect_signed_in">Welcome %s!</string>
+    <string name="default_welcome_message">Welcome</string>
+    <string name="connect_navigation_error">Navigation issue</string>
+    <string name="connect_biometric_error">Authentication Failed</string>
+    <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using ConnectID.</string>
+    <string name="login_input_auto">AUTO</string>
+    <string name="connect_button_logged_in">Go to Connect menu</string>
+    <string name="connect_consent_title">Consent</string>
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
+    <string name="add_secondary_phone_number">Add Secondary Phone Number</string>
+    <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
+    <string name="login_via_connect">Ready to login!\n</string>
+    <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
 </resources>

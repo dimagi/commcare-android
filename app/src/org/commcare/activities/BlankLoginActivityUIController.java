@@ -55,7 +55,7 @@ public class BlankLoginActivityUIController extends LoginActivityUIController {
     }
 
     @Override
-    protected void setMultipleAppsUIState(ArrayList<String> appNames, int position) {
+    protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
     }
 
     @Override
