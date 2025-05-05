@@ -194,10 +194,9 @@ public class BiometricsHelper {
             //An alternative for fingerprint enroll that might be available
             enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
         } else {
-            //No way to enroll, have to fail
-            Logger.exception("Biometric config failed", new Exception(String.format(Locale.getDefault(),
-                    "No available enroll activity for authenticator %d", authenticator)));
-            return false;
+            //API < 28 — just open security settings
+            activity.startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+            return true;
         }
 
         activity.startActivityForResult(enrollIntent, ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE);
