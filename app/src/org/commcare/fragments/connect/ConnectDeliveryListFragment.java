@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
@@ -187,7 +188,21 @@ public class ConnectDeliveryListFragment extends Fragment {
                 nameText.setText(delivery.getEntityName());
                 dateText.setText(ConnectManager.paymentDateFormat(delivery.getDate()));
                 statusText.setText(delivery.getStatus());
-                reasonText.setText(delivery.getReason());
+
+                String descriptionText = delivery.getReason();
+                if(descriptionText == null) {
+                    if(delivery.getFlags() != null) {
+                        List<String> flagStrings = new ArrayList<>();
+                        for (ConnectJobDeliveryFlagRecord flag : delivery.getFlags()) {
+                            flagStrings.add(flag.getDescription());
+                        }
+                        descriptionText = String.join(", ", flagStrings);
+                    } else {
+                        descriptionText = "";
+                    }
+                }
+                reasonText.setText(descriptionText);
+
                 handleUI(context, delivery.getStatus());
             }
 
