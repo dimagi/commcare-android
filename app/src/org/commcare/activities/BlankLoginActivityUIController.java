@@ -12,12 +12,12 @@ import java.util.ArrayList;
 /**
  * UIController for running LoginActivity without showing anything on the screen
  */
-public class BlankLoginActivityUiController extends LoginActivityUIController {
+public class BlankLoginActivityUIController extends LoginActivityUIController {
 
     private EditText username;
     private EditText password;
 
-    public BlankLoginActivityUiController(LoginActivity activity) {
+    public BlankLoginActivityUIController(LoginActivity activity) {
         super(activity);
     }
 
