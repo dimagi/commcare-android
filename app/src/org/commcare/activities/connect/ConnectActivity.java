@@ -268,7 +268,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     public void startAppValidation() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
+        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_CONNECT, true);
         verificationLauncher.launch(i);
     }
 }
