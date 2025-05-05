@@ -34,6 +34,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private String button2Text;
     private String userName;
     private String password;
+    private boolean isDismissible = true;
     private int callingClass;
     private static final String KEY_TITLE = "title";
     private static final String KEY_MESSAGE = "message";
@@ -41,18 +42,19 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private static final String KEY_USER_NAME = "user_name";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_CALLING_CLASS = "calling_class";
+    private static final String KEY_IS_DISMISSIBLE = "is_dismissible";
     private ScreenConnectMessageBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        this.setCancelable(false);
         binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
         binding.connectMessageButton.setOnClickListener(v -> handleContinueButtonPress(false));
         binding.connectMessageButton2.setOnClickListener(v -> handleContinueButtonPress(true));
         loadArguments();
+        this.setCancelable(isDismissible);
         return view;
     }
 
@@ -73,6 +75,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
             userName = savedInstanceState.getString(KEY_USER_NAME);
             password = savedInstanceState.getString(KEY_PASSWORD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
+            isDismissible = savedInstanceState.getBoolean(KEY_IS_DISMISSIBLE);
         }
     }
 
@@ -85,6 +88,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         outState.putString(KEY_USER_NAME, userName);
         outState.putString(KEY_PASSWORD, password);
         outState.putInt(KEY_CALLING_CLASS, callingClass);
+        outState.putBoolean(KEY_IS_DISMISSIBLE, isDismissible);
     }
 
     private void loadArguments() {
@@ -94,6 +98,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
         callingClass = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getCallingClass();
         userName = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getPhone();
         password = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getPassword();
+        isDismissible = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getIsDismissible();
         if (ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text() != null && !ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text().isEmpty()) {
             button2Text = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text();
         }
