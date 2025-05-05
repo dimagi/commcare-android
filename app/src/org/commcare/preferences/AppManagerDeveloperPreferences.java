@@ -1,9 +1,8 @@
 package org.commcare.preferences;
 
-import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
@@ -20,14 +19,15 @@ import androidx.preference.Preference;
 
 public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
 
-    private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
+    private static final String ENABLE_PRIVILEGE = "enable-mobile-privilege";
+    private static final String ENABLE_CONNECT_ID = "enable-connect-id";
     private static final String DEVELOPER_PREFERENCES_ENABLED = "developer-preferences-enabled";
-    private final static Map<String, String> keyToTitleMap = new HashMap<>();
     private static final String CONNECT_ID_ENABLED = "connect_id-enabled";
-
+    private static final Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
         keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privileges");
+        keyToTitleMap.put(ENABLE_CONNECT_ID, "menu.enable.connect.id");
     }
 
     @NonNull
@@ -56,6 +56,19 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
             launchPrivilegeClaimActivity();
             return true;
         });
+
+        Preference enableConectIdButton = findPreference(ENABLE_CONNECT_ID);
+        enableConectIdButton.setOnPreferenceClickListener(preference -> {
+            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
+                    AnalyticsParamValue.ENABLE_CONNECT_ID);
+            enableConnectId();
+            return true;
+        });
+    }
+
+    private void enableConnectId() {
+        AppManagerDeveloperPreferences.setConnectIdEnabled(true);
+        Toast.makeText(getContext(), getString(R.string.connect_id_enabled), Toast.LENGTH_SHORT).show();
     }
 
     private void launchPrivilegeClaimActivity() {

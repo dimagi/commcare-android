@@ -25,11 +25,12 @@ import retrofit2.Response;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class HttpUtils {
-
     public static String getCredential(AuthInfo authInfo) {
         if (authInfo instanceof AuthInfo.ProvidedAuth) {
             String username = ((AuthInfo.ProvidedAuth)authInfo).wrapDomain ? buildDomainUser(authInfo.username) : authInfo.username;
             return getCredential(username, authInfo.password);
+        } else if (authInfo instanceof AuthInfo.TokenAuth) {
+            return getCredential(((AuthInfo.TokenAuth)authInfo).bearerToken);
         } else if (authInfo instanceof AuthInfo.CurrentAuth) {
             // use the logged in user
             User user = getUser();
@@ -71,6 +72,14 @@ public class HttpUtils {
             return null;
         } else {
             return Credentials.basic(username, buildAppPassword(password));
+        }
+    }
+
+    private static String getCredential(String bearerToken) {
+        if (bearerToken == null) {
+            return null;
+        } else {
+            return "Bearer " + bearerToken;
         }
     }
 

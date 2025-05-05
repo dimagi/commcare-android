@@ -311,6 +311,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
+    //Handles async network response from ModernHttpTask
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
             Context context, String url, boolean usingTokenAuth, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {

@@ -108,6 +108,7 @@ menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
+menu.enable.connect.id=Enable ConnectID
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -199,7 +200,7 @@ post.generic.error=An error occurred while preparing the HTTP request
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
-post.unknown.response=Received unknown resonse code (${0}) from server
+post.unknown.response=Received unknown response code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
@@ -370,6 +371,7 @@ select.list.title=Select
 select.detail.callout.title=Select phone number action
 select.detail.callout.call=Call
 select.detail.callout.sms=Send SMS
+
 
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
@@ -552,6 +554,14 @@ notification.bad.certificate.title=Couldn't securely connect to the server.
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
 notification.bad.certificate.button=Go to settings
+
+notification.token.unavailable.title=Couldn't connect to the server.
+notification.token.unavailable.detail=CommCare had an issue authenticating the user.
+notification.token.unavailable.action=Check your device's time and date to make sure they are correct, then try again.
+
+notification.token.denied.title=Couldn't connect to the server.
+notification.token.denied.detail=CommCare can no longer communicate with the ConnectID server.
+notification.token.denied.action=Please recover your ConnectID account, then try again.
 
 notification.restore.storagefull.title=Couldn't save your application's resources
 notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.

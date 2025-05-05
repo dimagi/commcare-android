@@ -4,11 +4,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.google.firebase.BuildConfig;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
@@ -16,6 +18,10 @@ import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
+
+import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
@@ -34,6 +40,11 @@ public class FirebaseAnalyticsUtil {
 
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
+
+
+    private static void reportEvent(String eventName) {
+        reportEvent(eventName, new Bundle());
+    }
 
     private static void reportEvent(String eventName, String paramKey, String paramVal) {
         reportEvent(eventName, new String[]{paramKey}, new String[]{paramVal});
@@ -79,9 +90,9 @@ public class FirebaseAnalyticsUtil {
             analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_ID, appId);
         }
 
-        String buildProfileID = ReportingUtils.getAppBuildProfileId();
-        if (!TextUtils.isEmpty(appId)) {
-            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileID);
+        String buildProfileId = ReportingUtils.getAppBuildProfileId();
+        if (!TextUtils.isEmpty(buildProfileId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.CC_APP_BUILD_PROFILE_ID, buildProfileId);
         }
 
         String serverName = ReportingUtils.getServerName();
@@ -93,17 +104,21 @@ public class FirebaseAnalyticsUtil {
         if (!TextUtils.isEmpty(freeDiskBucket)) {
             analyticsInstance.setUserProperty(CCAnalyticsParam.FREE_DISK, freeDiskBucket);
         }
+
+        analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
+                String.valueOf(ConnectIDManager.getInstance().isloggedIn()));
     }
 
     private static String getFreeDiskBucket() {
-        long freeDiskInMB = DiskUtils.calculateFreeDiskSpaceInBytes(Environment.getDataDirectory().getPath()) / 1000000;
-        if (freeDiskInMB > 1000) {
+        long freeDiskInMb = DiskUtils.calculateFreeDiskSpaceInBytes(
+                Environment.getDataDirectory().getPath()) / 1000000;
+        if (freeDiskInMb > 1000) {
             return "gt_1000";
-        } else if (freeDiskInMB > 500) {
+        } else if (freeDiskInMb > 500) {
             return "lt_1000";
-        } else if (freeDiskInMB > 300) {
+        } else if (freeDiskInMb > 300) {
             return "lt_500";
-        } else if (freeDiskInMB > 100) {
+        } else if (freeDiskInMb > 100) {
             return "lt_300";
         } else {
             return "lt_100";
@@ -466,5 +481,44 @@ public class FirebaseAnalyticsUtil {
         Bundle b = new Bundle();
         b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, positive ? 1 : 0);
         reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
+    }
+
+
+    public static void reportCccSignOut() {
+        reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
+    }
+
+    public static void reportLoginClicks() {
+        reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
+    }
+
+    public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
+        return (navController, navDestination, args) -> {
+            String currentFragmentClassName = "UnknownDestination";
+            NavDestination destination = navController.getCurrentDestination();
+            if (destination instanceof FragmentNavigator.Destination) {
+                currentFragmentClassName = ((FragmentNavigator.Destination)destination).getClassName();
+            }
+
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, navDestination.getLabel().toString());
+            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
+            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
+        };
+    }
+
+    public static void reportConnectTabChange(String tabName) {
+        reportEvent(CCAnalyticsEvent.CCC_TAB_CHANGE,
+                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME},
+                new String[]{tabName});
+    }
+
+    public static void reportNotificationType(String notificationType) {
+        reportEvent(CCAnalyticsEvent.CCC_NOTIFICATION_TYPE,
+                CCAnalyticsParam.NOTIFICATION_TYPE, notificationType);
+    }
+
+    public static void reportRekeyedDatabase() {
+        reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
     }
 }
