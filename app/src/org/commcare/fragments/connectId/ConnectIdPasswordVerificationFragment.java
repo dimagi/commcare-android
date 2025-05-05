@@ -260,8 +260,8 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
         return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverSecret).setChange(true).setRecover(true);
     }
 
-    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secretKey, boolean isDismissible) {
-        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secretKey).setIsDismissible(isDismissible);
+    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secretKey, boolean isCancellable) {
+        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secretKey).setIsCancellable(isCancellable);
     }
 
     private NavDirections navigateToConnectidPhoneVerifyForRecoveryPrimaryPhone() {
