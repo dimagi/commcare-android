@@ -138,7 +138,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
     }
 
     public String getReason() {
-        return reason != null && reason.equals("null") ? null : reason;
+        return reason;
     }
 
     public List<ConnectJobDeliveryFlagRecord> getFlags() {
