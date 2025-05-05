@@ -163,7 +163,7 @@
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:name="isDismissible"
+            android:name="isCancellable"
             android:defaultValue="true"
             app:argType="boolean" />
     </dialog>

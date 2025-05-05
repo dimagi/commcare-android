@@ -508,8 +508,8 @@ public class ConnectIdPinFragment extends Fragment {
         return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSignupFragment().setCallingClass(phase).setPhone(phone);
     }
 
-    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret,boolean isDismissible) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret).setIsDismissible(isDismissible);
+    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret,boolean isCancellable) {
+        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret).setIsCancellable(isCancellable);
     }
 
     private NavDirections navigateToConnectidPhoneVerify(int phase, String method, String phone, String userId, String password, String secretKey, boolean isRecovery) {
