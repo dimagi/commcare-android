@@ -17,6 +17,9 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
@@ -31,7 +34,6 @@ import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.sync.ExternalDataUpdateHelper;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.util.LogTypes;
@@ -42,21 +44,13 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nullable;
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -89,7 +83,6 @@ public class CommCareSessionService extends Service {
      * 2h time in Milliseconds to extend the session if needed
      */
     private static final long SESSION_EXTENSION_TIME = 2 * 60 * 60 * 1000;
-
     private Timer maintenanceTimer;
 
     private byte[] key = null;

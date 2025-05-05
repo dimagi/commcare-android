@@ -19,8 +19,13 @@ import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -29,6 +34,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
@@ -45,14 +51,19 @@ import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -119,6 +130,8 @@ public class ConnectIDManager {
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+
+                CrashUtil.registerUserData();
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -240,7 +253,7 @@ public class ConnectIDManager {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
                         "Found a valid existing Connect Token with current date set to " + currentDate +
                                 " and record expiration date being " + user.getConnectTokenExpiration());
-                return new AuthInfo.TokenAuth(user.getConnectToken().bearerToken);
+                return new AuthInfo.TokenAuth(user.getConnectToken());
             } else if (user != null) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
@@ -417,13 +430,13 @@ public class ConnectIDManager {
     }
 
     ///TODO update the code with connect code
-    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectManager.ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
-//                updateLearningProgress(context, job, listener);
+                ConnectManager.updateLearningProgress(context, job, listener);
             }
             case ConnectJobRecord.STATUS_DELIVERING -> {
-//                updateDeliveryProgress(context, job, listener);
+                ConnectManager.updateDeliveryProgress(context, job, listener);
             }
             default -> {
                 listener.connectActivityComplete(true);
@@ -434,18 +447,18 @@ public class ConnectIDManager {
     public void goToConnectJobsList(Context parent) {
         parentActivity = parent;
         completeSignin();
-//        Intent i = new Intent(parent, ConnectActivity.class);
-//        parent.startActivity(i);
+        Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
     }
 
 
     public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
         ///TODO uncomment with connect pahse pr
-//        completeSignin();
-//        Intent i = new Intent(activity, ConnectActivity.class);
-//        i.putExtra("info", true);
-//        i.putExtra("buttons", allowProgression);
-//        activity.startActivity(i);
+        completeSignin();
+        Intent i = new Intent(activity, ConnectActivity.class);
+        i.putExtra("info", true);
+        i.putExtra("buttons", allowProgression);
+        activity.startActivity(i);
     }
 
     public ConnectJobRecord setConnectJobForApp(Context context, String appId) {

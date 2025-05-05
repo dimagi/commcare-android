@@ -21,14 +21,12 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.preference.PreferenceManager;
-
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
@@ -42,13 +40,14 @@ import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.PasswordShow;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.UiElement;
-
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
+
+import androidx.preference.PreferenceManager;
 
 /**
  * Handles login activity UI
@@ -69,6 +68,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.btn_view_notifications)
     private RectangleButtonWithText notificationButton;
+
+    @UiElement(value = R.id.connect_login_button)
+    private Button connectLoginButton;
 
     @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
@@ -96,8 +98,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
-    @UiElement(value = R.id.connect_login_button)
-    private Button connectLoginButton;
+
     @UiElement(value = R.id.login_or)
     private TextView orLabel;
 
@@ -198,7 +199,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setBannerLayoutLogic() {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
-        final SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 () -> {
                     int hideAll = getResources().getInteger(
@@ -225,6 +225,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
+
         ApplicationRecord presetAppRecord = getPresetAppRecord(readyApps);
         boolean noApps = readyApps.isEmpty();
         if (readyApps.size() == 1 || presetAppRecord != null) {
@@ -457,6 +458,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         spinner.setSelection(position);
         spinner.setVisibility(View.VISIBLE);
     }
+
 
     protected void setPermissionsGrantedState() {
         loginButton.setEnabled(true);

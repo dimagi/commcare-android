@@ -1,13 +1,12 @@
 package org.commcare.views;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
+
 import androidx.core.graphics.drawable.DrawableCompat;
 import android.util.AttributeSet;
 import android.util.StateSet;

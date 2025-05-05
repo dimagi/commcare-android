@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import org.commcare.utils.CommCareNavController;
 
 public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
@@ -147,9 +148,8 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                 break;
         }
 
-        if (navDirections != null) {
-            controller.navigate(navDirections);
-        }
+        CommCareNavController.navigateSafely(controller,navDirections);
+
     }
 
 
@@ -167,8 +167,9 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                         parent.getString(R.string.connect_recovery_alt_message),
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
                         parent.getString(R.string.connect_password_fail_button),
-                        parent.getString(R.string.connect_recovery_alt_change_button), null, null);
-        controller.navigate(navDirections);
+                        parent.getString(R.string.connect_recovery_alt_change_button),null,null);
+        CommCareNavController.navigateSafely(controller,navDirections);
+
     }
 
     @Override
