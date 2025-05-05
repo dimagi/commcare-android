@@ -108,7 +108,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
-    private static final int MENU_SCAN = Menu.FIRST + 2;
+    private static final int MENU_MAP = Menu.FIRST + 2;
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
@@ -719,8 +719,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
         if (isMappingEnabled) {
-            menu.add(0, MENU_SCAN, MENU_SCAN, Localization.get("select.menu.scan")).setIcon(
-                   R.drawable.startup_barcode);
+            menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
+                   R.drawable.ic_marker);
         }
 
         if (entitySelectSearchUI != null) {
@@ -757,10 +757,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || shortSelect.hasSortField()));
-        if(isMappingEnabled) {
-            menu.findItem(R.id.highlight_action_bar).setIcon(R.drawable.ic_marker);
-        }
-
         if (menu.findItem(R.id.menu_settings) != null) {
             // For the same reason as in onCreateOptionsMenu(), we may be trying to call this
             // before we're ready
@@ -779,19 +775,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             case MENU_SORT:
                 createSortMenu();
                 return true;
-            case MENU_SCAN:
-                barcodeScanOnClickListener.onClick(null);
+            case MENU_MAP:
+                Intent intent = new Intent(this,
+                        HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
+                this.startActivityForResult(intent, MAP_SELECT);
                 return true;
             // handling click on the barcode scanner's actionbar
             // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
-            case R.id.highlight_action_bar:
-                if(isMappingEnabled){
-                    Intent intent = new Intent(this,
-                            HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
-                    this.startActivityForResult(intent, MAP_SELECT);
-                }else {
-                    barcodeScanOnClickListener.onClick(null);
-                }
+            case R.id.barcode_scan_action_bar:
+                barcodeScanOnClickListener.onClick(null);
                 return true;
             // this is needed because superclasses do not implement the menu_settings click
             case R.id.menu_settings:
