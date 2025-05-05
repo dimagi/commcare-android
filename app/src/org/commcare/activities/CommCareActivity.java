@@ -749,7 +749,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
         SearchView searchView = (SearchView)searchMenuItem.getActionView();
-        MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.highlight_action_bar);
+        MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
         if (searchView != null) {
             if (instantiator != null) {
                 instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);

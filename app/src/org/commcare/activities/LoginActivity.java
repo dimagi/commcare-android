@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -779,7 +778,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void initUIController() {
         if (CommCareApplication.instance().isConsumerApp()) {
-            uiController = new BlankLoginActivityUiController(this);
+            uiController = new BlankLoginActivityUIController(this);
         } else {
             uiController = new LoginActivityUIController(this);
         }

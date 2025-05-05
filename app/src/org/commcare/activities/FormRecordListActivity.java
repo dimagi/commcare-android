@@ -579,7 +579,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
                 return true;
-            case R.id.highlight_action_bar:
+            case R.id.barcode_scan_action_bar:
                 barcodeScanOnClickListener.onClick(null);
                 return true;
             case R.id.menu_settings:
