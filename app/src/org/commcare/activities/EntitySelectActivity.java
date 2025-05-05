@@ -720,7 +720,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 android.R.drawable.ic_menu_sort_alphabetically);
         if (isMappingEnabled) {
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
-                   R.drawable.ic_marker);
+                   R.drawable.ic_marker).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         }
 
         if (entitySelectSearchUI != null) {
