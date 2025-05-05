@@ -165,6 +165,10 @@
             android:name="password"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="isCancellable"
+            android:defaultValue="true"
+            app:argType="boolean" />
     </dialog>
 
     <fragment
