@@ -1,6 +1,7 @@
 package org.commcare.network;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -21,6 +22,7 @@ import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -178,27 +180,23 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         if (username != null) {
             AuthInfo.TokenAuth tokenAuth = ConnectIDManager.getInstance().getHqTokenIfLinked(username);
             if (tokenAuth != null) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
                 return tokenAuth;
             } else {
                 if (ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
-                    Logger.exception("Token auth error for connect managed app",
-                            new Throwable("No token Auth available for a connect managed app"));
+                    Logger.log(LogTypes.TYPE_MAINTENANCE,
+                            "Could not get token Auth for a connect managed app");
                 }
 
                 try {
                     CommCareApplication.instance().getSession().getLoggedInUser();
                     //Use CurrentAuth (possibly token) if we have an active session and logged in user
                     return new AuthInfo.CurrentAuth();
-                } catch (Exception e) {
-                    Logger.exception("Error encountered while building auth", e);
-                    //No token if no session
+                } catch (SessionUnavailableException e) {
+                    // no logged in user, fallback to provided auth
                     return new AuthInfo.ProvidedAuth(username, password);
                 }
             }
         }
-
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying no auth");
         return new AuthInfo.NoAuth();
     }
 
