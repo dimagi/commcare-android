@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
-    <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
+    <item name="login_screen_hide_all_cutoff" type="integer">200</item>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->
-    <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
+    <item name="login_screen_hide_banner_cutoff" type="integer">250</item>
     <item name="detail_size_cutoff" format="integer" type="integer">500</item>
     <string name="title_bar_name">@string/application_name</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
-    <string name="PostURL">https://staging.commcarehq.org/receiver/submit/pf</string>
-    <string name="ota_restore_url">https://staging.commcarehq.org/ota_restore</string>
+    <string name="PostURL" translatable="false">https://staging.commcarehq.org/receiver/submit/pf</string>
+    <string name="ota_restore_url" translatable="false">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
     <string name="ConnectFetchDbKeyURL">/users/fetch_db_key</string>
@@ -18,7 +18,7 @@
     <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
-    <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
+    <string name="key_server" translatable="false">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
     <string name="manager_activity_name">App Manager</string>
@@ -727,7 +727,6 @@
         <item>Latest version</item>
         <item>Latest saved state</item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
     <string-array name="update_target_vals">
         <item>release</item>
         <item>build</item>
@@ -890,16 +889,16 @@
     <string name="login_input_auto">AUTO</string>
     <string name="connect_consent_title">Consent</string>
     <string name="connect_db_corrupt" cc:translatable="true">A problem occurred with the database, please recover your account.</string>
-    <string name="ConnectOpportunitiesURL">https://%s/api/opportunity/</string>
-    <string name="ConnectStartLearningURL">https://%s/users/start_learn_app/</string>
-    <string name="ConnectLearnProgressURL">https://%s/api/opportunity/%d/learn_progress</string>
-    <string name="ConnectClaimJobURL">https://%s/api/opportunity/%d/claim</string>
-    <string name="ConnectDeliveriesURL">https://%s/api/opportunity/%d/delivery_progress</string>
-    <string name="ConnectPaymentConfirmationURL">https://%s/api/payment/%s/confirm</string>
-    <string name="ConnectMessageRetrieveMessagesURL">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
-    <string name="ConnectMessageChannelConsentURL">https://connectid.dimagi.com/messaging/update_consent/</string>
-    <string name="ConnectMessageSendURL">https://connectid.dimagi.com/messaging/send_message/</string>
-    <string name="ConnectMessageConfirmURL">https://connectid.dimagi.com/messaging/update_received/</string>
+    <string name="ConnectOpportunitiesURL" translatable="false">https://%s/api/opportunity/</string>
+    <string name="ConnectStartLearningURL" translatable="false">https://%s/users/start_learn_app/</string>
+    <string name="ConnectLearnProgressURL" translatable="false">https://%s/api/opportunity/%d/learn_progress</string>
+    <string name="ConnectClaimJobURL" translatable="false">https://%s/api/opportunity/%d/claim</string>
+    <string name="ConnectDeliveriesURL" translatable="false">https://%s/api/opportunity/%d/delivery_progress</string>
+    <string name="ConnectPaymentConfirmationURL" translatable="false">https://%s/api/payment/%s/confirm</string>
+    <string name="ConnectMessageRetrieveMessagesURL" translatable="false">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
+    <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string>
+    <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string>
+    <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string>
     <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
     <string name="add_secondary_phone_number">Add Secondary Phone Number</string>
     <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
