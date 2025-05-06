@@ -74,7 +74,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
         updateBackButton();
 
-        destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
+        destinationListener = FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener();
 
         NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
         navController = host.getNavController();

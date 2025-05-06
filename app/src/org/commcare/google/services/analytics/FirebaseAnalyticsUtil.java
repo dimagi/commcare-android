@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 
-import com.google.firebase.BuildConfig;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
@@ -492,7 +491,8 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
-    public static NavController.OnDestinationChangedListener getDestinationChangeListener() {
+    // logs screen view events when set to a navigation controller
+    public static NavController.OnDestinationChangedListener getNavControllerPageChangeLoggingListener() {
         return (navController, navDestination, args) -> {
             String currentFragmentClassName = "UnknownDestination";
             NavDestination destination = navController.getCurrentDestination();

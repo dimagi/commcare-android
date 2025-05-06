@@ -11,7 +11,6 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -29,7 +28,7 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
         setContentView(R.layout.activity_connect_messaging);
         setTitle(R.string.connect_messaging_title);
 
-        destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
+        destinationListener = FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener();
 
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect_messaging);
