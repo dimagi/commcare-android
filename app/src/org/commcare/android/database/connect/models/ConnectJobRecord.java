@@ -454,27 +454,22 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         String dailyStart = getDailyStartTime();
         String dailyFinish = getDailyFinishTime();
 
-        if (dailyStart.length() == 0 || dailyFinish.length() == 0) {
+        if (dailyStart == "null" || dailyFinish == "null" || dailyStart.isEmpty() || dailyFinish.isEmpty()) {
             return null;
         }
 
         try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                //DateTimeFormatter is more efficient than SimpleDateFormat
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_SOURCE_FORMAT);
-                LocalTime start = LocalTime.parse(dailyStart, formatter);
-                LocalTime end = LocalTime.parse(dailyFinish, formatter);
-                formatter = DateTimeFormatter.ofPattern(WORKING_HOURS_TARGET_FORMAT);
-                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
-            } else {
-                // remove this code whenever we change minSdk to 26
-                SimpleDateFormat formatter = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT);
-                Date start = formatter.parse(dailyStart);
-                Date end = formatter.parse(dailyFinish);
-                formatter = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT);
-                return String.format(WORKING_HOURS_PATTERN,formatter.format(start),formatter.format(end));
-            }
-        } catch(ParseException e) {
+            SimpleDateFormat utcFormat = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT, Locale.getDefault());
+            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date startTime = utcFormat.parse(dailyStart);
+            Date endTime = utcFormat.parse(dailyFinish);
+            SimpleDateFormat localFormat = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT, Locale.getDefault());
+
+            String startTimeLocal = localFormat.format(startTime);
+            String endTimeLocal = localFormat.format(endTime);
+
+            return String.format(WORKING_HOURS_PATTERN, startTimeLocal, endTimeLocal);
+        } catch (ParseException e) {
             CrashUtil.reportException(new Exception("Error parsing working hours", e));
             return null;
         }
