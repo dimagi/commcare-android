@@ -53,5 +53,52 @@
     <declare-styleable name="FilePreference">
         <attr name="file_type" format="string"/>
     </declare-styleable>
+    <declare-styleable name="CustomOtpView">
+        <attr name="otpViewDigitCount" format="integer" />
+        <attr name="otpViewBorderColor" format="color" />
+        <attr name="otpViewBorderRadius" format="dimension" />
+        <attr name="otpViewBorderWidth" format="dimension" />
+        <attr name="otpViewTextColor" format="color" />
+        <attr name="otpViewTextSize" format="dimension" />
+        <attr name="otpViewErrorBorderColor" format="color" />
+        <attr name="otpViewErrorTextColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="CustomEditText">
+        <!-- Border attributes -->
+        <attr name="editTextBorderWidth" format="dimension"/>
+        <attr name="editTextCornerRadius" format="dimension"/>
+        <attr name="editTextBorderColor" format="color"/>
+
+        <!-- Editable attribute -->
+        <attr name="editTextEditable" format="boolean"/>
+
+        <!-- Drawable attributes -->
+        <attr name="editTextDrawableStart" format="reference"/>
+        <attr name="editTextDrawableEnd" format="reference"/>
+        <attr name="editTextDrawableStartVisible" format="boolean"/>
+        <attr name="editTextDrawableEndVisible" format="boolean"/>
+        <attr name="editTextDrawableTint" format="color"/>
+
+        <!-- Padding for drawables -->
+        <attr name="editTextDrawableStartPaddingLeft" format="dimension"/>
+        <attr name="editTextDrawableEndPaddingRight" format="dimension"/>
+        <attr name="editTextDrawablePadding" format="dimension"/>
+
+        <attr name="editTextText" format="string"/>
+        <attr name="editTextHintColor" />
+        <attr name="editTextTextSize" format="dimension"/>
+        <attr name="editTextHint" format="string"/>
+        <attr name="editTextHintSize" />
+
+        <!-- New padding attributes -->
+        <attr name="editTextPaddingTop" format="dimension" />
+        <attr name="editTextPaddingBottom" format="dimension" />
+        <attr name="editTextPaddingStart" format="dimension" />
+        <attr name="editTextPaddingEnd" format="dimension" />
+        <attr name="editTextFontFamily" format="string" />
+    </declare-styleable>
+    <attr name="editTextHintColor" format="color"/>
+    <attr name="editTextHintSize" format="dimension"/>
+
 
 </resources>

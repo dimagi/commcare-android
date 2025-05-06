@@ -1,5 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.8.20'
+    ext.nav_version = '2.8.5'
     repositories {
         google()
         mavenCentral()
@@ -13,6 +14,7 @@ buildscript {
         classpath 'org.jacoco:org.jacoco.core:0.8.10'
         classpath 'com.vanniktech:gradle-maven-publish-plugin:0.15.1'
         classpath 'com.google.firebase:perf-plugin:1.4.2'
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
     }
 }
 

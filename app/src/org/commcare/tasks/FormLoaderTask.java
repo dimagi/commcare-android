@@ -126,7 +126,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         try {
             serializeFormDef(fd, formDefRecord.getFilePath());
         } catch (Exception e) {
-            // The cache is a bonus, so if we can't write it, don't crash, but log 
+            // The cache is a bonus, so if we can't write it, don't crash, but log
             // it so we can clean up whatever is preventing the cached version from
             // working
             Logger.log(LogTypes.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ForceCloseLogger.getStackTrace(e));
@@ -326,8 +326,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
                     try {
                         outputStream.close();
                     } catch (IOException e) {
-                        // Swallow this. If we threw an exception from inside the 
-                        // try, this close exception will trump it on the return 
+                        // Swallow this. If we threw an exception from inside the
+                        // try, this close exception will trump it on the return
                         // path, and we care a lot more about that exception
                         // than this one.
                     }
