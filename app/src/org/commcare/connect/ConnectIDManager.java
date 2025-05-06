@@ -631,7 +631,7 @@ public class ConnectIDManager {
     }
 
     public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
-        if (isloggedIn()) {
+        if (!isloggedIn()) {
             return null;
         }
 
