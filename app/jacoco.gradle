@@ -22,7 +22,8 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testCommcareDebugUnitTest
                       '**/Manifest*.*',
                       '**/*Test*.*',
                       'android/**/*.*',
-                      '**/data/models/*']
+                      '**/data/models/*',
+                      '**/*$Companion.*']
     def classes = fileTree(dir: "${project.buildDir}/intermediates/javac/commcareDebug/classes/", excludes: fileFilter)
     getClassDirectories().setFrom(files([classes]))
 
