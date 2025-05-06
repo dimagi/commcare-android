@@ -483,8 +483,8 @@ public class FirebaseAnalyticsUtil {
     }
 
 
-    public static void reportCccSignOut() {
-        reportEvent(CCAnalyticsEvent.CCC_SIGN_OUT);
+    public static void reportCccForget() {
+        reportEvent(CCAnalyticsEvent.CCC_FORGET);
     }
 
     public static void reportLoginClicks() {

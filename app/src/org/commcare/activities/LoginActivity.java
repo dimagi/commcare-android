@@ -580,6 +580,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerConnectIdUser();
                 return true;
             case MENU_CONNECT_FORGET:
+                FirebaseAnalyticsUtil.reportCccForget();
                 connectIDManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
