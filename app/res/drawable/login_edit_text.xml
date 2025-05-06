@@ -11,5 +11,5 @@
     <stroke
         android:color="@color/cc_neutral_bg"
         android:width="1dp"/>
-    <corners android:radius="5dp"/>
+    <corners android:radius="@dimen/corner_radius_small_5dp"/>
 </shape>

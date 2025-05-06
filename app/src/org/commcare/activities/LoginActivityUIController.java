@@ -202,9 +202,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 () -> {
                     int hideAll = getResources().getInteger(
-                            R.integer.login_screen_hide_all_cuttoff);
+                            R.integer.login_screen_hide_all_cutoff);
                     int hideBanner = getResources().getInteger(
-                            R.integer.login_screen_hide_banner_cuttoff);
+                            R.integer.login_screen_hide_banner_cutoff);
                     int height = activityRootView.getHeight();
 
                     if (height < hideAll) {

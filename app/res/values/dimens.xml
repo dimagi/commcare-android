@@ -151,5 +151,15 @@
     <dimen name="dp6">6dp</dimen>
     <dimen name="dp60">60dp</dimen>
     <dimen name="dp48">48dp</dimen>
+
+    <!-- text margin in Map Info View -->
     <dimen name="text_margin">16dp</dimen>
+
+    <dimen name="progress_ring_thickness">5dp</dimen>
+
+    <dimen name="connect_message_input_corner_radius">50dp</dimen>
+    <dimen name="connect_message_input_stroke_width">0.5dp</dimen>
+    <dimen name="connect_message_corner_radius">16dp</dimen>
+
+    <dimen name="corner_radius_small_5dp">5dp</dimen>
 </resources>
