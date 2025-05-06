@@ -99,8 +99,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
 
         DataPullTask.PullTaskResult result = resultAndError.data;
-
-
         switch (result) {
             case EMPTY_URL:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);

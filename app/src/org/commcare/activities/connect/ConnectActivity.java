@@ -10,18 +10,26 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.ActionBar;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.google.common.base.Strings;
 
-import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareVerificationActivity;
+import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.MessageManager;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -29,25 +37,12 @@ import org.javarosa.core.services.Logger;
 
 import javax.annotation.Nullable;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.ActionBar;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.fragment.NavHostFragment;
-
-public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
+public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngineListener> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     String redirectionAction = "";
     String opportunityId = "";
-    NavController navController;
     MenuItem messagingMenuItem = null;
-
-    NavController.OnDestinationChangedListener destinationListener = null;
 
     final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -63,7 +58,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_connect);
         setTitle(getString(R.string.connect_title));
 
         redirectionAction = getIntent().getStringExtra("action");
@@ -73,12 +67,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         }
 
         updateBackButton();
-
-        destinationListener = FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener();
-
-        NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        navController = host.getNavController();
-        navController.addOnDestinationChangedListener(destinationListener);
 
         if (getIntent().getBooleanExtra("info", false)) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
@@ -204,18 +192,14 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     }
 
     @Override
-    protected void onDestroy() {
-        if (destinationListener != null) {
-            NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.nav_host_fragment_connect);
-            if (navHostFragment != null) {
-                NavController navController = navHostFragment.getNavController();
-                navController.removeOnDestinationChangedListener(destinationListener);
-            }
-            destinationListener = null;
-        }
+    protected int getLayoutResource() {
+        return R.layout.screen_connect;
+    }
 
-        super.onDestroy();
+    @Override
+    protected NavHostFragment getHostFragment() {
+        return (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_connect);
     }
 
     @Override
