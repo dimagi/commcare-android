@@ -106,13 +106,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
             case AUTH_FAILED:
-                String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-
-                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
-                    Logger.exception("Token auth error for connect managed app",
-                            new Throwable("Token Auth failed during sync for a ConnectID managed app"));
-                }
-
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:
