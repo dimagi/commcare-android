@@ -98,20 +98,16 @@ public class CustomOtpView extends LinearLayout {
 
         editText.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
-                int edtIndex = index > 0 ? index - 1 : 0;
-
-                if(index == 5) {
-                    //Check for special case where we need to delete last digit and stay in the cell
-                    EditText last = (EditText)getChildAt(index);
-                    if(last.getText().length() > 0) {
-                        edtIndex++;
-                    }
+                if (editText.getText().toString().isEmpty() && index > 0) {
+                    // Move to previous field and clear it
+                    EditText previousEditText = (EditText) getChildAt(index - 1);
+                    previousEditText.setText("");
+                    previousEditText.requestFocus();
+                } else {
+                    // Just clear current field
+                    editText.setText("");
                 }
-
-                EditText edt = (EditText)getChildAt(edtIndex);
-                edt.setText("");
-                edt.requestFocus();
-                return true; // Consume the event
+                return true;
             }
             return false;
         });
