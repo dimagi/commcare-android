@@ -630,18 +630,18 @@ public class ConnectIDManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
-        if (!manager.isloggedIn()) {
+    public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
+        if (isloggedIn()) {
             return null;
         }
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
         if (user == null) {
             return null;
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, seatedAppId, username);
         if(appRecord == null) {
             return null;
         }
