@@ -149,7 +149,7 @@ public class ConnectIDManager {
     }
 
     private void scheduleHearbeat() {
-        if (AppManagerDeveloperPreferences.isConnectIdEnabled()) {
+        if (isloggedIn()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
@@ -177,8 +177,7 @@ public class ConnectIDManager {
 
 
     public boolean isloggedIn() {
-        return AppManagerDeveloperPreferences.isConnectIdEnabled()
-                && connectStatus == ConnectIdStatus.LoggedIn;
+        return connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
