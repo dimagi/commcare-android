@@ -104,6 +104,7 @@ public class ApiConnectId {
                 Logger.exception("Parsing return from ConnectID token call", e);
             }
         } else if (postResult.responseCode == 400) {
+            Logger.exception("Token Request Denied", new Throwable("Encountered 400 while retrieving ConnectID token"));
             throw new TokenRequestDeniedException();
         }
 

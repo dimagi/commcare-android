@@ -810,11 +810,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case EMPTY_URL:
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
+            case TOKEN_UNAVAILABLE:
+                raiseLoginMessage(StockMessages.TokenUnavailable, false);
+            case TOKEN_DENIED:
+                raiseLoginMessage(StockMessages.TokenDenied, false);
             case AUTH_FAILED:
-                if (connectIDManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
-                    Logger.exception("Token auth error for connect managed app",
-                            new Throwable("Token Auth failed during login for a ConnectID managed app"));
-                }
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BAD_DATA_REQUIRES_INTERVENTION:

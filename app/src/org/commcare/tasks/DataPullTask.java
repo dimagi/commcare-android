@@ -13,6 +13,8 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.util.InvalidCaseGraphException;
+import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
@@ -288,6 +290,10 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to SSL error");
             responseError = PullTaskResult.BAD_CERTIFICATE;
+        }catch (TokenUnavailableException e) {
+            responseError = PullTaskResult.TOKEN_UNAVAILABLE;
+        } catch (TokenRequestDeniedException e) {
+            responseError = PullTaskResult.TOKEN_DENIED;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(LogTypes.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
@@ -694,7 +700,9 @@ public abstract class DataPullTask<R>
         STORAGE_FULL(AnalyticsParamValue.SYNC_FAIL_STORAGE_FULL),
         CAPTIVE_PORTAL(AnalyticsParamValue.SYNC_FAIL_CAPTIVE_PORTAL),
         AUTH_OVER_HTTP(AnalyticsParamValue.SYNC_FAIL_AUTH_OVER_HTTP),
-        BAD_CERTIFICATE(AnalyticsParamValue.SYNC_FAIL_BAD_CERTIFICATE);
+        BAD_CERTIFICATE(AnalyticsParamValue.SYNC_FAIL_BAD_CERTIFICATE),
+        TOKEN_UNAVAILABLE(AnalyticsParamValue.SYNC_FAIL_TOKEN_UNAVAILABLE),
+        TOKEN_DENIED(AnalyticsParamValue.SYNC_FAIL_TOKEN_DENIED);
 
         public final String analyticsFailureReasonParam;
 

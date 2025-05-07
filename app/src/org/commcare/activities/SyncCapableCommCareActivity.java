@@ -14,8 +14,6 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
-import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -32,7 +30,6 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
@@ -102,6 +99,12 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         switch (result) {
             case EMPTY_URL:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
+                break;
+            case TOKEN_UNAVAILABLE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.token.unavailable"), FAIL);
+                break;
+            case TOKEN_DENIED:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.token.denied"), FAIL);
                 break;
             case AUTH_FAILED:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
