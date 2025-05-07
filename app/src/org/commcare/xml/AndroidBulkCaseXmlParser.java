@@ -1,6 +1,6 @@
 package org.commcare.xml;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;

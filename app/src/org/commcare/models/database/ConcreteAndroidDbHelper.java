@@ -2,7 +2,7 @@ package org.commcare.models.database;
 
 import android.content.Context;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 /**
  * A Db Handler for direct DB Handle access, when

@@ -4,7 +4,7 @@ import android.net.ParseException;
 import android.net.Uri;
 import android.util.Pair;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;

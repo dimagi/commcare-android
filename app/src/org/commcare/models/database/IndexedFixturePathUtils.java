@@ -1,9 +1,9 @@
 package org.commcare.models.database;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.modern.database.DatabaseIndexingUtils;
 import org.commcare.utils.SerializationUtil;

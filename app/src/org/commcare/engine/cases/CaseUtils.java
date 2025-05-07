@@ -3,7 +3,7 @@ package org.commcare.engine.cases;
 import static org.commcare.cases.model.Case.INDEX_CASE_ID;
 import static org.commcare.cases.util.CaseDBUtils.xordata;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;

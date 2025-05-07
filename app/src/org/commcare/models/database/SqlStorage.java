@@ -3,9 +3,9 @@ package org.commcare.models.database;
 import android.database.Cursor;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteQueryBuilder;
-import net.sqlcipher.database.SQLiteStatement;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteQueryBuilder;
+import net.zetetic.database.sqlcipher.SQLiteStatement;
 
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.modern.database.DatabaseHelper;
