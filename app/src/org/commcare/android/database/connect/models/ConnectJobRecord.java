@@ -5,6 +5,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -186,10 +187,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return job;
     }
 
-    private String safeString(JSONObject obj, String key) {
-        return obj.isNull(key) ? "" : obj.optString(key);
-    }
-
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
 
@@ -225,9 +222,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         //verification_flags -> {"form_submission_start":"07:30:00","form_submission_end":"18:45:00"}
         String flagsKey = "verification_flags";
         JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
-        if(flags != null) {
-            job.dailyStartTime = job.safeString(flags,META_DAILY_START_TIME);
-            job.dailyFinishTime = job.safeString(flags,META_DAILY_FINISH_TIME);
+        if (flags != null) {
+            job.dailyStartTime = JsonExtensions.optStringSafe(flags, META_DAILY_START_TIME) != null
+                    ? JsonExtensions.optStringSafe(flags, META_DAILY_START_TIME) : "";
+            job.dailyFinishTime = JsonExtensions.optStringSafe(flags, META_DAILY_FINISH_TIME) != null
+                    ? JsonExtensions.optStringSafe(flags, META_DAILY_FINISH_TIME) : "";
         }
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
@@ -456,7 +455,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         String dailyStart = getDailyStartTime();
         String dailyFinish = getDailyFinishTime();
 
-        if (dailyStart.isEmpty() || dailyFinish.isEmpty()) {
+        if (dailyStart == null || dailyFinish == null || dailyStart.isEmpty() || dailyFinish.isEmpty()) {
             return null;
         }
 
