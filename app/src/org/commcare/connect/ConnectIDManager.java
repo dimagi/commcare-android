@@ -22,10 +22,6 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
-import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
-import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
-import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -34,12 +30,11 @@ import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
@@ -51,19 +46,14 @@ import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -624,18 +614,18 @@ public class ConnectIDManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
-        if (!manager.isloggedIn()) {
+    public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
+        if (!isloggedIn()) {
             return null;
         }
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
         if (user == null) {
             return null;
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, seatedAppId, username);
         if(appRecord == null) {
             return null;
         }

@@ -13,7 +13,7 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -41,7 +41,7 @@ public class MessageManager {
                     ConnectUserRecord user = ConnectManager.getUser(context);
                     AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context, user);
                     ApiConnectId.retrieveChannelEncryptionKeySync(context, channel, auth);
-                } catch (TokenRequestDeniedException | TokenUnavailableException e) {
+                } catch (TokenDeniedException | TokenUnavailableException e) {
                     Logger.exception("Retrieving channel encryption key", e);
                     return null;
                 }

@@ -14,8 +14,6 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.LayoutRes;
 
 import org.commcare.CommCareApplication;
-import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -32,7 +30,6 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.commcare.views.notifications.NotificationMessageFactory;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
@@ -99,20 +96,17 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
         }
 
         DataPullTask.PullTaskResult result = resultAndError.data;
-
-
         switch (result) {
             case EMPTY_URL:
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
                 break;
+            case TOKEN_UNAVAILABLE:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.token.unavailable"), FAIL);
+                break;
+            case TOKEN_DENIED:
+                updateUiAfterDataPullOrSend(Localization.get("sync.fail.token.denied"), FAIL);
+                break;
             case AUTH_FAILED:
-                String username = CommCareApplication.instance().getRecordForCurrentUser().getUsername();
-
-                if(ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
-                    Logger.exception("Token auth error for connect managed app",
-                            new Throwable("Token Auth failed during sync for a ConnectID managed app"));
-                }
-
                 updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
                 break;
             case BAD_DATA:

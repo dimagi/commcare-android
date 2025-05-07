@@ -176,7 +176,7 @@ public class NotificationMessageFactory {
         /**
          * SSO token request denied *
          */
-        TokenRequestDenied("notification.token.denied");
+        TokenDenied("notification.token.denied");
 
         StockMessages(String root) {
             this.root = root;

@@ -4,39 +4,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
-import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.ConnectIDManager;
-import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
-import org.commcare.dalvik.R;
-import org.commcare.views.dialogs.CustomProgressDialog;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
-import org.commcare.utils.CommCareNavController;
 
-public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
+import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.dalvik.R;
+import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
+import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
+import org.commcare.utils.CommCareNavController;
+import org.commcare.views.dialogs.CustomProgressDialog;
+
+public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdActivity> {
 
     public boolean forgotPassword = false;
     public boolean forgotPin = false;
     public String recoverPhone;
     public String recoverSecret;
     public String recoveryAltPhone;
-    private NavController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect_id);
-        controller = getHostFragment().getNavController();
         handleRedirection(getIntent());
-
         updateBackButton();
     }
 
@@ -80,7 +75,13 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         return null;
     }
 
-    private NavHostFragment getHostFragment() {
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.activity_connect_id;
+    }
+
+    @Override
+    protected NavHostFragment getHostFragment() {
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         return navHostFragment;
@@ -148,7 +149,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                 break;
         }
 
-        CommCareNavController.navigateSafely(controller,navDirections);
+        CommCareNavController.navigateSafely(navController,navDirections);
 
     }
 
@@ -168,7 +169,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
                         parent.getString(R.string.connect_password_fail_button),
                         parent.getString(R.string.connect_recovery_alt_change_button),null,null);
-        CommCareNavController.navigateSafely(controller,navDirections);
+        CommCareNavController.navigateSafely(navController,navDirections);
 
     }
 
