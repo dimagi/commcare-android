@@ -37,19 +37,20 @@ public class DbUtil {
         SQLiteDatabaseHook updateHook = new SQLiteDatabaseHook() {
 
             @Override
-            public void preKey(SQLiteDatabase database) {
+            public void preKey(SQLiteConnection connection) {
+
             }
 
             @Override
-            public void postKey(SQLiteDatabase database) {
-                database.rawExecSQL("PRAGMA cipher_migrate;");
+            public void postKey(SQLiteConnection connection) {
+                connection.executeRaw("PRAGMA cipher_migrate;", null, null);
             }
         };
 
         //go find the db path because the helper hides this (thanks android)
         File dbPath = context.getDatabasePath(dbName);
 
-        SQLiteDatabase oldDb = SQLiteDatabase.openOrCreateDatabase(dbPath, key, null, updateHook);
+        SQLiteDatabase oldDb = SQLiteDatabase.openOrCreateDatabase(dbPath, key, null, null, updateHook);
 
         //if we didn't get here, we didn't crash (what a great way to be testing our db version, right?)
         oldDb.close();

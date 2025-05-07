@@ -88,7 +88,7 @@ public class UserSandboxUtils {
 
         String oldKeyEncoded = getSqlCipherEncodedKey(unwrappedOldKey);
         String newKeyEncoded = getSqlCipherEncodedKey(unwrappedNewKey);
-        SQLiteDatabase rawDbHandle = SQLiteDatabase.openDatabase(newDb.getAbsolutePath(), oldKeyEncoded, null, SQLiteDatabase.OPEN_READWRITE);
+        SQLiteDatabase rawDbHandle = SQLiteDatabase.openDatabase(newDb.getAbsolutePath(), oldKeyEncoded, null, SQLiteDatabase.OPEN_READWRITE, null, null);
 
         rawDbHandle.execSQL("PRAGMA key = '" + oldKeyEncoded + "';");
         rawDbHandle.execSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
