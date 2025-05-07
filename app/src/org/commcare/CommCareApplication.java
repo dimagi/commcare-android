@@ -273,7 +273,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     protected void loadSqliteLibs() {
-        SQLiteDatabase.loadLibs(this);
+        System.loadLibrary("sqlcipher");
     }
 
     protected void turnOnStrictMode() {
