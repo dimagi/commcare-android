@@ -146,7 +146,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         return null;
     }
 
-    protected abstract Response<ResponseBody> doHttpRequest() throws IOException, TokenDeniedException, TokenUnavailableException;
+    protected abstract Response<ResponseBody> doHttpRequest() throws IOException;
 
     protected HttpCalloutOutcomes doResponseSuccess(Response<ResponseBody> response) throws IOException {
         beginResponseHandling(response);
