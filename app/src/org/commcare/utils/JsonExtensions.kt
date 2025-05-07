@@ -6,6 +6,5 @@ import org.json.JSONObject
 
 fun JSONObject.optStringSafe(key: String, fallback: String? = null): String? {
     if (this.isNull(key)) return fallback
-    val value = fallback?.let { this.optString(key, it) }
-    return value ?: fallback
+    return this.optString(key, fallback)
 }
