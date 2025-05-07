@@ -186,6 +186,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return job;
     }
 
+    private String safeString(JSONObject obj, String key) {
+        return obj.isNull(key) ? "" : obj.optString(key);
+    }
+
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
 
@@ -222,8 +226,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         String flagsKey = "verification_flags";
         JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
         if(flags != null) {
-            job.dailyStartTime = flags.optString(META_DAILY_START_TIME, "");
-            job.dailyFinishTime = flags.optString(META_DAILY_FINISH_TIME, "");
+            job.dailyStartTime = job.safeString(flags,META_DAILY_START_TIME);
+            job.dailyFinishTime = job.safeString(flags,META_DAILY_FINISH_TIME);
         }
 
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
@@ -452,7 +456,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         String dailyStart = getDailyStartTime();
         String dailyFinish = getDailyFinishTime();
 
-        if (dailyStart == "null" || dailyFinish == "null" || dailyStart.isEmpty() || dailyFinish.isEmpty()) {
+        if (dailyStart.isEmpty() || dailyFinish.isEmpty()) {
             return null;
         }
 
