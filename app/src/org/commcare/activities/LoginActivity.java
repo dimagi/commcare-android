@@ -141,7 +141,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         connectIDManager.init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = connectIDManager.wasAppLaunchedFromConnect(presetAppId);
+        ///TODO: connect uncomment with connect merge
+//        appLaunchedFromConnect = ConnectIDManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
