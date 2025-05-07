@@ -2,6 +2,7 @@ package org.commcare.android.shadows;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteException;
 
 import net.zetetic.database.DatabaseErrorHandler;
