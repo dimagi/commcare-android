@@ -28,6 +28,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
@@ -158,7 +159,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
+        loginButton.setOnClickListener(arg0 -> {
+            FirebaseAnalyticsUtil.reportLoginClicks();
+            activity.initiateLoginAttempt(isRestoreSessionChecked());
+        });
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -202,9 +206,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 () -> {
                     int hideAll = getResources().getInteger(
-                            R.integer.login_screen_hide_all_cuttoff);
+                            R.integer.login_screen_hide_all_cutoff);
                     int hideBanner = getResources().getInteger(
-                            R.integer.login_screen_hide_banner_cuttoff);
+                            R.integer.login_screen_hide_banner_cutoff);
                     int height = activityRootView.getHeight();
 
                     if (height < hideAll) {

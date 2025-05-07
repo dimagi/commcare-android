@@ -32,7 +32,7 @@ public class CCAnalyticsEvent {
     static final String IN_APP_UPDATE_EVENT = "in_app_update_event";
     static final String LOGIN_CLICK = "login_click";
     static final String CCC_SIGN_IN = "ccc_sign_in";
-    static final String CCC_SIGN_OUT = "ccc_sign_out";
+    static final String CCC_FORGET = "ccc_forget";
     static final String CCC_RECOVERY = "ccc_recovery";
     static final String CCC_DECONFIGURE = "ccc_deconfigure";
     static final String CCC_TAB_CHANGE = "ccc_tab_change";

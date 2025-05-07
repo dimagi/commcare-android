@@ -140,7 +140,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         connectIDManager.init(this);
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = connectIDManager.wasAppLaunchedFromConnect(presetAppId);
+        ///TODO: connect uncomment with connect merge
+//        appLaunchedFromConnect = ConnectIDManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -405,6 +406,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
@@ -575,6 +577,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerConnectIdUser();
                 return true;
             case MENU_CONNECT_FORGET:
+                FirebaseAnalyticsUtil.reportCccForget();
                 connectIDManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
@@ -804,11 +807,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case EMPTY_URL:
                 raiseLoginMessage(StockMessages.Empty_Url, true);
                 break;
+            case TOKEN_UNAVAILABLE:
+                raiseLoginMessage(StockMessages.TokenUnavailable, false);
+            case TOKEN_DENIED:
+                raiseLoginMessage(StockMessages.TokenDenied, false);
             case AUTH_FAILED:
-                if (connectIDManager.isSeatedAppLinkedToConnectId(uiController.getEnteredUsername())) {
-                    Logger.exception("Token auth error for connect managed app",
-                            new Throwable("Token Auth failed during login for a ConnectID managed app"));
-                }
                 raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                 break;
             case BAD_DATA_REQUIRES_INTERVENTION:

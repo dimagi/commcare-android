@@ -58,6 +58,8 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
     public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
     public static final String SYNC_FAIL_BAD_CERTIFICATE = "bad_certificate";
+    public static final String SYNC_FAIL_TOKEN_UNAVAILABLE = "token_unavailable";
+    public static final String SYNC_FAIL_TOKEN_DENIED = "token_denied";
     public static final String SYNC_SUCCESS = "success";
 
     // Param values for feature usage

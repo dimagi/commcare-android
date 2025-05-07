@@ -11,7 +11,7 @@ import java.io.IOException
  * Trying again will not solve the problem in this case, as a new password must be established with the server.
  * Corrective action is to recover the ConnectID account on the device.
  */
-class TokenRequestDeniedException: IOException() {
+class TokenDeniedException: IOException() {
     override val message: String
         get() = "Token request denied"
 }

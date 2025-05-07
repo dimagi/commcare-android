@@ -241,7 +241,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
 
                 @Override
                 public void processTokenRequestDeniedError() {
-                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
+                    ConnectNetworkHelper.handleTokenDeniedException(requireContext());
                 }
 
                 @Override

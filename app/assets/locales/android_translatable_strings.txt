@@ -135,6 +135,8 @@ sync.fail.recovery.failure=There was an error trying to recover from a bad local
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 sync.fail.invalid.case.graph=1 or more forms introduced an invalid case relationship.
+sync.fail.token.unavailable=Couldn't contact server. Please make sure an internet connection is available or try again later.
+sync.fail.token.denied=Please re-login into your ConnectID account, then try again.
 
 form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
 form.send.rate.limit.error.title=You've reached your form submission rate limit
@@ -561,7 +563,7 @@ notification.token.unavailable.action=Check your device's time and date to make 
 
 notification.token.denied.title=Couldn't connect to the server.
 notification.token.denied.detail=CommCare can no longer communicate with the ConnectID server.
-notification.token.denied.action=Please recover your ConnectID account, then try again.
+notification.token.denied.action=Please re-login into your ConnectID account, then try again.
 
 notification.restore.storagefull.title=Couldn't save your application's resources
 notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.
