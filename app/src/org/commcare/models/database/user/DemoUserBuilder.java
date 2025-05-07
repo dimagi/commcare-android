@@ -94,7 +94,7 @@ public class DemoUserBuilder {
         SQLiteDatabase userDatabase = null;
         try {
             userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(),
-                    keyRecord.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(randomKey));
+                    keyRecord.getUuid(), UserSandboxUtils.getSqlCipherEncodedKey(randomKey)).getWritableDatabase();
 
             User user = new User(username, passwordHash, username, userType);
 

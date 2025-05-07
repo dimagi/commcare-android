@@ -76,10 +76,12 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mUserId;
+    private final String key;
     private byte[] fileMigrationKeySeed = null;
 
-    public DatabaseUserOpenHelper(Context context, String userKeyRecordId) {
-        super(context, getDbName(userKeyRecordId), null, USER_DB_VERSION);
+    public DatabaseUserOpenHelper(Context context, String userKeyRecordId, String key) {
+        super(context, getDbName(userKeyRecordId), key, null, USER_DB_VERSION, 0, null, null, false);
+        this.key = key;
         this.context = context;
         this.mUserId = userKeyRecordId;
     }
@@ -178,14 +180,14 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         fileMigrationKeySeed = key.getBytes();
 
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mUserId));
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         }
     }
 

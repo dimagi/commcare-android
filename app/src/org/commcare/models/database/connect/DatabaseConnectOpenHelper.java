@@ -57,10 +57,12 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
     private final Context mContext;
+    private final String key;
 
-    public DatabaseConnectOpenHelper(Context context) {
-        super(context, CONNECT_DB_LOCATOR, null, CONNECT_DB_VERSION);
+    public DatabaseConnectOpenHelper(Context context, String key) {
+        super(context, CONNECT_DB_LOCATOR, key, null, CONNECT_DB_VERSION, 0, null, null, false);
         this.mContext = context;
+        this.key = key;
     }
 
     private static File getDbFile(Context context) {
@@ -139,13 +141,13 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
             try {
-                return super.getWritableDatabase(key);
+                return super.getWritableDatabase();
             } catch (SQLiteException e) {
                 // Handle the exception, log the error, or inform the user
                 CrashUtil.log(e.getMessage());

@@ -597,7 +597,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private int initGlobalDb() {
         SQLiteDatabase database;
         try {
-            database = new DatabaseGlobalOpenHelper(this).getWritableDatabase("null");
+            database = new DatabaseGlobalOpenHelper(this).getWritableDatabase();
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
@@ -626,7 +626,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
                     if (globalDatabase == null || !globalDatabase.isOpen()) {
-                        globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase("null");
+                        globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase();
                     }
                     return globalDatabase;
                 }

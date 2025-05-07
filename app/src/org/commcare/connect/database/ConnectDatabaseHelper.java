@@ -19,6 +19,8 @@ import org.commcare.modern.database.Table;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.util.Base64;
+
 /**
  * Helper class for accessing the Connect DB
  *
@@ -59,16 +61,16 @@ public class ConnectDatabaseHelper {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
 
-                            DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
-
                             String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
                             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
-                                connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
+                                connectDatabase = new DatabaseConnectOpenHelper(this.c,
+                                        UserSandboxUtils.getSqlCipherEncodedKey(passphrase)).getWritableDatabase();
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
-                                connectDatabase = helper.getWritableDatabase(passphrase);
+                                connectDatabase = new DatabaseConnectOpenHelper(this.c,
+                                        Base64.encodeToString(passphrase, Base64.NO_WRAP)).getWritableDatabase();
                             }
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
