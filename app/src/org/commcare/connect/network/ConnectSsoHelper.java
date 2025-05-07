@@ -67,7 +67,7 @@ public class ConnectSsoHelper {
                 }
 
                 return retrieveHqSsoTokenSync(context, user, appRecord, hqUsername, linkHqUser);
-            } catch(TokenUnavailableException | TokenRequestDeniedException e) {
+            } catch(TokenUnavailableException | TokenDeniedException e) {
                 caughtException = e;
                 return null;
             }
@@ -104,7 +104,7 @@ public class ConnectSsoHelper {
     }
 
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
-            throws TokenRequestDeniedException, TokenUnavailableException {
+            throws TokenDeniedException, TokenUnavailableException {
         //See if we already have a valid token
         AuthInfo.TokenAuth connectToken = ConnectIDManager.getInstance().getConnectToken();
         if (connectToken != null) {
@@ -114,7 +114,8 @@ public class ConnectSsoHelper {
         return ApiConnectId.retrieveConnectIdTokenSync(context, user);
     }
 
-    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws TokenRequestDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws
+            TokenDeniedException, TokenUnavailableException {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token

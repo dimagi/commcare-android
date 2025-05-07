@@ -2,7 +2,7 @@ package org.commcare.network;
 
 import android.content.Context;
 
-import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
@@ -105,7 +105,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             } catch (TokenUnavailableException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.TokenUnavailable;
-            } catch (TokenRequestDeniedException e) {
+            } catch (TokenDeniedException e) {
                 e.printStackTrace();
                 outcome = HttpCalloutOutcomes.TokenRequestDenied;
             } catch (IOException e) {
@@ -146,7 +146,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         return null;
     }
 
-    protected abstract Response<ResponseBody> doHttpRequest() throws IOException, TokenRequestDeniedException, TokenUnavailableException;
+    protected abstract Response<ResponseBody> doHttpRequest() throws IOException, TokenDeniedException, TokenUnavailableException;
 
     protected HttpCalloutOutcomes doResponseSuccess(Response<ResponseBody> response) throws IOException {
         beginResponseHandling(response);

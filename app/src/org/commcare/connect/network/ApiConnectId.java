@@ -69,7 +69,8 @@ public class ApiConnectId {
         return new ConnectNetworkHelper.PostResult(-1, null, null);
     }
 
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user) throws TokenRequestDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user) throws
+            TokenDeniedException, TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
         params.put("scope", "openid");
@@ -105,7 +106,7 @@ public class ApiConnectId {
             }
         } else if (postResult.responseCode == 400) {
             Logger.exception("Token Request Denied", new Throwable("Encountered 400 while retrieving ConnectID token"));
-            throw new TokenRequestDeniedException();
+            throw new TokenDeniedException();
         }
 
         throw new TokenUnavailableException();

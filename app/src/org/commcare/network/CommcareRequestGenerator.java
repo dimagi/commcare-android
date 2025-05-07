@@ -1,7 +1,6 @@
 package org.commcare.network;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMultimap;
@@ -11,7 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -21,7 +20,6 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
@@ -176,7 +174,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return headers;
     }
 
-    private AuthInfo buildAuth() throws TokenRequestDeniedException, TokenUnavailableException {
+    private AuthInfo buildAuth() throws TokenDeniedException, TokenUnavailableException {
         if (username != null) {
             AuthInfo.TokenAuth tokenAuth = ConnectIDManager.getInstance().getHqTokenIfLinked(username);
             if (tokenAuth != null) {
