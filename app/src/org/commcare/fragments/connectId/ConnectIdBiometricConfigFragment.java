@@ -284,7 +284,8 @@ public class ConnectIdBiometricConfigFragment extends Fragment {
             }
             case ConnectConstants.CONNECT_RECOVERY_CONFIGURE_BIOMETRICS -> {
                 if (success) {
-                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, ConnectIDManager.MethodRecoveryPrimary, ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, "", null);
+                    directions = failedEnrollment || !configured ? navigateToBiometricEnrollFail() :
+                            navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, ConnectIDManager.MethodRecoveryPrimary, ((ConnectIdActivity)requireActivity()).recoverPhone, ((ConnectIdActivity)requireActivity()).recoverPhone, "", null);
                 }
             }
             case ConnectConstants.CONNECT_UNLOCK_BIOMETRIC -> {
