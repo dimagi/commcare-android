@@ -1,57 +1,52 @@
 <resources>
     <declare-styleable name="AspectRatioLayout">
-        <attr name="ratio_width" format="float"/>
-        <attr name="ratio_height" format="float"/>
+        <attr name="ratio_width" format="float" />
+        <attr name="ratio_height" format="float" />
     </declare-styleable>
-    <attr name="detail_even_row_color" format="reference"/>
-    <attr name="detail_odd_row_color" format="reference"/>
-    <attr name="entity_view_header_background_color" format="reference"/>
-    <attr name="entity_view_header_text_color" format="reference"/>
-    <attr name="searchbox_action_bar_color" format="reference"/>
-    <attr name="drawer_pulldown_text_color" format="reference"/>
-    <attr name="drawer_pulldown_even_row_color" format="reference"/>
-    <attr name="drawer_pulldown_odd_row_color" format="reference"/>
-    <attr name="menu_tile_title_text_color" format="reference"/>
-    <attr name="entity_select_title_text_color" format="reference"/>
-
-    <attr name="backgroundColor" format="reference|color"/>
-    <attr name="subtitle" format="string"/>
-    <attr name="img" format="reference"/>
-    <attr name="textColor" format="reference|color"/>
+    <attr name="detail_even_row_color" format="reference" />
+    <attr name="detail_odd_row_color" format="reference" />
+    <attr name="entity_view_header_background_color" format="reference" />
+    <attr name="entity_view_header_text_color" format="reference" />
+    <attr name="searchbox_action_bar_color" format="reference" />
+    <attr name="drawer_pulldown_text_color" format="reference" />
+    <attr name="drawer_pulldown_even_row_color" format="reference" />
+    <attr name="drawer_pulldown_odd_row_color" format="reference" />
+    <attr name="menu_tile_title_text_color" format="reference" />
+    <attr name="entity_select_title_text_color" format="reference" />
 
     <declare-styleable name="ShrinkingLinearLayout">
-        <attr name="shrinkable_view" format="reference"/>
+        <attr name="shrinkable_view" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="CustomButtonWithText">
-        <attr name="backgroundColor"/>
-        <attr name="subtitle"/>
-        <attr name="img"/>
-        <attr name="textColor"/>
+        <attr name="backgroundColor" format="color"  />
+        <attr name="subtitle" format="string" />
+        <attr name="img" format="reference"  />
+        <attr name="textColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="ResizingTextView">
-        <attr name="text_size_small" format="reference|dimension"/>
+        <attr name="text_size_small" format="reference|dimension" />
     </declare-styleable>
 
-    <attr name="filter_select_background_color" format="reference"/>
-    <attr name="filter_select_text_color" format="reference"/>
+    <attr name="filter_select_background_color" format="reference" />
+    <attr name="filter_select_text_color" format="reference" />
 
     <declare-styleable name="TabbedDetailView">
-        <attr name="even_row_color" format="reference|color"/>
-        <attr name="odd_row_color" format="reference|color"/>
+        <attr name="even_row_color" format="reference|color" />
+        <attr name="odd_row_color" format="reference|color" />
     </declare-styleable>
 
     <declare-styleable name="ClippingView">
-        <attr name="clip_start_x" format="reference|float"/>
-        <attr name="clip_start_y" format="reference|float"/>
-        <attr name="clip_width" format="reference|float"/>
-        <attr name="clip_height" format="reference|float"/>
+        <attr name="clip_start_x" format="reference|float" />
+        <attr name="clip_start_y" format="reference|float" />
+        <attr name="clip_width" format="reference|float" />
+        <attr name="clip_height" format="reference|float" />
         <attr name="clip_corner_radius" format="dimension|reference"/>
     </declare-styleable>
 
     <declare-styleable name="FilePreference">
-        <attr name="file_type" format="string"/>
+        <attr name="file_type" format="string" />
     </declare-styleable>
     <declare-styleable name="CustomOtpView">
         <attr name="otpViewDigitCount" format="integer" />
@@ -100,5 +95,38 @@
     <attr name="editTextHintColor" format="color"/>
     <attr name="editTextHintSize" format="dimension"/>
 
-
+    <declare-styleable name="PhoneInputView">
+        <attr name="borderVisible" format="boolean" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderRadius" format="dimension" />
+        <attr name="countryCodeTextColor" format="color" />
+        <attr name="countryCodeTextSize" format="dimension" />
+        <attr name="editTextHintColor" />
+        <attr name="editTextHintSize" />
+        <attr name="editTextColor" format="color" />
+        <attr name="editTextSize" format="dimension" />
+        <attr name="dividerVisible" format="boolean" />
+        <attr name="dividerColor" format="color" />
+        <attr name="dividerWidth" format="dimension" />
+        <attr name="dividerLeftPadding" format="dimension" />
+        <attr name="dividerRightPadding" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="RoundedButton">
+        <attr name="roundButtonHeight" format="dimension" />
+        <attr name="roundButtonRadius" format="dimension" />
+        <attr name="roundButtonBackgroundColor" format="color" />
+        <attr name="roundButtonTextColor" format="color" />
+        <attr name="roundButtonIconTintColor" format="color" />
+        <attr name="roundButtonIcon" format="reference" />
+        <attr name="roundButtonIconLeftAlign" format="boolean" />
+        <attr name="roundButtonLeftPadding" format="dimension" />
+        <attr name="roundButtonRightPadding" format="dimension" />
+        <attr name="roundButtonFontFamily" format="reference" />
+        <attr name="roundButtonBorderVisible" format="boolean" />
+        <attr name="roundButtonBorderColor" format="color" />
+        <attr name="roundButtonBorderRadius" format="dimension" />
+        <attr name="roundButtonBorderWidth" format="dimension" />
+        <attr name="roundButtonTextSize" format="dimension" />
+        <attr name="roundButtonIconPadding" format="dimension"/>
+    </declare-styleable>
 </resources>
