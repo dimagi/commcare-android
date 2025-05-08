@@ -19,6 +19,7 @@ import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -33,7 +34,6 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
@@ -120,6 +120,8 @@ public class ConnectIDManager {
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
                 connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+
+                CrashUtil.registerUserData();
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -240,7 +242,7 @@ public class ConnectIDManager {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
                         "Found a valid existing Connect Token with current date set to " + currentDate +
                                 " and record expiration date being " + user.getConnectTokenExpiration());
-                return new AuthInfo.TokenAuth(user.getConnectToken().bearerToken);
+                return new AuthInfo.TokenAuth(user.getConnectToken());
             } else if (user != null) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
@@ -417,13 +419,13 @@ public class ConnectIDManager {
     }
 
     ///TODO update the code with connect code
-    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectManager.ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
-//                updateLearningProgress(context, job, listener);
+                ConnectManager.updateLearningProgress(context, job, listener);
             }
             case ConnectJobRecord.STATUS_DELIVERING -> {
-//                updateDeliveryProgress(context, job, listener);
+                ConnectManager.updateDeliveryProgress(context, job, listener);
             }
             default -> {
                 listener.connectActivityComplete(true);
@@ -434,18 +436,18 @@ public class ConnectIDManager {
     public void goToConnectJobsList(Context parent) {
         parentActivity = parent;
         completeSignin();
-//        Intent i = new Intent(parent, ConnectActivity.class);
-//        parent.startActivity(i);
+        Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
     }
 
 
     public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
         ///TODO uncomment with connect pahse pr
-//        completeSignin();
-//        Intent i = new Intent(activity, ConnectActivity.class);
-//        i.putExtra("info", true);
-//        i.putExtra("buttons", allowProgression);
-//        activity.startActivity(i);
+        completeSignin();
+        Intent i = new Intent(activity, ConnectActivity.class);
+        i.putExtra("info", true);
+        i.putExtra("buttons", allowProgression);
+        activity.startActivity(i);
     }
 
     public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -611,18 +613,19 @@ public class ConnectIDManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
-        if (!manager.isloggedIn()) {
+
+    public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
+        if (!isloggedIn()) {
             return null;
         }
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
         if (user == null) {
             return null;
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, seatedAppId, username);
         if(appRecord == null) {
             return null;
         }

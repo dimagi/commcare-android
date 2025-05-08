@@ -11,6 +11,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
@@ -32,10 +33,15 @@ public class ConnectDatabaseHelper {
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
         ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, false);
         try {
-            if ((connectDatabase == null || !connectDatabase.isOpen())) {
+            //Rekey the DB if the remote passphrase is different than local
+            String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
+            if (connectDatabase != null && connectDatabase.isOpen() && !remotePassphrase.equals(localPassphrase)) {
                 DatabaseConnectOpenHelper.rekeyDB(connectDatabase, remotePassphrase);
-                ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
+                FirebaseAnalyticsUtil.reportRekeyedDatabase();
             }
+
+            //Store the received passphrase as what's in use locally
+            ConnectDatabaseUtils.storeConnectDbPassphrase(context, remotePassphrase, true);
         } catch (Exception e) {
             Logger.exception("Handling received DB passphrase", e);
             handleCorruptDb(context);
@@ -68,6 +74,8 @@ public class ConnectDatabaseHelper {
                                 connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
+                                String encrypted = passphrase != null ? "(encrypted)" : "(unencrypted)";
+                                Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code " + encrypted));
                                 connectDatabase = helper.getWritableDatabase(passphrase);
                             }
                         } catch (Exception e) {
