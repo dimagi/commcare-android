@@ -10,7 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -20,7 +20,7 @@ import org.commcare.engine.cases.CaseUtils;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.DebugControlsReceiver;
-import org.commcare.util.LogTypes;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.SyncDetailCalculations;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -129,7 +129,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             }
 
             int getDaysSinceSync = SyncDetailCalculations.getDaysSinceLastSync();
-            if(getDaysSinceSync != -1) {
+            if (getDaysSinceSync != -1) {
                 params.put("days_since_last_sync", Integer.toString(getDaysSinceSync));
             }
         }
@@ -174,11 +174,10 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         return headers;
     }
 
-    private AuthInfo buildAuth() throws TokenRequestDeniedException, TokenUnavailableException {
+    private AuthInfo buildAuth() throws TokenDeniedException, TokenUnavailableException {
         if (username != null) {
-            AuthInfo.TokenAuth tokenAuth = ConnectIDManager.getHqTokenIfLinked(username);
+            AuthInfo.TokenAuth tokenAuth = ConnectIDManager.getInstance().getHqTokenIfLinked(username);
             if (tokenAuth != null) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying token auth");
                 return tokenAuth;
             } else {
                 if (ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
@@ -190,15 +189,12 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                     CommCareApplication.instance().getSession().getLoggedInUser();
                     //Use CurrentAuth (possibly token) if we have an active session and logged in user
                     return new AuthInfo.CurrentAuth();
-                } catch (Exception e) {
-                    Logger.exception("Error encountered while building auth", e);
-                    //No token if no session
+                } catch (SessionUnavailableException e) {
+                    // no logged in user, fallback to provided auth
                     return new AuthInfo.ProvidedAuth(username, password);
                 }
             }
         }
-
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Applying no auth");
         return new AuthInfo.NoAuth();
     }
 
@@ -220,15 +216,18 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         // include IMEI in key fetch request for auditing large deployments
         params.put("device_id", CommCareApplication.instance().getPhoneId());
 
+        AuthInfo auth = buildAuth();
         requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 baseUri,
                 params,
-                new HashMap(),
-                new AuthInfo.ProvidedAuth(username, password),
+                new HashMap<>(),
+                auth,
                 null);
 
-        return requester.makeRequest();
+        Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
+        return response;
     }
 
     private String getSyncToken(String username) {
@@ -271,6 +270,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             queryParams.put(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH);
         }
 
+        AuthInfo auth = buildAuth();
         requester = CommCareApplication.instance().buildHttpRequester(
                 CommCareApplication.instance(),
                 url,
@@ -279,11 +279,13 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
                 null,
                 parts,
                 HTTPMethod.MULTIPART_POST,
-                new AuthInfo.ProvidedAuth(username, password),
+                auth,
                 null,
                 false);
 
-        return requester.makeRequest();
+        Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
+        return response;
     }
 
     @Override
@@ -296,15 +298,17 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
         HashMap<String, String> headers = new HashMap<>(getHeaders(null));
         headers.putAll(httpHeaders);
 
+        AuthInfo auth = buildAuth();
         ModernHttpRequester requester = CommCareApplication.instance().createGetRequester(
                 CommCareApplication.instance(),
                 uri,
                 httpParams,
                 headers,
-                new AuthInfo.ProvidedAuth(username, password),
+                auth,
                 null);
 
         Response<ResponseBody> response = requester.makeRequest();
+        checkForTokenError(response, auth);
         if (response.code() == 404) {
             throw new FileNotFoundException("No Data available at URL " + uri);
         }

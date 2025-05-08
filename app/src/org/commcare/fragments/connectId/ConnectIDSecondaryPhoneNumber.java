@@ -146,7 +146,7 @@ public class ConnectIDSecondaryPhoneNumber extends Fragment {
                 @Override
                 public void processTokenRequestDeniedError() {
                     binding.continueButton.setEnabled(true);
-                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                    ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
                 }
 
                 @Override

@@ -311,6 +311,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
+    //Handles async network response from ModernHttpTask
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
             Context context, String url, boolean usingTokenAuth, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
@@ -431,7 +432,7 @@ public class ConnectNetworkHelper {
                 Toast.LENGTH_LONG).show();
     }
 
-    public static void handleTokenRequestDeniedException(Context context) {
+    public static void handleTokenDeniedException(Context context) {
         Toast.makeText(context, context.getString(R.string.recovery_network_token_request_rejected),
                 Toast.LENGTH_LONG).show();
     }

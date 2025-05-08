@@ -159,7 +159,7 @@ public class ConnectIdPhoneFragment extends Fragment {
 
                 @Override
                 public void processTokenRequestDeniedError() {
-                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
+                    ConnectNetworkHelper.handleTokenDeniedException(requireContext());
                 }
 
                 @Override
