@@ -4,6 +4,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.model.utils.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,8 +92,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         delivery.entityId = json.getString(META_ENTITY_ID);
         delivery.entityName = json.getString(META_ENTITY_NAME);
         delivery.reason = json.getString(META_REASON);
-
-        delivery.flags = ConnectJobDeliveryFlagRecord.fromJson(json.getJSONObject(META_FLAGS), deliveryId);
+        delivery.reason = JsonExtensions.optStringSafe(json, META_REASON,"");
 
         return delivery;
     }
