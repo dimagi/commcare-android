@@ -8,7 +8,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/action_sync"
-        android:icon="@drawable/backup"
+        android:icon="@drawable/ic_backup"
         android:iconTint="@color/white"
         android:title="Menu"
         app:showAsAction="always" />

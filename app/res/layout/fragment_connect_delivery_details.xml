@@ -199,7 +199,7 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             android:backgroundTint= "@color/white"
-                            android:drawableRight= "@drawable/ic_connect_arrow_forward_24px"
+                            android:drawableRight= "@drawable/ic_connect_arrow_forward_20px"
                             android:textColor= "@color/cc_brand_color"
                             app:iconTint="@color/cc_brand_color"
                             />
