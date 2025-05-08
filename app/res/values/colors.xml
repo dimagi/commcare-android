@@ -143,7 +143,7 @@
     <color name="red_500">#F44336</color>
     <color name="red_700">#D32F2F</color>
     <color name="red_900">#B71C1C</color>
-    
+
     <!-- Button colors -->
     <color name="button_disabled">@color/cc_neutral_bg</color>
     <color name="button_primary_color">@color/cc_brand_color</color>
@@ -158,8 +158,63 @@
     <color name="url_button_color">#8EA1FF</color>
     <color name="square_button_icon_color">#FFFFFF</color>
 
-
     <!-- Progress bar colors -->
     <color name="progress_bar_bg">#66000000</color>
 
+    <!-- New connect colors-->
+    <color name="connect_message_receiver_bg">#5C6FD0</color>
+    <color name="connect_message_sender_bg">#F1F5F9</color>
+    <color name="connect_message_sender_text_color">#334155</color>
+    <color name="cconnect_message_unread_badge_color">#ff0000</color>
+    <color name="connect_message_large_icon_color">#16006D</color>
+    <color name="connect_payment_revert">#EA6944</color>
+    <color name="connect_payment_received_check">#94A3B8</color>
+    <color name="connect_border_color">#1A3A42C7</color>
+    <color name="connect_status_bar_color">#5c70d1</color>
+    <color name="connect_dark_blue_color">#3942C7</color>
+    <color name="connect_darker_blue_color">#353BA8</color>
+    <color name="connect_blue_color">#3A42C7</color>
+    <color name="connect_blue_color_50">#803A42C7</color>
+    <color name="connect_blue_color_10">#1A3A42C7</color>
+    <color name="connect_blackist_dark_blue_color">#141859</color>
+    <color name="connect_yellowish_orange_color">#F3B34D</color>
+    <color name="connect_light_orange_color">#FFDFD5</color>
+    <color name="connect_light_grey">#E5E7EB</color>
+    <color name="connect_close">#D1D5DB</color>
+    <color name="connect_lighter_grey">#E2E8F0</color>
+    <color name="connect_middle_grey">#94A3B8</color>
+    <color name="connect_subtext">#080B3F</color>
+    <color name="connect_secondary_text">#6B7280</color>
+    <color name="connect_warning_color">#EA6944</color>
+    <color name="connect_subtext_80">#50080B3F</color>
+    <color name="connect_text_color">#374151</color>
+    <color name="connect_subtext_color">#9CA3AF</color>
+    <color name="connect_grey">#9A9A9A</color>
+    <color name="connect_divider_color">#E5E7EB</color>
+    <color name="connect_background_color">#f7f9fa</color>
+    <color name="connect_aquva">#88BEE1</color>
+    <color name="connect_green">#16A085</color>
+    <color name="connect_light_green">#E6F5E5</color>
+    <color name="connect_red">#EA6944</color>
+    <color name="connect_light_grey_transparent">#1AD9D9D9</color>
+    <color name="connect_orange_yellow">#FFEFD5</color>
+    <color name="connect_tealish_blue_color">#E7EAF8</color>
+    <color name="connect_dark_grey">#9CA3AF</color>
+    <color name="connect_un_fill_progress">#ebecfa</color>
+    <color name="connect_delivery_rejected_icon">#EA6944</color>
+    <color name="connect_thumb_up">#16A085</color>
+    <color name="connect_delivery_pending_icon">#9CA3AF</color>
+    <color name="connect_payment_status_transferred_bg">#16A085</color>
+    <color name="connect_payment_status_transferred_fg">#E6F5E5</color>
+    <color name="connect_message_unread">#94A3B8</color>
+    <color name="connect_delivery_check_circle">#3A42C7</color>
+    <color name="connect_arrow_forward">#3A42C7</color>
+    <color name="connect_pager_indicator">#FF0000</color>
+    <color name="connect_yellow_dot">#EABA13</color>
+    <color name="connect_message_read">#3A42C7</color>
+    <color name="connect_delivery_approved">#16A085</color>
+
+
+    <color name="ic_backup">#14006C</color>
+    <color name="icon_tint_dark_gray">#333333</color>
 </resources>

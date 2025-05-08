@@ -1,10 +1,5 @@
 package org.commcare.fragments;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -15,6 +10,10 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBar.LayoutParams;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
@@ -30,7 +29,6 @@ import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.EntityViewTile;
@@ -38,21 +36,15 @@ import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.javarosa.xpath.XPathException;
 
 import java.util.Vector;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBar.LayoutParams;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 /**
  * @author ctsims
  */
-public class BreadcrumbBarFragment extends Fragment {
+public class BreadcrumbBarHelper {
 
     private TabbedDetailView mInternalDetailView = null;
     private View tile;
@@ -60,50 +52,27 @@ public class BreadcrumbBarFragment extends Fragment {
     private final static String INLINE_TILE_COLLAPSED = "collapsed";
     private final static String INLINE_TILE_EXPANDED = "expanded";
 
-
     /**
-     * This method will only be called once when the retained
-     * Fragment is first created.
+     * Attaches breadcrumb bar to the provided activity if enabled.
+     * @param activity current activity
      */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Retain this fragment across configuration changes.
-        setRetainInstance(true);
-    }
-
-    /**
-     * Hold a reference to the parent Activity so we can report the task's
-     * current progress and results. The Android framework will pass us a
-     * reference to the newly created Activity after each configuration change.
-     */
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof AppCompatActivity) {
-            refresh((AppCompatActivity)context);
-        } else {
-            Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Unable to attach breadcrumb bar fragment");
-        }
-    }
-
-    public void refresh(AppCompatActivity activity) {
+    public void attachBreadcrumbBar(CommCareActivity activity) {
         boolean breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
-
         ActionBar actionBar = activity.getSupportActionBar();
-
-        if (!breadCrumbsEnabled) {
-            configureSimpleNav(activity, actionBar);
-        } else {
-            attachBreadcrumbBar(activity, actionBar);
+        if (actionBar != null) {
+            if (!breadCrumbsEnabled) {
+                configureSimpleNav(activity, actionBar);
+            } else {
+                attachBreadcrumbBar(activity, actionBar);
+            }
         }
 
         try {
             this.tile = findAndLoadCaseTile(activity);
         } catch (XPathException xe) {
-            new UserfacingErrorHandling<>().logErrorAndShowDialog((CommCareActivity)getActivity(), xe, true);
+            new UserfacingErrorHandling<>().logErrorAndShowDialog(activity, xe, true);
         }
+        addUniversalFrameTile(activity);
     }
 
     private void configureSimpleNav(AppCompatActivity activity, ActionBar actionBar) {
@@ -214,7 +183,7 @@ public class BreadcrumbBarFragment extends Fragment {
         v.startAnimation(a);
     }
 
-    private View findAndLoadCaseTile(final AppCompatActivity activity) {
+    private View findAndLoadCaseTile(final CommCareActivity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
         if (tileData == null || tileData.first == null) {
@@ -243,10 +212,9 @@ public class BreadcrumbBarFragment extends Fragment {
         return holder;
     }
 
-    public void expandInlineTile(AppCompatActivity activity, View holder,
+    private void expandInlineTile(AppCompatActivity activity, View holder,
                                  Pair<View, TreeReference> tileData,
                                  String inlineDetailId) {
-
         if (mInternalDetailView == null) {
             mInternalDetailView = holder.findViewById(R.id.com_tile_holder_detail_frame);
             mInternalDetailView.setRoot(mInternalDetailView);
@@ -289,7 +257,7 @@ public class BreadcrumbBarFragment extends Fragment {
         return true;
     }
 
-    private Pair<View, TreeReference> loadTile(AppCompatActivity activity) {
+    private Pair<View, TreeReference> loadTile(CommCareActivity activity) {
         AndroidSessionWrapper asw;
         try {
             asw = CommCareApplication.instance().getCurrentSessionWrapper();
@@ -316,22 +284,20 @@ public class BreadcrumbBarFragment extends Fragment {
             }
         }
 
-        Pair<View, TreeReference> tile = buildContextTile(stepToFrame, asw);
+        Pair<View, TreeReference> tile = buildContextTile(activity, stepToFrame, asw);
         //some contexts may provide a tile that isn't really part of the current session's stack
-        if (tile == null && activity instanceof CommCareActivity) {
-            Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
+        if (tile == null) {
+            Pair<Detail, TreeReference> entityContext = activity.requestEntityContext();
             if (entityContext != null) {
-                tile = buildContextTile(entityContext.first, entityContext.second, asw);
+                tile = buildContextTile(activity, entityContext.first, entityContext.second, asw);
             }
         }
         return tile;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private void addUniversalFrameTile(CommCareActivity activity) {
         if (tile != null) {
-            ViewGroup vg = this.getActivity().findViewById(R.id.universal_frame_tile);
+            ViewGroup vg = activity.findViewById(R.id.universal_frame_tile);
             //Check whether the view group is available. If so, this activity is a frame tile host 
             if (vg != null) {
                 if (tile.getParent() != null) {
@@ -347,13 +313,6 @@ public class BreadcrumbBarFragment extends Fragment {
     private static String getBestTitle(AppCompatActivity activity) {
         String bestTitle = getBestTitleHelper();
         return defaultTitle(bestTitle, activity);
-    }
-
-    /**
-     * Unlike the main header, subheaders should not fall back to a default title
-     */
-    public static String getBestSubHeaderTitle() {
-        return getBestTitleHelper();
     }
 
     private static String getBestTitleHelper() {
@@ -413,7 +372,7 @@ public class BreadcrumbBarFragment extends Fragment {
         return currentTitle;
     }
 
-    private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
+    private Pair<View, TreeReference> buildContextTile(CommCareActivity activity, StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
         if (stepToFrame == null) {
             return null;
         }
@@ -434,20 +393,17 @@ public class BreadcrumbBarFragment extends Fragment {
             return null;
         }
 
-        Pair<View, TreeReference> r = buildContextTile(detail, ref, asw);
+        Pair<View, TreeReference> r = buildContextTile(activity, detail, ref, asw);
         r.first.setTag(entityDatum.getInlineDetail());
         return r;
     }
 
-    private Pair<View, TreeReference> buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+    private Pair<View, TreeReference> buildContextTile(CommCareActivity activity, Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
         NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
-
         Entity entity = nef.getEntity(ref);
-
-        Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
-        EntityViewTile tile = EntityViewTile.createTileForIndividualDisplay(getActivity(),
+        EntityViewTile tile = EntityViewTile.createTileForIndividualDisplay(activity,
                 detail, entity);
-        int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(),
+        int[] textColor = AndroidUtil.getThemeColorIDs(activity,
                 new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
         tile.setTextColor(textColor[0]);
         tile.setTitleTextColor(textColor[1]);

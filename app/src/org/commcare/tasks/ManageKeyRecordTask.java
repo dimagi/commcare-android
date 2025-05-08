@@ -1,7 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -9,7 +8,8 @@ import org.commcare.activities.DataPullController;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.data.xml.TransactionParser;
+import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -26,7 +26,6 @@ import org.commcare.xml.KeyRecordParser;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.kxml2.io.KXmlParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -215,6 +214,15 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|insufficient role permission");
                 receiver.raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, true);
                 break;
+            case TokenUnavailable:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|token unavailable");
+                receiver.raiseLoginMessage(StockMessages.TokenUnavailable, true);
+                break;
+            case TokenRequestDenied:
+                Logger.log(LogTypes.TYPE_USER, "ManageKeyRecordTask error|token request denied");
+                receiver.raiseLoginMessage(StockMessages.TokenDenied, true);
+                break;
+
             default:
                 break;
         }
