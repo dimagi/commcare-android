@@ -1,13 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/connect_fragment_jobs_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cc_core_bg"
-    android:orientation="vertical"
-    android:padding="4dp"
-    tools:viewBindingIgnore="true">
+    android:background="@color/connect_background_color"
+    tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
+
+    <ImageView
+        android:id="@+id/connect_jobs_refresh"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@string/refresh"
+        android:src="@drawable/cloud_backup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/connect_jobs_last_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/connect_jobs_refresh"
+        app:layout_constraintEnd_toStartOf="@id/connect_jobs_refresh"
+        app:layout_constraintTop_toTopOf="@+id/connect_jobs_refresh" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/connect_alert_tile"
         android:layout_width="match_parent"
@@ -18,7 +39,6 @@
         android:layout_marginBottom="2dp"
         android:clickable="true"
         android:focusable="true"
-        android:visibility="gone"
         android:shadowColor="@color/connect_light_grey_transparent"
         android:shadowDx="30"
         android:shadowDy="30"
@@ -27,7 +47,7 @@
         app:cardCornerRadius="10dp"
         app:cardElevation="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -61,19 +81,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/connect_payment_confirm_yes"
                 android:layout_marginTop="10dp"
-                android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
 
             <com.google.android.material.button.MaterialButton
-                style="@style/NegativeButtonStyle"
                 android:id="@+id/connect_phone_no_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
                 android:text="@string/connect_payment_confirm_no"
-                android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
                 app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
                 />
@@ -81,68 +98,25 @@
 
     </androidx.cardview.widget.CardView>
 
-    <androidx.core.widget.NestedScrollView
+    <TextView
+        android:id="@+id/connect_no_jobs_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:text="@string/connect_no_jobs"
+        android:textAlignment="center"
+        android:textColor="@color/blue"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"
+        android:textStyle="bold"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cvConnectMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/viewJobCard"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="-35dp"
-                android:layout_marginRight="10dp"
-                app:cardBackgroundColor="@color/connect_light_orange_color"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="10dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:paddingStart="15dp"
-                    android:paddingTop="35dp"
-                    android:layout_marginBottom="15dp"
-                    android:paddingEnd="15dp">
-
-                    <TextView
-                        android:id="@+id/tvConnectMessage"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="@string/connect_job_tile_daily_limit_description"
-                        android:layout_marginEnd="10dp"
-                        android:textColor="@color/connect_warning_color"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <include
-                layout="@layout/view_progress_job_card"
-                android:id="@+id/viewJobCard"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_width="match_parent" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/home_gridview_buttons"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@+id/cvConnectMessage"
-                android:nestedScrollingEnabled="false"
-                android:scrollbars="vertical" />
-        </RelativeLayout>
-    </androidx.core.widget.NestedScrollView>
-</LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvJobList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connect_alert_tile"
+        tools:listitem="@layout/item_login_connect_home_apps" />
+</androidx.constraintlayout.widget.ConstraintLayout>
