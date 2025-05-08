@@ -257,7 +257,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                         @Override
                         public void processTokenRequestDeniedError() {
-                            ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                            ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
                         }
 
                         @Override
@@ -321,7 +321,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                         @Override
                         public void processTokenRequestDeniedError() {
-                            ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                            ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
                         }
 
                         @Override
@@ -370,7 +370,7 @@ public class ConnectIdPinFragment extends Fragment {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(requireActivity());
+                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
             }
 
             @Override

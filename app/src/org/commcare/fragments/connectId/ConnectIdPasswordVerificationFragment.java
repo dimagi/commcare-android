@@ -241,7 +241,7 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
 
                 @Override
                 public void processTokenRequestDeniedError() {
-                    ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
+                    ConnectNetworkHelper.handleTokenDeniedException(requireContext());
                 }
 
                 @Override
@@ -271,5 +271,4 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     private NavDirections navigateToConnectidPhoneNoForRecoverPrimary() {
         return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidSignupFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
     }
-
 }

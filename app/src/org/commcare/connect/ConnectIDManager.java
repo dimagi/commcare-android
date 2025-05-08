@@ -375,7 +375,7 @@ public class ConnectIDManager {
                 }
 
                 public void tokenRequestDenied() {
-                    ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
+                    ConnectNetworkHelper.handleTokenDeniedException(activity);
                     callback.connectActivityComplete(false);
                 }
             });
@@ -532,7 +532,7 @@ public class ConnectIDManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException(context);
             }
 
             @Override
@@ -612,6 +612,7 @@ public class ConnectIDManager {
     public boolean isLoggedInWithConnectApp(Context context, String appId) {
         return isloggedIn() && isConnectApp(context, appId);
     }
+
 
     public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
         if (!isloggedIn()) {
