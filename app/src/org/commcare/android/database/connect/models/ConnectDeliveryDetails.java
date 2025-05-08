@@ -9,18 +9,16 @@ public class ConnectDeliveryDetails {
     private double approvedPercentage;
     private int unitId;
 
-    public ConnectDeliveryDetails() {
-    }
-
     // Constructor
-    public ConnectDeliveryDetails(String deliveryName, int approvedCount, int pendingCount, String totalAmount, long remainingDays, long approvedPercentage, int unitId) {
+    public ConnectDeliveryDetails(int unitId, String deliveryName, int approvedCount, int pendingCount, String totalAmount,
+            long remainingDays, double approvedPercentage) {
+        this.unitId = unitId;
         this.deliveryName = deliveryName;
         this.approvedCount = approvedCount;
         this.pendingCount = pendingCount;
         this.remainingDays = remainingDays;
         this.totalAmount = totalAmount;
         this.approvedPercentage = approvedPercentage;
-        this.unitId = unitId;
     }
 
     public String getDeliveryName() {

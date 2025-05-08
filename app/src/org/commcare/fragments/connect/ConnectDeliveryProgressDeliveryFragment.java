@@ -156,14 +156,8 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
                     long daysRemaining = job.getDaysRemaining();
 
                     double approvedPercentage = unit.getMaxTotal() > 0 ? (double) totalApproved / unit.getMaxTotal() * 100 : 0.0;
-                    connectDeliveryDetails = new ConnectDeliveryDetails();
-                    connectDeliveryDetails.setUnitId(unit.getUnitId());
-                    connectDeliveryDetails.setDeliveryName(unit.getName());
-                    connectDeliveryDetails.setApprovedCount(totalApproved);
-                    connectDeliveryDetails.setPendingCount(remaining);
-                    connectDeliveryDetails.setRemainingDays(daysRemaining);
-                    connectDeliveryDetails.setTotalAmount(totalAmount);
-                    connectDeliveryDetails.setApprovedPercentage(approvedPercentage);
+                    connectDeliveryDetails = new ConnectDeliveryDetails(unit.getUnitId(), unit.getName(),
+                            totalApproved, remaining, totalAmount, daysRemaining, approvedPercentage);
                     deliveryProgressList.add(connectDeliveryDetails);
                 }
 
