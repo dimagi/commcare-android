@@ -211,7 +211,7 @@ public class ConnectJobsListsFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
-                ConnectNetworkHelper.handleTokenRequestDeniedException(getContext());
+                ConnectNetworkHelper.handleTokenDeniedException(getContext());
                 reportApiCall(false, 0, 0);
                 refreshUi();
             }
