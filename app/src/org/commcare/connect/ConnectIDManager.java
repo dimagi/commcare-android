@@ -33,7 +33,8 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.TokenRequestDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
+import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
@@ -146,7 +147,7 @@ public class ConnectIDManager {
     }
 
     private void scheduleHearbeat() {
-        if (AppManagerDeveloperPreferences.isConnectIdEnabled()) {
+        if (isloggedIn()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .setRequiresBatteryNotLow(true)
@@ -174,8 +175,7 @@ public class ConnectIDManager {
 
 
     public boolean isloggedIn() {
-        return AppManagerDeveloperPreferences.isConnectIdEnabled()
-                && connectStatus == ConnectIdStatus.LoggedIn;
+        return connectStatus == ConnectIdStatus.LoggedIn;
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
@@ -373,7 +373,7 @@ public class ConnectIDManager {
                 }
 
                 public void tokenRequestDenied() {
-                    ConnectNetworkHelper.handleTokenRequestDeniedException(activity);
+                    ConnectNetworkHelper.handleTokenDeniedException(activity);
                     callback.connectActivityComplete(false);
                 }
             });
@@ -494,12 +494,6 @@ public class ConnectIDManager {
         return null;
     }
 
-    public boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = primedAppIdForAutoLogin;
-        primedAppIdForAutoLogin = null;
-        return primed != null && primed.equals(appId);
-    }
-
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
         ApiConnectId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
@@ -536,7 +530,7 @@ public class ConnectIDManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException(context);
             }
 
             @Override
@@ -617,7 +611,7 @@ public class ConnectIDManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenRequestDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
         if (!manager.isloggedIn()) {
             return null;
         }

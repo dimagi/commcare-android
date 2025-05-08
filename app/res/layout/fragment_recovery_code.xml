@@ -90,6 +90,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginStart="16dp"
+                    android:maxLength="6"
                     android:background="@drawable/connect_edit_text_bg"
                     android:textColorHint="@color/connect_grey"
                     android:paddingHorizontal="16dp"
@@ -139,6 +140,7 @@
                     android:imeOptions="actionDone"
                     android:textColorHint="@color/connect_grey"
                     android:paddingHorizontal="16dp"
+                    android:maxLength="6"
                     android:hint="@string/confirm_code"
                     android:inputType="numberPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
