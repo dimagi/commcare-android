@@ -1,7 +1,6 @@
 package org.commcare.fragments.connect;
 
 import android.content.Context;
-import android.hardware.biometrics.BiometricManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
