@@ -468,7 +468,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (connectIDManager.isloggedIn()) {
             connectIDManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = connectIDManager.setConnectJobForApp(context, appId);
+            ConnectJobRecord job = ConnectManager.setConnectJobForApp(context, appId);
 
             if (job != null) {
                 connectIDManager.updateAppAccess(context, appId, username);

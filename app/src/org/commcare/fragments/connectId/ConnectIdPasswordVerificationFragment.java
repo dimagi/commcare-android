@@ -174,7 +174,6 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     private void onForgotPasswordClick() {
-        ((ConnectIdActivity)activity).forgotPassword = true;
         finish(true, true);
     }
 

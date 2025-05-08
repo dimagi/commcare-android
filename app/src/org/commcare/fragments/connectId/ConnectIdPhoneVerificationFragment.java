@@ -132,8 +132,6 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
         getArgument();
         binding.connectPhoneVerifyButton.setEnabled(false);
         buttonEnabled("");
-        ((ConnectIdActivity)activity).forgotPassword=false;
-        ((ConnectIdActivity)activity).forgotPin=false;
         SmsRetrieverClient client = SmsRetriever.getClient(getActivity());// starting the SmsRetriever API
         client.startSmsUserConsent(null);
 
