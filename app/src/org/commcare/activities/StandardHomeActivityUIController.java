@@ -237,7 +237,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectIDManager.getInstance().shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!ConnectManager.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;
