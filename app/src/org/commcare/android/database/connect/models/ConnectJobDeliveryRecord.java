@@ -91,7 +91,7 @@ public class ConnectJobDeliveryRecord extends Persisted implements Serializable 
         delivery.slug = json.getString(META_SLUG);
         delivery.entityId = json.getString(META_ENTITY_ID);
         delivery.entityName = json.getString(META_ENTITY_NAME);
-        delivery.reason = JsonExtensions.optStringSafe(json, META_REASON, "");
+        delivery.reason = JsonExtensions.optStringSafe(json, META_REASON,null);
         delivery.flags = ConnectJobDeliveryFlagRecord.fromJson(json.getJSONObject(META_FLAGS), deliveryId);
 
         return delivery;
