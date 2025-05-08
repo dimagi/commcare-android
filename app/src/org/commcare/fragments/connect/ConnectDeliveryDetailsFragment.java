@@ -139,7 +139,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
                     @Override
                     public void processTokenRequestDeniedError() {
-                        ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
+                        ConnectNetworkHelper.handleTokenDeniedException(requireContext());
                         reportApiCall(false);
                     }
 

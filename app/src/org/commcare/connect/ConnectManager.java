@@ -364,7 +364,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException(context);
             }
 
             @Override
@@ -443,7 +443,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -566,7 +566,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -620,7 +620,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenRequestDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }

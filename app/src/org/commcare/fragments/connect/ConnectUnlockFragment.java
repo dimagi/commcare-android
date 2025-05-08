@@ -130,7 +130,7 @@ public class ConnectUnlockFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
+                ConnectNetworkHelper.handleTokenDeniedException(requireContext());
             }
 
             @Override
