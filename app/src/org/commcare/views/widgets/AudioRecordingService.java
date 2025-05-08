@@ -95,6 +95,7 @@ public class AudioRecordingService extends Service {
                         Localization.get("recording.notification.paused"))
                 .setSmallIcon(R.drawable.commcare_actionbar_logo)
                 .setContentIntent(pendingIntent)
+                .setOngoing(true)
                 .build();
     }
 
