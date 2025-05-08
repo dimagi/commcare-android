@@ -76,7 +76,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:background="@drawable/shape_border_10px_blue"
+            android:background="@drawable/shape_corner_10dp_blue"
             android:id="@+id/tvUnreadCount"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"

@@ -26,7 +26,7 @@
         android:layout_height="50dp"
         android:layout_marginBottom="15dp"
         android:layout_marginHorizontal="10dp"
-        android:background="@drawable/ic_connect_message_editext_bg_24_border"
+        android:background="@drawable/ic_connect_message_edittext_bg_24_border"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/imgSendMessage"
         app:layout_constraintStart_toStartOf="parent">

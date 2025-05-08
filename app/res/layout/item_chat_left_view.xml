@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/edge"
-            android:background="@drawable/ic_connect_message_receiver_bg"
+            android:background="@drawable/shape_connect_message_receiver_bg"
             android:orientation="vertical"
             android:padding="10dp">
 

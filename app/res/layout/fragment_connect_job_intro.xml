@@ -107,7 +107,7 @@
                             android:layout_marginStart="20dp"
                             android:gravity="center"
                             android:text="@string/connect_recovery_button_phone"
-                            android:drawableRight= "@drawable/ic_connect_arrow_forward_24px"
+                            android:drawableRight= "@drawable/ic_connect_arrow_forward_20px"
                             android:backgroundTint= "@color/white"
                             android:textColor= "@color/cc_brand_color" />
                     </LinearLayout>
