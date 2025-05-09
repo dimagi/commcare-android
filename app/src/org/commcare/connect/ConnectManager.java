@@ -192,7 +192,7 @@ public class ConnectManager {
     }
 
     public static void goToMessaging(Context parent) {
-        manager.parentActivity = parent;
+        getInstance().parentActivity = parent;
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
