@@ -26,6 +26,7 @@ import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.FirebaseIntegrityUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
@@ -57,6 +58,9 @@ public class ApiConnectId {
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
+        String integrityToken = FirebaseIntegrityUtil.getIntegrityTokenSync(context, "daveistryingthisoutnowsoletsseehowitgoes", 60);
+        Logger.log("Integrity test", integrityToken);
+
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
