@@ -89,9 +89,7 @@ public class ConnectIDManager {
     private static volatile ConnectIDManager manager = null;
     private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
     private Context parentActivity;
-    private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
-    private ConnectJobRecord activeJob = null;
 
 
     //Singleton, private constructor
@@ -442,27 +440,11 @@ public class ConnectIDManager {
 
 
     public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
-        ///TODO uncomment with connect pahse pr
         completeSignin();
         Intent i = new Intent(activity, ConnectActivity.class);
         i.putExtra("info", true);
         i.putExtra("buttons", allowProgression);
         activity.startActivity(i);
-    }
-
-    public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
-        ConnectJobRecord job = null;
-        ConnectAppRecord appRecord = getAppRecord(context, appId);
-        if (appRecord != null) {
-            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
-        }
-        setActiveJob(job);
-        return job;
-    }
-
-    public boolean isLoginManagedByConnectId(String appId, String userId) {
-        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
-        return auth != null;
     }
 
     private ConnectAppRecord getAppRecord(Context context, String appId) {
@@ -575,10 +557,6 @@ public class ConnectIDManager {
         launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
-    public void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
-    }
-
     public boolean isSeatedAppLinkedToConnectId(String username) {
         try {
             if (isloggedIn()) {
@@ -604,15 +582,6 @@ public class ConnectIDManager {
                 ConnectAppMangement.ConnectId :
                 ConnectAppMangement.Unmanaged;
     }
-
-    private boolean isConnectApp(Context context, String appId) {
-        return evaluateAppState(context, appId, "") == ConnectIDManager.ConnectAppMangement.Connect;
-    }
-
-    public boolean isLoggedInWithConnectApp(Context context, String appId) {
-        return isloggedIn() && isConnectApp(context, appId);
-    }
-
 
     public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
         if (!isloggedIn()) {
@@ -648,17 +617,6 @@ public class ConnectIDManager {
     public void setFailureAttempt(int failureAttempt) {
         failedPinAttempts = failureAttempt;
     }
-
-    public boolean shouldShowJobStatus(Context context, String appId) {
-        ConnectAppRecord record = getAppRecord(context, appId);
-        if(record == null || activeJob == null) {
-            return false;
-        }
-
-        //Only time not to show is when we're in learn app but job is in delivery state
-        return !record.getIsLearning() || activeJob.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
-    }
-
 
     /**
      * Interface for handling callbacks when a ConnectID activity finishes
