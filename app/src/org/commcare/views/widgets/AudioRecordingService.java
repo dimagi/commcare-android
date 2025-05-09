@@ -1,7 +1,5 @@
 package org.commcare.views.widgets;
 
-import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,8 +7,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.media.AudioRecordingConfiguration;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaRecorder;
 import android.os.Binder;
 import android.os.Build;
@@ -23,14 +19,10 @@ import androidx.core.app.NotificationCompat;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
-import org.commcare.util.LogTypes;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.IOException;
-
 /**
- * A bounded foreground service intended to be bound to the RecordingFragment for managing audio recording
+ * A foreground service intended to be bound to the RecordingFragment for managing audio recording
  * operations. Due to its persistent notification, the system treats it with higher importance, reducing the
  * likelihood of interruptions during recordings.
  *
@@ -105,7 +97,11 @@ public class AudioRecordingService extends Service {
         return binder;
     }
 
-    public class AudioRecorderBinder extends Binder {
+    /**
+     * Provides other components with access to the functionality exposed by the AudioRecordingService
+     *
+     **/
+     public class AudioRecorderBinder extends Binder {
         public AudioRecordingService getService() {
             return AudioRecordingService.this;
         }
