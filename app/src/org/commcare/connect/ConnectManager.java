@@ -79,7 +79,7 @@ public class ConnectManager {
 
     private static ConnectManager manager = null;
     private ConnectIDManager.ConnectIdStatus connectStatus = ConnectIDManager.ConnectIdStatus.NotIntroduced;
-    private static Context parentActivity;
+    private Context parentActivity;
 
     private static String primedAppIdForAutoLogin = null;
 
@@ -87,7 +87,7 @@ public class ConnectManager {
     private ConnectManager() {
     }
 
-    private static ConnectManager getInstance() {
+    public static ConnectManager getInstance() {
         if (manager == null) {
             manager = new ConnectManager();
         }
@@ -191,8 +191,8 @@ public class ConnectManager {
         launchConnectId(parent, ConnectConstants.VERIFY_PHONE, callback);
     }
 
-    public static void goToMessaging(Context parent) {
-        parentActivity = parent;
+    public void goToMessaging(Context parent) {
+        manager.parentActivity = parent;
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }

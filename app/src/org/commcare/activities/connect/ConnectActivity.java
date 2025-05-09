@@ -181,7 +181,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_notification) {
-            ConnectManager.goToMessaging(this);
+            ConnectManager.getInstance().goToMessaging(this);
             return true;
         }
 
