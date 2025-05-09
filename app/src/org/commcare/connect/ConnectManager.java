@@ -79,7 +79,7 @@ public class ConnectManager {
 
     private static ConnectManager manager = null;
     private ConnectIDManager.ConnectIdStatus connectStatus = ConnectIDManager.ConnectIdStatus.NotIntroduced;
-    private Context parentActivity;
+    private static Context parentActivity;
 
     private static String primedAppIdForAutoLogin = null;
 
@@ -192,7 +192,7 @@ public class ConnectManager {
     }
 
     public static void goToMessaging(Context parent) {
-        manager.parentActivity = parent;
+        parentActivity = parent;
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
