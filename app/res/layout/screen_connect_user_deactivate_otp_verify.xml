@@ -33,7 +33,6 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/roboto_medium"
             android:text="@string/enter_otp"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
@@ -101,7 +100,7 @@
         </LinearLayout>
 
         <TextView
-                android:textStyle="bold"
+            android:textStyle="bold"
             android:id="@+id/connect_phone_verify_error"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -112,13 +111,12 @@
             android:visibility="gone" />
 
         <TextView
-                android:textStyle="bold"
+            android:textStyle="bold"
             android:id="@+id/connect_phone_verify_resend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
             android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto_medium"
             android:text="Resend OTP in 60s"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="12sp" />

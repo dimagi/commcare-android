@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/connect_background_color">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:paddingBottom="20dp"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="5dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/connect_delivery_details_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/connect_dark_blue_color"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/connect_delivery_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_job_info_delivery_detail"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/connect_review"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_job_info_review_delivery"
+                    android:textColor="@color/grey"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/connect_delivery_title" />
+
+                <ImageView
+                    android:id="@+id/connect_delivery_visits_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintBottom_toBottomOf="@+id/connect_delivery_total_visits_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/connect_delivery_total_visits_text" />
+
+                <TextView
+                    android:id="@+id/connect_delivery_total_visits_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="25dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_visits_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/connect_review" />
+
+
+                <ImageView
+                    android:id="@+id/connect_delivery_days_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintBottom_toBottomOf="@+id/connect_delivery_days_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/connect_delivery_days_text" />
+
+                <TextView
+                    android:id="@+id/connect_delivery_days_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="25dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_days_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_total_visits_text" />
+
+                <ImageView
+                    android:id="@+id/connect_delivery_max_daily_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintBottom_toBottomOf="@+id/connect_delivery_max_daily_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/connect_delivery_max_daily_text" />
+
+                <TextView
+                    android:id="@+id/connect_delivery_max_daily_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="25dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_max_daily_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_days_text" />
+
+                <ImageView
+                    android:id="@+id/connect_delivery_budget_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@null"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_connect_check_circle"
+                    app:layout_constraintBottom_toBottomOf="@+id/connect_delivery_budget_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/connect_delivery_budget_text" />
+
+                <TextView
+                    android:id="@+id/connect_delivery_budget_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="25dp"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/connect_delivery_budget_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_max_daily_text" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardButtonLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="5dp"
+                    app:layout_constraintEnd_toEndOf="@+id/connect_delivery_budget_text"
+                    app:layout_constraintStart_toStartOf="@+id/connect_delivery_budget_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/connect_delivery_budget_text">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/connect_darker_blue_color"
+                        android:padding="16dp">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/linearLayout"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            android:layout_marginEnd="2dp"
+                            app:layout_constraintEnd_toStartOf="@+id/connect_delivery_button"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/connect_delivery_action_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                android:text="@string/connect_job_info_start_visit"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/connect_delivery_action_details"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/connect_delivery_action_title"
+                                android:text="@string/connect_job_info_download_delivery"
+                                android:textColor="@color/grey"
+                                android:textSize="14sp" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/connect_delivery_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/connect_job_info_download"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:backgroundTint= "@color/white"
+                            android:drawableEnd= "@drawable/ic_connect_arrow_forward_20px"
+                            android:textColor= "@color/cc_brand_color"
+                            app:iconTint="@color/cc_brand_color"
+                            />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</ScrollView>
