@@ -41,7 +41,7 @@ License.
     <string name="discard_image">Enlever la image</string>
     <string name="download">Obtenez celle sélectionnée</string>
     <string name="download_forms_result">Resultat du téléchargement</string>
-    <string name="downloading_data">Connection au serveur…</string>
+    <string name="downloading_data">Connexion au serveur…</string>
     <string name="download_all_successful">Tous formulaires téléchargés avec succès.</string>
     <string name="download_complete">Téléchargement fini</string>
     <string name="download_failed_with_error">Formulaire \"%1$s\" a échoué. %2$s.</string>
@@ -200,9 +200,9 @@ License.
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
     <string name="connect_learn_failed_title">Échec de la formation</string>
     <string name="connect_learn_status">Vous avez terminé %d de %d cours.\nTerminez votre apprentissage pour obtenir votre certificat.</string>
-    <string name="connect_learn_finished">Vous avez obtenu un certificat pour cet emploi et êtes éligible pour réclamer l\'emploi et commencer à prodiguer des soins..\nTon score: %d\nNote de passage: %d</string>
+    <string name="connect_learn_finished">Vous avez obtenu un certificat pour cet emploi et êtes éligible pour réclamer l\'emploi et commencer à prodiguer des soins.\nVotre score : %d\nNote de passage : %d</string>
     <string name="connect_learn_need_assessment">Complétez l’évaluation pour terminer la formation.</string>
-    <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nTon score: %d\nNote de passage: %d</string>
+    <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nVotre score : %d\nNote de passage : %d</string>
     <string name="connect_learn_certificate">CERTIFICAT D\'ACHÈVEMENT</string>
     <string name="connect_learn_completed">Terminé le: %s</string>
     <string name="connect_learn_warning_ended">Le travail est terminé. Vous ne gagnerez aucun progrès pour un travail supplémentaire.</string>

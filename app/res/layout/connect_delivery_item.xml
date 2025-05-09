@@ -20,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@null"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_connect_delivery_pending" />
 
     </LinearLayout>
@@ -66,6 +67,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:visibility="gone"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
