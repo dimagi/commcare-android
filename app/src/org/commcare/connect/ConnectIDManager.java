@@ -240,7 +240,7 @@ public class ConnectIDManager {
                 Logger.log(LogTypes.TYPE_MAINTENANCE,
                         "Found a valid existing Connect Token with current date set to " + currentDate +
                                 " and record expiration date being " + user.getConnectTokenExpiration());
-                return new AuthInfo.TokenAuth(user.getConnectToken().bearerToken);
+                return new AuthInfo.TokenAuth(user.getConnectToken());
             } else if (user != null) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
             }
