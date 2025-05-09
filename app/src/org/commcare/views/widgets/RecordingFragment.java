@@ -316,6 +316,9 @@ public class RecordingFragment extends DialogFragment {
         dismiss();
     }
 
+    /**
+     * A listener interface for handling post-recording events
+     */
     public interface RecordingCompletionListener {
         void onRecordingCompletion(String audioFile);
     }
