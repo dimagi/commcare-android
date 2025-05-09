@@ -42,7 +42,7 @@ verify.retry=Retry
 verify.checking=Verifying media...
 exception.during.verification=Verification could not complete due to the following exception. This error must be resolved before verification can proceed:\n\n${0}
 
-barcode.reader.missing=No barcode reader available! You can install one from the android market.
+barcode.reader.missing=No barcode reader available! You can install one from the Android market.
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
@@ -79,7 +79,7 @@ home.menu.validate=Validate Media
 home.menu.locale.change=Change Language
 home.menu.locale.select=Choose your Language
 home.menu.formdump=Manage SD
-home.menu.wifi.direct=Wifi Direct
+home.menu.wifi.direct=Wi-Fi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
@@ -118,7 +118,7 @@ sync.success.synced=Sync Successful! Your information is up to date.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
-sync.fail.empty.url=Sync url is not set. Please contact CommCare Support.
+sync.fail.empty.url=Sync URL is not set. Please contact CommCare Support.
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
@@ -405,7 +405,7 @@ connection.captive_portal.action=The current network is not connected to the int
 
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
-notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
+notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to Wi-Fi or turning mobile data on.
 
 multiple.apps.unverified.title=Missing Multimedia for all Apps
 multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
@@ -516,8 +516,8 @@ refresh.build.settings.error=No refresh occurred. In order to use this utility, 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
-login.attempt.fail.empty.url.title=Url not set
-login.attempt.fail.empty.url.detail=Sync url is empty. Please contact CommCare Support.
+login.attempt.fail.empty.url.title=URL not set
+login.attempt.fail.empty.url.detail=Sync URL is empty. Please contact CommCare Support.
 
 login.attempt.fail.pin.title=Invalid PIN
 login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
@@ -772,7 +772,7 @@ wifi.direct.submit.forms=Submit
 wifi.direct.send.forms=Sending Forms
 wifi.direct.change.state.title=Send, Receive, Submit
 wifi.direct.change.state.text=Do you want to send, receive, or submit forms?
-wifi.direct.wifi.direct.off=WiFi Direct is Off - Please turn it on to use this feature
+wifi.direct.wifi.direct.off=Wi-Fi Direct is Off - Please turn it on to use this feature
 wifi.direct.enter.send.mode=Entered Send Mode
 wifi.direct.enter.receive.mode=Entered Receive Mode
 wifi.direct.enter.submit.mode=Entered Submit Mode
@@ -783,9 +783,9 @@ wifi.direct.no.group=This device is not connected to any Wi-Fi Direct group.
 wifi.direct.receive.successful=Received ${0} files successfully!
 wifi.direct.send.successful=File Send Successful!
 wifi.direct.send.unsuccessful=Error sending files: ${0}
-wifi.direct.error.no.forms=Phone has received no forms via Wi-fi direct for Submitting; did you mean to Send forms?
+wifi.direct.error.no.forms=Phone has received no forms via Wi-Fi direct for Submitting; did you mean to Send forms?
 wifi.direct.discovery.start=Discovery Initiated
-wifi.direct.discovery.failed.generic=Discovery failed due to bad Wi-fi state; turn Wi-fi on and off, then retry
+wifi.direct.discovery.failed.generic=Discovery failed due to bad Wi-Fi state; turn Wi-Fi on and off, then retry
 wifi.direct.discovery.failed.specific=Discovery failed with reason code ${0}
 wifi.direct.connect.failed=Connecting failed, please retry
 wifi.direct.error.wiping.forms=Error wiping forms: ${0}
