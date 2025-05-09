@@ -163,13 +163,13 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
     private void beginSecondaryPhoneVerification(Context parent) {
         NavDirections navDirections =
-                ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage
-                        (parent.getString(R.string.connect_recovery_alt_title),
-                                parent.getString(R.string.connect_recovery_alt_message),
-                                ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
-                                parent.getString(R.string.connect_password_fail_button),
-                                parent.getString(R.string.connect_recovery_alt_change_button), null,
-                                null).setIsCancellable(false);
+                ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage(
+                        parent.getString(R.string.connect_recovery_alt_title),
+                        parent.getString(R.string.connect_recovery_alt_message),
+                        ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
+                        parent.getString(R.string.connect_password_fail_button),
+                        parent.getString(R.string.connect_recovery_alt_change_button), null,
+                        null).setIsCancellable(false);
         controller.navigate(navDirections);
     }
 
