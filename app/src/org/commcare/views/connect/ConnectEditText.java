@@ -92,10 +92,9 @@ public class ConnectEditText extends AppCompatEditText {
                 }
 
                 float hintSizeNew = a.getDimension(R.styleable.CustomEditText_editTextHintSize, hintSize);
-                setHintTextSize(hintSizeNew);
+                setHintAttributes(hintColor, hintSizeNew);
 
                 setBorder(borderWidth, cornerRadius, borderColor);
-                setHintAttributes(hintColor, hintSize);
                 setEditable(isEditable);
 
                 setDrawables(
@@ -119,6 +118,7 @@ public class ConnectEditText extends AppCompatEditText {
         } else {
             setBorder(dpToPx(DEFAULT_BORDER_WIDTH), dpToPx(DEFAULT_CORNER_RADIUS), DEFAULT_BORDER_COLOR);
             setHintAttributes(DEFAULT_HINT_COLOR, spToPx(DEFAULT_HINT_SIZE));
+            setTextSize(DEFAULT_TEXT_SIZE);
             setEditable(true);
         }
 
@@ -132,7 +132,8 @@ public class ConnectEditText extends AppCompatEditText {
 
     // New method to set hint size directly
     public void setHintTextSize(float size) {
-        setTextSize(size);
+        setHint(getHint()); // forces rebuild
+        getPaint().setTextSize(size);
     }
 
     private void setBorder(int borderWidth, int cornerRadius, int borderColor) {
@@ -144,7 +145,7 @@ public class ConnectEditText extends AppCompatEditText {
 
     private void setHintAttributes(int color, float size) {
         setHintTextColor(color);
-        setTextSize(size);
+        setHintTextSize(size);
     }
 
     public void setEditable(boolean isEditable) {
@@ -185,7 +186,8 @@ public class ConnectEditText extends AppCompatEditText {
     private void setupDrawableClickListeners() {
         setOnTouchListener((v, event) -> {
             if (drawableStartVisible && event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getX() <= getCompoundDrawables()[0].getBounds().width()) {
+                Drawable start = getCompoundDrawablesRelative()[0];
+                if (start != null && event.getX() <= start.getBounds().width()) {
                     if (onDrawableStartClickListener != null) {
                         onDrawableStartClickListener.onDrawableStartClick();
                     }
