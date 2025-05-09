@@ -5,6 +5,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.android.play.core.integrity.IntegrityManager
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.IntegrityTokenRequest
+import org.javarosa.core.services.Logger
 
 object FirebaseIntegrityUtil {
     /**
@@ -28,9 +29,11 @@ object FirebaseIntegrityUtil {
 
             // Wait synchronously for the result (NOT for UI thread)
             val response = Tasks.await(task, timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
+            Logger.log("Integrity test", "Integrity token: ${response.token()}")
             response.token()
         } catch (e: Exception) {
             e.printStackTrace()
+            Logger.exception("Integrity test", e)
             null
         }
     }
