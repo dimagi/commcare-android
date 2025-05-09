@@ -2,6 +2,7 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 import android.os.Handler;
+import android.widget.Toast;
 
 import com.google.common.collect.ArrayListMultimap;
 
@@ -22,6 +23,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.FirebaseIntegrityUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -82,6 +84,9 @@ public class ApiConnectId {
     }
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
+        String integrityToken = FirebaseIntegrityUtil.getIntegrityTokenSync(context, "thisisatestnoncetobeusedfortestingthisonce", 60);
+        Toast.makeText(context, "Integrity result: " + integrityToken, Toast.LENGTH_LONG).show();
+
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
