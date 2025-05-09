@@ -225,15 +225,18 @@ public class ConnectJobUtils {
         SqlStorage<ConnectJobDeliveryFlagRecord> storage = ConnectDatabaseHelper.getConnectStorage(context,
                 ConnectJobDeliveryFlagRecord.class);
         ConnectDatabaseHelper.connectDatabase.beginTransaction();
+        try {
+            storage.removeAll(storage.getIDsForValues(new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
+                    new Object[]{deliveryId}));
 
-        storage.removeAll(storage.getIDsForValues(new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
-                new Object[]{deliveryId}));
-
-        for (ConnectJobDeliveryFlagRecord incomingRecord : flags) {
-            storage.write(incomingRecord);
+            for (ConnectJobDeliveryFlagRecord incomingRecord : flags) {
+                storage.write(incomingRecord);
+            }
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
         }
 
-        ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
     }
 
     public static void storePayment(Context context, ConnectJobPaymentRecord payment) {
