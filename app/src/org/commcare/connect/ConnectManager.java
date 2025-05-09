@@ -87,7 +87,7 @@ public class ConnectManager {
     private ConnectManager() {
     }
 
-    public static ConnectManager getInstance() {
+    private static ConnectManager getInstance() {
         if (manager == null) {
             manager = new ConnectManager();
         }
@@ -191,8 +191,8 @@ public class ConnectManager {
         launchConnectId(parent, ConnectConstants.VERIFY_PHONE, callback);
     }
 
-    public void goToMessaging(Context parent) {
-        manager.parentActivity = parent;
+    public static void goToMessaging(Context parent) {
+        getInstance().parentActivity = parent;
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
