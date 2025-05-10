@@ -83,7 +83,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.72'
     implementation 'com.google.android.gms:play-services-maps:19.0.0'
     implementation 'joda-time:joda-time:2.9.4'
-    implementation 'net.zetetic:android-database-sqlcipher:4.5.3@aar'
+    implementation 'net.zetetic:sqlcipher-android:4.7.2@aar'
     implementation 'androidx.sqlite:sqlite:2.2.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'

@@ -2,13 +2,14 @@ package org.commcare.android.shadows;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.DatabaseErrorHandler;
-import net.sqlcipher.SQLException;
-import net.sqlcipher.database.SQLiteDatabase.CursorFactory;
-import net.sqlcipher.database.SQLiteDatabaseHook;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteStatement;
+import net.zetetic.database.DatabaseErrorHandler;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase.CursorFactory;
+import net.zetetic.database.sqlcipher.SQLiteDatabaseHook;
+import net.zetetic.database.sqlcipher.SQLiteStatement;
 
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
@@ -19,7 +20,7 @@ import java.util.Map;
 /**
  * @author ctsims
  */
-@Implements(net.sqlcipher.database.SQLiteDatabase.class)
+@Implements(SQLiteDatabase.class)
 public class SQLiteDatabaseNative {
     private android.database.sqlite.SQLiteDatabase db;
 

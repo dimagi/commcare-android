@@ -2,7 +2,7 @@ package org.commcare.models.database.user.models;
 
 import android.content.ContentValues;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;

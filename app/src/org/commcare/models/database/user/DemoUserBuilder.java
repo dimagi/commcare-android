@@ -2,7 +2,7 @@ package org.commcare.models.database.user;
 
 import android.content.Context;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -94,7 +94,7 @@ public class DemoUserBuilder {
         SQLiteDatabase userDatabase = null;
         try {
             userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(),
-                    keyRecord.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(randomKey));
+                    keyRecord.getUuid(), UserSandboxUtils.getSqlCipherEncodedKey(randomKey)).getWritableDatabase();
 
             User user = new User(username, passwordHash, username, userType);
 

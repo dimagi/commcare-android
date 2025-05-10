@@ -4,7 +4,7 @@ import android.database.SQLException;
 
 import androidx.annotation.StringDef;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
