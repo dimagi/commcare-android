@@ -165,7 +165,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         FirebaseIntegrityUtil.getIntegrityTokenAsync(this, "thisisatestnoncetobeusedfortestingthisonce", 60, token -> {
-            Toast.makeText(this, "Integrity result: " + token, Toast.LENGTH_LONG).show();
+            runOnUiThread(() -> Toast.makeText(this, "Integrity result: " + token, Toast.LENGTH_LONG).show());
+
             return null;
         });
     }
