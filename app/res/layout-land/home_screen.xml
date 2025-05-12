@@ -95,6 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/viewJobCard"
+                android:visibility="gone"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="-35dp"
                 android:layout_marginRight="10dp"
@@ -129,6 +130,7 @@
             <include
                 android:id="@+id/viewJobCard"
                 layout="@layout/view_progress_job_card"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
