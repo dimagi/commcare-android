@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.56.1">
+          android:versionName="2.57">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -137,6 +137,14 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
+        <receiver
+            android:name="org.commcare.connect.SMSBroadcastReceiver"
+            android:exported="true"
+            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:label="@string/application_name"
@@ -162,6 +170,9 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
+        <activity
+            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:label="@string/application_name"
             android:name="org.commcare.activities.LoginActivity"

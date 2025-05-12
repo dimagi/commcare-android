@@ -65,6 +65,7 @@ home.sync=Sync with Server
 home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
+home.connect=View Job Status
 # IMPORTANT: do NOT change the name of this key for any reason; HQ uses it for the training root menu
 training.root.title=Training
 
@@ -107,6 +108,7 @@ menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
+menu.enable.connect.id=Enable ConnectID
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -133,6 +135,8 @@ sync.fail.recovery.failure=There was an error trying to recover from a bad local
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 sync.fail.invalid.case.graph=1 or more forms introduced an invalid case relationship.
+sync.fail.token.unavailable=Couldn't contact server. Please make sure an internet connection is available or try again later.
+sync.fail.token.denied=Please re-login into your ConnectID account, then try again.
 
 form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
 form.send.rate.limit.error.title=You've reached your form submission rate limit
@@ -198,14 +202,14 @@ post.generic.error=An error occurred while preparing the HTTP request
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
-post.unknown.response=Received unknown resonse code (${0}) from server
+post.unknown.response=Received unknown response code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
 post.conflict.error=You have already claimed this case.
 
-version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
-version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
+version.id.long=CommCare Android, version "${0}"(${1}). App v${4}. CommCare Version ${0}. Build ${2}, built on: ${3}
+version.id.short=CCDroid:"${0}"(${1}). v${4} CC${0}b[${2}] on ${3}
 commcare.version=CommCare Android, version "${0}"(${1}), built on: ${2}
 
 auth.request.not.using.https=${0} is an invalid URL. CommCare can't connect with authentication to an insecure (HTTP) server.
@@ -370,6 +374,7 @@ select.detail.callout.title=Select phone number action
 select.detail.callout.call=Call
 select.detail.callout.sms=Send SMS
 
+
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
 
@@ -532,6 +537,10 @@ login.attempt.fail.changed.title=Password Changed since Last Login
 login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.
 login.attempt.fail.changed.action=If you had unsent data or incomplete forms on the phone before you logged in with your new password you should log out, and log in with your old password. Make sure all your unsent forms are sent and incomplete forms are submitted, then log in again with your new password and sync. 
 
+login.attempt.insufficient.role.permission.title=User doesn't have permission to access the CommCare application
+login.attempt.insufficient.role.permission.detail=The role assigned to your user doesn't have permission to access CommCare mobile application
+login.attempt.insufficient.role.permission.action=Contact Support for assistance with this matter
+
 notification.credential.mismatch.title=Mismatching Login Credentials
 notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
 notification.credential.mismatch.action=Contact CommCare Support for assistance with your account
@@ -550,6 +559,14 @@ notification.bad.certificate.title=Couldn't securely connect to the server.
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
 notification.bad.certificate.button=Go to settings
+
+notification.token.unavailable.title=Couldn't connect to the server.
+notification.token.unavailable.detail=CommCare had an issue authenticating the user.
+notification.token.unavailable.action=Check your device's time and date to make sure they are correct, then try again.
+
+notification.token.denied.title=Couldn't connect to the server.
+notification.token.denied.detail=CommCare can no longer communicate with the ConnectID server.
+notification.token.denied.action=Please re-login into your ConnectID account, then try again.
 
 notification.restore.storagefull.title=Couldn't save your application's resources
 notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.
@@ -995,3 +1012,5 @@ background.sync.fail=Background sync failed. Please try to trigger a normal Sync
 android.package.name.org.commcare.dalvik.reminders=CommCare Reminders
 android.package.name.callout.commcare.org.sendussd=Commcare USSD
 android.package.name.org.commcare.dalvik.abha=CommCare ABHA
+
+location.capture.cancelled=Location capture cancelled

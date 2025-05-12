@@ -60,6 +60,10 @@ public class NotificationMessageFactory {
          * No PIN was entered
          */
         Auth_EmptyPin("login.attempt.fail.empty.pin"),
+        /**
+         * User's role doesn't have the right to access CommCare mobile app
+         */
+        Auth_InsufficientRolePermission("login.attempt.insufficient.role.permission"),
 
         /**
          * Server 500 when retrieving data.
@@ -162,7 +166,17 @@ public class NotificationMessageFactory {
         /**
          * Bad SSL Certificate *
          */
-        BadSslCertificate("notification.bad.certificate");
+        BadSslCertificate("notification.bad.certificate"),
+
+        /**
+         * SSO Token Unavailable  *
+         */
+        TokenUnavailable("notification.token.unavailable"),
+
+        /**
+         * SSO token request denied *
+         */
+        TokenDenied("notification.token.denied");
 
         StockMessages(String root) {
             this.root = root;
