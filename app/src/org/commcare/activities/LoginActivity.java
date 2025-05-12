@@ -57,6 +57,7 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.FirebaseIntegrityUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -162,6 +163,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
+
+        String integrityToken = FirebaseIntegrityUtil.getIntegrityTokenSync(this, "thisisatestnoncetobeusedfortestingthisonce", 60);
+        Toast.makeText(this, "Integrity result: " + integrityToken, Toast.LENGTH_LONG).show();
     }
 
     @Override
