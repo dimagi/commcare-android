@@ -162,7 +162,7 @@ public class ConnectManager {
         return ConnectUserDatabaseUtil.getUser(context);
     }
 
-    private ConnectJobRecord activeJob = null;
+    private static ConnectJobRecord activeJob = null;
 
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
@@ -172,11 +172,11 @@ public class ConnectManager {
     }
 
     public static void setActiveJob(ConnectJobRecord job) {
-        getInstance().activeJob = job;
+        activeJob = job;
     }
 
     public static ConnectJobRecord getActiveJob() {
-        return getInstance().activeJob;
+        return activeJob;
     }
 
     private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
@@ -190,9 +190,29 @@ public class ConnectManager {
     }
 
     public static void goToMessaging(Context parent) {
-        manager.parentActivity = parent;
+        getInstance().parentActivity = parent;
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
+    }
+
+    public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
+        ConnectJobRecord job = null;
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if (appRecord != null) {
+            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
+        }
+        setActiveJob(job);
+        return job;
+    }
+
+    public static boolean shouldShowJobStatus(Context context, String appId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        if(record == null || activeJob == null) {
+            return false;
+        }
+
+        //Only time not to show is when we're in learn app but job is in delivery state
+        return !record.getIsLearning() || activeJob.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
