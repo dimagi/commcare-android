@@ -17,24 +17,26 @@ object FirebaseIntegrityUtil {
      * @return The integrity token string if successful, null otherwise.
      */
     @JvmStatic
-    fun getIntegrityTokenSync(
+    fun getIntegrityTokenAsync(
         context: Context,
         nonce: String,
-        timeoutSeconds: Long = 10
-    ): String? {
-        return try {
-            val integrityManager: IntegrityManager = IntegrityManagerFactory.create(context)
-            val request = IntegrityTokenRequest.builder().setNonce(nonce).build()
-            val task = integrityManager.requestIntegrityToken(request)
+        timeoutSeconds: Long = 10,
+        callback: (String?) -> Void
+    ) {
+        Thread {
+            try {
+                val integrityManager: IntegrityManager = IntegrityManagerFactory.create(context)
+                val request = IntegrityTokenRequest.builder().setNonce(nonce).build()
+                val task = integrityManager.requestIntegrityToken(request)
 
-            // Wait synchronously for the result (NOT for UI thread)
-            val response = Tasks.await(task, timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
-            Logger.log("Integrity test", "Integrity token: ${response.token()}")
-            response.token()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Logger.exception("Integrity test", e)
-            null
-        }
+                val response = Tasks.await(task, timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
+                Logger.log("Integrity test", "Integrity token: ${response.token()}")
+                callback(response.token())
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Logger.exception("Integrity test", e)
+                callback(e.message)
+            }
+        }.start()
     }
 }

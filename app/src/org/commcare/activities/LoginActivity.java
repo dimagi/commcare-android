@@ -164,8 +164,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
 
-        String integrityToken = FirebaseIntegrityUtil.getIntegrityTokenSync(this, "thisisatestnoncetobeusedfortestingthisonce", 60);
-        Toast.makeText(this, "Integrity result: " + integrityToken, Toast.LENGTH_LONG).show();
+        FirebaseIntegrityUtil.getIntegrityTokenAsync(this, "thisisatestnoncetobeusedfortestingthisonce", 60, token -> {
+            Toast.makeText(this, "Integrity result: " + token, Toast.LENGTH_LONG).show();
+            return null;
+        });
     }
 
     @Override
