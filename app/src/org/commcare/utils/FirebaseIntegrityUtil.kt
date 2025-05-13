@@ -24,6 +24,14 @@ object FirebaseIntegrityUtil {
         timeoutSeconds: Long,
         callback: (String?) -> Void
     ) {
+        if (nonce.isBlank()) {
+            throw IllegalArgumentException("Nonce cannot be empty")
+        }
+
+        if (timeoutSeconds <= 0) {
+            throw IllegalArgumentException("Timeout must be greater than 0")
+        }
+
         Thread {
             try {
                 val integrityManager: IntegrityManager = IntegrityManagerFactory.create(context)
