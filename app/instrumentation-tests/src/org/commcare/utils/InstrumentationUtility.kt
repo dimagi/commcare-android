@@ -210,6 +210,10 @@ object InstrumentationUtility {
         gotoHome()
         onView(withId(R.id.nsv_home_screen))
             .perform(swipeUp())
+        onView(withId(R.id.nsv_home_screen))    // This is because landscape view needs more scroll up to view more than 90% of the log out button
+            .perform(swipeUp())
+        onView(withId(R.id.nsv_home_screen))    // This is because landscape view needs more scroll up to view more than 90% of the log out button
+            .perform(swipeUp())
         onView(withText("Log out of CommCare"))
             .perform(click())
     }
