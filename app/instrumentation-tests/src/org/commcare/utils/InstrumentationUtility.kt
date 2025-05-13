@@ -212,7 +212,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun logout() {
         gotoHome()
-        onView(withId(R.id. nsv_home_screen)).perform(repeatedlyUntil(swipeUp(),
+        onView(withId(R.id.nsv_home_screen)).perform(repeatedlyUntil(swipeUp(),
             hasDescendant(withText("Log out of CommCare")),
             5))
         onView(withText("Log out of CommCare"))
