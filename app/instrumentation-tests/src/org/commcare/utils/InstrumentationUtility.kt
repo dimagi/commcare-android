@@ -26,6 +26,7 @@ import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions.clearText
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.repeatedlyUntil
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -34,6 +35,7 @@ import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
 import androidx.test.espresso.matcher.ViewMatchers.hasSibling
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -208,12 +210,9 @@ object InstrumentationUtility {
     @JvmStatic
     fun logout() {
         gotoHome()
-        onView(withId(R.id.nsv_home_screen))
-            .perform(swipeUp())
-        onView(withId(R.id.nsv_home_screen))    // This is because landscape view needs more scroll up to view more than 90% of the log out button
-            .perform(swipeUp())
-        onView(withId(R.id.nsv_home_screen))    // This is because landscape view needs more scroll up to view more than 90% of the log out button
-            .perform(swipeUp())
+        onView(withId(R.id. nsv_home_screen)).perform(repeatedlyUntil(swipeUp(),
+            hasDescendant(withText("Log out of CommCare")),
+            5))
         onView(withText("Log out of CommCare"))
             .perform(click())
     }
