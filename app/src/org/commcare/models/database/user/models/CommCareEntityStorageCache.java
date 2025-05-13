@@ -4,12 +4,12 @@ import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_NORMAL
 import static org.commcare.cases.entity.EntityStorageCache.ValueType.TYPE_SORT_FIELD;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
