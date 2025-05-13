@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:viewBindingIgnore="true">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/view_finder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+
+        <org.commcare.views.FaceCaptureView
+            android:id="@+id/face_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:background_color="@color/cc_neutral_bg_tr"
+            app:face_capture_area_delimiter_color="@color/white"
+            app:face_marker_color="@color/cc_attention_positive_color"
+            app:countdown_text_size="@dimen/font_size_large"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:id="@+id/camera_shutter_button"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:src="@drawable/camera_shutter"
+            android:background="@color/cc_neutral_bg_tr"
+            android:visibility="gone"
+            android:paddingBottom="15dp"/>
+    </LinearLayout>
+</FrameLayout>
