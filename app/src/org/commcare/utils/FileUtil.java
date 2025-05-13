@@ -23,6 +23,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
@@ -885,7 +886,7 @@ public class FileUtil {
 
     // Retruns true if location is either a content Uri or a valid file path
     public static boolean isValidFileLocation(String location) {
-        return location != null && (location.startsWith("content://") || new File(location).exists());
+        return !StringUtils.isEmpty(location) && (location.startsWith("content://") || new File(location).exists());
     }
 
     // returns the duration for a media file otherwise -1 in case of an error
