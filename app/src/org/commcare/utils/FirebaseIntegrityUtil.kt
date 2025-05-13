@@ -1,26 +1,27 @@
 package org.commcare.utils
 
 import android.content.Context
+import android.util.Base64
 import com.google.android.gms.tasks.Tasks
 import com.google.android.play.core.integrity.IntegrityManager
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.IntegrityTokenRequest
 import org.javarosa.core.services.Logger
+import java.security.SecureRandom
 
 object FirebaseIntegrityUtil {
     /**
-     * Retrieves a Firebase Integrity token synchronously.
+     * Retrieves a Firebase Integrity token asynchronously.
      *
      * @param context The application context.
-     * @param nonce A unique and random string (recommended to be cryptographically secure).
+     * @param nonce A unique nonce string for the integrity token request.
      * @param timeoutSeconds Time to wait for the token request to complete.
      * @return The integrity token string if successful, null otherwise.
      */
-    @JvmStatic
     fun getIntegrityTokenAsync(
         context: Context,
         nonce: String,
-        timeoutSeconds: Long = 10,
+        timeoutSeconds: Long,
         callback: (String?) -> Void
     ) {
         Thread {
@@ -30,13 +31,18 @@ object FirebaseIntegrityUtil {
                 val task = integrityManager.requestIntegrityToken(request)
 
                 val response = Tasks.await(task, timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
-                Logger.log("Integrity test", "Integrity token: ${response.token()}")
                 callback(response.token())
             } catch (e: Exception) {
                 e.printStackTrace()
-                Logger.exception("Integrity test", e)
-                callback(e.message)
+                Logger.exception("Error retrieving Firebase Integrity token", e)
+                callback(null)
             }
         }.start()
+    }
+
+    fun generateNonce(): String {
+        val nonceBytes = ByteArray(24)
+        SecureRandom().nextBytes(nonceBytes)
+        return Base64.encodeToString(nonceBytes, Base64.NO_WRAP)
     }
 }

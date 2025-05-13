@@ -163,12 +163,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
-
-        FirebaseIntegrityUtil.getIntegrityTokenAsync(this, "thisisatestnoncetobeusedfortestingthisonce", 60, token -> {
-            runOnUiThread(() -> Toast.makeText(this, "Integrity result: " + token, Toast.LENGTH_LONG).show());
-
-            return null;
-        });
     }
 
     @Override
