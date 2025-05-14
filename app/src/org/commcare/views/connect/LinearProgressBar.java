@@ -3,8 +3,10 @@ package org.commcare.views.connect;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +26,7 @@ public class LinearProgressBar extends View {
     private int[] gradientColors = {Color.BLUE, Color.GREEN};
     private boolean isGradient = false;
     private int progressColor = Color.BLUE;
-    private int backgroundColor = R.color.connect_un_fill_progress;
+    private int backgroundColor;
 
     public LinearProgressBar(Context context) {
         super(context);
@@ -43,7 +45,8 @@ public class LinearProgressBar extends View {
 
     private void init(Context context) {
         backgroundPaint = new Paint();
-        backgroundPaint.setColor(ContextCompat.getColor(context,backgroundColor));
+        backgroundColor = ContextCompat.getColor(context, R.color.connect_un_fill_progress);
+        backgroundPaint.setColor(backgroundColor);
         backgroundPaint.setStyle(Paint.Style.FILL);
         backgroundPaint.setAntiAlias(true);
 
@@ -67,6 +70,16 @@ public class LinearProgressBar extends View {
         // Draw the progress with rounded corners at the end
         float progressWidth = (progress / 100f) * width;
         RectF progressRect = new RectF(0, 0, progressWidth, height);
+        if (isGradient && gradientColors != null && gradientColors.length > 1) {
+            LinearGradient shader = new LinearGradient(
+                    0, 0, progressWidth, 0,
+                    gradientColors, null, Shader.TileMode.CLAMP);
+            progressPaint.setShader(shader);
+        } else {
+            progressPaint.setShader(null);
+            progressPaint.setColor(progressColor);
+        }
+
         canvas.drawRoundRect(progressRect, endCornerRadius, endCornerRadius, progressPaint);
     }
 

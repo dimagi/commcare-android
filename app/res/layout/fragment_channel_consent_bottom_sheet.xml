@@ -24,6 +24,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="@null"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_primary_portrait" />
 
                 <TextView

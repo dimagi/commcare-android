@@ -75,7 +75,6 @@ public class ConnectPhoneInputView extends LinearLayout {
             int editTextColor = a.getColor(R.styleable.PhoneInputView_editTextColor, ContextCompat.getColor(context, R.color.black));
             float editTextSize = a.getDimension(R.styleable.PhoneInputView_editTextSize, spToPx(16));
             etPhoneNumber.setHintTextColor(editTextHintColor);
-            etPhoneNumber.setTextSize(TypedValue.COMPLEX_UNIT_PX, editTextHintSize);
             etPhoneNumber.setTextColor(editTextColor);
             etPhoneNumber.setTextSize(TypedValue.COMPLEX_UNIT_PX, editTextSize);
 

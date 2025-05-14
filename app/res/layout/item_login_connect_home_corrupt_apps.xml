@@ -11,10 +11,6 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    android:shadowColor="@color/connect_light_grey_transparent"
-    android:shadowDx="30"
-    android:shadowDy="30"
-    android:shadowRadius="50"
     app:cardBackgroundColor="@color/connect_red"
     app:cardCornerRadius="12dp"
     app:cardElevation="5dp">
