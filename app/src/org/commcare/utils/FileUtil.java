@@ -756,7 +756,7 @@ public class FileUtil {
      * @param maxDimen - the largest dimension that we want either side of the image to have
      * @return A scaled down bitmap, or null if no scale-down is needed
      */
-    private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen) {
+    public static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen) {
         if (originalBitmap == null) {
             return null;
         }
