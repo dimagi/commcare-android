@@ -317,6 +317,21 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
+    public static void updatePhoto(Context context, String username, String password, String photoAsBase64,
+            IApiCallback callback) {
+        Objects.requireNonNull(photoAsBase64);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+        String token = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(token);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("photo", photoAsBase64);
+
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<ResponseBody> call = apiService.updateProfile(token, params);
+        callApi(context, call, callback);
+    }
+
     public static void requestRegistrationOtpPrimary(Context context, String username, String password,
                                                      IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
