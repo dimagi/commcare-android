@@ -95,7 +95,6 @@ public class CircleProgressBar extends View {
     }
 
     public void setProgressColor(int color) {
-        Log.e("CircleProgressBar", "Setting progress color to: " + color);
         this.progressColor = color;
         this.isGradient = false;
         progressPaint.setColor(color);

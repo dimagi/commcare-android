@@ -82,6 +82,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_home_screen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -95,9 +96,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/viewJobCard"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="-35dp"
-                android:layout_marginRight="10dp"
+                android:visibility="gone"
+                android:layout_marginStart="10dp"
+                android:translationY="-35dp"
+                android:layout_marginEnd="10dp"
                 app:cardBackgroundColor="@color/connect_light_orange_color"
                 app:cardCornerRadius="15dp"
                 app:cardElevation="10dp">
@@ -129,6 +131,7 @@
             <include
                 layout="@layout/view_progress_job_card"
                 android:id="@+id/viewJobCard"
+                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:layout_marginEnd="10dp"
@@ -139,7 +142,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/home_gridview_buttons"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/cvConnectMessage"
                 android:nestedScrollingEnabled="false"
                 android:scrollbars="vertical" />

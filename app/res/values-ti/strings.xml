@@ -27,7 +27,7 @@
     <string name="migration_possible_failure">CommCare ኣብ እዋን ምዕባይ መተግበሪ ንኹሉ ዳታኻ ክሰግሮ ኣይከኣለን። ነዚ ንምእራም ክትፍትን በጃኻ CommCare ዳግማይ ጀምር። እዚ መልእኽቲ እዚ እንተቐጺሉ፡ ኣብ ዝርዝር ቅጥዕታት መሳርሒኹም ንCommCare \'Clear data\' ክትገብር ከድልየካ ይኽእል እዩ።</string>
     <string name="migration_failure_title">ናይ ምስግጋር ስሕተት</string>
     <string name="multiple_apps_limit_message">ንናይ ኣፕሊኪሽን ናይ ምፅዓን ዝተወሃቦም ደረት በፂሖም ኣለዉ፤ ብሓንሳብ ክሳብ %s ዝበፅሑ መተግበሪታት ጥራይ ክፅዕኑ ይኽእሉ።\n\nሓድሽ መተግበሪ ክትተክል እንተደሊዮም፡ መጀመርታ ዝፀንሐ መተግበሪ ከጥፍእዎ ይኽእሉ እዮም፡ እዚ ድማ ካብ ኣካያዲ መተግበሪ ከሳልጡ ይኽእሉ።</string>
-    <string name="back_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንመለስ""</string>
+    <string name="back_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንመለስ</string>
     <string name="go_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንኺድ""</string>
     <string name="claim_privilege_button_text">ጥቕምታቶም ትሕተቱ/ይዉሰዱ</string>
     <string name="privilege_enabled_text">ኣብ መሳርሒኦም እዞም ዝስዕቡ ፍሉይ መሰላት/ጥቕማጥቕምታት ተኸፊቶም ኣለዉ፡\n\n %s</string>

@@ -39,7 +39,7 @@
     <string name="migration_possible_failure">CommCare haikuweza kuhamisha data yako yote wakati wa kusasisha programu. Tafadhali anzisha upya CommCare ili kujaribu kurekebisha hili. Ujumbe huu ukiendelea, huenda ukahitaji \'Kufuta data\' kwa CommCare katika menyu ya Mipangilio ya kifaa chako.</string>
     <string name="migration_failure_title">Hitilafu ya Uhamiaji</string>
     <string name="multiple_apps_limit_message">Umefikia kikomo chako cha programu zilizosakinishwa; unaweza tu kuwa na hadi programu %s zilizosakinishwa mara moja.\n\nIkiwa ungependa kusakinisha programu mpya, unaweza kusanidua programu iliyopo kwanza, ambayo inaweza kufanywa kutoka kwa kidhibiti programu.</string>
-    <string name="back_to_manager">Rudi kwa Kidhibiti Programu""</string>
+    <string name="back_to_manager">Rudi kwa Kidhibiti Programu</string>
     <string name="go_to_manager">Nenda kwa Kidhibiti Programu</string>
     <string name="claim_privilege_button_text">DAI MApendeleo</string>
     <string name="privilege_enabled_text">Haki zifuatazo zimewashwa kwenye kifaa chako:\n\n %s</string>
@@ -99,7 +99,7 @@
     <string name="capture_image">Piga Picha</string>
     <string name="capture_video">Rekodi Video</string>
     <string name="change_language">Badilisha Lugha</string>
-    <string name="clearanswer_confirm">Ondoa jibu kwa \%s\"?"</string>
+    <string name="clearanswer_confirm">Ondoa jibu kwa \"%s\"?</string>
     <string name="clear_answer">Ondoa jibu</string>
     <string name="clear_answer_ask">Ungependa Kuondoa Jibu Hili?</string>
     <string name="clear_answer_no">GHAIRI</string>
@@ -123,7 +123,7 @@
     <string name="enter">kuanza</string>
     <string name="enter_data">Jaza Fomu tupu</string>
     <string name="enter_data_button">Jaza Fomu tupu</string>
-    <string name="enter_data_description">Uko mwanzoni mwa \%s\". Telezesha kidole skrini kama inavyoonyeshwa hapa chini ili kuanza."</string>
+    <string name="enter_data_description">Uko mwanzoni mwa \"%s\". Telezesha kidole skrini kama inavyoonyeshwa hapa chini ili kuanza.</string>
     <string name="enter_data_message">Ili kusogeza, telezesha kidole chako mlalo kwenye skrini kana kwamba unageuza kurasa kwenye kitabu. Bonyeza kitufe cha Menyu kwa chaguo zaidi.</string>
     <string name="error_downloading">Hitilafu katika Kupata Fomu</string>
     <string name="error_occured">Hitilafu Imetokea</string>
