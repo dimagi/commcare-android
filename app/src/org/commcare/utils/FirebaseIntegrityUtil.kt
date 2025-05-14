@@ -24,13 +24,8 @@ object FirebaseIntegrityUtil {
         timeoutSeconds: Long,
         callback: (String?) -> Void
     ) {
-        if (nonce.isBlank()) {
-            throw IllegalArgumentException("Nonce cannot be empty")
-        }
-
-        if (timeoutSeconds <= 0) {
-            throw IllegalArgumentException("Timeout must be greater than 0")
-        }
+        require(nonce.isNotBlank()) { "Nonce cannot be empty" }
+        require(timeoutSeconds > 0) { "Timeout must be greater than 0" }
 
         Thread {
             try {
