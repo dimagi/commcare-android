@@ -3,14 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/MainPane"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentTop="true"
-    android:layout_alignParentEnd="true"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentBottom="true"
     android:background="@color/white"
     android:orientation="vertical"
     android:paddingStart="@dimen/content_start"
@@ -29,10 +23,6 @@
         android:layout_marginBottom="2dp"
         android:clickable="true"
         android:focusable="true"
-        android:shadowColor="@color/connect_light_grey_transparent"
-        android:shadowDx="30"
-        android:shadowDy="30"
-        android:shadowRadius="50"
         android:visibility="gone"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="10dp"
@@ -92,6 +82,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_home_screen"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -105,6 +96,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/viewJobCard"
+                android:visibility="gone"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="-35dp"
                 android:layout_marginRight="10dp"
@@ -139,6 +131,7 @@
             <include
                 android:id="@+id/viewJobCard"
                 layout="@layout/view_progress_job_card"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"

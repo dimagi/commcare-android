@@ -29,12 +29,15 @@
             android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llFilterAll"
+                android:id="@+id/cvFilterAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/transparent"
+                android:clickable="true"
+                android:focusable="true"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
+                android:contentDescription="@null"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/llFilterApproved"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -45,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/connect_blue_color_10"
-                    android:paddingHorizontal="16sp"
+                    android:paddingHorizontal="16dp"
                     android:paddingVertical="9dp">
 
                     <TextView
@@ -71,7 +74,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/llFilterRejected"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/llFilterAll"
+                app:layout_constraintStart_toEndOf="@+id/cvFilterAll"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RelativeLayout
