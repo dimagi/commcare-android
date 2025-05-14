@@ -911,4 +911,7 @@
     <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
     <string name="name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="name_empty_error">Name field cannot be empty</string>
+    <string name="connectid_photo_capture_title">Welcome %1s</string>
+    <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
+    <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
 </resources>
