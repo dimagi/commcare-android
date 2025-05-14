@@ -413,7 +413,8 @@
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
     <!-- ConnectID strings -->
-    <string name="connect_registration_title">ConnectID Signup</string>
+    <string name="connect_registration_title">Get Started with PersonalID</string>
+    <string name="connect_registration_subtitle">Enter your Phone Number</string>
     <string name="connect_signup">Signup</string>
     <string name="connect_recover">Recover</string>
     <string name="connect_registration_have_account">Already have\nan Account?</string>
@@ -509,7 +510,7 @@
     <string name="connect_register_success_message">Your ConnectID account has been successfully created and is now ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
     <string name="connect_verify_title">Unlock Options</string>
-    <string name="connect_verify_message">Please configure a method below to unlock both your device and ConnectID account</string>
+    <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalId account</string>
     <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock ConnectID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
@@ -654,12 +655,12 @@
     <string name="connect_payment_acknowledge_notification_yes">Yes</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
 
-    <string name="enter_otp">Enter OTP</string>
+    <string name="enter_otp">Enter One Time Password</string>
     <string name="change">Change</string>
-    <string name="create_a_new_recovery_code">Create a new Recovery Code</string>
+    <string name="create_a_new_recovery_code">Create a new Backup Code</string>
     <string name="confirm_code">Confirm Code</string>
     <string name="code">Code</string>
-    <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Recovery Code</string>
+    <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Backup Code</string>
     <string name="download_app">Download</string>
     <string name="progress">Progress</string>
     <string name="sync">Sync</string>
@@ -904,4 +905,6 @@
     <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
     <string name="login_via_connect">Ready to login!\n</string>
     <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
+    <string name="name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
+    <string name="name_empty_error">Name field cannot be empty</string>
 </resources>

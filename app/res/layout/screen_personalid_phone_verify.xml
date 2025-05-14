@@ -16,7 +16,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="40dp"
             android:contentDescription="@null"
-            android:src="@drawable/ic_dimagi_logo" />
+            android:src="@drawable/ccc_logo_full" />
 
         <View
             android:id="@+id/divider"

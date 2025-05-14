@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        tools:context="org.commcare.fragments.connectId.ConnectIDSignupFragment">
+        tools:context="org.commcare.fragments.connectId.PersonalIdPhoneFragment">
 
         <ScrollView
             android:id="@+id/firstLayout"
@@ -27,7 +27,7 @@
                 android:layout_height="40dp"
                 android:layout_marginTop="60dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_dimagi_logo" />
+                android:src="@drawable/ccc_logo_full" />
 
             <View
                 android:id="@+id/divider"
@@ -45,7 +45,7 @@
                 android:textStyle="bold"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="@string/connect_registration_title"
+                android:text="@string/connect_registration_subtitle"
                 android:textColor="@color/connect_dark_blue_color"
                 android:textSize="16sp" />
 
@@ -60,44 +60,6 @@
                 android:text="@string/connect_registration_title"
                 android:textColor="@color/connect_subtext"
                 android:textSize="12sp" />
-
-            <LinearLayout
-                android:id="@+id/name_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:gravity="start"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:background="@drawable/connect_side_icon_bg"
-                    android:gravity="center">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="1dp"
-                        android:src="@drawable/ic_outline_person_24" />
-
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/nameTextValue"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:layout_marginLeft="16dp"
-                    android:background="@drawable/connect_edit_text_bg"
-                    android:hint="@string/connect_register_name"
-                    android:imeOptions="actionNext"
-                    android:paddingStart="16dp"
-                    android:textColorHint="@color/connect_grey"
-                    tools:ignore="RtlSymmetry" />
-
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/phone_layout"
@@ -226,49 +188,5 @@
 
             </LinearLayout>
         </ScrollView>
-
-        <LinearLayout
-            android:id="@+id/ll_recover"
-            android:layout_width="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_height="wrap_content">
-
-            <View
-                android:id="@+id/dividerBottom"
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginBottom="20dp"
-                android:background="@color/connect_light_grey" />
-
-            <LinearLayout
-                android:id="@+id/button_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:gravity="center_vertical|center_horizontal">
-
-                <TextView
-                    android:textStyle="bold"
-                    android:id="@+id/button_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="30dp"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:text="@string/connect_registration_have_account"
-                    android:textSize="14sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/recover_button"
-                    style="@style/NegativeButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/connect_recover"
-                    />
-
-            </LinearLayout>
-        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
