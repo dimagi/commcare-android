@@ -9,9 +9,9 @@ import com.google.android.play.core.integrity.IntegrityTokenRequest
 import org.javarosa.core.services.Logger
 import java.security.SecureRandom
 
-object FirebaseIntegrityUtil {
+object GooglePlayIntegrityUtil {
     /**
-     * Retrieves a Firebase Integrity token asynchronously.
+     * Retrieves a Google Play Integrity token asynchronously.
      *
      * @param context The application context.
      * @param nonce A unique nonce string for the integrity token request.
@@ -37,7 +37,7 @@ object FirebaseIntegrityUtil {
                 callback(response.token())
             } catch (e: Exception) {
                 e.printStackTrace()
-                Logger.exception("Error retrieving Firebase Integrity token", e)
+                Logger.exception("Error retrieving Google Play Integrity token", e)
                 callback(null)
             }
         }.start()
