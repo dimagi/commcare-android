@@ -1,11 +1,13 @@
 package org.commcare.fragments;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Size;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,9 +25,9 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
-import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -48,11 +50,15 @@ import androidx.core.content.ContextCompat;
 
 public class MicroImageActivity extends AppCompatActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
     private static final String TAG = MicroImageActivity.class.toString();
+    public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key" ;
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
     private ImageView cameraShutterButton;
     private boolean isGooglePlayServicesAvailable = false;
+
+    private static final int MICRO_IMAGE_MAX_DIMENSION_PX = 72;
+    private static final int MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -242,12 +248,36 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     }
 
     private void finalizeImageCapture(Rect faceArea) {
+        Bitmap croppedBitmap = null;
+        Bitmap scaledBitmap = null;
         try {
-            MediaUtil.cropAndSaveImage(inputImage, faceArea, ImageWidget.getTempFileForImageCapture());
-            setResult(AppCompatActivity.RESULT_OK);
-            finish();
+            croppedBitmap = MediaUtil.cropImage(inputImage, faceArea);
+            scaledBitmap = FileUtil.getBitmapScaledByMaxDimen(croppedBitmap, MICRO_IMAGE_MAX_DIMENSION_PX);
+            if (scaledBitmap == null) {
+                scaledBitmap = croppedBitmap;
+            }
+            byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap,
+                    MICRO_IMAGE_MAX_SIZE_BYTES);
+            String finalImageAsBase64 = Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
+            finishWithResul(finalImageAsBase64);
         } catch (Exception e) {
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
+        } finally {
+            recycleBitmap(croppedBitmap);
+            recycleBitmap(scaledBitmap);
+        }
+    }
+
+    private void finishWithResul(String finalImageAsBase64) {
+        Intent result = new Intent();
+        result.putExtra(MICRO_IMAGE_BASE_64_RESULT_KEY, finalImageAsBase64);
+        setResult(AppCompatActivity.RESULT_OK, result);
+        finish();
+    }
+
+    private void recycleBitmap(Bitmap bitmap) {
+        if (bitmap != null && !bitmap.isRecycled()) {
+            bitmap.recycle();
         }
     }
 }
