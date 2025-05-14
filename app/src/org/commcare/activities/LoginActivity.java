@@ -57,6 +57,7 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GooglePlayIntegrityUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -560,6 +561,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 loginDemoUser();
                 return true;
             case MENU_ABOUT:
+                // Show the about dialog
+                final String nonce = GooglePlayIntegrityUtil.INSTANCE.generateNonce();
+                GooglePlayIntegrityUtil.INSTANCE.getIntegrityTokenAsync(this, nonce, 60, token -> {
+                    //Send the nonce and token to the server
+                    Logger.exception("Integrity test", new Exception("Nonce: " + nonce + ", Token: " + token));
+                    Toast.makeText(this, "Token retrieved: " + token, Toast.LENGTH_LONG).show();
+                    return null;
+                });
+
                 DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
                 return true;
             case MENU_PERMISSIONS:
