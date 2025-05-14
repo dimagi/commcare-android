@@ -565,12 +565,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 final String nonce = GooglePlayIntegrityUtil.INSTANCE.generateNonce();
                 GooglePlayIntegrityUtil.INSTANCE.getIntegrityTokenAsync(this, nonce, 60, token -> {
                     //Send the nonce and token to the server
-                    Logger.exception("Integrity test", new Exception("Nonce: " + nonce + ", Token: " + token));
+                    String message = "Nonce: '" + nonce + "', Token: '" + token + "'";
+                    Logger.exception("Integrity test", new Exception(message));
                     Toast.makeText(this, "Token retrieved: " + token, Toast.LENGTH_LONG).show();
+                    DialogCreationHelpers.buildAboutCommCareDialog(this, message).showNonPersistentDialog(this);
                     return null;
                 });
 
-                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
                 return true;
             case MENU_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
