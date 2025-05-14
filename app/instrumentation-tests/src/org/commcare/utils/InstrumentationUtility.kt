@@ -212,9 +212,14 @@ object InstrumentationUtility {
     @JvmStatic
     fun logout() {
         gotoHome()
-        onView(withId(R.id. nsv_home_screen)).perform(repeatedlyUntil(swipeUp(),
-            hasDescendant(withText("Log out of CommCare")),
-            5))
+        onView(withId(R.id. nsv_home_screen))
+            .perform(swipeUp())
+        onView(withId(R.id. nsv_home_screen))   // multiple swipe
+            .perform(swipeUp())                 // to make `logout` button visible as it may have large scroll
+        onView(withId(R.id. nsv_home_screen))
+            .perform(swipeUp())
+        onView(withId(R.id. nsv_home_screen))
+            .perform(swipeUp())
         onView(withText("Log out of CommCare"))
             .perform(click())
     }
