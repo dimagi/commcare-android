@@ -27,20 +27,14 @@ object GooglePlayIntegrityUtil {
         require(nonce.isNotBlank()) { "Nonce cannot be empty" }
         require(timeoutSeconds > 0) { "Timeout must be greater than 0" }
 
-        Thread {
-            try {
-                val integrityManager: IntegrityManager = IntegrityManagerFactory.create(context)
-                val request = IntegrityTokenRequest.builder().setNonce(nonce).build()
-                val task = integrityManager.requestIntegrityToken(request)
-
-                val response = Tasks.await(task, timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
-                callback(response.token())
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Logger.exception("Error retrieving Google Play Integrity token", e)
+        val integrityManager: IntegrityManager = IntegrityManagerFactory.create(context)
+        val request = IntegrityTokenRequest.builder().setNonce(nonce).build()
+        integrityManager.requestIntegrityToken(request)
+            .addOnSuccessListener { response -> callback(response.token()) }
+            .addOnFailureListener { exception ->
+                Logger.exception("Error retrieving Google Play Integrity token", exception)
                 callback(null)
             }
-        }.start()
     }
 
     fun generateNonce(): String {
