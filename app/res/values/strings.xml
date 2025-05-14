@@ -906,4 +906,7 @@
     <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
     <string name="login_via_connect">Ready to login!\n</string>
     <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
+    <string name="connectid_photo_capture_title">Welcome %1s</string>
+    <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
+    <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
 </resources>
