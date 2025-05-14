@@ -77,7 +77,7 @@ public class ConnectDeliveryListFragment extends Fragment {
 
     private void setupFilterViews(View view) {
         CardView[] filterCards = {
-                view.findViewById(R.id.llFilterAll),
+                view.findViewById(R.id.cvFilterAll),
                 view.findViewById(R.id.llFilterApproved),
                 view.findViewById(R.id.llFilterRejected),
                 view.findViewById(R.id.llFilterPending)
@@ -112,7 +112,7 @@ public class ConnectDeliveryListFragment extends Fragment {
             case APPROVED_IDENTIFIER -> R.id.llFilterApproved;
             case REJECTED_IDENTIFIER -> R.id.llFilterRejected;
             case PENDING_IDENTIFIER -> R.id.llFilterPending;
-            default -> R.id.llFilterAll;
+            default -> R.id.cvFilterAll;
         };
     }
 
