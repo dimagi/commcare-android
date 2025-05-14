@@ -93,7 +93,7 @@
 
     <fragment
         android:id="@+id/personalid_backup_code"
-        android:name="org.commcare.fragments.connectId.PersonalIdPinFragment"
+        android:name="org.commcare.fragments.connectId.PersonalIdBackupCodeFragment"
         android:label="fragment_connectid_pin"
         tools:layout="@layout/fragment_recovery_code">
         <action
