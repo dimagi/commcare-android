@@ -114,7 +114,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         } else {
             imageAnalyzerOrCapture = buildImageCaptureUseCase(targetResolution);
         }
-        CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+        CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
 
         // Unbind any previous use cases before binding new ones
         cameraProvider.unbindAll();
