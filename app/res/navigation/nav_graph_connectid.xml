@@ -14,10 +14,6 @@
             android:id="@+id/action_connectid_biometric_config_to_connectid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_biometric_config" />
-        <argument
-            android:name="callingClass"
-            app:argType="integer"
-            app:nullable="false" />
         <action
             android:id="@+id/action_personalid_biometric_config_to_personalid_otp_page"
             app:destination="@id/personalid_otp_page" />
@@ -33,32 +29,9 @@
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_otp_page" />
         <argument
-            android:name="callingClass"
-            app:argType="integer"
-            app:nullable="false" />
-        <argument
-            android:name="method"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
             android:name="primaryPhone"
             app:argType="string"
             app:nullable="true" />
-        <argument
-            android:name="username"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="password"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="secondaryPhone"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="deactivateButton"
-            app:argType="boolean" />
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_name"
             app:destination="@id/personalid_name" />
@@ -67,7 +40,7 @@
             app:destination="@id/personalid_phone_fragment" />
     </fragment>
 
-    <fragment
+    <dialog
         android:id="@+id/personalid_message_display"
         android:name="org.commcare.fragments.connectId.ConnectIdMessageFragment"
         android:label="fragment_connectid_message"
@@ -116,7 +89,7 @@
             android:name="isCancellable"
             android:defaultValue="true"
             app:argType="boolean" />
-    </fragment>
+    </dialog>
 
     <fragment
         android:id="@+id/personalid_backup_code"
@@ -140,15 +113,7 @@
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:name="secret"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
             android:name="recover"
-            android:defaultValue="false"
-            app:argType="boolean" />
-        <argument
-            android:name="change"
             android:defaultValue="false"
             app:argType="boolean" />
     </fragment>
@@ -158,15 +123,6 @@
         android:name="org.commcare.fragments.connectId.PersonalIdPhoneFragment"
         android:label="fragment_personalid_phone_fragment"
         tools:layout="@layout/screen_personalid_phoneno">
-        <argument
-            android:name="callingClass"
-            android:defaultValue="1002"
-            app:argType="integer" />
-        <argument
-            android:name="phone"
-            android:defaultValue=""
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_connectid_phone_fragment_to_connectid_message"
             app:destination="@id/personalid_message_display" />
