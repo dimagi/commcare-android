@@ -61,6 +61,7 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
     }
 
     private void setUpUi() {
+        viewBinding.title.setText(requireContext().getString(R.string.connectid_photo_capture_title, connectUserRecord.getName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
         viewBinding.savePhotoButton.setOnClickListener(v -> uploadImage());
     }
