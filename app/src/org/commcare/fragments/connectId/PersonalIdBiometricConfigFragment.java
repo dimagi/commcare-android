@@ -1,7 +1,6 @@
 package org.commcare.fragments.connectId;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -242,6 +241,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private NavDirections navigateToOtpScreen() {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
-                ((ConnectIdActivity)requireActivity()).primaryPhoneNumber);
+                ((ConnectIdActivity)requireActivity()).primaryPhone);
     }
 }
