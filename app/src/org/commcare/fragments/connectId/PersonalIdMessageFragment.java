@@ -16,7 +16,7 @@ import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenConnectMessageBinding;
+import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 
 import java.util.Locale;
@@ -27,7 +27,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
+public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private String title;
     private String message;
     private String button2Text;
@@ -42,12 +42,12 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_CALLING_CLASS = "calling_class";
     private static final String KEY_IS_CANCELLABLE = "is_cancellable";
-    private ScreenConnectMessageBinding binding;
+    private ScreenPersonalidMessageBinding binding;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = ScreenConnectMessageBinding.inflate(inflater, container, false);
+        binding = ScreenPersonalidMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
         binding.connectMessageButton.setOnClickListener(v -> handleContinueButtonPress(false));
@@ -90,14 +90,14 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private void loadArguments() {
-        title = org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getTitle();
-        message = org.commcare.fragments.connectId.ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getMessage();
-        callingClass = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getCallingClass();
-        userName = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getPhone();
-        password = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getPassword();
-        isCancellable = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getIsCancellable();
-        if (ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text() != null && !ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text().isEmpty()) {
-            button2Text = ConnectIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text();
+        title = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getTitle();
+        message = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getMessage();
+        callingClass = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getCallingClass();
+        userName = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getPhone();
+        password = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getPassword();
+        isCancellable = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getIsCancellable();
+        if (PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text() != null && !PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text().isEmpty()) {
+            button2Text = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text();
         }
     }
 
@@ -133,7 +133,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (secondButton) {
                     directions = navigateToDeactivateAccount();
                 } else {
-                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, PersonalIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
                 }
                 break;
             case ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL:
@@ -153,14 +153,14 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (secondButton) {
                     directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_CHANGE);
                 } else {
-                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_UNLOCK_VERIFY_ALT_PHONE, PersonalIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
                 }
 
                 break;
             //CONNECT_RECOVERY_WRONG_PIN
             case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
                 if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
-                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, PersonalIdPhoneVerificationFragment.MethodRecoveryAlternate, null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ((ConnectIdActivity)getActivity()).recoveryAltPhone);
                     ConnectIDManager.getInstance().setFailureAttempt(0);
                 } else {
                     directions = navigateToPin(ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, false, true);
@@ -179,7 +179,7 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
                 if (secondButton) {
                     directions = navigateToSecondaryPhoneFragment(ConnectConstants.CONNECT_VERIFY_ALT_PHONE_CHANGE);
                 } else {
-                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, ConnectIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
+                    directions = navigateToPhoneVerify(ConnectConstants.CONNECT_VERIFY_ALT_PHONE, PersonalIdPhoneVerificationFragment.MethodVerifyAlternate, null, user.getUserId(), user.getPassword(), null);
                 }
 
                 break;
@@ -206,31 +206,31 @@ public class ConnectIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private NavDirections navigateToDeactivateAccount() {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_message), ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION, getString(R.string.connect_deactivate_account_delete), getString(R.string.connect_deactivate_account_go_back), userName, password);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageSelf(getString(R.string.connect_deactivate_account), getString(R.string.connect_deactivate_account_message), ConnectConstants.CONNECT_USER_DEACTIVATE_CONFIRMATION, getString(R.string.connect_deactivate_account_delete), getString(R.string.connect_deactivate_account_go_back), userName, password);
     }
 
     private NavDirections navigateToMessage(String title, String message, int callingClass, String button2Text, String button1Text, String userName, String password) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageSelf(title, message, callingClass, button2Text, button1Text, userName, password);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageSelf(title, message, callingClass, button2Text, button1Text, userName, password);
     }
 
     private NavDirections navigateToPhoneVerify(int verifyType, int method, String primaryPhone, String userId, String password, String alternatePhone) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(verifyType, String.format(Locale.getDefault(), "%d", method), primaryPhone, userId, password, alternatePhone, false);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageToConnectidPhoneVerify(verifyType, String.format(Locale.getDefault(), "%d", method), primaryPhone, userId, password, alternatePhone, false);
     }
 
     private NavDirections navigateToPin(int pinType, String phone, String secret, boolean change, boolean recover) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(pinType, phone, secret).setChange(change).setRecover(recover);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageToConnectidPin(pinType, phone, secret).setChange(change).setRecover(recover);
     }
 
     private NavDirections navigateToPassword(String phone, String secret, int callingClass) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidPassword(phone, secret, callingClass);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageToConnectidPassword(phone, secret, callingClass);
     }
 
     private NavDirections navigateToSecondaryPhoneFragment(int fragmentType) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(fragmentType);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageToConnectidSecondaryPhoneFragment(fragmentType);
     }
 
     private NavDirections navigateToUserDeactivateOtpVerify(String phone, String userName, String password) {
-        return ConnectIdMessageFragmentDirections.actionConnectidMessageToConnectidUserDeactivateOtpVerify(phone, userName, password);
+        return PersonalIdMessageFragmentDirections.actionConnectidMessageToConnectidUserDeactivateOtpVerify(phone, userName, password);
     }
 
     private void successFlow(Activity activity) {

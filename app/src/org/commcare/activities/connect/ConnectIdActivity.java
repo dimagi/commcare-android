@@ -4,14 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
+import org.commcare.fragments.connectId.PersonalIdBiometricConfigFragment;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.connectId.PersonalIdPhoneFragmentDirections;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
@@ -68,13 +68,13 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    private ConnectIdBiometricConfigFragment getCurrentFragment() {
+    private PersonalIdBiometricConfigFragment getCurrentFragment() {
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         Fragment currentFragment =
                 navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof ConnectIdBiometricConfigFragment) {
-            return (ConnectIdBiometricConfigFragment)currentFragment;
+        if (currentFragment instanceof PersonalIdBiometricConfigFragment) {
+            return (PersonalIdBiometricConfigFragment)currentFragment;
         }
         return null;
     }
@@ -92,7 +92,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
         switch (ConnectIDManager.getInstance().getStatus()) {
             case NotIntroduced:
-                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf()
+                navDirections = PersonalIdPhoneFragmentDirections.actionConnectidSignupFragmentSelf()
                         .setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
                 break;
 
@@ -102,25 +102,25 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
                 switch (phase) {
                     case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf();
+                        navDirections = PersonalIdPhoneFragmentDirections.actionConnectidSignupFragmentSelf();
                         break;
 
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
+                        navDirections = PersonalIdPhoneFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
                         break;
                     case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentToConnectidSecondaryPhoneFragment(
+                        navDirections = PersonalIdPhoneFragmentDirections.actionConnectidSignupFragmentToConnectidSecondaryPhoneFragment(
                                 phase);
                         break;
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN:
                     case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN:
                     case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPin(
+                        navDirections = PersonalIdPhoneFragmentDirections.actionConnectidPhoneFragmentToConnectidPin(
                                 phase, user.getPrimaryPhone(), user.getPassword());
                         break;
 
                     case ConnectConstants.CONNECT_NO_ACTIVITY:
-                        navDirections = ConnectIDSignupFragmentDirections
+                        navDirections = PersonalIdPhoneFragmentDirections
                                 .actionConnectidPhoneFragmentToConnectidBiometricConfig(
                                         ConnectConstants.CONNECT_UNLOCK_BIOMETRIC);
                         break;
@@ -128,18 +128,18 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
                 if (navDirections == null) {
                     if (user.shouldForcePin()) {
-                        navDirections = ConnectIDSignupFragmentDirections.
+                        navDirections = PersonalIdPhoneFragmentDirections.
                                 actionConnectidPhoneFragmentToConnectidPin(
                                         ConnectConstants.CONNECT_UNLOCK_PIN,
                                         user.getPrimaryPhone(),
                                         user.getPassword());
                     } else if (user.shouldForcePassword()) {
-                        navDirections = ConnectIDSignupFragmentDirections.
+                        navDirections = PersonalIdPhoneFragmentDirections.
                                 actionConnectidPhoneFragmentToConnectidPassword(
                                         user.getPrimaryPhone(),
                                         user.getPassword(), ConnectConstants.CONNECT_UNLOCK_PASSWORD);
                     } else {
-                        navDirections = ConnectIDSignupFragmentDirections
+                        navDirections = PersonalIdPhoneFragmentDirections
                                 .actionConnectidPhoneFragmentToConnectidBiometricConfig(
                                         ConnectConstants.CONNECT_UNLOCK_BIOMETRIC);
                     }
@@ -163,7 +163,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
     private void beginSecondaryPhoneVerification(Context parent) {
         NavDirections navDirections =
-                ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage(
+                PersonalIdPhoneFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage(
                         parent.getString(R.string.connect_recovery_alt_title),
                         parent.getString(R.string.connect_recovery_alt_message),
                         ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,

@@ -102,7 +102,7 @@ public class ConnectIdPhoneFragment extends Fragment {
         NavDirections directions =
                 ConnectIdPhoneFragmentDirections.actionConnectidPhoneNoToConnectidPhoneVerify(
                         ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE,
-                        String.valueOf(ConnectIdPhoneVerificationFragment.MethodRegistrationPrimary), phone,
+                        String.valueOf(PersonalIdPhoneVerificationFragment.MethodRegistrationPrimary), phone,
                         user.getUserId(), user.getPassword(), null, false);
         Navigation.findNavController(binding.connectPrimaryPhoneButton).navigate(directions);
     }

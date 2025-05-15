@@ -40,7 +40,7 @@ import androidx.navigation.Navigation;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ConnectIdPasswordVerificationFragment extends Fragment {
+public class PersonalIdPasswordVerificationFragment extends Fragment {
     private int callingClass;
     public static final int PASSWORD_FAIL = 1;
     public static final int PASSWORD_LOCK = 2;
@@ -105,9 +105,9 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     private void setArguments() {
-        phone = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
-        secretKey = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
-        callingClass = ConnectIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+        phone = PersonalIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getPhone();
+        secretKey = PersonalIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getSecret();
+        callingClass = PersonalIdPasswordVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
     }
 
     private void finish(boolean success, boolean forgot) {
@@ -257,18 +257,18 @@ public class ConnectIdPasswordVerificationFragment extends Fragment {
     }
 
     private NavDirections navigateToConnectidPinForRecoveryChangePin() {
-        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverSecret).setChange(true).setRecover(true);
+        return PersonalIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPin(ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN, ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverSecret).setChange(true).setRecover(true);
     }
 
     private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secretKey, boolean isCancellable) {
-        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secretKey).setIsCancellable(isCancellable);
+        return PersonalIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secretKey).setIsCancellable(isCancellable);
     }
 
     private NavDirections navigateToConnectidPhoneVerifyForRecoveryPrimaryPhone() {
-        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null, false);
+        return PersonalIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(PersonalIdPhoneVerificationFragment.MethodRecoveryPrimary), ((ConnectIdActivity)activity).recoverPhone, ((ConnectIdActivity)activity).recoverPhone, "", null, false);
     }
 
     private NavDirections navigateToConnectidPhoneNoForRecoverPrimary() {
-        return ConnectIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidSignupFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
+        return PersonalIdPasswordVerificationFragmentDirections.actionConnectidPasswordToConnectidSignupFragment().setCallingClass(ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
     }
 }

@@ -25,7 +25,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentSignupBinding;
+import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.utils.DateUtils;
@@ -45,11 +45,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-public class ConnectIDSignupFragment extends Fragment {
+public class PersonalIdPhoneFragment extends Fragment {
     private String existingPhone = "";
     private int callingClass = ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE;
     protected boolean skipPhoneNumberCheck = false;
-    private FragmentSignupBinding binding;
+    private ScreenPersonalidPhonenoBinding binding;
     private boolean showhPhoneDialog = true;
     PhoneNumberHelper phoneNumberHelper;
     private Activity activity;
@@ -58,7 +58,7 @@ public class ConnectIDSignupFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentSignupBinding.inflate(inflater, container, false);
+        binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
         View view = binding.getRoot();
         activity.setTitle(getString(R.string.connect_registration_title));
@@ -79,8 +79,8 @@ public class ConnectIDSignupFragment extends Fragment {
 
     private void setArguments() {
         if (getArguments() != null) {
-            callingClass = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            existingPhone = ConnectIDSignupFragmentArgs.fromBundle(getArguments()).getPhone();
+            callingClass = PersonalIdPhoneFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            existingPhone = PersonalIdPhoneFragmentArgs.fromBundle(getArguments()).getPhone();
         }
     }
 
@@ -432,14 +432,14 @@ public class ConnectIDSignupFragment extends Fragment {
 
 
     private NavDirections navigateToBiometricConfig(int phase) {
-        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
+        return PersonalIdPhoneFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
     }
 
     private NavDirections navigateToPhonenNotAvailable(String phone, int phase) {
-        return ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, phase);
+        return PersonalIdPhoneFragmentDirections.actionConnectidPhoneFragmentToConnectidPhoneNotAvailable(phone, phase);
     }
 
     private NavDirections navigateToSelf(int phase) {
-        return ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(phase);
+        return PersonalIdPhoneFragmentDirections.actionConnectidSignupFragmentSelf().setCallingClass(phase);
     }
 }
