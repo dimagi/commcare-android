@@ -126,7 +126,8 @@
         <action
             android:id="@+id/action_connectid_message_to_connectid_phone_verify"
             app:destination="@id/personalid_otp_page"
-            app:popUpTo="@id/personalid_message_display" />
+            app:popUpTo="@id/connectid_signup_fragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_connectid_message_to_connectid_user_deactivate_otp_verify"
             app:destination="@id/connectid_user_deactivate_otp_verify"
@@ -136,7 +137,9 @@
             app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_connectid_message_to_connectid_secondary_phone_fragment"
-            app:destination="@id/connectid_secondary_phone_fragment" />
+            app:destination="@id/connectid_secondary_phone_fragment"
+            app:popUpTo="@id/connectid_signup_fragment"
+            app:popUpToInclusive="true"/>
         <argument
             android:name="title"
             app:argType="string" />
