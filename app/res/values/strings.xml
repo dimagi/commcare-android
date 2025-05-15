@@ -914,4 +914,6 @@
     <string name="connectid_photo_capture_title">Welcome %1s</string>
     <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
+    <string name="connectid_photo_capture_save_photo_button">Save Photo</string>
+    <string name="connectid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
 </resources>
