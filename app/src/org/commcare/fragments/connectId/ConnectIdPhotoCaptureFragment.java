@@ -19,6 +19,7 @@ import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenConnectidPhotoCaptureBinding;
 import org.commcare.fragments.MicroImageActivity;
 import org.commcare.utils.MediaUtil;
@@ -33,6 +34,7 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
     private ActivityResultLauncher<Intent> takePhotoLauncher;
     private @NonNull ScreenConnectidPhotoCaptureBinding viewBinding;
     private ConnectUserRecord connectUserRecord;
+    private String photoAsBase64;
 
     @Nullable
     @Override
@@ -50,9 +52,9 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                        String photoAsBase64 = result.getData().getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY);
+                        photoAsBase64 = result.getData().getStringExtra(MicroImageActivity.MICRO_IMAGE_BASE_64_RESULT_KEY);
                         displayImage(photoAsBase64);
-                        uploadImage(photoAsBase64);
+                        enableSaveButton();
                     }
                 }
         );
@@ -60,9 +62,10 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
 
     private void setUpUi() {
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
+        viewBinding.savePhotoButton.setOnClickListener(v -> uploadImage());
     }
 
-    private void uploadImage(String photoAsBase64) {
+    private void uploadImage() {
         IApiCallback networkResponseCallback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -71,47 +74,54 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
 
             @Override
             public void processFailure(int responseCode) {
-                onPhotoUploadFailure();
+                onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
             }
 
             @Override
             public void processNetworkFailure() {
-                onPhotoUploadFailure();
-                ConnectNetworkHelper.showNetworkError(getContext());
+                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_unavailable), true);
             }
 
             @Override
             public void processTokenUnavailableError() {
-                onPhotoUploadFailure();
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_token_unavailable), true);
             }
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_token_request_rejected),
+                        false);
             }
 
             @Override
             public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
+                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
             }
         };
         ApiConnectId.updatePhoto(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
                 photoAsBase64, networkResponseCallback);
     }
 
-    private void onPhotoUploadFailure() {
-        showError();
-        enableTakePhotoButton();
-        enableSaveButton();
+    private void onPhotoUploadFailure(String error, boolean allowRetry) {
+        showError(error);
+        if (allowRetry) {
+            enableTakePhotoButton();
+            enableSaveButton();
+        }
     }
 
     private void enableSaveButton() {
+        viewBinding.savePhotoButton.setEnabled(true);
+    }
+
+    private void disableSaveButton() {
+        viewBinding.savePhotoButton.setEnabled(false);
     }
 
     private void onPhotoUploadSuccess(String photoAsBase64) {
         clearError();
         enableTakePhotoButton();
+        disableSaveButton();
         savePhotoToDatabase(photoAsBase64);
     }
 
@@ -120,11 +130,13 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
     }
 
     private void clearError() {
-
+        viewBinding.errorTextView.setVisibility(View.GONE);
+        viewBinding.errorTextView.setText("");
     }
 
-    private void showError() {
-
+    private void showError(String error) {
+        viewBinding.errorTextView.setText(error);
+        viewBinding.errorTextView.setVisibility(View.VISIBLE);
     }
 
     private void displayImage(String photoAsBase64) {
