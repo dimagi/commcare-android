@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph_connectid"
+    android:id="@+id/nav_graph_personalid"
     app:startDestination="@id/personalid_phone_fragment">
 
     <fragment
@@ -11,18 +11,19 @@
         android:label="fragment_personalid_biometric_config"
         tools:layout="@layout/screen_personalid_verify">
         <action
+            android:id="@+id/action_personalid_biometric_config_to_personalid_otp_page"
+            app:destination="@id/personalid_otp_page"
+            app:popUpTo="@id/personalid_biometric_config" />/>
+        <action
             android:id="@+id/action_personalid_biometric_config_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_biometric_config" />
-        <action
-            android:id="@+id/action_personalid_biometric_config_to_personalid_otp_page"
-            app:destination="@id/personalid_otp_page" />
     </fragment>
 
     <fragment
         android:id="@+id/personalid_otp_page"
-        android:name="org.commcare.fragments.connectId.ConnectIdPhoneVerificationFragment"
-        android:label="fragment_personalid_otp_page"
+        android:name="org.commcare.fragments.connectId.PersonalIdPhoneVerificationFragment"
+        android:label="fragment_personalid_phone_verify"
         tools:layout="@layout/screen_personalid_phone_verify">
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_message"

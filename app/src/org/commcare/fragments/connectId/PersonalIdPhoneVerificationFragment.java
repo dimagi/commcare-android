@@ -28,7 +28,7 @@ import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenConnectPhoneVerifyBinding;
+import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
@@ -54,12 +54,13 @@ import androidx.navigation.Navigation;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
+
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ConnectIdPhoneVerificationFragment#newInstance} factory method to
+ * Use the {@link PersonalIdPhoneVerificationFragment#newInstance} factory method to
  * create an instance of requireActivity() fragment.
  */
-public class ConnectIdPhoneVerificationFragment extends Fragment {
+public class PersonalIdPhoneVerificationFragment extends Fragment {
     public static final int MethodRegistrationPrimary = 1;
     public static final int MethodRecoveryPrimary = 2;
     public static final int MethodRecoveryAlternate = 3;
@@ -75,7 +76,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     private int callingClass;
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private DateTime smsTime = null;
-    private ScreenConnectPhoneVerifyBinding binding;
+    private ScreenPersonalidPhoneVerifyBinding binding;
     private static final String KEY_PHONE = "phone";
     private static final String KEY_METHOD = "method";
     private static final String KEY_ALLOWCHANGE = "allow_change";
@@ -125,7 +126,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for requireActivity() fragment
-        binding = ScreenConnectPhoneVerifyBinding.inflate(inflater, container, false);
+        binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         activity = requireActivity();
         getArgument();
@@ -155,13 +156,13 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
 
     private void getArgument() {
         if (getArguments() != null) {
-            method = Integer.parseInt(Objects.requireNonNull(ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
-            primaryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
-            username = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
-            password = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
-            recoveryPhone = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getSecondaryPhone();
-            callingClass = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            deactivateButton = ConnectIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
+            method = Integer.parseInt(Objects.requireNonNull(PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getMethod()));
+            primaryPhone = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
+            username = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getUsername();
+            password = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPassword();
+            recoveryPhone = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getSecondaryPhone();
+            callingClass = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            deactivateButton = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getDeactivateButton();
         }
     }
 
@@ -600,7 +601,7 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
                     }
                 } else {
                     directions = navigateToConnectidPhoneVerifySelf(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, "", "");
+                            PersonalIdPhoneVerificationFragment.MethodRecoveryPrimary), (refrenceActivity).recoverPhone, (refrenceActivity).recoverPhone, "", "");
                 }
             }
             case ConnectConstants.CONNECT_VERIFY_ALT_PHONE -> {
@@ -634,34 +635,34 @@ public class ConnectIdPhoneVerificationFragment extends Fragment {
     }
 
     private NavDirections navigateToConnectidSignupFragment(String phone, int phase) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidSignupFragment().setPhone(phone).setCallingClass(phase);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidSignupFragment().setPhone(phone).setCallingClass(phase);
     }
     private NavDirections navigateToConnectidChangePhoneNo(String phone) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(phone);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPhoneNo(phone);
     }
 
     private NavDirections navigateToConnectidPin(int phase, String phone, String password, boolean recover, boolean change) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(phase, phone, password).setRecover(recover).setChange(change);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPin(phase, phone, password).setRecover(recover).setChange(change);
     }
 
     private NavDirections navigateToConnectidBiometricConfig(int phase) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidBiometricConfig(phase);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidBiometricConfig(phase);
     }
 
     private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String userName, String password) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidMessage(title, message, phase, button1Text, button2Text, userName, password);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidMessage(title, message, phase, button1Text, button2Text, userName, password);
     }
 
     private NavDirections navigateToConnectidPassword(String phone, String password, int phase) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPassword(phone, password, phase);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidPassword(phone, password, phase);
     }
 
     private NavDirections navigateToConnectidUserDeactivateOtpVerify(String phone, String secondaryPhone, String password) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify(phone, secondaryPhone, password);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifyToConnectidUserDeactivateOtpVerify(phone, secondaryPhone, password);
     }
 
     private NavDirections navigateToConnectidPhoneVerifySelf(int phase, String method, String phone, String secondaryPhone, String message, String button1Text) {
-        return ConnectIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifySelf(phase, method, phone, secondaryPhone, message, button1Text, false);
+        return PersonalIdPhoneVerificationFragmentDirections.actionConnectidPhoneVerifySelf(phase, method, phone, secondaryPhone, message, button1Text, false);
     }
 
     private void showYesNoDialog() {
