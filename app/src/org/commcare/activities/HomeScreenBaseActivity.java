@@ -1466,7 +1466,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void showAboutCommCareDialog() {
-        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this, "");
         dialog.makeCancelable();
         dialog.setOnDismissListener(dialog1 -> handleDeveloperModeClicks());
         showAlertDialog(dialog);

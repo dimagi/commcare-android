@@ -90,7 +90,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     }
 
     protected void showAboutCommCareDialog() {
-        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this, false);
+        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this, "", false);
         dialog.makeCancelable();
         dialog.setOnDismissListener(dialog1 -> handleDeveloperModeClicks());
         showAlertDialog(dialog);
