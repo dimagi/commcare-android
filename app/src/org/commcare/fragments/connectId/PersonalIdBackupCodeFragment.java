@@ -44,10 +44,10 @@ import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ConnectIdPinFragment#newInstance} factory method to
+ * Use the {@link PersonalIdBackupCodeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ConnectIdPinFragment extends Fragment {
+public class PersonalIdBackupCodeFragment extends Fragment {
     private static final int pinLength = 6;
     private String phone = null;
     private String secret = null;
@@ -189,11 +189,11 @@ public class ConnectIdPinFragment extends Fragment {
 
     private void getArgument() {
         if (getArguments() != null) {
-            phone = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getPhone();
-            secret = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getSecret();
-            callingClass = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            isRecovery = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getRecover();
-            isChanging = ConnectIdPinFragmentArgs.fromBundle(getArguments()).getChange();
+            phone = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getPhone();
+            secret = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getSecret();
+            callingClass = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getCallingClass();
+            isRecovery = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getRecover();
+            isChanging = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getChange();
         }
     }
 
@@ -420,7 +420,7 @@ public class ConnectIdPinFragment extends Fragment {
                     }
                 } else {
                     directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryPrimary), connectIdActivity.recoverPhone, connectIdActivity.recoverPhone, "", null, false);
+                            PersonalIdPhoneVerificationFragment.MethodRecoveryPrimary), connectIdActivity.recoverPhone, connectIdActivity.recoverPhone, "", null, false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
@@ -487,7 +487,7 @@ public class ConnectIdPinFragment extends Fragment {
 
                 } else {
                     directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.valueOf(
-                            ConnectIdPhoneVerificationFragment.MethodRecoveryAlternate), null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, connectIdActivity.recoveryAltPhone, false);
+                            PersonalIdPhoneVerificationFragment.MethodRecoveryAlternate), null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, connectIdActivity.recoveryAltPhone, false);
                 }
             }
             case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {
@@ -505,26 +505,26 @@ public class ConnectIdPinFragment extends Fragment {
     }
 
     private NavDirections navigateToConnectidPhoneNo(String method, String phone, int phase) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSignupFragment().setCallingClass(phase).setPhone(phone);
+        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidSignupFragment().setCallingClass(phase).setPhone(phone);
     }
 
     private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret,boolean isCancellable) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret).setIsCancellable(isCancellable);
+        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret).setIsCancellable(isCancellable);
     }
 
     private NavDirections navigateToConnectidPhoneVerify(int phase, String method, String phone, String userId, String password, String secretKey, boolean isRecovery) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPhoneVerify(phase, method, phone, userId, password, secretKey, isRecovery);
+        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidPhoneVerify(phase, method, phone, userId, password, secretKey, isRecovery);
     }
 
     private NavDirections navigateToConnectidSecondaryPhoneFragment(int phase) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(phase);
+        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(phase);
     }
 
     private NavDirections navigateToConnectidPinSelf(int phase, String phone, String message, boolean change, boolean isRecovery) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinSelf(phase, phone, message).setChange(change).setRecover(isRecovery);
+        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinSelf(phase, phone, message).setChange(change).setRecover(isRecovery);
     }
 
     private NavDirections navigateToConnectidPassword(String phone, String secret, int phase) {
-        return ConnectIdPinFragmentDirections.actionConnectidPinToConnectidPassword(phone, secret, phase);
+        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidPassword(phone, secret, phase);
     }
 }
