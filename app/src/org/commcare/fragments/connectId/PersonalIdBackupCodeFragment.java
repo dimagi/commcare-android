@@ -387,7 +387,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private NavDirections createNavigationMessage(String title, String message, int phase, String buttonText) {
         return PersonalIdBackupCodeFragmentDirections
-                .actionConnectidPinToConnectidMessage(title, message, phase, buttonText, null, phone, secret)
+                .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null, phone, secret)
                 .setIsCancellable(false);
     }
 

@@ -8,10 +8,10 @@
     <fragment
         android:id="@+id/personalid_biometric_config"
         android:name="org.commcare.fragments.connectId.PersonalIdBiometricConfigFragment"
-        android:label="fragment_connectid_biometric_config"
+        android:label="fragment_personalid_biometric_config"
         tools:layout="@layout/screen_personalid_verify">
         <action
-            android:id="@+id/action_connectid_biometric_config_to_connectid_message"
+            android:id="@+id/action_personalid_biometric_config_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_biometric_config" />
         <action
@@ -22,10 +22,10 @@
     <fragment
         android:id="@+id/personalid_otp_page"
         android:name="org.commcare.fragments.connectId.PersonalIdPhoneVerificationFragment"
-        android:label="fragment_connectid_phone_verify"
+        android:label="fragment_personalid_otp_page"
         tools:layout="@layout/screen_personalid_phone_verify">
         <action
-            android:id="@+id/action_connectid_phone_verify_to_connectid_message"
+            android:id="@+id/action_personalid_otp_page_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_otp_page" />
         <argument
@@ -43,22 +43,22 @@
     <dialog
         android:id="@+id/personalid_message_display"
         android:name="org.commcare.fragments.connectId.ConnectIdMessageFragment"
-        android:label="fragment_connectid_message"
+        android:label="fragment_personalid_message"
         tools:layout="@layout/screen_personalid_message">
         <action
-            android:id="@+id/action_connectid_message_to_connectid_biometric_config"
+            android:id="@+id/action_personalid_message_to_personalid_biometric_config"
             app:destination="@id/personalid_biometric_config"
             app:popUpTo="@id/personalid_message_display" />
         <action
-            android:id="@+id/action_connectid_message_to_connectid_pin"
+            android:id="@+id/action_personalid_message_to_personalid_pin"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_message_display" />
         <action
-            android:id="@+id/action_connectid_message_to_connectid_phone_verify"
+            android:id="@+id/action_personalid_message_to_personalid_phone_verify"
             app:destination="@id/personalid_otp_page"
             app:popUpTo="@id/personalid_message_display" />
         <action
-            android:id="@+id/action_connectid_message_self"
+            android:id="@+id/action_personalid_message_self"
             app:destination="@id/personalid_message_display" />
         <argument
             android:name="title"
@@ -94,14 +94,14 @@
     <fragment
         android:id="@+id/personalid_backup_code"
         android:name="org.commcare.fragments.connectId.PersonalIdBackupCodeFragment"
-        android:label="fragment_connectid_pin"
+        android:label="fragment_personalid_pin"
         tools:layout="@layout/fragment_recovery_code">
         <action
-            android:id="@+id/action_connectid_pin_to_connectid_message"
+            android:id="@+id/action_personalid_pin_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_backup_code" />
         <action
-            android:id="@+id/action_connectid_pin_self"
+            android:id="@+id/action_personalid_pin_self"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_backup_code" />
         <argument
@@ -124,7 +124,7 @@
         android:label="fragment_personalid_phone_fragment"
         tools:layout="@layout/screen_personalid_phoneno">
         <action
-            android:id="@+id/action_connectid_phone_fragment_to_connectid_message"
+            android:id="@+id/action_personalid_phone_fragment_to_personalid_message_display"
             app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_personalid_phone_fragment_to_personalid_biometric_config"

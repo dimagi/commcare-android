@@ -232,7 +232,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     private NavDirections navigateToBiometricEnrollmentFailed() {
-        return PersonalIdBiometricConfigFragmentDirections.actionConnectidBiometricConfigToConnectidMessage(
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
                 getString(R.string.connect_biometric_enroll_fail_title),
                 getString(R.string.connect_biometric_enroll_fail_message),
                 ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL,

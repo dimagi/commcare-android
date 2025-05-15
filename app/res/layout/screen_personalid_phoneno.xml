@@ -129,7 +129,7 @@
 
                     <TextView
                         android:textStyle="bold"
-                        android:id="@+id/errorTextView"
+                        android:id="@+id/personalid_name_error"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="16dp"
@@ -174,7 +174,7 @@
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/continue_button"
+                android:id="@+id/personalid_phone_continue_button"
                 style="@style/CustomButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        tools:context="org.commcare.fragments.connectId.PersonalIdPhoneFragment">
+        tools:context="org.commcare.fragments.connectId.PersonalIdNameFragment">
 
         <ScrollView
             android:id="@+id/firstLayout"
@@ -79,6 +79,7 @@
                         android:layout_marginLeft="16dp"
                         android:background="@drawable/connect_edit_text_bg"
                         android:hint="@string/connect_register_name"
+                        android:inputType="textPersonName"
                         android:imeOptions="actionNext"
                         android:paddingStart="16dp"
                         android:textColorHint="@color/connect_grey"
@@ -88,7 +89,7 @@
 
                 <TextView
                     android:textStyle="bold"
-                    android:id="@+id/errorTextView"
+                    android:id="@+id/personalid_name_error"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="84dp"
@@ -98,7 +99,7 @@
                     android:visibility="gone"
                      />
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/continue_button"
+                    android:id="@+id/personalid_name_continue_button"
                     style="@style/CustomButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

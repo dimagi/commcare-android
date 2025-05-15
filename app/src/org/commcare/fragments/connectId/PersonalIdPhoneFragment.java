@@ -59,7 +59,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void setupListeners() {
         binding.connectConsentCheck.setOnClickListener(v -> updateContinueButtonState());
-        binding.continueButton.setOnClickListener(v -> onContinueClicked());
+        binding.personalidPhoneContinueButton.setOnClickListener(v -> onContinueClicked());
 
         ActivityResultLauncher<IntentSenderRequest> phoneHintLauncher = setupPhoneHintLauncher();
 
@@ -120,7 +120,7 @@ public class PersonalIdPhoneFragment extends Fragment {
         boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
         boolean isConsentChecked = binding.connectConsentCheck.isChecked();
 
-        binding.continueButton.setEnabled(isValidPhone && isConsentChecked);
+        binding.personalidPhoneContinueButton.setEnabled(isValidPhone && isConsentChecked);
     }
 
     @Override
