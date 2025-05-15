@@ -13,7 +13,7 @@
         <action
             android:id="@+id/action_personalid_biometric_config_to_personalid_otp_page"
             app:destination="@id/personalid_otp_page"
-            app:popUpTo="@id/personalid_biometric_config" />/>
+            app:popUpTo="@id/personalid_biometric_config" />
         <action
             android:id="@+id/action_personalid_biometric_config_to_personalid_message"
             app:destination="@id/personalid_message_display"
@@ -108,17 +108,17 @@
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_backup_code" />
         <argument
-            android:name="callingClass"
-            app:argType="integer"
-            app:nullable="false" />
-        <argument
-            android:name="phone"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="recover"
+            android:name="isRecovery"
+            app:argType="boolean"
             android:defaultValue="false"
-            app:argType="boolean" />
+            />
+        <argument
+            android:name="name"
+            app:argType="string"/>
+        <argument
+            android:name="photo"
+            app:argType="string"
+            app:nullable="true"/>
     </fragment>
 
     <fragment
@@ -133,8 +133,6 @@
             android:id="@+id/action_personalid_phone_fragment_to_personalid_biometric_config"
             app:destination="@id/personalid_biometric_config" />
     </fragment>
-
-
 
     <fragment
         android:id="@+id/personalid_name"
