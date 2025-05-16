@@ -239,7 +239,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
             }
 
             // Check if the payload action is CCC_PAYMENTS
-            if (action.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
+            if (ConnectConstants.CCC_DEST_PAYMENTS.equals(action)) {
                 // Yes button intent with payment_id from payload
                 Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
                 yesIntent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));

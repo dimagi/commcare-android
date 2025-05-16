@@ -106,18 +106,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         }
     }
 
-    private static String formatDate(String dateStr) {
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-            Date date = inputFormat.parse(dateStr);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public interface OnChannelClickListener {
         void onChannelClick(ConnectMessagingChannelRecord channel);
     }

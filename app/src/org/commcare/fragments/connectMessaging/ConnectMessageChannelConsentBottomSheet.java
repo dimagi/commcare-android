@@ -19,6 +19,7 @@ import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import java.util.Objects;
 
 public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFragment {
     @Override
@@ -32,6 +33,8 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
 
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(),
                 args.getChannelId());
+
+        Objects.requireNonNull(channel, "Channel not found for channel Id: "+args.getChannelId());
 
         binding.channelName.setText(channel.getChannelName());
 
