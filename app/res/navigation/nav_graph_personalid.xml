@@ -43,7 +43,7 @@
 
     <dialog
         android:id="@+id/personalid_message_display"
-        android:name="org.commcare.fragments.connectId.ConnectIdMessageFragment"
+        android:name="org.commcare.fragments.connectId.PersonalIdMessageFragment"
         android:label="fragment_personalid_message"
         tools:layout="@layout/screen_personalid_message">
         <action
