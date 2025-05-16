@@ -1,7 +1,6 @@
 package org.commcare.fragments.connectId;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -40,181 +39,51 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link PersonalIdBackupCodeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class PersonalIdBackupCodeFragment extends Fragment {
-    private static final int pinLength = 6;
-    private String phone = null;
-    private String secret = null;
-    private boolean isRecovery; //Else registration
-    private boolean isChanging; //Else verifying
-    private int callingClass;
+    private static final int PIN_LENGTH = 6;
+    private static final String KEY_NAME = "name";
+    private static final String KEY_RECOVERY = "is_recovery";
 
     private FragmentRecoveryCodeBinding binding;
+    private Activity activity;
 
-    private static final String KEY_PHONE = "phone";
-    private static final String KEY_SECRET = "secret";
-    private static final String KEY_CALLING_CLASS = "calling_class";
-    private static final String KEY_RECOVERY = "is_recovery";
-    private static final String KEY_CHANGING = "is_changing";
-    Activity activity;
-    int titleId;
-
-    TextWatcher watcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            checkPin();
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-
-        }
-    };
+    private String name = null;
+    private String secret = null;
+    private boolean isRecovery;
+    private int titleId;
 
     @Override
     public void onResume() {
         super.onResume();
-
         requestInputFocus();
-
-        checkPin();
+        validatePinInputs();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
         activity = requireActivity();
 
-        checkPin();
+        initArguments(savedInstanceState);
+        configureUiByMode();
+        setupPinInputFilters();
+        setupListeners();
         clearPinFields();
-        getArgument();
-        setOnClickListener();
-        loadSavedState(savedInstanceState);
-        titleId = isChanging ? R.string.connect_pin_title_set :
-                R.string.connect_pin_title_confirm;
-        setPinLength(pinLength);
-        if (callingClass == ConnectConstants.CONNECT_UNLOCK_PIN ||
-                callingClass == ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN ||
-                callingClass == ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN
-        ) {
-            binding.confirmCodeLayout.setVisibility(View.GONE);
-            binding.recoveryCodeTilte.setText(R.string.connect_pin_message_title);
-            binding.phoneTitle.setText(R.string.connect_pin_message);
-
-        } else {
-            binding.confirmCodeLayout.setVisibility(View.VISIBLE);
-        }
-
-        binding.forgotButton.setVisibility(!isChanging ? View.VISIBLE : View.GONE);
 
         activity.setTitle(getString(titleId));
-        return view;
-    }
-
-    private void setPinLength(int length) {
-        InputFilter[] filter = new InputFilter[]{new InputFilter.LengthFilter(length)};
-        binding.connectPinInput.setFilters(filter);
-        binding.connectPinInput.setFilters(filter);
-    }
-
-    private void requestInputFocus() {
-        KeyboardHelper.showKeyboardOnInput(activity, binding.connectPinInput);
-    }
-
-    private void clearPinFields() {
-        binding.connectPinInput.setText("");
-        binding.connectPinRepeatInput.setText("");
-    }
-
-    private void checkPin() {
-        String pin1 = binding.connectPinInput.getText().toString();
-        String pin2 = binding.connectPinRepeatInput.getText().toString();
-
-        String errorText = "";
-        boolean buttonEnabled = false;
-        if (pin1.length() > 0) {
-            if (pin1.length() != pinLength) {
-                errorText = getString(R.string.connect_pin_length, pinLength);
-            } else if (isChanging && !pin1.equals(pin2)) {
-                errorText = getString(R.string.connect_pin_mismatch);
-            } else {
-                buttonEnabled = true;
-            }
-        }
-
-        binding.connectPinErrorMessage.setText(errorText);
-        binding.connectPinButton.setEnabled(buttonEnabled);
-    }
-
-    private void setOnClickListener() {
-        TextWatcher watcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                checkPin();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        };
-
-        binding.connectPinInput.addTextChangedListener(watcher);
-        binding.connectPinRepeatInput.addTextChangedListener(watcher);
-        binding.connectPinButton.setOnClickListener(v -> verifyPin());
-        binding.forgotButton.setOnClickListener(v -> onForgotPress());
-        binding.connectPinInput.addTextChangedListener(watcher);
-        binding.connectPinInput.addTextChangedListener(watcher);
-
-    }
-
-    private void getArgument() {
-        if (getArguments() != null) {
-            phone = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getPhone();
-            secret = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getSecret();
-            callingClass = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getCallingClass();
-            isRecovery = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getRecover();
-            isChanging = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getChange();
-        }
+        return binding.getRoot();
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_PHONE, phone);
-        outState.putInt(KEY_CALLING_CLASS, callingClass);
-        outState.putString(KEY_SECRET, secret);
+        outState.putString(KEY_NAME, name);
         outState.putBoolean(KEY_RECOVERY, isRecovery);
-        outState.putBoolean(KEY_CHANGING, isChanging);
-    }
-
-    private void loadSavedState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            phone = savedInstanceState.getString(KEY_PHONE);
-            secret = savedInstanceState.getString(KEY_SECRET);
-            callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
-            isRecovery = savedInstanceState.getBoolean(KEY_RECOVERY);
-            isChanging = savedInstanceState.getBoolean(KEY_CHANGING);
-        }
     }
 
     @Override
@@ -223,139 +92,102 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         binding = null;
     }
 
-    private void verifyPin() {
-        String pin = binding.connectPinInput.getText().toString();
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
+    // ─────────── UI SETUP ─────────────
 
-        final Context context = getActivity();
-        if (isChanging) {
-            //Change PIN
-            ApiConnectId.changePin(getActivity(), user.getUserId(), user.getPassword(), pin,
-                    new IApiCallback() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            user.setPin(pin);
-                            ConnectUserDatabaseUtil.storeUser(context, user);
-                            ConnectIDManager.getInstance().setFailureAttempt(0);
-                            finish(true, false, pin);
-                        }
-
-                        @Override
-                        public void processFailure(int responseCode) {
-                            handleWrongPin();
-                        }
-
-                        @Override
-                        public void processNetworkFailure() {
-                            ConnectNetworkHelper.showNetworkError(getActivity());
-                        }
-
-                        @Override
-                        public void processTokenUnavailableError() {
-                            ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-                        }
-
-                        @Override
-                        public void processTokenRequestDeniedError() {
-                            ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-                        }
-
-                        @Override
-                        public void processOldApiError() {
-                            ConnectNetworkHelper.showOutdatedApiError(getActivity());
-                        }
-                    });
-        } else if (isRecovery) {
-            //Confirm PIN
-            ApiConnectId.checkPin(getActivity(), phone, secret, pin,
-                    new IApiCallback() {
-                        @Override
-                        public void processSuccess(int responseCode, InputStream responseData) {
-                            String username;
-                            String name;
-                            try {
-                                String responseAsString = new String(
-                                        StreamsUtil.inputStreamToByteArray(responseData));
-                                ConnectIDManager.getInstance().setFailureAttempt(0);
-                                if (responseAsString.length() > 0) {
-                                    JSONObject json = new JSONObject(responseAsString);
-                                    username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
-                                    name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
-                                    ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
-                                    ConnectUserRecord user = new ConnectUserRecord(phone, username,
-                                            "", name, "");
-                                    user.setPin(pin);
-                                    user.setLastPinDate(new Date());
-
-                                    user.setSecondaryPhoneVerified(!json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY) || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY));
-                                    if (!user.getSecondaryPhoneVerified()) {
-                                        user.setSecondaryPhoneVerifyByDate(DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
-                                    }
-
-                                    resetPassword(context, phone, secret, user);
-                                } else {
-                                    //TODO: Show toast about error
-                                }
-                            } catch (IOException e) {
-                                Logger.exception("Parsing return from OTP request", e);
-                                //TODO: Show toast about error
-                            } catch (JSONException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-
-                        @Override
-                        public void processFailure(int responseCode) {
-                            handleWrongPin();
-                        }
-
-                        @Override
-                        public void processNetworkFailure() {
-                            ConnectNetworkHelper.showNetworkError(getActivity());
-                        }
-
-                        @Override
-                        public void processTokenUnavailableError() {
-                            ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-                        }
-
-                        @Override
-                        public void processTokenRequestDeniedError() {
-                            ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-                        }
-
-                        @Override
-                        public void processOldApiError() {
-                            ConnectNetworkHelper.showOutdatedApiError(getActivity());
-                        }
-                    });
-        } else if (pin.equals(user.getPin())) {
-            //Local confirmation
-            logRecoveryResult(true);
-            finish(true, false, pin);
+    private void configureUiByMode() {
+        if (isRecovery) {
+            titleId = R.string.connect_pin_title_confirm;
+            binding.confirmCodeLayout.setVisibility(View.GONE);
+            binding.recoveryCodeTilte.setText(R.string.connect_pin_message_title);
+            binding.phoneTitle.setText(R.string.connect_pin_message);
         } else {
-            //Local failure
-            handleWrongPin();
+            titleId = R.string.connect_pin_title_set;
+            binding.confirmCodeLayout.setVisibility(View.VISIBLE);
         }
     }
 
-    private void resetPassword(Context context, String phone, String secret, ConnectUserRecord user) {
-        //Auto-generate and send a new password
-        String password = ConnectIDManager.getInstance().generatePassword();
-        ApiConnectId.resetPassword(context, phone, secret, password, new IApiCallback() {
+    private void setupPinInputFilters() {
+        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(PIN_LENGTH)};
+        binding.connectPinInput.setFilters(filters);
+        binding.connectPinRepeatInput.setFilters(filters);
+    }
+
+    private void setupListeners() {
+        TextWatcher pinWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validatePinInputs();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+
+        binding.connectPinInput.addTextChangedListener(pinWatcher);
+        binding.connectPinRepeatInput.addTextChangedListener(pinWatcher);
+        binding.connectPinButton.setOnClickListener(v -> handlePinSubmission());
+    }
+
+    private void clearPinFields() {
+        binding.connectPinInput.setText("");
+        binding.connectPinRepeatInput.setText("");
+    }
+
+    private void requestInputFocus() {
+        KeyboardHelper.showKeyboardOnInput(activity, binding.connectPinInput);
+    }
+
+    // ─────────── VALIDATION ─────────────
+
+    private void validatePinInputs() {
+        String pin1 = binding.connectPinInput.getText().toString();
+        String pin2 = binding.connectPinRepeatInput.getText().toString();
+
+        String errorText = "";
+        boolean isButtonEnabled = false;
+
+        if (!pin1.isEmpty()) {
+            if (pin1.length() != PIN_LENGTH) {
+                errorText = getString(R.string.connect_pin_length, PIN_LENGTH);
+            } else if (!isRecovery && !pin1.equals(pin2)) {
+                errorText = getString(R.string.connect_pin_mismatch);
+            } else {
+                isButtonEnabled = true;
+            }
+        }
+
+        binding.connectPinErrorMessage.setText(errorText);
+        binding.connectPinButton.setEnabled(isButtonEnabled);
+    }
+
+    // ─────────── PIN HANDLING ─────────────
+
+    private void handlePinSubmission() {
+        if (isRecovery) {
+            confirmBackupPin();
+        } else {
+            registerBackupPin();
+        }
+    }
+
+    private void registerBackupPin() {
+        String pin = binding.connectPinInput.getText().toString();
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
+
+        ApiConnectId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), pin, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                user.setPassword(password);
-
-                ConnectUserDatabaseUtil.storeUser(context, user);
-
-                finish(true, false, user.getPin());
+                finishWithNavigation(true, pin);
             }
 
             @Override
             public void processFailure(int responseCode) {
-                Toast.makeText(context, getString(R.string.connect_recovery_failure),
-                        Toast.LENGTH_SHORT).show();
+                handleFailedPinAttempt();
             }
 
             @Override
@@ -380,122 +212,138 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         });
     }
 
-    private void handleWrongPin() {
-        int MaxFailures = 3;
-        ConnectIDManager.getInstance().setFailureAttempt(ConnectIDManager.getInstance().getFailureAttempt() + 1);
+    private void confirmBackupPin() {
+        String pin = binding.connectPinInput.getText().toString();
+
+        ApiConnectId.checkPin(getActivity(), name, secret, pin, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
+                    handleSuccessfulRecovery(json, pin);
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Error parsing recovery response", e);
+                    showRecoveryFailure();
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode) {
+                handleFailedPinAttempt();
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                ConnectNetworkHelper.showNetworkError(getActivity());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getActivity());
+            }
+        });
+    }
+
+    private void handleSuccessfulRecovery(JSONObject json, String pin) throws JSONException {
+        String username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
+        String name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
+
+        ConnectDatabaseHelper.handleReceivedDbPassphrase(activity,
+                json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
+        ConnectUserRecord user = new ConnectUserRecord(name, username, "", name, "");
+        user.setPin(pin);
+        user.setLastPinDate(new Date());
+
+        boolean isSecondaryPhoneVerified = !json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)
+                || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY);
+
+        user.setSecondaryPhoneVerified(isSecondaryPhoneVerified);
+
+        if (!isSecondaryPhoneVerified) {
+            user.setSecondaryPhoneVerifyByDate(
+                    DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
+        }
+
+        resetUserPassword(user);
+    }
+
+    private void resetUserPassword(ConnectUserRecord user) {
+        String password = ConnectIDManager.getInstance().generatePassword();
+        ApiConnectId.resetPassword(activity, name, secret, password, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                user.setPassword(password);
+                ConnectUserDatabaseUtil.storeUser(activity, user);
+                finishWithNavigation(true, user.getPin());
+            }
+
+            @Override
+            public void processFailure(int responseCode) {
+                showRecoveryFailure();
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                ConnectNetworkHelper.showNetworkError(getActivity());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getActivity());
+            }
+        });
+    }
+
+    // ─────────── HELPERS ─────────────
+
+    private void handleFailedPinAttempt() {
+        ConnectIDManager idManager = ConnectIDManager.getInstance();
+        idManager.setFailureAttempt(idManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
         clearPinFields();
-        finish(false, ConnectIDManager.getInstance().getFailureAttempt() >= MaxFailures, null);
-
+        finishWithNavigation(false, null);
     }
 
-    private void onForgotPress() {
-        finish(true, true, null);
+    private void showRecoveryFailure() {
+        Toast.makeText(activity, getString(R.string.connect_recovery_failure), Toast.LENGTH_SHORT).show();
     }
 
-    private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
-    }
-
-    private void finish(boolean success, boolean forgot, String pin) {
-        NavDirections directions = null;
+    private void finishWithNavigation(boolean success, String pin) {
+        NavDirections directions;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
-        ConnectIdActivity connectIdActivity = (ConnectIdActivity)activity;
 
-        switch (callingClass) {
-            case ConnectConstants.CONNECT_UNLOCK_PIN -> {
-                if (success) {
-                    connectIdActivity.forgotPin = forgot;
-                    if (forgot) {
-                        directions = navigateToConnectidPhoneNo(ConnectConstants.METHOD_RECOVER_PRIMARY, null, ConnectConstants.CONNECT_RECOVERY_PRIMARY_PHONE);
-                    } else {
-                        if (user.shouldRequireSecondaryPhoneVerification()) {
-                            directions = navigateToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_UNLOCK_ALT_PHONE_MESSAGE, getString(R.string.connect_password_fail_button), getString(R.string.connect_recovery_alt_change_button), phone, secret,true);
-                        } else {
-                            ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
-                            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                            activity.setResult(RESULT_OK);
-                            activity.finish();
-                        }
-                    }
-                } else {
-                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_PRIMARY_PHONE, String.valueOf(
-                            PersonalIdPhoneVerificationFragment.MethodRecoveryPrimary), connectIdActivity.recoverPhone, connectIdActivity.recoverPhone, "", null, false);
-                }
-            }
-            case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN -> {
-                if (success) {
-                    connectIdActivity.forgotPin = false;
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
-                    directions = navigateToConnectidSecondaryPhoneFragment(ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
-                    if (user != null) {
-                        user.setPin(pin);
-                        user.setLastPinDate(new Date());
-                        ConnectUserDatabaseUtil.storeUser(getActivity(), user);
-                    }
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE);
-                } else {
-                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_REGISTRATION_VERIFY_PRIMARY_PHONE, String.valueOf(
-                            ConnectIDManager.MethodRegistrationPrimary), user.getPrimaryPhone(), user.getUserId(), user.getPassword(), user.getAlternatePhone(), false);
-                }
-            }
-            case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN -> {
-                connectIdActivity.forgotPin = forgot;
-                if (success) {
-                    if (forgot) {
-                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN);
-                        directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "", true, false);
+        if (isRecovery) {
+            directions = success ?
+                    createSuccessRecoveryDirection() :
+                    createFailedRecoveryDirection();
+        } else {
+            ((ConnectIdActivity)activity).forgotPin = false;
+            directions = createRegistrationSuccessDirection();
 
-                    } else {
-                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
-                        directions = navigateToConnectidMessage(getString(R.string.connect_register_success_title), getString(R.string.connect_register_success_message), ConnectConstants.CONNECT_REGISTRATION_SUCCESS, getString(R.string.connect_register_success_button), null, phone, secret,false);
-                    }
-                } else {
-                    if (!forgot) {
-                        directions = navigateToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectIDManager.getInstance().getFailureAttempt() > 2 ? getString(R.string.connect_pin_confirm_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_REGISTRATION_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null, phone, secret,false);
-                    } else {
-                        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN);
-                        directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN, user.getPrimaryPhone(), "", true, false);
-                    }
-                }
-            }
-            case ConnectConstants.CONNECT_RECOVERY_VERIFY_PIN -> {
-                if (success) {
-                    connectIdActivity.forgotPin = forgot;
-                    if (forgot) {
-                        if (connectIdActivity.forgotPassword) {
-                            directions = navigateToConnectidMessage(getString(R.string.connect_recovery_alt_title), getString(R.string.connect_recovery_alt_message), ConnectConstants.CONNECT_REGISTRATION_SUCCESS, getString(R.string.connect_recovery_alt_button), null, phone, secret,true);
-                        } else {
-                            directions = navigateToConnectidPassword(connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, ConnectConstants.CONNECT_RECOVERY_VERIFY_PASSWORD);
-                        }
-                    } else {
-                        directions = navigateToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null, phone, secret,false);
-                    }
-                } else {
-                    directions = navigateToConnectidMessage(getString(R.string.connect_pin_fail_title), ConnectIDManager.getInstance().getFailureAttempt() > 2 ? getString(R.string.connect_pin_recovery_message) : getString(R.string.connect_pin_fail_message), ConnectConstants.CONNECT_RECOVERY_WRONG_PIN, getString(R.string.connect_recovery_alt_button), null, phone, secret,false);
-                }
-            }
-            case ConnectConstants.CONNECT_RECOVERY_CHANGE_PIN -> {
-                if (success) {
-                    connectIdActivity.forgotPin = false;
-                    if (user != null) {
-                        user.setPin(pin);
-                        user.setLastPinDate(new Date());
-                        ConnectUserDatabaseUtil.storeUser(activity, user);
-                    }
-                    directions = navigateToConnectidMessage(getString(R.string.connect_recovery_success_title), getString(R.string.connect_recovery_success_message), ConnectConstants.CONNECT_RECOVERY_SUCCESS, getString(R.string.connect_recovery_success_button), null, phone, secret,false);
-
-                } else {
-                    directions = navigateToConnectidPhoneVerify(ConnectConstants.CONNECT_RECOVERY_VERIFY_ALT_PHONE, String.valueOf(
-                            PersonalIdPhoneVerificationFragment.MethodRecoveryAlternate), null, connectIdActivity.recoverPhone, connectIdActivity.recoverSecret, connectIdActivity.recoveryAltPhone, false);
-                }
-            }
-            case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN -> {
-                connectIdActivity.forgotPin = false;
-                if (success) {
-                    ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
-                }
-                directions = navigateToConnectidPinSelf(ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN, user.getPrimaryPhone(), "", false, false);
+            if (user != null) {
+                user.setPin(pin);
+                user.setLastPinDate(new Date());
+                ConnectUserDatabaseUtil.storeUser(getActivity(), user);
             }
         }
 
@@ -504,27 +352,54 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         }
     }
 
-    private NavDirections navigateToConnectidPhoneNo(String method, String phone, int phase) {
-        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidSignupFragment().setCallingClass(phase).setPhone(phone);
+    private NavDirections createSuccessRecoveryDirection() {
+        return createNavigationMessage(
+                getString(R.string.connect_recovery_success_title),
+                getString(R.string.connect_recovery_success_message),
+                ConnectConstants.CONNECT_RECOVERY_SUCCESS,
+                getString(R.string.connect_recovery_success_button)
+        );
     }
 
-    private NavDirections navigateToConnectidMessage(String title, String message, int phase, String button1Text, String button2Text, String phone, String secret,boolean isCancellable) {
-        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidMessage(title, message, phase, button1Text, button2Text, phone, secret).setIsCancellable(isCancellable);
+    private NavDirections createFailedRecoveryDirection() {
+        boolean exceededAttempts = ConnectIDManager.getInstance().getFailureAttempt() > 2;
+        return createNavigationMessage(
+                getString(R.string.connect_pin_fail_title),
+                exceededAttempts ? getString(R.string.connect_pin_recovery_message)
+                        : getString(R.string.connect_pin_fail_message),
+                ConnectConstants.CONNECT_RECOVERY_WRONG_PIN,
+                getString(R.string.connect_recovery_alt_button)
+        );
     }
 
-    private NavDirections navigateToConnectidPhoneVerify(int phase, String method, String phone, String userId, String password, String secretKey, boolean isRecovery) {
-        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidPhoneVerify(phase, method, phone, userId, password, secretKey, isRecovery);
+    private NavDirections createRegistrationSuccessDirection() {
+        return createNavigationMessage(
+                getString(R.string.connect_register_success_title),
+                getString(R.string.connect_register_success_message),
+                ConnectConstants.CONNECT_REGISTRATION_SUCCESS,
+                getString(R.string.connect_register_success_button)
+        );
     }
 
-    private NavDirections navigateToConnectidSecondaryPhoneFragment(int phase) {
-        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidSecondaryPhoneFragment(phase);
+    private NavDirections createNavigationMessage(String title, String message, int phase, String buttonText) {
+        return PersonalIdBackupCodeFragmentDirections
+                .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null, name, secret)
+                .setIsCancellable(false);
     }
 
-    private NavDirections navigateToConnectidPinSelf(int phase, String phone, String message, boolean change, boolean isRecovery) {
-        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinSelf(phase, phone, message).setChange(change).setRecover(isRecovery);
+    private void logRecoveryResult(boolean success) {
+        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
     }
 
-    private NavDirections navigateToConnectidPassword(String phone, String secret, int phase) {
-        return PersonalIdBackupCodeFragmentDirections.actionConnectidPinToConnectidPassword(phone, secret, phase);
+    private void initArguments(Bundle savedInstanceState) {
+        if (getArguments() != null) {
+            name = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getName();
+            isRecovery = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getIsRecovery();
+        }
+
+        if (savedInstanceState != null) {
+            name = savedInstanceState.getString(KEY_NAME);
+            isRecovery = savedInstanceState.getBoolean(KEY_RECOVERY);
+        }
     }
 }
