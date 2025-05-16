@@ -30,9 +30,7 @@ public class ConnectMessagingDatabaseHelper {
         }
         for (ConnectMessagingMessageRecord connectMessagingMessageRecord : getMessagingMessagesAll(context)) {
             ConnectMessagingChannelRecord connectMessagingChannelRecord = channelMap.get(connectMessagingMessageRecord.getChannelId());
-            if (connectMessagingChannelRecord != null) {
-                connectMessagingChannelRecord.getMessages().add(connectMessagingMessageRecord);
-            }
+            connectMessagingChannelRecord.getMessages().add(connectMessagingMessageRecord);
         }
 
         for(ConnectMessagingChannelRecord channel : channels) {

@@ -146,8 +146,7 @@
             </intent-filter>
         </receiver>
         <activity
-            android:name="org.commcare.activities.connect.ConnectMessagingActivity"
-            android:exported="false" >
+            android:name="org.commcare.activities.connect.ConnectMessagingActivity">
         </activity>
         <activity
             android:label="@string/application_name"
@@ -187,8 +186,7 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
-            android:name="org.commcare.activities.connect.ConnectActivity"
-            android:exported="false"/>
+            android:name="org.commcare.activities.connect.ConnectActivity" />
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
