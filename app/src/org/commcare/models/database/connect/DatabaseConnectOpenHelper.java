@@ -51,7 +51,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.11 - Added daily start and finish times to ConnectJobRecord
      * V.12 - Added ConnectMessagingChannelRecord table and ConnectMessagingMessageRecord table
      * V.13 - Added ConnectJobDeliveryFlagRecord table
-     * V.14 - Added a photo field to ConnectUserRecord
+     * V.14 - Added a photo and isDemo field to ConnectUserRecord
      */
     private static final int CONNECT_DB_VERSION = 14;
 

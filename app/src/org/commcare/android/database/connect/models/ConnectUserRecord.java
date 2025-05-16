@@ -66,6 +66,9 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 13, nullable = true)
     private String photo;
 
+    @Persisting(value = 14)
+    private boolean isDemo;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
@@ -239,6 +242,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
         newRecord.secondaryPhoneVerified = true;
         newRecord.photo = null;
+        newRecord.isDemo = false;
         return newRecord;
     }
 }
