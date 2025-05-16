@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -140,7 +141,8 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
     }
 
     private void savePhotoToDatabase(String photoAsBase64) {
-
+        connectUserRecord.setPhoto(photoAsBase64);
+        ConnectUserDatabaseUtil.storeUser(requireContext(), connectUserRecord);
     }
 
     private void clearError() {

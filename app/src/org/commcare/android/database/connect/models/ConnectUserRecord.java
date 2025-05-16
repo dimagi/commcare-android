@@ -245,4 +245,8 @@ public class ConnectUserRecord extends Persisted {
         newRecord.isDemo = false;
         return newRecord;
     }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
 }
