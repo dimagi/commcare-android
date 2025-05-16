@@ -138,7 +138,7 @@
         android:id="@+id/personalid_name"
         android:name="org.commcare.fragments.connectId.PersonalIdNameFragment"
         android:label="personalid_name"
-        tools:layout="@layout/personalid_name_fragment">
+        tools:layout="@layout/screen_personalid_name">
 
         <action
             android:id="@+id/action_personalid_name_to_personalid_backup_code"

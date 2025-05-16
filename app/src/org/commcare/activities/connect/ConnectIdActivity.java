@@ -24,7 +24,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
 
     public boolean forgotPassword = false;
     public boolean forgotPin = false;
-    public String recoverPhone;
+    public String primaryPhone;
     public String recoverSecret;
     public String recoveryAltPhone;
     private NavController controller;
@@ -191,7 +191,7 @@ public class ConnectIdActivity extends CommCareActivity<ConnectIdActivity> {
     }
 
     public void reset() {
-        recoverPhone = null;
+        primaryPhone = null;
         recoveryAltPhone = null;
         recoverSecret = null;
         forgotPassword = false;

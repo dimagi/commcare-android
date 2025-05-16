@@ -1,7 +1,6 @@
 package org.commcare.fragments.connectId;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -40,8 +39,6 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link PersonalIdBackupCodeFragment#newInstance} factory method to
@@ -49,13 +46,13 @@ import static android.app.Activity.RESULT_OK;
  */
 public class PersonalIdBackupCodeFragment extends Fragment {
     private static final int PIN_LENGTH = 6;
-    private static final String KEY_PHONE = "phone";
+    private static final String KEY_NAME = "name";
     private static final String KEY_RECOVERY = "is_recovery";
 
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
 
-    private String phone = null;
+    private String name = null;
     private String secret = null;
     private boolean isRecovery;
     private int titleId;
@@ -85,7 +82,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_PHONE, phone);
+        outState.putString(KEY_NAME, name);
         outState.putBoolean(KEY_RECOVERY, isRecovery);
     }
 
@@ -185,9 +182,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         ApiConnectId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), pin, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                user.setPin(pin);
-                ConnectUserDatabaseUtil.storeUser(activity, user);
-                ConnectIDManager.getInstance().setFailureAttempt(0);
                 finishWithNavigation(true, pin);
             }
 
@@ -221,7 +215,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void confirmBackupPin() {
         String pin = binding.connectPinInput.getText().toString();
 
-        ApiConnectId.checkPin(getActivity(), phone, secret, pin, new IApiCallback() {
+        ApiConnectId.checkPin(getActivity(), name, secret, pin, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -266,7 +260,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
         ConnectDatabaseHelper.handleReceivedDbPassphrase(activity,
                 json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
-        ConnectUserRecord user = new ConnectUserRecord(phone, username, "", name, "");
+        ConnectUserRecord user = new ConnectUserRecord(name, username, "", name, "");
         user.setPin(pin);
         user.setLastPinDate(new Date());
 
@@ -285,7 +279,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void resetUserPassword(ConnectUserRecord user) {
         String password = ConnectIDManager.getInstance().generatePassword();
-        ApiConnectId.resetPassword(activity, phone, secret, password, new IApiCallback() {
+        ApiConnectId.resetPassword(activity, name, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 user.setPassword(password);
@@ -389,7 +383,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private NavDirections createNavigationMessage(String title, String message, int phase, String buttonText) {
         return PersonalIdBackupCodeFragmentDirections
-                .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null, phone, secret)
+                .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null, name, secret)
                 .setIsCancellable(false);
     }
 
@@ -399,12 +393,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void initArguments(Bundle savedInstanceState) {
         if (getArguments() != null) {
-            phone = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getPhone();
-            isRecovery = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getRecover();
+            name = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getName();
+            isRecovery = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getIsRecovery();
         }
 
         if (savedInstanceState != null) {
-            phone = savedInstanceState.getString(KEY_PHONE);
+            name = savedInstanceState.getString(KEY_NAME);
             isRecovery = savedInstanceState.getBoolean(KEY_RECOVERY);
         }
     }
