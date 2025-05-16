@@ -49,16 +49,17 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 public class MicroImageActivity extends AppCompatActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener {
-    private static final String TAG = MicroImageActivity.class.toString();
     public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key" ;
+    public static final String MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA = "micro_image_max_dimension_px_extra" ;
+    public static final String  MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA = "micro_image_max_size_bytes_extra" ;
+    private static final int DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX = 72;
+    private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
+
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
     private Bitmap inputImage;
     private ImageView cameraShutterButton;
     private boolean isGooglePlayServicesAvailable = false;
-
-    private static final int MICRO_IMAGE_MAX_DIMENSION_PX = 72;
-    private static final int MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -251,13 +252,20 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         Bitmap croppedBitmap = null;
         Bitmap scaledBitmap = null;
         try {
-            croppedBitmap = MediaUtil.cropImage(inputImage, faceArea);
-            scaledBitmap = FileUtil.getBitmapScaledByMaxDimen(croppedBitmap, MICRO_IMAGE_MAX_DIMENSION_PX);
+            int paddingXPx = 10;
+            int paddingYPy = 50;
+            Rect safeFaceArea = new Rect(
+                    Math.max(0, faceArea.left - paddingXPx),
+                    Math.max(0, faceArea.top - paddingYPy),
+                    Math.min(inputImage.getWidth(), faceArea.right + paddingXPx),
+                    Math.min(inputImage.getHeight(), faceArea.bottom + paddingYPy)
+            );
+            croppedBitmap = MediaUtil.cropImage(inputImage, safeFaceArea);
+            scaledBitmap = FileUtil.getBitmapScaledByMaxDimen(croppedBitmap, getMaxDimensionSize());
             if (scaledBitmap == null) {
                 scaledBitmap = croppedBitmap;
             }
-            byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap,
-                    MICRO_IMAGE_MAX_SIZE_BYTES);
+            byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
             String finalImageAsBase64 = Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
             finishWithResul(finalImageAsBase64);
         } catch (Exception e) {
@@ -266,6 +274,14 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             recycleBitmap(croppedBitmap);
             recycleBitmap(scaledBitmap);
         }
+    }
+
+    private int getMaxImageSize() {
+        return getIntent().getIntExtra(MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES);
+    }
+
+    private int getMaxDimensionSize() {
+        return getIntent().getIntExtra(MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX);
     }
 
     private void finishWithResul(String finalImageAsBase64) {

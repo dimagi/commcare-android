@@ -1,5 +1,8 @@
 package org.commcare.fragments.connectId;
 
+import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA;
+import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,6 +34,8 @@ import java.io.InputStream;
  */
 public class ConnectIdPhotoCaptureFragment extends Fragment {
 
+    private static final int PHOTO_MAX_DIMENSION_PX = 160;
+    private static final int PHOTO_MAX_SIZE_BYTES = 100 * 1024; // 100 KB
     private ActivityResultLauncher<Intent> takePhotoLauncher;
     private @NonNull ScreenConnectidPhotoCaptureBinding viewBinding;
     private ConnectUserRecord connectUserRecord;
@@ -156,6 +161,8 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
     private void executeTakePhoto() {
         disableTakePhotoButton();
         Intent intent = new Intent(requireContext(), MicroImageActivity.class);
+        intent.putExtra(MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, PHOTO_MAX_DIMENSION_PX);
+        intent.putExtra(MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, PHOTO_MAX_SIZE_BYTES);
         takePhotoLauncher.launch(intent);
     }
 
