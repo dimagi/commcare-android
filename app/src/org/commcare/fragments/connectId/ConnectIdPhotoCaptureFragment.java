@@ -114,7 +114,7 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
             }
         };
         ApiConnectId.updatePhoto(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
-                photoAsBase64, networkResponseCallback);
+                connectUserRecord.getName(), photoAsBase64, networkResponseCallback);
     }
 
     private void onPhotoUploadFailure(String error, boolean allowRetry) {
