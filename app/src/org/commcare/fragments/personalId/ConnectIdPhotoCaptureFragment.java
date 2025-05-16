@@ -56,14 +56,22 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
                         displayImage(photoAsBase64);
                         enableSaveButton();
                     }
+                    enableTakePhotoButton();
                 }
         );
     }
 
     private void setUpUi() {
-        viewBinding.title.setText(requireContext().getString(R.string.connectid_photo_capture_title, connectUserRecord.getName()));
+        viewBinding.title.setText(requireContext().getString(R.string.connectid_photo_capture_title, getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
         viewBinding.savePhotoButton.setOnClickListener(v -> uploadImage());
+    }
+
+    private String getUserName() {
+        if (getArguments() != null) {
+            return ConnectIdPhotoCaptureFragmentArgs.fromBundle(getArguments()).getUserName();
+        }
+        return "";
     }
 
     private void uploadImage() {
