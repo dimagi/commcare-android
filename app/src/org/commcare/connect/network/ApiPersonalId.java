@@ -317,15 +317,16 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void updatePhoto(Context context, String username, String password, String photoAsBase64,
-            IApiCallback callback) {
+    public static void updatePhoto(Context context, String userId, String password, String userName,
+            String photoAsBase64, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
         String token = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(token);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("photo", photoAsBase64);
+        params.put("name", userName);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.updateProfile(token, params);
