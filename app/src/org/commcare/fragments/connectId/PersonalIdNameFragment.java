@@ -1,51 +1,34 @@
 package org.commcare.fragments.connectId;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.PersonalidNameFragmentBinding;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
+import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 public class PersonalIdNameFragment extends Fragment {
-    private PersonalidNameFragmentBinding binding;
+    private ScreenPersonalidNameBinding binding;
     private Activity activity;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = PersonalidNameFragmentBinding.inflate(inflater, container, false);
+        binding = ScreenPersonalidNameBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        View view = binding.getRoot();
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
-        updateButtonEnabled(false);
-        return view;
+        enableContinueButton(false);
+        return binding.getRoot();
     }
 
     @Override
@@ -58,7 +41,7 @@ public class PersonalIdNameFragment extends Fragment {
         binding.personalidNameContinueButton.setOnClickListener(v -> handleContinueButtonPress());
     }
 
-    public void updateButtonEnabled(boolean isEnabled) {
+    public void enableContinueButton(boolean isEnabled) {
         binding.personalidNameContinueButton.setEnabled(isEnabled);
     }
 
@@ -75,13 +58,13 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
 
-    void updateUi(String errorMessage) {
-        if (errorMessage == null || errorMessage.isEmpty()) {
+    private void updateUi(String errorMessage) {
+        if (TextUtils.isEmpty(errorMessage)) {
             clearError();
-            updateButtonEnabled(true);
+            enableContinueButton(true);
         } else {
             showError(errorMessage);
-            updateButtonEnabled(false);
+            enableContinueButton(false);
         }
     }
 
@@ -91,6 +74,7 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
     private void clearError() {
+        binding.personalidNameError.setText("");
         binding.personalidNameError.setVisibility(View.GONE);
     }
 
