@@ -63,6 +63,9 @@ public class ConnectUserRecord extends Persisted {
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
     private Date verifySecondaryPhoneByDate;
 
+    @Persisting(value = 13, nullable = true)
+    private String photo;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.CONNECT_NO_ACTIVITY;
         lastPasswordDate = new Date();
@@ -223,9 +226,8 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
+    public static ConnectUserRecord fromV13(ConnectUserRecordV13 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
-
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
@@ -236,7 +238,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
         newRecord.secondaryPhoneVerified = true;
-
+        newRecord.photo = null;
         return newRecord;
     }
 }
