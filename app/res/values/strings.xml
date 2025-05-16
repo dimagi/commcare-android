@@ -548,6 +548,9 @@
     <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
     <string name="connect_messaging_channel_notification_title">🔔 New Channel 🔔</string>
     <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
+    <string name="connect_messaging_channel_not_found">Something went wrong, channel not found</string>
+    <string name="connect_messaging_send_message_fail_msg">Fail to send message</string>
+    <string name="connect_messaging_retrieve_messages_fail">Failed to retrieve messages</string>
     <string name="connect_send_message_hint">Type message</string>
     <string name="connect_send_message_btn_desc">Press here to send message</string>
 

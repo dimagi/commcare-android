@@ -33,6 +33,15 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(),
                 args.getChannelId());
 
+
+
+        if (channel == null) {
+            // Channel not found, show error and pop back
+            Toast.makeText(requireContext(), getString(R.string.connect_messaging_channel_not_found), Toast.LENGTH_LONG).show();
+            NavHostFragment.findNavController(this).popBackStack();
+            return binding.getRoot();
+        }
+
         binding.channelName.setText(channel.getChannelName());
 
         binding.acceptButton.setOnClickListener(v -> {

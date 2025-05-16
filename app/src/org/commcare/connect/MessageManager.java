@@ -17,11 +17,13 @@ import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +70,8 @@ public class MessageManager {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData)  {
-                try {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
-
+                try (InputStream in = responseData) {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(in));
                     List<ConnectMessagingChannelRecord> channels = new ArrayList<>();
                     List<ConnectMessagingMessageRecord> messages = new ArrayList<>();
                     if(responseAsString.length() > 0) {
@@ -215,10 +215,13 @@ public class MessageManager {
                 new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
-                        ApiConnectId.handleReceivedEncryptionKey(context, responseData, channel);
-
-                        if (listener != null) {
-                            listener.connectActivityComplete(true);
+                        try (InputStream in = responseData){
+                            ApiConnectId.handleReceivedEncryptionKey(context, in, channel);
+                            if (listener != null) {
+                                listener.connectActivityComplete(true);
+                            }
+                        } catch (IOException e) {
+                            Logger.log(LogTypes.TYPE_CONNECT_MESSAGE_KEY,"Exception occurred while handling received encryption key");
                         }
                     }
 

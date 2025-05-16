@@ -77,7 +77,7 @@ public class ConnectMessagingActivity extends CommCareActivity<ConnectMessagingA
                             ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
                     ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
 
-                    int fragmentId = channel.getConsented() ? R.id.connectMessageFragment : R.id.channelListFragment;
+                    int fragmentId = channel!=null && channel.getConsented() ? R.id.connectMessageFragment : R.id.channelListFragment;
 
                     Bundle bundle = new Bundle();
                     bundle.putString("channel_id", channelId);
