@@ -1,6 +1,7 @@
 package org.commcare.fragments.connectId;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import androidx.navigation.NavDirections;
 
 import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -23,6 +26,8 @@ import org.commcare.utils.BiometricsHelper;
 import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
@@ -212,6 +217,18 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private void initiatePinAuthentication() {
         BiometricsHelper.authenticatePin(requireActivity(), biometricManager, biometricCallback);
+    }
+
+    public void handleFinishedPinActivity(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
+            ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
+            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
+            requireActivity().setResult(RESULT_OK);
+            requireActivity().finish();
+        }
+        if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
+            navigateForward(false);
+        }
     }
 
     private void navigateForward(boolean enrollmentFailed) {
