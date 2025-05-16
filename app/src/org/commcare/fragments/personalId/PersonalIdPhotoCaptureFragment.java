@@ -21,10 +21,9 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenConnectidPhotoCaptureBinding;
+import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.fragments.MicroImageActivity;
 import org.commcare.utils.MediaUtil;
 
@@ -33,12 +32,12 @@ import java.io.InputStream;
 /**
  * Screen to capture user's photo as part of Connect ID Account management process
  */
-public class ConnectIdPhotoCaptureFragment extends Fragment {
+public class PersonalIdPhotoCaptureFragment extends Fragment {
 
     private static final int PHOTO_MAX_DIMENSION_PX = 160;
     private static final int PHOTO_MAX_SIZE_BYTES = 100 * 1024; // 100 KB
     private ActivityResultLauncher<Intent> takePhotoLauncher;
-    private @NonNull ScreenConnectidPhotoCaptureBinding viewBinding;
+    private @NonNull ScreenPersonalidPhotoCaptureBinding viewBinding;
     private ConnectUserRecord connectUserRecord;
     private String photoAsBase64;
 
@@ -46,7 +45,7 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        viewBinding = ScreenConnectidPhotoCaptureBinding.inflate(inflater, container, false);
+        viewBinding = ScreenPersonalidPhotoCaptureBinding.inflate(inflater, container, false);
         connectUserRecord = ConnectIDManager.getInstance().getUser(getContext());
         initTakePhotoLauncher();
         setUpUi();
@@ -75,7 +74,7 @@ public class ConnectIdPhotoCaptureFragment extends Fragment {
 
     private String getUserName() {
         if (getArguments() != null) {
-            return ConnectIdPhotoCaptureFragmentArgs.fromBundle(getArguments()).getUserName();
+            return PersonalIdPhotoCaptureFragmentArgs.fromBundle(getArguments()).getUserName();
         }
         return "";
     }
