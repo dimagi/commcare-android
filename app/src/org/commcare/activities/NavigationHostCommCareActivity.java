@@ -22,18 +22,27 @@ public abstract class NavigationHostCommCareActivity<R> extends CommCareActivity
         setContentView(getLayoutResource());
         destinationListener = FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener();
         navController = getHostFragment().getNavController();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         navController.addOnDestinationChangedListener(destinationListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        navController.removeOnDestinationChangedListener(destinationListener);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        NavController navController = getHostFragment().getNavController();
-        navController.removeOnDestinationChangedListener(destinationListener);
         destinationListener = null;
     }
 
-   protected abstract int getLayoutResource();
+    protected abstract int getLayoutResource();
 
     protected abstract NavHostFragment getHostFragment();
 }

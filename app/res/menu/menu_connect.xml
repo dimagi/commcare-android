@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_notification"
+        android:icon="@drawable/ic_connect_messaging_base"
+        android:title="Notification"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_sync"
+        android:icon="@drawable/ic_backup"
+        android:iconTint="@color/white"
+        android:title="Menu"
+        app:showAsAction="always" />
+</menu>
