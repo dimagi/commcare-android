@@ -117,7 +117,7 @@ public class ConnectLinkedAppRecord extends Persisted {
         hqTokenExpiration = token.getExpiration();
     }
 
-    public boolean getConnectIdLinked() {
+    public boolean getPersonalIdLinked() {
         return connectIdLinked;
     }
 
@@ -126,16 +126,16 @@ public class ConnectLinkedAppRecord extends Persisted {
         hqTokenExpiration = new Date();
     }
 
-    public void setConnectIdLinked(boolean linked) {
+    public void setPersonalIdLinked(boolean linked) {
         connectIdLinked = linked;
     }
 
-    public void linkToConnectId(String password) {
+    public void linkToPersonalId(String password) {
         connectIdLinked = true;
         this.password = password;
     }
 
-    public void severConnectIdLink() {
+    public void severPersonalIdLink() {
         connectIdLinked = false;
         password = "";
         linkOffered1 = false;

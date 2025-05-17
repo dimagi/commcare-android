@@ -9,7 +9,7 @@
             android:background="@color/white"
             app:layout_constraintTop_toTopOf="parent"
             android:orientation="vertical"
-            tools:context="org.commcare.fragments.connectId.PersonalIdNameFragment">
+            tools:context="org.commcare.fragments.personalId.PersonalIdNameFragment">
 
             <LinearLayout
                 android:layout_width="match_parent"

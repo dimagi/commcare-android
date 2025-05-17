@@ -43,7 +43,7 @@ import retrofit2.HttpException;
 import retrofit2.Response;
 
 
-public class ApiConnectId {
+public class ApiPersonalId {
     private static final String API_VERSION_NONE = null;
     public static final String API_VERSION_CONNECT_ID = "1.0";
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
@@ -246,17 +246,6 @@ public class ApiConnectId {
         });
     }
 
-    public static void checkPassword(Context context, String phone, String secret,
-                                     String password, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("password", password);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.checkPassword(params);
-        callApi(context, call, callback);
-    }
-
     public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
                                      String newPassword, IApiCallback callback) {
 
@@ -309,20 +298,6 @@ public class ApiConnectId {
         callApi(context, call, callback);
     }
 
-
-    public static void changePhone(Context context, String username, String password,
-                                   String oldPhone, String newPhone, IApiCallback callback) {
-        //Update the phone number with the server
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("old_phone_number", oldPhone);
-        params.put("new_phone_number", newPhone);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.changePhoneNo(token, params);
-        callApi(context, call, callback);
-    }
-
     public static void updateUserProfile(Context context, String username,
                                          String password, String displayName,
                                          String secondaryPhone, IApiCallback callback) {
@@ -360,26 +335,6 @@ public class ApiConnectId {
         callApi(context, call, callback);
     }
 
-    public static void requestRecoveryOtpSecondary(Context context, String phone, String secret,
-                                                   IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.recoverSecondary(params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestVerificationOtpSecondary(Context context, String username, String password,
-                                                       IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String basicToken = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.validateSecondaryPhone(basicToken, params);
-        callApi(context, call, callback);
-    }
-
     public static void confirmRegistrationOtpPrimary(Context context, String username, String password,
                                                      String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
@@ -400,28 +355,6 @@ public class ApiConnectId {
         params.put("token", token);
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.recoverConfirmOTP(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmRecoveryOtpSecondary(Context context, String phone, String secret,
-                                                   String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.recoverConfirmOTPSecondary(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmVerificationOtpSecondary(Context context, String username, String password,
-                                                       String token, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token1 = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("token", token);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.confirmOTPSecondary(token1, params);
         callApi(context, call, callback);
     }
 

@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.fragments.personalId;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +14,9 @@ import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 
-import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
@@ -220,9 +220,9 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     public void handleFinishedPinActivity(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN) {
-            ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
-            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
+        if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN) {
+            PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
+            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
             requireActivity().setResult(RESULT_OK);
             requireActivity().finish();
         }
@@ -251,13 +251,13 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
                 getString(R.string.connect_biometric_enroll_fail_title),
                 getString(R.string.connect_biometric_enroll_fail_message),
-                ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL,
+                ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL,
                 getString(R.string.connect_biometric_enroll_fail_button),
                 null, null, null);
     }
 
     private NavDirections navigateToOtpScreen() {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
-                ((ConnectIdActivity)requireActivity()).primaryPhone);
+                ((PersonalIdActivity)requireActivity()).primaryPhone);
     }
 }

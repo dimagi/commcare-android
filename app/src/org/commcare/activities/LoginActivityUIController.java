@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -26,7 +26,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -537,7 +537,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void refreshConnectView() {
-        ConnectIDManager.ConnectAppMangement appState = activity.getConnectAppState();
+        PersonalIdManager.ConnectAppMangement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
@@ -550,7 +550,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         setLoginInputsVisibility(appState != Connect);
-        if (ConnectIDManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
             connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
             setConnectButtonVisible(true);
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
