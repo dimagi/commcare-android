@@ -20,7 +20,7 @@ import androidx.work.WorkManager;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectActivity;
-import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
@@ -30,7 +30,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -40,7 +40,6 @@ import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.preferences.AppManagerDeveloperPreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
@@ -58,24 +57,24 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Manager class for ConnectID, handles workflow navigation and user management
+ * Manager class for PersonalID, handles workflow navigation and user management
  *
  * @author dviggiano
  */
-public class ConnectIDManager {
+public class PersonalIdManager {
     private static final long DAYS_TO_SECOND_OFFER = 30;
 
     /**
-     * Enum representing the current state of ConnectID
+     * Enum representing the current state of PersonalID
      */
-    public enum ConnectIdStatus {
-        NotIntroduced,//ConnectID is not intoduced to the user
-        Registering,//User is in the recovery or registration phase of ConnectID
-        LoggedIn//User Loggedin ConnectId
+    public enum PersonalIdStatus {
+        NotIntroduced,//PersonalID is not intoduced to the user
+        Registering,//User is in the recovery or registration phase of PersonalID
+        LoggedIn//User Loggedin PersonalID
     }
 
     public enum ConnectAppMangement {
-        Unmanaged, ConnectId, Connect
+        Unmanaged, PersonalId, Connect
     }
 
     private static final String CONNECT_HEARTBEAT_WORKER = "connect_heartbeat_worker";
@@ -86,25 +85,25 @@ public class ConnectIDManager {
     public static final int MethodRecoveryPrimary = 2;
     private BiometricManager biometricManager;
 
-    private static volatile ConnectIDManager manager = null;
-    private ConnectIdStatus connectStatus = ConnectIdStatus.NotIntroduced;
+    private static volatile PersonalIdManager manager = null;
+    private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
     private int failedPinAttempts = 0;
 
 
     //Singleton, private constructor
-    private ConnectIDManager() {
+    private PersonalIdManager() {
         // Protect against reflection
         if (manager != null) {
             throw new IllegalStateException("Already initialized.");
         }
     }
 
-    public static ConnectIDManager getInstance() {
+    public static PersonalIdManager getInstance() {
         if (manager == null) {
-            synchronized (ConnectIDManager.class) {
+            synchronized (PersonalIdManager.class) {
                 if (manager == null) {
-                    manager = new ConnectIDManager();
+                    manager = new PersonalIdManager();
                 }
             }
         }
@@ -113,11 +112,11 @@ public class ConnectIDManager {
 
     public void init(Context parent) {
         parentActivity = parent;
-        if (connectStatus == ConnectIdStatus.NotIntroduced) {
+        if (personalIdSatus == PersonalIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
-                connectStatus = registering ? ConnectIdStatus.Registering : ConnectIdStatus.LoggedIn;
+                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
+                personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
 
                 CrashUtil.registerUserData();
 
@@ -175,7 +174,7 @@ public class ConnectIDManager {
 
 
     public boolean isloggedIn() {
-        return connectStatus == ConnectIdStatus.LoggedIn;
+        return personalIdSatus == PersonalIdStatus.LoggedIn;
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
@@ -204,14 +203,14 @@ public class ConnectIDManager {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
             callback.connectActivityComplete(false);
-            Logger.exception("No unlock method available when trying to unlock ConnectID", new Exception("No unlock option"));
+            Logger.exception("No unlock method available when trying to unlock PersonalId", new Exception("No unlock option"));
             Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable), Toast.LENGTH_SHORT).show();
 
         }
     }
 
     public void completeSignin() {
-        connectStatus = ConnectIdStatus.LoggedIn;
+        personalIdSatus = PersonalIdStatus.LoggedIn;
         scheduleHearbeat();
         CrashUtil.registerUserData();
     }
@@ -229,7 +228,7 @@ public class ConnectIDManager {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
         ConnectUserDatabaseUtil.forgetUser(parentActivity);
-        connectStatus = ConnectIdStatus.NotIntroduced;
+        personalIdSatus = PersonalIdStatus.NotIntroduced;
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -249,12 +248,12 @@ public class ConnectIDManager {
         return null;
     }
 
-    public void launchConnectId(CommCareActivity<?> parent, int requestCode) {
-        launchConnectId(parent, ConnectConstants.BEGIN_REGISTRATION, requestCode);
+    public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
+        launchPersonalId(parent, ConnectConstants.BEGIN_REGISTRATION, requestCode);
     }
 
-    private void launchConnectId(CommCareActivity<?> parent, String task, int requestCode) {
-        Intent intent = new Intent(parent, ConnectIdActivity.class);
+    private void launchPersonalId(CommCareActivity<?> parent, String task, int requestCode) {
+        Intent intent = new Intent(parent, PersonalIdActivity.class);
         intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, requestCode);
     }
@@ -267,11 +266,11 @@ public class ConnectIDManager {
         }
     }
 
-    public void checkConnectIdLink(CommCareActivity<?> activity, boolean connectIdManagedLogin, String appId,
-            String username, String password, ConnectActivityCompleteListener callback) {
+    public void checkPersonalIdLink(CommCareActivity<?> activity, boolean personalIdManagedLogin, String appId,
+                                    String username, String password, ConnectActivityCompleteListener callback) {
         switch (evaluateAppState(activity, appId, username)) {
             case Unmanaged -> promptTolinkUnmanagedApp(activity, appId, username, password, callback);
-            case ConnectId -> promptToDelinkConnectIdApp(activity, appId, username, connectIdManagedLogin, callback);
+            case PersonalId -> promptToDelinkPersonalIdApp(activity, appId, username, personalIdManagedLogin, callback);
             case Connect -> callback.connectActivityComplete(true);
         }
     }
@@ -358,7 +357,7 @@ public class ConnectIDManager {
                 return;
             }
 
-            linkedApp.linkToConnectId(password);
+            linkedApp.linkToPersonalId(password);
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
@@ -380,10 +379,10 @@ public class ConnectIDManager {
         });
     }
 
-    private void promptToDelinkConnectIdApp(CommCareActivity<?> activity, String appId, String username,
-            boolean connectIdManagedLogin, ConnectActivityCompleteListener callback) {
+    private void promptToDelinkPersonalIdApp(CommCareActivity<?> activity, String appId, String username,
+                                             boolean personalIdManagedLogin, ConnectActivityCompleteListener callback) {
         // we only want to prompt when user chose non connect Id managed login
-        if (connectIdManagedLogin) {
+        if (personalIdManagedLogin) {
             callback.connectActivityComplete(false);
             return;
         }
@@ -399,7 +398,7 @@ public class ConnectIDManager {
                     ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                             activity, appId, username);
                     if (linkedApp != null) {
-                        linkedApp.severConnectIdLink();
+                        linkedApp.severPersonalIdLink();
                         ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
                     }
                 }
@@ -447,6 +446,21 @@ public class ConnectIDManager {
         activity.startActivity(i);
     }
 
+    public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
+        ConnectJobRecord job = null;
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if (appRecord != null) {
+            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
+        }
+        setActiveJob(job);
+        return job;
+    }
+
+    public boolean isLoginManagedByPersonalId(String appId, String userId) {
+        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
+        return auth != null;
+    }
+
     private ConnectAppRecord getAppRecord(Context context, String appId) {
         return ConnectJobUtils.getAppRecord(context, appId);
     }
@@ -460,7 +474,7 @@ public class ConnectIDManager {
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                 userId);
-        if (record != null && record.getConnectIdLinked() && !record.getPassword().isEmpty()) {
+        if (record != null && record.getPersonalIdLinked() && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
         return null;
@@ -479,7 +493,7 @@ public class ConnectIDManager {
     }
 
     private void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
-        ApiConnectId.fetchDbPassphrase(context, user, new IApiCallback() {
+        ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -524,12 +538,12 @@ public class ConnectIDManager {
         });
     }
 
-    public ConnectIdStatus getStatus() {
-        return connectStatus;
+    public PersonalIdStatus getStatus() {
+        return personalIdSatus;
     }
 
-    public void setStatus(ConnectIdStatus status) {
-        connectStatus = status;
+    public void setStatus(PersonalIdStatus status) {
+        personalIdSatus = status;
     }
 
     public void setParent(Context parent) {
@@ -554,10 +568,14 @@ public class ConnectIDManager {
     }
 
     public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
-        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
+        launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
-    public boolean isSeatedAppLinkedToConnectId(String username) {
+    public void setActiveJob(ConnectJobRecord job) {
+        activeJob = job;
+    }
+
+    public boolean isSeatedAppLinkedToPersonalId(String username) {
         try {
             if (isloggedIn()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -566,7 +584,7 @@ public class ConnectIDManager {
                 return appRecord != null && appRecord.getWorkerLinked();
             }
         } catch (Exception e) {
-            Logger.exception("Error while checking ConnectId status after failed token auth", e);
+            Logger.exception("Error while checking PersonalId status after failed token auth", e);
         }
 
         return false;
@@ -579,11 +597,19 @@ public class ConnectIDManager {
         }
 
         return getCredentialsForApp(appId, userId) != null ?
-                ConnectAppMangement.ConnectId :
+                ConnectAppMangement.PersonalId :
                 ConnectAppMangement.Unmanaged;
     }
 
-    public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
+    private boolean isConnectApp(Context context, String appId) {
+        return evaluateAppState(context, appId, "") == PersonalIdManager.ConnectAppMangement.Connect;
+    }
+
+    public boolean isLoggedInWithConnectApp(Context context, String appId) {
+        return isloggedIn() && isConnectApp(context, appId);
+    }
+
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
         if (!isloggedIn()) {
             return null;
         }
@@ -619,7 +645,7 @@ public class ConnectIDManager {
     }
 
     /**
-     * Interface for handling callbacks when a ConnectID activity finishes
+     * Interface for handling callbacks when a PersonalId activity finishes
      */
     public interface ConnectActivityCompleteListener {
         void connectActivityComplete(boolean success);

@@ -1,8 +1,6 @@
-package org.commcare.fragments.connectId;
+package org.commcare.fragments.personalId;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -11,15 +9,11 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 
-import org.commcare.activities.connect.ConnectIdActivity;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.SMSBroadcastReceiver;
-import org.commcare.connect.SMSListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;

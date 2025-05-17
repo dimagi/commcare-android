@@ -26,7 +26,7 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -174,7 +174,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
         if (!fromManager) {
-            ConnectIDManager.getInstance().init(this);
+            PersonalIdManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
@@ -423,7 +423,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 finish();
                 return;
             case ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE:
-                ConnectIDManager.getInstance().handleFinishedActivity(this, resultCode);
+                PersonalIdManager.getInstance().handleFinishedActivity(this, resultCode);
                 return;
             default:
                 return;
@@ -496,12 +496,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isloggedIn());
+            item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn());
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn());
+            item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
         return true;
     }
@@ -627,10 +627,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case MENU_CONNECT_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectIDManager.getInstance().launchConnectId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
+                PersonalIdManager.getInstance().launchPersonalId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
                 break;
             case MENU_CONNECT_FORGET:
-                ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
+                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
         }
@@ -638,9 +638,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn(), v -> {
-            ConnectIDManager.getInstance().unlockConnect(this, success -> {
-                ConnectIDManager.getInstance().goToConnectJobsList(this);
+        installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
+            PersonalIdManager.getInstance().unlockConnect(this, success -> {
+                PersonalIdManager.getInstance().goToConnectJobsList(this);
             });
         });
     }

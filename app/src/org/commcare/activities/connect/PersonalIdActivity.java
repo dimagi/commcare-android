@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.activities.NavigationHostCommCareActivity;
-import org.commcare.fragments.connectId.PersonalIdBiometricConfigFragment;
+import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connectId.PersonalIdPhoneFragmentDirections;
-import org.commcare.utils.CommCareNavController;
+import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
@@ -18,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
-public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdActivity> {
+public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
 
     public boolean forgotPin = false;
     public String primaryPhone;
@@ -34,7 +33,7 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN
+        if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN
                 || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
@@ -85,7 +84,7 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
         forgotPin = false;
         NavDirections navDirections = null;
 
-        switch (ConnectIDManager.getInstance().getStatus()) {
+        switch (PersonalIdManager.getInstance().getStatus()) {
             case NotIntroduced, Registering:
                 navDirections = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentSelf();
                 break;

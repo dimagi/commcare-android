@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.content.Intent;

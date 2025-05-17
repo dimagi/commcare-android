@@ -32,7 +32,7 @@ import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummar
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
@@ -273,8 +273,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateSecondaryPhoneConfirmationTile() {
-        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false)
-                && ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
+        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false)
+                && PersonalIdManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
         View connectTile = activity.findViewById(R.id.connect_alert_tile);
         updateSecondaryPhoneConfirmationTile(activity, connectTile, show);
     }
@@ -283,7 +283,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
-            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(context);
+            ConnectUserRecord user = PersonalIdManager.getInstance().getUser(context);
             String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 

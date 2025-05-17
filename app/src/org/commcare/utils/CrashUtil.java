@@ -1,8 +1,6 @@
 package org.commcare.utils;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.BuildConfig;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;

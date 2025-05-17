@@ -12,7 +12,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.ArrayList;
@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 
 public class ConnectJobUtils {
@@ -446,7 +445,7 @@ public class ConnectJobUtils {
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
-        if (ConnectIDManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
             Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
                     new String[]{ConnectAppRecord.META_APP_ID},
                     new Object[]{appId});

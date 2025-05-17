@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
-import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 
@@ -116,18 +116,18 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private void finish() {
         NavDirections directions = null;
         Activity activity = requireActivity();
-        ConnectIdActivity connectIdActivity = (ConnectIdActivity)activity;
+        PersonalIdActivity personalIdActivity = (PersonalIdActivity)activity;
         switch (callingClass) {
-            case ConnectConstants.CONNECT_REGISTRATION_SUCCESS, ConnectConstants.CONNECT_RECOVERY_SUCCESS:
+            case ConnectConstants.PERSONALID_REGISTRATION_SUCCESS, ConnectConstants.PERSONALID_RECOVERY_SUCCESS:
                 successFlow(activity);
                 break;
-            case ConnectConstants.CONNECT_BIOMETRIC_ENROLL_FAIL:
+            case ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL:
                 SettingsHelper.launchSecuritySettings(activity);
                 break;
-            case ConnectConstants.CONNECT_RECOVERY_WRONG_PIN:
-                if (ConnectIDManager.getInstance().getFailureAttempt() > 2) {
-                    directions = navigateToPhoneVerify(connectIdActivity.primaryPhone);
-                    ConnectIDManager.getInstance().setFailureAttempt(0);
+            case ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN:
+                if (PersonalIdManager.getInstance().getFailureAttempt() > 2) {
+                    directions = navigateToPhoneVerify(personalIdActivity.primaryPhone);
+                    PersonalIdManager.getInstance().setFailureAttempt(0);
                 } else {
                     directions = navigateToBackupCode();
                 }
@@ -154,8 +154,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
 
 
     private void successFlow(Activity activity) {
-        ConnectIDManager.getInstance().setStatus(ConnectIDManager.ConnectIdStatus.LoggedIn);
-        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.CONNECT_NO_ACTIVITY);
+        PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
+        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
         activity.setResult(RESULT_OK);
         activity.finish();
     }

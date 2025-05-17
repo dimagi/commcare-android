@@ -10,7 +10,7 @@ import android.view.MenuItem;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
@@ -276,7 +276,7 @@ public class StandardHomeActivity
     }
 
     public void performSecondaryPhoneVerification() {
-        ConnectIDManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
+        PersonalIdManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
     }
 
     public void updateConnectJobProgress() {

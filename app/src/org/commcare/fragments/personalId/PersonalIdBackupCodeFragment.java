@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,13 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import org.commcare.activities.connect.ConnectIdActivity;
+import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -179,7 +179,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         String pin = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
 
-        ApiConnectId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), pin, new IApiCallback() {
+        ApiPersonalId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), pin, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 finishWithNavigation(true, pin);
@@ -215,7 +215,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void confirmBackupPin() {
         String pin = binding.connectPinInput.getText().toString();
 
-        ApiConnectId.checkPin(getActivity(), name, secret, pin, new IApiCallback() {
+        ApiPersonalId.checkPin(getActivity(), name, secret, pin, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
@@ -263,23 +263,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         ConnectUserRecord user = new ConnectUserRecord(name, username, "", name, "");
         user.setPin(pin);
         user.setLastPinDate(new Date());
-
-        boolean isSecondaryPhoneVerified = !json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)
-                || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY);
-
-        user.setSecondaryPhoneVerified(isSecondaryPhoneVerified);
-
-        if (!isSecondaryPhoneVerified) {
-            user.setSecondaryPhoneVerifyByDate(
-                    DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
-        }
-
         resetUserPassword(user);
     }
 
     private void resetUserPassword(ConnectUserRecord user) {
-        String password = ConnectIDManager.getInstance().generatePassword();
-        ApiConnectId.resetPassword(activity, name, secret, password, new IApiCallback() {
+        String password = PersonalIdManager.getInstance().generatePassword();
+        ApiPersonalId.resetPassword(activity, name, secret, password, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 user.setPassword(password);
@@ -317,7 +306,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     // ─────────── HELPERS ─────────────
 
     private void handleFailedPinAttempt() {
-        ConnectIDManager idManager = ConnectIDManager.getInstance();
+        PersonalIdManager idManager = PersonalIdManager.getInstance();
         idManager.setFailureAttempt(idManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
         clearPinFields();
@@ -337,7 +326,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                     createSuccessRecoveryDirection() :
                     createFailedRecoveryDirection();
         } else {
-            ((ConnectIdActivity)activity).forgotPin = false;
+            ((PersonalIdActivity)activity).forgotPin = false;
             directions = createRegistrationSuccessDirection();
 
             if (user != null) {
@@ -356,18 +345,18 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         return createNavigationMessage(
                 getString(R.string.connect_recovery_success_title),
                 getString(R.string.connect_recovery_success_message),
-                ConnectConstants.CONNECT_RECOVERY_SUCCESS,
+                ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
                 getString(R.string.connect_recovery_success_button)
         );
     }
 
     private NavDirections createFailedRecoveryDirection() {
-        boolean exceededAttempts = ConnectIDManager.getInstance().getFailureAttempt() > 2;
+        boolean exceededAttempts = PersonalIdManager.getInstance().getFailureAttempt() > 2;
         return createNavigationMessage(
                 getString(R.string.connect_pin_fail_title),
                 exceededAttempts ? getString(R.string.connect_pin_recovery_message)
                         : getString(R.string.connect_pin_fail_message),
-                ConnectConstants.CONNECT_RECOVERY_WRONG_PIN,
+                ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN,
                 getString(R.string.connect_recovery_alt_button)
         );
     }
@@ -376,7 +365,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         return createNavigationMessage(
                 getString(R.string.connect_register_success_title),
                 getString(R.string.connect_register_success_message),
-                ConnectConstants.CONNECT_REGISTRATION_SUCCESS,
+                ConnectConstants.PERSONALID_REGISTRATION_SUCCESS,
                 getString(R.string.connect_register_success_button)
         );
     }
