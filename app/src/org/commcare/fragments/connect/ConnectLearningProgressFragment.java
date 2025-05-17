@@ -16,8 +16,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 
 
@@ -106,7 +106,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if(ConnectIDManager.getInstance().isloggedIn()) {
+        if(PersonalIdManager.getInstance().isloggedIn()) {
             refreshData();
         }
     }

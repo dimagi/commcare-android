@@ -11,8 +11,8 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectIdActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
+import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -29,7 +29,7 @@ import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -78,7 +78,7 @@ public class ConnectManager {
     }
 
     private static ConnectManager manager = null;
-    private ConnectIDManager.ConnectIdStatus connectStatus = ConnectIDManager.ConnectIdStatus.NotIntroduced;
+    private PersonalIdManager.PersonalIdStatus connectStatus = PersonalIdManager.PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
 
     private static String primedAppIdForAutoLogin = null;
@@ -99,11 +99,11 @@ public class ConnectManager {
         ConnectManager manager = getInstance();
         manager.parentActivity = parent;
 
-        if (manager.connectStatus == ConnectIDManager.ConnectIdStatus.NotIntroduced) {
+        if (manager.connectStatus == PersonalIdManager.PersonalIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
             if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.CONNECT_NO_ACTIVITY;
-                manager.connectStatus = registering ? ConnectIDManager.ConnectIdStatus.Registering : ConnectIDManager.ConnectIdStatus.LoggedIn;
+                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
+                manager.connectStatus = registering ? PersonalIdManager.PersonalIdStatus.Registering : PersonalIdManager.PersonalIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -180,7 +180,7 @@ public class ConnectManager {
     }
 
     private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
-        Intent intent = new Intent(parent, ConnectIdActivity.class);
+        Intent intent = new Intent(parent, PersonalIdActivity.class);
         intent.putExtra("TASK", task);
         parent.startActivityForResult(intent, ConnectConstants.CONNECT_JOB_INFO);
     }
@@ -287,7 +287,7 @@ public class ConnectManager {
 
     public static String checkAutoLoginAndOverridePassword(Context context, String appId, String username,
                                                            String passwordOrPin, boolean appLaunchedFromConnect, boolean uiInAutoLogin) {
-        if (ConnectIDManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
             if (appLaunchedFromConnect) {
                 //Configure some things if we haven't already
                 ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context,
@@ -349,7 +349,7 @@ public class ConnectManager {
     }
 
     public static void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
-        ApiConnectId.fetchDbPassphrase(context, user, new IApiCallback() {
+        ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {

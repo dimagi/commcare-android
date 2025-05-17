@@ -395,7 +395,7 @@ public class ApiPersonalId {
         Multimap<String, String> params = ArrayListMultimap.create();
         ConnectNetworkHelper.get(context,
                 context.getString(R.string.ConnectMessageRetrieveMessagesURL),
-                API_VERSION_CONNECT_ID, authInfo, params, true, callback);
+                API_VERSION_PERSONAL_ID, authInfo, params, true, callback);
     }
 
     public static boolean updateChannelConsent(Context context, String username, String password,
@@ -409,7 +409,7 @@ public class ApiPersonalId {
 
         return ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageChannelConsentURL),
-                API_VERSION_CONNECT_ID, authInfo, params, false, false, callback);
+                API_VERSION_PERSONAL_ID, authInfo, params, false, false, callback);
     }
 
     private static void handleApiError(Response<?> response) {
@@ -495,7 +495,7 @@ public class ApiPersonalId {
 
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageConfirmURL),
-                API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
+                API_VERSION_PERSONAL_ID, authInfo, params, false, true, callback);
     }
 
     public static void sendMessagingMessage(Context context, String username, String password,
@@ -521,6 +521,6 @@ public class ApiPersonalId {
 
         ConnectNetworkHelper.post(context,
                 context.getString(R.string.ConnectMessageSendURL),
-                API_VERSION_CONNECT_ID, authInfo, params, false, true, callback);
+                API_VERSION_PERSONAL_ID, authInfo, params, false, true, callback);
     }
 }

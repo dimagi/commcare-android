@@ -452,7 +452,7 @@ public class PersonalIdManager {
         if (appRecord != null) {
             job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
         }
-        setActiveJob(job);
+        ConnectManager.setActiveJob(job);
         return job;
     }
 
@@ -571,10 +571,6 @@ public class PersonalIdManager {
         launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
-    public void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
-    }
-
     public boolean isSeatedAppLinkedToPersonalId(String username) {
         try {
             if (isloggedIn()) {
@@ -609,7 +605,7 @@ public class PersonalIdManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
+    public AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
         if (!isloggedIn()) {
             return null;
         }

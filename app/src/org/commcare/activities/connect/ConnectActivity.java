@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;

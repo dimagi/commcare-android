@@ -28,8 +28,8 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
@@ -234,7 +234,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (ConnectIDManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
             refreshData();
         }
     }

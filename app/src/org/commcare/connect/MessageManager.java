@@ -10,7 +10,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
-import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.TokenDeniedException;
@@ -42,7 +42,7 @@ public class MessageManager {
                 try {
                     ConnectUserRecord user = ConnectManager.getUser(context);
                     AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context, user);
-                    ApiConnectId.retrieveChannelEncryptionKeySync(context, channel, auth);
+                    ApiPersonalId.retrieveChannelEncryptionKeySync(context, channel, auth);
                 } catch (TokenDeniedException | TokenUnavailableException e) {
                     Logger.exception("Retrieving channel encryption key", e);
                     return null;
@@ -145,7 +145,7 @@ public class MessageManager {
         };
 
         ConnectUserRecord user = ConnectManager.getUser(context);
-        ApiConnectId.retrieveMessages(context, user.getUserId(), user.getPassword(), callback);
+        ApiPersonalId.retrieveMessages(context, user.getUserId(), user.getPassword(), callback);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
@@ -200,7 +200,7 @@ public class MessageManager {
         };
 
         ConnectUserRecord user = ConnectManager.getUser(context);
-        boolean isBusy = !ApiConnectId.updateChannelConsent(context, user.getUserId(), user.getPassword(),
+        boolean isBusy = !ApiPersonalId.updateChannelConsent(context, user.getUserId(), user.getPassword(),
                 channel.getChannelId(), channel.getConsented(), callback);
 
         if (isBusy) {
@@ -211,12 +211,12 @@ public class MessageManager {
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
                                                ConnectManager.ConnectActivityCompleteListener listener) {
         ConnectUserRecord user = ConnectManager.getUser(context);
-        ApiConnectId.retrieveChannelEncryptionKey(context, user, channel.getChannelId(), channel.getKeyUrl(),
+        ApiPersonalId.retrieveChannelEncryptionKey(context, user, channel.getChannelId(), channel.getKeyUrl(),
                 new IApiCallback() {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         try (InputStream in = responseData){
-                            ApiConnectId.handleReceivedEncryptionKey(context, in, channel);
+                            ApiPersonalId.handleReceivedEncryptionKey(context, in, channel);
                             if (listener != null) {
                                 listener.connectActivityComplete(true);
                             }
@@ -275,7 +275,7 @@ public class MessageManager {
 
         if(unsentIds.size() > 0) {
             ConnectUserRecord user = ConnectManager.getUser(context);
-            ApiConnectId.confirmReceivedMessages(context, user.getUserId(), user.getPassword(), unsentIds, new IApiCallback() {
+            ApiPersonalId.confirmReceivedMessages(context, user.getUserId(), user.getPassword(), unsentIds, new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     for(ConnectMessagingMessageRecord message : unsent) {
@@ -331,7 +331,7 @@ public class MessageManager {
 
         if(channel.getKey().length() > 0) {
             ConnectUserRecord user = ConnectManager.getUser(context);
-            ApiConnectId.sendMessagingMessage(context, user.getUserId(), user.getPassword(), message, channel.getKey(), new IApiCallback() {
+            ApiPersonalId.sendMessagingMessage(context, user.getUserId(), user.getPassword(), message, channel.getKey(), new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
                     message.setConfirmed(true);

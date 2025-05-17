@@ -12,9 +12,8 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
@@ -66,7 +65,7 @@ public class ConnectUnlockFragment extends Fragment {
         view = inflater.inflate(R.layout.blank_activity, container, false);
         view.setBackgroundColor(getResources().getColor(R.color.white));
 
-        ConnectIDManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
+        PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
             if (success) {
                 retrieveOpportunities();
             } else {

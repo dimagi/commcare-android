@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
