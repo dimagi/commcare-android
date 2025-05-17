@@ -1,7 +1,7 @@
 package org.commcare.connect.network
 
 import okhttp3.OkHttpClient
-import org.commcare.connect.ConnectIDManager
+import org.commcare.connect.PersonalIdManager
 import org.commcare.core.network.AuthenticationInterceptor
 import org.commcare.core.network.ModernHttpRequester
 import org.commcare.network.HttpUtils
@@ -25,7 +25,7 @@ object ConnectNetworkServiceFactory {
         .build()
 
     fun createConnectIdNetworkSerive(): ConnectNetworkService {
-        authInterceptor.setCredential(HttpUtils.getCredential(ConnectIDManager.getInstance().getConnectToken()))
+        authInterceptor.setCredential(HttpUtils.getCredential(PersonalIdManager.getInstance().getConnectToken()))
         return connectIdRetrofit.create(ConnectNetworkService::class.java)
     }
 }

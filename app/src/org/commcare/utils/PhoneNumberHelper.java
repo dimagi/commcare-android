@@ -25,21 +25,8 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnectId;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
-
-import android.content.Context;
-import android.widget.Toast;
-
-import java.io.InputStream;
-
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 /**
  * Helper class for functionality related to phone numbers
@@ -183,7 +170,7 @@ public class PhoneNumberHelper {
     public void storeAlternatePhone(Context context, ConnectUserRecord user, String phone) {
         user.setAlternatePhone(phone);
         ConnectUserDatabaseUtil.storeUser(context, user);
-        ConnectDatabaseHelper.setRegistrationPhase(context, ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN);
+        ConnectDatabaseHelper.setRegistrationPhase(context, ConnectConstants.PERSONALID_REGISTRATION_CONFIRM_PIN);
     }
 
     public void storePrimaryPhone(Context context, ConnectUserRecord user, String phone) {

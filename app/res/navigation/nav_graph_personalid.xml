@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/personalid_biometric_config"
-        android:name="org.commcare.fragments.connectId.PersonalIdBiometricConfigFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment"
         android:label="fragment_personalid_biometric_config"
         tools:layout="@layout/screen_personalid_verify">
         <action
@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/personalid_otp_page"
-        android:name="org.commcare.fragments.connectId.PersonalIdPhoneVerificationFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdPhoneVerificationFragment"
         android:label="fragment_personalid_phone_verify"
         tools:layout="@layout/screen_personalid_phone_verify">
         <action
@@ -43,7 +43,7 @@
 
     <dialog
         android:id="@+id/personalid_message_display"
-        android:name="org.commcare.fragments.connectId.PersonalIdMessageFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdMessageFragment"
         android:label="fragment_personalid_message"
         tools:layout="@layout/screen_personalid_message">
         <action
@@ -96,7 +96,7 @@
 
     <fragment
         android:id="@+id/personalid_backup_code"
-        android:name="org.commcare.fragments.connectId.PersonalIdBackupCodeFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdBackupCodeFragment"
         android:label="fragment_personalid_pin"
         tools:layout="@layout/fragment_recovery_code">
         <action
@@ -123,7 +123,7 @@
 
     <fragment
         android:id="@+id/personalid_phone_fragment"
-        android:name="org.commcare.fragments.connectId.PersonalIdPhoneFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdPhoneFragment"
         android:label="fragment_personalid_phone_fragment"
         tools:layout="@layout/screen_personalid_phoneno">
         <action
@@ -139,7 +139,7 @@
 
     <fragment
         android:id="@+id/personalid_name"
-        android:name="org.commcare.fragments.connectId.PersonalIdNameFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdNameFragment"
         android:label="personalid_name"
         tools:layout="@layout/screen_personalid_name">
 
