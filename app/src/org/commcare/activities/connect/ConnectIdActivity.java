@@ -4,20 +4,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.connectId.PersonalIdBiometricConfigFragment;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectId.PersonalIdPhoneFragmentDirections;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.views.dialogs.CustomProgressDialog;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdActivity> {
 
     public boolean forgotPin = false;
     public String primaryPhone;
     public String recoverSecret;
-    private NavController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +95,7 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
                     .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
 
         }
-        CommCareNavController.navigateSafely(navController,navDirections);
+        CommCareNavController.navigateSafely(navController, navDirections);
     }
 
 
