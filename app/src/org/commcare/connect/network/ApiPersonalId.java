@@ -45,7 +45,7 @@ import retrofit2.Response;
 
 public class ApiPersonalId {
     private static final String API_VERSION_NONE = null;
-    public static final String API_VERSION_CONNECT_ID = "1.0";
+    public static final String API_VERSION_PERSONAL_ID = "1.0";
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
@@ -88,7 +88,7 @@ public class ApiPersonalId {
         if (token != null) {
             params.put("fcm_token", token);
             boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_CONNECT_ID, auth, params, useFormEncoding, true);
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_PERSONAL_ID, auth, params, useFormEncoding, true);
         }
 
         return new ConnectNetworkHelper.PostResult(-1, null, null);
@@ -106,7 +106,7 @@ public class ApiPersonalId {
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
-                API_VERSION_CONNECT_ID, new AuthInfo.NoAuth(), params, true, false);
+                API_VERSION_PERSONAL_ID, new AuthInfo.NoAuth(), params, true, false);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Connect Token Post Result " + postResult.responseCode);
         if (postResult.responseCode >= 200 && postResult.responseCode < 300) {
             try {
@@ -188,7 +188,7 @@ public class ApiPersonalId {
         String url = ApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
         ConnectNetworkHelper.get(context,
                 url,
-                API_VERSION_CONNECT_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
+                API_VERSION_PERSONAL_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
                 ArrayListMultimap.create(), true, callback);
     }
 

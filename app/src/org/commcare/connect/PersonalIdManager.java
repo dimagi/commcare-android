@@ -85,7 +85,7 @@ public class PersonalIdManager {
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
-    private PersonalIdStatus connectStatus = PersonalIdStatus.NotIntroduced;
+    private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
     private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
@@ -113,11 +113,11 @@ public class PersonalIdManager {
 
     public void init(Context parent) {
         parentActivity = parent;
-        if (connectStatus == PersonalIdStatus.NotIntroduced) {
+        if (personalIdSatus == PersonalIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
-                connectStatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
+                personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -173,7 +173,7 @@ public class PersonalIdManager {
 
 
     public boolean isloggedIn() {
-        return connectStatus == PersonalIdStatus.LoggedIn;
+        return personalIdSatus == PersonalIdStatus.LoggedIn;
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
@@ -209,7 +209,7 @@ public class PersonalIdManager {
     }
 
     public void completeSignin() {
-        connectStatus = PersonalIdStatus.LoggedIn;
+        personalIdSatus = PersonalIdStatus.LoggedIn;
         scheduleHearbeat();
         CrashUtil.registerUserData();
     }
@@ -227,7 +227,7 @@ public class PersonalIdManager {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
         ConnectUserDatabaseUtil.forgetUser(parentActivity);
-        connectStatus = PersonalIdStatus.NotIntroduced;
+        personalIdSatus = PersonalIdStatus.NotIntroduced;
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
@@ -539,11 +539,11 @@ public class PersonalIdManager {
     }
 
     public PersonalIdStatus getStatus() {
-        return connectStatus;
+        return personalIdSatus;
     }
 
     public void setStatus(PersonalIdStatus status) {
-        connectStatus = status;
+        personalIdSatus = status;
     }
 
     public void setParent(Context parent) {

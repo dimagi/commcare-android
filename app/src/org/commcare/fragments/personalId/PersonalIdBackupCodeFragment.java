@@ -263,17 +263,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         ConnectUserRecord user = new ConnectUserRecord(name, username, "", name, "");
         user.setPin(pin);
         user.setLastPinDate(new Date());
-
-        boolean isSecondaryPhoneVerified = !json.has(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)
-                || json.isNull(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY);
-
-        user.setSecondaryPhoneVerified(isSecondaryPhoneVerified);
-
-        if (!isSecondaryPhoneVerified) {
-            user.setSecondaryPhoneVerifyByDate(
-                    DateUtils.parseDate(json.getString(ConnectConstants.CONNECT_KEY_VALIDATE_SECONDARY_PHONE_BY)));
-        }
-
         resetUserPassword(user);
     }
 
