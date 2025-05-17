@@ -391,6 +391,7 @@ public class FormStorageTest {
             //Added in 2.57
             , "org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc"
             , "org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc"
+            , "org.commcare.android.database.connect.models.ConnectUserRecordV13"
     );
 
 

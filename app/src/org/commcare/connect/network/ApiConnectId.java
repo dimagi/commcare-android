@@ -281,8 +281,8 @@ public class ApiConnectId {
         callApi(context, call, callback);
     }
 
-    public static void changePin(Context context, String username, String password,
-                                 String pin, IApiCallback callback) {
+    public static void setBackupCode(Context context, String username, String password,
+                                     String pin, IApiCallback callback) {
 
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
@@ -292,12 +292,6 @@ public class ApiConnectId {
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Call<ResponseBody> call = apiService.changePIN(token, params);
-        callApi(context, call, callback);
-    }
-
-    public static void checkPhoneAvailable(Context context, String phone, IApiCallback callback) {
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.checkPhoneNumber(phone);
         callApi(context, call, callback);
     }
 

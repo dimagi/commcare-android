@@ -14,9 +14,9 @@
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="40dp"
             android:contentDescription="@null"
-            android:src="@drawable/ic_dimagi_logo" />
+            android:src="@drawable/commcare_connect_logo" />
 
         <View
             android:id="@+id/divider"
@@ -34,9 +34,9 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:text="@string/enter_otp"
+            android:textStyle="bold"
             android:textColor="@color/connect_dark_blue_color"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,8 +55,20 @@
                 android:layout_weight="1"
                 android:textColor="@color/connect_secondary_text"
                 android:textSize="16sp"
-                android:textStyle="normal"
-                tools:text="+91 7748962888" />
+                tools:text="+91 7748962888"
+                android:textStyle="normal"/>
+
+            <TextView
+                android:id="@+id/connect_phone_verify_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:gravity="end"
+                android:text="@string/connect_verify_phone_change"
+                android:textColor="@color/connect_blue_color"
+                android:textSize="16sp"
+                android:visibility="visible"
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <LinearLayout
@@ -83,19 +95,19 @@
 
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/connect_phone_verify_code"
+            <org.commcare.views.connect.CustomOtpView
+                android:id="@+id/customOtpView"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
+                app:otpViewDigitCount="6"
                 android:layout_marginStart="16dp"
-                android:background="@drawable/connect_edit_text_bg"
-                android:hint="OTP"
-                android:imeOptions="actionNext"
-                android:inputType="numberDecimal"
-                android:visibility="visible"
-                android:paddingStart="16dp"
-                android:textColorHint="@color/connect_grey"
-                tools:ignore="RtlSymmetry" />
+                app:otpViewTextColor="@color/connect_blue_color"
+                app:otpViewBorderColor="@color/connect_blue_color"
+                app:otpViewBorderRadius="4dp"
+                app:otpViewBorderWidth="0.5dp"
+                app:otpViewErrorTextColor="@color/connect_red"
+                app:otpViewErrorBorderColor="@color/connect_red"
+                app:otpViewTextSize="6sp" />
 
         </LinearLayout>
 
@@ -131,22 +143,35 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/connect_deactivate_button"
                 style="@style/NegativeButtonStyle"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/connect_deactivate_account"
+                android:visibility="gone"
+                />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_resend_button"
-                android:layout_width="wrap_content"
+                style="@style/NegativeButtonStyle"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:text="@string/connect_verify_phone_resend_code" />
+                android:text="@string/connect_verify_phone_resend_code"
+           />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_phone_verify_button"
                 style="@style/CustomButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:text="@string/connect_verify_phone_verify"
-              />
+                android:text="@string/connect_verify_phone_verify" />
 
         </RelativeLayout>
+
     </LinearLayout>
 </layout>

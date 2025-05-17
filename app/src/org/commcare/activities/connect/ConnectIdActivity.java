@@ -4,29 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-
-import org.commcare.activities.NavigationHostCommCareActivity;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.fragments.connectId.PersonalIdBiometricConfigFragment;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.connectId.ConnectIDSignupFragmentDirections;
-import org.commcare.fragments.connectId.ConnectIdBiometricConfigFragment;
-import org.commcare.utils.CommCareNavController;
+import org.commcare.fragments.connectId.PersonalIdPhoneFragmentDirections;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdActivity> {
 
-    public boolean forgotPassword = false;
     public boolean forgotPin = false;
-    public String recoverPhone;
+    public String primaryPhone;
     public String recoverSecret;
-    public String recoveryAltPhone;
+    private NavController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +29,8 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
+        if (requestCode == ConnectConstants.CONNECT_UNLOCK_PIN
+                || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
         } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
@@ -51,11 +43,8 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
 
     private void handleRedirection(Intent intent) {
         String value = intent.getStringExtra(ConnectConstants.TASK);
-        if (value != null) {
-            switch (value) {
-                case ConnectConstants.BEGIN_REGISTRATION -> beginRegistration(this);
-                case ConnectConstants.VERIFY_PHONE -> beginSecondaryPhoneVerification(this);
-            }
+        if (value != null && value == ConnectConstants.BEGIN_REGISTRATION) {
+            beginRegistration(this);
         }
     }
 
@@ -64,13 +53,13 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
         return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
-    private ConnectIdBiometricConfigFragment getCurrentFragment() {
+    private PersonalIdBiometricConfigFragment getCurrentFragment() {
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         Fragment currentFragment =
                 navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof ConnectIdBiometricConfigFragment) {
-            return (ConnectIdBiometricConfigFragment)currentFragment;
+        if (currentFragment instanceof PersonalIdBiometricConfigFragment) {
+            return (PersonalIdBiometricConfigFragment)currentFragment;
         }
         return null;
     }
@@ -88,69 +77,20 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
     }
 
     private void beginRegistration(Context parent) {
-        forgotPassword = false;
         forgotPin = false;
         NavDirections navDirections = null;
 
         switch (ConnectIDManager.getInstance().getStatus()) {
-            case NotIntroduced:
-                navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf()
-                        .setCallingClass(ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE);
-                break;
-
-            case Registering:
-                ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parent);
-                int phase = user.getRegistrationPhase();
-
-                switch (phase) {
-                    case ConnectConstants.CONNECT_REGISTRATION_PRIMARY_PHONE:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentSelf();
-                        break;
-
-                    case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_BIOMETRICS:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidBiometricConfig(phase);
-                        break;
-                    case ConnectConstants.CONNECT_REGISTRATION_ALTERNATE_PHONE:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidSignupFragmentToConnectidSecondaryPhoneFragment(
-                                phase);
-                        break;
-                    case ConnectConstants.CONNECT_REGISTRATION_CONFIGURE_PIN:
-                    case ConnectConstants.CONNECT_REGISTRATION_CONFIRM_PIN:
-                    case ConnectConstants.CONNECT_REGISTRATION_CHANGE_PIN:
-                        navDirections = ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidPin(
-                                phase, user.getPrimaryPhone(), user.getPassword());
-                        break;
-
-                    case ConnectConstants.CONNECT_NO_ACTIVITY:
-                        navDirections = ConnectIDSignupFragmentDirections
-                                .actionConnectidPhoneFragmentToConnectidBiometricConfig(
-                                        ConnectConstants.CONNECT_UNLOCK_BIOMETRIC);
-                        break;
-                }
-
-                if (navDirections == null) {
-                    if (user.shouldForcePin()) {
-                        navDirections = ConnectIDSignupFragmentDirections.
-                                actionConnectidPhoneFragmentToConnectidPin(
-                                        ConnectConstants.CONNECT_UNLOCK_PIN,
-                                        user.getPrimaryPhone(),
-                                        user.getPassword());
-                    } else if (user.shouldForcePassword()) {
-                        navDirections = ConnectIDSignupFragmentDirections.
-                                actionConnectidPhoneFragmentToConnectidPassword(
-                                        user.getPrimaryPhone(),
-                                        user.getPassword(), ConnectConstants.CONNECT_UNLOCK_PASSWORD);
-                    } else {
-                        navDirections = ConnectIDSignupFragmentDirections
-                                .actionConnectidPhoneFragmentToConnectidBiometricConfig(
-                                        ConnectConstants.CONNECT_UNLOCK_BIOMETRIC);
-                    }
-                }
+            case NotIntroduced, Registering:
+                navDirections = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentSelf();
                 break;
         }
+        if (navDirections == null) {
+            navDirections = PersonalIdPhoneFragmentDirections
+                    .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
 
+        }
         CommCareNavController.navigateSafely(navController,navDirections);
-
     }
 
 
@@ -160,18 +100,6 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
             actionBar.setDisplayShowHomeEnabled(isBackEnabled());
             actionBar.setDisplayHomeAsUpEnabled(isBackEnabled());
         }
-    }
-
-    private void beginSecondaryPhoneVerification(Context parent) {
-        NavDirections navDirections =
-                ConnectIDSignupFragmentDirections.actionConnectidPhoneFragmentToConnectidMessage
-                        (parent.getString(R.string.connect_recovery_alt_title),
-                                parent.getString(R.string.connect_recovery_alt_message),
-                                ConnectConstants.CONNECT_VERIFY_ALT_PHONE_MESSAGE,
-                                parent.getString(R.string.connect_password_fail_button),
-                                parent.getString(R.string.connect_recovery_alt_change_button), null,
-                                null).setIsCancellable(false);
-        CommCareNavController.navigateSafely(navController, navDirections);
     }
 
     @Override
@@ -192,10 +120,8 @@ public class ConnectIdActivity extends NavigationHostCommCareActivity<ConnectIdA
     }
 
     public void reset() {
-        recoverPhone = null;
-        recoveryAltPhone = null;
+        primaryPhone = null;
         recoverSecret = null;
-        forgotPassword = false;
         forgotPin = false;
     }
 }
