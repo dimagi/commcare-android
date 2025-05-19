@@ -16,8 +16,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectIDManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnectId;
@@ -137,6 +140,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         enableTakePhotoButton();
         disableSaveButton();
         savePhotoToDatabase(photoAsBase64);
+        showAccountComplete();
     }
 
     private void savePhotoToDatabase(String photoAsBase64) {
@@ -165,6 +169,17 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         intent.putExtra(MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA, PHOTO_MAX_DIMENSION_PX);
         intent.putExtra(MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA, PHOTO_MAX_SIZE_BYTES);
         takePhotoLauncher.launch(intent);
+    }
+
+    private void showAccountComplete() {
+        NavDirections directions =
+                PersonalIdPhotoCaptureFragmentDirections.actionPersonalidPhotoCaptureToPersonalidMessage(
+                        getString(R.string.connect_register_success_title),
+                        getString(R.string.connect_register_success_message),
+                        ConnectConstants.CONNECT_REGISTRATION_SUCCESS,
+                        getString(R.string.connect_register_success_button),
+                        null, "", null).setIsCancellable(false);
+        Navigation.findNavController(viewBinding.savePhotoButton).navigate(directions);
     }
 
     private void disableTakePhotoButton() {
