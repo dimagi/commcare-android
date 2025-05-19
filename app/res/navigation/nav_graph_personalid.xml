@@ -94,7 +94,9 @@
             app:argType="boolean" />
         <action
             android:id="@+id/action_personalid_message_display_to_personalid_phone_fragment"
-            app:destination="@id/personalid_phone_fragment" />
+            app:destination="@id/personalid_phone_fragment"
+            app:popUpTo="@id/personalid_message_display"
+            app:popUpToInclusive="true" />
     </dialog>
 
     <fragment

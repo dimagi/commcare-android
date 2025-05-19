@@ -125,22 +125,4 @@ public class DeviceConfigurationData {
     public void clear() {
         instance = null;
     }
-
-    // For debugging
-    @Override
-    public String toString() {
-        return "DeviceConfigurationData{" +
-                "requiredLock='" + requiredLock + '\'' +
-                ", demoUser=" + demoUser +
-                ", token='" + token + '\'' +
-                ", failureCode='" + failureCode + '\'' +
-                ", failureSubcode='" + failureSubcode + '\'' +
-                ", accountExists=" + accountExists +
-                ", photoBase64='" + photoBase64 + '\'' +
-                ", username='" + username + '\'' +
-                ", dbKey='" + dbKey + '\'' +
-                ", oauthPassword='" + oauthPassword + '\'' +
-                ", accountOrphaned=" + accountOrphaned +
-                '}';
-    }
 }
