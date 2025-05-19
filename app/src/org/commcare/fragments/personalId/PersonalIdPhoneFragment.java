@@ -14,9 +14,19 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
+import org.commcare.connect.network.ApiPersonalId;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.utils.PhoneNumberHelper;
+import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -148,7 +158,45 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
-        // TODO: Trigger API call for phone number validation and registration api later
+        String phone = PhoneNumberHelper.buildPhoneNumber(
+                binding.countryCode.getText().toString(),
+                binding.connectPrimaryPhoneInput.getText().toString()
+        );
+        ApiPersonalId.startConfiguration(getActivity(),phone , new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Error parsing recovery response", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode) {
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                ConnectNetworkHelper.showNetworkError(getActivity());
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getActivity());
+            }
+        });
+
         navigateToBiometricSetup();
     }
 
