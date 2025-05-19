@@ -909,4 +909,6 @@
     <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
     <string name="name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="name_empty_error">Name field cannot be empty</string>
+    <string name="configuration_process_failed_title">Process Failed</string>
+    <string name="configuration_process_failed_subtitle">"Your device isn't eligible to sign up for PersonalID at this time. Please try again on a different device."</string>
 </resources>

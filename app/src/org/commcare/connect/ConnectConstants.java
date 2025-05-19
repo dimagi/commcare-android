@@ -57,4 +57,5 @@ public class ConnectConstants {
     public final static int PERSONALID_RECOVERY_CHANGE_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 13;
     public final static int CONNECT_JOB_INFO = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 14;
     public final static int PERSONALID_RECOVERY_WRONG_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 15;
+    public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 16;
 }
