@@ -153,7 +153,7 @@
     </fragment>
     <fragment
         android:id="@+id/personalid_photo_capture"
-        android:name="org.commcare.fragments.connectId.PersonalIdPhotoCaptureFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdPhotoCaptureFragment"
         android:label="fragment_connectid_photo_capture">
         <argument
             android:name="userName"

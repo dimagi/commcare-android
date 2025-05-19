@@ -1,4 +1,4 @@
-package org.commcare.fragments.connectId;
+package org.commcare.fragments.personalId;
 
 import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA;
 import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA;
@@ -21,9 +21,9 @@ import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnectId;
+import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
@@ -49,7 +49,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         viewBinding = ScreenPersonalidPhotoCaptureBinding.inflate(inflater, container, false);
-        connectUserRecord = ConnectIDManager.getInstance().getUser(getContext());
+        connectUserRecord = PersonalIdManager.getInstance().getUser(getContext());
         initTakePhotoLauncher();
         setUpUi();
         return viewBinding.getRoot();
@@ -115,7 +115,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                 onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
             }
         };
-        ApiConnectId.updatePhoto(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
+        ApiPersonalId.updatePhoto(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
                 connectUserRecord.getName(), photoAsBase64, networkResponseCallback);
     }
 
@@ -176,7 +176,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                 PersonalIdPhotoCaptureFragmentDirections.actionPersonalidPhotoCaptureToPersonalidMessage(
                         getString(R.string.connect_register_success_title),
                         getString(R.string.connect_register_success_message),
-                        ConnectConstants.CONNECT_REGISTRATION_SUCCESS,
+                        ConnectConstants.PERSONALID_REGISTRATION_SUCCESS,
                         getString(R.string.connect_register_success_button),
                         null, "", null).setIsCancellable(false);
         Navigation.findNavController(viewBinding.savePhotoButton).navigate(directions);
