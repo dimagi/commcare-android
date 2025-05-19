@@ -3,9 +3,6 @@ package org.commcare.connect.network;
 import android.app.Activity;
 
 import org.commcare.android.database.connect.models.DeviceConfigurationData;
-import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
