@@ -12,7 +12,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
@@ -202,10 +202,10 @@ public class DispatchActivity extends AppCompatActivity {
                 } else if(redirectToConnectHome) {
                     redirectToConnectHome = false;
                     CommCareApplication.instance().closeUserSession();
-                    ConnectIDManager.getInstance().goToConnectJobsList(this);
+                    PersonalIdManager.getInstance().goToConnectJobsList(this);
                 } else if(redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectIDManager.getInstance().goToActiveInfoForJob(this, true);
+                    PersonalIdManager.getInstance().goToActiveInfoForJob(this, true);
                 } else {
                     launchHomeScreen();
                 }
@@ -322,7 +322,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
-        i.putExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, connectIdManagedLogin);
+        i.putExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, connectIdManagedLogin);
         startFromLogin = false;
         clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
@@ -470,7 +470,7 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false);
+                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false);
                     connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }
