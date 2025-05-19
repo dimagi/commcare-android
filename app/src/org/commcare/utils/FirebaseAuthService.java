@@ -5,79 +5,114 @@ import android.app.Activity;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.FirebaseException;
-import com.google.firebase.auth.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
+import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.util.concurrent.TimeUnit;
-
+/**
+ * FirebaseAuthService handles phone number authentication using Firebase.
+ * It supports sending OTP (One Time Password) and verifying it to authenticate users.
+ */
 public class FirebaseAuthService implements AuthService {
 
-    private final Activity activity;
-    private final OTPVerificationCallback callback;
-    private String verificationId;
+    private final Activity activity; // Activity context required for Firebase callbacks
+    private final OtpVerificationCallback callback; // Callback interface for OTP result events
+    private String verificationId; // Stores the verification ID received after sending OTP
 
-    // Constructor for sending OTP
-    public FirebaseAuthService(Activity activity, OTPVerificationCallback callback) {
+    /**
+     * Constructor for initiating OTP send process.
+     *
+     * @param activity Android activity context
+     * @param callback Callback to handle OTP events
+     */
+    public FirebaseAuthService(Activity activity, OtpVerificationCallback callback) {
         this.activity = activity;
         this.callback = callback;
     }
 
-    // Overloaded constructor for verifying OTP (with verification ID)
-    public FirebaseAuthService(Activity activity, OTPVerificationCallback callback, String verificationId) {
+    /**
+     * Constructor for verifying OTP with a known verification ID.
+     *
+     * @param activity Android activity context
+     * @param callback Callback to handle OTP events
+     * @param verificationId ID received when OTP was sent
+     */
+    public FirebaseAuthService(Activity activity, OtpVerificationCallback callback, String verificationId) {
         this(activity, callback);
         this.verificationId = verificationId;
     }
 
-    // 🔹 Called to initiate OTP sending
+    /**
+     * Sends an OTP to the provided phone number using Firebase's phone auth.
+     *
+     * @param phoneNumber The phone number to which the OTP will be sent
+     */
     @Override
-    public void sendOTP(String phoneNumber) {
+    public void sendOtp(String phoneNumber) {
         PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                .setPhoneNumber(phoneNumber)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(activity)
+                .setPhoneNumber(phoneNumber) // Phone number to verify
+                .setActivity(activity) // Activity for binding callback
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
+                    // Called when verification is completed automatically (instant/auto-retrieval)
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-                        // Auto-verification or Instant verification
                         signInWithCredential(credential);
                     }
 
+                    // Called when verification process fails
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
                         callback.onFailure("Verification failed: " + e.getMessage());
                     }
 
+                    // Called when OTP has been sent successfully
                     @Override
                     public void onCodeSent(@NonNull String id, @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                        verificationId = id; // Save verification ID for later use
-                        callback.onCodeSent(id);
+                        verificationId = id; // Store verification ID to use during verification
+                        callback.onCodeSent(id); // Notify client
                     }
                 })
                 .build();
 
+        // Start phone number verification process
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
-    // 🔹 Called to verify the OTP code entered by user
+    /**
+     * Verifies the OTP entered by the user.
+     *
+     * @param code The OTP code received by the user
+     */
     @Override
-    public void verifyOTP(String code) {
+    public void verifyOtp(String code) {
         if (verificationId == null || verificationId.isEmpty()) {
             callback.onFailure("Missing verification ID");
             return;
         }
 
+        // Create credential using verification ID and OTP code
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-        signInWithCredential(credential);
+        signInWithCredential(credential); // Proceed to sign in
     }
 
-    // 🔐 Signs in using the provided credential and reports via callback
+    /**
+     * Signs in the user using the provided phone auth credential and
+     * invokes appropriate callback methods based on result.
+     *
+     * @param credential Firebase phone auth credential
+     */
     private void signInWithCredential(PhoneAuthCredential credential) {
         FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener(activity, task -> {
                     if (task.isSuccessful()) {
+                        // Authentication successful
                         FirebaseUser user = task.getResult().getUser();
-                        callback.onSuccess(user); // ✅ Verified
+                        callback.onSuccess(user);
                     } else {
+                        // Authentication failed
                         String error = (task.getException() != null)
                                 ? task.getException().getMessage()
                                 : "Unknown error";
@@ -86,4 +121,3 @@ public class FirebaseAuthService implements AuthService {
                 });
     }
 }
-
