@@ -225,9 +225,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             try {
                 inputImage = ImageConvertUtils.getInstance().convertToUpRightBitmap(image);
             } catch (MlKitException e) {
-                Logger.exception("Error during face detection ", e);
-                Toast.makeText(this, "microimage.face.detection.mode.failed", Toast.LENGTH_LONG).show();
-                switchToManualCaptureMode();
+                handleErrorDuringDetection(e);
             }
         } else {
             faceCaptureView.updateFace(null);
