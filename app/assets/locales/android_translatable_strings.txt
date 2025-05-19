@@ -1020,4 +1020,4 @@ microimage.face.detection.mode.failed=Face detection mode failed, switching to m
 microimage.cropping.failed=Image cropping failed, make sure the target is inside the capture area
 microimage.decoding.no.image=Image processing failed. Please try again
 microimage.scalingdown.compression.error=Image compression failed. Please try again
-microimage.manual.face.capture.failed"=Manual capture failed, contact CommCare Support if the issue persists
+microimage.manual.face.capture.failed=Manual capture failed, contact CommCare Support if the issue persists
