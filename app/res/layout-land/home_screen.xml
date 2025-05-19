@@ -28,7 +28,7 @@
         app:cardCornerRadius="10dp"
         app:cardElevation="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        >
+        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -148,5 +148,4 @@
                 android:scrollbars="vertical" />
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>

@@ -4,34 +4,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
-public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
+public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
 
     public boolean forgotPin = false;
     public String primaryPhone;
     public String recoverSecret;
-    private NavController controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect_id);
-        controller = getHostFragment().getNavController();
         handleRedirection(getIntent());
-
         updateBackButton();
     }
 
@@ -73,7 +70,13 @@ public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
         return null;
     }
 
-    private NavHostFragment getHostFragment() {
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.activity_connect_id;
+    }
+
+    @Override
+    protected NavHostFragment getHostFragment() {
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         return navHostFragment;
@@ -93,8 +96,7 @@ public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
                     .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
 
         }
-        controller.navigate(navDirections);
-
+        CommCareNavController.navigateSafely(navController, navDirections);
     }
 
 
