@@ -237,10 +237,12 @@ public class FaceCaptureView extends AppCompatImageView {
             faceAreaTextPaint.setColor(faceMarkerColor);
         }
 
-        public void updateFace(Face face){
+        public void updateFace(Face face) {
             if (isFaceStable(face.getBoundingBox()) && isFaceInCaptureArea(face.getBoundingBox())) {
                 currFace = face;
-                countdown--;
+                if (countdown > 0) {
+                    countdown--;
+                }
             } else {
                 clearFace();
             }

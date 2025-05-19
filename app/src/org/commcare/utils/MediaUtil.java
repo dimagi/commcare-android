@@ -591,13 +591,16 @@ public class MediaUtil {
     }
 
     private static boolean validateCropArea(Bitmap bitmap, Rect cropArea) {
-        if (bitmap.getHeight() >= cropArea.top && bitmap.getHeight() >= cropArea.bottom && bitmap.getWidth() >= cropArea.left && bitmap.getWidth() >= cropArea.right){
-            return true;
-        }
-        return false;
+        return cropArea.left >= 0 &&
+                cropArea.top >= 0 &&
+                cropArea.right <= bitmap.getWidth() &&
+                cropArea.bottom <= bitmap.getHeight() &&
+                cropArea.left < cropArea.right &&
+                cropArea.top < cropArea.bottom;
     }
 
-    public static byte[] compressBitmapToTargetSize(Bitmap bitmap, int targetSize) throws IOException {
+    public static byte[] compressBitmapToTargetSize(Bitmap bitmap, int targetSize)
+            throws IOException, ImageSizeTooLargeException {
         if (bitmap == null) {
             return null;
         }
@@ -615,6 +618,9 @@ public class MediaUtil {
                 quality -= IMAGE_QUALIY_REDUCTION_FACTOR;
             }
             numCompressionCycles++;
+        }
+        if (byteArray.length > targetSize) {
+            throw new ImageSizeTooLargeException("Could not compress image to target size");
         }
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Micro image compressed successfully. Number of cycles: " + numCompressionCycles);
         return byteArray;

@@ -26,11 +26,13 @@ import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.ImageSizeTooLargeException;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.FaceCaptureView;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -268,7 +270,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
             String finalImageAsBase64 = Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
             finishWithResul(finalImageAsBase64);
-        } catch (Exception e) {
+        } catch (IOException |ImageSizeTooLargeException e) {
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
         } finally {
             recycleBitmap(croppedBitmap);
