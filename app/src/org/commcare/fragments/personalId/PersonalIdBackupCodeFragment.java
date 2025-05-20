@@ -327,7 +327,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                     createFailedRecoveryDirection();
         } else {
             ((PersonalIdActivity)activity).forgotPin = false;
-            directions = createRegistrationSuccessDirection();
+            directions = PersonalIdBackupCodeFragmentDirections.actionPersonalidPinToPersonalidPhotoCapture()
+                    .setUserName(user.getName());
 
             if (user != null) {
                 user.setPin(pin);
@@ -358,15 +359,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                         : getString(R.string.connect_pin_fail_message),
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN,
                 getString(R.string.connect_recovery_alt_button)
-        );
-    }
-
-    private NavDirections createRegistrationSuccessDirection() {
-        return createNavigationMessage(
-                getString(R.string.connect_register_success_title),
-                getString(R.string.connect_register_success_message),
-                ConnectConstants.PERSONALID_REGISTRATION_SUCCESS,
-                getString(R.string.connect_register_success_button)
         );
     }
 
