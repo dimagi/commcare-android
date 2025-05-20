@@ -2,7 +2,7 @@ package org.commcare.connect.network;
 
 import android.app.Activity;
 
-import org.commcare.android.database.connect.models.DeviceConfigurationData;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -20,23 +20,23 @@ public abstract class PersonalIdApiHandler {
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-                    DeviceConfigurationData deviceData = DeviceConfigurationData.getInstance();
+                    PersonalIdSessionData deviceData = PersonalIdSessionData.getInstance();
 
                     if (json.has("required_lock")) {
-                        deviceData.setRequiredLock(json.getString("required_lock"));
+                        deviceData.requiredLock = json.getString("required_lock");
                     }
                     if (json.has("demo_user")) {
-                        deviceData.setDemoUser(json.getBoolean("demo_user"));
+                        deviceData.demoUser = json.getBoolean("demo_user");
                     }
                     if (json.has("token")) {
-                        deviceData.setToken(json.getString("token"));
+                        deviceData.token = json.getString("token");
                     }
                     if (json.has("failure_code")) {
                         Logger.log(LogTypes.TYPE_USER, json.getString("failure_code"));
-                        deviceData.setFailureCode(json.getString("failure_code"));
+                        deviceData.sessionFailureCode = json.getString("failure_code");
                     }
                     if (json.has("failure_subcode")) {
-                        deviceData.setFailureSubcode(json.getString("failure_subcode"));
+                        deviceData.sessionFailureSubcode = json.getString("failure_subcode");
                     }
 
                     onSuccess();

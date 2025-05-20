@@ -12,7 +12,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
-import org.commcare.android.database.connect.models.DeviceConfigurationData;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -170,7 +170,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void navigateForward() {
         NavDirections directions;
-        if (DeviceConfigurationData.getInstance().getToken() != null) {
+        if (PersonalIdSessionData.getInstance().token != null) {
             directions = navigateToBiometricSetup();
         } else {
             directions = navigateToMessageDisplay();
