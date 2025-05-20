@@ -14,13 +14,15 @@ import java.io.InputStream;
 
 public abstract class PersonalIdApiHandler {
 
-    public void makeConfigurationCall(Activity activity, String phone, PersonalIdSessionData sessionData) {
+    public void makeConfigurationCall(Activity activity, String phone) {
         ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-                    StartConfigurationResponseParser.parse(json, sessionData);
+                    PersonalIdSessionData sessionData = new PersonalIdSessionData();
+                    StartConfigurationResponseParser parser = new StartConfigurationResponseParser(json);
+                    parser.parse(sessionData);
                     onSuccess();
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);

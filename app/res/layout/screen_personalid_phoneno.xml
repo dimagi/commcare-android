@@ -16,7 +16,7 @@
 
             <ImageView
                 android:id="@+id/company_logo"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="@dimen/personalid_logo_height"
                 android:padding="16dp"
                 android:layout_marginTop="60dp"

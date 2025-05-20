@@ -6,17 +6,25 @@ import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Parses a JSON response from the start configuration API call
+ * and populates a PersonalIdSessionData instance.
+ */
 public class StartConfigurationResponseParser {
 
+    private final JSONObject json;
+
+    public StartConfigurationResponseParser(JSONObject json) {
+        this.json = json;
+    }
+
     /**
-     * Parses the JSON response from the start configuration API call and populates
-     * the provided PersonalIdSessionData instance.
+     * Parses and sets values on the given PersonalIdSessionData instance.
      *
-     * @param json        The JSON object returned from the API
-     * @param sessionData The instance to populate with parsed values
-     * @throws JSONException if expected keys are missing or malformed
+     * @param sessionData the instance to populate
+     * @throws JSONException if a parsing error occurs
      */
-    public static void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
+    public void parse(PersonalIdSessionData sessionData) throws JSONException {
         if (json.has("required_lock")) {
             sessionData.setRequiredLock(json.getString("required_lock"));
         }
@@ -32,7 +40,7 @@ public class StartConfigurationResponseParser {
         if (json.has("failure_code")) {
             String failureCode = json.getString("failure_code");
             Logger.log(LogTypes.TYPE_USER, failureCode);
-            sessionData.setSessionFailureCode(json.getString("failure_code"));
+            sessionData.setSessionFailureCode(failureCode);
         }
 
         if (json.has("failure_subcode")) {

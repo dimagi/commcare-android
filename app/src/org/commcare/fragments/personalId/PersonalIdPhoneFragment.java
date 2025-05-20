@@ -47,6 +47,8 @@ public class PersonalIdPhoneFragment extends Fragment {
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         viewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         initializeUi();
+        PersonalIdSessionData personalIdSessionData = new PersonalIdSessionData();
+        viewModel.setPersonalIdSessionData(personalIdSessionData);
         return binding.getRoot();
     }
 
@@ -168,7 +170,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onFailure() {
                 navigateFailure();
             }
-        }.makeConfigurationCall(requireActivity(), phone, viewModel.getPersonalIdSessionData());
+        }.makeConfigurationCall(requireActivity(), phone);
     }
 
 
