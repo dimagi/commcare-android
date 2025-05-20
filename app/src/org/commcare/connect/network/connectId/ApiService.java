@@ -20,6 +20,10 @@ public interface ApiService {
     Call<ResponseBody> updateProfile(@Header("Authorization") String token,
                                      @Body Map<String, String> updateProfile);
 
+    @POST(ApiEndPoints.setProfile)
+    Call<ResponseBody> setProfile(@Header("Authorization") String token,
+            @Body Map<String, String> body);
+
     @POST(ApiEndPoints.validatePhone)
     Call<ResponseBody> validatePhone(@Header("Authorization") String token, @Body Map<String, String> requestOTP);
 

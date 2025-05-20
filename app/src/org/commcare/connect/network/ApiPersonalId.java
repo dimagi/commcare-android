@@ -317,7 +317,7 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void updatePhoto(Context context, String userId, String password, String userName,
+    public static void setPhotoAndName(Context context, String userId, String password, String userName,
             String photoAsBase64, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
@@ -330,7 +330,7 @@ public class ApiPersonalId {
         params.put("name", userName);
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.updateProfile(token, params);
+        Call<ResponseBody> call = apiService.setProfile(token, params);
         callApi(context, call, callback);
     }
 

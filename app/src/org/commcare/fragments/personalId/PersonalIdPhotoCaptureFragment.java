@@ -115,7 +115,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                 onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
             }
         };
-        ApiPersonalId.updatePhoto(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
+        ApiPersonalId.setPhotoAndName(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
                 connectUserRecord.getName(), photoAsBase64, networkResponseCallback);
     }
 
