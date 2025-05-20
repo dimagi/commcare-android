@@ -4,22 +4,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.common.util.Strings;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
@@ -28,8 +22,6 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
@@ -40,6 +32,8 @@ import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
 import java.util.Map;
+
+import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 
 /**
  * This service responds to any events/messages from Firebase Cloud Messaging. The intention is to
@@ -77,22 +71,16 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
                 remoteMessage.getData());
-        Map<String, String> payloadData = remoteMessage.getData();
 
-        // Check if the message contains a data object, there is no further action if not
-        if (payloadData.isEmpty()) {
-            return;
-        }
-
-        showNotification(payloadData);
-
-        if (!hasCccAction(payloadData.get("action"))) {
-            FCMMessageData fcmMessageData = new FCMMessageData(payloadData);
-
-            switch (fcmMessageData.getAction()) {
-                case SYNC -> dataSyncer.syncData(fcmMessageData);
-                default -> Logger.log(LogTypes.TYPE_FCM, "Invalid FCM action");
-            }
+        FCMMessageData fcmMessageData = new FCMMessageData(remoteMessage.getData());
+        if (fcmMessageData.getPayloadData() == null || fcmMessageData.getPayloadData().isEmpty()) {
+            sendGeneralApplicationPushNotification(fcmMessageData);
+        }else if (hasCccAction(fcmMessageData.getAction())){
+            sendCCCActionPushNotification(fcmMessageData);
+        }else if (!hasCccAction(fcmMessageData.getAction()) && fcmMessageData.getActionType() == ActionTypes.SYNC){
+            dataSyncer.syncData(fcmMessageData);
+        }else{
+            sendGeneralApplicationPushNotification(fcmMessageData);
         }
     }
 
@@ -103,168 +91,159 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         FirebaseMessagingUtil.updateFCMToken(token);
     }
 
-    public static Bitmap getBitmapFromVectorDrawable(Context context, int drawableId) {
-        Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = (DrawableCompat.wrap(drawable)).mutate();
+    private void sendCCCActionPushNotification(FCMMessageData fcmMessageData){
+
+        FirebaseAnalyticsUtil.reportNotificationType(fcmMessageData.getAction());
+
+        if(fcmMessageData.getAction().equals(CCC_MESSAGE)){
+            sendCCCMessageChannelPushNotification(fcmMessageData);
+        }else if(fcmMessageData.getAction().equals(ConnectConstants.CCC_DEST_PAYMENTS)){
+            sendCCCPaymentPushNotification(fcmMessageData);
+        }else{  // All other notifications for connect
+            sendCCCConnectPushNotification(fcmMessageData);
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
-                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        drawable.draw(canvas);
-
-        return bitmap;
     }
 
-    /**
-     * This method purpose is to show notifications to the user when the app is in the foreground.
-     * When the app is in the background, FCM is responsible for notifying the user
-     */
-    private void showNotification(Map<String, String> payloadData) {
-        String notificationTitle = payloadData.get("title");
-        String notificationText = payloadData.get("body");
+    private void sendCCCConnectPushNotification(FCMMessageData fcmMessageData){
+        Intent intent = getConnectActivityNotification(fcmMessageData);
+        showNotification(buildNotification(intent, fcmMessageData));
+    }
 
+    private void sendCCCPaymentPushNotification(FCMMessageData fcmMessageData){
+        Intent intent = getConnectActivityNotification(fcmMessageData);
+
+        NotificationCompat.Builder fcmNotification = buildNotification(intent, fcmMessageData);
+        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                : PendingIntent.FLAG_UPDATE_CURRENT;
+
+        // Yes button intent with payment_id from payload
+        Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
+        yesIntent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
+        yesIntent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
+        yesIntent.putExtra(PAYMENT_STATUS, true);
+        PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 1,
+                yesIntent, flags);
+
+        // No button intent with payment_id from payload
+        Intent noIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
+        noIntent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
+        noIntent.putExtra(PAYMENT_ID, fcmMessageData.getPayloadData().get(PAYMENT_ID));
+        noIntent.putExtra(PAYMENT_STATUS, false);
+        PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 2,
+                noIntent, flags);
+
+        // Add Yes & No action button to the notification
+        fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
+        fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
+
+        showNotification(fcmNotification);
+    }
+
+    private void sendGeneralApplicationPushNotification(FCMMessageData fcmMessageData){
+        Intent intent = new Intent(this, DispatchActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        buildNotification(intent,fcmMessageData);
+    }
+
+    private void sendCCCMessageChannelPushNotification(FCMMessageData fcmMessageData){
         Intent intent = null;
-        String action = payloadData.get("action");
-        String notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
-        int priority = NotificationCompat.PRIORITY_HIGH;
-        Bitmap largeIcon = null;
+        fcmMessageData.setNotificationChannel(CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID);
+        fcmMessageData.setPriority(NotificationCompat.PRIORITY_MAX);
+        fcmMessageData.setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.ic_connect_message_large));
 
-        if (hasCccAction(action)) {
-            FirebaseAnalyticsUtil.reportNotificationType(action);
+        boolean isMessage = fcmMessageData.getPayloadData().containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
 
-            if(action.equals(ConnectMessagingActivity.CCC_MESSAGE)) {
-                notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID;
-                priority = NotificationCompat.PRIORITY_MAX;
-                largeIcon = getBitmapFromVectorDrawable(getApplicationContext(), R.drawable.ic_connect_message_large);
-
-                boolean isMessage = payloadData.containsKey(ConnectMessagingMessageRecord.META_MESSAGE_ID);
-
-                //Don't show a notification in some cases:
-                //Can't decrypt message (no key)
-                //On channels page (just update the page)
-                //On message page for the active channel
-
-                int notificationTitleId;
-                String notificationMessage;
-                String channelId;
-                if(isMessage) {
-                    ConnectMessagingMessageRecord message = MessageManager.handleReceivedMessage(this,
-                            payloadData);
-
-                    if(message == null) {
-                        Logger.log(LogTypes.TYPE_FCM, "Ignoring message without known consented channel: " +
-                                payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_ID));
-                        //End now to avoid showing a notification
-                        return;
-                    }
-
-                    ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(this,
-                            message.getChannelId());
-
-                    notificationTitleId = R.string.connect_messaging_message_notification_title;
-                    notificationMessage = getString(R.string.connect_messaging_message_notification_message,
-                            channel.getChannelName());
-
-                    channelId = message.getChannelId();
-                } else {
-                    //Channel
-                    ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(this,
-                            payloadData);
-
-                    notificationTitleId = R.string.connect_messaging_channel_notification_title;
-                    notificationMessage = getString(R.string.connect_messaging_channel_notification_message,
-                            channel.getChannelName());
-
-                    channelId = channel.getChannelId();
-                }
-
-                //Send broadcast so any interested pages can update their UI
-                Intent broadcastIntent = new Intent(MESSAGING_UPDATE_BROADCAST);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-
-                if(!ConnectMessageChannelListFragment.isActive &&
-                        !channelId.equals(ConnectMessageFragment.activeChannel)) {
-                    //Show push notification
-                    notificationTitle = getString(notificationTitleId);
-                    notificationText = notificationMessage;
-
-                    intent = new Intent(getApplicationContext(), ConnectMessagingActivity.class);
-                    intent.putExtra("action", action);
-                    intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
-                }
-            } else {
-                //Intent for ConnectActivity
-                intent = new Intent(getApplicationContext(), ConnectActivity.class);
-                intent.putExtra("action", action);
-                if(payloadData.containsKey(OPPORTUNITY_ID)) {
-                    intent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
-                }
-            }
+        int notificationTitleId;
+        String notificationMessage;
+        String channelId;
+        if(isMessage) {
+            notificationTitleId = R.string.connect_messaging_message_notification_title;
+            notificationMessage = getString(R.string.connect_messaging_message_notification_message,
+                    fcmMessageData.getPayloadData().get("channel_name"));
+            channelId = fcmMessageData.getPayloadData().get("channel");
         } else {
-            intent = new Intent(this, DispatchActivity.class);
-            intent.setAction(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            //Channel
+            // TODO to be removed when backend starts sending channel name in new channel push notification
+            ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(this,
+                    fcmMessageData.getPayloadData());
+
+            notificationTitleId = R.string.connect_messaging_channel_notification_title;
+            notificationMessage = getString(R.string.connect_messaging_channel_notification_message,
+                    channel.getChannelName());
+
+            channelId = channel.getChannelId();
         }
 
-        if(intent != null) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                    Intent.FLAG_ACTIVITY_NEW_TASK);
+        //Send broadcast so any interested pages can update their UI
+        Intent broadcastIntent = new Intent(MESSAGING_UPDATE_BROADCAST);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 
-            int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                    ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                    : PendingIntent.FLAG_UPDATE_CURRENT;
+        if(!ConnectMessageChannelListFragment.isActive &&
+                !channelId.equals(ConnectMessageFragment.activeChannel)) {
+            //Show push notification
+            fcmMessageData.setNotificationTitle(getString(notificationTitleId));
+            fcmMessageData.setNotificationText(notificationMessage);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
-
-            if (Strings.isEmptyOrWhitespace(notificationTitle) && Strings.isEmptyOrWhitespace(notificationText)) {
-                Logger.exception("Empty push notification",
-                        new Throwable(String.format("Empty notification for action '%s'", action)));
-            }
-
-            NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
-                    notificationChannel)
-                    .setContentTitle(notificationTitle)
-                    .setContentText(notificationText)
-                    .setContentIntent(contentIntent)
-                    .setAutoCancel(true)
-                    .setSmallIcon(R.drawable.commcare_actionbar_logo)
-                    .setPriority(priority)
-                    .setWhen(System.currentTimeMillis());
-
-            if (largeIcon != null) {
-                fcmNotification.setLargeIcon(largeIcon);
-            }
-
-            // Check if the payload action is CCC_PAYMENTS
-            if (ConnectConstants.CCC_DEST_PAYMENTS.equals(action)) {
-                // Yes button intent with payment_id from payload
-                Intent yesIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
-                yesIntent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
-                yesIntent.putExtra(PAYMENT_ID, payloadData.get(PAYMENT_ID));
-                yesIntent.putExtra(PAYMENT_STATUS, true);
-                PendingIntent yesPendingIntent = PendingIntent.getBroadcast(this, 1,
-                        yesIntent, flags);
-
-                // No button intent with payment_id from payload
-                Intent noIntent = new Intent(this, PaymentAcknowledgeReceiver.class);
-                noIntent.putExtra(OPPORTUNITY_ID, payloadData.get(OPPORTUNITY_ID));
-                noIntent.putExtra(PAYMENT_ID, payloadData.get(PAYMENT_ID));
-                noIntent.putExtra(PAYMENT_STATUS, false);
-                PendingIntent noPendingIntent = PendingIntent.getBroadcast(this, 2,
-                        noIntent, flags);
-
-                // Add Yes & No action button to the notification
-                fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
-                fcmNotification.addAction(0, getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
-            }
-
-            NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            mNM.notify(FCM_NOTIFICATION, fcmNotification.build());
+            intent = new Intent(getApplicationContext(), ConnectMessagingActivity.class);
+            intent.putExtra(fcmMessageData.getAction(), fcmMessageData.getAction());
+            intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
+            intent.putExtra("action", fcmMessageData.getAction());
         }
+
+        if(intent!=null){
+            showNotification(buildNotification(intent, fcmMessageData));
+        }
+
     }
+
+    private Intent getConnectActivityNotification(FCMMessageData fcmMessageData){
+        Intent intent = new Intent(getApplicationContext(), ConnectActivity.class);
+        intent.putExtra("action", fcmMessageData.getAction());
+        if(fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
+            intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
+        }
+        return intent;
+    }
+
+    private NotificationCompat.Builder buildNotification(Intent intent, FCMMessageData fcmMessageData){
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                : PendingIntent.FLAG_UPDATE_CURRENT;
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, flags);
+
+        if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
+            Logger.exception("Empty push notification",
+                    new Throwable(String.format("Empty notification for action '%s'", fcmMessageData.getAction())));
+        }
+
+        NotificationCompat.Builder fcmNotification = new NotificationCompat.Builder(this,
+                fcmMessageData.getNotificationChannel())
+                .setContentTitle(fcmMessageData.getNotificationTitle())
+                .setContentText(fcmMessageData.getNotificationText())
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.commcare_actionbar_logo)
+                .setPriority(fcmMessageData.getPriority())
+                .setWhen(System.currentTimeMillis());
+
+        if (fcmMessageData.getLargeIcon() != null) {
+            fcmNotification.setLargeIcon(fcmMessageData.getLargeIcon());
+        }
+        return fcmNotification;
+    }
+
+    private void showNotification(NotificationCompat.Builder notificationBuilder){
+        NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNM.notify(FCM_NOTIFICATION, notificationBuilder.build());
+    }
+
 
     private boolean hasCccAction(String action) {
         return action != null && action.contains("ccc_");

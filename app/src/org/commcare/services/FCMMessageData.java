@@ -1,5 +1,9 @@
 package org.commcare.services;
 
+import android.graphics.Bitmap;
+
+import org.commcare.CommCareNoficationManager;
+import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -12,21 +16,38 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import androidx.core.app.NotificationCompat;
+
 /**
  * This class is to facilitate handling the FCM Message Data object. It should contain all the
  * necessary checks and transformations
  */
 public class FCMMessageData implements Externalizable{
-    private CommCareFirebaseMessagingService.ActionTypes action;
+    private CommCareFirebaseMessagingService.ActionTypes actionType;
     private String username;
     private String domain;
     private DateTime creationTime;
+    private String notificationTitle;
+    private String notificationText;
+    private int priority;
+    private Bitmap largeIcon;
+    private int smallIcon;
+    private String action;
+    private String notificationChannel;
+    private Map<String, String> payloadData;
 
     public FCMMessageData(Map<String, String> payloadData){
-        this.action = getActionType(payloadData.get("action"));
-        this.username = payloadData.get("username");
-        this.domain = payloadData.get("domain");
-        this.creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
+        this.payloadData = payloadData;
+        actionType = getActionType(payloadData.get("action"));
+        username = payloadData.get("username");
+        domain = payloadData.get("domain");
+        creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
+        notificationTitle = payloadData.get("title");
+        notificationText = payloadData.get("body");
+        action = payloadData.get("action");
+        priority = NotificationCompat.PRIORITY_HIGH;
+        notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
+        smallIcon = R.drawable.commcare_actionbar_logo;
     }
     
     public FCMMessageData(){}
@@ -43,8 +64,8 @@ public class FCMMessageData implements Externalizable{
         return creationTime;
     }
 
-    public CommCareFirebaseMessagingService.ActionTypes getAction() {
-        return action;
+    public CommCareFirebaseMessagingService.ActionTypes getActionType() {
+        return actionType;
     }
 
     private DateTime convertISO8601ToDateTime(String timeInISO8601) {
@@ -76,7 +97,7 @@ public class FCMMessageData implements Externalizable{
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        action = CommCareFirebaseMessagingService.ActionTypes.valueOf(ExtUtil.readString(in));
+        actionType = CommCareFirebaseMessagingService.ActionTypes.valueOf(ExtUtil.readString(in));
         username = ExtUtil.readString(in);
         domain = ExtUtil.readString(in);
         creationTime = new DateTime(ExtUtil.readLong(in));
@@ -88,6 +109,71 @@ public class FCMMessageData implements Externalizable{
         ExtUtil.writeString(out, username);
         ExtUtil.writeString(out, domain);
         ExtUtil.writeNumeric(out, creationTime.getMillis());
+    }
+
+
+
+    public String getNotificationTitle() {
+        return notificationTitle;
+    }
+
+    public void setNotificationTitle(String notificationTitle) {
+        this.notificationTitle = notificationTitle;
+    }
+
+    public String getNotificationText() {
+        return notificationText;
+    }
+
+    public void setNotificationText(String notificationText) {
+        this.notificationText = notificationText;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public Bitmap getLargeIcon() {
+        return largeIcon;
+    }
+
+    public void setLargeIcon(Bitmap largeIcon) {
+        this.largeIcon = largeIcon;
+    }
+
+    public int getSmallIcon() {
+        return smallIcon;
+    }
+
+    public void setSmallIcon( int smallIcon) {
+        this.smallIcon = smallIcon;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+    public String getAction() {
+        return action;
+    }
+
+    public String getNotificationChannel() {
+        return notificationChannel;
+    }
+
+    public void setNotificationChannel(String notificationChannel) {
+        this.notificationChannel = notificationChannel;
+    }
+
+    public Map<String, String> getPayloadData() {
+        return payloadData;
+    }
+
+    public void setPayloadData(Map<String, String> payloadData) {
+        this.payloadData = payloadData;
     }
 }
 

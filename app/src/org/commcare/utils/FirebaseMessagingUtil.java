@@ -38,15 +38,17 @@ public class FirebaseMessagingUtil {
 
     public static void verifyToken() {
         // TODO: Enable FCM in debug mode
-        if(!BuildConfig.DEBUG){
+//        if(!BuildConfig.DEBUG){
             // Retrieve the current Firebase Cloud Messaging (FCM) registration token
             FirebaseMessaging.getInstance().getToken().addOnCompleteListener(handleFCMTokenRetrieval());
-        }
+//        }
     }
 
     private static OnCompleteListener handleFCMTokenRetrieval(){
         return (OnCompleteListener<String>) task -> {
-            if (!task.isSuccessful()) {
+            if (task.isSuccessful()) {
+                updateFCMToken(task.getResult());
+            }else{
                 Logger.exception("Fetching FCM registration token failed", task.getException());
             }
         };

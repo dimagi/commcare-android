@@ -28,6 +28,7 @@ public class ConnectConstants {
     public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
     public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
     public static final String CCC_DEST_PAYMENTS = "ccc_payment";
+    public static final String CCC_MESSAGE = "ccc_message";
     public static final String CONNECT_KEY_USERNAME = "username";
     public static final String CONNECT_KEY_NAME = "name";
     public static final String PERSONALID_KEY_SECRET = "secret";

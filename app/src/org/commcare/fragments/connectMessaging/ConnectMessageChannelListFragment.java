@@ -28,6 +28,8 @@ import org.commcare.services.CommCareFirebaseMessagingService;
 
 import java.util.List;
 
+import static org.commcare.activities.connect.ConnectMessagingActivity.CHANNEL_ID;
+
 public class ConnectMessageChannelListFragment extends Fragment {
 
     public static boolean isActive;
@@ -63,7 +65,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         MessageManager.sendUnsentMessages(requireActivity());
 
-        String channelId = getArguments() != null ? getArguments().getString("channel_id") : null;
+        String channelId = getArguments() != null ? getArguments().getString(CHANNEL_ID) : null;
         if(channelId != null) {
             ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
