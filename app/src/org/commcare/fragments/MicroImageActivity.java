@@ -75,6 +75,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.micro_image_activity_title);
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
         isGooglePlayServicesAvailable = AndroidUtil.isGooglePlayServicesAvailable(this);
         if (isGooglePlayServicesAvailable) {
@@ -83,15 +84,10 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
             cameraShutterButton.setVisibility(View.VISIBLE);
         }
-
-        try {
-           startCamera();
-        } catch (ExecutionException | InterruptedException e) {
-            logErrorAndExit("Error starting camera", "microimage.camera.start.failed", e);
-        }
+        startCamera();
     }
 
-    private void startCamera() throws ExecutionException, InterruptedException {
+    private void startCamera() {
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         cameraProviderFuture.addListener(() -> {

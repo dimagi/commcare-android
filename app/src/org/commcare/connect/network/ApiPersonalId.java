@@ -320,6 +320,7 @@ public class ApiPersonalId {
     public static void updatePhoto(Context context, String userId, String password, String userName,
             String photoAsBase64, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
+        Objects.requireNonNull(userName);
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
         String token = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(token);
