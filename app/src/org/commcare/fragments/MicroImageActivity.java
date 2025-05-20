@@ -56,6 +56,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     public static final String  MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA = "micro_image_max_size_bytes_extra" ;
     private static final int DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX = 72;
     private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
+    public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
 
     private PreviewView cameraView;
     private FaceCaptureView faceCaptureView;
@@ -257,7 +258,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                 scaledBitmap = croppedBitmap;
             }
             byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
-            String finalImageAsBase64 = Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
+            String finalImageAsBase64 = BASE_64_IMAGE_PREFIX + Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
             finishWithResul(finalImageAsBase64);
         } catch (IOException |ImageSizeTooLargeException e) {
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());

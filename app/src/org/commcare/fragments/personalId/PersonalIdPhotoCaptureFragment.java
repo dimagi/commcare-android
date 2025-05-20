@@ -159,7 +159,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void displayImage(String photoAsBase64) {
-        Bitmap bitmap = MediaUtil.decodeBase64EncodedBitmap(photoAsBase64);
+        String imageData = photoAsBase64.replace(MicroImageActivity.BASE_64_IMAGE_PREFIX, "");
+        Bitmap bitmap = MediaUtil.decodeBase64EncodedBitmap(imageData);
         viewBinding.photoImageView.setImageBitmap(bitmap);
     }
 
