@@ -10,34 +10,33 @@ public class StartConfigurationResponseParser {
 
     /**
      * Parses the JSON response from the start configuration API call and populates
-     * the PersonalIdSessionData singleton with relevant data.
+     * the provided PersonalIdSessionData instance.
      *
-     * @param json The JSON object returned from the API
+     * @param json        The JSON object returned from the API
+     * @param sessionData The instance to populate with parsed values
      * @throws JSONException if expected keys are missing or malformed
      */
-    public static void parse(JSONObject json) throws JSONException {
-        PersonalIdSessionData sessionData = PersonalIdSessionData.getInstance();
-
+    public static void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
         if (json.has("required_lock")) {
-            sessionData.requiredLock = json.getString("required_lock");
+            sessionData.setRequiredLock(json.getString("required_lock"));
         }
 
         if (json.has("demo_user")) {
-            sessionData.demoUser = json.getBoolean("demo_user");
+            sessionData.setDemoUser(json.getBoolean("demo_user"));
         }
 
         if (json.has("token")) {
-            sessionData.token = json.getString("token");
+            sessionData.setToken(json.getString("token"));
         }
 
         if (json.has("failure_code")) {
             String failureCode = json.getString("failure_code");
             Logger.log(LogTypes.TYPE_USER, failureCode);
-            sessionData.sessionFailureCode = failureCode;
+            sessionData.setSessionFailureCode(json.getString("failure_code"));
         }
 
         if (json.has("failure_subcode")) {
-            sessionData.sessionFailureSubcode = json.getString("failure_subcode");
+            sessionData.setSessionFailureSubcode(json.getString("failure_subcode"));
         }
     }
 }

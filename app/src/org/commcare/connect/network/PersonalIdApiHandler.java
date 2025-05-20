@@ -2,6 +2,7 @@ package org.commcare.connect.network;
 
 import android.app.Activity;
 
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -13,13 +14,13 @@ import java.io.InputStream;
 
 public abstract class PersonalIdApiHandler {
 
-    public void makeConfigurationCall(Activity activity, String phone) {
+    public void makeConfigurationCall(Activity activity, String phone, PersonalIdSessionData sessionData) {
         ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try {
                     JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-                    StartConfigurationResponseParser.parse(json);
+                    StartConfigurationResponseParser.parse(json, sessionData);
                     onSuccess();
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);
