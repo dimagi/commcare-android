@@ -7,8 +7,10 @@ import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
@@ -38,7 +40,7 @@ public class ConnectDatabaseHelper {
             }
         } catch (Exception e) {
             Logger.exception("Handling received DB passphrase", e);
-            handleCorruptDb(context);
+            crashDb();
         }
     }
 
@@ -73,8 +75,8 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            handleCorruptDb(context);
                             Logger.exception("Corrupt Connect DB", e);
+                            crashDb();
                         }
                     }
                     return connectDatabase;
@@ -92,11 +94,20 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void handleCorruptDb(Context context) {
-        ConnectUserDatabaseUtil.forgetUser(context);
-        new Handler(Looper.getMainLooper()).post(() ->
-                Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show()
-        );
+    public static void crashDb() {
+        crashDb(R.string.connect_db_corrupt);
+    }
+
+    public static void crashDb(int message) {
+        ConnectKeyRecord keyRecord = ConnectDatabaseUtils.getKeyRecord(true);
+        if(keyRecord == null) {
+            keyRecord = new ConnectKeyRecord("", true);
+        }
+
+        keyRecord.setLogoutErrorMessage(message);
+        CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(keyRecord);
+
+        throw new RuntimeException("Connect database crash");
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
