@@ -157,27 +157,29 @@ public class PersonalIdPhoneFragment extends Fragment {
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess() {
-                navigateForward();
+                navigateSucesss();
             }
 
             @Override
             protected void onFailure() {
-                navigateForward();
+                navigateFailure();
             }
         }.makeConfigurationCall(requireActivity(), phone);
     }
 
 
-    private void navigateForward() {
-        NavDirections directions;
+    private void navigateSucesss() {
+        NavDirections directions = null;
         if (PersonalIdSessionData.getInstance().token != null) {
             directions = navigateToBiometricSetup();
-        } else {
-            directions = navigateToMessageDisplay();
         }
         if (directions != null) {
             Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(directions);
         }
+    }
+
+    private void navigateFailure() {
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToMessageDisplay());
     }
 
     private NavDirections navigateToBiometricSetup() {
