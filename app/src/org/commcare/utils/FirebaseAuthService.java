@@ -15,7 +15,7 @@ import com.google.firebase.auth.PhoneAuthProvider;
  * FirebaseAuthService handles phone number authentication using Firebase.
  * It supports sending OTP (One Time Password) and verifying it to authenticate users.
  */
-public class FirebaseAuthService implements AuthService {
+public class FirebaseAuthService implements OtpAuthService {
 
     private final Activity activity; // Activity context required for Firebase callbacks
     private final OtpVerificationCallback callback; // Callback interface for OTP result events
@@ -50,7 +50,7 @@ public class FirebaseAuthService implements AuthService {
      * @param phoneNumber The phone number to which the OTP will be sent
      */
     @Override
-    public void sendOtp(String phoneNumber) {
+    public void requestOtp(String phoneNumber) {
         PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
                 .setPhoneNumber(phoneNumber) // Phone number to verify
                 .setActivity(activity) // Activity for binding callback

@@ -1,22 +1,26 @@
 package org.commcare.utils;
 
-/**+ * Manager class that wraps authentication service operations for OTP functionality.+ * Provides a simplified interface for requesting and submitting OTPs. */
+import java.util.Objects;
+
+/**
+ * Manager class that wraps authentication service operations for OTP (One-Time Password) functionality.
+ * <p>
+ * This class provides a simplified interface for requesting and submitting OTPs
+ * by delegating actual authentication logic to an implementation of the {@link OtpAuthService} interface.
+ */
 public class OtpManager {
 
     // Reference to the authentication service that performs actual OTP operations
-    private final AuthService authService;
+    private final OtpAuthService authService;
 
     /**
      * Constructs an OtpManager with the specified AuthService implementation.
      *
      * @param authService An implementation of AuthService used to send and verify OTPs
-     * @throws IllegalArgumentException if authService is null
+     * @throws NullPointerException if authService is null
      */
-    public OtpManager(AuthService authService) {
-        if (authService == null) {
-            throw new IllegalArgumentException("AuthService cannot be null");
-        }
-        this.authService = authService;
+    public OtpManager(OtpAuthService authService) {
+        this.authService = Objects.requireNonNull(authService, "AuthService cannot be null");
     }
 
     /**
@@ -29,7 +33,7 @@ public class OtpManager {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("Phone number cannot be null or empty");
         }
-        authService.sendOtp(phoneNumber);
+        authService.requestOtp(phoneNumber);
     }
 
     /**
