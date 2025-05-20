@@ -232,13 +232,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         cameraShutterButton.setVisibility(View.VISIBLE);
         isGooglePlayServicesAvailable = false;
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
-        try {
-            startCamera();
-        } catch (ExecutionException | InterruptedException e) {
-            logErrorAndExit("Error restarting camera in manual mode", "microimage.camera.start.failed", e);
-        }
+        startCamera();
     }
-
     @Override
     public void onImageStabilizedListener(Rect faceArea) {
         finalizeImageCapture(faceArea);
