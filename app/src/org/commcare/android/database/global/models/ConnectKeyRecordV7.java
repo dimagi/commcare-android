@@ -5,18 +5,16 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
 
-import kotlin.Metadata;
-
 /**
  * DB model for storing the encrypted/encoded Connect DB passphrase
+ * Used up to global DB V6
  *
  * @author dviggiano
  */
-@Table(ConnectKeyRecord.STORAGE_KEY)
-public class ConnectKeyRecord extends Persisted {
+@Table(ConnectKeyRecordV7.STORAGE_KEY)
+public class ConnectKeyRecordV7 extends Persisted {
     public static final String STORAGE_KEY = "connect_key";
     public static final String IS_LOCAL = "is_local";
-    public static final String LOGOUT_MESSAGE = "logout_message";
     @Persisting(1)
     String encryptedPassphrase;
 
@@ -24,14 +22,10 @@ public class ConnectKeyRecord extends Persisted {
     @MetaField(IS_LOCAL)
     boolean isLocal;
 
-    @Persisting(3)
-    @MetaField(LOGOUT_MESSAGE)
-    int logoutErrorMessage = -1;
-
-    public ConnectKeyRecord() {
+    public ConnectKeyRecordV7() {
     }
 
-    public ConnectKeyRecord(String encryptedPassphrase, boolean isLocal) {
+    public ConnectKeyRecordV7(String encryptedPassphrase, boolean isLocal) {
         this.encryptedPassphrase = encryptedPassphrase;
         this.isLocal = isLocal;
     }
@@ -39,22 +33,12 @@ public class ConnectKeyRecord extends Persisted {
     public String getEncryptedPassphrase() {
         return encryptedPassphrase;
     }
-    public void setEncryptedPassphrase(String passphrase) {
-        encryptedPassphrase = passphrase;
-    }
+
     public boolean getIsLocal() {
         return isLocal;
     }
 
-    public int getLogoutErrorMessage() {
-        return logoutErrorMessage;
-    }
-
-    public void setLogoutErrorMessage(int message) {
-        logoutErrorMessage = message;
-    }
-
-    public static ConnectKeyRecord fromV7(ConnectKeyRecordV7 oldVersion) {
-        return new ConnectKeyRecord(oldVersion.getEncryptedPassphrase(), oldVersion.getIsLocal());
+    public static ConnectKeyRecordV7 fromV6(ConnectKeyRecordV6 oldVersion) {
+        return new ConnectKeyRecordV7(oldVersion.getEncryptedPassphrase(), true);
     }
 }
