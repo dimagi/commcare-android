@@ -31,7 +31,7 @@
             android:id="@+id/camera_shutter_button"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:src="@drawable/camera_shutter"
+            android:src="@drawable/ic_camera_shutter"
             android:background="@color/cc_neutral_bg_tr"
             android:visibility="gone"
             android:paddingBottom="15dp"/>
