@@ -100,9 +100,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             binding.confirmCodeLayout.setVisibility(View.GONE);
             binding.recoveryCodeTilte.setText(R.string.connect_pin_message_title);
             binding.phoneTitle.setText(R.string.connect_pin_message);
+            binding.nameLayout.setVisibility(View.VISIBLE);
+            binding.isntmeButton.setVisibility(View.VISIBLE);
         } else {
             titleId = R.string.connect_pin_title_set;
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
+            binding.isntmeButton.setVisibility(View.GONE);
         }
     }
 
