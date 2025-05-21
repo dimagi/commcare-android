@@ -1,13 +1,13 @@
 package org.commcare.utils;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
+
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * Contains constants and methods used in Crashlytics reporting.
- *
+ * <p>
  * Created by shubham on 8/09/17.
  */
 public class CrashUtil {
@@ -44,7 +44,10 @@ public class CrashUtil {
 
     public static void registerUserData() {
         if (crashlyticsEnabled) {
-            FirebaseCrashlytics.getInstance().setUserId(ReportingUtils.getUser());
+            String user = ReportingUtils.getUserForCrashes();
+            if(user != null) {
+                FirebaseCrashlytics.getInstance().setUserId(user);
+            }
         }
     }
 

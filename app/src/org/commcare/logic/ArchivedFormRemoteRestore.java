@@ -84,6 +84,12 @@ public class ArchivedFormRemoteRestore {
                     case ACTIONABLE_FAILURE:
                         Toast.makeText(receiver, statusAndErrorMessage.errorMessage, Toast.LENGTH_LONG).show();
                         break;
+                    case TOKEN_UNAVAILABLE:
+                        Toast.makeText(receiver, Localization.get("sync.fail.token.unavailable"), Toast.LENGTH_LONG).show();
+                        break;
+                    case TOKEN_DENIED:
+                        Toast.makeText(receiver, Localization.get("sync.fail.token.denied"), Toast.LENGTH_LONG).show();
+                        break;
                     case AUTH_FAILED:
                         Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
                         break;

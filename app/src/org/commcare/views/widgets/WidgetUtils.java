@@ -81,6 +81,13 @@ public class WidgetUtils {
 
     @SuppressLint("InlinedApi")
     public static Intent createPickMediaIntent(Context context, String mimeType) {
+        if (mimeType.equals("application/*,text/*")) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            String [] mimeTypes = {"application/*", "text/*"};
+            intent.setType("*/*");
+            return intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        }
         Intent intent = new Intent();
         if (isPhotoPickerSupported(context)) {
             intent.setAction(MediaStore.ACTION_PICK_IMAGES);

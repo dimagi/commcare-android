@@ -166,7 +166,17 @@ public class NotificationMessageFactory {
         /**
          * Bad SSL Certificate *
          */
-        BadSslCertificate("notification.bad.certificate");
+        BadSslCertificate("notification.bad.certificate"),
+
+        /**
+         * SSO Token Unavailable  *
+         */
+        TokenUnavailable("notification.token.unavailable"),
+
+        /**
+         * SSO token request denied *
+         */
+        TokenDenied("notification.token.denied");
 
         StockMessages(String root) {
             this.root = root;

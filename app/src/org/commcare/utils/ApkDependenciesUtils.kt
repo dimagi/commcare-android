@@ -57,7 +57,7 @@ object ApkDependenciesUtils {
                 message += "\n" + (index+1) + ". " + getDependencyName(dependency)
             }
         }
-        val alertDialog = StandardAlertDialog(context, title, message)
+        val alertDialog = StandardAlertDialog(title, message)
         val buttonText = getStringRobust(
             context,
             R.string.dependency_missing_dialog_go_to_store
@@ -95,6 +95,6 @@ object ApkDependenciesUtils {
 
     private fun showNoPlaystoreFoundError(context: Context, dialog: StandardAlertDialog) {
         val error = getStringRobust(context, R.string.dependency_missing_dialog_playstore_not_found)
-        dialog.addEmphasizedMessage(error)
+        dialog.setEmphasizedMessage(error)
     }
 }

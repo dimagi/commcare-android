@@ -1,19 +1,15 @@
 package org.commcare.android.logging;
 
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;
-import org.commcare.utils.UrlUtils;
 
 import java.net.URL;
 
@@ -140,5 +136,19 @@ public class ReportingUtils {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    public static String getUserForCrashes() {
+        String user = getUser();
+        if(user.isEmpty()) {
+            try {
+                if (PersonalIdManager.getInstance().isloggedIn()) {
+                    return PersonalIdManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        return null;
     }
 }

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
@@ -48,6 +50,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     private RectangleButtonWithText mViewErrorButton;
     private View mViewErrorContainer;
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
+    private Button mConnectButton;
+    private TextView mOrText;
 
     @Override
     public void onResume() {
@@ -73,6 +77,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
         setupMsg2.setText(Localization.get("install.barcode.bottom"));
+
+        mConnectButton = view.findViewById(R.id.connect_login_button);
+        mOrText = view.findViewById(R.id.login_or);
 
         SquareButtonWithText scanBarcodeButton = view.findViewById(R.id.btn_fetch_uri);
         final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
@@ -148,7 +155,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
                 }
-                ((CommCareActivity)getActivity()).dismissAlertDialog();
+                chooseApp.dismiss();
             });
             items[count] = item;
             count++;
@@ -188,6 +195,23 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 mErrorMessageView.setVisibility(View.GONE);
                 mViewErrorContainer.setVisibility(View.GONE);
             }
+        }
+    }
+    /**
+     * Updates the visibility and click listener of the Connect button and related UI elements.
+     * @param connectEnabled Whether the connect feature should be enabled
+     * @param listener Click listener to be set when the button is enabled
+     */
+    public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
+        if(mConnectButton != null) {
+            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn();
+
+            if (enabled && listener!=null) {
+                mConnectButton.setOnClickListener(listener);
+            }
+
+            mConnectButton.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            mOrText.setVisibility(enabled ? View.VISIBLE : View.GONE);
         }
     }
 }

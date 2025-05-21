@@ -235,7 +235,7 @@ public class GeoPointActivity extends AppCompatActivity implements TimerListener
                                 LOCATION_PERMISSION_REQ,
                                 Localization.get("permission.location.title"),
                                 Localization.get("permission.location.message"));
-                dialog.showNonPersistentDialog();
+                dialog.showNonPersistentDialog(this);
             } else {
                 missingPermissions();
             }

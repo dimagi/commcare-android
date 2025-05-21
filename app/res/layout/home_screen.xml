@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,10 +8,144 @@
     android:orientation="vertical"
     android:padding="4dp"
     tools:viewBindingIgnore="true">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/home_gridview_buttons"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/connect_alert_tile"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"/>
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="2dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:shadowColor="@color/connect_light_grey_transparent"
+        android:shadowDx="30"
+        android:shadowDy="30"
+        android:shadowRadius="50"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/connect_secondary_phone_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/phone_heart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/black" />
+
+            <TextView
+                android:id="@+id/connect_phone_label"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/connect_secondary_phone_icon"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/connect_phone_yes_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_payment_confirm_yes"
+                android:layout_marginTop="10dp"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/NegativeButtonStyle"
+                android:id="@+id/connect_phone_no_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/connect_payment_confirm_no"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@id/connect_phone_yes_button"
+                app:layout_constraintTop_toBottomOf="@id/connect_phone_label"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_home_screen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cvConnectMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/viewJobCard"
+                android:visibility="gone"
+                android:layout_marginStart="10dp"
+                android:translationY="-35dp"
+                android:layout_marginEnd="10dp"
+                app:cardBackgroundColor="@color/connect_light_orange_color"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="10dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingStart="15dp"
+                    android:paddingTop="35dp"
+                    android:layout_marginBottom="15dp"
+                    android:paddingEnd="15dp">
+
+                    <TextView
+                        android:id="@+id/tvConnectMessage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/connect_job_tile_daily_limit_description"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/connect_warning_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <include
+                layout="@layout/view_progress_job_card"
+                android:id="@+id/viewJobCard"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/home_gridview_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cvConnectMessage"
+                android:nestedScrollingEnabled="false"
+                android:scrollbars="vertical" />
+        </RelativeLayout>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

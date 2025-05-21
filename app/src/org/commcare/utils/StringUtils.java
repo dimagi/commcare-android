@@ -3,17 +3,10 @@ package org.commcare.utils;
 import android.content.Context;
 import android.text.Spannable;
 
-import androidx.annotation.NonNull;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-
-import org.commcare.modern.util.Pair;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import java.io.Serializable;
+import androidx.annotation.NonNull;
 
 /**
  * @author ctsims

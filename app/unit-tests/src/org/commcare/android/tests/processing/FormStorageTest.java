@@ -380,6 +380,17 @@ public class FormStorageTest {
             , "org.commcare.android.database.global.models.ConnectKeyRecord"
             , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
             , "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord"
+
+            //Added in 2.56
+            , "org.commcare.android.database.connect.models.ConnectJobRecordV10"
+            , "org.commcare.android.database.connect.models.ConnectMessagingChannelRecord"
+            , "org.commcare.android.database.connect.models.ConnectMessagingMessageRecord"
+            , "org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord"
+
+            //Added in 2.57
+            , "org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc"
+            , "org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc"
+            , "org.commcare.android.database.connect.models.ConnectUserRecordV13"
     );
 
 
