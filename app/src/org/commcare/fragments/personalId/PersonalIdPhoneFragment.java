@@ -19,7 +19,10 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.PhoneNumberHelper;
+import org.javarosa.core.services.Logger;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -170,7 +173,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onFailure() {
                 navigateFailure();
             }
-        }.makeConfigurationCall(requireActivity(), phone);
+        }.makeStartConfigurationCall(requireActivity(), phone);
     }
 
 
@@ -178,6 +181,9 @@ public class PersonalIdPhoneFragment extends Fragment {
         NavDirections directions = null;
         if (viewModel.getPersonalIdSessionData().getToken() != null) {
             directions = navigateToBiometricSetup();
+        } else { // This is called when api returns success but with a a failure code
+            Logger.log(LogTypes.TYPE_USER, viewModel.getPersonalIdSessionData().getSessionFailureCode());
+            directions = navigateToMessageDisplay();
         }
         if (directions != null) {
             Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(directions);

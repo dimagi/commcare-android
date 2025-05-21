@@ -2,6 +2,7 @@ package org.commcare.connect.network.parser;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,26 +26,11 @@ public class StartConfigurationResponseParser {
      * @throws JSONException if a parsing error occurs
      */
     public void parse(PersonalIdSessionData sessionData) throws JSONException {
-        if (json.has("required_lock")) {
-            sessionData.setRequiredLock(json.getString("required_lock"));
-        }
-
-        if (json.has("demo_user")) {
-            sessionData.setDemoUser(json.getBoolean("demo_user"));
-        }
-
-        if (json.has("token")) {
-            sessionData.setToken(json.getString("token"));
-        }
-
-        if (json.has("failure_code")) {
-            String failureCode = json.getString("failure_code");
-            Logger.log(LogTypes.TYPE_USER, failureCode);
+            sessionData.setRequiredLock(JsonExtensions.optStringSafe(json,"required_lock",null));
+            sessionData.setDemoUser(json.optBoolean("demo_user",false));
+            sessionData.setToken(JsonExtensions.optStringSafe(json,"token",null));
             sessionData.setSessionFailureCode(failureCode);
-        }
-
-        if (json.has("failure_subcode")) {
-            sessionData.setSessionFailureSubcode(json.getString("failure_subcode"));
-        }
+        sessionData.setSessionFailureCode(JsonExtensions.optStringSafe(json,"failure_code",null));
+        sessionData.setSessionFailureSubcode(JsonExtensions.optStringSafe(json,"failure_subcode",null));
     }
 }

@@ -3,7 +3,7 @@ package org.commcare.android.database.connect.models
 import androidx.annotation.StringDef
 
 /**
- * Data holder for personal identification session state during Connect ID flows.
+ * Data holder for personal identification session state during Personal ID flows.
  * This includes authentication configuration and account-related metadata.
  */
 data class PersonalIdSessionData(

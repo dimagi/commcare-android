@@ -14,7 +14,7 @@ import java.io.InputStream;
 
 public abstract class PersonalIdApiHandler {
 
-    public void makeConfigurationCall(Activity activity, String phone) {
+    public void makeStartConfigurationCall(Activity activity, String phone) {
         ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -27,6 +27,14 @@ public abstract class PersonalIdApiHandler {
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);
                     onFailure();
+                } finally {
+                    try {
+                        if (responseData != null) {
+                            responseData.close();
+                        }
+                    } catch (IOException closeException) {
+                        Logger.log("Error closing response stream", closeException.getMessage());
+                    }
                 }
             }
 
