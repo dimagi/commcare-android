@@ -42,7 +42,7 @@ verify.retry=Retry
 verify.checking=Verifying media...
 exception.during.verification=Verification could not complete due to the following exception. This error must be resolved before verification can proceed:\n\n${0}
 
-barcode.reader.missing=No barcode reader available! You can install one from the android market.
+barcode.reader.missing=No barcode reader available! You can install one from the Android market.
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
@@ -80,7 +80,7 @@ home.menu.validate=Validate Media
 home.menu.locale.change=Change Language
 home.menu.locale.select=Choose your Language
 home.menu.formdump=Manage SD
-home.menu.wifi.direct=Wifi Direct
+home.menu.wifi.direct=Wi-Fi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
@@ -108,6 +108,7 @@ menu.privilege.claim.disable=Disable Privileges
 menu.data.change.logs=Data Change Logs
 menu.enable.rate.limit.popup=Enable Rate Limit Error Popup
 menu.enable.manual.form.quarantine=Enable Manual Form Quarantine
+menu.enable.connect.id=Enable ConnectID
 
 install.fail.error=We encountered an ${0} error processing your request. Please try again later. If the problem persists, contact CommCare Support.
 
@@ -119,7 +120,7 @@ sync.success.synced=Sync Successful! Your information is up to date.
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.timeout=CommCare didn't receive a response from the remote service in time, it may be busy! Please wait a while and try your request again later.
 sync.fail.auth.loggedin=Password has changed. Please log in with updated credentials
-sync.fail.empty.url=Sync url is not set. Please contact CommCare Support.
+sync.fail.empty.url=Sync URL is not set. Please contact CommCare Support.
 sync.fail.bad.data=Server provided improperly formatted data, please try again or contact your supervisor.
 sync.fail.bad.local=Your information was fetched, but a problem occurred with the log in. Please try again.
 sync.fail.bad.network=Couldn't contact server. Please make sure an internet connection is available or try again later.
@@ -134,6 +135,8 @@ sync.fail.recovery.failure=There was an error trying to recover from a bad local
 sync.fail.unsent=Having issues communicating with the server to send forms. Will try again later.
 sync.fail.individual=1 or more forms failed to send due to individual problems. See quarantined forms for details.
 sync.fail.invalid.case.graph=1 or more forms introduced an invalid case relationship.
+sync.fail.token.unavailable=Couldn't contact server. Please make sure an internet connection is available or try again later.
+sync.fail.token.denied=Please re-login into your ConnectID account, then try again.
 
 form.send.rate.limit.error.toast=Form submission rate limit reached. Your forms are being saved locally and will be submitted to the server later.
 form.send.rate.limit.error.title=You've reached your form submission rate limit
@@ -199,7 +202,7 @@ post.generic.error=An error occurred while preparing the HTTP request
 post.dialog.title=Claiming...
 post.dialog.body=Claiming chosen data from server
 post.io.error=Error reading server response: ${0}
-post.unknown.response=Received unknown resonse code (${0}) from server
+post.unknown.response=Received unknown response code (${0}) from server
 post.client.error=Client-side error (code ${0}) received from network request.
 post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
@@ -371,6 +374,7 @@ select.detail.callout.title=Select phone number action
 select.detail.callout.call=Call
 select.detail.callout.sms=Send SMS
 
+
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
 
@@ -406,7 +410,7 @@ connection.captive_portal.action=The current network is not connected to the int
 
 notification.sync.connections.title=No Connection
 notification.sync.connections.detail=No active data connections
-notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to wifi or turning mobile data on.
+notification.sync.connections.action=You don't have any active data connections configured. Try connecting your phone to Wi-Fi or turning mobile data on.
 
 multiple.apps.unverified.title=Missing Multimedia for all Apps
 multiple.apps.unverified.message=All of your available apps are missing their associated multimedia resources. Please notify your supervisor so that he/she can fix this via the CommCare App Manager page.
@@ -465,6 +469,9 @@ recording.prompt.without.file.chooser=Record sound below
 recording.custom=Recorded Sound
 recording.paused.due.another.app.recording.title=CommCare Audio Recording
 recording.paused.due.another.app.recording.message=Recording paused as another app started recording. Click here to resume the recording!
+recording.notification.title=Audio recording
+recording.notification.in.progress=Recording in progress...
+recording.notification.paused=Recording paused
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
@@ -514,8 +521,8 @@ refresh.build.settings.error=No refresh occurred. In order to use this utility, 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
-login.attempt.fail.empty.url.title=Url not set
-login.attempt.fail.empty.url.detail=Sync url is empty. Please contact CommCare Support.
+login.attempt.fail.empty.url.title=URL not set
+login.attempt.fail.empty.url.detail=Sync URL is empty. Please contact CommCare Support.
 
 login.attempt.fail.pin.title=Invalid PIN
 login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
@@ -552,6 +559,14 @@ notification.bad.certificate.title=Couldn't securely connect to the server.
 notification.bad.certificate.detail=CommCare couldn't validate the security information provided by the remote server. 
 notification.bad.certificate.action=Check your device's time and date to make sure they are correct. If the problem persists, try to connect to a secure server with the phone's browser
 notification.bad.certificate.button=Go to settings
+
+notification.token.unavailable.title=Couldn't connect to the server.
+notification.token.unavailable.detail=CommCare had an issue authenticating the user.
+notification.token.unavailable.action=Check your device's time and date to make sure they are correct, then try again.
+
+notification.token.denied.title=Couldn't connect to the server.
+notification.token.denied.detail=CommCare can no longer communicate with the ConnectID server.
+notification.token.denied.action=Please re-login into your ConnectID account, then try again.
 
 notification.restore.storagefull.title=Couldn't save your application's resources
 notification.restore.storagefull.detail=CommCare was not able to save one or more of your application's resources on the device. This could be because the entire application was too large, or because an individual fixture exceeded 1MB.
@@ -774,7 +789,7 @@ wifi.direct.submit.forms=Submit
 wifi.direct.send.forms=Sending Forms
 wifi.direct.change.state.title=Send, Receive, Submit
 wifi.direct.change.state.text=Do you want to send, receive, or submit forms?
-wifi.direct.wifi.direct.off=WiFi Direct is Off - Please turn it on to use this feature
+wifi.direct.wifi.direct.off=Wi-Fi Direct is Off - Please turn it on to use this feature
 wifi.direct.enter.send.mode=Entered Send Mode
 wifi.direct.enter.receive.mode=Entered Receive Mode
 wifi.direct.enter.submit.mode=Entered Submit Mode
@@ -785,9 +800,9 @@ wifi.direct.no.group=This device is not connected to any Wi-Fi Direct group.
 wifi.direct.receive.successful=Received ${0} files successfully!
 wifi.direct.send.successful=File Send Successful!
 wifi.direct.send.unsuccessful=Error sending files: ${0}
-wifi.direct.error.no.forms=Phone has received no forms via Wi-fi direct for Submitting; did you mean to Send forms?
+wifi.direct.error.no.forms=Phone has received no forms via Wi-Fi direct for Submitting; did you mean to Send forms?
 wifi.direct.discovery.start=Discovery Initiated
-wifi.direct.discovery.failed.generic=Discovery failed due to bad Wi-fi state; turn Wi-fi on and off, then retry
+wifi.direct.discovery.failed.generic=Discovery failed due to bad Wi-Fi state; turn Wi-Fi on and off, then retry
 wifi.direct.discovery.failed.specific=Discovery failed with reason code ${0}
 wifi.direct.connect.failed=Connecting failed, please retry
 wifi.direct.error.wiping.forms=Error wiping forms: ${0}
@@ -999,3 +1014,10 @@ android.package.name.callout.commcare.org.sendussd=Commcare USSD
 android.package.name.org.commcare.dalvik.abha=CommCare ABHA
 
 location.capture.cancelled=Location capture cancelled
+
+microimage.camera.start.failed=Camera failed to start
+microimage.face.detection.mode.failed=Face detection mode failed, switching to manual mode
+microimage.cropping.failed=Image cropping failed, make sure the target is inside the capture area
+microimage.decoding.no.image=Image processing failed. Please try again
+microimage.scalingdown.compression.error=Image compression failed. Please try again
+microimage.manual.face.capture.failed=Manual capture failed, contact CommCare Support if the issue persists
