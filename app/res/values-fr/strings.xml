@@ -56,7 +56,6 @@ License.
     <string name="expirenotification">Connexion CommCare expirée</string>
     <string name="submission_notification_title">Soumission de données</string>
     <string name="submission_logs_title">Soumission des journaux CommCare</string>
-    #VALUE!
     <string name="url_prompt">Choisissez une URL</string>
     <string name="about_dialog">%s\n\n_Copyright 2016, Dimagi inc, Tous droits réservés_ \n\n---------------- \n\n__Remerciements:__ \n\n%sCertaines images de CommCare sont gracieusement utilisées sous licence Creative Commons de la collection thenounproject.com:\n\n* Symbole «Porte» par Tak Imoto \n* Symbole «Crayon» par Creologica \n* Symbole «Carnet» par Carlo \n* Symbole «Antenne» par Dima \n* Symbole «Marqueur de carte» par P.J. Onori \n* Liste par Landan Lloyd \n* Écran cassé par Sam Martin du Noun Project \n\n\n\n"</string>
     <string name="notification_message_title">Notification CommCare</string>
