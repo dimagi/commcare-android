@@ -94,6 +94,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
 
+    @UiElement(R.id.connect_error_msg)
+    private TextView connectErrorMessage;
+
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
 
@@ -400,6 +403,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     protected LoginMode getLoginMode() {
         return loginMode;
+    }
+
+    protected void setConnectErrorMessageUI(String errorMessage) {
+        connectErrorMessage.setVisibility(View.VISIBLE);
+        connectErrorMessage.setText(errorMessage);
     }
 
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {

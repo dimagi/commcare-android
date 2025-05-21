@@ -138,7 +138,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         formAndDataSyncer = new FormAndDataSyncer();
         personalIdManager = PersonalIdManager.getInstance();
 
-        personalIdManager.init(this);
+        String connectError = personalIdManager.init(this);
+        if(connectError != null) {
+            uiController.setConnectErrorMessageUI(connectError);
+        }
+
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         ///TODO: connect uncomment with connect merge
 //        appLaunchedFromConnect = PersonalIDManager.wasAppLaunchedFromConnect(presetAppId);
