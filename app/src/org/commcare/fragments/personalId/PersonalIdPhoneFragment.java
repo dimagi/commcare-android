@@ -16,6 +16,7 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
@@ -38,7 +39,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     private boolean shouldShowPhoneHintDialog = true;
     private PhoneNumberHelper phoneNumberHelper;
     private Activity activity;
-    private PersonalIdSessionDataViewModel viewModel;
+    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        viewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         initializeUi();
         return binding.getRoot();
     }
@@ -164,8 +165,8 @@ public class PersonalIdPhoneFragment extends Fragment {
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
-                viewModel.setPersonalIdSessionData(sessionData);
-                if (viewModel.getPersonalIdSessionData().getToken() != null) {
+                personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
+                if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSucesss();
                 } else { // This is called when api returns success but with a a failure code
                     onConfigurationFailure();
@@ -173,8 +174,8 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure() {
-                navigateFailure();
+            protected void onFailure(int failureCode) {
+                navigateFailure(failureCode);
             }
         }.makeStartConfigurationCall(requireActivity(), phone);
     }
@@ -185,22 +186,35 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onConfigurationFailure() {
-        Logger.log(LogTypes.TYPE_USER, viewModel.getPersonalIdSessionData().getSessionFailureCode());
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToMessageDisplay());
+        Logger.log(LogTypes.TYPE_USER, personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle)));
     }
 
-    private void navigateFailure() {
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToMessageDisplay());
+    private void navigateFailure(int failureCode) {
+        switch (failureCode) {
+            case ConnectConstants.NETWORK_ERROR:
+                ConnectNetworkHelper.showNetworkError(getActivity());
+                break;
+            case ConnectConstants.TOKEN_UNAVAILABLE_ERROR:
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                break;
+            case ConnectConstants.TOKEN_DENIED_ERROR:
+                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+                break;
+            case ConnectConstants.OLD_API_ERROR:
+                ConnectNetworkHelper.showOutdatedApiError(getActivity());
+                break;
+        }
     }
 
     private NavDirections navigateToBiometricSetup() {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay() {
+    private NavDirections navigateToMessageDisplay(String errorMessage) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                 getString(R.string.configuration_process_failed_title),
-                getString(R.string.configuration_process_failed_subtitle),
+                errorMessage,
                 ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, "",
                 "").setIsCancellable(true);
     }

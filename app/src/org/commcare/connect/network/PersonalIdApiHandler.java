@@ -3,6 +3,7 @@ package org.commcare.connect.network;
 import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -26,38 +27,38 @@ public abstract class PersonalIdApiHandler {
                     onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);
-                    onFailure();
+                    onFailure(ConnectConstants.JSON_PARSING_ERROR);
                 }
             }
 
             @Override
             public void processFailure(int responseCode) {
-                onFailure();
+                onFailure(ConnectConstants.API_ERROR);
             }
 
             @Override
             public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(activity);
+                onFailure(ConnectConstants.NETWORK_ERROR);
             }
 
             @Override
             public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                onFailure(ConnectConstants.TOKEN_UNAVAILABLE_ERROR);
             }
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(activity);
+                onFailure(ConnectConstants.TOKEN_DENIED_ERROR);
             }
 
             @Override
             public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(activity);
+                onFailure(ConnectConstants.OLD_API_ERROR);
             }
         });
     }
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
-    protected abstract void onFailure();
+    protected abstract void onFailure(int errorCode);
 }

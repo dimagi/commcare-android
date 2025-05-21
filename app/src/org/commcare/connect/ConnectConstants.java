@@ -13,6 +13,13 @@ public class ConnectConstants {
     public static final int STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE = 1052;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
+    public static final int NETWORK_ERROR = 101;
+    public static final int OLD_API_ERROR = 102;
+    public static final int TOKEN_UNAVAILABLE_ERROR = 103;
+    public static final int TOKEN_DENIED_ERROR = 104;
+    public static final int API_ERROR = 105;
+    public static final int JSON_PARSING_ERROR = 106;
+
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
     public static final String PIN = "PIN";
