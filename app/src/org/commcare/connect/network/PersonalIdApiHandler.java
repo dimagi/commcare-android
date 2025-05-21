@@ -18,23 +18,15 @@ public abstract class PersonalIdApiHandler {
         ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                try {
+                try (InputStream in = responseData) {
                     JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
                     PersonalIdSessionData sessionData = new PersonalIdSessionData();
                     StartConfigurationResponseParser parser = new StartConfigurationResponseParser(json);
                     parser.parse(sessionData);
-                    onSuccess();
+                    onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);
                     onFailure();
-                } finally {
-                    try {
-                        if (responseData != null) {
-                            responseData.close();
-                        }
-                    } catch (IOException closeException) {
-                        Logger.log("Error closing response stream", closeException.getMessage());
-                    }
                 }
             }
 
@@ -65,7 +57,7 @@ public abstract class PersonalIdApiHandler {
         });
     }
 
-    protected abstract void onSuccess();
+    protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
     protected abstract void onFailure();
 }

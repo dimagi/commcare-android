@@ -50,8 +50,6 @@ public class PersonalIdPhoneFragment extends Fragment {
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         viewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         initializeUi();
-        PersonalIdSessionData personalIdSessionData = new PersonalIdSessionData();
-        viewModel.setPersonalIdSessionData(personalIdSessionData);
         return binding.getRoot();
     }
 
@@ -165,8 +163,13 @@ public class PersonalIdPhoneFragment extends Fragment {
 
         new PersonalIdApiHandler() {
             @Override
-            protected void onSuccess() {
-                navigateSucesss();
+            protected void onSuccess(PersonalIdSessionData sessionData) {
+                viewModel.setPersonalIdSessionData(sessionData);
+                if (viewModel.getPersonalIdSessionData().getToken() != null) {
+                    onConfigurationSucesss();
+                } else { // This is called when api returns success but with a a failure code
+                    onConfigurationFailure();
+                }
             }
 
             @Override
@@ -177,17 +180,13 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
 
-    private void navigateSucesss() {
-        NavDirections directions = null;
-        if (viewModel.getPersonalIdSessionData().getToken() != null) {
-            directions = navigateToBiometricSetup();
-        } else { // This is called when api returns success but with a a failure code
-            Logger.log(LogTypes.TYPE_USER, viewModel.getPersonalIdSessionData().getSessionFailureCode());
-            directions = navigateToMessageDisplay();
-        }
-        if (directions != null) {
-            Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(directions);
-        }
+    private void onConfigurationSucesss() {
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
+    }
+
+    private void onConfigurationFailure() {
+        Logger.log(LogTypes.TYPE_USER, viewModel.getPersonalIdSessionData().getSessionFailureCode());
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToMessageDisplay());
     }
 
     private void navigateFailure() {
