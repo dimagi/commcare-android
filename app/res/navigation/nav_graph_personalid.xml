@@ -17,7 +17,12 @@
         <action
             android:id="@+id/action_personalid_biometric_config_to_personalid_message"
             app:destination="@id/personalid_message_display"
-            app:popUpTo="@id/personalid_biometric_config" />
+            app:popUpTo="@id/personalid_biometric_config" >
+            <argument
+                android:name="primaryPhone"
+                app:argType="string"
+                android:defaultValue="unknown" />
+        </action>
     </fragment>
 
     <fragment
@@ -139,6 +144,9 @@
         <action
             android:id="@+id/action_personalid_phone_fragment_self"
             app:destination="@id/personalid_phone_fragment" />
+        <action
+            android:id="@+id/action_personalid_phone_to_personal_id_otp_page"
+            app:destination="@id/personalid_otp_page" />
     </fragment>
 
     <fragment

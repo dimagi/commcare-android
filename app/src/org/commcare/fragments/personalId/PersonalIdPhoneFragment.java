@@ -23,7 +23,9 @@ import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -148,8 +150,14 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
+        String phone = binding.countryCode.getText().toString() + binding.connectPrimaryPhoneInput.getText().toString();
         // TODO: Trigger API call for phone number validation and registration api later
-        navigateToBiometricSetup();
+        NavDirections action = navigateToBiometricSetup(phone);
+        NavHostFragment.findNavController(this).navigate(action);
+    }
+    private NavDirections navigateToBiometricSetup(String primaryPhone) {
+        return PersonalIdPhoneFragmentDirections
+                .actionPersonalidPhoneToPersonalIdOtpPage(primaryPhone);
     }
 
     private NavDirections navigateToBiometricSetup() {

@@ -1,5 +1,8 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -9,29 +12,33 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.FirebaseAuthService;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.OtpManager;
+import org.commcare.utils.OtpVerificationCallback;
 import org.joda.time.DateTime;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 public class PersonalIdPhoneVerificationFragment extends Fragment {
 
@@ -44,6 +51,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private SMSBroadcastReceiver smsBroadcastReceiver;
     private ScreenPersonalidPhoneVerifyBinding binding;
     private final Handler resendTimerHandler = new Handler();
+    private OtpManager otpManager;
+    private String verificationId;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -59,6 +68,33 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
         }
+        initOtpComponents();
+    }
+
+    private void initOtpComponents() {
+        // Save for later verification
+        OtpVerificationCallback otpCallback = new OtpVerificationCallback() {
+            @Override
+            public void onCodeSent(String vId) {
+                verificationId = vId; // Save for later verification
+                Toast.makeText(requireContext(), "OTP Sent to "+primaryPhone, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSuccess(FirebaseUser user) {
+                Toast.makeText(requireContext(), "OTP Verified: " + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
+                NavController navController = NavHostFragment.findNavController(requireParentFragment());
+                navController.navigate(R.id.personalid_name);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(requireContext(), "OTP Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        FirebaseAuthService authService = new FirebaseAuthService(requireActivity(), otpCallback);
+        otpManager = new OtpManager(authService);
     }
 
     @Override
@@ -197,13 +233,23 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private void requestOtp() {
         otpRequestTime = new DateTime();
         clearOtpError();
-        // TODO: Call Firebase to request OTP
+        otpManager.requestOtp(primaryPhone);
     }
 
     private void verifyOtp() {
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
-        // TODO: Call Firebase to verify OTP
+
+        if (verificationId == null) {
+            Toast.makeText(requireContext(), "Verification ID is missing. Send OTP first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!otpCode.isEmpty()){
+            otpManager.submitOtp(otpCode);
+        }else {
+            Toast.makeText(requireContext(), "Enter OTP", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void logOtpVerification(boolean success) {
