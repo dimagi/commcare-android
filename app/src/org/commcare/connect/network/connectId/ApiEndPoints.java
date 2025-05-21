@@ -8,6 +8,7 @@ public class ApiEndPoints {
     public static final String phoneAvailable = "/users/phone_available";
     public static final String changePhoneNo = "/users/change_phone";
     public static final String updateProfile = "/users/update_profile";
+    public static final String setProfile = "/users/set_profile";
     public static final String validatePhone = "/users/validate_phone";
     public static final String recoverOTPPrimary = "/users/recover";
     public static final String recoverOTPSecondary = "/users/validate_secondary_phone";

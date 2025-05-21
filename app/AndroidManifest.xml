@@ -137,6 +137,9 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="face" />
         <receiver
             android:name="org.commcare.connect.SMSBroadcastReceiver"
             android:exported="true"
@@ -577,6 +580,7 @@
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
+        <activity android:name="org.commcare.fragments.MicroImageActivity" />
         <!-- Start Collect Manifest -->
 
         <meta-data

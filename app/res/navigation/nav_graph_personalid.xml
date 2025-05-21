@@ -107,6 +107,10 @@
             android:id="@+id/action_personalid_pin_self"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_backup_code" />
+        <action
+            android:id="@+id/action_personalid_pin_to_personalid_photo_capture"
+            app:destination="@id/personalid_photo_capture"
+            app:popUpTo="@id/personalid_backup_code" />
         <argument
             android:name="isRecovery"
             app:argType="boolean"
@@ -146,5 +150,21 @@
         <action
             android:id="@+id/action_personalid_name_to_personalid_backup_code"
             app:destination="@id/personalid_backup_code" />
+    </fragment>
+    <fragment
+        android:id="@+id/personalid_photo_capture"
+        android:name="org.commcare.fragments.personalId.PersonalIdPhotoCaptureFragment"
+        android:label="fragment_personalid_photo_capture">
+        <argument
+            android:name="userName"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/action_personalid_signup_fragment_self"
+            app:destination="@id/personalid_photo_capture" />
+        <action
+            android:id="@+id/action_personalid_photo_capture_to_personalid_message"
+            app:destination="@id/personalid_message_display"
+            app:popUpTo="@id/personalid_photo_capture" />
     </fragment>
 </navigation>

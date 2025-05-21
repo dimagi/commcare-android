@@ -34,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import okhttp3.ResponseBody;
@@ -214,9 +215,9 @@ public class ApiPersonalId {
         }
     }
 
-    static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback) {
+    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback) {
         showProgressDialog(context);
-        call.enqueue(new Callback<ResponseBody>() {
+        call.enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 dismissProgressDialog(context);
@@ -230,7 +231,7 @@ public class ApiPersonalId {
                     }
                 } else {
                     // Handle validation errors
-                    handleApiError(response);
+                    logNetworkError(response);
                     callback.processFailure(response.code());
                 }
             }
@@ -241,7 +242,6 @@ public class ApiPersonalId {
                 // Handle network errors, etc.
                 handleNetworkError(t);
                 callback.processNetworkFailure();
-
             }
         });
     }
@@ -317,6 +317,23 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
+    public static void setPhotoAndName(Context context, String userId, String password, String userName,
+            String photoAsBase64, IApiCallback callback) {
+        Objects.requireNonNull(photoAsBase64);
+        Objects.requireNonNull(userName);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String token = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(token);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("photo", photoAsBase64);
+        params.put("name", userName);
+
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Call<ResponseBody> call = apiService.setProfile(token, params);
+        callApi(context, call, callback);
+    }
+
     public static void requestRegistrationOtpPrimary(Context context, String username, String password,
                                                      IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
@@ -379,7 +396,7 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    private static void handleApiError(Response<?> response) {
+    private static void logNetworkError(Response<?> response) {
         String message = response.message();
         if (response.code() == 400) {
             // Bad request (e.g., validation failed)
