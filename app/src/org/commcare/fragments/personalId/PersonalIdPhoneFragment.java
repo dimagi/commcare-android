@@ -16,6 +16,7 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectConstants.PersonalIdApiErrorCodes;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -174,7 +175,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(int failureCode) {
+            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
         }.makeStartConfigurationCall(requireActivity(), phone);
@@ -192,22 +193,22 @@ public class PersonalIdPhoneFragment extends Fragment {
                 navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle), false));
     }
 
-    private void navigateFailure(int failureCode) {
+    private void navigateFailure(PersonalIdApiErrorCodes failureCode) {
         switch (failureCode) {
-            case ConnectConstants.API_ERROR:
+            case API_ERROR:
                 Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                         navigateToMessageDisplay(getString(R.string.configuration_process_api_failed), true));
                 break;
-            case ConnectConstants.NETWORK_ERROR:
+            case NETWORK_ERROR:
                 ConnectNetworkHelper.showNetworkError(getActivity());
                 break;
-            case ConnectConstants.TOKEN_UNAVAILABLE_ERROR:
+            case TOKEN_UNAVAILABLE_ERROR:
                 ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
                 break;
-            case ConnectConstants.TOKEN_DENIED_ERROR:
+            case TOKEN_DENIED_ERROR:
                 ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
                 break;
-            case ConnectConstants.OLD_API_ERROR:
+            case OLD_API_ERROR:
                 ConnectNetworkHelper.showOutdatedApiError(getActivity());
                 break;
         }

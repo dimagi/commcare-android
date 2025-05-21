@@ -6,6 +6,15 @@ package org.commcare.connect;
  * @author dviggiano
  */
 public class ConnectConstants {
+    public enum PersonalIdApiErrorCodes {
+        NETWORK_ERROR,
+        OLD_API_ERROR,
+        TOKEN_UNAVAILABLE_ERROR,
+        TOKEN_DENIED_ERROR,
+        API_ERROR,
+        JSON_PARSING_ERROR;
+    }
+
     public static final int PERSONAL_ID_TASK_ID_OFFSET = 1000;
     public final static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final int LOGIN_CONNECT_LAUNCH_REQUEST_CODE = 1050;
@@ -13,12 +22,6 @@ public class ConnectConstants {
     public static final int STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE = 1052;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
-    public static final int NETWORK_ERROR = 101;
-    public static final int OLD_API_ERROR = 102;
-    public static final int TOKEN_UNAVAILABLE_ERROR = 103;
-    public static final int TOKEN_DENIED_ERROR = 104;
-    public static final int API_ERROR = 105;
-    public static final int JSON_PARSING_ERROR = 106;
 
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";

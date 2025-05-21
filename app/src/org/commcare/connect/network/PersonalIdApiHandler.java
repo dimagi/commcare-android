@@ -27,38 +27,38 @@ public abstract class PersonalIdApiHandler {
                     onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);
-                    onFailure(ConnectConstants.JSON_PARSING_ERROR);
+                    onFailure(ConnectConstants.PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
                 }
             }
 
             @Override
             public void processFailure(int responseCode) {
-                onFailure(ConnectConstants.API_ERROR);
+                onFailure(ConnectConstants.PersonalIdApiErrorCodes.API_ERROR);
             }
 
             @Override
             public void processNetworkFailure() {
-                onFailure(ConnectConstants.NETWORK_ERROR);
+                onFailure(ConnectConstants.PersonalIdApiErrorCodes.NETWORK_ERROR);
             }
 
             @Override
             public void processTokenUnavailableError() {
-                onFailure(ConnectConstants.TOKEN_UNAVAILABLE_ERROR);
+                onFailure(ConnectConstants.PersonalIdApiErrorCodes.TOKEN_UNAVAILABLE_ERROR);
             }
 
             @Override
             public void processTokenRequestDeniedError() {
-                onFailure(ConnectConstants.TOKEN_DENIED_ERROR);
+                onFailure(ConnectConstants.PersonalIdApiErrorCodes.TOKEN_DENIED_ERROR);
             }
 
             @Override
             public void processOldApiError() {
-                onFailure(ConnectConstants.OLD_API_ERROR);
+                onFailure(ConnectConstants.PersonalIdApiErrorCodes.OLD_API_ERROR);
             }
         });
     }
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
-    protected abstract void onFailure(int errorCode);
+    protected abstract void onFailure(ConnectConstants.PersonalIdApiErrorCodes errorCode);
 }
