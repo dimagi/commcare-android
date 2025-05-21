@@ -186,12 +186,18 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onConfigurationFailure() {
-        Logger.log(LogTypes.TYPE_USER, personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle)));
+        Logger.log(LogTypes.TYPE_USER,
+                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
+                navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle), false));
     }
 
     private void navigateFailure(int failureCode) {
         switch (failureCode) {
+            case ConnectConstants.API_ERROR:
+                Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
+                        navigateToMessageDisplay(getString(R.string.configuration_process_api_failed), true));
+                break;
             case ConnectConstants.NETWORK_ERROR:
                 ConnectNetworkHelper.showNetworkError(getActivity());
                 break;
@@ -211,11 +217,11 @@ public class PersonalIdPhoneFragment extends Fragment {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay(String errorMessage) {
+    private NavDirections navigateToMessageDisplay(String errorMessage,boolean isCancellable) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                 getString(R.string.configuration_process_failed_title),
                 errorMessage,
                 ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, "",
-                "").setIsCancellable(true);
+                "").setIsCancellable(isCancellable);
     }
 }
