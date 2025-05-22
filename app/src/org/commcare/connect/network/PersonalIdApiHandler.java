@@ -3,7 +3,6 @@ package org.commcare.connect.network;
 import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -20,7 +19,7 @@ public abstract class PersonalIdApiHandler {
         OLD_API_ERROR,
         TOKEN_UNAVAILABLE_ERROR,
         TOKEN_DENIED_ERROR,
-        API_ERROR,
+        INVALID_RESPONSE_ERROR,
         JSON_PARSING_ERROR;
     }
 
@@ -42,7 +41,7 @@ public abstract class PersonalIdApiHandler {
 
             @Override
             public void processFailure(int responseCode) {
-                onFailure(PersonalIdApiErrorCodes.API_ERROR);
+                onFailure(PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR);
             }
 
             @Override
