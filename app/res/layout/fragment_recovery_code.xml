@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
@@ -162,11 +162,11 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:gravity="start|center"
+            android:layout_gravity="end"
             android:text="@string/review"
             android:drawableRight="@drawable/connect_right_arrow"
             />
 
 
-    </RelativeLayout>
+    </LinearLayout>
 </layout>
