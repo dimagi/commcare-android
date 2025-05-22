@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -167,7 +169,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSucesss();
+                    onConfigurationSuccess(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser());
                 } else { // This is called when api returns success but with a a failure code
                     onConfigurationFailure();
                 }
@@ -181,8 +183,9 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
 
-    private void onConfigurationSucesss() {
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
+    private void onConfigurationSuccess(Boolean demoUser) {
+        NavDirections action = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig().setIsDemoUser(demoUser);
+        NavHostFragment.findNavController(this).navigate(action);
     }
 
     private void onConfigurationFailure() {

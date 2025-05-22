@@ -1,5 +1,8 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+import static org.commcare.AppUtils.showSnackBarWithOk;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
+import androidx.navigation.fragment.NavHostFragment;
 
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.connect.ConnectConstants;
@@ -27,8 +31,6 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
@@ -39,6 +41,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private BiometricPrompt.AuthenticationCallback biometricCallback;
     private static final String KEY_ATTEMPTING_FINGERPRINT = "attempting_fingerprint";
     private ScreenPersonalidVerifyBinding binding;
+    private boolean isDemoUser = false;
+
 
     public PersonalIdBiometricConfigFragment() {
         // Required empty public constructor
@@ -56,6 +60,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         if (savedInstanceState != null) {
             isAttemptingFingerprint = savedInstanceState.getBoolean(KEY_ATTEMPTING_FINGERPRINT);
         }
+        isDemoUser = PersonalIdBiometricConfigFragmentArgs.fromBundle(getArguments()).getIsDemoUser();
     }
 
     @Override
@@ -242,7 +247,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
-                navigateToOtpScreen();
+                if (!isDemoUser){
+                    NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
+                }else {
+                    showSnackBarWithOk(getView(), getString(R.string.connect_verify_skip_phone_number), v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
+                }
             }
         }
     }
@@ -259,5 +268,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private NavDirections navigateToOtpScreen() {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
                 ((PersonalIdActivity)requireActivity()).primaryPhone);
+    }
+    private NavDirections navigateToNameScreen() {
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidName();
     }
 }
