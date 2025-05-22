@@ -158,8 +158,8 @@ class GlobalDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectKeyRecord.STORAGE_KEY,
-                    ConnectKeyRecord.class,
+                    ConnectKeyRecordV7.STORAGE_KEY,
+                    ConnectKeyRecordV7.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
