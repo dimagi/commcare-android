@@ -10,7 +10,7 @@
 
         <LinearLayout
             android:background="@color/white"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:orientation="vertical">
 
@@ -18,10 +18,9 @@
 
         <View
             android:id="@+id/divider"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginHorizontal="20dp"
-            android:layout_below="@+id/company_logo"
             android:layout_marginTop="40dp"
             android:background="@android:color/darker_gray" />
 
@@ -30,8 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_below="@id/divider"
-            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp">
             <ImageView
                 android:id="@+id/user_photo"
@@ -69,7 +67,6 @@
             android:id="@+id/phone_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/recovery_code_tilte"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
@@ -83,7 +80,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_below="@id/phone_title"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp">
 
@@ -130,8 +126,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_below="@id/name_layout" >
+            android:layout_marginEnd="16dp" >
 
             <LinearLayout
                 android:layout_width="42dp"
@@ -175,19 +170,18 @@
             android:id="@+id/connect_pin_error_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/confirm_code_layout"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:gravity="start"
             android:textColor="@color/red"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_below="@id/connect_pin_error_message">
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/isntme_button"
