@@ -2,12 +2,19 @@ package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
@@ -18,6 +25,7 @@ import androidx.navigation.NavDirections;
 public class PersonalIdNameFragment extends Fragment {
     private ScreenPersonalidNameBinding binding;
     private Activity activity;
+    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -31,6 +39,27 @@ public class PersonalIdNameFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private TextWatcher createNameWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (TextUtils.isEmpty(s)) {
+                    enableContinueButton(false);
+                } else {
+                    enableContinueButton(true);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -38,48 +67,54 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
     private void setListeners() {
-        binding.personalidNameContinueButton.setOnClickListener(v -> handleContinueButtonPress());
+        binding.personalidNameContinueButton.setOnClickListener(v -> verifyOrAddName());
     }
 
     public void enableContinueButton(boolean isEnabled) {
         binding.personalidNameContinueButton.setEnabled(isEnabled);
     }
 
-    private void handleContinueButtonPress() {
-        if (binding.nameTextValue.getText().toString().isEmpty()) {
-            showError(activity.getString(R.string.name_empty_error));
-        } else {
-            verifyOrAddName();
-        }
-    }
-
     private void verifyOrAddName() {
-        ///TODO ADD API CALL
+        new PersonalIdApiHandler() {
+            @Override
+            protected void onSuccess(PersonalIdSessionData sessionData) {
+                navigateToBackupCodePage();
+            }
+
+            @Override
+            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
+                navigateFailure(failureCode);
+            }
+        }.addOrVerifyNameCall(requireActivity(), String.valueOf(binding.nameTextValue.getText()),
+                personalIdSessionDataViewModel.getPersonalIdSessionData());
     }
 
 
-    private void updateUi(String errorMessage) {
-        if (TextUtils.isEmpty(errorMessage)) {
-            clearError();
-            enableContinueButton(true);
-        } else {
-            showError(errorMessage);
-            enableContinueButton(false);
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        switch (failureCode) {
+            case INVALID_RESPONSE_ERROR, JSON_PARSING_ERROR:
+                Toast.makeText(activity, getString(R.string.configuration_process_api_failed),
+                        Toast.LENGTH_LONG).show();
+                break;
+            case NETWORK_ERROR:
+                ConnectNetworkHelper.showNetworkError(getActivity());
+                break;
+            case TOKEN_UNAVAILABLE_ERROR:
+                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
+                break;
+            case TOKEN_DENIED_ERROR:
+                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+                break;
+            case OLD_API_ERROR:
+                ConnectNetworkHelper.showOutdatedApiError(getActivity());
+                break;
         }
-    }
-
-    private void showError(String errorMessage) {
-        binding.personalidNameError.setVisibility(View.VISIBLE);
-        binding.personalidNameError.setText(errorMessage);
-    }
-
-    private void clearError() {
-        binding.personalidNameError.setText("");
-        binding.personalidNameError.setVisibility(View.GONE);
     }
 
     private NavDirections navigateToBackupCodePage() {
-        return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode("", "").setIsRecovery(
+        return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode(
+                String.valueOf(binding.nameTextValue.getText()),
+                personalIdSessionDataViewModel.getPersonalIdSessionData().getPhotoBase64()).setIsRecovery(
                 false);
     }
 
