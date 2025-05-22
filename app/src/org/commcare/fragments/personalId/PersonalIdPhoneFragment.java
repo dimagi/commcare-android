@@ -194,9 +194,9 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
         switch (failureCode) {
-            case API_ERROR:
-                Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                        navigateToMessageDisplay(getString(R.string.configuration_process_api_failed), true));
+            case API_ERROR,JSON_PARSING_ERROR:
+                Toast.makeText(activity, getString(R.string.configuration_process_api_failed),
+                        Toast.LENGTH_LONG).show();
                 break;
             case NETWORK_ERROR:
                 ConnectNetworkHelper.showNetworkError(getActivity());
