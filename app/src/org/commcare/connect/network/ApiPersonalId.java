@@ -253,7 +253,7 @@ public class ApiPersonalId {
         params.put("phone", phoneNumber);
         params.put("secret_key", recoverySecret);
         params.put("password", newPassword);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.resetPassword(params);
         callApi(context, call, callback);
     }
@@ -266,7 +266,7 @@ public class ApiPersonalId {
         params.put("secret_key", secret);
         params.put("recovery_pin", pin);
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmPIN(params);
         callApi(context, call, callback);
     }
@@ -280,7 +280,7 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", pin);
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.changePIN(token, params);
         callApi(context, call, callback);
     }
@@ -288,7 +288,7 @@ public class ApiPersonalId {
     public static void startConfiguration(Context context, String phone, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("phone_number", phone);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(params);
         callApi(context, call, callback);
     }
@@ -307,13 +307,13 @@ public class ApiPersonalId {
         if (displayName != null) {
             params.put("name", displayName);
         }
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
         callApi(context, call, callback);
     }
 
-    public static void setPhotoAndName(Context context, String userId, String password, String userName,
-            String photoAsBase64, IApiCallback callback) {
+    public static void setPhotoAndCompleteProfile(Context context, String userId, String password, String userName,
+                                                  String photoAsBase64, String pin, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
@@ -323,9 +323,10 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("photo", photoAsBase64);
         params.put("name", userName);
+        params.put("recovery_pin", pin);
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Call<ResponseBody> call = apiService.setProfile(token, params);
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.completeProfile(token, params);
         callApi(context, call, callback);
     }
 
@@ -334,7 +335,7 @@ public class ApiPersonalId {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.validatePhone(token, params);
         callApi(context, call, callback);
     }
@@ -342,7 +343,7 @@ public class ApiPersonalId {
     public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("phone", phone);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.requestOTPPrimary(params);
         callApi(context, call, callback);
     }
@@ -354,7 +355,7 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("token", token);
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmOTP(basicToken, params);
         callApi(context, call, callback);
     }
@@ -365,7 +366,7 @@ public class ApiPersonalId {
         params.put("phone", phone);
         params.put("secret_key", secret);
         params.put("token", token);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.recoverConfirmOTP(params);
         callApi(context, call, callback);
     }
@@ -374,7 +375,7 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("secret_key", secretKey);
         params.put("phone_number", phone);
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.accountDeactivation(params);
         callApi(context, call, callback);
     }
@@ -386,7 +387,7 @@ public class ApiPersonalId {
         params.put("secret_key", secret);
         params.put("token", token);
 
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmDeactivation(params);
         callApi(context, call, callback);
     }

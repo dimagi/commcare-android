@@ -72,7 +72,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     private void setUpUi() {
         viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
-        viewBinding.savePhotoButton.setOnClickListener(v -> uploadImage());
+        viewBinding.savePhotoButton.setOnClickListener(v -> uploadImageAndCompleteProfile());
     }
 
     private String getUserName() {
@@ -82,7 +82,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         return "";
     }
 
-    private void uploadImage() {
+    private void uploadImageAndCompleteProfile() {
         IApiCallback networkResponseCallback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -115,8 +115,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                 onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
             }
         };
-        ApiPersonalId.setPhotoAndName(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
-                connectUserRecord.getName(), photoAsBase64, networkResponseCallback);
+        ApiPersonalId.setPhotoAndCompleteProfile(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
+                connectUserRecord.getName(), photoAsBase64,connectUserRecord.getPin() ,networkResponseCallback);
     }
 
     private void onPhotoUploadFailure(String error, boolean allowRetry) {
