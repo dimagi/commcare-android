@@ -77,7 +77,7 @@ public abstract class PersonalIdApiHandler {
                     parser.parse(sessionData);
                     onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
-                    Logger.exception("Error parsing recovery response", e);
+                    Logger.exception("Error parsing check_name response", e);
                     onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
                 }
             }
