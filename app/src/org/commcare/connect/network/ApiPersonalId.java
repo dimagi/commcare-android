@@ -285,16 +285,11 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void registerUser(Context context, String username, String password, String displayName,
-                                    String phone, IApiCallback callback) {
+    public static void startConfiguration(Context context, String phone, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
-        params.put("username", username);
-        params.put("password", password);
-        params.put("name", displayName);
         params.put("phone_number", phone);
-        params.put("fcm_token", FirebaseMessagingUtil.getFCMToken());
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.registerUser(params);
+        Call<ResponseBody> call = apiService.startConfiguration(params);
         callApi(context, call, callback);
     }
 

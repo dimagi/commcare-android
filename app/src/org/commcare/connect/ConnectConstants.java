@@ -6,6 +6,7 @@ package org.commcare.connect;
  * @author dviggiano
  */
 public class ConnectConstants {
+
     public static final int PERSONAL_ID_TASK_ID_OFFSET = 1000;
     public final static int CREDENTIAL_PICKER_REQUEST = 2000;
     public static final int LOGIN_CONNECT_LAUNCH_REQUEST_CODE = 1050;
@@ -13,6 +14,7 @@ public class ConnectConstants {
     public static final int STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE = 1052;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
+
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
     public static final String PIN = "PIN";
@@ -57,4 +59,5 @@ public class ConnectConstants {
     public final static int PERSONALID_RECOVERY_CHANGE_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 13;
     public final static int CONNECT_JOB_INFO = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 14;
     public final static int PERSONALID_RECOVERY_WRONG_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 15;
+    public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 16;
 }
