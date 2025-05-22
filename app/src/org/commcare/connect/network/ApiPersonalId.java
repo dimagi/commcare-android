@@ -297,7 +297,7 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("name", name);
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.addOrVerifyname(params);
+        Call<ResponseBody> call = apiService.addOrVerifyName(params);
         callApi(context, call, callback);
     }
 

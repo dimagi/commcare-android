@@ -21,6 +21,7 @@ import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class PersonalIdNameFragment extends Fragment {
     private ScreenPersonalidNameBinding binding;
@@ -36,6 +37,7 @@ public class PersonalIdNameFragment extends Fragment {
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
         enableContinueButton(false);
+        binding.nameTextValue.addTextChangedListener(createNameWatcher());
         return binding.getRoot();
     }
 
@@ -47,11 +49,7 @@ public class PersonalIdNameFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (TextUtils.isEmpty(s)) {
-                    enableContinueButton(false);
-                } else {
-                    enableContinueButton(true);
-                }
+                enableContinueButton(!TextUtils.isEmpty(s) && !TextUtils.isEmpty(s.toString().trim()));
             }
 
             @Override
@@ -80,12 +78,13 @@ public class PersonalIdNameFragment extends Fragment {
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 navigateToBackupCodePage();
             }
-
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
-        }.addOrVerifyNameCall(requireActivity(), String.valueOf(binding.nameTextValue.getText()),
+        }.addOrVerifyNameCall(
+                requireActivity(),
+                binding.nameTextValue.getText().toString().trim(),
                 personalIdSessionDataViewModel.getPersonalIdSessionData());
     }
 
