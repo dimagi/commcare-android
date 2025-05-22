@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
@@ -37,8 +38,7 @@ import androidx.work.WorkManager;
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -273,7 +273,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     protected void loadSqliteLibs() {
-        SQLiteDatabase.loadLibs(this);
+        System.loadLibrary("sqlcipher");
     }
 
     protected void turnOnStrictMode() {
@@ -597,7 +597,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private int initGlobalDb() {
         SQLiteDatabase database;
         try {
-            database = new DatabaseGlobalOpenHelper(this).getWritableDatabase("null");
+            database = new DatabaseGlobalOpenHelper(this).getWritableDatabase();
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
@@ -626,7 +626,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             public SQLiteDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
                     if (globalDatabase == null || !globalDatabase.isOpen()) {
-                        globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase("null");
+                        globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase();
                     }
                     return globalDatabase;
                 }

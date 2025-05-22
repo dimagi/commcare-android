@@ -1,10 +1,10 @@
 package org.commcare.models.database.global;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
@@ -40,7 +40,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     private final Context mContext;
 
     public DatabaseGlobalOpenHelper(Context context) {
-        super(context, GLOBAL_DB_LOCATOR, null, GLOBAL_DB_VERSION);
+        super(context, GLOBAL_DB_LOCATOR, "null", null, GLOBAL_DB_VERSION, 0, null, null, false);
         this.mContext = context;
     }
 
@@ -81,12 +81,12 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
-            DbUtil.trySqlCipherDbUpdate(key, mContext, GLOBAL_DB_LOCATOR);
-            return super.getWritableDatabase(key);
+            DbUtil.trySqlCipherDbUpdate("null", mContext, GLOBAL_DB_LOCATOR);
+            return super.getWritableDatabase();
         }
     }
 

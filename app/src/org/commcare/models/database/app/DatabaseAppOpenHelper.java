@@ -1,11 +1,10 @@
 package org.commcare.models.database.app;
 
 import android.content.Context;
-import android.util.Log;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
@@ -55,7 +54,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     private final String mAppId;
 
     public DatabaseAppOpenHelper(Context context, String appId) {
-        super(context, getDbName(appId), null, DB_VERSION_APP);
+        super(context, getDbName(appId), "null", null, DB_VERSION_APP, 0, null, null, false);
         this.mAppId = appId;
         this.context = context;
     }
@@ -117,14 +116,16 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         try {
-            return super.getWritableDatabase(key);
+
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
-            DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mAppId));
-            return super.getWritableDatabase(key);
+            DbUtil.trySqlCipherDbUpdate("null", context, getDbName(mAppId));
+            return super.getWritableDatabase();
         }
     }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
