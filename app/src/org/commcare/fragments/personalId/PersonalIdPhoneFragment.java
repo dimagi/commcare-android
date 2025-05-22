@@ -16,7 +16,6 @@ import com.google.android.gms.common.api.ApiException;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectConstants.PersonalIdApiErrorCodes;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -193,7 +192,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                 navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle), false));
     }
 
-    private void navigateFailure(PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
         switch (failureCode) {
             case API_ERROR:
                 Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(

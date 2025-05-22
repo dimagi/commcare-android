@@ -6,14 +6,6 @@ package org.commcare.connect;
  * @author dviggiano
  */
 public class ConnectConstants {
-    public enum PersonalIdApiErrorCodes {
-        NETWORK_ERROR,
-        OLD_API_ERROR,
-        TOKEN_UNAVAILABLE_ERROR,
-        TOKEN_DENIED_ERROR,
-        API_ERROR,
-        JSON_PARSING_ERROR;
-    }
 
     public static final int PERSONAL_ID_TASK_ID_OFFSET = 1000;
     public final static int CREDENTIAL_PICKER_REQUEST = 2000;

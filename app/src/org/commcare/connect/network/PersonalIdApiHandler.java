@@ -15,6 +15,15 @@ import java.io.InputStream;
 
 public abstract class PersonalIdApiHandler {
 
+    public enum PersonalIdApiErrorCodes {
+        NETWORK_ERROR,
+        OLD_API_ERROR,
+        TOKEN_UNAVAILABLE_ERROR,
+        TOKEN_DENIED_ERROR,
+        API_ERROR,
+        JSON_PARSING_ERROR;
+    }
+
     public void makeStartConfigurationCall(Activity activity, String phone) {
         ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
             @Override
@@ -27,38 +36,38 @@ public abstract class PersonalIdApiHandler {
                     onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
                     Logger.exception("Error parsing recovery response", e);
-                    onFailure(ConnectConstants.PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
+                    onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
                 }
             }
 
             @Override
             public void processFailure(int responseCode) {
-                onFailure(ConnectConstants.PersonalIdApiErrorCodes.API_ERROR);
+                onFailure(PersonalIdApiErrorCodes.API_ERROR);
             }
 
             @Override
             public void processNetworkFailure() {
-                onFailure(ConnectConstants.PersonalIdApiErrorCodes.NETWORK_ERROR);
+                onFailure(PersonalIdApiErrorCodes.NETWORK_ERROR);
             }
 
             @Override
             public void processTokenUnavailableError() {
-                onFailure(ConnectConstants.PersonalIdApiErrorCodes.TOKEN_UNAVAILABLE_ERROR);
+                onFailure(PersonalIdApiErrorCodes.TOKEN_UNAVAILABLE_ERROR);
             }
 
             @Override
             public void processTokenRequestDeniedError() {
-                onFailure(ConnectConstants.PersonalIdApiErrorCodes.TOKEN_DENIED_ERROR);
+                onFailure(PersonalIdApiErrorCodes.TOKEN_DENIED_ERROR);
             }
 
             @Override
             public void processOldApiError() {
-                onFailure(ConnectConstants.PersonalIdApiErrorCodes.OLD_API_ERROR);
+                onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR);
             }
         });
     }
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
-    protected abstract void onFailure(ConnectConstants.PersonalIdApiErrorCodes errorCode);
+    protected abstract void onFailure(PersonalIdApiErrorCodes errorCode);
 }
