@@ -293,6 +293,14 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
+    public static void validateFirebaseIdToken(Context context, String firebaseIdToken, IApiCallback callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", firebaseIdToken);
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(params);
+        callApi(context, call, callback);
+    }
+
     public static void addOrVerifyName(Context context, String name, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("name", name);
