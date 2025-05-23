@@ -6,6 +6,7 @@ public class ApiEndPoints {
     public static final String connectFetchDbKeyURL = "/users/fetch_db_key";
     public static final String registerUser = "/users/start_configuration";
     public static final String validateFirebaseIdToken = "/users/validate_firebase_id_token";
+    public static final String checkName = "/users/check_name";
     public static final String phoneAvailable = "/users/phone_available";
     public static final String changePhoneNo = "/users/change_phone";
     public static final String updateProfile = "/users/update_profile";

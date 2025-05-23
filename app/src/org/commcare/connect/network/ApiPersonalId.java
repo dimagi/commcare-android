@@ -301,6 +301,14 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
+    public static void addOrVerifyName(Context context, String name, IApiCallback callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("name", name);
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.checkName(params);
+        callApi(context, call, callback);
+    }
+
     public static void updateUserProfile(Context context, String username,
                                          String password, String displayName,
                                          String secondaryPhone, IApiCallback callback) {
