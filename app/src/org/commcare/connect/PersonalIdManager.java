@@ -621,7 +621,7 @@ public class PersonalIdManager {
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
-        if(appRecord == null) {
+        if(appRecord == null || !appRecord.getPersonalIdLinked()) {
             return null;
         }
 
