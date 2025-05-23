@@ -577,6 +577,7 @@
     <string name="connect_verify_phone_label_deactivate">Ili kuzima akaunti yako, tafadhali weka msimbo uliotumwa kwa SMS kwa nambari yako msingi ya simu.</string>
     <string name="connect_verify_phone_error">Hitilafu katika kuthibitisha nambari ya SMS</string>
     <string name="connect_verify_phone_resend_code">Tuma tena Msimbo</string>
+    <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
     <string name="connect_messaging_title">Kutuma ujumbe</string>
     <string name="connect_messaging_channel_list_title">Vituo</string>
     <string name="connect_messaging_channel_list_unconsented">Kituo ambacho hakijaidhinishwa</string>

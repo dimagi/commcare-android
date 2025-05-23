@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -168,7 +169,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSucesss();
+                    onConfigurationSuccess();
                 } else { // This is called when api returns success but with a a failure code
                     onConfigurationFailure();
                 }
@@ -182,7 +183,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
 
-    private void onConfigurationSucesss() {
+    private void onConfigurationSuccess() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 

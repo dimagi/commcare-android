@@ -18,6 +18,10 @@
             android:id="@+id/action_personalid_biometric_config_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_biometric_config" />
+        <action
+            android:id="@+id/action_personalid_biometric_config_to_personalid_name"
+            app:destination="@id/personalid_name"
+            app:popUpTo="@id/personalid_biometric_config" />
     </fragment>
 
     <fragment
@@ -140,7 +144,7 @@
             app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_personalid_phone_fragment_to_personalid_biometric_config"
-            app:destination="@id/personalid_biometric_config" />
+            app:destination="@id/personalid_biometric_config"/>
         <action
             android:id="@+id/action_personalid_phone_fragment_self"
             app:destination="@id/personalid_phone_fragment" />

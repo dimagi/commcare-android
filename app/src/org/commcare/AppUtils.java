@@ -3,6 +3,9 @@ package org.commcare;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import android.view.View;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
