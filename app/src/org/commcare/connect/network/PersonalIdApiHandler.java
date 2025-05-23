@@ -4,7 +4,7 @@ import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
-import org.commcare.connect.network.parser.JsonToSessionDataParser;
+import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -26,7 +26,7 @@ public abstract class PersonalIdApiHandler {
     }
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
-                                        JsonToSessionDataParser parser,
+                                        PersonalIdApiResponseParser parser,
                                         PersonalIdApiErrorCodes defaultFailureCode) {
         return new IApiCallback() {
             @Override

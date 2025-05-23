@@ -9,7 +9,7 @@ import org.json.JSONObject;
  * Parses a JSON response from the check_name API call
  * and populates a PersonalIdSessionData instance.
  */
-public class AddOrVerifyNameParser implements JsonToSessionDataParser {
+public class AddOrVerifyNameParser implements PersonalIdApiResponseParser {
     /**
      * Parses and sets values on the given PersonalIdSessionData instance.
      *

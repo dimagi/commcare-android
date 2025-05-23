@@ -9,7 +9,7 @@ import org.json.JSONObject;
  * Parses a JSON response from the start configuration API call
  * and populates a PersonalIdSessionData instance.
  */
-public class StartConfigurationResponseParser implements JsonToSessionDataParser {
+public class StartConfigurationResponseParser implements PersonalIdApiResponseParser {
 
     /**
      * Parses and sets values on the given PersonalIdSessionData instance.
