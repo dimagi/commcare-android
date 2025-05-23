@@ -10,10 +10,6 @@
         android:name="org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment"
         android:label="fragment_personalid_biometric_config"
         tools:layout="@layout/screen_personalid_verify">
-        <argument
-            android:name="isDemoUser"
-            app:argType="boolean"
-            android:defaultValue="false" />
         <action
             android:id="@+id/action_personalid_biometric_config_to_personalid_otp_page"
             app:destination="@id/personalid_otp_page"

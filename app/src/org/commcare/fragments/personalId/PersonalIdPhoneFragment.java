@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -169,7 +168,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSuccess(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser());
+                    onConfigurationSuccess();
                 } else { // This is called when api returns success but with a a failure code
                     onConfigurationFailure();
                 }
@@ -183,9 +182,8 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
 
-    private void onConfigurationSuccess(Boolean demoUser) {
-        NavDirections action = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig().setIsDemoUser(demoUser);
-        NavHostFragment.findNavController(this).navigate(action);
+    private void onConfigurationSuccess() {
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
     private void onConfigurationFailure() {

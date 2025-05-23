@@ -446,7 +446,7 @@
     <string name="connect_verify_phone_resend">Não recebeu o seu código? Reenviar</string>
     <string name="connect_verify_phone_error">Erro ao verificar o código SMS</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
-    <string name="connect_verify_skip_phone_number">Veo que eres un usuario de demostración, así que omitiremos la verificación del teléfono</string>
+    <string name="connect_verify_skip_phone_number">Veo que eres un usuario de demostración, por lo que omitiremos el OTP</string>
     <string name="connect_verify_phone_resend_wait">Não recebeu o seu código? Reenviar em %d s</string>
     <string name="connect_verify_phone_change">mudar</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
