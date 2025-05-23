@@ -134,10 +134,6 @@ public class ConnectUserRecord extends Persisted {
         return pin;
     }
 
-    public boolean getIsDemo() {
-        return isDemo;
-    }
-
     public String getPassword() {
         return password;
     }
