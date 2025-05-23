@@ -9,13 +9,7 @@ import org.json.JSONObject;
  * Parses a JSON response from the check_name API call
  * and populates a PersonalIdSessionData instance.
  */
-public class AddOrVerifyNameParser {
-    private final JSONObject json;
-
-    public AddOrVerifyNameParser(JSONObject json) {
-        this.json = json;
-    }
-
+public class AddOrVerifyNameParser implements JsonToSessionDataParser {
     /**
      * Parses and sets values on the given PersonalIdSessionData instance.
      *
@@ -23,7 +17,8 @@ public class AddOrVerifyNameParser {
      * @throws JSONException if a parsing error occurs
      */
 
-    public void parse(PersonalIdSessionData sessionData) throws JSONException {
+    @Override
+    public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
         sessionData.setAccountExists(json.optBoolean("account_exists", false));
         sessionData.setToken(JsonExtensions.optStringSafe(json, "photo", null));
     }

@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
+import org.commcare.connect.network.parser.JsonToSessionDataParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -24,12 +25,7 @@ public abstract class PersonalIdApiHandler {
         JSON_PARSING_ERROR;
     }
 
-    public interface JsonToSessionDataParser {
-        void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException;
-    }
-
-    private IApiCallback createCallback(Activity activity,
-                                        PersonalIdSessionData sessionData,
+    private IApiCallback createCallback(PersonalIdSessionData sessionData,
                                         JsonToSessionDataParser parser,
                                         PersonalIdApiErrorCodes defaultFailureCode) {
         return new IApiCallback() {
@@ -75,15 +71,15 @@ public abstract class PersonalIdApiHandler {
     public void makeStartConfigurationCall(Activity activity, String name) {
         PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.startConfiguration(activity, name,
-                createCallback(activity, sessionData,
-                        (json, data) -> new StartConfigurationResponseParser(json).parse(data),
+                createCallback(sessionData,
+                        new StartConfigurationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 
     public void addOrVerifyNameCall(Activity activity, String name, PersonalIdSessionData sessionData) {
         ApiPersonalId.addOrVerifyName(activity, name,
-                createCallback(activity, sessionData,
-                        (json, data) -> new AddOrVerifyNameParser(json).parse(data),
+                createCallback(sessionData,
+                        new AddOrVerifyNameParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 
