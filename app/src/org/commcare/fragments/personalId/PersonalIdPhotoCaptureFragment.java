@@ -24,6 +24,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
@@ -106,8 +107,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
 
             @Override
             public void processTokenRequestDeniedError() {
-                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_token_request_rejected),
-                        false);
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override

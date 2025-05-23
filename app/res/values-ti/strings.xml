@@ -347,7 +347,7 @@
     <string name="choice_or">_____________ ወይ _____________</string>
     <string name="busy_message">ሕጂ ውን ቅድሚ ሕጂ ዝገበርካዮ ሕቶ ኣብ ምስራሕ ተጸሚድና ኣለና። በጃኻ ድሕሪ ውሱን ግዜ ደጊምካ ፈትን።</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
-    <string name="connect_db_corrupt">ኣብቲ ዳታቤዝ/ ማእከል ሓበርታ ፀገም ኣጋጢሙ፡ በጃኻ ኣካውንትካ ናብ ናይ ቅድም ከነታት መልስ።</string>
+    <string name="connect_db_corrupt">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ConnectID ምዝገባ</string>
     <string name="connect_signup">ምዝገባ</string>
     <string name="connect_recover">ናብ ንቡር ኩነታት ምምላስ</string>

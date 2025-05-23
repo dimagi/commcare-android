@@ -205,7 +205,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override
@@ -247,7 +247,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override
@@ -296,7 +296,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override

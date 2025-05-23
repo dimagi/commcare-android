@@ -358,7 +358,7 @@
     <string name="choice_or">____________ AU _____________</string>
     <string name="busy_message">Bado tunashughulika kuchakata ombi lako la awali. Tafadhali jaribu tena baada ya muda fulani.</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
-    <string name="connect_db_corrupt">Tatizo limetokea kwenye hifadhidata, tafadhali rudisha akaunti yako.</string>
+    <string name="connect_db_corrupt">Tatizo limetokea, tafadhali sanidi akaunti yako ya Kitambulisho cha Kibinafsi tena.</string>
     <string name="connect_registration_title">Usajili wa ConnectID</string>
     <string name="connect_signup">Jisajili</string>
     <string name="connect_recover">Pata nafuu</string>
