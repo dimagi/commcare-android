@@ -133,6 +133,10 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 }
 
                 break;
+            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
+                directions = navigateToPhoneFragment();
+                break;
+
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
@@ -140,8 +144,10 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private NavDirections navigateToMessage(String title, String message, int callingClass, String button2Text, String button1Text, String userName, String password) {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageSelf(title, message, callingClass, button2Text, button1Text, userName, password);
+    private NavDirections navigateToMessage(String title, String message, int callingClass, String button2Text,
+                                            String button1Text, String userName, String password) {
+        return PersonalIdMessageFragmentDirections.actionPersonalidMessageSelf(title, message, callingClass,
+                button2Text, button1Text, userName, password);
     }
 
     private NavDirections navigateToPhoneVerify(String primaryPhone) {
@@ -149,7 +155,11 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private NavDirections navigateToBackupCode() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPin("","");
+        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPin("", "");
+    }
+
+    private NavDirections navigateToPhoneFragment() {
+        return PersonalIdMessageFragmentDirections.actionPersonalidMessageDisplayToPersonalidPhoneFragment();
     }
 
 

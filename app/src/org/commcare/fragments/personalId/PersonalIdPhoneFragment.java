@@ -10,20 +10,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.PhoneNumberHelper;
+import org.javarosa.core.services.Logger;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -31,6 +40,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     private boolean shouldShowPhoneHintDialog = true;
     private PhoneNumberHelper phoneNumberHelper;
     private Activity activity;
+    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,7 +50,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         initializeUi();
         return binding.getRoot();
     }
@@ -148,11 +158,54 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
-        // TODO: Trigger API call for phone number validation and registration api later
-        navigateToBiometricSetup();
+        String phone = PhoneNumberHelper.buildPhoneNumber(
+                binding.countryCode.getText().toString(),
+                binding.connectPrimaryPhoneInput.getText().toString()
+        );
+
+        new PersonalIdApiHandler() {
+            @Override
+            protected void onSuccess(PersonalIdSessionData sessionData) {
+                personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
+                if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
+                    onConfigurationSucesss();
+                } else { // This is called when api returns success but with a a failure code
+                    onConfigurationFailure();
+                }
+            }
+
+            @Override
+            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
+                navigateFailure(failureCode);
+            }
+        }.makeStartConfigurationCall(requireActivity(), phone);
+    }
+
+
+    private void onConfigurationSucesss() {
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
+    }
+
+    private void onConfigurationFailure() {
+        Logger.log(LogTypes.TYPE_USER,
+                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
+                navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle), false));
+    }
+
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 
     private NavDirections navigateToBiometricSetup() {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
+    }
+
+    private NavDirections navigateToMessageDisplay(String errorMessage,boolean isCancellable) {
+        return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
+                getString(R.string.configuration_process_failed_title),
+                errorMessage,
+                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, "",
+                "").setIsCancellable(isCancellable);
     }
 }

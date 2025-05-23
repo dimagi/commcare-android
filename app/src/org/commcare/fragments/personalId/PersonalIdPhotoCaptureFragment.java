@@ -24,6 +24,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
@@ -72,7 +73,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     private void setUpUi() {
         viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
-        viewBinding.savePhotoButton.setOnClickListener(v -> uploadImage());
+        viewBinding.savePhotoButton.setOnClickListener(v -> uploadImageAndCompleteProfile());
     }
 
     private String getUserName() {
@@ -82,7 +83,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         return "";
     }
 
-    private void uploadImage() {
+    private void uploadImageAndCompleteProfile() {
         IApiCallback networkResponseCallback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -106,8 +107,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
 
             @Override
             public void processTokenRequestDeniedError() {
-                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_token_request_rejected),
-                        false);
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override
@@ -115,8 +115,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                 onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
             }
         };
-        ApiPersonalId.setPhotoAndName(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
-                connectUserRecord.getName(), photoAsBase64, networkResponseCallback);
+        ApiPersonalId.setPhotoAndCompleteProfile(requireContext(), connectUserRecord.getUserId(), connectUserRecord.getPassword(),
+                connectUserRecord.getName(), photoAsBase64,connectUserRecord.getPin() ,networkResponseCallback);
     }
 
     private void onPhotoUploadFailure(String error, boolean allowRetry) {

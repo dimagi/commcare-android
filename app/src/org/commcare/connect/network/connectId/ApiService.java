@@ -10,7 +10,10 @@ public interface ApiService {
 
 
     @POST(ApiEndPoints.registerUser)
-    Call<ResponseBody> registerUser(@Body Map<String, String> registrationRequest);
+    Call<ResponseBody> startConfiguration(@Body Map<String, String> registrationRequest);
+
+    @POST(ApiEndPoints.checkName)
+    Call<ResponseBody> checkName(@Body Map<String, String> nameRequest);
 
     @POST(ApiEndPoints.changePhoneNo)
     Call<ResponseBody> changePhoneNo(@Header("Authorization") String token,
@@ -20,9 +23,9 @@ public interface ApiService {
     Call<ResponseBody> updateProfile(@Header("Authorization") String token,
                                      @Body Map<String, String> updateProfile);
 
-    @POST(ApiEndPoints.setProfile)
-    Call<ResponseBody> setProfile(@Header("Authorization") String token,
-            @Body Map<String, String> body);
+    @POST(ApiEndPoints.completeProfile)
+    Call<ResponseBody> completeProfile(@Header("Authorization") String token,
+                                       @Body Map<String, String> body);
 
     @POST(ApiEndPoints.validatePhone)
     Call<ResponseBody> validatePhone(@Header("Authorization") String token, @Body Map<String, String> requestOTP);
