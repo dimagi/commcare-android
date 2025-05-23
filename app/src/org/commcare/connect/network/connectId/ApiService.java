@@ -11,6 +11,8 @@ public interface ApiService {
 
     @POST(ApiEndPoints.registerUser)
     Call<ResponseBody> startConfiguration(@Body Map<String, String> registrationRequest);
+    @POST(ApiEndPoints.validateFirebaseIdToken)
+    Call<ResponseBody> validateFirebaseIdToken(@Body Map<String, String> firebaseIdToken);
 
     @POST(ApiEndPoints.changePhoneNo)
     Call<ResponseBody> changePhoneNo(@Header("Authorization") String token,
