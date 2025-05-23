@@ -392,7 +392,7 @@ public class PersonalIdManager {
                 }
 
                 public void tokenRequestDenied() {
-                    ConnectNetworkHelper.handleTokenDeniedException(activity);
+                    ConnectNetworkHelper.handleTokenDeniedException();
                     callback.connectActivityComplete(false);
                 }
             });
@@ -549,7 +549,7 @@ public class PersonalIdManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override

@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -432,9 +433,8 @@ public class ConnectNetworkHelper {
                 Toast.LENGTH_LONG).show();
     }
 
-    public static void handleTokenDeniedException(Context context) {
-        Toast.makeText(context, context.getString(R.string.recovery_network_token_request_rejected),
-                Toast.LENGTH_LONG).show();
+    public static void handleTokenDeniedException() {
+        ConnectDatabaseHelper.crashDb(R.string.recovery_network_token_request_rejected);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

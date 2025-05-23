@@ -330,7 +330,7 @@
     <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
     <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue, please try again.</string>
-    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost ConnectID configuration with server, please recover account.</string>
+    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover account.</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
     <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
