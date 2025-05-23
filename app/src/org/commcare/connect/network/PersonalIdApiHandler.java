@@ -3,6 +3,8 @@ package org.commcare.connect.network;
 import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.network.parser.AddOrVerifyNameParser;
+import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -23,25 +25,25 @@ public abstract class PersonalIdApiHandler {
         JSON_PARSING_ERROR;
     }
 
-    public void makeStartConfigurationCall(Activity activity, String phone) {
-        ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
+    private IApiCallback createCallback(PersonalIdSessionData sessionData,
+                                        PersonalIdApiResponseParser parser,
+                                        PersonalIdApiErrorCodes defaultFailureCode) {
+        return new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try (InputStream in = responseData) {
-                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-                    PersonalIdSessionData sessionData = new PersonalIdSessionData();
-                    StartConfigurationResponseParser parser = new StartConfigurationResponseParser(json);
-                    parser.parse(sessionData);
+                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
+                    parser.parse(json, sessionData);
                     onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
-                    Logger.exception("Error parsing recovery response", e);
+                    Logger.exception("Error parsing API response", e);
                     onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
                 }
             }
 
             @Override
             public void processFailure(int responseCode) {
-                onFailure(PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR);
+                onFailure(defaultFailureCode);
             }
 
             @Override
@@ -63,7 +65,22 @@ public abstract class PersonalIdApiHandler {
             public void processOldApiError() {
                 onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR);
             }
-        });
+        };
+    }
+
+    public void makeStartConfigurationCall(Activity activity, String name) {
+        PersonalIdSessionData sessionData = new PersonalIdSessionData();
+        ApiPersonalId.startConfiguration(activity, name,
+                createCallback(sessionData,
+                        new StartConfigurationResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+
+    public void addOrVerifyNameCall(Activity activity, String name, PersonalIdSessionData sessionData) {
+        ApiPersonalId.addOrVerifyName(activity, name,
+                createCallback(sessionData,
+                        new AddOrVerifyNameParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
