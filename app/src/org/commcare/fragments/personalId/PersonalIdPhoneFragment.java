@@ -22,8 +22,11 @@ import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.HashUtils;
+import org.commcare.utils.IntegrityTokenViewModel;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -34,6 +37,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import java.util.HashMap;
+
 public class PersonalIdPhoneFragment extends Fragment {
 
     private ScreenPersonalidPhonenoBinding binding;
@@ -41,13 +46,14 @@ public class PersonalIdPhoneFragment extends Fragment {
     private PhoneNumberHelper phoneNumberHelper;
     private Activity activity;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
+    private IntegrityTokenViewModel tokenViewModel;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
+        tokenViewModel = new ViewModelProvider(this).get(IntegrityTokenViewModel.class);
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
-
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
@@ -158,18 +164,48 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
+        tokenViewModel.getProviderState().observe(getViewLifecycleOwner(), state -> {
+            if (state instanceof IntegrityTokenViewModel.TokenProviderState.Success) {
+               startConfigurationRequest();
+            } else if (state instanceof IntegrityTokenViewModel.TokenProviderState.Failure) {
+                Exception exception = ((IntegrityTokenViewModel.TokenProviderState.Failure) state).getException();
+                Logger.exception("Unable to warm up Integrity Token Provider", exception);
+                onConfigurationFailure();
+            }
+        });
+    }
+
+    private void startConfigurationRequest() {
         String phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
         );
 
+        HashMap<String, String> body = new HashMap<>();
+        body.put("phone_number", phone);
+
+        String requestHash =  HashUtils.computeHash(body.toString(), HashUtils.HashAlgorithm.SHA256);
+        tokenViewModel.requestIntegrityToken(requestHash, integrityToken -> {
+            if (integrityToken != null) {
+                makeStartConfigurationCall(integrityToken, requestHash, body);
+            } else {
+                onConfigurationFailure();
+            }
+        });
+    }
+
+    private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
+            HashMap<String, String> body) {
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSucesss();
-                } else { // This is called when api returns success but with a a failure code
+                } else {
+                    // This is called when api returns success but with a a failure code
+                    Logger.log(LogTypes.TYPE_USER,
+                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
                     onConfigurationFailure();
                 }
             }
@@ -178,7 +214,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
-        }.makeStartConfigurationCall(requireActivity(), phone);
+        }.makeStartConfigurationCall(requireActivity(), body, requestHash, integrityToken);
     }
 
 
@@ -187,10 +223,9 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onConfigurationFailure() {
-        Logger.log(LogTypes.TYPE_USER,
-                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
+        String failureMessage = getString(R.string.configuration_process_failed_subtitle);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                navigateToMessageDisplay(getString(R.string.configuration_process_failed_subtitle), false));
+                navigateToMessageDisplay(failureMessage, false));
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
