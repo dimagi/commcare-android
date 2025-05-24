@@ -13,6 +13,7 @@ object HashUtils {
         override fun toString(): String = algorithmName
     }
 
+    @JvmStatic
     fun computeHash(message: String, algorithm: HashAlgorithm = HashAlgorithm.SHA256): String {
         val digest = MessageDigest.getInstance(algorithm.algorithmName)
         val hashBytes = digest.digest(message.toByteArray(StandardCharsets.UTF_8))
