@@ -9,8 +9,10 @@ import retrofit2.http.*;
 public interface ApiService {
 
 
-    @POST(ApiEndPoints.registerUser)
-    Call<ResponseBody> startConfiguration(@Body Map<String, String> registrationRequest);
+    @POST(ApiEndPoints.startConfiguration)
+    Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
+            @Header("CC-Request-Hash") String requestHash,
+            @Body Map<String, String> registrationRequest);
 
     @POST(ApiEndPoints.checkName)
     Call<ResponseBody> checkName(@Body Map<String, String> nameRequest);

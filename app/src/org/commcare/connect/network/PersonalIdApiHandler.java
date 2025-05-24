@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public abstract class PersonalIdApiHandler {
 
@@ -68,9 +69,12 @@ public abstract class PersonalIdApiHandler {
         };
     }
 
-    public void makeStartConfigurationCall(Activity activity, String name) {
+    public void makeStartConfigurationCall(Activity activity,
+                    Map<String, String> body,
+                    String integrityToken,
+                    String requestHash) {
         PersonalIdSessionData sessionData = new PersonalIdSessionData();
-        ApiPersonalId.startConfiguration(activity, name,
+        ApiPersonalId.startConfiguration(activity, body, integrityToken, requestHash,
                 createCallback(sessionData,
                         new StartConfigurationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));

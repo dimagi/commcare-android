@@ -185,6 +185,7 @@ ext {
                     'ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0' +
                     'HaAJkjpnc165Os+aYwIDAQAB'
     GOOGLE_SERVICES_API_KEY = project.properties['GOOGLE_SERVICES_API_KEY'] ?: ''
+    GOOGLE_CLOUD_PROJECT_NUMBER = project.properties['GOOGLE_CLOUD_PROJECT_NUMBER'] ?: -1L
     QA_BETA_APP_ID = ''
     STANDALONE_APP_ID = ''
     LTS_APP_ID = ''
@@ -311,7 +312,7 @@ android {
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
         buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
-
+        buildConfigField 'long', 'GOOGLE_CLOUD_PROJECT_NUMBER', "${project.ext.GOOGLE_CLOUD_PROJECT_NUMBER}"
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
