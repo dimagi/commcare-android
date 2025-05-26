@@ -27,6 +27,7 @@ import org.commcare.utils.IntegrityTokenViewModel;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -164,6 +165,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
+        binding.personalidPhoneContinueButton.setEnabled(false);
         tokenViewModel.getProviderState().observe(getViewLifecycleOwner(), state -> {
             if (state instanceof IntegrityTokenViewModel.TokenProviderState.Success) {
                startConfigurationRequest();
@@ -184,7 +186,9 @@ public class PersonalIdPhoneFragment extends Fragment {
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
 
-        String requestHash =  HashUtils.computeHash(body.toString(), HashUtils.HashAlgorithm.SHA256);
+        //  Convert to Json as HashMap doesn't guarantee iteration order, causing inconsistent hashes for the same data
+        String jsonBody = new JSONObject(body).toString();
+        String requestHash =  HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256);
         tokenViewModel.requestIntegrityToken(requestHash, integrityToken -> {
             if (integrityToken != null) {
                 makeStartConfigurationCall(integrityToken, requestHash, body);
