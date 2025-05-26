@@ -913,6 +913,8 @@
     <string name="name_empty_error">Name field cannot be empty</string>
     <string name="configuration_process_failed_title">Process Failed</string>
     <string name="configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
+    <string name="configuration_process_failed_server_msg">Invalid device security requirements from server: %s</string>
     <string name="connectid_photo_capture_title">Welcome %1$s</string>
     <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
