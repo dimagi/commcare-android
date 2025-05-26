@@ -233,6 +233,9 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        if (failureCode.shouldAllowRetry()) {
+            binding.personalidPhoneContinueButton.setEnabled(true);
+        }
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 

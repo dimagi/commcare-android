@@ -24,6 +24,11 @@ public abstract class PersonalIdApiHandler {
         TOKEN_DENIED_ERROR,
         INVALID_RESPONSE_ERROR,
         JSON_PARSING_ERROR;
+
+        public boolean shouldAllowRetry(){
+            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == INVALID_RESPONSE_ERROR
+                    || this == JSON_PARSING_ERROR;
+        }
     }
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
