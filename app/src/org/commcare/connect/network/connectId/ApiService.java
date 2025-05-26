@@ -12,6 +12,9 @@ public interface ApiService {
     @POST(ApiEndPoints.registerUser)
     Call<ResponseBody> startConfiguration(@Body Map<String, String> registrationRequest);
 
+    @POST(ApiEndPoints.checkName)
+    Call<ResponseBody> checkName(@Body Map<String, String> nameRequest);
+
     @POST(ApiEndPoints.changePhoneNo)
     Call<ResponseBody> changePhoneNo(@Header("Authorization") String token,
                                      @Body Map<String, String> changeRequest);
