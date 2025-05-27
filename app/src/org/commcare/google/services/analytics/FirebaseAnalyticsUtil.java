@@ -39,6 +39,7 @@ public class FirebaseAnalyticsUtil {
 
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
+    private static final int MAX_USER_PROPERTY_VALUE_LENGTH = 36;
 
 
     private static void reportEvent(String eventName) {
@@ -77,7 +78,11 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
-        analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, ReportingUtils.getDeviceId());
+        String deviceId = ReportingUtils.getDeviceId();
+        if(deviceId.length() > MAX_USER_PROPERTY_VALUE_LENGTH) {
+            deviceId = deviceId.substring(deviceId.length() - MAX_USER_PROPERTY_VALUE_LENGTH);
+        }
+        analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, deviceId);
 
         String domain = ReportingUtils.getDomain();
         if (!TextUtils.isEmpty(domain)) {
