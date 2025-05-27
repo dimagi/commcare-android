@@ -34,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -285,11 +286,10 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void startConfiguration(Context context, String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone_number", phone);
+    public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
+            String requestHash, IApiCallback callback) {
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.startConfiguration(params);
+        Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
         callApi(context, call, callback);
     }
 
