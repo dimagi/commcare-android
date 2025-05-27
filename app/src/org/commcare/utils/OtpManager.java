@@ -1,5 +1,7 @@
 package org.commcare.utils;
 
+import android.app.Activity;
+
 import com.google.firebase.auth.PhoneAuthOptions;
 
 import java.util.Objects;
