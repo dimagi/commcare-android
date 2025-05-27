@@ -13,6 +13,7 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.connect.ConnectConstants;
@@ -233,7 +234,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private void navigateForward(boolean enrollmentFailed) {
         if (enrollmentFailed) {
-            navigateToBiometricEnrollmentFailed();
+            Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToBiometricEnrollmentFailed());
         } else {
             BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(
                     getActivity(), biometricManager);
@@ -242,7 +243,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
-                navigateToOtpScreen();
+                Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToOtpScreen());
             }
         }
     }
