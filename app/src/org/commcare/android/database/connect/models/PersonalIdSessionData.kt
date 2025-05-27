@@ -22,7 +22,7 @@ data class PersonalIdSessionData(
 
     /**
      * Annotation to restrict accepted authentication types used by the device.
-     * Only DEVICE_TYPE or BIOMETRIC_TYPE are allowed.
+     * Only PIN or BIOMETRIC_TYPE are allowed.
      */
     @StringDef(PIN, BIOMETRIC_TYPE)
     @Retention(AnnotationRetention.SOURCE)
