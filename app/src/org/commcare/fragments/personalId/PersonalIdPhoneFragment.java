@@ -10,25 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Toast;
-import com.google.android.gms.auth.api.identity.Identity;
-import com.google.android.gms.common.api.ApiException;
-
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
-import org.commcare.android.CommCareViewModelProvider;
-import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
-import org.commcare.util.LogTypes;
-import org.commcare.utils.HashUtils;
-import org.commcare.utils.IntegrityTokenViewModel;
-import org.commcare.utils.PhoneNumberHelper;
-import org.javarosa.core.services.Logger;
-import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
@@ -39,6 +20,22 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.common.api.ApiException;
+
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.PhoneNumberHelper;
+import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 
 public class PersonalIdPhoneFragment extends Fragment {
@@ -48,17 +45,17 @@ public class PersonalIdPhoneFragment extends Fragment {
     private PhoneNumberHelper phoneNumberHelper;
     private Activity activity;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
-    private IntegrityTokenViewModel tokenViewModel;
+    private IntegrityTokenApiRequestHelper integrityTokenApiRequestHelper;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        tokenViewModel = CommCareViewModelProvider.INSTANCE.getIntegrityTokenViewModel();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
+        integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
         return binding.getRoot();
     }
@@ -167,15 +164,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void onContinueClicked() {
         binding.personalidPhoneContinueButton.setEnabled(false);
-        tokenViewModel.getProviderState().observe(getViewLifecycleOwner(), state -> {
-            if (state instanceof IntegrityTokenViewModel.TokenProviderState.Success) {
-               startConfigurationRequest();
-            } else if (state instanceof IntegrityTokenViewModel.TokenProviderState.Failure) {
-                Exception exception = ((IntegrityTokenViewModel.TokenProviderState.Failure) state).getException();
-                Logger.exception("Unable to warm up Integrity Token Provider", exception);
-                onConfigurationFailure();
-            }
-        });
+        startConfigurationRequest();
     }
 
     private void startConfigurationRequest() {
@@ -187,15 +176,13 @@ public class PersonalIdPhoneFragment extends Fragment {
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
 
-        //  Convert to Json as HashMap doesn't guarantee iteration order, causing inconsistent hashes for the same data
-        String jsonBody = new JSONObject(body).toString();
-        String requestHash =  HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256);
-        tokenViewModel.requestIntegrityToken(requestHash, integrityToken -> {
+        integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
             if (integrityToken != null) {
                 makeStartConfigurationCall(integrityToken, requestHash, body);
             } else {
                 onConfigurationFailure();
             }
+            return null;
         });
     }
 
