@@ -61,7 +61,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private ScreenPersonalidPhoneVerifyBinding binding;
     private final Handler resendTimerHandler = new Handler();
     private OtpManager otpManager;
-    private String verificationId;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -77,15 +76,13 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
         }
-        initOtpComponents();
+        initOtpManager();
     }
 
-    private void initOtpComponents() {
-        // Save for later verification
-        OtpVerificationCallback otpCallback = new OtpVerificationCallback() {
+    private void initOtpManager() {
+        otpManager = new OtpManager(requireActivity(),new OtpVerificationCallback() {
             @Override
-            public void onCodeSent(String vId) {
-                verificationId = vId; // Save for later verification
+            public void onCodeSent(String verificationId) {
                 Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show();
             }
 
@@ -103,11 +100,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             public void onFailure(String errorMessage) {
                 Toast.makeText(requireContext(), "OTP Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                displayOtpError(errorMessage);
             }
-        };
-
-        FirebaseAuthService authService = new FirebaseAuthService(requireActivity(), otpCallback);
-        otpManager = new OtpManager(authService);
+        });
     }
 
     @Override
@@ -287,15 +282,11 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
 
-        if (verificationId == null) {
-            Toast.makeText(requireContext(), "Verification ID is missing. Send OTP first.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (!otpCode.isEmpty()){
-            otpManager.submitOtp(otpCode);
-        }else {
+        if (otpCode.isEmpty()) {
             Toast.makeText(requireContext(), "Enter OTP", Toast.LENGTH_SHORT).show();
+        } else {
+            otpManager.submitOtp(otpCode);
+            logOtpVerification(true);
         }
     }
 
