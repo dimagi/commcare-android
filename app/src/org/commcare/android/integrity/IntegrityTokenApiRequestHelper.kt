@@ -9,6 +9,9 @@ import org.json.JSONObject
 import java.util.LinkedList
 import java.util.HashMap
 
+/**
+ * Helper class to get the integrity token for an API request and is meant to abstract common boilerplate when dealing with [IntegrityTokenViewModel]
+ */
 class IntegrityTokenApiRequestHelper(
     lifecycleOwner: LifecycleOwner
 ) {
