@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.app.Activity;
+import com.google.firebase.auth.PhoneAuthOptions;
 
 import java.util.Objects;
 
@@ -18,14 +18,16 @@ public class OtpManager {
     /**
      * Constructs an OtpManager by internally selecting an appropriate AuthService implementation.
      *
-     * @param activity Context needed for the auth service
+     * @param optionsBuilder Pre-configured PhoneAuthOptions.Builder used to build OTP authentication options
      * @param callback Callback interface to notify UI of OTP events
      * @throws NullPointerException if any parameter is null
      */
-    public OtpManager(Activity activity, OtpVerificationCallback callback) {
-        Objects.requireNonNull(activity, "Activity cannot be null");
+    public OtpManager(PhoneAuthOptions.Builder optionsBuilder, OtpVerificationCallback callback) {
+        Objects.requireNonNull(optionsBuilder, "PhoneAuthOptions.Builder cannot be null");
         Objects.requireNonNull(callback, "OtpVerificationCallback cannot be null");
-        this.authService = new FirebaseAuthService(activity, callback);
+
+        // Internally select FirebaseAuthService with preconfigured builder
+        this.authService = new FirebaseAuthService(optionsBuilder, callback);
     }
 
     /**

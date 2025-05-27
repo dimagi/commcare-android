@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import android.app.Activity;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -11,100 +11,76 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-/**
- * FirebaseAuthService handles phone number authentication using Firebase.
- * It supports sending OTP (One Time Password) and verifying it to authenticate users.
- */
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 public class FirebaseAuthService implements OtpAuthService {
 
-    private final Activity activity; // Activity context required for Firebase callbacks
-    private final OtpVerificationCallback callback; // Callback interface for OTP result events
-    private String verificationId; // Stores the verification ID received after sending OTP
+    private final FirebaseAuth firebaseAuth;
+    private final PhoneAuthOptions.Builder baseOptionsBuilder;
+    private final OtpVerificationCallback callback;
+    private String verificationId;
 
-    /**
-     * Constructor for initiating OTP send process.
-     *
-     * @param activity Android activity context
-     * @param callback Callback to handle OTP events
-     */
-    public FirebaseAuthService(Activity activity, OtpVerificationCallback callback) {
-        this.activity = activity;
-        this.callback = callback;
+    public FirebaseAuthService(@NonNull PhoneAuthOptions.Builder baseOptionsBuilder,
+                               @NonNull OtpVerificationCallback callback) {
+        this.firebaseAuth = FirebaseAuth.getInstance();
+        this.baseOptionsBuilder = Objects.requireNonNull(baseOptionsBuilder, "PhoneAuthOptions.Builder cannot be null");
+        this.callback = Objects.requireNonNull(callback, "OtpVerificationCallback cannot be null");
     }
 
-    /**
-     * Sends an OTP to the provided phone number using Firebase's phone auth.
-     *
-     * @param phoneNumber The phone number to which the OTP will be sent
-     */
     @Override
     public void requestOtp(String phoneNumber) {
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                .setPhoneNumber(phoneNumber) // Phone number to verify
-                .setActivity(activity) // Activity for binding callback
+        PhoneAuthOptions options = baseOptionsBuilder
+                .setPhoneNumber(phoneNumber)
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-
-                    // Called when verification is completed automatically (instant/auto-retrieval)
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
+                        Log.d("FirebaseAuthService", "Auto-verification completed.");
                         signInWithCredential(credential);
                     }
 
-                    // Called when verification process fails
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
+                        Log.e("FirebaseAuthService", "Verification failed: " + e.getMessage(), e);
                         callback.onFailure("Verification failed: " + e.getMessage());
                     }
 
-                    // Called when OTP has been sent successfully
                     @Override
-                    public void onCodeSent(@NonNull String id, @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                        verificationId = id; // Store verification ID to use during verification
-                        callback.onCodeSent(id); // Notify client
+                    public void onCodeSent(@NonNull String verificationId,
+                                           @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                        Log.d("FirebaseAuthService", "Code sent: " + verificationId);
+                        FirebaseAuthService.this.verificationId = verificationId;
+                        callback.onCodeSent(verificationId);
                     }
                 })
                 .build();
 
-        // Start phone number verification process
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
-    /**
-     * Verifies the OTP entered by the user.
-     *
-     * @param code The OTP code received by the user
-     */
     @Override
     public void verifyOtp(String code) {
         if (verificationId == null || verificationId.isEmpty()) {
-            callback.onFailure("Missing verification ID");
+            callback.onFailure("Verification ID is missing.");
             return;
         }
 
-        // Create credential using verification ID and OTP code
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-        signInWithCredential(credential); // Proceed to sign in
+        signInWithCredential(credential);
     }
 
-    /**
-     * Signs in the user using the provided phone auth credential and
-     * invokes appropriate callback methods based on result.
-     *
-     * @param credential Firebase phone auth credential
-     */
     private void signInWithCredential(PhoneAuthCredential credential) {
-        FirebaseAuth.getInstance().signInWithCredential(credential)
-                .addOnCompleteListener(activity, task -> {
+        firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Authentication successful
                         FirebaseUser user = task.getResult().getUser();
-                        callback.onSuccess(user);
+                        if (user != null) {
+                            callback.onSuccess(user);
+                        } else {
+                            callback.onFailure("Failed to retrieve user.");
+                        }
                     } else {
-                        // Authentication failed
-                        String error = (task.getException() != null)
-                                ? task.getException().getMessage()
-                                : "Unknown error";
-                        callback.onFailure("Sign-in failed: " + error);
+                        callback.onFailure("Sign-in failed: " + Objects.requireNonNull(task.getException()).getMessage());
                     }
                 });
     }
