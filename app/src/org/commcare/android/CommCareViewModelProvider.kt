@@ -1,9 +1,8 @@
 package org.commcare.android
 
-import android.app.Application
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.CommCareApplication
-import org.commcare.utils.IntegrityTokenViewModel
+import org.commcare.android.integrity.IntegrityTokenViewModel
 
 /**
  * Singleton Wrapper for view models scoped to application lifecycle

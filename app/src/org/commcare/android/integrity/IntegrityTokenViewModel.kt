@@ -1,4 +1,4 @@
-package org.commcare.utils
+package org.commcare.android.integrity
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
