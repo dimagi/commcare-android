@@ -33,18 +33,6 @@ public class FirebaseAuthService implements OtpAuthService {
     }
 
     /**
-     * Constructor for verifying OTP with a known verification ID.
-     *
-     * @param activity Android activity context
-     * @param callback Callback to handle OTP events
-     * @param verificationId ID received when OTP was sent
-     */
-    public FirebaseAuthService(Activity activity, OtpVerificationCallback callback, String verificationId) {
-        this(activity, callback);
-        this.verificationId = verificationId;
-    }
-
-    /**
      * Sends an OTP to the provided phone number using Firebase's phone auth.
      *
      * @param phoneNumber The phone number to which the OTP will be sent
