@@ -1,8 +1,5 @@
 package org.commcare.fragments.personalId;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.RECEIVER_NOT_EXPORTED;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,13 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
@@ -33,21 +23,25 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.FirebaseAuthService;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 public class PersonalIdPhoneVerificationFragment extends Fragment {
 
