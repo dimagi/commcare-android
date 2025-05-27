@@ -56,7 +56,7 @@ class IntegrityTokenApiRequestHelper(
     private fun processPendingRequests() {
         while (pendingRequests.isNotEmpty()) {
             val (body, callback) = pendingRequests.removeFirst()
-            val jsonBody = JSONObject(body).toString()
+            val jsonBody = JSONObject(body as Map<*, *>).toString()
             val requestHash = HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256)
             integrityTokenViewModel.requestIntegrityToken(requestHash) { token ->
                 callback.invoke(token, requestHash)
