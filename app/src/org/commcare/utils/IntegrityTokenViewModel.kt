@@ -1,5 +1,6 @@
 package org.commcare.utils
 
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,7 @@ import org.commcare.CommCareApplication
 import org.commcare.dalvik.BuildConfig
 import org.javarosa.core.services.Logger
 
-class IntegrityTokenViewModel() : ViewModel() {
+class IntegrityTokenViewModel() : AndroidViewModel(application = CommCareApplication.instance()) {
 
     private val _providerState = MutableLiveData<TokenProviderState>()
     val providerState: LiveData<TokenProviderState> = _providerState

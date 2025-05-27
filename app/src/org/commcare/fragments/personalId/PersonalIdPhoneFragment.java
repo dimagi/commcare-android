@@ -14,6 +14,7 @@ import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.CommCareViewModelProvider;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -53,7 +54,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        tokenViewModel = new ViewModelProvider(this).get(IntegrityTokenViewModel.class);
+        tokenViewModel = CommCareViewModelProvider.INSTANCE.getIntegrityTokenViewModel();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
