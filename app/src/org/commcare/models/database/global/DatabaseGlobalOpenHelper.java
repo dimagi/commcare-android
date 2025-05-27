@@ -32,7 +32,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * V.5 - Add table for storing apps available for install
      * V.6 - Add table for storing (encrypted) passphrase for ConnectId DB
      * V.7 - Add is_local column to ConnectKeyRecord table (to store both local and server passphrase)
-     * V.8 - Add logout_error_message column to ConnectKeyRecord table
+     * V.8 - Add GlobalErrorRecord table
      */
     private static final int GLOBAL_DB_VERSION = 8;
 

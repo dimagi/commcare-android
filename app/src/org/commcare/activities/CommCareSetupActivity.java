@@ -52,6 +52,7 @@ import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -175,7 +176,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
         if (!fromManager) {
-            connectError = PersonalIdManager.getInstance().init(this);
+            PersonalIdManager.getInstance().init(this);
+
+            String errors = GlobalErrorUtil.handleGlobalErrors();
+            connectError = errors.length() > 0 ? errors : null;
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();

@@ -24,7 +24,6 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
@@ -112,14 +111,9 @@ public class PersonalIdManager {
         return manager;
     }
 
-    public String init(Context parent) {
+    public void init(Context parent) {
         parentActivity = parent;
         if (personalIdSatus == PersonalIdStatus.NotIntroduced) {
-            String errorMessage = checkForLogoutErrorMessage(parent);
-            if(errorMessage != null) {
-                return errorMessage;
-            }
-
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
@@ -134,22 +128,6 @@ public class PersonalIdManager {
                 ConnectDatabaseHelper.crashDb();
             }
         }
-
-        return null;
-    }
-
-    private String checkForLogoutErrorMessage(Context context) {
-        ConnectKeyRecord keyRecord = ConnectDatabaseUtils.getKeyRecord(true);
-        if(keyRecord != null) {
-            int message = keyRecord.getLogoutErrorMessage();
-            if(message > 0) {
-                String reason = context.getString(message);
-                forgetUser(reason);
-                return reason;
-            }
-        }
-
-        return null;
     }
 
     public String generatePassword() {

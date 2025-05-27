@@ -21,6 +21,7 @@ import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -434,7 +435,7 @@ public class ConnectNetworkHelper {
     }
 
     public static void handleTokenDeniedException() {
-        ConnectDatabaseHelper.crashDb(R.string.recovery_network_token_request_rejected);
+        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

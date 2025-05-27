@@ -12,7 +12,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecordV6;
-import org.commcare.android.database.global.models.ConnectKeyRecordV7;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -158,13 +158,13 @@ class GlobalDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectKeyRecordV7.STORAGE_KEY,
-                    ConnectKeyRecordV7.class,
+                    ConnectKeyRecord.STORAGE_KEY,
+                    ConnectKeyRecord.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (Persistable r : oldStorage) {
                 ConnectKeyRecordV6 oldRecord = (ConnectKeyRecordV6)r;
-                ConnectKeyRecordV7 newRecord = ConnectKeyRecordV7.fromV6(oldRecord);
+                ConnectKeyRecord newRecord = ConnectKeyRecord.fromV6(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -178,38 +178,7 @@ class GlobalDatabaseUpgrader {
     }
 
     private boolean upgradeSevenEight(SQLiteDatabase db) {
-        db.beginTransaction();
-
-        //Migrate the old ConnectKeyRecord in storage to the new version including isLocal
-        try {
-            db.execSQL(DbUtil.addColumnToTable(
-                    ConnectKeyRecord.STORAGE_KEY,
-                    ConnectKeyRecord.LOGOUT_MESSAGE,
-                    "INTEGER"));
-
-            SqlStorage<Persistable> oldStorage = new SqlStorage<>(
-                    ConnectKeyRecordV7.STORAGE_KEY,
-                    ConnectKeyRecordV7.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectKeyRecord.STORAGE_KEY,
-                    ConnectKeyRecord.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
-            for (Persistable r : oldStorage) {
-                ConnectKeyRecordV7 oldRecord = (ConnectKeyRecordV7)r;
-                ConnectKeyRecord newRecord = ConnectKeyRecord.fromV7(oldRecord);
-                //set this new record to have same ID as the old one
-                newRecord.setID(oldRecord.getID());
-                newStorage.write(newRecord);
-            }
-
-            db.setTransactionSuccessful();
-            return true;
-        } finally {
-            db.endTransaction();
-        }
+        return addTableForNewModel(db, GlobalErrorRecord.STORAGE_KEY, new GlobalErrorRecord());
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

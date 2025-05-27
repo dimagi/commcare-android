@@ -166,4 +166,5 @@ public class AnalyticsParamValue {
     public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
     public static final String CCC_FORGOT_USER_DEACTIVATION = "account_deactivation";
     public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
+    public static final String CCC_DB_ERROR = "global_connect_error";
 }

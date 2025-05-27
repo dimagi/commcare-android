@@ -11,6 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
@@ -18,8 +19,12 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
+import org.commcare.utils.GlobalErrorUtil;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
+
+import java.util.Date;
 
 /**
  * Helper class for accessing the Connect DB
@@ -95,17 +100,11 @@ public class ConnectDatabaseHelper {
     }
 
     public static void crashDb() {
-        crashDb(R.string.connect_db_corrupt);
+        crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
     }
 
-    public static void crashDb(int message) {
-        ConnectKeyRecord keyRecord = ConnectDatabaseUtils.getKeyRecord(true);
-        if(keyRecord == null) {
-            keyRecord = new ConnectKeyRecord("", true);
-        }
-
-        keyRecord.setLogoutErrorMessage(message);
-        CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(keyRecord);
+    public static void crashDb(GlobalErrors error) {
+        GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
 
         throw new RuntimeException("Connect database crash");
     }

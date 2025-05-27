@@ -16,17 +16,12 @@ import kotlin.Metadata;
 public class ConnectKeyRecord extends Persisted {
     public static final String STORAGE_KEY = "connect_key";
     public static final String IS_LOCAL = "is_local";
-    public static final String LOGOUT_MESSAGE = "logout_message";
     @Persisting(1)
     String encryptedPassphrase;
 
     @Persisting(2)
     @MetaField(IS_LOCAL)
     boolean isLocal;
-
-    @Persisting(3)
-    @MetaField(LOGOUT_MESSAGE)
-    int logoutErrorMessage = -1;
 
     public ConnectKeyRecord() {
     }
@@ -46,15 +41,7 @@ public class ConnectKeyRecord extends Persisted {
         return isLocal;
     }
 
-    public int getLogoutErrorMessage() {
-        return logoutErrorMessage;
-    }
-
-    public void setLogoutErrorMessage(int message) {
-        logoutErrorMessage = message;
-    }
-
-    public static ConnectKeyRecord fromV7(ConnectKeyRecordV7 oldVersion) {
-        return new ConnectKeyRecord(oldVersion.getEncryptedPassphrase(), oldVersion.getIsLocal());
+    public static ConnectKeyRecord fromV6(ConnectKeyRecordV6 oldVersion) {
+        return new ConnectKeyRecord(oldVersion.getEncryptedPassphrase(), true);
     }
 }
