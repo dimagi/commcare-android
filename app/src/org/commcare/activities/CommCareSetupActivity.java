@@ -166,7 +166,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private final InstallPermissionsFragment permFragment = new InstallPermissionsFragment();
     private ContainerViewModel<CommCareApp> containerViewModel;
-    private String connectError = null;
+    private String globalError = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,10 +176,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
         if (!fromManager) {
-            PersonalIdManager.getInstance().init(this);
-
             String errors = GlobalErrorUtil.handleGlobalErrors();
-            connectError = errors.length() > 0 ? errors : null;
+            globalError = errors.length() > 0 ? errors : null;
+
+            PersonalIdManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
@@ -362,8 +362,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             fm.executePendingTransactions();
         }
 
-        if(connectError != null) {
-            installFragment.showConnectErrorMessage(connectError);
+        if(globalError != null) {
+            installFragment.showConnectErrorMessage(globalError);
         }
 
         updateConnectButton();

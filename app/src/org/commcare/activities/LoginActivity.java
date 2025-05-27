@@ -138,14 +138,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-        personalIdManager = PersonalIdManager.getInstance();
-
-        personalIdManager.init(this);
 
         String errors = GlobalErrorUtil.handleGlobalErrors();
         if(errors.length() > 0) {
             uiController.setConnectErrorMessageUI(errors);
         }
+
+        personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         ///TODO: connect uncomment with connect merge
