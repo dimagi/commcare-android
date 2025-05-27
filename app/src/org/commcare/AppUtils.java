@@ -1,11 +1,6 @@
 package org.commcare;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
-import android.view.View;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -30,7 +25,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
