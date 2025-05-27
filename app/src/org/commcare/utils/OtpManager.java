@@ -1,12 +1,14 @@
 package org.commcare.utils;
 
+import android.app.Activity;
+
 import java.util.Objects;
 
 /**
  * Manager class that wraps authentication service operations for OTP (One-Time Password) functionality.
  * <p>
  * This class provides a simplified interface for requesting and submitting OTPs
- * by delegating actual authentication logic to an implementation of the {@link OtpAuthService} interface.
+ * by internally managing an appropriate {@link OtpAuthService} implementation.
  */
 public class OtpManager {
 
@@ -14,13 +16,16 @@ public class OtpManager {
     private final OtpAuthService authService;
 
     /**
-     * Constructs an OtpManager with the specified AuthService implementation.
+     * Constructs an OtpManager by internally selecting an appropriate AuthService implementation.
      *
-     * @param authService An implementation of AuthService used to send and verify OTPs
-     * @throws NullPointerException if authService is null
+     * @param activity Context needed for the auth service
+     * @param callback Callback interface to notify UI of OTP events
+     * @throws NullPointerException if any parameter is null
      */
-    public OtpManager(OtpAuthService authService) {
-        this.authService = Objects.requireNonNull(authService, "AuthService cannot be null");
+    public OtpManager(Activity activity, OtpVerificationCallback callback) {
+        Objects.requireNonNull(activity, "Activity cannot be null");
+        Objects.requireNonNull(callback, "OtpVerificationCallback cannot be null");
+        this.authService = new FirebaseAuthService(activity, callback);
     }
 
     /**
