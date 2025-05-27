@@ -14,11 +14,9 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthOptions;
 
 import org.commcare.connect.SMSBroadcastReceiver;
-import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -26,11 +24,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
-import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
-import java.io.InputStream;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,7 +69,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void initOtpManager() {
-        otpManager = new OtpManager(requireActivity(),new OtpVerificationCallback() {
+        OtpVerificationCallback otpCallback = new OtpVerificationCallback() {
             @Override
             public void onCodeSent(String verificationId) {
                 Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show();
@@ -82,13 +77,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
             @Override
             public void onSuccess(FirebaseUser user) {
-                Toast.makeText(requireContext(), "OTP Verified: " + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
-                user.getIdToken(false).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        String idToken = task.getResult().getToken();
-                        validateFirebaseIdToken(idToken);
-                    }
-                });
+                Toast.makeText(requireContext(), "OTP Verified Successfully", Toast.LENGTH_SHORT).show();
+                navigateToNameEntry();
             }
 
             @Override
@@ -96,8 +86,17 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 Toast.makeText(requireContext(), "OTP Error: " + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
             }
-        });
+        };
+
+        // Build the base PhoneAuthOptions.Builder
+        PhoneAuthOptions.Builder optionsBuilder = PhoneAuthOptions.newBuilder()
+                .setActivity(requireActivity()) // Required for Firebase auth
+                .setTimeout(60L, java.util.concurrent.TimeUnit.SECONDS); // Optional timeout
+
+        // Pass builder and callback to the OtpManager
+        otpManager = new OtpManager(optionsBuilder, otpCallback);
     }
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -112,40 +111,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
         activity.setTitle(R.string.connect_verify_phone_title);
         return binding.getRoot();
-    }
-
-    private void validateFirebaseIdToken(String firebaseIdToken) {
-        ApiPersonalId.validateFirebaseIdToken(getActivity(),firebaseIdToken, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                navigateToNameEntry();
-            }
-
-            @Override
-            public void processFailure(int responseCode) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getActivity());
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
-            }
-        });
     }
 
     private void getPhoneNumberFromArguments() {
