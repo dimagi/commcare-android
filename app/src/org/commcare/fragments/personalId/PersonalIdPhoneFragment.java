@@ -17,6 +17,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.ConnectNetworkHelper;
+import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
@@ -194,24 +195,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
-        switch (failureCode) {
-            case INVALID_RESPONSE_ERROR,JSON_PARSING_ERROR:
-                Toast.makeText(activity, getString(R.string.configuration_process_api_failed),
-                        Toast.LENGTH_LONG).show();
-                break;
-            case NETWORK_ERROR:
-                ConnectNetworkHelper.showNetworkError(getActivity());
-                break;
-            case TOKEN_UNAVAILABLE_ERROR:
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-                break;
-            case TOKEN_DENIED_ERROR:
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-                break;
-            case OLD_API_ERROR:
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
-                break;
-        }
+        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 
     private NavDirections navigateToBiometricSetup() {
