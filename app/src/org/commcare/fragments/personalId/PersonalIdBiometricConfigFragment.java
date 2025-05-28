@@ -246,7 +246,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private void navigateForward(boolean enrollmentFailed) {
         if (enrollmentFailed) {
-            navigateToBiometricEnrollmentFailed();
+            Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToBiometricEnrollmentFailed());
         } else {
             BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(
                     getActivity(), biometricManager);
@@ -255,7 +255,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
-                navigateToOtpScreen();
+                Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToOtpScreen());
             }
         }
     }
