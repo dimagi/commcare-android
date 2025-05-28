@@ -77,6 +77,7 @@ public class PersonalIdNameFragment extends Fragment {
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
+                sessionData.setUserName(binding.nameTextValue.getText().toString().trim());
                 Navigation.findNavController(binding.getRoot()).navigate(navigateToBackupCodePage());
             }
             @Override

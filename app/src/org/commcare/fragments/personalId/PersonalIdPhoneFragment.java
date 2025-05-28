@@ -47,6 +47,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     private Activity activity;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
     private IntegrityTokenApiRequestHelper integrityTokenApiRequestHelper;
+    private String phone;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -128,7 +129,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void updateContinueButtonState() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(
+        phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
         );
@@ -169,7 +170,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void startConfigurationRequest() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(
+        phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
         );
@@ -193,6 +194,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
+                personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSucesss();
                 } else {
