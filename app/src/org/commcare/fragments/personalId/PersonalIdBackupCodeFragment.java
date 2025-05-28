@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.util.Base64;
-import org.commcare.activities.connect.PersonalIdActivity;
+
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -30,16 +30,16 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.utils.KeyboardHelper;
 import org.javarosa.core.services.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -50,9 +50,6 @@ import androidx.navigation.Navigation;
  */
 public class PersonalIdBackupCodeFragment extends Fragment {
     private static final int PIN_LENGTH = 6;
-    private static final String KEY_NAME = "name";
-    private static final String KEY_RECOVERY = "is_recovery";
-
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
 
@@ -74,23 +71,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         activity = requireActivity();
-
-        initArguments(savedInstanceState);
         configureUiByMode();
         setupPinInputFilters();
         setupListeners();
         clearPinFields();
-
         activity.setTitle(getString(titleId));
         return binding.getRoot();
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(KEY_NAME, name);
-        outState.putBoolean(KEY_RECOVERY, isRecovery);
-    }
 
     @Override
     public void onDestroyView() {
@@ -201,45 +189,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         if (isRecovery) {
             confirmBackupCode();
         } else {
-            registerBackupPin();
+            registerBackupCode();
         }
     }
 
-    private void registerBackupPin() {
-        String pin = binding.connectPinInput.getText().toString();
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
-
-        ApiPersonalId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), pin, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                finishWithNavigation(true, pin);
-            }
-
-            @Override
-            public void processFailure(int responseCode) {
-                handleFailedPinAttempt();
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getActivity());
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
-            }
-        });
+    private void registerBackupCode() {
+        Navigation.findNavController(binding.getRoot()).navigate(createNavigationToPhoto());
     }
 
     private void confirmBackupCode() {
@@ -248,6 +203,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
+                if(!sessionData.getAccountOrphaned()){
+                    handleSuccessfulRecovery();
+                }else{
+                    Navigation.findNavController(binding.getRoot()).navigate(
+                            createNavigationMessage(getString(R.string.recovery_failed),
+                                    getString(R.string.recovery_failed_message),
+                                    ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN, getString(R.string.ok)));
+                }
             }
 
             @Override
@@ -265,16 +228,16 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 
-    private void handleSuccessfulRecovery(JSONObject json, String pin) throws JSONException {
-        String username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
-        String name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
+    private void handleSuccessfulRecovery() {
+        PersonalIdSessionData personalIdSessionData=personalIdSessionDataViewModel.getPersonalIdSessionData();
 
         ConnectDatabaseHelper.handleReceivedDbPassphrase(activity,
-                json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
-        ConnectUserRecord user = new ConnectUserRecord(name, username, "", name, "");
-        user.setPin(pin);
+                personalIdSessionData.getDbKey());
+        ConnectUserRecord user = new ConnectUserRecord(name, personalIdSessionData.getUsername(), "", name, "");
+        user.setPin(binding.connectPinInput.getText().toString());
         user.setLastPinDate(new Date());
         resetUserPassword(user);
+        Navigation.findNavController(binding.getRoot()).navigate(createSuccessRecoveryDirection());
     }
 
     private void resetUserPassword(ConnectUserRecord user) {
@@ -284,7 +247,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             public void processSuccess(int responseCode, InputStream responseData) {
                 user.setPassword(password);
                 ConnectUserDatabaseUtil.storeUser(activity, user);
-                finishWithNavigation(true, user.getPin());
             }
 
             @Override
@@ -321,36 +283,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         idManager.setFailureAttempt(idManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
         clearPinFields();
-        finishWithNavigation(false, null);
     }
 
     private void showRecoveryFailure() {
         Toast.makeText(activity, getString(R.string.connect_recovery_failure), Toast.LENGTH_SHORT).show();
-    }
-
-    private void finishWithNavigation(boolean success, String pin) {
-        NavDirections directions;
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
-
-        if (isRecovery) {
-            directions = success ?
-                    createSuccessRecoveryDirection() :
-                    createFailedRecoveryDirection();
-        } else {
-            ((PersonalIdActivity)activity).forgotPin = false;
-            directions = PersonalIdBackupCodeFragmentDirections.actionPersonalidPinToPersonalidPhotoCapture()
-                    .setUserName(user.getName());
-
-            if (user != null) {
-                user.setPin(pin);
-                user.setLastPinDate(new Date());
-                ConnectUserDatabaseUtil.storeUser(getActivity(), user);
-            }
-        }
-
-        if (directions != null) {
-            Navigation.findNavController(binding.connectPinButton).navigate(directions);
-        }
     }
 
     private NavDirections createSuccessRecoveryDirection() {
@@ -362,16 +298,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         );
     }
 
-    private NavDirections createFailedRecoveryDirection() {
-        boolean exceededAttempts = PersonalIdManager.getInstance().getFailureAttempt() > 2;
-        return createNavigationMessage(
-                getString(R.string.connect_pin_fail_title),
-                exceededAttempts ? getString(R.string.connect_pin_recovery_message)
-                        : getString(R.string.connect_pin_fail_message),
-                ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN,
-                getString(R.string.connect_recovery_alt_button)
-        );
-    }
 
     private NavDirections createNavigationMessage(String title, String message, int phase, String buttonText) {
         return PersonalIdBackupCodeFragmentDirections
@@ -379,19 +305,13 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 .setIsCancellable(false);
     }
 
-    private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
+    private NavDirections createNavigationToPhoto() {
+        return PersonalIdBackupCodeFragmentDirections
+                .actionPersonalidPinToPersonalidPhotoCapture(name,
+                        String.valueOf(binding.connectPinInput.getText()));
     }
 
-    private void initArguments(Bundle savedInstanceState) {
-        if (getArguments() != null) {
-            name = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getName();
-            isRecovery = PersonalIdBackupCodeFragmentArgs.fromBundle(getArguments()).getIsRecovery();
-        }
-
-        if (savedInstanceState != null) {
-            name = savedInstanceState.getString(KEY_NAME);
-            isRecovery = savedInstanceState.getBoolean(KEY_RECOVERY);
-        }
+    private void logRecoveryResult(boolean success) {
+        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
     }
 }

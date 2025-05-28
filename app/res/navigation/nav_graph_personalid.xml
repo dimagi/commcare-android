@@ -162,7 +162,9 @@
         android:label="fragment_personalid_photo_capture">
         <argument
             android:name="userName"
-            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="backupCode"
             app:argType="string" />
         <action
             android:id="@+id/action_personalid_signup_fragment_self"
