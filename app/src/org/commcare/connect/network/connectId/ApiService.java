@@ -50,11 +50,11 @@ public interface ApiService {
 
     @POST(ApiEndPoints.confirmPIN)
     Call<ResponseBody> confirmPin(@Header("Authorization") String token,
-                                  @Body Map<String, String> confirmBackupRequest);
+                                  @Body Map<String, String> confirmBackupCodeRequest);
 
     @POST(ApiEndPoints.setBackupCode)
     Call<ResponseBody> setBackupCode(@Header("Authorization") String token,
-                                     @Body Map<String, String> changePINRequest);
+                                     @Body Map<String, String> changeBackupCodeRequest);
 
     @POST(ApiEndPoints.resetPassword)
     Call<ResponseBody> resetPassword(@Body Map<String, String> resetPasswordRequest);
