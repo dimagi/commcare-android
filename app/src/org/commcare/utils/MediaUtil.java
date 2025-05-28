@@ -626,11 +626,18 @@ public class MediaUtil {
         return byteArray;
     }
 
-    public static Bitmap decodeBase64EncodedBitmap(String base64Image){
+    public static Bitmap decodeBase64EncodedBitmap(String base64Image) {
+        // Remove the metadata prefix if it exists
+        if (base64Image.startsWith("data:image")) {
+            int commaIndex = base64Image.indexOf(',');
+            if (commaIndex != -1) {
+                base64Image = base64Image.substring(commaIndex + 1);
+            }
+        }
         try {
             byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
             return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        } catch(Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
