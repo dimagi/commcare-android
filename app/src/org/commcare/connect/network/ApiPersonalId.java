@@ -259,30 +259,31 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void checkPin(Context context, String phone, String secret,
-                                String pin, IApiCallback callback) {
+    public static void confirmBackupCode(Context context,
+                                String backupCode,String token ,IApiCallback callback) {
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("recovery_pin", pin);
+        params.put("recovery_pin", backupCode);
+
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmPIN(params);
+        Call<ResponseBody> call = apiService.confirmPin(tokenAuth, params);
         callApi(context, call, callback);
     }
 
     public static void setBackupCode(Context context, String username, String password,
-                                     String pin, IApiCallback callback) {
+                                     String backupCode, IApiCallback callback) {
 
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", pin);
+        params.put("recovery_pin", backupCode);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.changePIN(token, params);
+        Call<ResponseBody> call = apiService.setBackupCode(token, params);
         callApi(context, call, callback);
     }
 
@@ -321,7 +322,7 @@ public class ApiPersonalId {
     }
 
     public static void setPhotoAndCompleteProfile(Context context, String userId, String password, String userName,
-                                                  String photoAsBase64, String pin, IApiCallback callback) {
+                                                  String photoAsBase64, String backupCode, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
@@ -331,7 +332,7 @@ public class ApiPersonalId {
         HashMap<String, String> params = new HashMap<>();
         params.put("photo", photoAsBase64);
         params.put("name", userName);
-        params.put("recovery_pin", pin);
+        params.put("recovery_pin", backupCode);
 
         ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(token, params);
