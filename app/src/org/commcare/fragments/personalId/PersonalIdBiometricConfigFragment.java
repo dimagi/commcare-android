@@ -30,9 +30,19 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+
 import static android.app.Activity.RESULT_OK;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
@@ -253,7 +263,15 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
-                Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToOtpScreen());
+                if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
+                    NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
+                } else {
+                    View view = getView();
+                    if (view != null) {
+                        showSnackBarWithOk(view, getString(R.string.connect_verify_skip_phone_number),
+                                v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
+                    }
+                }
             }
         }
     }
@@ -277,7 +295,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     private NavDirections navigateToOtpScreen() {
-        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
                 ((PersonalIdActivity)requireActivity()).primaryPhone);
+    }
+
+    private NavDirections navigateToNameScreen() {
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidName();
     }
 }

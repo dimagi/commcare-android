@@ -528,6 +528,7 @@
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_error">Error verifying SMS code</string>
     <string name="connect_verify_phone_resend_code">Resend Code</string>
+    <string name="connect_verify_skip_phone_number">I see you\'re a demo user, so we\'ll skip the OTP</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change">Change</string>
