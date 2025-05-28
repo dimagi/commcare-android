@@ -53,8 +53,8 @@ public interface ApiService {
                                   @Body Map<String, String> confirmBackupRequest);
 
     @POST(ApiEndPoints.setBackupCode)
-    Call<ResponseBody> changePIN(@Header("Authorization") String token,
-                                 @Body Map<String, String> changePINRequest);
+    Call<ResponseBody> setBackupCode(@Header("Authorization") String token,
+                                     @Body Map<String, String> changePINRequest);
 
     @POST(ApiEndPoints.resetPassword)
     Call<ResponseBody> resetPassword(@Body Map<String, String> resetPasswordRequest);

@@ -283,7 +283,7 @@ public class ApiPersonalId {
         params.put("recovery_pin", backupCode);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.changePIN(token, params);
+        Call<ResponseBody> call = apiService.setBackupCode(token, params);
         callApi(context, call, callback);
     }
 

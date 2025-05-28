@@ -82,7 +82,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         setupBackupCodeInputFilters();
         setupListeners();
         clearBackupCodeFields();
-        personalIdSessionDataViewModel = new ViewModelProvider(this).get(PersonalIdSessionDataViewModel.class);
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         activity.setTitle(getString(titleId));
         return binding.getRoot();
     }
