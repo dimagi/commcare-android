@@ -14,12 +14,16 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.PhoneAuthOptions;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.parser.AddOrVerifyNameParser;
+import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -27,11 +31,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
-import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
-import java.io.InputStream;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,37 +122,17 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void validateFirebaseIdToken(String firebaseIdToken) {
-        ApiPersonalId.validateFirebaseIdToken(getActivity(),firebaseIdToken, new IApiCallback() {
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
+        new PersonalIdApiHandler() {
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
+            protected void onSuccess(PersonalIdSessionData sessionData) {
                 navigateToNameEntry();
             }
-
             @Override
-            public void processFailure(int responseCode) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
+                navigateFailure(failureCode);
             }
-
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getActivity());
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
-            }
-        });
+        }.validateFirebaseIdToken(requireActivity(),user.getName(),user.getPassword(),firebaseIdToken);
     }
 
     private void getPhoneNumberFromArguments() {
@@ -330,5 +311,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private void navigateToNameEntry() {
         NavDirections directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidName();
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
+    }
+
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 }
