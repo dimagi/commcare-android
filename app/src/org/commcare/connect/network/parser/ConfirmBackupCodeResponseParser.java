@@ -18,7 +18,7 @@ public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponsePar
      */
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
-        sessionData.setUsername(JsonExtensions.optStringSafe(json, "username", null));
+        sessionData.setUserId(JsonExtensions.optStringSafe(json, "username", null));
         sessionData.setDbKey(JsonExtensions.optStringSafe(json, "db_key", null));
         sessionData.setAccountOrphaned(json.optBoolean("account_orphaned", false));
         sessionData.setOauthPassword(JsonExtensions.optStringSafe(json, "password", null));
