@@ -9,7 +9,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -21,10 +20,6 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -33,20 +28,17 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.MediaUtil;
-
-import java.io.InputStream;
 import java.util.Date;
 
 public class PersonalIdBackupCodeFragment extends Fragment {
     private static final int BACKUP_CODE_LENGTH = 6;
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
-
-    private String name;
     private String secret;
-    private boolean isRecovery;
+    private boolean isRecovery = false;
     private int titleId;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
+    private PersonalIdSessionData personalIdSessionData;
 
     @Override
     public void onResume() {
@@ -61,6 +53,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         activity = requireActivity();
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class);
+        personalIdSessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
+        isRecovery = personalIdSessionData.getAccountExists();
         configureUiByMode();
         setupInputFilters();
         setupListeners();
@@ -92,10 +86,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void setUserNameAndPhoto() {
-        PersonalIdSessionData sessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
-        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, sessionData.getUserName()));
-        if (!TextUtils.isEmpty(sessionData.getPhotoBase64())) {
-            binding.userPhoto.setImageBitmap(MediaUtil.decodeBase64EncodedBitmap(sessionData.getPhotoBase64()));
+        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, personalIdSessionData.getUserName()));
+        if (!TextUtils.isEmpty(personalIdSessionData.getPhotoBase64())) {
+            binding.userPhoto.setImageBitmap(MediaUtil.decodeBase64EncodedBitmap(personalIdSessionData.getPhotoBase64()));
         }
     }
 
@@ -162,7 +155,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
-                if (!sessionData.getAccountOrphaned()) {
+                if (Boolean.FALSE.equals(sessionData.getAccountOrphaned())) {
                     handleSuccessfulRecovery();
                 } else {
                     navigateWithMessage(R.string.recovery_failed, R.string.recovery_failed_message,
@@ -178,57 +171,18 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                     PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
                 }
             }
-        }.confirmBackupCode(activity, backupCode, personalIdSessionDataViewModel.getPersonalIdSessionData());
+        }.confirmBackupCode(activity, backupCode, personalIdSessionData);
     }
 
     private void handleSuccessfulRecovery() {
-        PersonalIdSessionData sessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
-        ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, sessionData.getDbKey());
-        ConnectUserRecord user = new ConnectUserRecord(sessionData.getPhoneNumber(), sessionData.getUserId(),
-                "", sessionData.getUserName());
+        ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, personalIdSessionData.getDbKey());
+        ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(), personalIdSessionData.getUserId(),
+                personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName());
         user.setPin(binding.connectPinInput.getText().toString());
         user.setLastPinDate(new Date());
-        resetUserPassword(user);
         logRecoveryResult(true);
 
         Navigation.findNavController(binding.getRoot()).navigate(createSuccessRecoveryDirection());
-    }
-
-    private void resetUserPassword(ConnectUserRecord user) {
-        String newPassword = PersonalIdManager.getInstance().generatePassword();
-
-        ApiPersonalId.resetPassword(activity, name, secret, newPassword, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                user.setPassword(newPassword);
-                ConnectUserDatabaseUtil.storeUser(activity, user);
-            }
-
-            @Override
-            public void processFailure(int responseCode) {
-                showRecoveryFailure();
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getActivity());
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
-            }
-        });
     }
 
     private void handleFailedBackupCodeAttempt() {
@@ -236,10 +190,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         idManager.setFailureAttempt(idManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
         clearBackupCodeFields();
-    }
-
-    private void showRecoveryFailure() {
-        Toast.makeText(activity, getString(R.string.connect_recovery_failure), Toast.LENGTH_SHORT).show();
     }
 
     private void logRecoveryResult(boolean success) {
@@ -255,7 +205,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private NavDirections createNavigationToPhoto() {
         return PersonalIdBackupCodeFragmentDirections
                 .actionPersonalidPinToPersonalidPhotoCapture(
-                        personalIdSessionDataViewModel.getPersonalIdSessionData().getUserName(),
+                        personalIdSessionData.getUserName(),
                         binding.connectPinInput.getText().toString());
     }
 
@@ -269,7 +219,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private NavDirections createNavigationMessage(String title, String message, int phase, String buttonText) {
         return PersonalIdBackupCodeFragmentDirections
-                .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null, name, secret)
+                .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null,
+                        personalIdSessionData.getUserName(), secret)
                 .setIsCancellable(false);
     }
 }
