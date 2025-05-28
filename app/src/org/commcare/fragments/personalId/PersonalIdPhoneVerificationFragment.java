@@ -99,14 +99,10 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             }
         };
 
-        // Build the base PhoneAuthOptions.Builder
-        PhoneAuthOptions.Builder optionsBuilder = PhoneAuthOptions.newBuilder()
-                .setActivity(requireActivity()) // Required for Firebase auth
-                .setTimeout(60L, java.util.concurrent.TimeUnit.SECONDS); // Optional timeout
-
-        // Pass builder and callback to the OtpManager
-        otpManager = new OtpManager(optionsBuilder, otpCallback);
+        // Pass the Activity and callback to the OtpManager (no need to manually build PhoneAuthOptions)
+        otpManager = new OtpManager(requireActivity(), otpCallback);
     }
+
 
 
     @Override
