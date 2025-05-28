@@ -3,6 +3,9 @@ package org.commcare.connect.network;
 import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.network.parser.AddOrVerifyNameParser;
+import org.commcare.connect.network.parser.ConfirmBackupCodeResponseParser;
+import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -11,6 +14,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public abstract class PersonalIdApiHandler {
 
@@ -21,27 +25,32 @@ public abstract class PersonalIdApiHandler {
         TOKEN_DENIED_ERROR,
         INVALID_RESPONSE_ERROR,
         JSON_PARSING_ERROR;
+
+        public boolean shouldAllowRetry(){
+            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == INVALID_RESPONSE_ERROR
+                    || this == JSON_PARSING_ERROR;
+        }
     }
 
-    public void makeStartConfigurationCall(Activity activity, String phone) {
-        ApiPersonalId.startConfiguration(activity, phone, new IApiCallback() {
+    private IApiCallback createCallback(PersonalIdSessionData sessionData,
+                                        PersonalIdApiResponseParser parser,
+                                        PersonalIdApiErrorCodes defaultFailureCode) {
+        return new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
                 try (InputStream in = responseData) {
-                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-                    PersonalIdSessionData sessionData = new PersonalIdSessionData();
-                    StartConfigurationResponseParser parser = new StartConfigurationResponseParser(json);
-                    parser.parse(sessionData);
+                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
+                    parser.parse(json, sessionData);
                     onSuccess(sessionData);
                 } catch (IOException | JSONException e) {
-                    Logger.exception("Error parsing recovery response", e);
+                    Logger.exception("Error parsing API response", e);
                     onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
                 }
             }
 
             @Override
             public void processFailure(int responseCode) {
-                onFailure(PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR);
+                onFailure(defaultFailureCode);
             }
 
             @Override
@@ -63,8 +72,34 @@ public abstract class PersonalIdApiHandler {
             public void processOldApiError() {
                 onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR);
             }
-        });
+        };
     }
+
+    public void makeStartConfigurationCall(Activity activity,
+                    Map<String, String> body,
+                    String integrityToken,
+                    String requestHash) {
+        PersonalIdSessionData sessionData = new PersonalIdSessionData();
+        ApiPersonalId.startConfiguration(activity, body, integrityToken, requestHash,
+                createCallback(sessionData,
+                        new StartConfigurationResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+
+    public void addOrVerifyNameCall(Activity activity, String name, PersonalIdSessionData sessionData) {
+        ApiPersonalId.addOrVerifyName(activity, name,
+                createCallback(sessionData,
+                        new AddOrVerifyNameParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+
+    public void confirmBackupCode(Activity activity, String backupCode, PersonalIdSessionData sessionData) {
+        ApiPersonalId.confirmBackupCode(activity, backupCode, sessionData.getToken(),
+                createCallback(sessionData,
+                        new ConfirmBackupCodeResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 

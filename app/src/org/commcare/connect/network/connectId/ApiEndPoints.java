@@ -4,7 +4,8 @@ public class ApiEndPoints {
     public static final String connectTokenURL = "/o/token/";
     public static final String connectHeartbeatURL = "/users/heartbeat";
     public static final String connectFetchDbKeyURL = "/users/fetch_db_key";
-    public static final String registerUser = "/users/start_configuration";
+    public static final String checkName = "/users/check_name";
+    public static final String startConfiguration = "/users/start_configuration";
     public static final String phoneAvailable = "/users/phone_available";
     public static final String changePhoneNo = "/users/change_phone";
     public static final String updateProfile = "/users/update_profile";
@@ -19,7 +20,7 @@ public class ApiEndPoints {
     public static final String recoverConfirmOTP = "/users/recover/confirm_otp";
     public static final String recoverSecondary = "/users/recover/secondary";
     public static final String confirmOTP = "/users/confirm_otp";
-    public static final String setPIN = "/users/set_recovery_pin";
+    public static final String setBackupCode = "/users/set_recovery_pin";
     public static final String confirmPIN = "/users/recover/confirm_pin";
     public static final String resetPassword = "/users/recover/reset_password";
     public static final String changePassword = "/users/change_password";

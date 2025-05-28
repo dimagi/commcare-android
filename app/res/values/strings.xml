@@ -528,6 +528,7 @@
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
     <string name="connect_verify_phone_error">Error verifying SMS code</string>
     <string name="connect_verify_phone_resend_code">Resend Code</string>
+    <string name="connect_verify_skip_phone_number">I see you\'re a demo user, so we\'ll skip the OTP</string>
 
     <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change">Change</string>
@@ -913,6 +914,8 @@
     <string name="name_empty_error">Name field cannot be empty</string>
     <string name="configuration_process_failed_title">Process Failed</string>
     <string name="configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
+    <string name="configuration_process_failed_server_msg">Invalid device security requirements from server: %s</string>
     <string name="connectid_photo_capture_title">Welcome %1$s</string>
     <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
@@ -920,5 +923,5 @@
     <string name="connectid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
     <string name="this_is_not_me"><u>This is not me</u></string>
     <string name="welcome_back_msg">Welcome back %s</string>
-    <string name="configuration_process_api_failed">There is some issue right now. Can you please retry after some time.</string>
+    <string name="configuration_process_api_failed">Unable to contact our servers at this time. Please try again and report an issue if it persists.</string>
 </resources>

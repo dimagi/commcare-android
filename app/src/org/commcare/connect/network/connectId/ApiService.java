@@ -9,8 +9,13 @@ import retrofit2.http.*;
 public interface ApiService {
 
 
-    @POST(ApiEndPoints.registerUser)
-    Call<ResponseBody> startConfiguration(@Body Map<String, String> registrationRequest);
+    @POST(ApiEndPoints.startConfiguration)
+    Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
+            @Header("CC-Request-Hash") String requestHash,
+            @Body Map<String, String> registrationRequest);
+
+    @POST(ApiEndPoints.checkName)
+    Call<ResponseBody> checkName(@Body Map<String, String> nameRequest);
 
     @POST(ApiEndPoints.changePhoneNo)
     Call<ResponseBody> changePhoneNo(@Header("Authorization") String token,
@@ -44,11 +49,12 @@ public interface ApiService {
                                   @Body Map<String, String> confirmOTPRequest);
 
     @POST(ApiEndPoints.confirmPIN)
-    Call<ResponseBody> confirmPIN(@Body Map<String, String> confirmPINRequest);
+    Call<ResponseBody> confirmPin(@Header("Authorization") String token,
+                                  @Body Map<String, String> confirmBackupCodeRequest);
 
-    @POST(ApiEndPoints.setPIN)
-    Call<ResponseBody> changePIN(@Header("Authorization") String token,
-                                 @Body Map<String, String> changePINRequest);
+    @POST(ApiEndPoints.setBackupCode)
+    Call<ResponseBody> setBackupCode(@Header("Authorization") String token,
+                                     @Body Map<String, String> changeBackupCodeRequest);
 
     @POST(ApiEndPoints.resetPassword)
     Call<ResponseBody> resetPassword(@Body Map<String, String> resetPasswordRequest);
