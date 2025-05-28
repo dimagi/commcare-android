@@ -633,7 +633,7 @@ public class MediaUtil {
             if (commaIndex != -1) {
                 base64Image = base64Image.substring(commaIndex + 1);
             } else {
-                throw (new IllegalStateException("Not a valid base64 string"));
+                throw (new IllegalArgumentException("Not a valid base64 string"));
             }
         }
         byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
