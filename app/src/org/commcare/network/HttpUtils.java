@@ -97,7 +97,7 @@ public class HttpUtils {
             responseStr = response.errorBody().string();
 
             Map<String, String> errorBodyKeyValuePairs = null;
-            if (response.errorBody().contentType().equals("application/json")) {
+            if (response.errorBody().contentType().toString().contains("application/json")) {
                 errorBodyKeyValuePairs = parseJsonErrorResponseBody(responseStr);
             } else {
                 errorBodyKeyValuePairs = parseXmlErrorResponseBody(responseStr);
