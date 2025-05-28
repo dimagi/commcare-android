@@ -104,6 +104,14 @@ public class HttpUtils {
         return message;
     }
 
+    /* *
+     * Parses the JSON-formatted error response body from HQ. The response body is expected to be in the format:
+     * {
+     *   "error" : "error.message.key",
+     *   "default_response" : "Default message in English"
+     *  }
+     * Returns a map containing these key-value pairs.
+     */
     public static Map<String, String> parseJsonErrorResponseBody(String responseStr) throws JSONException {
         Map<String, String> map = new HashMap<>();
         JSONObject jsonObject = new JSONObject(responseStr);
