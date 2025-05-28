@@ -157,7 +157,9 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             title = getString(R.string.connect_verify_title);
             message = getString(R.string.connect_verify_message);
             fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-            pinButton = getString(R.string.connect_verify_configure_pin);
+            if(PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())){
+                pinButton = getString(R.string.connect_verify_configure_pin);
+            }
         } else if(fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured){    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
             title = getString(R.string.connect_verify_use_fingerprint_long);
             message = getString(R.string.connect_verify_fingerprint_configured);
