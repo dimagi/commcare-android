@@ -893,7 +893,7 @@
     <string name="connect_biometric_error">Authentication Failed</string>
     <string name="login_input_auto">AUTO</string>
     <string name="connect_consent_title">Consent</string>
-    <string name="connect_db_corrupt" cc:translatable="true">A problem occurred, please configure your PersonalID account again.</string>
+    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
     <string name="ConnectOpportunitiesURL" translatable="false">https://%s/api/opportunity/</string>
     <string name="ConnectStartLearningURL" translatable="false">https://%s/users/start_learn_app/</string>
     <string name="ConnectLearnProgressURL" translatable="false">https://%s/api/opportunity/%d/learn_progress</string>
