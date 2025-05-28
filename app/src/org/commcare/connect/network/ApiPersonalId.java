@@ -260,10 +260,10 @@ public class ApiPersonalId {
     }
 
     public static void confirmBackupCode(Context context,
-                                String pin,String token ,IApiCallback callback) {
+                                String backupCode,String token ,IApiCallback callback) {
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", pin);
+        params.put("recovery_pin", backupCode);
 
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);

@@ -36,6 +36,7 @@ import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -76,7 +77,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         setupPinInputFilters();
         setupListeners();
         clearPinFields();
-
+        personalIdSessionDataViewModel = new ViewModelProvider(this).get(PersonalIdSessionDataViewModel.class);
         activity.setTitle(getString(titleId));
         return binding.getRoot();
     }
