@@ -125,17 +125,17 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void validateBackupCodeInputs() {
-        String code1 = String.valueOf(binding.connectPinInput.getText());
+        String backupcode1 = String.valueOf(binding.connectPinInput.getText());
         String code2 = String.valueOf(binding.connectPinRepeatInput.getText());
-
-        boolean isValid = !code1.isEmpty() && code1.length() == BACKUP_CODE_LENGTH &&
-                (isRecovery || code1.equals(code2));
-
-        String errorText = !isValid && code1.length() != BACKUP_CODE_LENGTH
-                ? getString(R.string.connect_pin_length, BACKUP_CODE_LENGTH)
-                : (!isRecovery && !code1.equals(code2))
-                        ? getString(R.string.connect_pin_mismatch)
-                        : "";
+        boolean isValid = false;
+        String errorText = "";
+        if (!isValid) {
+            if (backupcode1.length() != BACKUP_CODE_LENGTH) {
+                errorText = getString(R.string.connect_pin_length, BACKUP_CODE_LENGTH);
+            } else if (!isRecovery && !backupcode1.equals(code2)) {
+                errorText = getString(R.string.connect_pin_mismatch);
+            }
+        }
 
         binding.connectPinErrorMessage.setText(errorText);
         binding.connectPinButton.setEnabled(isValid);
@@ -158,7 +158,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 if (Boolean.FALSE.equals(sessionData.getAccountOrphaned())) {
                     handleSuccessfulRecovery();
                 } else {
-                    navigateWithMessage(R.string.recovery_failed, R.string.recovery_failed_message,
+                    navigateWithMessage(R.string.recovery_failed_title, R.string.recovery_failed_message,
                             ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN);
                 }
             }
