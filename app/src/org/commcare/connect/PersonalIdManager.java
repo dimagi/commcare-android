@@ -474,7 +474,7 @@ public class PersonalIdManager {
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                 userId);
-        if (isConnectLinkedApp(appId, userId) && !record.getPassword().isEmpty()) {
+        if (isPersonalIdLinkedApp(appId, userId) && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
         return null;
@@ -609,7 +609,7 @@ public class PersonalIdManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    private boolean isConnectLinkedApp(String appId, String username) {
+    private boolean isPersonalIdLinkedApp(String appId, String username) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId, username);
         return record != null && record.getPersonalIdLinked();
     }
@@ -627,7 +627,7 @@ public class PersonalIdManager {
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
-        if (!manager.isConnectLinkedApp(seatedAppId, username)) {
+        if (!manager.isPersonalIdLinkedApp(seatedAppId, username)) {
             return null;
         }
 
