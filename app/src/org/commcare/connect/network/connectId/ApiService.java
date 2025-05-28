@@ -14,7 +14,8 @@ public interface ApiService {
             @Header("CC-Request-Hash") String requestHash,
             @Body Map<String, String> registrationRequest);
     @POST(ApiEndPoints.validateFirebaseIdToken)
-    Call<ResponseBody> validateFirebaseIdToken(@Body Map<String, String> firebaseIdToken);
+    Call<ResponseBody> validateFirebaseIdToken(@Header("Authorization") String token,
+                                               @Body Map<String, String> firebaseIdToken);
 
     @POST(ApiEndPoints.checkName)
     Call<ResponseBody> checkName(@Body Map<String, String> nameRequest);

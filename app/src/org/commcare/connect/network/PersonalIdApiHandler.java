@@ -84,6 +84,13 @@ public abstract class PersonalIdApiHandler {
                         new StartConfigurationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
+    public void validateFirebaseIdToken(Activity activity, String name, String password, String firebaseIdToken) {
+        PersonalIdSessionData sessionData = new PersonalIdSessionData();
+        ApiPersonalId.validateFirebaseIdToken(name,password,activity,firebaseIdToken,
+                createCallback(sessionData,
+                        new StartConfigurationResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
 
     public void addOrVerifyNameCall(Activity activity, String name, PersonalIdSessionData sessionData) {
         ApiPersonalId.addOrVerifyName(activity, name,
