@@ -34,7 +34,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private static final int BACKUP_CODE_LENGTH = 6;
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
-    private String secret;
     private boolean isRecovery = false;
     private int titleId;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
@@ -220,7 +219,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private NavDirections createNavigationMessage(String title, String message, int phase, String buttonText) {
         return PersonalIdBackupCodeFragmentDirections
                 .actionPersonalidPinToPersonalidMessage(title, message, phase, buttonText, null,
-                        personalIdSessionData.getUserName(), secret)
+                        personalIdSessionData.getUserName(), "")
                 .setIsCancellable(false);
     }
 }
