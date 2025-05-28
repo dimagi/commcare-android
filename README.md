@@ -41,7 +41,7 @@ git clone https://github.com/dimagi/commcare-core.git
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
 
-Note: If you are using any functionality that depends on the Google Cloud Project (like [Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the application will crash for you with `Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`.
+Note: If you are using any functionality that depends on the Google Cloud Project (like [Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the application will crash for you with `Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`. You should be able to locate the project number in Google cloud console in the "settings" for "IAM and admin" menu. 
 
 ## Building
 
