@@ -49,9 +49,10 @@ public interface ApiService {
                                   @Body Map<String, String> confirmOTPRequest);
 
     @POST(ApiEndPoints.confirmPIN)
-    Call<ResponseBody> confirmPIN(@Body Map<String, String> confirmPINRequest);
+    Call<ResponseBody> confirmPin(@Header("Authorization") String token,
+                                  @Body Map<String, String> confirmBackupRequest);
 
-    @POST(ApiEndPoints.setPIN)
+    @POST(ApiEndPoints.setBackupCode)
     Call<ResponseBody> changePIN(@Header("Authorization") String token,
                                  @Body Map<String, String> changePINRequest);
 

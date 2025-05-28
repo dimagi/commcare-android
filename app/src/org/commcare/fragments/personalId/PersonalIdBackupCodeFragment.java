@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -19,18 +21,16 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
@@ -56,6 +56,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private String secret = null;
     private boolean isRecovery;
     private int titleId;
+    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
+
 
     @Override
     public void onResume() {
@@ -172,7 +174,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void handlePinSubmission() {
         if (isRecovery) {
-            confirmBackupPin();
+            confirmBackupCode();
         } else {
             registerBackupPin();
         }
@@ -215,46 +217,27 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         });
     }
 
-    private void confirmBackupPin() {
-        String pin = binding.connectPinInput.getText().toString();
+    private void confirmBackupCode() {
+        String backupCode = binding.connectPinInput.getText().toString();
 
-        ApiPersonalId.checkPin(getActivity(), name, secret, pin, new IApiCallback() {
+        new PersonalIdApiHandler() {
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-                    handleSuccessfulRecovery(json, pin);
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Error parsing recovery response", e);
-                    showRecoveryFailure();
-                }
+            protected void onSuccess(PersonalIdSessionData sessionData) {
             }
 
             @Override
-            public void processFailure(int responseCode) {
-                handleFailedPinAttempt();
+            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
+                navigateFailure(failureCode);
             }
+        }.confirmBackupCode(
+                requireActivity(),
+                backupCode,
+                personalIdSessionDataViewModel.getPersonalIdSessionData());
 
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getActivity());
-            }
+    }
 
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireActivity());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getActivity());
-            }
-        });
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 
     private void handleSuccessfulRecovery(JSONObject json, String pin) throws JSONException {

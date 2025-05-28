@@ -259,16 +259,17 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void checkPin(Context context, String phone, String secret,
-                                String pin, IApiCallback callback) {
+    public static void confirmBackupCode(Context context,
+                                String pin,String token ,IApiCallback callback) {
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
         params.put("recovery_pin", pin);
 
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmPIN(params);
+        Call<ResponseBody> call = apiService.confirmPin(tokenAuth, params);
         callApi(context, call, callback);
     }
 
