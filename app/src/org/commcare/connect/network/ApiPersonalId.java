@@ -34,6 +34,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -46,7 +47,7 @@ import retrofit2.Response;
 
 public class ApiPersonalId {
     private static final String API_VERSION_NONE = null;
-    public static final String API_VERSION_PERSONAL_ID = "1.0";
+    public static final String API_VERSION_PERSONAL_ID = "2.0";
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
@@ -285,11 +286,10 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void startConfiguration(Context context, String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone_number", phone);
+    public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
+            String requestHash, IApiCallback callback) {
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.startConfiguration(params);
+        Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
         callApi(context, call, callback);
     }
 
