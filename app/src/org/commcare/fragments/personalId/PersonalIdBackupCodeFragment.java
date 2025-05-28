@@ -31,6 +31,7 @@ import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -119,19 +120,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void setUserNameAndPhoto() {
         String username = personalIdSessionDataViewModel.getPersonalIdSessionData().getUsername();
         String photoBase64 = personalIdSessionDataViewModel.getPersonalIdSessionData().getPhotoBase64();
-
-        if (!TextUtils.isEmpty(username)) {
-            binding.welcomeBack.setText(getString(R.string.welcome_back_msg, username));
-        }
-
+        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, username));
         if (!TextUtils.isEmpty(photoBase64)) {
-            try {
-                byte[] decodedBytes = Base64.decode(photoBase64, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                binding.userPhoto.setImageBitmap(bitmap);
-            } catch (IllegalArgumentException e) {
-                Logger.log("photo-decode-error", "Invalid Base64 image: " + e.getMessage());
-            }
+            binding.userPhoto.setImageBitmap(MediaUtil.decodeBase64EncodedBitmap(photoBase64));
         }
     }
 
