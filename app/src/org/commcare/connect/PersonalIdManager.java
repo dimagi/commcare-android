@@ -474,7 +474,7 @@ public class PersonalIdManager {
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
                 userId);
-        if (record != null && record.getPersonalIdLinked() && !record.getPassword().isEmpty()) {
+        if (isConnectLinkedApp(appId, userId) && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
         return null;
@@ -609,7 +609,13 @@ public class PersonalIdManager {
         return isloggedIn() && isConnectApp(context, appId);
     }
 
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) throws TokenDeniedException, TokenUnavailableException {
+    private boolean isConnectLinkedApp(String appId, String username) {
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId, username);
+        return record != null && record.getPersonalIdLinked();
+    }
+
+    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username)
+            throws TokenDeniedException, TokenUnavailableException {
         if (!manager.isloggedIn()) {
             return null;
         }
@@ -620,12 +626,16 @@ public class PersonalIdManager {
         }
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, seatedAppId, username);
-        if (appRecord == null || !appRecord.getPersonalIdLinked()) {
+
+        if (!manager.isConnectLinkedApp(seatedAppId, username)) {
             return null;
         }
 
-        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username, false);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity,
+                seatedAppId, username);
+
+        return ConnectSsoHelper.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
+                false);
     }
 
     public BiometricManager getBiometricManager(CommCareActivity<?> parent) {
