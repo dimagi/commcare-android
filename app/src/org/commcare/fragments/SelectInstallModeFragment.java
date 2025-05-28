@@ -199,7 +199,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     }
 
     public void showConnectErrorMessage(String message) {
-        TextView view = getActivity().findViewById(R.id.connect_error_msg);
+        TextView view = getActivity().findViewById(R.id.error_msg);
         view.setText(message);
         view.setVisibility(View.VISIBLE);
     }

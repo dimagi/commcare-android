@@ -75,7 +75,7 @@
 
                             <TextView
                                 android:textStyle="bold"
-                                android:id="@+id/connect_error_msg"
+                                android:id="@+id/error_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
