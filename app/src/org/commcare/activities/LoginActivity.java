@@ -139,10 +139,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
 
-        String errors = GlobalErrorUtil.handleGlobalErrors();
-        if(errors.length() > 0) {
-            uiController.setConnectErrorMessageUI(errors);
-        }
+        uiController.checkForGlobalErrors();
 
         personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);

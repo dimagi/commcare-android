@@ -34,6 +34,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -405,9 +406,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
-    protected void setConnectErrorMessageUI(String errorMessage) {
-        connectErrorMessage.setVisibility(View.VISIBLE);
-        connectErrorMessage.setText(errorMessage);
+    protected void checkForGlobalErrors() {
+        String errors = GlobalErrorUtil.handleGlobalErrors();
+        if(errors.length() > 0) {
+            connectErrorMessage.setVisibility(View.VISIBLE);
+            connectErrorMessage.setText(errorMessage);
+        }
     }
 
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
