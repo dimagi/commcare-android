@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public abstract class PersonalIdApiHandler {
 
@@ -23,6 +24,11 @@ public abstract class PersonalIdApiHandler {
         TOKEN_DENIED_ERROR,
         INVALID_RESPONSE_ERROR,
         JSON_PARSING_ERROR;
+
+        public boolean shouldAllowRetry(){
+            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == INVALID_RESPONSE_ERROR
+                    || this == JSON_PARSING_ERROR;
+        }
     }
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
@@ -68,9 +74,12 @@ public abstract class PersonalIdApiHandler {
         };
     }
 
-    public void makeStartConfigurationCall(Activity activity, String name) {
+    public void makeStartConfigurationCall(Activity activity,
+                    Map<String, String> body,
+                    String integrityToken,
+                    String requestHash) {
         PersonalIdSessionData sessionData = new PersonalIdSessionData();
-        ApiPersonalId.startConfiguration(activity, name,
+        ApiPersonalId.startConfiguration(activity, body, integrityToken, requestHash,
                 createCallback(sessionData,
                         new StartConfigurationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
