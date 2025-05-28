@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,76 +12,75 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class FirebaseAuthService implements OtpAuthService {
 
     private final FirebaseAuth firebaseAuth;
-    private final PhoneAuthOptions.Builder baseOptionsBuilder;
     private final OtpVerificationCallback callback;
+    private PhoneAuthOptions.Builder optionsBuilder;
     private String verificationId;
 
-    public FirebaseAuthService(@NonNull PhoneAuthOptions.Builder baseOptionsBuilder,
-                               @NonNull OtpVerificationCallback callback) {
+    public FirebaseAuthService(Activity activity, OtpVerificationCallback callback) {
+        this.callback = callback;
         this.firebaseAuth = FirebaseAuth.getInstance();
-        this.baseOptionsBuilder = Objects.requireNonNull(baseOptionsBuilder, "PhoneAuthOptions.Builder cannot be null");
-        this.callback = Objects.requireNonNull(callback, "OtpVerificationCallback cannot be null");
-    }
 
-    @Override
-    public void requestOtp(String phoneNumber) {
-        PhoneAuthOptions options = baseOptionsBuilder
-                .setPhoneNumber(phoneNumber)
-                .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        PhoneAuthProvider.OnVerificationStateChangedCallbacks verificationCallbacks =
+                new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-                        Log.d("FirebaseAuthService", "Auto-verification completed.");
-                        signInWithCredential(credential);
+                        firebaseAuth.signInWithCredential(credential)
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        FirebaseUser user = task.getResult().getUser();
+                                        callback.onSuccess(user);
+                                    } else {
+                                        callback.onFailure("Verification failed");
+                                    }
+                                });
                     }
 
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
-                        Log.e("FirebaseAuthService", "Verification failed: " + e.getMessage(), e);
                         callback.onFailure("Verification failed: " + e.getMessage());
                     }
 
                     @Override
                     public void onCodeSent(@NonNull String verificationId,
                                            @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                        Log.d("FirebaseAuthService", "Code sent: " + verificationId);
                         FirebaseAuthService.this.verificationId = verificationId;
                         callback.onCodeSent(verificationId);
                     }
-                })
-                .build();
+                };
 
+        this.optionsBuilder = PhoneAuthOptions.newBuilder(firebaseAuth)
+                .setTimeout(60L, TimeUnit.SECONDS)
+                .setActivity(activity)
+                .setCallbacks(verificationCallbacks);
+    }
+
+    @Override
+    public void requestOtp(String phoneNumber) {
+        optionsBuilder.setPhoneNumber(phoneNumber);
+        PhoneAuthOptions options = optionsBuilder.build();
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
     @Override
     public void verifyOtp(String code) {
-        if (verificationId == null || verificationId.isEmpty()) {
-            callback.onFailure("Verification ID is missing.");
+        if (verificationId == null) {
+            callback.onFailure("No verification ID available. Request OTP first.");
             return;
         }
 
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-        signInWithCredential(credential);
-    }
-
-    private void signInWithCredential(PhoneAuthCredential credential) {
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = task.getResult().getUser();
-                        if (user != null) {
-                            callback.onSuccess(user);
-                        } else {
-                            callback.onFailure("Failed to retrieve user.");
-                        }
+                        callback.onSuccess(user);
                     } else {
-                        callback.onFailure("Sign-in failed: " + Objects.requireNonNull(task.getException()).getMessage());
+                        callback.onFailure("OTP verification failed.");
                     }
                 });
     }
