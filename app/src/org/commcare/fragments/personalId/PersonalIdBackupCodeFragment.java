@@ -46,7 +46,7 @@ import androidx.navigation.Navigation;
  * create an instance of this fragment.
  */
 public class PersonalIdBackupCodeFragment extends Fragment {
-    private static final int PIN_LENGTH = 6;
+    private static final int BACKUP_CODE_LENGTH = 6;
     private static final String KEY_NAME = "name";
     private static final String KEY_RECOVERY = "is_recovery";
 
@@ -64,7 +64,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         requestInputFocus();
-        validatePinInputs();
+        validateBackupCodeInputs();
     }
 
     @Override
@@ -74,9 +74,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
         initArguments(savedInstanceState);
         configureUiByMode();
-        setupPinInputFilters();
+        setupBackupCodeInputFilters();
         setupListeners();
-        clearPinFields();
+        clearBackupCodeFields();
         personalIdSessionDataViewModel = new ViewModelProvider(this).get(PersonalIdSessionDataViewModel.class);
         activity.setTitle(getString(titleId));
         return binding.getRoot();
@@ -112,8 +112,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         }
     }
 
-    private void setupPinInputFilters() {
-        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(PIN_LENGTH)};
+    private void setupBackupCodeInputFilters() {
+        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
         binding.connectPinInput.setFilters(filters);
         binding.connectPinRepeatInput.setFilters(filters);
     }
@@ -126,7 +126,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validatePinInputs();
+                validateBackupCodeInputs();
             }
 
             @Override
@@ -136,10 +136,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
         binding.connectPinInput.addTextChangedListener(pinWatcher);
         binding.connectPinRepeatInput.addTextChangedListener(pinWatcher);
-        binding.connectPinButton.setOnClickListener(v -> handlePinSubmission());
+        binding.connectPinButton.setOnClickListener(v -> handleBackupCodeSubmission());
     }
 
-    private void clearPinFields() {
+    private void clearBackupCodeFields() {
         binding.connectPinInput.setText("");
         binding.connectPinRepeatInput.setText("");
     }
@@ -150,17 +150,17 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     // ─────────── VALIDATION ─────────────
 
-    private void validatePinInputs() {
-        String pin1 = binding.connectPinInput.getText().toString();
-        String pin2 = binding.connectPinRepeatInput.getText().toString();
+    private void validateBackupCodeInputs() {
+        String backupCode1 = binding.connectPinInput.getText().toString();
+        String backupCode2 = binding.connectPinRepeatInput.getText().toString();
 
         String errorText = "";
         boolean isButtonEnabled = false;
 
-        if (!pin1.isEmpty()) {
-            if (pin1.length() != PIN_LENGTH) {
-                errorText = getString(R.string.connect_pin_length, PIN_LENGTH);
-            } else if (!isRecovery && !pin1.equals(pin2)) {
+        if (!backupCode1.isEmpty()) {
+            if (backupCode1.length() != BACKUP_CODE_LENGTH) {
+                errorText = getString(R.string.connect_pin_length, BACKUP_CODE_LENGTH);
+            } else if (!isRecovery && !backupCode1.equals(backupCode2)) {
                 errorText = getString(R.string.connect_pin_mismatch);
             } else {
                 isButtonEnabled = true;
@@ -173,27 +173,27 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     // ─────────── PIN HANDLING ─────────────
 
-    private void handlePinSubmission() {
+    private void handleBackupCodeSubmission() {
         if (isRecovery) {
             confirmBackupCode();
         } else {
-            registerBackupPin();
+            registerBackupCode();
         }
     }
 
-    private void registerBackupPin() {
-        String pin = binding.connectPinInput.getText().toString();
+    private void registerBackupCode() {
+        String backupCode = binding.connectPinInput.getText().toString();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
 
-        ApiPersonalId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), pin, new IApiCallback() {
+        ApiPersonalId.setBackupCode(getActivity(), user.getUserId(), user.getPassword(), backupCode, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                finishWithNavigation(true, pin);
+                finishWithNavigation(true, backupCode);
             }
 
             @Override
             public void processFailure(int responseCode) {
-                handleFailedPinAttempt();
+                handleFailedBackupCodeAttempt();
             }
 
             @Override
@@ -241,14 +241,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 
-    private void handleSuccessfulRecovery(JSONObject json, String pin) throws JSONException {
+    private void handleSuccessfulRecovery(JSONObject json, String backupCode) throws JSONException {
         String username = json.getString(ConnectConstants.CONNECT_KEY_USERNAME);
         String name = json.getString(ConnectConstants.CONNECT_KEY_NAME);
 
         ConnectDatabaseHelper.handleReceivedDbPassphrase(activity,
                 json.getString(ConnectConstants.CONNECT_KEY_DB_KEY));
         ConnectUserRecord user = new ConnectUserRecord(name, username, "", name, "");
-        user.setPin(pin);
+        user.setPin(backupCode);
         user.setLastPinDate(new Date());
         resetUserPassword(user);
     }
@@ -292,11 +292,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     // ─────────── HELPERS ─────────────
 
-    private void handleFailedPinAttempt() {
+    private void handleFailedBackupCodeAttempt() {
         PersonalIdManager idManager = PersonalIdManager.getInstance();
         idManager.setFailureAttempt(idManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
-        clearPinFields();
+        clearBackupCodeFields();
         finishWithNavigation(false, null);
     }
 
