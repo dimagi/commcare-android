@@ -16,7 +16,7 @@ public class GlobalErrorRecord extends Persisted {
 
     @Persisting(1)
     @MetaField(DATE)
-    private Date date;
+    private Date createdAt;
 
     @Persisting(2)
     @MetaField(ERROR_CODE)
@@ -27,13 +27,13 @@ public class GlobalErrorRecord extends Persisted {
         //Required empty constructor
     }
 
-    public GlobalErrorRecord(Date date, int errorCode) {
-        this.date = date;
+    public GlobalErrorRecord(Date createdDate, int errorCode) {
+        this.createdAt = createdDate;
         this.errorCode = errorCode;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getCreatedDate() {
+        return createdAt;
     }
 
     public int getErrorCode() {
