@@ -1,15 +1,18 @@
 package org.commcare.fragments.personalId;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
+import android.util.Base64;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -28,6 +31,8 @@ import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.MediaUtil;
+import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -105,10 +110,20 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             binding.phoneTitle.setText(R.string.connect_pin_message);
             binding.nameLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.VISIBLE);
+            setUserNameAndPhoto();
         } else {
             titleId = R.string.connect_pin_title_set;
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void setUserNameAndPhoto() {
+        String username = personalIdSessionDataViewModel.getPersonalIdSessionData().getUsername();
+        String photoBase64 = personalIdSessionDataViewModel.getPersonalIdSessionData().getPhotoBase64();
+        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, username));
+        if (!TextUtils.isEmpty(photoBase64)) {
+            binding.userPhoto.setImageBitmap(MediaUtil.decodeBase64EncodedBitmap(photoBase64));
         }
     }
 
