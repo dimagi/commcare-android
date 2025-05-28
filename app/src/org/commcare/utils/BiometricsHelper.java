@@ -78,7 +78,7 @@ public class BiometricsHelper {
     public static void authenticateFingerprint(FragmentActivity activity,
                                                BiometricManager biometricManager,
                                                BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
-        authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback);
     }
 
     /**
@@ -123,12 +123,12 @@ public class BiometricsHelper {
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
 
-        authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback);
     }
 
     public static void authenticatePinOrBiometric(FragmentActivity activity, BiometricManager biometricManager,
-                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback){
-        if (BiometricsHelper.isPinConfigured(activity, biometricManager)|| BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
+                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
+        if (BiometricsHelper.isPinConfigured(activity, biometricManager) || BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             BiometricPrompt prompt = new BiometricPrompt(activity,
                     ContextCompat.getMainExecutor(activity),
                     biometricPromptCallback);
@@ -210,10 +210,10 @@ public class BiometricsHelper {
 
     //// start: min security requirements
 
-    public static String getMinHardwareErrorForSecurityIfAny(BiometricManager biometricManager, Activity activity, String requiredLock){
+    public static String getMinHardwareErrorForSecurityIfAny(BiometricManager biometricManager, Activity activity, String requiredLock) {
 
-        if(TextUtils.isEmpty(requiredLock)){
-            crashWithInvalidSecurityTypeException(activity,requiredLock);
+        if (TextUtils.isEmpty(requiredLock)) {
+            crashWithInvalidSecurityTypeException(activity, requiredLock);
         }
 
         BiometricsHelper.ConfigurationStatus fingerprintStatus = BiometricsHelper.checkFingerprintStatus(
@@ -221,27 +221,29 @@ public class BiometricsHelper {
         BiometricsHelper.ConfigurationStatus pinStatus = BiometricsHelper.checkPinStatus(activity,
                 biometricManager);
 
-        return switch (requiredLock){
-            case PIN ->  getMinPinHardwareErrorForSecurityIfAny(activity,fingerprintStatus,pinStatus);
-            case BIOMETRIC_TYPE -> getMinBioMetricHardwareErrorForSecurityIfAny(activity,fingerprintStatus);
+        return switch (requiredLock) {
+            case PIN ->
+                    getMinPinHardwareErrorForSecurityIfAny(activity, fingerprintStatus, pinStatus);
+            case BIOMETRIC_TYPE ->
+                    getMinBioMetricHardwareErrorForSecurityIfAny(activity, fingerprintStatus);
             default -> {
-                crashWithInvalidSecurityTypeException(activity,requiredLock);
-                yield activity.getString(R.string.configuration_process_failed_server_msg,requiredLock);
+                crashWithInvalidSecurityTypeException(activity, requiredLock);
+                yield activity.getString(R.string.configuration_process_failed_server_msg, requiredLock);
             }
         };
     }
 
-    private static void crashWithInvalidSecurityTypeException(Activity activity, String requiredLock){
-        new RuntimeException(activity.getString(R.string.configuration_process_failed_server_msg,requiredLock));
+    private static void crashWithInvalidSecurityTypeException(Activity activity, String requiredLock) {
+        new RuntimeException(activity.getString(R.string.configuration_process_failed_server_msg, requiredLock));
     }
 
-    private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus){
-         return (fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ||
-                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.configuration_process_failed_security_subtitle,PIN);
+    private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
+        return (fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ||
+                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, PIN);
     }
 
-    private static String getMinBioMetricHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus){
-        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.configuration_process_failed_security_subtitle,BIOMETRIC_TYPE);
+    private static String getMinBioMetricHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus) {
+        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
     }
 
     //// end: min secruity requirements

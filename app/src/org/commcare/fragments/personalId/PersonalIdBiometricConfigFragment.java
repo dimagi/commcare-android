@@ -131,11 +131,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     private void refreshAuthenticationOptions() {
-        String errorMsgForMinHardwareForSecurity = BiometricsHelper.getMinHardwareErrorForSecurityIfAny(biometricManager,getActivity(),personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock());
-        if(errorMsgForMinHardwareForSecurity!=null){
+        String errorMsgForMinHardwareForSecurity = BiometricsHelper.getMinHardwareErrorForSecurityIfAny(biometricManager, getActivity(), personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock());
+        if (errorMsgForMinHardwareForSecurity != null) {
             Logger.exception("Security configuration failure", new Exception(errorMsgForMinHardwareForSecurity));
             navigateToMessageDisplayForSecurityConfigurationFailure(errorMsgForMinHardwareForSecurity);
-        }else{
+        } else {
             updateUiBasedOnMinSecurityRequired();
         }
     }
@@ -147,29 +147,29 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         BiometricsHelper.ConfigurationStatus pinStatus = BiometricsHelper.checkPinStatus(requireContext(),
                 biometricManager);
 
-        String title="";
-        String message="";
+        String title = "";
+        String message = "";
         String fingerprintButton = null;
         String pinButton = null;
 
-        if(fingerprintStatus != BiometricsHelper.ConfigurationStatus.Configured
-                && pinStatus != BiometricsHelper.ConfigurationStatus.Configured){  // nothing is configured
+        if (fingerprintStatus != BiometricsHelper.ConfigurationStatus.Configured
+                && pinStatus != BiometricsHelper.ConfigurationStatus.Configured) {  // nothing is configured
             title = getString(R.string.connect_verify_title);
             message = getString(R.string.connect_verify_message);
             fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-            if(PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())){
+            if (PIN.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {
                 pinButton = getString(R.string.connect_verify_configure_pin);
             }
-        } else if(fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured){    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
+        } else if (fingerprintStatus == BiometricsHelper.ConfigurationStatus.Configured) {    // Fingerprint is configured so works for both PIN and BIOMETRIC_TYPE
             title = getString(R.string.connect_verify_use_fingerprint_long);
             message = getString(R.string.connect_verify_fingerprint_configured);
             fingerprintButton = getString(R.string.connect_verify_agree);
-        }else if(BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())){   //Fingerprint not configured but required for BIOMETRIC_TYPE
+        } else if (BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {   //Fingerprint not configured but required for BIOMETRIC_TYPE
             // Need atleast Fingerprint configuration for BIOMETRIC_TYPE
             title = getString(R.string.connect_verify_title);
             message = getString(R.string.connect_verify_message);
             fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
-        }else {   // Only PIN is configure
+        } else {   // Only PIN is configure
             title = getString(R.string.connect_verify_use_pin_long);
             message = getString(R.string.connect_verify_pin_configured);
             pinButton = getString(R.string.connect_verify_agree);
@@ -187,8 +187,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
                 (fingerprintButton != null && pinButton != null) ? View.VISIBLE : View.INVISIBLE);
 
     }
-
-
 
 
     private void updateFingerprintSection(String buttonText) {
@@ -270,7 +268,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
-        NavDirections navDirections= PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
+        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
                 getString(R.string.configuration_process_failed_title),
                 errorMessage,
                 ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, null,
@@ -278,9 +276,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         Navigation.findNavController(requireView()).navigate(navDirections);
     }
 
-    private void navigateToOtpScreen() {
-        NavDirections navDirections=  PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
+    private NavDirections navigateToOtpScreen() {
+        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
                 ((PersonalIdActivity)requireActivity()).primaryPhone);
-        Navigation.findNavController(requireView()).navigate(navDirections);
     }
 }
