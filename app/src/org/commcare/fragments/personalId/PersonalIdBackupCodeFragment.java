@@ -32,6 +32,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.InputStream;
@@ -39,6 +40,7 @@ import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -49,7 +51,7 @@ import androidx.navigation.Navigation;
  * create an instance of this fragment.
  */
 public class PersonalIdBackupCodeFragment extends Fragment {
-    private static final int PIN_LENGTH = 6;
+    private static final int BACKUP_CODE_LENGTH = 6;
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
 
@@ -64,7 +66,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         requestInputFocus();
-        validatePinInputs();
+        validateBackupCodeInputs();
     }
 
     @Override
@@ -72,9 +74,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         activity = requireActivity();
         configureUiByMode();
-        setupPinInputFilters();
+        setupBackupCodeInputFilters();
         setupListeners();
-        clearPinFields();
+        clearBackupCodeFields();
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         activity.setTitle(getString(titleId));
         return binding.getRoot();
     }
@@ -107,25 +110,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void setUserNameAndPhoto() {
         String username = personalIdSessionDataViewModel.getPersonalIdSessionData().getUsername();
         String photoBase64 = personalIdSessionDataViewModel.getPersonalIdSessionData().getPhotoBase64();
-
-        if (!TextUtils.isEmpty(username)) {
-            binding.welcomeBack.setText(getString(R.string.welcome_back_msg, username));
-        }
-
+        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, username));
         if (!TextUtils.isEmpty(photoBase64)) {
-            try {
-                byte[] decodedBytes = Base64.decode(photoBase64, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                binding.userPhoto.setImageBitmap(bitmap);
-            } catch (IllegalArgumentException e) {
-                Logger.log("photo-decode-error", "Invalid Base64 image: " + e.getMessage());
-            }
+            binding.userPhoto.setImageBitmap(MediaUtil.decodeBase64EncodedBitmap(photoBase64));
         }
     }
 
-
-    private void setupPinInputFilters() {
-        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(PIN_LENGTH)};
+    private void setupBackupCodeInputFilters() {
+        InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
         binding.connectPinInput.setFilters(filters);
         binding.connectPinRepeatInput.setFilters(filters);
     }
@@ -138,7 +130,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validatePinInputs();
+                validateBackupCodeInputs();
             }
 
             @Override
@@ -148,10 +140,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
         binding.connectPinInput.addTextChangedListener(pinWatcher);
         binding.connectPinRepeatInput.addTextChangedListener(pinWatcher);
-        binding.connectPinButton.setOnClickListener(v -> handlePinSubmission());
+        binding.connectPinButton.setOnClickListener(v -> handleBackupCodeSubmission());
     }
 
-    private void clearPinFields() {
+    private void clearBackupCodeFields() {
         binding.connectPinInput.setText("");
         binding.connectPinRepeatInput.setText("");
     }
@@ -162,17 +154,17 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     // ─────────── VALIDATION ─────────────
 
-    private void validatePinInputs() {
-        String pin1 = binding.connectPinInput.getText().toString();
-        String pin2 = binding.connectPinRepeatInput.getText().toString();
+    private void validateBackupCodeInputs() {
+        String backupCode1 = binding.connectPinInput.getText().toString();
+        String backupCode2 = binding.connectPinRepeatInput.getText().toString();
 
         String errorText = "";
         boolean isButtonEnabled = false;
 
-        if (!pin1.isEmpty()) {
-            if (pin1.length() != PIN_LENGTH) {
-                errorText = getString(R.string.connect_pin_length, PIN_LENGTH);
-            } else if (!isRecovery && !pin1.equals(pin2)) {
+        if (!backupCode1.isEmpty()) {
+            if (backupCode1.length() != BACKUP_CODE_LENGTH) {
+                errorText = getString(R.string.connect_pin_length, BACKUP_CODE_LENGTH);
+            } else if (!isRecovery && !backupCode1.equals(backupCode2)) {
                 errorText = getString(R.string.connect_pin_mismatch);
             } else {
                 isButtonEnabled = true;
@@ -185,7 +177,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     // ─────────── PIN HANDLING ─────────────
 
-    private void handlePinSubmission() {
+    private void handleBackupCodeSubmission() {
         if (isRecovery) {
             confirmBackupCode();
         } else {
@@ -278,11 +270,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     // ─────────── HELPERS ─────────────
 
-    private void handleFailedPinAttempt() {
+    private void handleFailedBackupCodeAttempt() {
         PersonalIdManager idManager = PersonalIdManager.getInstance();
         idManager.setFailureAttempt(idManager.getFailureAttempt() + 1);
         logRecoveryResult(false);
-        clearPinFields();
+        clearBackupCodeFields();
     }
 
     private void showRecoveryFailure() {

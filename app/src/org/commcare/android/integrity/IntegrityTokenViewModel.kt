@@ -1,19 +1,18 @@
 package org.commcare.android.integrity
 
+import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIntegrityTokenRequest
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
-import org.apache.commons.lang3.StringUtils
 import org.commcare.CommCareApplication
 import org.commcare.dalvik.BuildConfig
 import org.javarosa.core.services.Logger
 
-class IntegrityTokenViewModel() : AndroidViewModel(application = CommCareApplication.instance()) {
+class IntegrityTokenViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _providerState = MutableLiveData<TokenProviderState>()
     val providerState: LiveData<TokenProviderState> = _providerState
@@ -32,7 +31,7 @@ class IntegrityTokenViewModel() : AndroidViewModel(application = CommCareApplica
      * Also note that each app instance can only prepare the integrity token up to 5 times per minute.
      */
     fun prepareTokenProvider() {
-        val standardIntegrityManager = IntegrityManagerFactory.createStandard(CommCareApplication.instance())
+        val standardIntegrityManager = IntegrityManagerFactory.createStandard(getApplication())
         val cloudProjectNumber = BuildConfig.GOOGLE_CLOUD_PROJECT_NUMBER
         require(cloudProjectNumber!= -1L) { "Google Cloud Project Number is not defined" }
 
