@@ -8,14 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
 import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -28,7 +23,17 @@ import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+
 import static android.app.Activity.RESULT_OK;
+import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
@@ -40,6 +45,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private BiometricPrompt.AuthenticationCallback biometricCallback;
     private static final String KEY_ATTEMPTING_FINGERPRINT = "attempting_fingerprint";
     private ScreenPersonalidVerifyBinding binding;
+    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
+    private PersonalIdSessionData personalIdSessionData;
 
     public PersonalIdBiometricConfigFragment() {
         // Required empty public constructor
@@ -57,6 +64,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         if (savedInstanceState != null) {
             isAttemptingFingerprint = savedInstanceState.getBoolean(KEY_ATTEMPTING_FINGERPRINT);
         }
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
+        personalIdSessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
     }
 
     @Override
@@ -243,7 +252,15 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
-                Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToOtpScreen());
+                if (Boolean.FALSE.equals(personalIdSessionData.getDemoUser())) {
+                    NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
+                } else {
+                    View view = getView();
+                    if (view != null) {
+                        showSnackBarWithOk(view, getString(R.string.connect_verify_skip_phone_number),
+                                v -> NavHostFragment.findNavController(this).navigate(navigateToNameScreen()));
+                    }
+                }
             }
         }
     }
@@ -260,5 +277,9 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private NavDirections navigateToOtpScreen() {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
                 ((PersonalIdActivity)requireActivity()).primaryPhone);
+    }
+
+    private NavDirections navigateToNameScreen() {
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidName();
     }
 }
