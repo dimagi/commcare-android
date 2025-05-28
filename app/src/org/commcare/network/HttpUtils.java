@@ -10,10 +10,17 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,12 +100,13 @@ public class HttpUtils {
             if (response.errorBody().contentType().equals("application/json")) {
                 errorBodyKeyValuePairs = parseJsonErrorResponseBody(responseStr);
             } else {
-                // XML format
+                errorBodyKeyValuePairs = parseXmlErrorResponseBody(responseStr);
             }
             message = Localization.getWithDefault(
                     errorBodyKeyValuePairs.get("error"),
                     errorBodyKeyValuePairs.get("default_response"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException | IOException | InvalidStructureException | UnfullfilledRequirementsException
+                 | XmlPullParserException e) {
             message = responseStr != null ? responseStr : "Unknown issue";
         }
         return message;
@@ -120,5 +128,42 @@ public class HttpUtils {
             map.put("default_response", jsonObject.getString("default_response"));
         }
         return map;
+    }
+
+    /* *
+     * Parses XML-formatted error response body from HQ. The response body is expected to be in the format:
+     * <OpenRosaResponse xmlns="http://openrosa.org/http/response">
+     *     <message nature="ota_restore_error">
+     *       <error>
+     *         error.message.string.key
+     *       </error>
+     *       <default_response>
+     *         Default message in English
+     *       </default_response>
+     *     </message>
+     *   </OpenRosaResponse>
+     * Returns a map containing the relevant key-value pairs.
+     */
+    public static Map<String, String> parseXmlErrorResponseBody(String responseStr)
+            throws IOException, InvalidStructureException, UnfullfilledRequirementsException,
+            XmlPullParserException {
+
+        KXmlParser baseParser = ElementParser.instantiateParser(
+                new ByteArrayInputStream(responseStr.getBytes(StandardCharsets.UTF_8)));
+        ElementParser<Map<String, String>> responseParser = new ElementParser<>(baseParser) {
+            @Override
+            public Map<String, String> parse() throws InvalidStructureException, IOException,
+                    XmlPullParserException {
+                Map<String, String> map = new HashMap<>();
+                checkNode("OpenRosaResponse");
+                nextTag("message");
+                nextTag("error");
+                map.put("error", parser.nextText());
+                nextTag("default_response");
+                map.put("default_response", parser.nextText());
+                return map;
+            }
+        };
+        return responseParser.parse();
     }
 }
