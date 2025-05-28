@@ -22,14 +22,14 @@ data class PersonalIdSessionData(
 
     /**
      * Annotation to restrict accepted authentication types used by the device.
-     * Only DEVICE_TYPE or BIOMETRIC_TYPE are allowed.
+     * Only PIN or BIOMETRIC_TYPE are allowed.
      */
-    @StringDef(DEVICE_TYPE, BIOMETRIC_TYPE)
+    @StringDef(PIN, BIOMETRIC_TYPE)
     @Retention(AnnotationRetention.SOURCE)
     annotation class DeviceAuthType
 
     companion object {
-        const val DEVICE_TYPE = "device"
+        const val PIN = "pin"
         const val BIOMETRIC_TYPE = "biometric"
     }
 }
