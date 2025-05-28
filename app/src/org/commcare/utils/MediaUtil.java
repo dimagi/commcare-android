@@ -632,14 +632,11 @@ public class MediaUtil {
             int commaIndex = base64Image.indexOf(',');
             if (commaIndex != -1) {
                 base64Image = base64Image.substring(commaIndex + 1);
+            } else {
+                throw (new IllegalStateException("Not a valid base64 string"));
             }
         }
-        try {
-            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-            return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        } catch (Exception e) {
-            return null;
-        }
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
-
 }
