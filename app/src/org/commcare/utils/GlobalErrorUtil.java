@@ -4,27 +4,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.models.database.SqlStorage;
 
-import java.util.Date;
 import java.util.Vector;
 
 public class GlobalErrorUtil {
     public static void addError(GlobalErrorRecord error) {
         CommCareApplication.instance().getGlobalStorage(GlobalErrorRecord.class).write(error);
-    }
-
-    public static Vector<GlobalErrorRecord> getErrors() {
-        SqlStorage<GlobalErrorRecord> storage = CommCareApplication.instance()
-                .getGlobalStorage(GlobalErrorRecord.class);
-
-        Vector<GlobalErrorRecord> errors = storage.getRecordsForValues(new String[]{}, new String[]{});
-
-        //Clear the errors once retrieved
-        storage.removeAll();
-
-        return errors;
     }
 
     public static String handleGlobalErrors() {
