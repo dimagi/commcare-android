@@ -269,7 +269,7 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmPin(tokenAuth, params);
+        Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
         callApi(context, call, callback);
     }
 

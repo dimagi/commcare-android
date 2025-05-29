@@ -164,21 +164,19 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (Boolean.TRUE.equals(sessionData.getAccountOrphaned())) {
-                    navigateWithMessage(R.string.recovery_failed_title, R.string.recovery_failed_message,
+                } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() == 0) {
+                    navigateWithMessage(getString(R.string.recovery_failed_title),
+                            getString(R.string.recovery_failed_message),
                             ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED);
-                } else {
+                } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
             }
 
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                if (failureCode == PersonalIdApiErrorCodes.WRONG_BACKUP_CODE) {
-                    handleFailedBackupCodeAttempt();
-                } else {
-                    PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
-                }
+                PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+
             }
         }.confirmBackupCode(activity, backupCode, personalIdSessionData);
     }
@@ -188,9 +186,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                String.valueOf(binding.connectPinInput.getText()), new Date(), personalIdSessionData.getPhotoBase64(),
+                String.valueOf(binding.connectPinInput.getText()), new Date(),
+                personalIdSessionData.getPhotoBase64(),
                 personalIdSessionData.getDemoUser());
-        ConnectUserDatabaseUtil.storeUser(requireActivity(),user);
+        ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
         createSuccessRecoveryDirection();
     }
@@ -198,7 +197,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void handleFailedBackupCodeAttempt() {
         logRecoveryResult(false);
         clearBackupCodeFields();
-        navigateWithMessage(R.string.connect_pin_fail_title, R.string.connect_pin_fail_message,
+        navigateWithMessage(getString(R.string.connect_pin_fail_title),
+                getString(R.string.personalid_wrong_backup_message, personalIdSessionData.getAttemptsLeft()),
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN);
     }
 
@@ -206,10 +206,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
     }
 
-    private void navigateWithMessage(int titleRes, int msgRes, int phase) {
+    private void navigateWithMessage(String titleRes, String msgRes, int phase) {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
-                        .actionPersonalidPinToPersonalidMessage(getString(titleRes), getString(msgRes), phase,
+                        .actionPersonalidPinToPersonalidMessage(titleRes, msgRes, phase,
                                 getString(R.string.ok), null,
                                 personalIdSessionData.getUserName(), "")
                         .setIsCancellable(false));
@@ -224,8 +224,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void createSuccessRecoveryDirection() {
         navigateWithMessage(
-                R.string.connect_recovery_success_title,
-                R.string.connect_recovery_success_message,
+                getString(R.string.connect_recovery_success_title),
+                getString(R.string.connect_recovery_success_message),
                 ConnectConstants.PERSONALID_RECOVERY_SUCCESS);
     }
 }

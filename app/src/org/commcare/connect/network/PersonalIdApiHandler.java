@@ -24,8 +24,7 @@ public abstract class PersonalIdApiHandler {
         TOKEN_UNAVAILABLE_ERROR,
         TOKEN_DENIED_ERROR,
         INVALID_RESPONSE_ERROR,
-        JSON_PARSING_ERROR,
-        WRONG_BACKUP_CODE;
+        JSON_PARSING_ERROR;
 
         public boolean shouldAllowRetry(){
             return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == INVALID_RESPONSE_ERROR
@@ -98,7 +97,7 @@ public abstract class PersonalIdApiHandler {
         ApiPersonalId.confirmBackupCode(activity, backupCode, sessionData.getToken(),
                 createCallback(sessionData,
                         new ConfirmBackupCodeResponseParser(),
-                        PersonalIdApiErrorCodes.WRONG_BACKUP_CODE));
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 
 

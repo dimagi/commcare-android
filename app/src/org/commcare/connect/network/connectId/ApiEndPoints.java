@@ -21,7 +21,7 @@ public class ApiEndPoints {
     public static final String recoverSecondary = "/users/recover/secondary";
     public static final String confirmOTP = "/users/confirm_otp";
     public static final String setBackupCode = "/users/set_recovery_pin";
-    public static final String confirmPIN = "/users/recover/confirm_pin";
+    public static final String confirmBackupCode = "/users/recover/confirm_backup_code";
     public static final String resetPassword = "/users/recover/reset_password";
     public static final String changePassword = "/users/change_password";
     public static final String confirmPassword = "/users/recover/confirm_password";
