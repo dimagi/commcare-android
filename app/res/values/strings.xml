@@ -73,7 +73,7 @@
     <string name="remote_form_payload_url" />
 
     <string name="url_prompt">Choose a URL</string>
-    <string name="about_dialog" formatted="false" cc:translatable="true">%s\n\n_Copyright 2016, Dimagi inc, All rights reserved_ \n\n---------------- \n\n__Acknowledgements:__ \n\n%sSome images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n* “Door” symbol by Tak Imoto \n* “Pencil” symbol by Creologica \n* “Notebook” symbol by Carlo \n* “Antenna” symbol by Dima \n* “Map Marker” symbol by P.J. Onori \n* "List" by Landan Lloyd \n* broken screen by Sam Martin from the Noun Project \n\n
+    <string name="about_dialog" formatted="false" translatable="true">%s\n\n_Copyright 2016, Dimagi inc, All rights reserved_ \n\n---------------- \n\n__Acknowledgements:__ \n\n%sSome images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n* “Door” symbol by Tak Imoto \n* “Pencil” symbol by Creologica \n* “Notebook” symbol by Carlo \n* “Antenna” symbol by Dima \n* “Map Marker” symbol by P.J. Onori \n* "List" by Landan Lloyd \n* broken screen by Sam Martin from the Noun Project \n\n
 
 </string>
 
@@ -104,305 +104,305 @@
     <string name="managed_configuration_username_description">The username of the CommCare mobile worker to login and restore on the device</string>
     <string name="managed_configuration_password_description">The password of the mobile user</string>
     <string name="managed_configuration_profile_url_description">The URL to your CommCare Application from the CommCareHQ publish page</string>
-    <string name="about_cc" cc:translatable="true">About CommCare</string>
-    <string name="accept_location" cc:translatable="true">Record Location</string>
+    <string name="about_cc" translatable="true">About CommCare</string>
+    <string name="accept_location" translatable="true">Record Location</string>
 
-    <string name="accuracy" cc:translatable="true">Accuracy</string>
-    <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
-    <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
-    <string name="altitude" cc:translatable="true">Altitude</string>
+    <string name="accuracy" translatable="true">Accuracy</string>
+    <string name="activity_not_found" translatable="true">No activity found to handle: %s</string>
+    <string name="advance" translatable="true">forward to\nnext\nprompt</string>
+    <string name="altitude" translatable="true">Altitude</string>
 
-    <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s mb. This could cause problems with submitting to the server depending on your network conditions.</string>
-    <string name="attachment_above_size_limit" formatted="false" cc:translatable="true">Media attachment too large (%1$s mb). Max allowed size is %2$s mb.</string>
-    <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
+    <string name="attachment_oversized" translatable="true">Warning: attached large file of size %s mb. This could cause problems with submitting to the server depending on your network conditions.</string>
+    <string name="attachment_above_size_limit" formatted="false" translatable="true">Media attachment too large (%1$s mb). Max allowed size is %2$s mb.</string>
+    <string name="audio_file_error" translatable="true">No audio file was specified.</string>
 
-    <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
-    <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
-    <string name="proceed" cc:translatable="true">PROCEED</string>
+    <string name="audio_file_invalid" translatable="true">File: %s is not a valid audio file.</string>
+    <string name="backup" translatable="true">back to\nprevious\nprompt</string>
+    <string name="proceed" translatable="true">PROCEED</string>
 
 
     <!-- Start Collect Strings -->
 
-    <string name="cancel" cc:translatable="true">CANCEL</string>
-    <string name="cancel_loading_form" cc:translatable="true">Cancel</string>
-    <string name="cancel_location" cc:translatable="true">Cancel</string>
-    <string name="cancel_saving_form" cc:translatable="true">Cancel</string>
-    <string name="cannot_edit_completed_form" cc:translatable="true">This form cannot be edited once it has been marked as complete.</string>
-    <string name="capture_audio" cc:translatable="true">Record Sound</string>
-    <string name="capture_image" cc:translatable="true">Take Picture</string>
-    <string name="capture_video" cc:translatable="true">Record Video</string>
-    <string name="change_language" cc:translatable="true">Change Language</string>
-    <string name="clearanswer_confirm" cc:translatable="true">Remove the response to \"%s\"?</string>
-    <string name="clear_answer" cc:translatable="true">Remove response</string>
-    <string name="clear_answer_ask" cc:translatable="true">Remove This Response?</string>
-    <string name="clear_answer_no" cc:translatable="true">CANCEL</string>
-    <string name="completed_data" cc:translatable="true">Complete (%s)</string>
-    <string name="data" cc:translatable="true">Saved Forms</string>
-    <string name="delete_confirm" cc:translatable="true">Delete %s form(s)?</string>
-    <string name="delete_file" cc:translatable="true">Delete Selected</string>
-    <string name="delete_no" cc:translatable="true">Do Not Delete</string>
-    <string name="delete_yes" cc:translatable="true">Delete Forms</string>
-    <string name="discard_answer" cc:translatable="true">REMOVE RESPONSE</string>
-    <string name="discard_image" cc:translatable="true">Remove Image</string>
-    <string name="download" cc:translatable="true">Get Selected</string>
-    <string name="download_forms_result" cc:translatable="true">Download Result</string>
-    <string name="downloading_data" cc:translatable="true">Connecting to Server</string>
-    <string name="download_all_successful" cc:translatable="true">All forms downloaded successfully.</string>
-    <string name="download_complete" cc:translatable="true">Form Get Complete</string>
-    <string name="download_failed_with_error" cc:translatable="true">Form \"%1$s\" failed. %2$s.</string>
-    <string name="do_not_change" cc:translatable="true">Cancel</string>
-    <string name="do_not_exit" cc:translatable="true">STAY IN FORM</string>
-    <string name="do_not_save" cc:translatable="true">EXIT WITHOUT SAVING</string>
-    <string name="enter" cc:translatable="true">start</string>
-    <string name="enter_data" cc:translatable="true">Fill Blank Form</string>
-    <string name="enter_data_button" cc:translatable="true">Fill Blank Form</string>
-    <string name="enter_data_description" cc:translatable="true">You are at the start of \"%s\". Swipe the screen as shown below to begin.</string>
-    <string name="enter_data_message" cc:translatable="true">To navigate, swipe your finger horizontally on the screen as if turning pages in a book. Press the Menu button for more choices.</string>
-    <string name="error_downloading" cc:translatable="true">Error Getting Form</string>
-    <string name="error_occured" cc:translatable="true">Error Occurred</string>
-    <string name="fetching_file" cc:translatable="true">Getting %1$s.\n\nForm %2$s of %3$s form(s).</string>
-    <string name="file_deleted_error" cc:translatable="true">Sorry, %1$s of %2$s selected form(s) failed to delete!</string>
-    <string name="file_deleted_ok" cc:translatable="true">%s form(s) successfully deleted!</string>
-    <string name="file_invalid" cc:translatable="true">File: %s is invalid.</string>
-    <string name="file_missing" cc:translatable="true">File: %s is missing.</string>
-    <string name="finished_disk_scan" cc:translatable="true">Finished scanning. All forms loaded.</string>
-    <string name="form" cc:translatable="true">Form</string>
-    <string name="forms" cc:translatable="true">Blank Forms</string>
-    <string name="form_renamed" cc:translatable="true">%1$s was renamed %2$s.</string>
-    <string name="getting_location" cc:translatable="true">Loading Location</string>
-    <string name="get_forms" cc:translatable="true">Get Blank Form</string>
-    <string name="get_location" cc:translatable="true">Record Location</string>
-    <string name="provider_disabled_error" cc:translatable="true">Sorry, Location providers are disabled!</string>
-    <string name="invalid_answer_error" cc:translatable="true">Sorry, this response is invalid!</string>
-    <string name="jump_to_beginning" cc:translatable="true">Go To Start</string>
-    <string name="jump_to_end" cc:translatable="true">Go To End</string>
-    <string name="jump_to_previous" cc:translatable="true">Go Up</string>
-    <string name="latitude" cc:translatable="true">Latitude</string>
-    <string name="leaving_repeat" cc:translatable="true">Add Group</string>
-    <string name="leaving_repeat_ask" cc:translatable="true">And One More Group?</string>
-    <string name="list_failed_with_error" cc:translatable="true">Form listing failed. %s.</string>
-    <string name="loading_form" cc:translatable="true">Loading Form</string>
-    <string name="load_remote_form_error" cc:translatable="true">Error Getting Form List</string>
-    <string name="location_provider_accuracy" cc:translatable="true">Location accuracy: %1$s m.</string>
-    <string name="location_provider" cc:translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
-    <string name="location_accuracy" cc:translatable="true">Location found. Accuracy is %1$s m</string>
-    <string name="longitude" cc:translatable="true">Longitude</string>
-    <string name="manage_files" cc:translatable="true">Delete Saved Form</string>
-    <string name="no" cc:translatable="true">No</string>
-    <string name="noselect_error" cc:translatable="true">Sorry, you have not selected any forms!</string>
-    <string name="no_capture" cc:translatable="true">Nothing recorded yet.</string>
-    <string name="no_connection" cc:translatable="true">No network connection available</string>
-    <string name="no_items_display" cc:translatable="true">Nothing available to display.</string>
-    <string name="no_items_display_forms" cc:translatable="true">Nothing available to display.\n\nTry getting and filling out a blank form.</string>
-    <string name="no_items_display_instances" cc:translatable="true">Nothing available to display.\n\nTry finalizing saved forms before sending.</string>
-    <string name="no_items_error" cc:translatable="true">Nothing available to %s!</string>
-    <string name="no_sd_error" cc:translatable="true">Sorry, your memory card is not working!</string>
-    <string name="ok" cc:translatable="true">OK</string>
-    <string name="one_capture" cc:translatable="true">Multimedia recorded.</string>
-    <string name="parse_error" cc:translatable="true">Sorry, unable to parse form.</string>
-    <string name="parse_legacy_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
-    <string name="parse_openrosa_formlist_failed" cc:translatable="true">The server has not provided an available-forms document compatible with the OpenRosa version 1.0 standard: %s</string>
-    <string name="play_audio" cc:translatable="true">Play Sound</string>
-    <string name="play_video" cc:translatable="true">Play Video</string>
-    <string name="please_wait" cc:translatable="true">Please wait a few moments.</string>
-    <string name="please_wait_long" cc:translatable="true">Please wait. This could take a few minutes.</string>
-    <string name="quit_application" cc:translatable="true">Exit %s</string>
-    <string name="quit_entry" cc:translatable="true">Save Form and Exit</string>
-    <string name="quit_form_title" cc:translatable="true">Exit Form?</string>
-    <string name="refresh" cc:translatable="true">Refresh</string>
-    <string name="replace_audio" cc:translatable="true">Replace Sound</string>
-    <string name="replace_barcode" cc:translatable="true">Replace Barcode</string>
-    <string name="replace_image" cc:translatable="true">Replace Picture</string>
-    <string name="replace_location" cc:translatable="true">Replace Location</string>
-    <string name="replace_video" cc:translatable="true">Replace Video</string>
-    <string name="required_answer_error" cc:translatable="true">Sorry, this response is required!</string>
-    <string name="review" cc:translatable="true">Continue</string>
-    <string name="review_data" cc:translatable="true">Edit Saved Form</string>
-    <string name="review_data_button" cc:translatable="true">Edit Saved Form</string>
-    <string name="saved_data" cc:translatable="true">Incomplete (%s)</string>
-    <string name="save_all_answers" cc:translatable="true">Save Form</string>
-    <string name="save_data_message" cc:translatable="true">Please save form to keep your responses.</string>
-    <string name="save_enter_data_description" cc:translatable="true">You are at the end of \"%s\".</string>
-    <string name="saving_form" cc:translatable="true">Saving Form</string>
-    <string name="send" cc:translatable="true">send</string>
-    <string name="sending_items" cc:translatable="true">Sending %1$s of %2$s form(s)</string>
-    <string name="send_data" cc:translatable="true">Send Finalized Form</string>
-    <string name="send_data_button" cc:translatable="true">Send Finalized Form</string>
-    <string name="send_selected_data" cc:translatable="true">Send Selected</string>
-    <string name="server_auth_credentials" cc:translatable="true">Please enter username and password for server:\n%s</string>
-    <string name="server_requires_auth" cc:translatable="true">Server Requires Authentication</string>
-    <string name="server_url" cc:translatable="true">URL</string>
-    <string name="server_preferences" cc:translatable="true">Server</string>
-    <string name="toggle_selected" cc:translatable="true">Toggle All</string>
-    <string name="trigger" cc:translatable="true">OK. Please continue.</string>
-    <string name="uploading_data" cc:translatable="true">Sending Form</string>
-    <string name="upload_all_successful" cc:translatable="true">%s form(s) sent successfully.</string>
-    <string name="upload_some_failed" cc:translatable="true">Sorry, %s form(s) failed to send!</string>
-    <string name="url_error" cc:translatable="true">Sorry, invalid URL!</string>
-    <string name="username" cc:translatable="true">Username</string>
-    <string name="view_hierarchy" cc:translatable="true">Go To Prompt</string>
-    <string name="form_entry_settings" cc:translatable="true">Change Settings</string>
-    <string name="first_run" cc:translatable="true">Do first run on restart</string>
-    <string name="client" cc:translatable="true">Client</string>
-    <string name="use_odk_default" cc:translatable="true">Use Default Image</string>
-    <string name="show_location" cc:translatable="true">Show Location</string>
-    <string name="keep_changes" cc:translatable="true">SAVE INCOMPLETE</string>
-    <string name="go_to_location" cc:translatable="true">Go to Location</string>
-    <string name="font_size" cc:translatable="true">Text Font Size</string>
-    <string name="change_font_size" cc:translatable="true">Text Font Size</string>
-    <string name="form_scan_starting" cc:translatable="true">Scanning for forms...</string>
-    <string name="form_scan_finished" cc:translatable="true">Form scanning completed</string>
-    <string name="access_error" cc:translatable="true">Error while accessing %s: </string>
-    <string name="manifest_server_error" cc:translatable="true">Manifest reply does not report an OpenRosa version -- bad server?</string>
-    <string name="root_element_error" cc:translatable="true">Root element is not &lt;manifest\&gt; -- was %s</string>
-    <string name="root_namespace_error" cc:translatable="true">Root element Namespace is incorrect: %s</string>
-    <string name="manifest_tag_error" cc:translatable="true">Manifest entry %s is missing one or more tags: filename, hash, or downloadUrl</string>
-    <string name="form_download_progress" cc:translatable="true">%1$s. Getting media files: %2$s of %3$s</string>
-    <string name="file_fetch_failed" cc:translatable="true">Error: %2$s (%3$s) at %1$s</string>
-    <string name="fetching_manifest" cc:translatable="true">%s. Getting manifest </string>
-    <string name="success" cc:translatable="true">Success</string>
-    <string name="no_forms_uploaded" cc:translatable="true">Sorry, no form was uploaded.</string>
-    <string name="upload_results" cc:translatable="true">Upload Results</string>
-    <string name="xform_parse_error" cc:translatable="true">XForm parse error. %1$s is missing element %2$s</string>
-    <string name="choose_sound" cc:translatable="true">Choose Sound</string>
-    <string name="choose_video" cc:translatable="true">Choose Video</string>
-    <string name="choose_image" cc:translatable="true">Choose Image</string>
-    <string name="choose_document" cc:translatable="true">Choose Document</string>
-    <string name="selected" cc:translatable="true">Selected: </string>
-    <string name="select_answer" cc:translatable="true">Select Answer</string>
-    <string name="save_form_as" cc:translatable="true">Name this form:</string>
-    <string name="save_as_error" cc:translatable="true">Saved name must not be blank!</string>
-    <string name="form_name" cc:translatable="true">Form Name:</string>
-    <string name="edit_prompt" cc:translatable="true">Edit Prompt</string>
-    <string name="exit" cc:translatable="true">Exit</string>
-    <string name="no_gps_title" cc:translatable="true">Location Data Disabled</string>
-    <string name="no_gps_message" cc:translatable="true">The location providers on this device are currently disabled. Do you want to change those settings?</string>
-    <string name="change_settings" cc:translatable="true">Change Settings</string>
-    <string name="finding_location" cc:translatable="true">Finding Location...</string>
-    <string name="found_location" cc:translatable="true">Location Found!</string>
-    <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>
-    <string name="reset_image" cc:translatable="true">Reset</string>
-    <string name="save_and_close" cc:translatable="true">Save and Close</string>
-    <string name="sign_button" cc:translatable="true">Gather Signature</string>
-    <string name="markup_image" cc:translatable="true">Markup Image</string>
-    <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="share" cc:translatable="true">Share</string>
-    <string name="title_data_change_logs_activity" cc:translatable="true">Data Change Logs</string>
-    <string name="commcare_logs" cc:translatable="true">CommCare Data Change Logs</string>
-    <string name="clear_user_data_delete_form" cc:translatable="true">Delete Forms</string>
-    <string name="target_mismatch_lts_required" cc:translatable="true">App Requires CommCare LTS</string>
-    <string name="target_mismatch_lts_required_install" cc:translatable="true">Install CommCare LTS</string>
-    <string name="target_mismatch_lts_open" cc:translatable="true">Open CommCare LTS</string>
-    <string name="target_mismatch_lts_required_info" cc:translatable="true">Follow the link below to install CommCare LTS from the Play Store, and then try installing your app again.</string>
-    <string name="target_mismatch_lts_available_info" cc:translatable="true">This app requires CommCare LTS. Click the button below to open CommCare LTS, and then try installing your app again.</string>
-    <string name="target_mismatch_commcare_required" cc:translatable="true">App Requires CommCare(Non LTS)</string>
-    <string name="target_mismatch_commcare_required_install" cc:translatable="true">Install CommCare</string>
-    <string name="target_mismatch_commcare_open" cc:translatable="true">Open CommCare</string>
+    <string name="cancel" translatable="true">CANCEL</string>
+    <string name="cancel_loading_form" translatable="true">Cancel</string>
+    <string name="cancel_location" translatable="true">Cancel</string>
+    <string name="cancel_saving_form" translatable="true">Cancel</string>
+    <string name="cannot_edit_completed_form" translatable="true">This form cannot be edited once it has been marked as complete.</string>
+    <string name="capture_audio" translatable="true">Record Sound</string>
+    <string name="capture_image" translatable="true">Take Picture</string>
+    <string name="capture_video" translatable="true">Record Video</string>
+    <string name="change_language" translatable="true">Change Language</string>
+    <string name="clearanswer_confirm" translatable="true">Remove the response to \"%s\"?</string>
+    <string name="clear_answer" translatable="true">Remove response</string>
+    <string name="clear_answer_ask" translatable="true">Remove This Response?</string>
+    <string name="clear_answer_no" translatable="true">CANCEL</string>
+    <string name="completed_data" translatable="true">Complete (%s)</string>
+    <string name="data" translatable="true">Saved Forms</string>
+    <string name="delete_confirm" translatable="true">Delete %s form(s)?</string>
+    <string name="delete_file" translatable="true">Delete Selected</string>
+    <string name="delete_no" translatable="true">Do Not Delete</string>
+    <string name="delete_yes" translatable="true">Delete Forms</string>
+    <string name="discard_answer" translatable="true">REMOVE RESPONSE</string>
+    <string name="discard_image" translatable="true">Remove Image</string>
+    <string name="download" translatable="true">Get Selected</string>
+    <string name="download_forms_result" translatable="true">Download Result</string>
+    <string name="downloading_data" translatable="true">Connecting to Server</string>
+    <string name="download_all_successful" translatable="true">All forms downloaded successfully.</string>
+    <string name="download_complete" translatable="true">Form Get Complete</string>
+    <string name="download_failed_with_error" translatable="true">Form \"%1$s\" failed. %2$s.</string>
+    <string name="do_not_change" translatable="true">Cancel</string>
+    <string name="do_not_exit" translatable="true">STAY IN FORM</string>
+    <string name="do_not_save" translatable="true">EXIT WITHOUT SAVING</string>
+    <string name="enter" translatable="true">start</string>
+    <string name="enter_data" translatable="true">Fill Blank Form</string>
+    <string name="enter_data_button" translatable="true">Fill Blank Form</string>
+    <string name="enter_data_description" translatable="true">You are at the start of \"%s\". Swipe the screen as shown below to begin.</string>
+    <string name="enter_data_message" translatable="true">To navigate, swipe your finger horizontally on the screen as if turning pages in a book. Press the Menu button for more choices.</string>
+    <string name="error_downloading" translatable="true">Error Getting Form</string>
+    <string name="error_occured" translatable="true">Error Occurred</string>
+    <string name="fetching_file" translatable="true">Getting %1$s.\n\nForm %2$s of %3$s form(s).</string>
+    <string name="file_deleted_error" translatable="true">Sorry, %1$s of %2$s selected form(s) failed to delete!</string>
+    <string name="file_deleted_ok" translatable="true">%s form(s) successfully deleted!</string>
+    <string name="file_invalid" translatable="true">File: %s is invalid.</string>
+    <string name="file_missing" translatable="true">File: %s is missing.</string>
+    <string name="finished_disk_scan" translatable="true">Finished scanning. All forms loaded.</string>
+    <string name="form" translatable="true">Form</string>
+    <string name="forms" translatable="true">Blank Forms</string>
+    <string name="form_renamed" translatable="true">%1$s was renamed %2$s.</string>
+    <string name="getting_location" translatable="true">Loading Location</string>
+    <string name="get_forms" translatable="true">Get Blank Form</string>
+    <string name="get_location" translatable="true">Record Location</string>
+    <string name="provider_disabled_error" translatable="true">Sorry, Location providers are disabled!</string>
+    <string name="invalid_answer_error" translatable="true">Sorry, this response is invalid!</string>
+    <string name="jump_to_beginning" translatable="true">Go To Start</string>
+    <string name="jump_to_end" translatable="true">Go To End</string>
+    <string name="jump_to_previous" translatable="true">Go Up</string>
+    <string name="latitude" translatable="true">Latitude</string>
+    <string name="leaving_repeat" translatable="true">Add Group</string>
+    <string name="leaving_repeat_ask" translatable="true">And One More Group?</string>
+    <string name="list_failed_with_error" translatable="true">Form listing failed. %s.</string>
+    <string name="loading_form" translatable="true">Loading Form</string>
+    <string name="load_remote_form_error" translatable="true">Error Getting Form List</string>
+    <string name="location_provider_accuracy" translatable="true">Location accuracy: %1$s m.</string>
+    <string name="location_provider" translatable="true">Using %1$s provider. Please wait for greater accuracy.</string>
+    <string name="location_accuracy" translatable="true">Location found. Accuracy is %1$s m</string>
+    <string name="longitude" translatable="true">Longitude</string>
+    <string name="manage_files" translatable="true">Delete Saved Form</string>
+    <string name="no" translatable="true">No</string>
+    <string name="noselect_error" translatable="true">Sorry, you have not selected any forms!</string>
+    <string name="no_capture" translatable="true">Nothing recorded yet.</string>
+    <string name="no_connection" translatable="true">No network connection available</string>
+    <string name="no_items_display" translatable="true">Nothing available to display.</string>
+    <string name="no_items_display_forms" translatable="true">Nothing available to display.\n\nTry getting and filling out a blank form.</string>
+    <string name="no_items_display_instances" translatable="true">Nothing available to display.\n\nTry finalizing saved forms before sending.</string>
+    <string name="no_items_error" translatable="true">Nothing available to %s!</string>
+    <string name="no_sd_error" translatable="true">Sorry, your memory card is not working!</string>
+    <string name="ok" translatable="true">OK</string>
+    <string name="one_capture" translatable="true">Multimedia recorded.</string>
+    <string name="parse_error" translatable="true">Sorry, unable to parse form.</string>
+    <string name="parse_legacy_formlist_failed" translatable="true">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
+    <string name="parse_openrosa_formlist_failed" translatable="true">The server has not provided an available-forms document compatible with the OpenRosa version 1.0 standard: %s</string>
+    <string name="play_audio" translatable="true">Play Sound</string>
+    <string name="play_video" translatable="true">Play Video</string>
+    <string name="please_wait" translatable="true">Please wait a few moments.</string>
+    <string name="please_wait_long" translatable="true">Please wait. This could take a few minutes.</string>
+    <string name="quit_application" translatable="true">Exit %s</string>
+    <string name="quit_entry" translatable="true">Save Form and Exit</string>
+    <string name="quit_form_title" translatable="true">Exit Form?</string>
+    <string name="refresh" translatable="true">Refresh</string>
+    <string name="replace_audio" translatable="true">Replace Sound</string>
+    <string name="replace_barcode" translatable="true">Replace Barcode</string>
+    <string name="replace_image" translatable="true">Replace Picture</string>
+    <string name="replace_location" translatable="true">Replace Location</string>
+    <string name="replace_video" translatable="true">Replace Video</string>
+    <string name="required_answer_error" translatable="true">Sorry, this response is required!</string>
+    <string name="review" translatable="true">Continue</string>
+    <string name="review_data" translatable="true">Edit Saved Form</string>
+    <string name="review_data_button" translatable="true">Edit Saved Form</string>
+    <string name="saved_data" translatable="true">Incomplete (%s)</string>
+    <string name="save_all_answers" translatable="true">Save Form</string>
+    <string name="save_data_message" translatable="true">Please save form to keep your responses.</string>
+    <string name="save_enter_data_description" translatable="true">You are at the end of \"%s\".</string>
+    <string name="saving_form" translatable="true">Saving Form</string>
+    <string name="send" translatable="true">send</string>
+    <string name="sending_items" translatable="true">Sending %1$s of %2$s form(s)</string>
+    <string name="send_data" translatable="true">Send Finalized Form</string>
+    <string name="send_data_button" translatable="true">Send Finalized Form</string>
+    <string name="send_selected_data" translatable="true">Send Selected</string>
+    <string name="server_auth_credentials" translatable="true">Please enter username and password for server:\n%s</string>
+    <string name="server_requires_auth" translatable="true">Server Requires Authentication</string>
+    <string name="server_url" translatable="true">URL</string>
+    <string name="server_preferences" translatable="true">Server</string>
+    <string name="toggle_selected" translatable="true">Toggle All</string>
+    <string name="trigger" translatable="true">OK. Please continue.</string>
+    <string name="uploading_data" translatable="true">Sending Form</string>
+    <string name="upload_all_successful" translatable="true">%s form(s) sent successfully.</string>
+    <string name="upload_some_failed" translatable="true">Sorry, %s form(s) failed to send!</string>
+    <string name="url_error" translatable="true">Sorry, invalid URL!</string>
+    <string name="username" translatable="true">Username</string>
+    <string name="view_hierarchy" translatable="true">Go To Prompt</string>
+    <string name="form_entry_settings" translatable="true">Change Settings</string>
+    <string name="first_run" translatable="true">Do first run on restart</string>
+    <string name="client" translatable="true">Client</string>
+    <string name="use_odk_default" translatable="true">Use Default Image</string>
+    <string name="show_location" translatable="true">Show Location</string>
+    <string name="keep_changes" translatable="true">SAVE INCOMPLETE</string>
+    <string name="go_to_location" translatable="true">Go to Location</string>
+    <string name="font_size" translatable="true">Text Font Size</string>
+    <string name="change_font_size" translatable="true">Text Font Size</string>
+    <string name="form_scan_starting" translatable="true">Scanning for forms...</string>
+    <string name="form_scan_finished" translatable="true">Form scanning completed</string>
+    <string name="access_error" translatable="true">Error while accessing %s: </string>
+    <string name="manifest_server_error" translatable="true">Manifest reply does not report an OpenRosa version -- bad server?</string>
+    <string name="root_element_error" translatable="true">Root element is not &lt;manifest\&gt; -- was %s</string>
+    <string name="root_namespace_error" translatable="true">Root element Namespace is incorrect: %s</string>
+    <string name="manifest_tag_error" translatable="true">Manifest entry %s is missing one or more tags: filename, hash, or downloadUrl</string>
+    <string name="form_download_progress" translatable="true">%1$s. Getting media files: %2$s of %3$s</string>
+    <string name="file_fetch_failed" translatable="true">Error: %2$s (%3$s) at %1$s</string>
+    <string name="fetching_manifest" translatable="true">%s. Getting manifest </string>
+    <string name="success" translatable="true">Success</string>
+    <string name="no_forms_uploaded" translatable="true">Sorry, no form was uploaded.</string>
+    <string name="upload_results" translatable="true">Upload Results</string>
+    <string name="xform_parse_error" translatable="true">XForm parse error. %1$s is missing element %2$s</string>
+    <string name="choose_sound" translatable="true">Choose Sound</string>
+    <string name="choose_video" translatable="true">Choose Video</string>
+    <string name="choose_image" translatable="true">Choose Image</string>
+    <string name="choose_document" translatable="true">Choose Document</string>
+    <string name="selected" translatable="true">Selected: </string>
+    <string name="select_answer" translatable="true">Select Answer</string>
+    <string name="save_form_as" translatable="true">Name this form:</string>
+    <string name="save_as_error" translatable="true">Saved name must not be blank!</string>
+    <string name="form_name" translatable="true">Form Name:</string>
+    <string name="edit_prompt" translatable="true">Edit Prompt</string>
+    <string name="exit" translatable="true">Exit</string>
+    <string name="no_gps_title" translatable="true">Location Data Disabled</string>
+    <string name="no_gps_message" translatable="true">The location providers on this device are currently disabled. Do you want to change those settings?</string>
+    <string name="change_settings" translatable="true">Change Settings</string>
+    <string name="finding_location" translatable="true">Finding Location...</string>
+    <string name="found_location" translatable="true">Location Found!</string>
+    <string name="preference_help_mode_tray" translatable="true">Display Rich Help Inline</string>
+    <string name="reset_image" translatable="true">Reset</string>
+    <string name="save_and_close" translatable="true">Save and Close</string>
+    <string name="sign_button" translatable="true">Gather Signature</string>
+    <string name="markup_image" translatable="true">Markup Image</string>
+    <string name="draw_image" translatable="true">Sketch Image</string>
+    <string name="share" translatable="true">Share</string>
+    <string name="title_data_change_logs_activity" translatable="true">Data Change Logs</string>
+    <string name="commcare_logs" translatable="true">CommCare Data Change Logs</string>
+    <string name="clear_user_data_delete_form" translatable="true">Delete Forms</string>
+    <string name="target_mismatch_lts_required" translatable="true">App Requires CommCare LTS</string>
+    <string name="target_mismatch_lts_required_install" translatable="true">Install CommCare LTS</string>
+    <string name="target_mismatch_lts_open" translatable="true">Open CommCare LTS</string>
+    <string name="target_mismatch_lts_required_info" translatable="true">Follow the link below to install CommCare LTS from the Play Store, and then try installing your app again.</string>
+    <string name="target_mismatch_lts_available_info" translatable="true">This app requires CommCare LTS. Click the button below to open CommCare LTS, and then try installing your app again.</string>
+    <string name="target_mismatch_commcare_required" translatable="true">App Requires CommCare(Non LTS)</string>
+    <string name="target_mismatch_commcare_required_install" translatable="true">Install CommCare</string>
+    <string name="target_mismatch_commcare_open" translatable="true">Open CommCare</string>
 
-    <string name="target_mismatch_commcare_required_info" cc:translatable="true">Follow the link below to install CommCare(Non LTS) from the Play Store, and then try installing your app again.</string>
-    <string name="target_mismatch_commcare_available_info" cc:translatable="true">This app requires CommCare(Non LTS). Click the button below to open CommCare, and then try installing your app again.</string>
-    <string name="incorrect_time_dialog_title" cc:translatable="true">Incorrect Time</string>
+    <string name="target_mismatch_commcare_required_info" translatable="true">Follow the link below to install CommCare(Non LTS) from the Play Store, and then try installing your app again.</string>
+    <string name="target_mismatch_commcare_available_info" translatable="true">This app requires CommCare(Non LTS). Click the button below to open CommCare, and then try installing your app again.</string>
+    <string name="incorrect_time_dialog_title" translatable="true">Incorrect Time</string>
 
     <!--Clear User Data-->
-    <string name="incorrect_time_dialog_message" cc:translatable="true">Your device time is incorrectly set. Please click the Correct Time button below to change your time settings.</string>
+    <string name="incorrect_time_dialog_message" translatable="true">Your device time is incorrectly set. Please click the Correct Time button below to change your time settings.</string>
 
     <!--Incorrect Target Screen-->
-    <string name="incorrect_time_dialog_correct_time" cc:translatable="true">Correct Time</string>
-    <string name="incorrect_time_dialog_cancel" cc:translatable="true">Cancel</string>
-    <string name="recovery_mode_title" cc:translatable="true">CommCare Recovery Mode</string>
-    <string name="recovery_mode_detail" cc:translatable="true">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
-    <string name="recovery_resource_progress" cc:translatable="true">Recovered %1$s out of %2$s resources</string>
-    <string name="recovery_error_poor_connection" cc:translatable="true">Recovery failed due to bad internet. Please make sure that you have a stable internet connection and try again</string>
-    <string name="recovery_error_unknown" cc:translatable="true">Recovery failed due to an unknown reason. Please try again or reinstall your app by going to App Manager</string>
-    <string name="recovery_success" cc:translatable="true">App recovery has been successful. Please press back to resume your work</string>
-    <string name="recovery_forms_send_progress" cc:translatable="true">Submitting form(s) to the server...</string>
-    <string name="recovery_forms_send_session_expired" cc:translatable="true">Log-in expired during send</string>
+    <string name="incorrect_time_dialog_correct_time" translatable="true">Correct Time</string>
+    <string name="incorrect_time_dialog_cancel" translatable="true">Cancel</string>
+    <string name="recovery_mode_title" translatable="true">CommCare Recovery Mode</string>
+    <string name="recovery_mode_detail" translatable="true">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
+    <string name="recovery_resource_progress" translatable="true">Recovered %1$s out of %2$s resources</string>
+    <string name="recovery_error_poor_connection" translatable="true">Recovery failed due to bad internet. Please make sure that you have a stable internet connection and try again</string>
+    <string name="recovery_error_unknown" translatable="true">Recovery failed due to an unknown reason. Please try again or reinstall your app by going to App Manager</string>
+    <string name="recovery_success" translatable="true">App recovery has been successful. Please press back to resume your work</string>
+    <string name="recovery_forms_send_progress" translatable="true">Submitting form(s) to the server...</string>
+    <string name="recovery_forms_send_session_expired" translatable="true">Log-in expired during send</string>
 
     <!--Incorrect Time Dialog-->
-    <string name="recovery_forms_send_successful" cc:translatable="true">Send successful. All %s forms were submitted</string>
-    <string name="recovery_forms_send_failure" cc:translatable="true">There were errors submitting the forms.</string>
-    <string name="recovery_forms_send_parital_success" cc:translatable="true">There were errors submitting the forms. Only %s were submitted. Please try again later</string>
-    <string name="recovery_forms_send_network_error" cc:translatable="true">Forms submissing failed due to poor network</string>
+    <string name="recovery_forms_send_successful" translatable="true">Send successful. All %s forms were submitted</string>
+    <string name="recovery_forms_send_failure" translatable="true">There were errors submitting the forms.</string>
+    <string name="recovery_forms_send_parital_success" translatable="true">There were errors submitting the forms. Only %s were submitted. Please try again later</string>
+    <string name="recovery_forms_send_network_error" translatable="true">Forms submissing failed due to poor network</string>
 
     <!--Recovery Activity-->
-    <string name="recovery_forms_send_error" cc:translatable="true">Error while sending forms</string>
-    <string name="recovery_forms_state_unavailable" cc:translatable="true">Forms are not available. Make sure your phone storage is available</string>
-    <string name="recovery_network_unavailable" cc:translatable="true">No network connection. Please check your internet and try again.</string>
-    <string name="recovery_network_outdated" cc:translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
-    <string name="recovery_network_token_unavailable" cc:translatable="true">There was a network issue, please try again.</string>
-    <string name="recovery_network_token_request_rejected" cc:translatable="true">Lost PersonalID configuration with server, please recover account.</string>
-    <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
-    <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
-    <string name="notification_channel_errors_title" cc:translatable="true">Errors</string>
-    <string name="notification_channel_errors_description" cc:translatable="true">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
-    <string name="notification_channel_user_session_title" cc:translatable="true">User Session</string>
-    <string name="notification_channel_user_session_description" cc:translatable="true">Notification containing information around current user session like when the current session is scheduled to expire</string>
-    <string name="notification_channel_server_communication_title" cc:translatable="true">Server Communications</string>
-    <string name="notification_channel_server_communication_description" cc:translatable="true">Notifications for status of any background server communication happening at the moment like CommCare App updates, log submission etc.</string>
-    <string name="notification_channel_push_notfications_title" cc:translatable="true">Priority notifications from Server</string>
-    <string name="notification_channel_push_notfications_description" cc:translatable="true">Notifications sent from server directly to notify user of priority tasks</string>
-    <string name="notification_channel_messaging_title" cc:translatable="true">Messages from CommCare</string>
-    <string name="notification_channel_messaging_description" cc:translatable="true">Notifications sent from server directly to notify user of incoming messages and new channels</string>
-    <string name="recovery_measure_reinstall_method" cc:translatable="true">Choose Reinstall Method</string>
-    <string name="recovery_measure_reinstall_detail" cc:translatable="true">Your app needs to be reinstalled due to a problem, please select a method for reinstalling.</string>
-    <string name="recovery_measure_reinstall_online_method" cc:translatable="true">Online Reinstall</string>
-    <string name="recovery_measure_reinstall_offline_method" cc:translatable="true">Reinstall Using CCZ</string>
+    <string name="recovery_forms_send_error" translatable="true">Error while sending forms</string>
+    <string name="recovery_forms_state_unavailable" translatable="true">Forms are not available. Make sure your phone storage is available</string>
+    <string name="recovery_network_unavailable" translatable="true">No network connection. Please check your internet and try again.</string>
+    <string name="recovery_network_outdated" translatable="true">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
+    <string name="recovery_network_token_unavailable" translatable="true">There was a network issue, please try again.</string>
+    <string name="recovery_network_token_request_rejected" translatable="true">Lost PersonalID configuration with server, please recover account.</string>
+    <string name="recovery_app_manager" translatable="true">Go to App Manager</string>
+    <string name="recovery_retry" translatable="true">Retry Recovery</string>
+    <string name="notification_channel_errors_title" translatable="true">Errors</string>
+    <string name="notification_channel_errors_description" translatable="true">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
+    <string name="notification_channel_user_session_title" translatable="true">User Session</string>
+    <string name="notification_channel_user_session_description" translatable="true">Notification containing information around current user session like when the current session is scheduled to expire</string>
+    <string name="notification_channel_server_communication_title" translatable="true">Server Communications</string>
+    <string name="notification_channel_server_communication_description" translatable="true">Notifications for status of any background server communication happening at the moment like CommCare App updates, log submission etc.</string>
+    <string name="notification_channel_push_notfications_title" translatable="true">Priority notifications from Server</string>
+    <string name="notification_channel_push_notfications_description" translatable="true">Notifications sent from server directly to notify user of priority tasks</string>
+    <string name="notification_channel_messaging_title" translatable="true">Messages from CommCare</string>
+    <string name="notification_channel_messaging_description" translatable="true">Notifications sent from server directly to notify user of incoming messages and new channels</string>
+    <string name="recovery_measure_reinstall_method" translatable="true">Choose Reinstall Method</string>
+    <string name="recovery_measure_reinstall_detail" translatable="true">Your app needs to be reinstalled due to a problem, please select a method for reinstalling.</string>
+    <string name="recovery_measure_reinstall_online_method" translatable="true">Online Reinstall</string>
+    <string name="recovery_measure_reinstall_offline_method" translatable="true">Reinstall Using CCZ</string>
 
-    <string name="recovery_measure_detail" cc:translatable="true">Recovery procedures have been initiated for your CommCare App due to a problem with it. Please wait...</string>
-    <string name="recovery_measure_faiure" cc:translatable="true">An error occurred when CommCare tried to execute a recovery measure. We will try again later. If the problem persists please contact helpdesk</string>
-    <string name="recovery_measure_retry" cc:translatable="true">Retry Recovery</string>
-    <string name="recovery_measure_app_reinstall_progress" cc:translatable="true">Reinstalling %1$s out of %2$s resources</string>
-    <string name="recovery_measure_app_update_progress" cc:translatable="true">Updating %1$s out of %2$s resources</string>
-    <string name="recovery_measure_known_error" cc:translatable="true">An error occurred during recovery. Error details - \n %1$s</string>
-    <string name="recovery_measure_ccz_scan_in_progress" cc:translatable="true">Scanning your phone for ccz files</string>
-    <string name="recovery_measure_ccz_found_scan_in_progress" cc:translatable="true">We found a CCZ file for the app on your phone. We are still scanning your device to see if there is a newer CCZ file present. You can wait for the scan to complete or click reinstall below to immediately reinstall the app</string>
+    <string name="recovery_measure_detail" translatable="true">Recovery procedures have been initiated for your CommCare App due to a problem with it. Please wait...</string>
+    <string name="recovery_measure_faiure" translatable="true">An error occurred when CommCare tried to execute a recovery measure. We will try again later. If the problem persists please contact helpdesk</string>
+    <string name="recovery_measure_retry" translatable="true">Retry Recovery</string>
+    <string name="recovery_measure_app_reinstall_progress" translatable="true">Reinstalling %1$s out of %2$s resources</string>
+    <string name="recovery_measure_app_update_progress" translatable="true">Updating %1$s out of %2$s resources</string>
+    <string name="recovery_measure_known_error" translatable="true">An error occurred during recovery. Error details - \n %1$s</string>
+    <string name="recovery_measure_ccz_scan_in_progress" translatable="true">Scanning your phone for ccz files</string>
+    <string name="recovery_measure_ccz_found_scan_in_progress" translatable="true">We found a CCZ file for the app on your phone. We are still scanning your device to see if there is a newer CCZ file present. You can wait for the scan to complete or click reinstall below to immediately reinstall the app</string>
 
     <!--Recovery Measures-->
-    <string name="recovery_measure_reinstall" cc:translatable="true">Reinstall</string>
-    <string name="recovery_measure_no_ccz_found" cc:translatable="true">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below. In case you can not find CCZ file on your phone, please contact your help desk.</string>
-    <string name="recovery_measure_select_ccz" cc:translatable="true">Select CCZ</string>
-    <string name="recovery_measure_select_ccz_no_file_browser" cc:translatable="true">You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
-    <string name="recovery_measure_invalid_ccz_path" cc:translatable="true">Unable to process the CCZ file you selected. Please retry</string>
-    <string name="recovery_measure_ccz_scan_failed" cc:translatable="true">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
-    <string name="recovery_measure_unzip_error" cc:translatable="true">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
-    <string name="recovery_measure_update_cancelled" cc:translatable="true">Update cancelled</string>
-    <string name="recovery_measure_offline_install_cancelled" cc:translatable="true">Offline install cancelled</string>
-    <string name="recovery_measure_unzip_progress" cc:translatable="true">Processing CCZ File.. %1$s</string>
-    <string name="reinstall_prompt_title" cc:translatable="true">Reinstall of %1$s is Required</string>
-    <string name="install_error_file_not_found" cc:translatable="true">No file found for resource %1$s</string>
-    <string name="update_blocked_on_sync_message" cc:translatable="true">Sync is required to install this update. Auto initiating sync...</string>
-    <string name="media_download_failed" cc:translatable="true">An error occurred while downloading the requested media. Please try again</string>
-    <string name="media_download_in_progress" cc:translatable="true">Download in Progress, Please wait...</string>
-    <string name="media_download_started" cc:translatable="true">Download started</string>
-    <string name="media_download_completed" cc:translatable="true">Download completed</string>
-    <string name="video_download_prompt" cc:translatable="true">Video file is missing for this question, click the download button above to download</string>
-    <string name="image_download_prompt" cc:translatable="true">Image file is missing for this question, Click the download button above to download</string>
-    <string name="audio_download_prompt" cc:translatable="true">Audio file is missing for this question, click the download button above to download</string>
-    <string name="media_not_found_error" cc:translatable="true">Media not found in the application</string>
-    <string name="area_format" cc:translatable="true">%1s sq m</string>
-    <string name="parse_coordinates_failure" cc:translatable="true">Could not parse input coordinates</string>
+    <string name="recovery_measure_reinstall" translatable="true">Reinstall</string>
+    <string name="recovery_measure_no_ccz_found" translatable="true">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below. In case you can not find CCZ file on your phone, please contact your help desk.</string>
+    <string name="recovery_measure_select_ccz" translatable="true">Select CCZ</string>
+    <string name="recovery_measure_select_ccz_no_file_browser" translatable="true">You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
+    <string name="recovery_measure_invalid_ccz_path" translatable="true">Unable to process the CCZ file you selected. Please retry</string>
+    <string name="recovery_measure_ccz_scan_failed" translatable="true">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
+    <string name="recovery_measure_unzip_error" translatable="true">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
+    <string name="recovery_measure_update_cancelled" translatable="true">Update cancelled</string>
+    <string name="recovery_measure_offline_install_cancelled" translatable="true">Offline install cancelled</string>
+    <string name="recovery_measure_unzip_progress" translatable="true">Processing CCZ File.. %1$s</string>
+    <string name="reinstall_prompt_title" translatable="true">Reinstall of %1$s is Required</string>
+    <string name="install_error_file_not_found" translatable="true">No file found for resource %1$s</string>
+    <string name="update_blocked_on_sync_message" translatable="true">Sync is required to install this update. Auto initiating sync...</string>
+    <string name="media_download_failed" translatable="true">An error occurred while downloading the requested media. Please try again</string>
+    <string name="media_download_in_progress" translatable="true">Download in Progress, Please wait...</string>
+    <string name="media_download_started" translatable="true">Download started</string>
+    <string name="media_download_completed" translatable="true">Download completed</string>
+    <string name="video_download_prompt" translatable="true">Video file is missing for this question, click the download button above to download</string>
+    <string name="image_download_prompt" translatable="true">Image file is missing for this question, Click the download button above to download</string>
+    <string name="audio_download_prompt" translatable="true">Audio file is missing for this question, click the download button above to download</string>
+    <string name="media_not_found_error" translatable="true">Media not found in the application</string>
+    <string name="area_format" translatable="true">%1s sq m</string>
+    <string name="parse_coordinates_failure" translatable="true">Could not parse input coordinates</string>
 
-    <string name="location_provider_disabled" cc:translatable="true">Turn on your location to receive location updates</string>
-    <string name="wait_for_location_fix" cc:translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
-    <string name="invalid_case_property_length" cc:translatable="true">Invalid %1s, value must be 255 characters or less</string>
-    <string name="invalid_case_graph_error" cc:translatable="true">This form introduces an invalid case relationship</string>
-    <string name="root_detected_title" cc:translatable="true">Rooted Device Detected</string>
-    <string name="root_detected_message" cc:translatable="true">You are not allowed to run CommCare on a rooted device. Please use a non rooted device</string>
-    <string name="session_endpoint_unavailable" cc:translatable="true">No endpoint exist with id %1$s. Valid endpoints are %2$s</string>
-    <string name="session_endpoint_invalid_arguments" cc:translatable="true">Incorrect arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
-    <string name="selected_location" cc:translatable="true">Selected Location</string>
-    <string name="confirm_location" cc:translatable="true">Confirm location</string>
+    <string name="location_provider_disabled" translatable="true">Turn on your location to receive location updates</string>
+    <string name="wait_for_location_fix" translatable="true">CommCare is still trying to get your location. Please wait or click Cancel to abort.</string>
+    <string name="invalid_case_property_length" translatable="true">Invalid %1s, value must be 255 characters or less</string>
+    <string name="invalid_case_graph_error" translatable="true">This form introduces an invalid case relationship</string>
+    <string name="root_detected_title" translatable="true">Rooted Device Detected</string>
+    <string name="root_detected_message" translatable="true">You are not allowed to run CommCare on a rooted device. Please use a non rooted device</string>
+    <string name="session_endpoint_unavailable" translatable="true">No endpoint exist with id %1$s. Valid endpoints are %2$s</string>
+    <string name="session_endpoint_invalid_arguments" translatable="true">Incorrect arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
+    <string name="selected_location" translatable="true">Selected Location</string>
+    <string name="confirm_location" translatable="true">Confirm location</string>
 
     <string name="playback_start_time">00:00</string>
-    <string name="dependency_missing_dialog_title" cc:translatable="true">Get Required App</string>
-    <string name="dependency_missing_dialog_title_plural" cc:translatable="true">Get Required Apps</string>
-    <string name="dependency_missing_dialog_message" cc:translatable="true">CommCare needs %s application to be installed on your device before you can continue</string>
-    <string name="dependency_missing_dialog_message_plural" cc:translatable="true">CommCare needs below applications to be installed on your device before you can continue-</string>
-    <string name="dependency_missing_dialog_go_to_store" cc:translatable="true">Install from Store</string>
-    <string name="dependency_missing_dialog_playstore_not_found" cc:translatable="true">No Play Store found on your device</string>
+    <string name="dependency_missing_dialog_title" translatable="true">Get Required App</string>
+    <string name="dependency_missing_dialog_title_plural" translatable="true">Get Required Apps</string>
+    <string name="dependency_missing_dialog_message" translatable="true">CommCare needs %s application to be installed on your device before you can continue</string>
+    <string name="dependency_missing_dialog_message_plural" translatable="true">CommCare needs below applications to be installed on your device before you can continue-</string>
+    <string name="dependency_missing_dialog_go_to_store" translatable="true">Install from Store</string>
+    <string name="dependency_missing_dialog_playstore_not_found" translatable="true">No Play Store found on your device</string>
     <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
-    <string name="app_select_message" cc:translatable="true">Select an app:</string>
+    <string name="app_select_message" translatable="true">Select an app:</string>
     <string name="connect_id_enabled">PersonalID Enabled</string>
     <string name="login_password_by_connect">Via PersonalID (or press here)</string>
     <string name="login_welcome_connect_signed_in">Welcome %s!</string>
@@ -788,9 +788,9 @@
 
     <!--    Entity List Progresss Indicators-->
 
-    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
-    <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
-    <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
+    <string name="entity_list_initializing" translatable="true">Initializing list…</string>
+    <string name="entity_list_loading" translatable="true">Loading list: %s</string>
+    <string name="entity_list_finishing" translatable="true">Finishing list calculations…</string>
     <string name="connect_password_title">Set Password</string>
     <string name="connect_password_message">Please choose a password</string>
     <string name="connect_password_message_recovery">Please choose a password for recovery</string>
@@ -894,7 +894,7 @@
     <string name="connect_biometric_error">Authentication Failed</string>
     <string name="login_input_auto">AUTO</string>
     <string name="connect_consent_title">Consent</string>
-    <string name="personalid_generic_error" cc:translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
+    <string name="personalid_generic_error" translatable="true">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
     <string name="ConnectOpportunitiesURL" translatable="false">https://%s/api/opportunity/</string>
     <string name="ConnectStartLearningURL" translatable="false">https://%s/users/start_learn_app/</string>
     <string name="ConnectLearnProgressURL" translatable="false">https://%s/api/opportunity/%d/learn_progress</string>
