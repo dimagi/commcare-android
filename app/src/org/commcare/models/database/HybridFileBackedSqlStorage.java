@@ -3,7 +3,7 @@ package org.commcare.models.database;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.AppFilePathBuilder;

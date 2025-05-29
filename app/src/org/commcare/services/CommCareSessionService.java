@@ -17,10 +17,10 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
-
-import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -236,8 +236,8 @@ public class CommCareSessionService extends Service {
                 userDatabase.close();
             }
 
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(), userKeyRecordUUID)
-                    .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(), userKeyRecordUUID, UserSandboxUtils.getSqlCipherEncodedKey(key))
+                    .getWritableDatabase();
         }
     }
 

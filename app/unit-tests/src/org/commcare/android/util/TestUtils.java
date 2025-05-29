@@ -1,6 +1,6 @@
 package org.commcare.android.util;
 
-import net.sqlcipher.database.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -211,8 +211,8 @@ public class TestUtils {
      * @return The hook for the test user-db
      */
     private static SQLiteDatabase getTestDb() {
-        DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(ApplicationProvider.getApplicationContext(), "Test");
-        return helper.getWritableDatabase("Test");
+        DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(ApplicationProvider.getApplicationContext(), "Test", "Test");
+        return helper.getWritableDatabase();
     }
 
     public static PrototypeFactory getStaticPrototypeFactory() {
