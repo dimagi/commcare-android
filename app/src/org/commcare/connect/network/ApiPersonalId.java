@@ -321,12 +321,12 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void setPhotoAndCompleteProfile(Context context, String userId, String password, String userName,
-                                                  String photoAsBase64, String backupCode, IApiCallback callback) {
+    public static void setPhotoAndCompleteProfile(Context context, String userName,
+                                                  String photoAsBase64, String backupCode, String token,IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
-        String token = HttpUtils.getCredential(authInfo);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(token);
 
         HashMap<String, String> params = new HashMap<>();
@@ -335,7 +335,7 @@ public class ApiPersonalId {
         params.put("recovery_pin", backupCode);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.completeProfile(token, params);
+        Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
         callApi(context, call, callback);
     }
 
