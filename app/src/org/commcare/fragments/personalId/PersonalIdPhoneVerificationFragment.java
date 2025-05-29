@@ -79,12 +79,13 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         OtpVerificationCallback otpCallback = new OtpVerificationCallback() {
             @Override
             public void onCodeSent(String verificationId) {
-                Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.connect_otp_sent), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSuccess(FirebaseUser user) {
-                Toast.makeText(requireContext(), "OTP Verified: " + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
+                logOtpVerification(true);
+                Toast.makeText(requireContext(), getString(R.string.connect_otp_verified) + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
                 user.getIdToken(false).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         String idToken = task.getResult().getToken();
@@ -95,7 +96,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
             @Override
             public void onFailure(String errorMessage) {
-                Toast.makeText(requireContext(), "OTP Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                logOtpVerification(false);
+                Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
             }
         };
@@ -122,7 +124,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void validateFirebaseIdToken(String firebaseIdToken) {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getActivity());
+
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
@@ -132,7 +134,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
-        }.validateFirebaseIdToken(requireActivity(),user.getName(),user.getPassword(),firebaseIdToken);
+        }.validateFirebaseIdToken(requireActivity(),firebaseIdToken);
     }
 
     private void getPhoneNumberFromArguments() {
@@ -264,10 +266,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         String otpCode = binding.customOtpView.getOtpValue();
 
         if (otpCode.isEmpty()) {
-            Toast.makeText(requireContext(), "Enter OTP", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
             otpManager.submitOtp(otpCode);
-            logOtpVerification(true);
         }
     }
 

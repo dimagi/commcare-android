@@ -294,9 +294,7 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void validateFirebaseIdToken(String username,String password,Context context, String firebaseIdToken, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
+    public static void validateFirebaseIdToken(String token,Context context, String firebaseIdToken, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("token", firebaseIdToken);
         ApiService apiService = ApiClient.getClientApi();

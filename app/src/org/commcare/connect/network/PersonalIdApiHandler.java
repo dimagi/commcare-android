@@ -5,6 +5,7 @@ import android.app.Activity;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.parser.ConfirmBackupCodeResponseParser;
+import org.commcare.connect.network.parser.FirebaseTokenValidationResponseParser;
 import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
@@ -85,11 +86,11 @@ public abstract class PersonalIdApiHandler {
                         new StartConfigurationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
-    public void validateFirebaseIdToken(Activity activity, String name, String password, String firebaseIdToken) {
+    public void validateFirebaseIdToken(Activity activity, String firebaseIdToken) {
         PersonalIdSessionData sessionData = new PersonalIdSessionData();
-        ApiPersonalId.validateFirebaseIdToken(name,password,activity,firebaseIdToken,
+        ApiPersonalId.validateFirebaseIdToken(sessionData.getToken(),activity,firebaseIdToken,
                 createCallback(sessionData,
-                        new StartConfigurationResponseParser(),
+                        new FirebaseTokenValidationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 

@@ -383,6 +383,10 @@
     <string name="connect_phone_not_found">Número de telefone não encontrado</string>
     <string name="connect_phone_change_error">Erro ao alterar o número de telefone</string>
     <string name="connect_password_button">OK</string>
+    <string name="connect_otp_sent">OTP enviado</string>
+    <string name="connect_otp_verified">OTP verificado</string>
+    <string name="connect_otp_error">Erro de OTP</string>
+    <string name="connect_enter_otp">Digite OTP</string>
     <string name="connect_pin_title_set">Código de recuperação</string>
     <string name="connect_pin_title_confirm">Confirmar código de recuperação</string>
     <string name="connect_pin_message_title">Código de recuperação ConnectID</string>
