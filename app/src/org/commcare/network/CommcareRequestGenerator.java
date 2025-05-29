@@ -180,7 +180,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             if (tokenAuth != null) {
                 return tokenAuth;
             } else {
-                if (PersonalIdManager.getInstance().isSeatedAppLinkedToPersonalId(username)) {
+                if (PersonalIdManager.getInstance().isSeatedAppCongigureWithPersonalId(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("No token Auth available for a connect managed app"));
                 }
