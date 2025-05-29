@@ -77,13 +77,17 @@ public class ConnectUserRecord extends Persisted {
         verifySecondaryPhoneByDate = new Date();
     }
 
-    public ConnectUserRecord(String primaryPhone, String userId, String password, String name) {
+    public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
+                             Date lastPinVerifyDate, String photo, boolean isDemo) {
         this();
         this.primaryPhone = primaryPhone;
         this.userId = userId;
         this.password = password;
         this.name = name;
-
+        this.pin = pin;
+        this.lastPasswordDate = lastPinVerifyDate;
+        this.photo = photo;
+        this.isDemo = isDemo;
         connectTokenExpiration = new Date();
     }
 
@@ -92,7 +96,11 @@ public class ConnectUserRecord extends Persisted {
                 intent.getStringExtra(ConnectConstants.PHONE),
                 intent.getStringExtra(ConnectConstants.USERNAME),
                 intent.getStringExtra(ConnectConstants.PASSWORD),
-                intent.getStringExtra(ConnectConstants.NAME));
+                intent.getStringExtra(ConnectConstants.NAME),
+                intent.getStringExtra(ConnectConstants.PIN),
+                (Date)intent.getSerializableExtra(ConnectConstants.PIN_LAST_VERIFIED_DATE),
+                intent.getStringExtra(ConnectConstants.USER_PHOTO),
+                intent.getBooleanExtra(ConnectConstants.IS_DEMO,false));
     }
 
     public void putUserInIntent(Intent intent) {

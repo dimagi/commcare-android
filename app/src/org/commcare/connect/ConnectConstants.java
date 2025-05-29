@@ -26,6 +26,9 @@ public class ConnectConstants {
     public static final String CONNECT_KEY_EXPIRES = "expires_in";
     public static final String BEGIN_REGISTRATION = "BEGIN_REGISTRATION";
     public static final String VERIFY_PHONE = "VERIFY_PHONE";
+    public static final String USER_PHOTO = "PHOTO";
+    public static final String IS_DEMO = "IS_DEMO";
+    public static final String PIN_LAST_VERIFIED_DATE = "PIN_LAST_VERIFIED_DATE";
     public static final String CCC_DEST_OPPORTUNITY_SUMMARY_PAGE = "ccc_opportunity_summary_page";
     public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
     public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
@@ -60,5 +63,5 @@ public class ConnectConstants {
     public final static int CONNECT_JOB_INFO = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 14;
     public final static int PERSONALID_RECOVERY_WRONG_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 15;
     public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 16;
-    public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHONED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 17;
+    public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 17;
 }

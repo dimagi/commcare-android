@@ -14,12 +14,13 @@ data class PersonalIdSessionData(
         var sessionFailureSubcode: String? = null, // Sub Reason code to tell why user is not allowed to move forward with the flow
         var accountExists: Boolean? = null, // Tells weather its new user or old
         var photoBase64: String? = null, // photo of the user
-        var userId: String? = null, // username given by server
+        var personalId: String? = null, // username given by server
         var dbKey: String? = null, // DB Key
         var oauthPassword: String? = null, // password to verify usser
         var accountOrphaned: Boolean? = null, // Nobody owns this account
         var userName: String? = null,
         var phoneNumber: String? = null,
+        var backupCode: String? = null,
 ) {
 
     /**

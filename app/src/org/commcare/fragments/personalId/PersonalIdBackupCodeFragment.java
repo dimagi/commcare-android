@@ -12,15 +12,14 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -151,6 +150,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         if (isRecovery) {
             confirmBackupCode();
         } else {
+            personalIdSessionDataViewModel.getPersonalIdSessionData().setBackupCode(
+                    binding.connectPinInput.getText().toString());
             createNavigationToPhoto();
         }
     }
@@ -165,7 +166,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                     handleSuccessfulRecovery();
                 } else if (Boolean.TRUE.equals(sessionData.getAccountOrphaned())) {
                     navigateWithMessage(R.string.recovery_failed_title, R.string.recovery_failed_message,
-                            ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHONED);
+                            ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED);
                 } else {
                     handleFailedBackupCodeAttempt();
                 }
@@ -185,10 +186,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void handleSuccessfulRecovery() {
         ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, personalIdSessionData.getDbKey());
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
-                personalIdSessionData.getUserId(),
-                personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName());
-        user.setPin(binding.connectPinInput.getText().toString());
-        user.setLastPinDate(new Date());
+                personalIdSessionData.getPersonalId(),
+                personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
+                String.valueOf(binding.connectPinInput.getText()), new Date(), personalIdSessionData.getPhotoBase64(),
+                personalIdSessionData.getDemoUser());
+        ConnectUserDatabaseUtil.storeUser(requireActivity(),user);
         logRecoveryResult(true);
         createSuccessRecoveryDirection();
     }
@@ -217,8 +219,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
                         .actionPersonalidPinToPersonalidPhotoCapture(
-                                personalIdSessionData.getUserName(),
-                                binding.connectPinInput.getText().toString()));
+                                personalIdSessionData.getUserName()));
     }
 
     private void createSuccessRecoveryDirection() {

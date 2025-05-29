@@ -167,9 +167,6 @@
         <argument
             android:name="userName"
             app:argType="string" />
-        <argument
-            android:name="backupCode"
-            app:argType="string" />
         <action
             android:id="@+id/action_personalid_signup_fragment_self"
             app:destination="@id/personalid_photo_capture" />
