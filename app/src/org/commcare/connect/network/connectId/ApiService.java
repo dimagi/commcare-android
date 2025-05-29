@@ -52,11 +52,12 @@ public interface ApiService {
                                   @Body Map<String, String> confirmOTPRequest);
 
     @POST(ApiEndPoints.confirmPIN)
-    Call<ResponseBody> confirmPIN(@Body Map<String, String> confirmPINRequest);
+    Call<ResponseBody> confirmPin(@Header("Authorization") String token,
+                                  @Body Map<String, String> confirmBackupCodeRequest);
 
-    @POST(ApiEndPoints.setPIN)
-    Call<ResponseBody> changePIN(@Header("Authorization") String token,
-                                 @Body Map<String, String> changePINRequest);
+    @POST(ApiEndPoints.setBackupCode)
+    Call<ResponseBody> setBackupCode(@Header("Authorization") String token,
+                                     @Body Map<String, String> changeBackupCodeRequest);
 
     @POST(ApiEndPoints.resetPassword)
     Call<ResponseBody> resetPassword(@Body Map<String, String> resetPasswordRequest);

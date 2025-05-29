@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
+import org.commcare.connect.network.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
@@ -98,6 +99,14 @@ public abstract class PersonalIdApiHandler {
                         new AddOrVerifyNameParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
+
+    public void confirmBackupCode(Activity activity, String backupCode, PersonalIdSessionData sessionData) {
+        ApiPersonalId.confirmBackupCode(activity, backupCode, sessionData.getToken(),
+                createCallback(sessionData,
+                        new ConfirmBackupCodeResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
