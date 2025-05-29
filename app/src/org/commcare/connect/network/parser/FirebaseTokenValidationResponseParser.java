@@ -18,9 +18,6 @@ public class FirebaseTokenValidationResponseParser implements PersonalIdApiRespo
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
         if (json.has("error")) {
             sessionData.setSessionFailureCode(json.getString("error"));
-        } else {
-            // If JSON has no "error", assume it's valid (success)
-            Log.e("TAG", "parse: FirebaseTokenValidationParser");
         }
     }
 }
