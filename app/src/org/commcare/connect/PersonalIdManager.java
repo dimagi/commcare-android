@@ -621,9 +621,7 @@ public class PersonalIdManager {
     public boolean isSeatedAppLinkedToPersonalId(String username) {
         if (isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                    CommCareApplication.instance(), seatedAppId, username);
-            return appRecord != null && appRecord.getPersonalIdLinked();
+            return isPersonalIdLinkedApp(seatedAppId, username);
         }
         return false;
     }
@@ -641,7 +639,7 @@ public class PersonalIdManager {
 
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
-        if (!manager.isPersonalIdLinkedApp(seatedAppId, username)) {
+        if(!getInstance().isSeatedAppLinkedToPersonalId(username)){
             return null;
         }
 
