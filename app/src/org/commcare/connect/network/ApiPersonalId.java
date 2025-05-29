@@ -322,12 +322,12 @@ public class ApiPersonalId {
     }
 
     public static void setPhotoAndCompleteProfile(Context context, String userName,
-                                                  String photoAsBase64, String backupCode, String token,IApiCallback callback) {
+                                                  String photoAsBase64, String backupCode, String token, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
-        Objects.requireNonNull(token);
+        Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("photo", photoAsBase64);

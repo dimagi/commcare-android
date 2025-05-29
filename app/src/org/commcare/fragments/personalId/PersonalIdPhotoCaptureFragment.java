@@ -105,7 +105,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 onCompleteProfileFailure(failureCode);
             }
-        }.completeProfile(requireContext(), personalIdSessionData.getPersonalId(),
+        }.completeProfile(requireContext(), personalIdSessionData.getUserName(),
                 photoAsBase64,
                 personalIdSessionData.getBackupCode(), personalIdSessionData.getToken(), personalIdSessionData);
     }
