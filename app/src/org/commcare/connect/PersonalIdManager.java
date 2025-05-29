@@ -575,7 +575,7 @@ public class PersonalIdManager {
         activeJob = job;
     }
 
-    public boolean isSeatedAppLinkedToPersonalId(String username) {
+    public boolean isSeatedAppCongigureWithPersonalId(String username) {
         try {
             if (isloggedIn()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -610,8 +610,22 @@ public class PersonalIdManager {
     }
 
     private boolean isPersonalIdLinkedApp(String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity, appId, username);
-        return record != null && record.getPersonalIdLinked();
+        if (isloggedIn()) {
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                    manager.parentActivity, appId, username);
+            return record != null && record.getPersonalIdLinked();
+        }
+        return false;
+    }
+
+    public boolean isSeatedAppLinkedToPersonalId(String username) {
+        if (isloggedIn()) {
+            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                    CommCareApplication.instance(), seatedAppId, username);
+            return appRecord != null && appRecord.getPersonalIdLinked();
+        }
+        return false;
     }
 
     public static AuthInfo.TokenAuth getHqTokenIfLinked(String username)
