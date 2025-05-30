@@ -89,7 +89,7 @@ public abstract class PersonalIdApiHandler {
     }
 
     public void addOrVerifyNameCall(Activity activity, String name, PersonalIdSessionData sessionData) {
-        ApiPersonalId.addOrVerifyName(activity, name,
+        ApiPersonalId.addOrVerifyName(activity, name, sessionData.getToken(),
                 createCallback(sessionData,
                         new AddOrVerifyNameParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
