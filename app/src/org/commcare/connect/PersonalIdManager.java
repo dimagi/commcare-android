@@ -532,6 +532,11 @@ public class PersonalIdManager {
             }
 
             @Override
+            public void processFailureWithParser(InputStream responseData) {
+
+            }
+
+            @Override
             public void processOldApiError() {
                 ConnectNetworkHelper.showOutdatedApiError(context);
             }

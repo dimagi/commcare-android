@@ -227,6 +227,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
 
             @Override
+            public void processFailureWithParser(InputStream responseData) {
+
+            }
+
+            @Override
             public void processOldApiError() {
                 ConnectNetworkHelper.showOutdatedApiError(getActivity());
             }
@@ -244,6 +249,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
+            }
+
+            @Override
+            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
+
             }
         }.confirmBackupCode(
                 requireActivity(),
@@ -296,6 +306,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 ConnectNetworkHelper.handleTokenDeniedException(requireActivity());
+            }
+
+            @Override
+            public void processFailureWithParser(InputStream responseData) {
+
             }
 
             @Override

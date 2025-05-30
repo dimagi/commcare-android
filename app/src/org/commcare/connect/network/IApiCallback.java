@@ -12,4 +12,5 @@ public interface IApiCallback {
     void processOldApiError();
     void processTokenUnavailableError();
     void processTokenRequestDeniedError();
+    void processFailureWithParser(InputStream responseData);
 }
