@@ -387,6 +387,7 @@
     <string name="connect_otp_verified">OTP verificado</string>
     <string name="connect_otp_error">Erro de OTP</string>
     <string name="connect_enter_otp">Digite OTP</string>
+    <string name="connect_otp_verification_failed">A verificação do OTP falhou devido a</string>
     <string name="connect_pin_title_set">Código de recuperação</string>
     <string name="connect_pin_title_confirm">Confirmar código de recuperação</string>
     <string name="connect_pin_message_title">Código de recuperação ConnectID</string>

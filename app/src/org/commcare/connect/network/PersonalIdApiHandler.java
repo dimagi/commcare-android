@@ -70,6 +70,18 @@ public abstract class PersonalIdApiHandler {
             }
 
             @Override
+            public void processFailureWithParser(InputStream responseData) {
+                try (InputStream in = responseData) {
+                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
+                    parser.parse(json, sessionData);
+                    onFailureWithParser(sessionData);
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Error parsing API response", e);
+                    onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
+                }
+            }
+
+            @Override
             public void processOldApiError() {
                 onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR);
             }
@@ -112,4 +124,5 @@ public abstract class PersonalIdApiHandler {
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
     protected abstract void onFailure(PersonalIdApiErrorCodes errorCode);
+    protected abstract void onFailureWithParser(PersonalIdSessionData sessionData);
 }

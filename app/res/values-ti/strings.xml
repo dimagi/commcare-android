@@ -375,6 +375,7 @@
     <string name="connect_otp_verified">OTP ተረጋጊጹ</string>
     <string name="connect_otp_error">OTP ጌጋ</string>
     <string name="connect_enter_otp">ኣብ ኦቲፒ ኣቲኻ</string>
+    <string name="connect_otp_verification_failed">OTP ምርግጋጽ ብሰንኪ...</string>
     <string name="connect_pin_title_set">ናይ ምሕዋይ ሕጊ</string>
     <string name="connect_pin_title_confirm">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
     <string name="connect_pin_message_title">ConnectID ናይ ምሕዋይ ኮድ</string>

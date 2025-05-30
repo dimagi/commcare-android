@@ -386,6 +386,7 @@ License.
     <string name="connect_otp_verified">OTP vérifié</string>
     <string name="connect_otp_error">Erreur OTP</string>
     <string name="connect_enter_otp">Entrez OTP</string>
+    <string name="connect_otp_verification_failed">La vérification OTP a échoué en raison de</string>
     <string name="connect_pin_title_set">Choisissez le code PIN</string>
     <string name="connect_pin_title_confirm">Confirmer le code PIN</string>
     <string name="connect_pin">Entrez le code PIN</string>

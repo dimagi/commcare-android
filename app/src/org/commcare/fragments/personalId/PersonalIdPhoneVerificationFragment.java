@@ -15,15 +15,10 @@ import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
-import org.commcare.connect.network.parser.AddOrVerifyNameParser;
-import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -133,6 +128,15 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
+            }
+            @Override
+            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
+                String code = sessionData.getSessionFailureCode();
+                if (code != null) {
+                    Toast.makeText(requireContext(),
+                            getString(R.string.connect_otp_verification_failed) + ": " + code,
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         }.validateFirebaseIdToken(requireActivity(),firebaseIdToken);
     }
