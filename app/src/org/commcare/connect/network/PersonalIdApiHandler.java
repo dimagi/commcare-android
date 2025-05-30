@@ -5,6 +5,7 @@ import android.app.Activity;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.parser.ConfirmBackupCodeResponseParser;
+import org.commcare.connect.network.parser.FirebaseTokenValidationResponseParser;
 import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
@@ -69,6 +70,18 @@ public abstract class PersonalIdApiHandler {
             }
 
             @Override
+            public void processFailureWithParser(InputStream responseData) {
+                try (InputStream in = responseData) {
+                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
+                    parser.parse(json, sessionData);
+                    onFailureWithParser(sessionData);
+                } catch (IOException | JSONException e) {
+                    Logger.exception("Error parsing API response", e);
+                    onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
+                }
+            }
+
+            @Override
             public void processOldApiError() {
                 onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR);
             }
@@ -83,6 +96,13 @@ public abstract class PersonalIdApiHandler {
         ApiPersonalId.startConfiguration(activity, body, integrityToken, requestHash,
                 createCallback(sessionData,
                         new StartConfigurationResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+    public void validateFirebaseIdToken(Activity activity, String firebaseIdToken) {
+        PersonalIdSessionData sessionData = new PersonalIdSessionData();
+        ApiPersonalId.validateFirebaseIdToken(sessionData.getToken(),activity,firebaseIdToken,
+                createCallback(sessionData,
+                        new FirebaseTokenValidationResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 
@@ -104,4 +124,5 @@ public abstract class PersonalIdApiHandler {
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
     protected abstract void onFailure(PersonalIdApiErrorCodes errorCode);
+    protected abstract void onFailureWithParser(PersonalIdSessionData sessionData);
 }

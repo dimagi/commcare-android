@@ -83,6 +83,11 @@ public class PersonalIdNameFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
+
+            @Override
+            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
+
+            }
         }.addOrVerifyNameCall(
                 requireActivity(),
                 binding.nameTextValue.getText().toString().trim(),

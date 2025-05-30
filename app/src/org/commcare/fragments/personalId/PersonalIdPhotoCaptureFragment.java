@@ -111,6 +111,11 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
             }
 
             @Override
+            public void processFailureWithParser(InputStream responseData) {
+
+            }
+
+            @Override
             public void processOldApiError() {
                 onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
             }
