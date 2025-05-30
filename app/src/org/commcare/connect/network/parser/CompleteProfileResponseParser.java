@@ -18,8 +18,8 @@ public class CompleteProfileResponseParser implements PersonalIdApiResponseParse
      */
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
-        sessionData.setPersonalId(JsonExtensions.optStringSafe(json, "username", null));
-        sessionData.setDbKey(JsonExtensions.optStringSafe(json, "db_key", null));
-        sessionData.setOauthPassword(JsonExtensions.optStringSafe(json, "password", null));
+        sessionData.setPersonalId(json.getString("username"));
+        sessionData.setDbKey(json.getString("db_key"));
+        sessionData.setOauthPassword(json.getString("password"));
     }
 }

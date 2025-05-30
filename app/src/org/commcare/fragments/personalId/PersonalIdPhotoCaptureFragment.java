@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -26,9 +25,6 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -36,7 +32,6 @@ import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.fragments.MicroImageActivity;
 import org.commcare.utils.MediaUtil;
 
-import java.io.InputStream;
 import java.util.Date;
 
 /**
@@ -50,7 +45,6 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     private @NonNull ScreenPersonalidPhotoCaptureBinding viewBinding;
     private PersonalIdSessionData personalIdSessionData;
     private String photoAsBase64;
-    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
 
 
     @Nullable
@@ -58,9 +52,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         viewBinding = ScreenPersonalidPhotoCaptureBinding.inflate(inflater, container, false);
-        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
-                PersonalIdSessionDataViewModel.class);
-        personalIdSessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         initTakePhotoLauncher();
         setUpUi();
         return viewBinding.getRoot();
@@ -95,6 +88,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void uploadImageAndCompleteProfile() {
+        disableSaveButton();
+        disableTakePhotoButton();
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
@@ -111,24 +106,13 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
-        switch (failureCode) {
-            case INVALID_RESPONSE_ERROR:
-                onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
-                break;
-            case NETWORK_ERROR:
-                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_unavailable), true);
-                break;
-            case TOKEN_UNAVAILABLE_ERROR:
-                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_token_unavailable),
-                        true);
-                break;
-            case TOKEN_DENIED_ERROR:
-                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_token_request_rejected),
-                        false);
-                break;
-            case OLD_API_ERROR:
-                onPhotoUploadFailure(requireContext().getString(R.string.recovery_network_outdated), false);
-                break;
+        if (failureCode == PersonalIdApiHandler.PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR) {
+            onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
+        } else {
+            PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+        }
+        if (failureCode.shouldAllowRetry()) {
+            enableSaveButton();
         }
     }
 
@@ -152,11 +136,11 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         clearError();
         enableTakePhotoButton();
         disableSaveButton();
-        saveDataToDatabase(photoAsBase64);
+        createAndSaveConnectUser(photoAsBase64);
         showAccountComplete();
     }
 
-    private void saveDataToDatabase(String photoAsBase64) {
+    private void createAndSaveConnectUser(String photoAsBase64) {
         ConnectDatabaseHelper.handleReceivedDbPassphrase(requireActivity(), personalIdSessionData.getDbKey());
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),

@@ -31,7 +31,7 @@ public abstract class PersonalIdApiHandler {
 
         public boolean shouldAllowRetry(){
             return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == INVALID_RESPONSE_ERROR
-                    || this == JSON_PARSING_ERROR;
+                    || this == JSON_PARSING_ERROR || this == WRONG_BACKUP_CODE;
         }
     }
 
