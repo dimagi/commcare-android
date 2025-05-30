@@ -799,7 +799,6 @@
     <string name="connect_password_mismatch">Passwords must match</string>
     <string name="connect_password_weak">Please choose a stronger password</string>
     <string name="connect_password_error">Error changing password</string>
-    <string name="connect_pin_fail_button">OK</string>
     <string name="connect_recovery_title2">Identify Existing Account</string>
     <string name="connect_unlock_pin_title">Unlock via PIN</string>
     <string name="connect_unlock_pin_message">Enter your PIN to continue</string>
