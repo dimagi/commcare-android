@@ -1,9 +1,11 @@
 package org.commcare.connect.network;
 
 import android.app.Activity;
+import android.content.Context;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
+import org.commcare.connect.network.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
@@ -97,6 +99,14 @@ public abstract class PersonalIdApiHandler {
         ApiPersonalId.confirmBackupCode(activity, backupCode, sessionData.getToken(),
                 createCallback(sessionData,
                         new ConfirmBackupCodeResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+
+    public void completeProfile(Context context, String userName,
+                                String photoAsBase64, String backupCode, String token,PersonalIdSessionData sessionData) {
+        ApiPersonalId.setPhotoAndCompleteProfile(context, userName, photoAsBase64, backupCode, token,
+                createCallback(sessionData,
+                        new CompleteProfileResponseParser(),
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 

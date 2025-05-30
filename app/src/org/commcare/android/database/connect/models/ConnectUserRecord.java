@@ -77,33 +77,18 @@ public class ConnectUserRecord extends Persisted {
         verifySecondaryPhoneByDate = new Date();
     }
 
-    public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
-                             String alternatePhone) {
+    public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
+                             Date lastPinVerifyDate, String photo, boolean isDemo) {
         this();
         this.primaryPhone = primaryPhone;
-        this.alternatePhone = alternatePhone;
         this.userId = userId;
         this.password = password;
         this.name = name;
-
+        this.pin = pin;
+        this.lastPasswordDate = lastPinVerifyDate;
+        this.photo = photo;
+        this.isDemo = isDemo;
         connectTokenExpiration = new Date();
-    }
-
-    public static ConnectUserRecord getUserFromIntent(Intent intent) {
-        return new ConnectUserRecord(
-                intent.getStringExtra(ConnectConstants.PHONE),
-                intent.getStringExtra(ConnectConstants.USERNAME),
-                intent.getStringExtra(ConnectConstants.PASSWORD),
-                intent.getStringExtra(ConnectConstants.NAME),
-                intent.getStringExtra(ConnectConstants.ALT_PHONE));
-    }
-
-    public void putUserInIntent(Intent intent) {
-        intent.putExtra(ConnectConstants.PHONE, primaryPhone);
-        intent.putExtra(ConnectConstants.USERNAME, userId);
-        intent.putExtra(ConnectConstants.PASSWORD, password);
-        intent.putExtra(ConnectConstants.NAME, name);
-        intent.putExtra(ConnectConstants.ALT_PHONE, alternatePhone);
     }
 
     public String getUserId() {
