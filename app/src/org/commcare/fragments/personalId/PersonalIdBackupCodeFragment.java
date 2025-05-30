@@ -74,7 +74,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             titleId = R.string.connect_pin_title_confirm;
             binding.confirmCodeLayout.setVisibility(View.GONE);
             binding.recoveryCodeTilte.setText(R.string.connect_pin_message_title);
-            binding.phoneTitle.setText(R.string.connect_pin_message);
+            binding.backupCodeSubtitle.setText(R.string.connect_pin_message);
             binding.nameLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.VISIBLE);
             setUserNameAndPhoto();
@@ -82,6 +82,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             titleId = R.string.connect_pin_title_set;
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.GONE);
+            binding.nameLayout.setVisibility(View.GONE);
         }
     }
 
@@ -154,9 +155,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         if (isRecovery) {
             confirmBackupCode();
         } else {
-            personalIdSessionDataViewModel.getPersonalIdSessionData().setBackupCode(
+            personalIdSessionData.setBackupCode(
                     binding.connectPinInput.getText().toString());
-            createNavigationToPhoto();
+            navigateToPhoto();
         }
     }
 
@@ -199,7 +200,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 personalIdSessionData.getDemoUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
-        createSuccessRecoveryDirection();
+        navigateToSuccess();
     }
 
     private void handleFailedBackupCodeAttempt() {
@@ -223,14 +224,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                         .setIsCancellable(false));
     }
 
-    private void createNavigationToPhoto() {
+    private void navigateToPhoto() {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
                         .actionPersonalidPinToPersonalidPhotoCapture(
                                 personalIdSessionData.getUserName()));
     }
 
-    private void createSuccessRecoveryDirection() {
+    private void navigateToSuccess() {
         navigateWithMessage(
                 getString(R.string.connect_recovery_success_title),
                 getString(R.string.connect_recovery_success_message),

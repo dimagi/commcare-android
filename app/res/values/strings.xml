@@ -926,6 +926,6 @@
     <string name="configuration_process_api_failed">Unable to contact our servers at this time. Please try again and report an issue if it persists.</string>
     <string name="recovery_failed_title">Recovery failed</string>
     <string name="recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
-    <string name="personalid_wrong_backup_message">You entered the wrong Code, You will be locked out permanently after %d attempts, please try again.</string>
+    <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
 
 </resources>

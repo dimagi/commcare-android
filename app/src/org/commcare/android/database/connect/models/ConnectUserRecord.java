@@ -91,26 +91,6 @@ public class ConnectUserRecord extends Persisted {
         connectTokenExpiration = new Date();
     }
 
-    public static ConnectUserRecord getUserFromIntent(Intent intent) {
-        return new ConnectUserRecord(
-                intent.getStringExtra(ConnectConstants.PHONE),
-                intent.getStringExtra(ConnectConstants.USERNAME),
-                intent.getStringExtra(ConnectConstants.PASSWORD),
-                intent.getStringExtra(ConnectConstants.NAME),
-                intent.getStringExtra(ConnectConstants.PIN),
-                (Date)intent.getSerializableExtra(ConnectConstants.PIN_LAST_VERIFIED_DATE),
-                intent.getStringExtra(ConnectConstants.USER_PHOTO),
-                intent.getBooleanExtra(ConnectConstants.IS_DEMO,false));
-    }
-
-    public void putUserInIntent(Intent intent) {
-        intent.putExtra(ConnectConstants.PHONE, primaryPhone);
-        intent.putExtra(ConnectConstants.USERNAME, userId);
-        intent.putExtra(ConnectConstants.PASSWORD, password);
-        intent.putExtra(ConnectConstants.NAME, name);
-        intent.putExtra(ConnectConstants.ALT_PHONE, alternatePhone);
-    }
-
     public String getUserId() {
         return userId;
     }
