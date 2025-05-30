@@ -181,6 +181,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
+        body.put("application_id",requireContext().getPackageName());
 
         integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
             if (integrityToken != null) {
