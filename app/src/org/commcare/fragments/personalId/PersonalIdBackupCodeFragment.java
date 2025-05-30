@@ -37,7 +37,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private Activity activity;
     private boolean isRecovery = false;
     private int titleId;
-    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
     private PersonalIdSessionData personalIdSessionData;
 
     @Override
@@ -51,9 +50,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
-                PersonalIdSessionDataViewModel.class);
-        personalIdSessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         isRecovery = personalIdSessionData.getAccountExists();
         configureUiByMode();
         setupInputFilters();
