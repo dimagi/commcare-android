@@ -32,7 +32,6 @@ import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.AppMetaDataUtil;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -175,8 +174,9 @@ public class PersonalIdPhoneFragment extends Fragment {
                 binding.connectPrimaryPhoneInput.getText().toString()
         );
 
-        HashMap<String, String> body = AppMetaDataUtil.INSTANCE.provideAppMetaData(requireActivity());
+        HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
+        body.put("application_id",requireContext().getPackageName());
 
         integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
             if (integrityToken != null) {
