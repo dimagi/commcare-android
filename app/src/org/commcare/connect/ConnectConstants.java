@@ -33,9 +33,7 @@ public class ConnectConstants {
     public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
     public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
     public static final String CCC_DEST_PAYMENTS = "ccc_payment";
-    public static final String CONNECT_KEY_USERNAME = "username";
     public static final String CONNECT_KEY_NAME = "name";
-    public static final String PERSONALID_KEY_SECRET = "secret";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
     public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
     public static final String JOB_LEARNING = "job-learning";
@@ -44,24 +42,13 @@ public class ConnectConstants {
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
     public final static int PERSONALID_NO_ACTIVITY = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
-    public final static int PERSONALID_REGISTRATION_PRIMARY_PHONE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
-    public final static int PERSONALID_REGISTRATION_CONFIGURE_BIOMETRICS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET
-            + 2;
-    public final static int PERSONALID_REGISTRATION_VERIFY_PRIMARY_PHONE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET
-            + 3;
-    public final static int PERSONALID_REGISTRATION_CHANGE_PRIMARY_PHONE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET
-            + 4;
-    public final static int PERSONALID_REGISTRATION_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 5;
-    public final static int PERSONALID_RECOVERY_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 6;
-    public final static int PERSONALID_UNLOCK_BIOMETRIC = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
-    public final static int PERSONALID_UNLOCK_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
-    public final static int PERSONALID_BIOMETRIC_ENROLL_FAIL = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
-    public final static int PERSONALID_REGISTRATION_CONFIGURE_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
-    public final static int PERSONALID_REGISTRATION_CONFIRM_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
-    public final static int PERSONALID_RECOVERY_VERIFY_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
-    public final static int PERSONALID_RECOVERY_CHANGE_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 13;
-    public final static int CONNECT_JOB_INFO = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 14;
-    public final static int PERSONALID_RECOVERY_WRONG_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 15;
-    public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 16;
-    public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 17;
+    public final static int PERSONALID_REGISTRATION_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
+    public final static int PERSONALID_RECOVERY_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 2;
+    public final static int PERSONALID_UNLOCK_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 3;
+    public final static int PERSONALID_BIOMETRIC_ENROLL_FAIL = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 4;
+    public final static int PERSONALID_REGISTRATION_CONFIRM_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 5;
+    public final static int CONNECT_JOB_INFO = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 6;
+    public final static int PERSONALID_RECOVERY_WRONG_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
+    public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
+    public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
 }
