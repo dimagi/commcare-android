@@ -485,6 +485,10 @@ android {
             // disable crashlytics
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'false'
             ext.enableCrashlytics = false
+
+            FirebasePerformance {
+                instrumentationEnabled false
+            }
         }
 
         release {
