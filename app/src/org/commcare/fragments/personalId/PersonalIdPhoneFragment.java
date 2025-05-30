@@ -137,7 +137,7 @@ public class PersonalIdPhoneFragment extends Fragment {
         boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
         boolean isConsentChecked = binding.connectConsentCheck.isChecked();
 
-        binding.personalidPhoneContinueButton.setEnabled(isValidPhone && isConsentChecked);
+        enableContinueButton(isValidPhone && isConsentChecked);
     }
 
     @Override
@@ -165,8 +165,12 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
-        binding.personalidPhoneContinueButton.setEnabled(false);
+        enableContinueButton(false);
         startConfigurationRequest();
+    }
+
+    private void enableContinueButton(boolean isEnabled) {
+        binding.personalidPhoneContinueButton.setEnabled(isEnabled);
     }
 
     private void startConfigurationRequest() {
@@ -226,7 +230,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
         if (failureCode.shouldAllowRetry()) {
-            binding.personalidPhoneContinueButton.setEnabled(true);
+            enableContinueButton(true);
         }
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }

@@ -69,11 +69,12 @@ public class PersonalIdNameFragment extends Fragment {
         binding.personalidNameContinueButton.setOnClickListener(v -> verifyOrAddName());
     }
 
-    public void enableContinueButton(boolean isEnabled) {
+    private void enableContinueButton(boolean isEnabled) {
         binding.personalidNameContinueButton.setEnabled(isEnabled);
     }
 
     private void verifyOrAddName() {
+        enableContinueButton(false);
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
@@ -92,6 +93,9 @@ public class PersonalIdNameFragment extends Fragment {
 
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        if (failureCode.shouldAllowRetry()) {
+            enableContinueButton(true);
+        }
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 

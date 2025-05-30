@@ -143,7 +143,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         }
 
         binding.connectPinErrorMessage.setText(errorText);
-        binding.connectPinButton.setEnabled(isValid);
+        enableContinueButton(isValid);
+    }
+
+    private void enableContinueButton(boolean isEnable) {
+        binding.connectPinButton.setEnabled(isEnable);
     }
 
     private void handleBackupCodeSubmission() {
@@ -157,6 +161,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void confirmBackupCode() {
+        enableContinueButton(false);
         String backupCode = binding.connectPinInput.getText().toString();
 
         new PersonalIdApiHandler() {
@@ -177,6 +182,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
 
+                if (failureCode.shouldAllowRetry()) {
+                    enableContinueButton(true);
+                }
             }
         }.confirmBackupCode(activity, backupCode, personalIdSessionData);
     }
