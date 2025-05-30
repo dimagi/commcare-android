@@ -100,10 +100,7 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
     private NavDirections navigateToBackupCodePage() {
-        return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode(
-                String.valueOf(binding.nameTextValue.getText()),
-                personalIdSessionDataViewModel.getPersonalIdSessionData().getPhotoBase64()).setIsRecovery(
-                false);
+        return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode();
     }
 
 }

@@ -65,8 +65,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        getPhoneNumberFromArguments();
-
         setupInitialState();
         setupSmsRetriever();
         setupListeners();
@@ -74,12 +72,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
         activity.setTitle(R.string.connect_verify_phone_title);
         return binding.getRoot();
-    }
-
-    private void getPhoneNumberFromArguments() {
-        if (getArguments() != null) {
-            primaryPhone = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
-        }
     }
 
     private void setupInitialState() {

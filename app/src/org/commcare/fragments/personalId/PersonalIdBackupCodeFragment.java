@@ -218,16 +218,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
                         .actionPersonalidPinToPersonalidMessage(titleRes, msgRes, phase,
-                                getString(R.string.ok), null,
-                                personalIdSessionData.getUserName(), "")
+                                getString(R.string.ok), null)
                         .setIsCancellable(false));
     }
 
     private void createNavigationToPhoto() {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
-                        .actionPersonalidPinToPersonalidPhotoCapture(
-                                personalIdSessionData.getUserName()));
+                        .actionPersonalidPinToPersonalidPhotoCapture());
     }
 
     private void createSuccessRecoveryDirection() {
