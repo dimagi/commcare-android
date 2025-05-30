@@ -141,6 +141,10 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void createAndSaveConnectUser(String photoAsBase64) {
+        if (personalIdSessionData.getDbKey() == null || personalIdSessionData.getOauthPassword() == null ||
+                personalIdSessionData.getPersonalId() == null) {
+            throw new IllegalArgumentException("Mandatory fields are null");
+        }
         ConnectDatabaseHelper.handleReceivedDbPassphrase(requireActivity(), personalIdSessionData.getDbKey());
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
