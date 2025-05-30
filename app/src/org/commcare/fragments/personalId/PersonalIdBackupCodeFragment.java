@@ -43,7 +43,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        KeyboardHelper.showKeyboardOnInput(activity, binding.connectPinInput);
+        KeyboardHelper.showKeyboardOnInput(activity, binding.connectBackupCodeInput);
         validateBackupCodeInputs();
     }
 
@@ -71,15 +71,15 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void configureUiByMode() {
         if (isRecovery) {
-            titleId = R.string.connect_pin_title_confirm;
+            titleId = R.string.connect_backup_code_title_confirm;
             binding.confirmCodeLayout.setVisibility(View.GONE);
-            binding.recoveryCodeTilte.setText(R.string.connect_pin_message_title);
-            binding.phoneTitle.setText(R.string.connect_pin_message);
+            binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
+            binding.phoneTitle.setText(R.string.connect_backup_code_message);
             binding.nameLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.VISIBLE);
             setUserNameAndPhoto();
         } else {
-            titleId = R.string.connect_pin_title_set;
+            titleId = R.string.connect_backup_code_title_set;
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.GONE);
         }
@@ -95,12 +95,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void setupInputFilters() {
         InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
-        binding.connectPinInput.setFilters(filters);
-        binding.connectPinRepeatInput.setFilters(filters);
+        binding.connectBackupCodeInput.setFilters(filters);
+        binding.connectBackupCodeRepeatInput.setFilters(filters);
     }
 
     private void setupListeners() {
-        TextWatcher pinWatcher = new TextWatcher() {
+        TextWatcher backupCodeWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -115,39 +115,39 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
         };
 
-        binding.connectPinInput.addTextChangedListener(pinWatcher);
-        binding.connectPinRepeatInput.addTextChangedListener(pinWatcher);
-        binding.connectPinButton.setOnClickListener(v -> handleBackupCodeSubmission());
+        binding.connectBackupCodeInput.addTextChangedListener(backupCodeWatcher);
+        binding.connectBackupCodeRepeatInput.addTextChangedListener(backupCodeWatcher);
+        binding.connectBackupCodeButton.setOnClickListener(v -> handleBackupCodeSubmission());
     }
 
     private void clearBackupCodeFields() {
-        binding.connectPinInput.setText("");
-        binding.connectPinRepeatInput.setText("");
+        binding.connectBackupCodeInput.setText("");
+        binding.connectBackupCodeRepeatInput.setText("");
     }
 
     private void validateBackupCodeInputs() {
-        String backupCode1 = binding.connectPinInput.getText().toString();
-        String backupCode2 = binding.connectPinRepeatInput.getText().toString();
+        String backupCode1 = binding.connectBackupCodeInput.getText().toString();
+        String backupCode2 = binding.connectBackupCodeRepeatInput.getText().toString();
 
         String errorText = "";
         boolean isValid = false;
 
         if (!backupCode1.isEmpty()) {
             if (backupCode1.length() != BACKUP_CODE_LENGTH) {
-                errorText = getString(R.string.connect_pin_length, BACKUP_CODE_LENGTH);
+                errorText = getString(R.string.connect_backup_code_length, BACKUP_CODE_LENGTH);
             } else if (!isRecovery && !backupCode1.equals(backupCode2)) {
-                errorText = getString(R.string.connect_pin_mismatch);
+                errorText = getString(R.string.connect_backup_code_mismatch);
             } else {
                 isValid = true;
             }
         }
 
-        binding.connectPinErrorMessage.setText(errorText);
+        binding.connectBackupCodeErrorMessage.setText(errorText);
         enableContinueButton(isValid);
     }
 
     private void enableContinueButton(boolean isEnable) {
-        binding.connectPinButton.setEnabled(isEnable);
+        binding.connectBackupCodeButton.setEnabled(isEnable);
     }
 
     private void handleBackupCodeSubmission() {
@@ -155,14 +155,14 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             confirmBackupCode();
         } else {
             personalIdSessionDataViewModel.getPersonalIdSessionData().setBackupCode(
-                    binding.connectPinInput.getText().toString());
+                    binding.connectBackupCodeInput.getText().toString());
             createNavigationToPhoto();
         }
     }
 
     private void confirmBackupCode() {
         enableContinueButton(false);
-        String backupCode = binding.connectPinInput.getText().toString();
+        String backupCode = binding.connectBackupCodeInput.getText().toString();
 
         new PersonalIdApiHandler() {
             @Override
@@ -194,7 +194,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
                 personalIdSessionData.getPersonalId(),
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                String.valueOf(binding.connectPinInput.getText()), new Date(),
+                String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
                 personalIdSessionData.getPhotoBase64(),
                 personalIdSessionData.getDemoUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
@@ -205,19 +205,19 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void handleFailedBackupCodeAttempt() {
         logRecoveryResult(false);
         clearBackupCodeFields();
-        navigateWithMessage(getString(R.string.connect_pin_fail_title),
+        navigateWithMessage(getString(R.string.connect_backup_fail_title),
                 getString(R.string.personalid_wrong_backup_message, personalIdSessionData.getAttemptsLeft()),
-                ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN);
+                ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
     private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PIN);
+        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
-                        .actionPersonalidPinToPersonalidMessage(titleRes, msgRes, phase,
+                        .actionPersonalidBackupcodeToPersonalidMessage(titleRes, msgRes, phase,
                                 getString(R.string.ok), null)
                         .setIsCancellable(false));
     }
@@ -225,7 +225,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void createNavigationToPhoto() {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
-                        .actionPersonalidPinToPersonalidPhotoCapture());
+                        .actionPersonalidBackupcodeToPersonalidPhotoCapture());
     }
 
     private void createSuccessRecoveryDirection() {

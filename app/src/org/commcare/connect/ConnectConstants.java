@@ -48,7 +48,7 @@ public class ConnectConstants {
     public final static int PERSONALID_BIOMETRIC_ENROLL_FAIL = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 4;
     public final static int PERSONALID_REGISTRATION_CONFIRM_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 5;
     public final static int CONNECT_JOB_INFO = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 6;
-    public final static int PERSONALID_RECOVERY_WRONG_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
+    public final static int PERSONALID_RECOVERY_WRONG_BACKUPCODE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
     public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
     public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
 }

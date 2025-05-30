@@ -51,7 +51,7 @@
             app:destination="@id/personalid_biometric_config"
             app:popUpTo="@id/personalid_message_display" />
         <action
-            android:id="@+id/action_personalid_message_to_personalid_pin"
+            android:id="@+id/action_personalid_message_to_personalid_backupcode"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_message_display" />
         <action
@@ -94,18 +94,18 @@
     <fragment
         android:id="@+id/personalid_backup_code"
         android:name="org.commcare.fragments.personalId.PersonalIdBackupCodeFragment"
-        android:label="fragment_personalid_pin"
+        android:label="fragment_personalid_backup_code"
         tools:layout="@layout/fragment_recovery_code">
         <action
-            android:id="@+id/action_personalid_pin_to_personalid_message"
+            android:id="@+id/action_personalid_backupcode_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_backup_code" />
         <action
-            android:id="@+id/action_personalid_pin_self"
+            android:id="@+id/action_personalid_backupcode_self"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_backup_code" />
         <action
-            android:id="@+id/action_personalid_pin_to_personalid_photo_capture"
+            android:id="@+id/action_personalid_backupcode_to_personalid_photo_capture"
             app:destination="@id/personalid_photo_capture"
             app:popUpTo="@id/personalid_backup_code" />
     </fragment>

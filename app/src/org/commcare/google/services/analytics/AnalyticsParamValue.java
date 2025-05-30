@@ -148,15 +148,11 @@ public class AnalyticsParamValue {
     // Param values for connect signin
     public static final String CCC_SIGN_IN_METHOD_PIN = "pin";
     public static final String CCC_SIGN_IN_METHOD_FINGERPRINT = "fingerprint";
-    public static final String CCC_SIGN_IN_METHOD_PASSWORD = "password";
 
 
     // Param values for connect recovery
     public static final String CCC_RECOVERY_METHOD_PRIMARY_OTP = "primary_otp";
-    public static final String CCC_RECOVERY_METHOD_ALTERNATE_OTP = "alternate_otp";
-    public static final String CCC_RECOVERY_METHOD_USER_DEACTIVATE_OTP = "user_deactivate_otp";
-    public static final String CCC_RECOVERY_METHOD_PASSWORD = "password";
-    public static final String CCC_RECOVERY_METHOD_PIN = "pin";
+    public static final String CCC_RECOVERY_METHOD_BACKUPCODE = "backup_code";
 
     // Param values for Form Submission Event
 
@@ -164,6 +160,5 @@ public class AnalyticsParamValue {
     public static final String SYSTEM_TRIGGERED = "system_triggered";
 
     public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
-    public static final String CCC_FORGOT_USER_DEACTIVATION = "account_deactivation";
     public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
 }

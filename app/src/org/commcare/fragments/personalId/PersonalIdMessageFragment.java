@@ -115,7 +115,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL:
                 SettingsHelper.launchSecuritySettings(activity);
                 break;
-            case ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN:
+            case ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE:
                 if (PersonalIdManager.getInstance().getFailureAttempt() > 2) {
                     directions = navigateToPhoneVerify();
                     PersonalIdManager.getInstance().setFailureAttempt(0);
@@ -140,7 +140,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     }
 
     private NavDirections navigateToBackupCode() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPin();
+        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidBackupcode();
     }
 
     private NavDirections navigateToPhoneFragment() {
