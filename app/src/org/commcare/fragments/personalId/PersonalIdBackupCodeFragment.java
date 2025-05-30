@@ -180,11 +180,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                if (failureCode == PersonalIdApiErrorCodes.WRONG_BACKUP_CODE) {
-                    handleFailedBackupCodeAttempt();
-                } else {
-                    PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
-                }
+                PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
                 }
