@@ -17,7 +17,7 @@ data class PersonalIdSessionData(
         var personalId: String? = null, // username given by server
         var dbKey: String? = null, // DB Key
         var oauthPassword: String? = null, // password to verify usser
-        var accountOrphaned: Boolean? = null, // Nobody owns this account
+        var attemptsLeft: Int? = null, // Nobody owns this account
         var userName: String? = null,
         var phoneNumber: String? = null,
         var backupCode: String? = null,

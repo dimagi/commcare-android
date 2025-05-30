@@ -17,6 +17,6 @@ object HashUtils {
     fun computeHash(message: String, algorithm: HashAlgorithm = HashAlgorithm.SHA256): String {
         val digest = MessageDigest.getInstance(algorithm.algorithmName)
         val hashBytes = digest.digest(message.toByteArray(StandardCharsets.UTF_8))
-        return Base64.encodeToString(hashBytes, Base64.NO_WRAP or Base64.NO_PADDING)
+        return Base64.encodeToString(hashBytes, Base64.NO_WRAP)
     }
 }

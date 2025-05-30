@@ -213,7 +213,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
-        }.makeStartConfigurationCall(requireActivity(), body, requestHash, integrityToken);
+        }.makeStartConfigurationCall(requireActivity(), body, integrityToken,requestHash);
     }
 
 
