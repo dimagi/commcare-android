@@ -75,16 +75,9 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void setUpUi() {
-        viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, getUserName()));
+        viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, personalIdSessionData.getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
         viewBinding.savePhotoButton.setOnClickListener(v -> uploadImageAndCompleteProfile());
-    }
-
-    private String getUserName() {
-        if (getArguments() != null) {
-            return PersonalIdPhotoCaptureFragmentArgs.fromBundle(getArguments()).getUserName();
-        }
-        return "";
     }
 
     private void uploadImageAndCompleteProfile() {
@@ -179,7 +172,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                         getString(R.string.connect_register_success_message),
                         ConnectConstants.PERSONALID_REGISTRATION_SUCCESS,
                         getString(R.string.connect_register_success_button),
-                        null, "", null).setIsCancellable(false);
+                        null).setIsCancellable(false);
         Navigation.findNavController(viewBinding.savePhotoButton).navigate(directions);
     }
 

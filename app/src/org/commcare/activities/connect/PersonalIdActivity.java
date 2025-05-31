@@ -20,9 +20,6 @@ import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
 
-    public boolean forgotPin = false;
-    public String primaryPhone;
-    public String recoverSecret;
     private NavController controller;
 
     @Override
@@ -80,7 +77,6 @@ public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
     }
 
     private void beginRegistration(Context parent) {
-        forgotPin = false;
         NavDirections navDirections = null;
 
         switch (PersonalIdManager.getInstance().getStatus()) {
@@ -121,12 +117,6 @@ public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
-    }
-
-    public void reset() {
-        primaryPhone = null;
-        recoverSecret = null;
-        forgotPin = false;
     }
 }
 

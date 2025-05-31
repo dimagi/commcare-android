@@ -282,21 +282,21 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
                 getString(R.string.connect_biometric_enroll_fail_message),
                 ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL,
                 getString(R.string.connect_biometric_enroll_fail_button),
-                null, null, null);
+                null);
     }
 
     private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
-        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                getString(R.string.configuration_process_failed_title),
-                errorMessage,
-                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, null,
-                null).setIsCancellable(false);
+        NavDirections navDirections =
+                PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
+                        getString(R.string.configuration_process_failed_title),
+                        errorMessage,
+                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
+                        null).setIsCancellable(false);
         Navigation.findNavController(requireView()).navigate(navDirections);
     }
 
     private NavDirections navigateToOtpScreen() {
-        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage(
-                ((PersonalIdActivity)requireActivity()).primaryPhone);
+        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidOtpPage();
     }
 
     private NavDirections navigateToNameScreen() {

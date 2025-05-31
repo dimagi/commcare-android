@@ -243,7 +243,6 @@ public class PersonalIdPhoneFragment extends Fragment {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                 getString(R.string.configuration_process_failed_title),
                 errorMessage,
-                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, "",
-                "").setIsCancellable(isCancellable);
+                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null).setIsCancellable(isCancellable);
     }
 }
