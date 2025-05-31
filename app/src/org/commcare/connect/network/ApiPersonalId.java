@@ -294,11 +294,16 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void addOrVerifyName(Context context, String name, IApiCallback callback) {
+    public static void addOrVerifyName(Context context, String name, String token, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("name", name);
+
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.checkName(params);
+        Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
         callApi(context, call, callback);
     }
 
