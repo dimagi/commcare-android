@@ -10,6 +10,7 @@ import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.logging.DataChangeLog;
@@ -32,8 +33,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * V.5 - Add table for storing apps available for install
      * V.6 - Add table for storing (encrypted) passphrase for ConnectId DB
      * V.7 - Add is_local column to ConnectKeyRecord table (to store both local and server passphrase)
+     * V.8 - Add GlobalErrorRecord table
      */
-    private static final int GLOBAL_DB_VERSION = 7;
+    private static final int GLOBAL_DB_VERSION = 8;
 
     private static final String GLOBAL_DB_LOCATOR = "database_global";
 
@@ -68,6 +70,10 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
             builder = new TableBuilder(ConnectKeyRecord.STORAGE_KEY);
             builder.addData(new ConnectKeyRecord());
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(GlobalErrorRecord.STORAGE_KEY);
+            builder.addData(new GlobalErrorRecord());
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

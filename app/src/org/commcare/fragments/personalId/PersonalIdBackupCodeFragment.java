@@ -37,7 +37,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private Activity activity;
     private boolean isRecovery = false;
     private int titleId;
-    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
     private PersonalIdSessionData personalIdSessionData;
 
     @Override
@@ -51,9 +50,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
-                PersonalIdSessionDataViewModel.class);
-        personalIdSessionData = personalIdSessionDataViewModel.getPersonalIdSessionData();
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         isRecovery = personalIdSessionData.getAccountExists();
         configureUiByMode();
         setupInputFilters();
@@ -74,7 +72,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             titleId = R.string.connect_backup_code_title_confirm;
             binding.confirmCodeLayout.setVisibility(View.GONE);
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
-            binding.phoneTitle.setText(R.string.connect_backup_code_message);
+            binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message);
             binding.nameLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.VISIBLE);
             setUserNameAndPhoto();
@@ -82,6 +80,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             titleId = R.string.connect_backup_code_title_set;
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.GONE);
+            binding.nameLayout.setVisibility(View.GONE);
         }
     }
 
@@ -154,9 +153,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         if (isRecovery) {
             confirmBackupCode();
         } else {
-            personalIdSessionDataViewModel.getPersonalIdSessionData().setBackupCode(
+            personalIdSessionData.setBackupCode(
                     binding.connectBackupCodeInput.getText().toString());
-            createNavigationToPhoto();
+            navigateToPhoto();
         }
     }
 
@@ -199,7 +198,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 personalIdSessionData.getDemoUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
-        createSuccessRecoveryDirection();
+        navigateToSuccess();
     }
 
     private void handleFailedBackupCodeAttempt() {
@@ -222,13 +221,13 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                         .setIsCancellable(false));
     }
 
-    private void createNavigationToPhoto() {
+    private void navigateToPhoto() {
         Navigation.findNavController(binding.getRoot())
                 .navigate(PersonalIdBackupCodeFragmentDirections
                         .actionPersonalidBackupcodeToPersonalidPhotoCapture());
     }
 
-    private void createSuccessRecoveryDirection() {
+    private void navigateToSuccess() {
         navigateWithMessage(
                 getString(R.string.connect_recovery_success_title),
                 getString(R.string.connect_recovery_success_message),

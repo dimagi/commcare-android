@@ -21,19 +21,23 @@ import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 public class PersonalIdNameFragment extends Fragment {
     private ScreenPersonalidNameBinding binding;
     private Activity activity;
-    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
+    private PersonalIdSessionData personalIdSessionData;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = ScreenPersonalidNameBinding.inflate(inflater, container, false);
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
+
         activity = requireActivity();
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
@@ -88,7 +92,7 @@ public class PersonalIdNameFragment extends Fragment {
         }.addOrVerifyNameCall(
                 requireActivity(),
                 binding.nameTextValue.getText().toString().trim(),
-                personalIdSessionDataViewModel.getPersonalIdSessionData());
+                personalIdSessionData);
     }
 
 

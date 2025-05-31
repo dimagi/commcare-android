@@ -359,7 +359,7 @@
     <string name="choice_or">OU</string>
     <string name="busy_message">Ainda estamos ocupados processando sua solicitação anterior. Por favor, tente novamente em alguns momentos.</string>
     <string name="connect_button_logged_in">Vá para o Conectar menu</string>
-    <string name="connect_db_corrupt">Ocorreu um problema com a base de dados, Por favor recupere a sua conta.</string>
+    <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
     <string name="connect_registration_title">Inscrição no Connect ID</string>
     <string name="connect_signup">Inscrição</string>
     <string name="connect_recover">Recuperar</string>
