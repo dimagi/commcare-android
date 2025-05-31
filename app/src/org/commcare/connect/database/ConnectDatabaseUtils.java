@@ -41,7 +41,7 @@ public class ConnectDatabaseUtils {
     }
 
 
-    static ConnectKeyRecord getKeyRecord(boolean local) {
+    public static ConnectKeyRecord getKeyRecord(boolean local) {
         Vector<ConnectKeyRecord> records = CommCareApplication.instance()
                 .getGlobalStorage(ConnectKeyRecord.class)
                 .getRecordsForValue(ConnectKeyRecord.IS_LOCAL, local);
