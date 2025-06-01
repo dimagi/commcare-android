@@ -17,8 +17,29 @@ import java.security.NoSuchAlgorithmException;
 public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private KeyPair keyPair = null;
 
+    public MockEncryptionKeyProvider(Context context) {
+        super(context);
+    }
+
     @Override
-    public EncryptionKeyAndTransform getKey(Context context, boolean trueForEncrypt)
+    public EncryptionKeyAndTransform getKeyForEncryption() {
+        try {
+            return getKey(true);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public EncryptionKeyAndTransform getKeyForDecryption() {
+        try {
+            return getKey(false);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private EncryptionKeyAndTransform getKey(boolean trueForEncrypt)
             throws NoSuchAlgorithmException {
         if (keyPair == null) {
             //Create an RSA keypair that we can use to encrypt and decrypt

@@ -3,6 +3,8 @@ package org.commcare.utils;
 import android.util.Base64;
 
 import junit.framework.Assert;
+
+import org.commcare.CommCareTestApplication;
 import org.commcare.util.EncryptionUtils;
 import org.junit.Test;
 
@@ -15,13 +17,13 @@ import java.nio.charset.StandardCharsets;
  * @author dviggiano
  */
 public class EncryptionUtilsTest {
-    private final EncryptionKeyProvider provider = new MockEncryptionKeyProvider();
+    private final EncryptionKeyProvider provider = new MockEncryptionKeyProvider(CommCareTestApplication.instance());
     private static final String TEST_DATA = "This is a test string";
 
     @Test
     public void testEncryption() throws Exception {
         byte[] testBytes = TEST_DATA.getBytes(StandardCharsets.UTF_8);
-        EncryptionKeyAndTransform kat = provider.getKey(null, true);
+        EncryptionKeyAndTransform kat = provider.getKeyForEncryption();
         String encryptedString = EncryptionUtils.encrypt(testBytes, kat.getKey(), kat.getTransformation(), true);
         byte[] encrypted = encryptedString.getBytes(Charset.forName("UTF-8"));
         Assert.assertNotNull("Encrypted data should not be null", encrypted);
@@ -33,11 +35,11 @@ public class EncryptionUtilsTest {
     public void testDecryption() throws Exception {
         byte[] testBytes = TEST_DATA.getBytes(StandardCharsets.UTF_8);
 
-        EncryptionKeyAndTransform kat = provider.getKey(null, true);
+        EncryptionKeyAndTransform kat = provider.getKeyForDecryption();
         String encryptedString = EncryptionUtils.encrypt(testBytes, kat.getKey(), kat.getTransformation(), true);
         byte[] encrypted = org.commcare.util.Base64.decode(encryptedString);
 
-        kat = provider.getKey(null, false);
+        kat = provider.getKeyForDecryption();
         byte[] decrypted = EncryptionUtils.decrypt(encrypted, kat.getKey(), kat.getTransformation(), true);
         String decryptedString = new String(decrypted, Charset.forName("UTF-8"));
 
@@ -46,19 +48,19 @@ public class EncryptionUtilsTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testEncryptionWithNullInput() throws Exception {
-        EncryptionKeyAndTransform kat = provider.getKey(null, true);
+        EncryptionKeyAndTransform kat = provider.getKeyForEncryption();
         EncryptionUtils.encrypt(null, kat.getKey(), kat.getTransformation(), true);
     }
 
     @Test(expected = NullPointerException.class)
     public void testEncryptionWithNullKey() throws Exception {
-        EncryptionKeyAndTransform kat = provider.getKey(null, true);
+        EncryptionKeyAndTransform kat = provider.getKeyForEncryption();
         EncryptionUtils.encrypt(TEST_DATA.getBytes(StandardCharsets.UTF_8), null, kat.getTransformation(), true);
     }
 
     @Test(expected = NullPointerException.class)
     public void testEncryptionWithNullTransformation() throws Exception {
-        EncryptionKeyAndTransform kat = provider.getKey(null, true);
+        EncryptionKeyAndTransform kat = provider.getKeyForEncryption();
         EncryptionUtils.encrypt(TEST_DATA.getBytes(StandardCharsets.UTF_8), kat.getKey(), null, true);
     }
 }
