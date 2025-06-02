@@ -107,8 +107,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
         activity = requireActivity();
-        getPhoneNumberFromArguments();
-
         setupInitialState();
         setupSmsRetriever();
         setupListeners();

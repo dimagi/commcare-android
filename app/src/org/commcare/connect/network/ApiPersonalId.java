@@ -271,7 +271,7 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmPin(tokenAuth, params);
+        Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
         callApi(context, call, callback);
     }
 
@@ -304,11 +304,16 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void addOrVerifyName(Context context, String name, IApiCallback callback) {
+    public static void addOrVerifyName(Context context, String name, String token, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("name", name);
+
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.checkName(params);
+        Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
         callApi(context, call, callback);
     }
 
@@ -331,13 +336,13 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
-    public static void setPhotoAndCompleteProfile(Context context, String userId, String password, String userName,
-                                                  String photoAsBase64, String backupCode, IApiCallback callback) {
+    public static void setPhotoAndCompleteProfile(Context context, String userName,
+                                                  String photoAsBase64, String backupCode, String token, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-        Objects.requireNonNull(token);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("photo", photoAsBase64);
@@ -345,7 +350,7 @@ public class ApiPersonalId {
         params.put("recovery_pin", backupCode);
 
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.completeProfile(token, params);
+        Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
         callApi(context, call, callback);
     }
 

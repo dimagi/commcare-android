@@ -42,7 +42,7 @@ public class PersonalIdApiErrorHandler {
                 ConnectNetworkHelper.handleTokenUnavailableException(activity);
                 break;
             case TOKEN_DENIED_ERROR:
-                ConnectNetworkHelper.handleTokenDeniedException(activity);
+                ConnectNetworkHelper.handleTokenDeniedException();
                 break;
             case OLD_API_ERROR:
                 ConnectNetworkHelper.showOutdatedApiError(activity);

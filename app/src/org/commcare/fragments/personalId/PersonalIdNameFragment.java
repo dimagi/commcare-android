@@ -21,19 +21,23 @@ import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 public class PersonalIdNameFragment extends Fragment {
     private ScreenPersonalidNameBinding binding;
     private Activity activity;
-    private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
+    private PersonalIdSessionData personalIdSessionData;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = ScreenPersonalidNameBinding.inflate(inflater, container, false);
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
+
         activity = requireActivity();
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
@@ -69,14 +73,16 @@ public class PersonalIdNameFragment extends Fragment {
         binding.personalidNameContinueButton.setOnClickListener(v -> verifyOrAddName());
     }
 
-    public void enableContinueButton(boolean isEnabled) {
+    private void enableContinueButton(boolean isEnabled) {
         binding.personalidNameContinueButton.setEnabled(isEnabled);
     }
 
     private void verifyOrAddName() {
+        enableContinueButton(false);
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
+                sessionData.setUserName(binding.nameTextValue.getText().toString().trim());
                 Navigation.findNavController(binding.getRoot()).navigate(navigateToBackupCodePage());
             }
             @Override
@@ -91,19 +97,19 @@ public class PersonalIdNameFragment extends Fragment {
         }.addOrVerifyNameCall(
                 requireActivity(),
                 binding.nameTextValue.getText().toString().trim(),
-                personalIdSessionDataViewModel.getPersonalIdSessionData());
+                personalIdSessionData);
     }
 
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+        if (failureCode.shouldAllowRetry()) {
+            enableContinueButton(true);
+        }
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 
     private NavDirections navigateToBackupCodePage() {
-        return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode(
-                String.valueOf(binding.nameTextValue.getText()),
-                personalIdSessionDataViewModel.getPersonalIdSessionData().getPhotoBase64()).setIsRecovery(
-                false);
+        return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode();
     }
 
 }

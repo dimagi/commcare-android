@@ -64,7 +64,7 @@
 
         <TextView
             android:textStyle="bold"
-            android:id="@+id/phone_title"
+            android:id="@+id/backup_code_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -106,7 +106,7 @@
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/connect_pin_input"
+                    android:id="@+id/connect_backup_code_input"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginStart="16dp"
@@ -144,14 +144,14 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/connect_pin_repeat_holder"
+                android:id="@+id/connect_backup_code_repeat_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:hintEnabled="false"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/connect_pin_repeat_input"
+                    android:id="@+id/connect_backup_code_repeat_input"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginStart="16dp"
@@ -167,7 +167,7 @@
 
         <TextView
             android:textStyle="bold"
-            android:id="@+id/connect_pin_error_message"
+            android:id="@+id/connect_backup_code_error_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -196,7 +196,7 @@
                 android:layout_gravity="center"/>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/connect_pin_button"
+                android:id="@+id/connect_backup_code_button"
                 style="@style/CustomButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

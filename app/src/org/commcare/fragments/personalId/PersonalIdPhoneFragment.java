@@ -47,6 +47,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     private Activity activity;
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
     private IntegrityTokenApiRequestHelper integrityTokenApiRequestHelper;
+    private String phone;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -128,7 +129,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void updateContinueButtonState() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(
+        phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
         );
@@ -136,7 +137,7 @@ public class PersonalIdPhoneFragment extends Fragment {
         boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
         boolean isConsentChecked = binding.connectConsentCheck.isChecked();
 
-        binding.personalidPhoneContinueButton.setEnabled(isValidPhone && isConsentChecked);
+        enableContinueButton(isValidPhone && isConsentChecked);
     }
 
     @Override
@@ -164,12 +165,16 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onContinueClicked() {
-        binding.personalidPhoneContinueButton.setEnabled(false);
+        enableContinueButton(false);
         startConfigurationRequest();
     }
 
+    private void enableContinueButton(boolean isEnabled) {
+        binding.personalidPhoneContinueButton.setEnabled(isEnabled);
+    }
+
     private void startConfigurationRequest() {
-        String phone = PhoneNumberHelper.buildPhoneNumber(
+        phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
         );
@@ -194,6 +199,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
+                personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSucesss();
                 } else {
@@ -229,7 +235,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
         if (failureCode.shouldAllowRetry()) {
-            binding.personalidPhoneContinueButton.setEnabled(true);
+            enableContinueButton(true);
         }
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
@@ -242,7 +248,6 @@ public class PersonalIdPhoneFragment extends Fragment {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                 getString(R.string.configuration_process_failed_title),
                 errorMessage,
-                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, "",
-                "").setIsCancellable(isCancellable);
+                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null).setIsCancellable(isCancellable);
     }
 }

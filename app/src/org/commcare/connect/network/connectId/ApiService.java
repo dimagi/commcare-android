@@ -18,7 +18,8 @@ public interface ApiService {
                                                @Body Map<String, String> firebaseIdToken);
 
     @POST(ApiEndPoints.checkName)
-    Call<ResponseBody> checkName(@Body Map<String, String> nameRequest);
+    Call<ResponseBody> checkName(@Header("Authorization") String token,
+                                 @Body Map<String, String> nameRequest);
 
     @POST(ApiEndPoints.changePhoneNo)
     Call<ResponseBody> changePhoneNo(@Header("Authorization") String token,
@@ -51,9 +52,9 @@ public interface ApiService {
     Call<ResponseBody> confirmOTP(@Header("Authorization") String token,
                                   @Body Map<String, String> confirmOTPRequest);
 
-    @POST(ApiEndPoints.confirmPIN)
-    Call<ResponseBody> confirmPin(@Header("Authorization") String token,
-                                  @Body Map<String, String> confirmBackupCodeRequest);
+    @POST(ApiEndPoints.confirmBackupCode)
+    Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
+                                         @Body Map<String, String> confirmBackupCodeRequest);
 
     @POST(ApiEndPoints.setBackupCode)
     Call<ResponseBody> setBackupCode(@Header("Authorization") String token,

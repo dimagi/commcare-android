@@ -125,11 +125,10 @@ public class PersonalIdManager {
                 }
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.handleCorruptDb(parent);
+                ConnectDatabaseHelper.crashDb();
             }
         }
     }
-
 
     public String generatePassword() {
         int passwordLength = 20;
@@ -371,7 +370,7 @@ public class PersonalIdManager {
                 }
 
                 public void tokenRequestDenied() {
-                    ConnectNetworkHelper.handleTokenDeniedException(activity);
+                    ConnectNetworkHelper.handleTokenDeniedException();
                     callback.connectActivityComplete(false);
                 }
             });
@@ -528,7 +527,7 @@ public class PersonalIdManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override

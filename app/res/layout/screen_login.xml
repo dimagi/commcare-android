@@ -75,6 +75,17 @@
 
                             <TextView
                                 android:textStyle="bold"
+                                android:id="@+id/error_msg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="@dimen/content_min_margin"
+                                android:textColor="@color/red_500"
+                                android:visibility="gone"
+                                android:textSize="@dimen/text_medium" />
+
+                            <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/welcome_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

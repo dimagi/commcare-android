@@ -5,11 +5,13 @@ import org.commcare.utils.JsonExtensions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Objects;
+
 /**
- * Parses a JSON response from the confirm backup code API call
+ * Parses a JSON response from the complete profile API call
  * and populates a PersonalIdSessionData instance.
  */
-public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponseParser{
+public class CompleteProfileResponseParser implements PersonalIdApiResponseParser {
     /**
      * Parses and sets values on the given PersonalIdSessionData instance.
      *
@@ -18,11 +20,8 @@ public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponsePar
      */
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
-        sessionData.setPersonalId(JsonExtensions.optStringSafe(json, "username", null));
-        sessionData.setDbKey(JsonExtensions.optStringSafe(json, "db_key", null));
-        if (json.has("attempts_left")) {
-            sessionData.setAttemptsLeft(json.getInt("attempts_left"));
-        }
-        sessionData.setOauthPassword(JsonExtensions.optStringSafe(json, "password", null));
+        sessionData.setPersonalId(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "username", null)));
+        sessionData.setDbKey(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "db_key", null)));
+        sessionData.setOauthPassword(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "password", null)));
     }
 }
