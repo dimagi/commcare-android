@@ -8,6 +8,9 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -33,16 +36,6 @@ public class StandardHomeActivity
 
     private static final String TAG = StandardHomeActivity.class.getSimpleName();
 
-    // NOTE: Menu.FIRST is reserved for MENU_SYNC in SyncCapableCommCareActivity
-    public static final int MENU_UPDATE = Menu.FIRST + 1;
-    public static final int MENU_SAVED_FORMS = Menu.FIRST + 2;
-    public static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 3;
-    public static final int MENU_PREFERENCES = Menu.FIRST + 4;
-    public static final int MENU_ADVANCED = Menu.FIRST + 5;
-    public static final int MENU_ABOUT = Menu.FIRST + 6;
-    public static final int MENU_PIN = Menu.FIRST + 7;
-    public static final int MENU_UPDATE_COMMCARE = Menu.FIRST + 8;
-
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
@@ -51,6 +44,12 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+    }
+
+    @Override
+    public void onResumeSessionSafe() {
+        super.onResumeSessionSafe();
+        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -102,7 +101,6 @@ public class StandardHomeActivity
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
                                 AIRPLANE_MODE_CATEGORY));
             }
-
             FirebaseAnalyticsUtil.reportSyncResult(
                     false,
                     AnalyticsParamValue.SYNC_TRIGGER_USER,
@@ -115,7 +113,7 @@ public class StandardHomeActivity
     }
 
     void syncSubTextPressed() {
-        if(CommCareApplication.notificationManager().messagesForCommCareArePending()) {
+        if (CommCareApplication.notificationManager().messagesForCommCareArePending()) {
             CommCareNoficationManager.performIntentCalloutToNotificationsView(this);
         }
     }
@@ -128,25 +126,19 @@ public class StandardHomeActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_app_home, menu);
 
-        menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
-                android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
-                android.R.drawable.ic_menu_save);
-        menu.add(0, MENU_CHANGE_LANGUAGE, 0, Localization.get("home.menu.locale.change")).setIcon(
-                android.R.drawable.ic_menu_set_as);
-        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
-                android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_ADVANCED, 0, Localization.get("home.menu.advanced")).setIcon(
-                android.R.drawable.ic_menu_edit);
-        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
-                android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
-        menu.add(0, MENU_UPDATE_COMMCARE, 0, Localization.get("home.menu.update.commcare"));
-        return true;
+        menu.findItem(R.id.action_update).setTitle(Localization.get("home.menu.update"));
+        menu.findItem(R.id.action_saved_forms).setTitle(Localization.get("home.menu.saved.forms"));
+        menu.findItem(R.id.action_change_language).setTitle(Localization.get("home.menu.locale.change"));
+        menu.findItem(R.id.action_about).setTitle(Localization.get("home.menu.about"));
+        menu.findItem(R.id.action_advanced).setTitle(Localization.get("home.menu.advanced"));
+        menu.findItem(R.id.action_preferences).setTitle(Localization.get("home.menu.settings"));
+        menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.set"));
+        menu.findItem(R.id.action_update_commcare).setTitle(Localization.get("home.menu.update.commcare"));
+
+        return super.onCreateOptionsMenu(menu);
     }
-
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -154,20 +146,20 @@ public class StandardHomeActivity
 
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
-        menu.findItem(MENU_UPDATE).setVisible(enableMenus);
-        menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-        menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(true);
-        menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
-        menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
-        menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        menu.findItem(MENU_UPDATE_COMMCARE).setVisible(enableMenus && showCommCareUpdateMenu);
+        menu.findItem(R.id.action_update).setVisible(enableMenus);
+        menu.findItem(R.id.action_saved_forms).setVisible(enableMenus);
+        menu.findItem(R.id.action_change_language).setVisible(true);
+        menu.findItem(R.id.action_preferences).setVisible(enableMenus);
+        menu.findItem(R.id.action_advanced).setVisible(enableMenus);
+        menu.findItem(R.id.action_about).setVisible(enableMenus);
+        menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
         preparePinMenu(menu, enableMenus);
         return true;
     }
 
     private static void preparePinMenu(Menu menu, boolean enableMenus) {
         boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
-        menu.findItem(MENU_PIN).setVisible(pinEnabled);
+        menu.findItem(R.id.action_set_pin).setVisible(pinEnabled);
         boolean hasPinSet = false;
 
         try {
@@ -177,9 +169,9 @@ public class StandardHomeActivity
         }
 
         if (hasPinSet) {
-            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
+            menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.change"));
         } else {
-            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
+            menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.set"));
         }
     }
 
@@ -190,50 +182,51 @@ public class StandardHomeActivity
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
-        switch (item.getItemId()) {
-            case MENU_UPDATE:
-                launchUpdateActivity(false);
-                return true;
-            case MENU_SAVED_FORMS:
-                goToFormArchive(false);
-                return true;
-            case MENU_CHANGE_LANGUAGE:
-                showLocaleChangeMenu(uiController);
-                return true;
-            case MENU_PREFERENCES:
-                createPreferencesMenu(this);
-                return true;
-            case MENU_ADVANCED:
-                showAdvancedActionsPreferences();
-                return true;
-            case MENU_ABOUT:
-                showAboutCommCareDialog();
-                return true;
-            case MENU_PIN:
-                launchPinAuthentication();
-                return true;
-            case MENU_UPDATE_COMMCARE:
-                startCommCareUpdate();
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_update) {
+            launchUpdateActivity(false);
+            return true;
+        } else if (itemId == R.id.action_saved_forms) {
+            goToFormArchive(false);
+            return true;
+        } else if (itemId == R.id.action_change_language) {
+            showLocaleChangeMenu(uiController);
+            return true;
+        } else if (itemId == R.id.action_preferences) {
+            createPreferencesMenu(this);
+            return true;
+        } else if (itemId == R.id.action_advanced) {
+            showAdvancedActionsPreferences();
+            return true;
+        } else if (itemId == R.id.action_about) {
+            showAboutCommCareDialog();
+            return true;
+        } else if (itemId == R.id.action_set_pin) {
+            launchPinAuthentication();
+            return true;
+        } else if (itemId == R.id.action_update_commcare) {
+            startCommCareUpdate();
+            return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(MENU_UPDATE,
+        menuIdToAnalyticsEvent.put(R.id.action_update,
                 AnalyticsParamValue.ITEM_UPDATE_CC);
-        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS,
+        menuIdToAnalyticsEvent.put(R.id.action_saved_forms,
                 AnalyticsParamValue.ITEM_SAVED_FORMS);
-        menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE,
+        menuIdToAnalyticsEvent.put(R.id.action_change_language,
                 AnalyticsParamValue.ITEM_CHANGE_LANGUAGE);
-        menuIdToAnalyticsEvent.put(MENU_PREFERENCES,
+        menuIdToAnalyticsEvent.put(R.id.action_preferences,
                 AnalyticsParamValue.ITEM_SETTINGS);
-        menuIdToAnalyticsEvent.put(MENU_ADVANCED,
+        menuIdToAnalyticsEvent.put(R.id.action_advanced,
                 AnalyticsParamValue.ITEM_ADVANCED_ACTIONS);
-        menuIdToAnalyticsEvent.put(MENU_ABOUT,
+        menuIdToAnalyticsEvent.put(R.id.action_about,
                 AnalyticsParamValue.ITEM_ABOUT_CC);
-        menuIdToAnalyticsEvent.put(MENU_UPDATE_COMMCARE,
+        menuIdToAnalyticsEvent.put(R.id.action_update_commcare,
                 AnalyticsParamValue.ITEM_UPDATE_CC_PLATFORM);
         return menuIdToAnalyticsEvent;
     }
@@ -274,5 +267,9 @@ public class StandardHomeActivity
     @Override
     void refreshCCUpdateOption() {
         invalidateOptionsMenu();
+    }
+
+    public void performSecondaryPhoneVerification() {
+        PersonalIdManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
     }
 }

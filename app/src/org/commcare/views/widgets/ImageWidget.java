@@ -5,13 +5,9 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -111,7 +107,7 @@ public class ImageWidget extends QuestionWidget {
                                     REQUEST_CAMERA_PERMISSION,
                                     Localization.get("permission.camera.title"),
                                     Localization.get("permission.camera.message"));
-                    dialog.showNonPersistentDialog();
+                    dialog.showNonPersistentDialog(context);
                 } else {
                     ((RuntimePermissionRequester)getContext()).requestNeededPermissions(REQUEST_CAMERA_PERMISSION);
                 }
@@ -136,12 +132,11 @@ public class ImageWidget extends QuestionWidget {
                 ImageCaptureProcessing.setCustomImagePath(null);
             } else {
                 mErrorTextView.setVisibility(View.GONE);
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/*");
 
                 try {
-                    ((AppCompatActivity)getContext()).startActivityForResult(i,
-                            FormEntryConstants.IMAGE_CHOOSER);
+                    ((AppCompatActivity)getContext())
+                            .startActivityForResult(WidgetUtils.createPickMediaIntent (getContext(), "image/*"),
+                                    FormEntryConstants.IMAGE_CHOOSER);
                     pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),

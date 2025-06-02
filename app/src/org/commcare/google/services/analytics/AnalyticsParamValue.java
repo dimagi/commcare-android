@@ -58,6 +58,8 @@ public class AnalyticsParamValue {
     public static final String SYNC_FAIL_AUTH_OVER_HTTP = "auth_over_http";
     public static final String SYNC_FAIL_CAPTIVE_PORTAL = "captive_portal";
     public static final String SYNC_FAIL_BAD_CERTIFICATE = "bad_certificate";
+    public static final String SYNC_FAIL_TOKEN_UNAVAILABLE = "token_unavailable";
+    public static final String SYNC_FAIL_TOKEN_DENIED = "token_denied";
     public static final String SYNC_SUCCESS = "success";
 
     // Param values for feature usage
@@ -86,8 +88,11 @@ public class AnalyticsParamValue {
     public static final String SAVED_FORMS_BUTTON = "saved_forms";
     public static final String INCOMPLETE_FORMS_BUTTON = "incomplete_forms";
     public static final String SYNC_BUTTON = "sync";
+    public static final String START_BUTTON = "start";
+    public static final String LOGOUT_BUTTON = "logout";
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
+    public static final String CONNECT_BUTTON = "connect_info";
 
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";
@@ -105,6 +110,7 @@ public class AnalyticsParamValue {
     public static final String FORCE_LOG_SUBMISSION = "force_log_submission";
     public static final String RECOVERY_MODE = "recovery_mode";
     public static final String ENABLE_PRIVILEGES = "enable_mobile_privileges";
+    public static final String ENABLE_CONNECT_ID = "enable_connect_id";
     public static final String ENABLE_RATE_LIMIT_POPUP = "enable_rate_limit_popup";
     public static final String ENABLE_MANUAL_FORM_QUARANTINE = "enable_manual_form_quarantine";
     public static final String APP_MANAGER_DEVELOPER_OPTIONS = "app_manager_developer_options";
@@ -139,4 +145,21 @@ public class AnalyticsParamValue {
 
     public static final String IN_APP_UPDATE_SUCCESS = "success";
 
+    // Param values for connect signin
+    public static final String CCC_SIGN_IN_METHOD_PIN = "pin";
+    public static final String CCC_SIGN_IN_METHOD_FINGERPRINT = "fingerprint";
+
+
+    // Param values for connect recovery
+    public static final String CCC_RECOVERY_METHOD_PRIMARY_OTP = "primary_otp";
+    public static final String CCC_RECOVERY_METHOD_BACKUPCODE = "backup_code";
+
+    // Param values for Form Submission Event
+
+    public static final String USER_TRIGGERED = "user_triggered";
+    public static final String SYSTEM_TRIGGERED = "system_triggered";
+
+    public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
+    public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
+    public static final String CCC_DB_ERROR = "global_connect_error";
 }

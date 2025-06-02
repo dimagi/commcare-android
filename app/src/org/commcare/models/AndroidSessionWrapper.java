@@ -49,7 +49,7 @@ import javax.crypto.SecretKey;
  */
 public class AndroidSessionWrapper implements SessionWrapperInterface {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
-    //The state descriptor will need these 
+    //The state descriptor will need these
     private final SessionWrapper session;
     private int formRecordId = -1;
     private int sessionStateRecordId = -1;

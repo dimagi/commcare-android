@@ -19,6 +19,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.Vector;
 
+
 /**
  * Build objects that contain all info needed to draw home screen buttons
  *
@@ -27,7 +28,7 @@ import java.util.Vector;
 public class HomeButtons {
 
     private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+            new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -67,6 +68,9 @@ public class HomeButtons {
                         getIncompleteButtonListener(activity),
                         null,
                         getIncompleteButtonTextSetter(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+                        R.drawable.quick_reference, R.color.orange_500,
+                        getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
@@ -80,7 +84,7 @@ public class HomeButtons {
                         getReportButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(logoutMessageKey), R.color.white,
                         R.color.white,
-                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_neutral_text,
+                        R.drawable.home_logout, R.color.start_logout_button, R.color.cc_core_text,
                         getLogoutButtonListener(activity),
                         null,
                         getLogoutButtonTextSetter(activity)),
@@ -128,6 +132,13 @@ public class HomeButtons {
         };
     }
 
+    private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
+            activity.userPressedOpportunityStatus();
+        };
+    }
+
     private static TextSetter getSyncButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
             try {
@@ -145,7 +156,10 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getStartButtonListener(final StandardHomeActivity activity) {
-        return v -> activity.enterRootModule();
+        return v ->  {
+            reportButtonClick(AnalyticsParamValue.START_BUTTON);
+            activity.enterRootModule();
+        };
     }
 
     private static View.OnClickListener getTrainingButtonListener(final StandardHomeActivity activity) {
@@ -185,7 +199,10 @@ public class HomeButtons {
     }
 
     private static View.OnClickListener getLogoutButtonListener(final StandardHomeActivity activity) {
-        return v -> activity.userTriggeredLogout();
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.LOGOUT_BUTTON);
+            activity.userTriggeredLogout();
+        };
     }
 
     private static TextSetter getLogoutButtonTextSetter(final StandardHomeActivity activity) {

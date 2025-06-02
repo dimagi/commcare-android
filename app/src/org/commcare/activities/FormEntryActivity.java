@@ -107,8 +107,6 @@ import javax.crypto.spec.SecretKeySpec;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
-import static org.commcare.activities.components.FormEntryConstants.DO_NOT_EXIT;
-import static org.commcare.activities.components.FormEntryConstants.EXIT;
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_LOCAL_PROCESSING_ERROR;
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_RECORD_ERROR;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
@@ -203,7 +201,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         @Override
         public void voiceDataMissing(String language) {
             StandardAlertDialog dialog = new StandardAlertDialog(
-                    FormEntryActivity.this,
                     Localization.get("tts.data.missing.title"),
                     Localization.get("tts.data.missing.message", language));
             dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
@@ -351,6 +348,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } else if (requestCode == FormEntryConstants.INTENT_CALLOUT) {
                 processIntentResponse(intent, true);
                 Toast.makeText(this, Localization.get("intent.callout.cancelled"), Toast.LENGTH_SHORT).show();
+            } else if (requestCode == FormEntryConstants.LOCATION_CAPTURE){
+                Toast.makeText(this, Localization.get("location.capture.cancelled"), Toast.LENGTH_SHORT).show();
             }
         } else {
             switch (requestCode) {
@@ -377,7 +376,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     ImageCaptureProcessing.processImageChooserResponse(this,
                             FormEntryInstanceState.getInstanceFolder(), intent);
                     break;
-                case FormEntryConstants.AUDIO_VIDEO_FETCH:
+                case FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH:
                     processChooserResponse(intent);
                     break;
                 case FormEntryConstants.LOCATION_CAPTURE:
@@ -425,7 +424,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         String title = Localization.get("file.oversize.error.title");
         String msg = Localization.get("file.oversize.error.message");
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
-                this, title, msg, (dialog1, which) -> dismissAlertDialog());
+                title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
     }
 
@@ -435,7 +434,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         Uri media = intent.getData();
         if (media == null) {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                    "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+                    "AUDIO_VIDEO_DOCUMENT_FETCH intent data returns null " + intent.toString());
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
             uiController.questionsView.clearAnswer();
@@ -596,7 +595,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS, getCurrentFormXmlnsFailSafe());
                 triggerUserQuitInput();
                 return true;
 
@@ -877,7 +876,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void setFormLanguage(String[] languages, int index) {
         TextToSpeechConverter.INSTANCE.changeLocale(languages[index]);
         mFormController.setLanguage(languages[index]);
-        dismissAlertDialog();
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(false);
         }
@@ -1131,12 +1129,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void handleFormLoadCompletion(AndroidFormController fc) {
         HiddenPreferences.clearInterruptedFormState();
-
         if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
             handleXpathErrorBroadcast();
         }
 
         mFormController = fc;
+        FirebaseAnalyticsUtil.reportFormEntry(getCurrentFormXmlnsFailSafe());
 
         // Newer menus may have already built the menu, before all data was ready
         invalidateOptionsMenu();
@@ -1170,7 +1168,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             String localeKey =
                     (fc.getInterruptedFormState() == null
                             || fc.getInterruptedFormState().isInterruptedDueToSessionExpiration())
-                    ? "form.entry.restart.after.expiration" : "form.entry.restart.after.session.pause";
+                            ? "form.entry.restart.after.expiration" : "form.entry.restart.after.session.pause";
             Toast.makeText(this, Localization.get(localeKey), Toast.LENGTH_LONG).show();
         }
     }
@@ -1217,7 +1215,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.BACK_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.BACK_BUTTON_PRESS, getCurrentFormXmlnsFailSafe());
                 triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -1296,6 +1294,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else if (saveStatus != null) {
             String toastMessage = "";
+            FirebaseAnalyticsUtil.reportFormFinishAttempt(saveStatus.toString(), getCurrentFormXmlnsFailSafe(), userTriggered);
             switch (saveStatus) {
                 case SAVED_COMPLETE:
                     toastMessage = Localization.get("form.entry.complete.save.success");
@@ -1432,7 +1431,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected boolean onBackwardSwipe() {
         FirebaseAnalyticsUtil.reportFormNav(
                 AnalyticsParamValue.DIRECTION_BACKWARD,
-                AnalyticsParamValue.SWIPE);
+                AnalyticsParamValue.SWIPE, getCurrentFormXmlnsFailSafe());
 
         uiController.showPreviousView(true);
         return true;
@@ -1442,7 +1441,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected boolean onForwardSwipe() {
         FirebaseAnalyticsUtil.reportFormNav(
                 AnalyticsParamValue.DIRECTION_FORWARD,
-                AnalyticsParamValue.SWIPE);
+                AnalyticsParamValue.SWIPE, getCurrentFormXmlnsFailSafe());
 
         if (canNavigateForward()) {
             uiController.next();
@@ -1640,7 +1639,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             HiddenPreferences.setPendingSyncRequest(fcmMessageData);
 
             if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(
                         Localization.get("background.sync.pending.form.entry.title"),
                         Localization.get("background.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
                             HiddenPreferences.setPendingSyncDialogDisabled(isChecked);
@@ -1680,6 +1679,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private int getCurrentFormID() {
         return mFormController.getFormID();
+    }
+
+    public String getCurrentFormXmlnsFailSafe() {
+        try {
+            return mFormController.getFormEntryController().getModel().getForm().getMainInstance().schema;
+        } catch (Exception e) {
+            Logger.exception("Error trying to get form schema", e);
+        }
+        return null;
     }
 
     /**

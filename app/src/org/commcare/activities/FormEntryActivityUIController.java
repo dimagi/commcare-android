@@ -111,7 +111,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         nextButton.setOnClickListener(v -> {
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
-                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+                    AnalyticsParamValue.NAV_BUTTON_PRESS,
+                    activity.getCurrentFormXmlnsFailSafe());
             showNextView();
             TextToSpeechConverter.INSTANCE.stop();
         });
@@ -120,10 +121,12 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             if (!FormEntryConstants.NAV_STATE_QUIT.equals(v.getTag())) {
                 FirebaseAnalyticsUtil.reportFormNav(
                         AnalyticsParamValue.DIRECTION_BACKWARD,
-                        AnalyticsParamValue.NAV_BUTTON_PRESS);
+                        AnalyticsParamValue.NAV_BUTTON_PRESS,
+                        activity.getCurrentFormXmlnsFailSafe());
                 showPreviousView(true);
             } else {
-                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS);
+                FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS,
+                        activity.getCurrentFormXmlnsFailSafe());
                 activity.triggerUserQuitInput();
             }
             TextToSpeechConverter.INSTANCE.stop();
@@ -132,7 +135,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         finishButton.setOnClickListener(v -> {
             FirebaseAnalyticsUtil.reportFormNav(
                     AnalyticsParamValue.DIRECTION_FORWARD,
-                    AnalyticsParamValue.NAV_BUTTON_PRESS);
+                    AnalyticsParamValue.NAV_BUTTON_PRESS,
+                    activity.getCurrentFormXmlnsFailSafe());
             activity.triggerUserFormComplete();
         });
 
@@ -327,7 +331,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
 
                 //Did we jump at all? (not sure how we could have, but there might be a mismatch)
                 if (lastValidIndex.equals(startIndex)) {
-                    //If not, don't even bother changing the view. 
+                    //If not, don't even bother changing the view.
                     //NOTE: This needs to be the same as the
                     //exit condition below, in case either changes
                     activity.triggerUserQuitInput();
@@ -583,7 +587,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         // event. This can be fixed, but the dialog click listeners closures
         // capture refences to the old activity, so we need to redo our
         // infrastructure to forward new activities.
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(activity);
     }
 
     protected void next() {

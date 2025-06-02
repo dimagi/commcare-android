@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.56">
+          android:versionName="2.57">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -27,8 +27,6 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -38,6 +36,7 @@
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -71,6 +70,11 @@
         android:label="@string/permission_external_action_label"
         />
 
+    <permission-group
+        android:name="commcare.permission-group.INTERNAL_ACTION"
+        android:label="@string/permission_group_internal_action_label"
+        />
+
     <permission
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
@@ -85,6 +89,14 @@
         android:label="@string/permission_commcare_logout_label"
         android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
         android:protectionLevel="dangerous">
+    </permission>
+
+    <permission
+        android:name="${applicationId}.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+        android:label="@string/permission_protect_falsely_exposed_components_label"
+        android:description="@string/permission_protect_falsely_exposed_components_description"
+        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:protectionLevel="signature">
     </permission>
 
     <queries>
@@ -125,6 +137,17 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="face" />
+        <receiver
+            android:name="org.commcare.connect.SMSBroadcastReceiver"
+            android:exported="true"
+            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:label="@string/application_name"
@@ -151,6 +174,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="org.commcare.activities.connect.PersonalIdActivity"
+            android:screenOrientation="portrait"/>
+        <activity
             android:label="@string/application_name"
             android:name="org.commcare.activities.LoginActivity"
             android:windowSoftInputMode="adjustResize">
@@ -162,7 +188,15 @@
         <activity android:name="org.commcare.activities.StandardHomeActivity"/>
         <activity android:name="org.commcare.activities.RootMenuHomeActivity"/>
         <activity android:name="org.commcare.activities.MenuActivity"/>
-
+        <service android:name="com.google.android.gms.metadata.ModuleDependencies"
+            android:enabled="false"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+            </intent-filter>
+            <meta-data android:name="photopicker_activity:0:required" android:value="" />
+        </service>
         <provider
             android:name="org.commcare.provider.FormsProvider"
             android:exported="false"
@@ -312,6 +346,13 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Service that maintains an encryption key in memory to securely submit data to the server" />
         </service>
+        <service
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="true"
+            android:foregroundServiceType="microphone"
+            android:name="org.commcare.views.widgets.AudioRecordingService">
+        </service>
         <activity
             android:launchMode="singleTop"
             android:name="org.commcare.activities.FormEntryActivity"
@@ -346,7 +387,8 @@
 
         <activity
             android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:exported="false">
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
 
@@ -399,8 +441,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="false"
-            android:name="org.commcare.android.nfc.NfcWriteActivity">
+            android:exported="true"
+            android:name="org.commcare.android.nfc.NfcWriteActivity"
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS">
             <intent-filter>
                 <action android:name="org.commcare.nfc.WRITE"/>
 
@@ -408,8 +451,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:exported="false"
-            android:name="org.commcare.android.nfc.NfcReadActivity">
+            android:exported="true"
+            android:name="org.commcare.android.nfc.NfcReadActivity"
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS">
             <intent-filter>
                 <action android:name="org.commcare.nfc.READ"/>
 
@@ -427,9 +471,9 @@
         </receiver>
 
         <receiver
-            android:exported="true"
             android:name="org.commcare.provider.CommCareLogoutReceiver"
-            android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT">
+            android:permission="org.commcare.dalvik.permission.COMMCARE_LOGOUT"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.api.action.CommCareLogoutAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -503,8 +547,8 @@
         </activity>
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Dialog.NoTitle">
+            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
+            android:exported="true">
             <intent-filter>
                 <action android:name="org.commcare.dalvik.action.PRINT"/>
 
@@ -536,6 +580,7 @@
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
+        <activity android:name="org.commcare.fragments.MicroImageActivity" />
         <!-- Start Collect Manifest -->
 
         <meta-data

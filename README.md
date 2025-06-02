@@ -34,12 +34,14 @@ git clone https://github.com/dimagi/commcare-core.git
 
 - Open Android Studio
 - If this is your first time using Android Studio, click "Config" and setup the Android SDK.
-- Download the Android 12 (API 31) SDK Platform and the Google APIs for 31.
+- Download the Android 15 (API 35) SDK Platform and the Google APIs for 35.
 - Now go back to the Android Studio Welcome dashboard and click "Import project (Eclipse ADT, Gradle, etc.)"
 - Select AndroidStudioProjects > CommCare > commcare-android and hit OK
 - Click "OK" to use the Gradle wrapper
 - Wait while Android Studio spins its wheels
 - Download any build dependencies that the SDK Manager tells you you need.
+
+Note: If you are using any functionality that depends on the Google Cloud Project (like [Google Integrity APIs](https://developer.android.com/google/play/integrity/standard)), you will need to define `GOOGLE_CLOUD_PROJECT_NUMBER` in your local `gradle.properties` file otherwise relevant parts of the application will crash for you with `Caused by: java.lang.IllegalArgumentException: Google Cloud Project Number is not defined`. You should be able to locate the project number in Google cloud console in the "settings" for "IAM and admin" menu. 
 
 ## Building
 
