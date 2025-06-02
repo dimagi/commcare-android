@@ -185,6 +185,11 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                     enableContinueButton(true);
                 }
             }
+
+            @Override
+            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
+
+            }
         }.confirmBackupCode(activity, backupCode, personalIdSessionData);
     }
 

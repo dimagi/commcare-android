@@ -125,7 +125,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             }
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+                handleFailure(failureCode);
             }
             @Override
             protected void onFailureWithParser(PersonalIdSessionData sessionData) {
@@ -137,12 +137,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 }
             }
         }.validateFirebaseIdToken(requireActivity(),firebaseIdToken);
-    }
-
-    private void getPhoneNumberFromArguments() {
-        if (getArguments() != null) {
-            primaryPhone = PersonalIdPhoneVerificationFragmentArgs.fromBundle(getArguments()).getPrimaryPhone();
-        }
     }
 
     private void setupInitialState() {
@@ -316,7 +310,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
         PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
     }
 }
