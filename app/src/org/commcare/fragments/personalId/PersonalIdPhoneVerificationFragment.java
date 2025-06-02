@@ -254,7 +254,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private void requestOtp() {
         otpRequestTime = new DateTime();
         clearOtpError();
-        otpManager.requestOtp(primaryPhone);
+        if (primaryPhone != null && !primaryPhone.isEmpty()){
+            otpManager.requestOtp(primaryPhone);
+        }
     }
 
     private void verifyOtp() {
