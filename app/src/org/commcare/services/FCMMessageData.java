@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import org.commcare.CommCareNoficationManager;
 import org.commcare.dalvik.R;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -23,7 +24,7 @@ import androidx.core.app.NotificationCompat;
  * necessary checks and transformations
  */
 public class FCMMessageData implements Externalizable{
-    private CommCareFirebaseMessagingService.ActionTypes actionType;
+    private FirebaseMessagingUtil.ActionTypes actionType;
     private String username;
     private String domain;
     private DateTime creationTime;
@@ -36,6 +37,10 @@ public class FCMMessageData implements Externalizable{
     private String notificationChannel;
     private Map<String, String> payloadData;
 
+    /**
+     * Constructor for FCMMessageData
+     * @param payloadData
+     */
     public FCMMessageData(Map<String, String> payloadData){
         this.payloadData = payloadData;
         actionType = getActionType(payloadData.get("action"));
@@ -52,22 +57,43 @@ public class FCMMessageData implements Externalizable{
     
     public FCMMessageData(){}
 
+    /**
+     * Getter for username
+     * @return
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Getter for domain
+     * @return
+     */
     public String getDomain() {
         return domain;
     }
 
+    /**
+     * Getter for creation time
+     * @return
+     */
     public DateTime getCreationTime() {
         return creationTime;
     }
 
-    public CommCareFirebaseMessagingService.ActionTypes getActionType() {
+    /**
+     * Getter for action type
+     * @return
+     */
+    public FirebaseMessagingUtil.ActionTypes getActionType() {
         return actionType;
     }
 
+    /**
+     * Convert ISO 8601 string to DateTime object
+     * @param timeInISO8601
+     * @return
+     */
     private DateTime convertISO8601ToDateTime(String timeInISO8601) {
         if (timeInISO8601 == null){
             return new DateTime();
@@ -80,24 +106,29 @@ public class FCMMessageData implements Externalizable{
         }
     }
 
-    private CommCareFirebaseMessagingService.ActionTypes getActionType(String action) {
+    /**
+     * Get action type based on action
+     * @param action
+     * @return
+     */
+    private FirebaseMessagingUtil.ActionTypes getActionType(String action) {
         if (action == null) {
-            return CommCareFirebaseMessagingService.ActionTypes.INVALID;
+            return FirebaseMessagingUtil.ActionTypes.INVALID;
         }
 
         switch (action.toUpperCase()) {
             case "SYNC" -> {
-                return CommCareFirebaseMessagingService.ActionTypes.SYNC;
+                return FirebaseMessagingUtil.ActionTypes.SYNC;
             }
             default -> {
-                return CommCareFirebaseMessagingService.ActionTypes.INVALID;
+                return FirebaseMessagingUtil.ActionTypes.INVALID;
             }
         }
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        actionType = CommCareFirebaseMessagingService.ActionTypes.valueOf(ExtUtil.readString(in));
+        actionType = FirebaseMessagingUtil.ActionTypes.valueOf(ExtUtil.readString(in));
         username = ExtUtil.readString(in);
         domain = ExtUtil.readString(in);
         creationTime = new DateTime(ExtUtil.readLong(in));
@@ -111,69 +142,124 @@ public class FCMMessageData implements Externalizable{
         ExtUtil.writeNumeric(out, creationTime.getMillis());
     }
 
-
-
+    /**
+     * Getter for notification title
+     * @return
+     */
     public String getNotificationTitle() {
         return notificationTitle;
     }
 
+    /**
+     * Setter for notification title
+     * @param notificationTitle
+     */
     public void setNotificationTitle(String notificationTitle) {
         this.notificationTitle = notificationTitle;
     }
 
+    /**
+     * Getter for notification text
+     * @return
+     */
     public String getNotificationText() {
         return notificationText;
     }
 
+    /**
+     * Setter for notification text
+     * @param notificationText
+     */
     public void setNotificationText(String notificationText) {
         this.notificationText = notificationText;
     }
 
+    /**
+     * Getter for priority
+     * @return
+     */
     public int getPriority() {
         return priority;
     }
 
+    /**
+     * Setter for priority
+     * @param priority
+     */
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
+    /**
+     * Getter for large icon
+     * @return
+     */
     public Bitmap getLargeIcon() {
         return largeIcon;
     }
 
+    /**
+     * Setter for large icon
+     * @param largeIcon
+     */
     public void setLargeIcon(Bitmap largeIcon) {
         this.largeIcon = largeIcon;
     }
 
+    /**
+     * Getter for small icon
+     * @return
+     */
     public int getSmallIcon() {
         return smallIcon;
     }
 
+    /**
+     * Setter for small icon
+     * @param smallIcon
+     */
     public void setSmallIcon( int smallIcon) {
         this.smallIcon = smallIcon;
     }
 
+    /**
+     * Getter for action
+     * @param action
+     */
     public void setAction(String action) {
         this.action = action;
     }
+
+    /**
+     * Getter for action
+     * @return
+     */
     public String getAction() {
         return action;
     }
 
+    /**
+     * Getter for notification channel
+     * @return
+     */
     public String getNotificationChannel() {
         return notificationChannel;
     }
 
+    /**
+     * Setter for notification channel
+     * @param notificationChannel
+     */
     public void setNotificationChannel(String notificationChannel) {
         this.notificationChannel = notificationChannel;
     }
 
+    /**
+     * Getter for payload data
+     * @return
+     */
     public Map<String, String> getPayloadData() {
         return payloadData;
-    }
-
-    public void setPayloadData(Map<String, String> payloadData) {
-        this.payloadData = payloadData;
     }
 }
 

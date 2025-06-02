@@ -77,6 +77,11 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         }
     }
 
+
+    /**
+     * This will check if the channel is valid or not
+     * @param channelId
+     */
     private void handleChannelForValidity(String channelId){
         ConnectMessagingChannelRecord connectMessagingChannelRecord = ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
         if(connectMessagingChannelRecord==null){
@@ -86,6 +91,12 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         }
     }
 
+
+    /**
+     * This happens if the local DB is still empty
+     * App will try to retrieve the connect messages and try again to fetch the ConnectMessagingChannelRecord for given channel id
+     * @param channelId
+     */
     private void handleNoChannel(String channelId){
         MessageManager.retrieveMessages(this, success -> {  // This is required to update the local DB for channels
             ConnectMessagingChannelRecord connectMessagingChannelRecord =ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
@@ -97,6 +108,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         });
     }
 
+    /**
+     * This is valid channel so will check if the channel has consented or not
+     * @param channel
+     */
     private void handleValidChannel(ConnectMessagingChannelRecord channel) {
         if (channel.getConsented()) {
             checkForChannelEncryptionKey(channel);
@@ -105,6 +120,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         }
     }
 
+    /**
+     * This will check if the channel has encryption key or not
+     * @param channel
+     */
     private void checkForChannelEncryptionKey(ConnectMessagingChannelRecord channel){
         if(TextUtils.isEmpty(channel.getKey())){
             retrieveChannelEncryptionKey(channel);
@@ -113,6 +132,10 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         }
     }
 
+    /**
+     * This will retrieve the encryption key for the channel if not else will show the error message
+     * @param channel
+     */
     private void retrieveChannelEncryptionKey(ConnectMessagingChannelRecord channel){
         MessageManager.getChannelEncryptionKey(this, channel, success -> {
             if(success) {
@@ -124,23 +147,38 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
 
+    /**
+     * Show channel list fragment with failure message
+     * @param failureMessage
+     */
     private void showChannelListFragmentWithFailureMessage(String failureMessage){
         Toast.makeText(this, failureMessage, Toast.LENGTH_LONG).show();
-        navController.navigate(R.id.channelListFragment,getNavOptions());
     }
 
+    /**
+     * show channel list fragment for consent
+     * @param channelId
+     */
     private void showChannelListFragmentForConsent(String channelId){
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
         navController.navigate(R.id.channelListFragment,bundle,getNavOptions());
     }
 
+    /**
+     * Show connect message fragment
+     * @param channelId
+     */
     private void showConnectMessageFragment(String channelId){
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
         navController.navigate(R.id.connectMessageFragment,bundle,getNavOptions());
     }
 
+    /**
+     * Get Nav options
+     * @return
+     */
     private NavOptions getNavOptions(){
         return new NavOptions.Builder()
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
