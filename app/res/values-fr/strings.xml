@@ -382,6 +382,11 @@ License.
     <string name="connect_phone_not_found">Numéro de téléphone introuvable</string>
     <string name="connect_phone_change_error">Erreur lors du changement de numéro de téléphone</string>
     <string name="connect_password_button">D\'ACCORD</string>
+    <string name="connect_otp_sent">OTP envoyé</string>
+    <string name="connect_otp_verified">OTP vérifié</string>
+    <string name="connect_otp_error">Erreur OTP</string>
+    <string name="connect_enter_otp">Entrez OTP</string>
+    <string name="connect_otp_verification_failed">La vérification OTP a échoué en raison de</string>
     <string name="connect_backup_code_title_set">Choisissez le code PIN</string>
     <string name="connect_backup_code_title_confirm">Confirmer le code PIN</string>
     <string name="connect_backup_code">Entrez le code PIN</string>

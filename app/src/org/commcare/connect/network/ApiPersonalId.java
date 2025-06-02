@@ -228,12 +228,15 @@ public class ApiPersonalId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code());
+                        callback.processFailure(response.code(), null);
                     }
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
-                    callback.processFailure(response.code());
+                    if (response.errorBody() != null){
+                        callback.processFailure(response.code(), response.errorBody().byteStream());
+                    }
+                    callback.processFailure(response.code(), null);
                 }
             }
 
@@ -291,6 +294,17 @@ public class ApiPersonalId {
             String requestHash, IApiCallback callback) {
         ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
+        callApi(context, call, callback);
+    }
+
+    public static void validateFirebaseIdToken(String token,Context context, String firebaseIdToken, IApiCallback callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", firebaseIdToken);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
         callApi(context, call, callback);
     }
 

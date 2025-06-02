@@ -371,6 +371,11 @@
     <string name="connect_phone_not_found">ቁጽሪ ስልኪ ሞባይል ኣይተረኽበን።</string>
     <string name="connect_phone_change_error">ቁጽሪ ስልኪ ቁፅሪ ሞባይል ኣብ ምቕያር ጌጋ</string>
     <string name="connect_password_button">እሺ</string>
+    <string name="connect_otp_sent">ኦቲፒ ተላኢኹ</string>
+    <string name="connect_otp_verified">OTP ተረጋጊጹ</string>
+    <string name="connect_otp_error">OTP ጌጋ</string>
+    <string name="connect_enter_otp">ኣብ ኦቲፒ ኣቲኻ</string>
+    <string name="connect_otp_verification_failed">OTP ምርግጋጽ ብሰንኪ...</string>
     <string name="connect_backup_code_title_set">ናይ ምሕዋይ ሕጊ</string>
     <string name="connect_backup_code_title_confirm">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
     <string name="connect_backup_code_message_title">ConnectID ናይ ምሕዋይ ኮድ</string>

@@ -13,6 +13,9 @@ public interface ApiService {
     Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
             @Header("CC-Request-Hash") String requestHash,
             @Body Map<String, String> registrationRequest);
+    @POST(ApiEndPoints.validateFirebaseIdToken)
+    Call<ResponseBody> validateFirebaseIdToken(@Header("Authorization") String token,
+                                               @Body Map<String, String> firebaseIdToken);
 
     @POST(ApiEndPoints.checkName)
     Call<ResponseBody> checkName(@Header("Authorization") String token,

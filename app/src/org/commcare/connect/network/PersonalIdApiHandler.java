@@ -2,7 +2,11 @@ package org.commcare.connect.network;
 
 import android.app.Activity;
 import android.content.Context;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.parser.CompleteProfileResponseParser;
@@ -40,18 +44,32 @@ public abstract class PersonalIdApiHandler {
         return new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                try (InputStream in = responseData) {
-                    JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
-                    parser.parse(json, sessionData);
-                    onSuccess(sessionData);
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Error parsing API response", e);
-                    onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
+                if (parser != null) {
+                    try (InputStream in = responseData) {
+                        JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
+                        parser.parse(json, sessionData);
+                    } catch (IOException | JSONException e) {
+                        Logger.exception("Error parsing API response", e);
+                        onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
+                    }
                 }
+                onSuccess(sessionData);
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                if (errorResponse != null) {
+                    try (InputStream in = errorResponse) {
+                        JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
+                        if (json.has("error")) {
+                            Toast.makeText(CommCareApplication.instance(), json.optString("error"),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    } catch (IOException | JSONException e) {
+                        Logger.exception("Error parsing API error response", e);
+                        onFailure(defaultFailureCode);
+                    }
+                }
                 onFailure(defaultFailureCode);
             }
 
@@ -85,6 +103,12 @@ public abstract class PersonalIdApiHandler {
         ApiPersonalId.startConfiguration(activity, body, integrityToken, requestHash,
                 createCallback(sessionData,
                         new StartConfigurationResponseParser(),
+                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+    }
+    public void validateFirebaseIdToken(Activity activity, String firebaseIdToken,PersonalIdSessionData sessionData) {
+        ApiPersonalId.validateFirebaseIdToken(sessionData.getToken(),activity,firebaseIdToken,
+                createCallback(sessionData,
+                        null,
                         PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
     }
 

@@ -445,6 +445,12 @@
     <string name="connect_phone_change_error">Error changing phone number</string>
     <string name="connect_password_button">OK</string>
 
+    <string name="connect_otp_sent">OTP Sent</string>
+    <string name="connect_otp_verified">OTP Verified</string>
+    <string name="connect_otp_error">OTP Error</string>
+    <string name="connect_enter_otp">Enter OTP</string>
+    <string name="connect_otp_verification_failed">OTP verification failed due to </string>
+
     <string name="connect_backup_code_title_set">Backup Code</string>
     <string name="connect_backup_code_title_confirm">Confirm Backup Code</string>
     <string name="connect_backup_code_message_title">PersonalId Backup Code</string>

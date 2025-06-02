@@ -382,6 +382,11 @@
     <string name="connect_phone_not_found">Nambari ya simu haijapatikana</string>
     <string name="connect_phone_change_error">Hitilafu katika kubadilisha nambari ya simu</string>
     <string name="connect_password_button">Sawa</string>
+    <string name="connect_otp_sent">OTP Imetumwa</string>
+    <string name="connect_otp_verified">OTP Imethibitishwa</string>
+    <string name="connect_otp_error">Hitilafu ya OTP</string>
+    <string name="connect_enter_otp">Ingiza OTP</string>
+    <string name="connect_otp_verification_failed">Uthibitishaji wa OTP umeshindwa kutokana na</string>
     <string name="connect_backup_code_title_set">Chagua PIN</string>
     <string name="connect_backup_code_title_confirm">Thibitisha PIN</string>
     <string name="connect_backup_code">Weka PIN</string>
