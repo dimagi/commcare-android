@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.network.PersonalIdApiErrorHandler;
@@ -34,6 +36,7 @@ import java.util.regex.Pattern;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -52,6 +55,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private ScreenPersonalidPhoneVerifyBinding binding;
     private final Handler resendTimerHandler = new Handler();
     private OtpManager otpManager;
+    private PersonalIdSessionData personalIdSessionData;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -64,6 +68,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
+        primaryPhone = personalIdSessionData.getPhoneNumber();
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE);
         }
@@ -136,7 +143,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
                 }
             }
-        }.validateFirebaseIdToken(requireActivity(),firebaseIdToken);
+        }.validateFirebaseIdToken(requireActivity(),firebaseIdToken,personalIdSessionData);
     }
 
     private void setupInitialState() {

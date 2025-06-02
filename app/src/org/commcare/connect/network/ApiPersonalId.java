@@ -300,8 +300,11 @@ public class ApiPersonalId {
     public static void validateFirebaseIdToken(String token,Context context, String firebaseIdToken, IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("token", firebaseIdToken);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
         ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validateFirebaseIdToken(token,params);
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
         callApi(context, call, callback);
     }
 
