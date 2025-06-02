@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import junit.framework.Assert;
 
+import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.util.EncryptionUtils;
 import org.junit.Before;
@@ -29,7 +30,7 @@ public class EncryptionUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        provider = CommCareTestApplication.instance().getEncryptionKeyProvider();
+        provider = new MockEncryptionKeyProvider(CommCareApplication.instance());
     }
 
     @Test

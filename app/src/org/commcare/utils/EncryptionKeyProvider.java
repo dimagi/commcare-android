@@ -13,18 +13,15 @@ import org.commcare.android.security.RsaKeyStoreHandler;
  * @author dviggiano
  */
 public class EncryptionKeyProvider {
-    /**
-     *  Key name to get the secret value from key store
-     *  the value of the key should not be renamed due to backward compatibility
-     */
-    private static final String SECRET_NAME = "secret";
 
     private final Context context;
     private final boolean needsUserAuth;
+    private final String keyAlias;
 
-    public EncryptionKeyProvider(Context context, boolean needsUserAuth) {
+    public EncryptionKeyProvider(Context context, boolean needsUserAuth, String keyAlias) {
         this.context = context;
         this.needsUserAuth = needsUserAuth;
+        this.keyAlias = keyAlias;
     }
 
     public EncryptionKeyAndTransform getKeyForEncryption() {
@@ -39,11 +36,11 @@ public class EncryptionKeyProvider {
      * If RSA key exists, use it. Otherwise only use RSA for pre Android M devices
      */
     private KeyStoreHandler getHandler(boolean isEncryptMode) {
-        RsaKeyStoreHandler rsaKeystoreHandler = new RsaKeyStoreHandler(context, SECRET_NAME, isEncryptMode);
+        RsaKeyStoreHandler rsaKeystoreHandler = new RsaKeyStoreHandler(context, keyAlias, isEncryptMode);
         if (rsaKeystoreHandler.doesKeyExist()) {
             return rsaKeystoreHandler;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new AesKeyStoreHandler(SECRET_NAME, needsUserAuth);
+            return new AesKeyStoreHandler(keyAlias, needsUserAuth);
         } else {
             return rsaKeystoreHandler;
         }

@@ -206,7 +206,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
-    private EncryptionKeyProvider encryptionKeyProvider;
+//    private EncryptionKeyProvider encryptionKeyProvider;
 
     private boolean backgroundSyncSafe;
 
@@ -261,9 +261,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
-
-        //Create standard provider
-        setEncryptionKeyProvider(new EncryptionKeyProvider(this, false));
 
         customiseOkHttp();
 
@@ -1166,14 +1163,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     public void setInvalidateCacheFlag(boolean b) {
         invalidateCacheOnRestore = b;
-    }
-
-    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) {
-        encryptionKeyProvider = provider;
-    }
-
-    public EncryptionKeyProvider getEncryptionKeyProvider() {
-        return encryptionKeyProvider;
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {

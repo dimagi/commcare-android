@@ -16,9 +16,10 @@ import java.security.NoSuchAlgorithmException;
  */
 public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private KeyPair keyPair = null;
+    private static final String TEST_SECRET = "test-secret";
 
     public MockEncryptionKeyProvider(Context context) {
-        super(context, false);
+        super(context, false, TEST_SECRET);
     }
 
     @Override
