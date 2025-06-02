@@ -263,7 +263,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         FirebaseMessagingUtil.verifyToken();
 
         //Create standard provider
-        setEncryptionKeyProvider(new EncryptionKeyProvider(this));
+        setEncryptionKeyProvider(new EncryptionKeyProvider(this, false));
 
         customiseOkHttp();
 

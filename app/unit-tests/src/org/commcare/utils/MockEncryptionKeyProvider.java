@@ -18,7 +18,7 @@ public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private KeyPair keyPair = null;
 
     public MockEncryptionKeyProvider(Context context) {
-        super(context);
+        super(context, false);
     }
 
     @Override

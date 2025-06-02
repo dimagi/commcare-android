@@ -20,10 +20,11 @@ public class EncryptionKeyProvider {
     private static final String SECRET_NAME = "secret";
 
     private final Context context;
+    private final boolean needsUserAuth;
 
-
-    public EncryptionKeyProvider(Context context) {
+    public EncryptionKeyProvider(Context context, boolean needsUserAuth) {
         this.context = context;
+        this.needsUserAuth = needsUserAuth;
     }
 
     public EncryptionKeyAndTransform getKeyForEncryption() {
@@ -42,7 +43,7 @@ public class EncryptionKeyProvider {
         if (rsaKeystoreHandler.doesKeyExist()) {
             return rsaKeystoreHandler;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new AesKeyStoreHandler(SECRET_NAME, false); // change false to true if you need user auth
+            return new AesKeyStoreHandler(SECRET_NAME, needsUserAuth);
         } else {
             return rsaKeystoreHandler;
         }
