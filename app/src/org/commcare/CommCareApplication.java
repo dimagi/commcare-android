@@ -206,7 +206,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
-//    private EncryptionKeyProvider encryptionKeyProvider;
 
     private boolean backgroundSyncSafe;
 
