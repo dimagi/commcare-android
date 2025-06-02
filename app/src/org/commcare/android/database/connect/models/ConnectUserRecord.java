@@ -75,6 +75,7 @@ public class ConnectUserRecord extends Persisted {
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;
         verifySecondaryPhoneByDate = new Date();
+        alternatePhone = "";
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
