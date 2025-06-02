@@ -105,7 +105,7 @@ public class FirebaseMessagingUtil {
     //// start: handle notification
 
     /**
-     * This will class will be used to handle notification whenever
+     * This class will be used to handle notification whenever
      * 1. App receives notification when app is in foreground
      * 2. App receives notification when app is in background/killed and user clicks on such notification. Launcher activity will call
      * this function to handle the notification
@@ -121,7 +121,9 @@ public class FirebaseMessagingUtil {
     private static FirebaseMessagingDataSyncer dataSyncer;
     private static FirebaseMessagingDataSyncer getDataSyncer(Context context){
         if(dataSyncer==null){
-            dataSyncer = new FirebaseMessagingDataSyncer(context);
+            synchronized (FirebaseMessagingUtil.class) {
+                dataSyncer = new FirebaseMessagingDataSyncer(context);
+            }
         }
         return dataSyncer;
     }
