@@ -45,7 +45,6 @@
                 android:layout_marginStart="16dp"
                 android:layout_gravity="center"
                 android:layout_marginEnd="16dp"
-                android:text="@string/welcome_back_msg"
                 android:textColor="@color/connect_dark_blue_color"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -76,7 +75,7 @@
             android:textSize="12sp" />
 
         <LinearLayout
-            android:id="@+id/name_layout"
+            android:id="@+id/backup_code_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
