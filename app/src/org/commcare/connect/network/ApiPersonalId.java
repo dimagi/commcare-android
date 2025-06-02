@@ -431,20 +431,6 @@ public class ApiPersonalId {
         }
     }
 
-    public static void retrieveChannelEncryptionKeySync(Context context, ConnectMessagingChannelRecord channel, AuthInfo.TokenAuth auth) {
-        if(auth != null) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("channel_id", channel.getChannelId());
-
-            ConnectNetworkHelper.PostResult result = ConnectNetworkHelper.postSync(context,
-                    channel.getKeyUrl(), null, auth, params, true, true);
-
-            if(result.responseCode >= 200 && result.responseCode < 300) {
-                handleReceivedEncryptionKey(context, result.responseStream, channel);
-            }
-        }
-    }
-
     public static void retrieveChannelEncryptionKey(Context context, @NonNull ConnectUserRecord user, String channelId, String channelUrl, IApiCallback callback) {
         ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
@@ -469,7 +455,7 @@ public class ApiPersonalId {
         });
     }
 
-    public static void handleReceivedEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
+    public static void handleReceivedChannelEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
         try {
             String responseAsString = new String(
                     StreamsUtil.inputStreamToByteArray(stream));

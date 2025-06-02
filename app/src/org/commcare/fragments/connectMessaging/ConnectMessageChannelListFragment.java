@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavDirections;
@@ -25,8 +26,11 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelListBinding;
 import org.commcare.services.CommCareFirebaseMessagingService;
+import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.List;
+
+import static org.commcare.activities.connect.ConnectMessagingActivity.CHANNEL_ID;
 
 public class ConnectMessageChannelListFragment extends Fragment {
 
@@ -63,13 +67,19 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         MessageManager.sendUnsentMessages(requireActivity());
 
-        String channelId = getArguments() != null ? getArguments().getString("channel_id") : null;
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        String channelId = getArguments() != null ? getArguments().getString(CHANNEL_ID) : null;
         if(channelId != null) {
+            getArguments().remove(CHANNEL_ID);
             ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
         }
-
-        return view;
     }
 
     @Override
@@ -78,7 +88,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
         isActive = true;
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
-                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
 
         MessageManager.retrieveMessages(requireActivity(), success -> {
             refreshUi();
@@ -105,7 +115,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
     };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
-        Navigation.findNavController(binding.rvChannel).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel):getChannelConsetBottomSheetDirection(channel));
+        Navigation.findNavController(requireView()).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel):getChannelConsetBottomSheetDirection(channel));
     }
 
     private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel){
