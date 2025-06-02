@@ -20,6 +20,6 @@ public class AddOrVerifyNameParser implements PersonalIdApiResponseParser {
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
         sessionData.setAccountExists(json.optBoolean("account_exists", false));
-        sessionData.setToken(JsonExtensions.optStringSafe(json, "photo", null));
+        sessionData.setPhotoBase64(JsonExtensions.optStringSafe(json, "photo", null));
     }
 }
