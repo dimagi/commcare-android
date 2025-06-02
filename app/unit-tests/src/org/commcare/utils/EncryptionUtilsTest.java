@@ -2,11 +2,16 @@ package org.commcare.utils;
 
 import android.util.Base64;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import junit.framework.Assert;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.util.EncryptionUtils;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -16,9 +21,16 @@ import java.nio.charset.StandardCharsets;
  *
  * @author dviggiano
  */
+@Config(application = CommCareTestApplication.class)
+@RunWith(AndroidJUnit4.class)
 public class EncryptionUtilsTest {
-    private final EncryptionKeyProvider provider = new MockEncryptionKeyProvider(CommCareTestApplication.instance());
     private static final String TEST_DATA = "This is a test string";
+    private EncryptionKeyProvider provider;
+
+    @Before
+    public void setUp() throws Exception {
+        provider = CommCareTestApplication.instance().getEncryptionKeyProvider();
+    }
 
     @Test
     public void testEncryption() throws Exception {
@@ -35,7 +47,7 @@ public class EncryptionUtilsTest {
     public void testDecryption() throws Exception {
         byte[] testBytes = TEST_DATA.getBytes(StandardCharsets.UTF_8);
 
-        EncryptionKeyAndTransform kat = provider.getKeyForDecryption();
+        EncryptionKeyAndTransform kat = provider.getKeyForEncryption();
         String encryptedString = EncryptionUtils.encrypt(testBytes, kat.getKey(), kat.getTransformation(), true);
         byte[] encrypted = org.commcare.util.Base64.decode(encryptedString);
 
