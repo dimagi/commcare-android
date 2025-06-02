@@ -235,7 +235,6 @@ public class ApiPersonalId {
                     // Handle validation errors
                     logNetworkError(response);
                     callback.processFailure(response.code());
-                    callback.processFailureWithParser(response.body().byteStream());
                 }
             }
 
