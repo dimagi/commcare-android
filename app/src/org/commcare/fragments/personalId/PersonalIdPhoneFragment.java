@@ -214,11 +214,6 @@ public class PersonalIdPhoneFragment extends Fragment {
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
             }
-
-            @Override
-            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
-
-            }
         }.makeStartConfigurationCall(requireActivity(), body, integrityToken,requestHash);
     }
 

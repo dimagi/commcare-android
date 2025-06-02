@@ -9,21 +9,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Toast;
-
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
-import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.network.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
 public class PersonalIdNameFragment extends Fragment {
     private ScreenPersonalidNameBinding binding;
@@ -88,11 +85,6 @@ public class PersonalIdNameFragment extends Fragment {
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 navigateFailure(failureCode);
-            }
-
-            @Override
-            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
-
             }
         }.addOrVerifyNameCall(
                 requireActivity(),

@@ -511,7 +511,7 @@ public class PersonalIdManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
             }
 
@@ -528,11 +528,6 @@ public class PersonalIdManager {
             @Override
             public void processTokenRequestDeniedError() {
                 ConnectNetworkHelper.handleTokenDeniedException();
-            }
-
-            @Override
-            public void processFailureWithParser(InputStream responseData) {
-
             }
 
             @Override

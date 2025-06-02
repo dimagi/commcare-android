@@ -1,16 +1,25 @@
 package org.commcare.fragments.personalId;
 
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
@@ -32,16 +41,6 @@ import org.joda.time.DateTime;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
-
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 public class PersonalIdPhoneVerificationFragment extends Fragment {
 
@@ -133,15 +132,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode) {
                 handleFailure(failureCode);
-            }
-            @Override
-            protected void onFailureWithParser(PersonalIdSessionData sessionData) {
-                String code = sessionData.getSessionFailureCode();
-                if (code != null) {
-                    Toast.makeText(requireContext(),
-                            getString(R.string.connect_otp_verification_failed) + ": " + code,
-                            Toast.LENGTH_SHORT).show();
-                }
             }
         }.validateFirebaseIdToken(requireActivity(),firebaseIdToken,personalIdSessionData);
     }

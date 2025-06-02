@@ -228,15 +228,15 @@ public class ApiPersonalId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code());
+                        callback.processFailure(response.code(), null);
                     }
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
                     if (response.errorBody() != null){
-                        callback.processFailureWithParser(response.errorBody().byteStream());
+                        callback.processFailure(response.code(), response.errorBody().byteStream());
                     }
-                    callback.processFailure(response.code());
+                    callback.processFailure(response.code(), null);
                 }
             }
 
