@@ -13,10 +13,10 @@ import javax.crypto.SecretKey
  * Default encryption key handler for Android Key Store
  */
 @RequiresApi(Build.VERSION_CODES.M)
-class AesKeystoreHandler(
+class AesKeyStoreHandler(
     private val alias: String,
     private val needsUserAuth: Boolean
-) : KeystoreHandler {
+) : KeyStoreHandler {
 
     override fun getKeyOrGenerate(): EncryptionKeyAndTransform {
         val keystore = AndroidKeyStore.instance

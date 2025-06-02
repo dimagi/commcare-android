@@ -3,9 +3,9 @@ package org.commcare.utils;
 import android.content.Context;
 import android.os.Build;
 
-import org.commcare.android.security.AesKeystoreHandler;
-import org.commcare.android.security.KeystoreHandler;
-import org.commcare.android.security.RsaKeystoreHandler;
+import org.commcare.android.security.AesKeyStoreHandler;
+import org.commcare.android.security.KeyStoreHandler;
+import org.commcare.android.security.RsaKeyStoreHandler;
 
 /**
  * Class for providing encryption keys backed by Android Keystore
@@ -23,7 +23,7 @@ public class EncryptionKeyProvider {
 
 
     public EncryptionKeyProvider(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = context;
     }
 
     public EncryptionKeyAndTransform getKeyForEncryption() {
@@ -37,22 +37,14 @@ public class EncryptionKeyProvider {
     /**
      * If RSA key exists, use it. Otherwise only use RSA for pre Android M devices
      */
-    private KeystoreHandler getHandler(boolean isEncryptMode) {
-        RsaKeystoreHandler rsaKeystoreHandler = new RsaKeystoreHandler(context, SECRET_NAME, isEncryptMode);
-        if (rsaKeystoreHandler.doesKeyExists()) {
+    private KeyStoreHandler getHandler(boolean isEncryptMode) {
+        RsaKeyStoreHandler rsaKeystoreHandler = new RsaKeyStoreHandler(context, SECRET_NAME, isEncryptMode);
+        if (rsaKeystoreHandler.doesKeyExist()) {
             return rsaKeystoreHandler;
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new AesKeystoreHandler(SECRET_NAME, false); // change false to true if you need user auth
+            return new AesKeyStoreHandler(SECRET_NAME, false); // change false to true if you need user auth
         } else {
             return rsaKeystoreHandler;
         }
-    }
-
-    public EncryptionKeyAndTransform getKeyForEncryption(Context context) {
-        return getHandler(true).getKeyOrGenerate();
-    }
-
-    public EncryptionKeyAndTransform getKeyForDecryption(Context context) {
-        return getHandler(false).getKeyOrGenerate();
     }
 }

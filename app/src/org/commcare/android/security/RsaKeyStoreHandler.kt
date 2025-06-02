@@ -14,14 +14,14 @@ import javax.security.auth.x500.X500Principal
 /**
  * User for Pre Android M devices to do RSA encryption with Android Key Store
  */
-class RsaKeystoreHandler(
+class RsaKeyStoreHandler(
     private val context: Context,
     private val alias: String,
     private val isEncryptMode: Boolean
-) : KeystoreHandler {
+) : KeyStoreHandler {
 
     override fun getKeyOrGenerate(): EncryptionKeyAndTransform {
-        if (doesKeyExists()) {
+        if (doesKeyExist()) {
             val entry = AndroidKeyStore.instance.getEntry(alias, null) as KeyStore.PrivateKeyEntry
             val key = entry.privateKey
             return EncryptionKeyAndTransform(key, "RSA/ECB/PKCS1Padding")
@@ -30,7 +30,7 @@ class RsaKeystoreHandler(
         }
     }
 
-    fun doesKeyExists(): Boolean {
+    fun doesKeyExist(): Boolean {
         val keystore = AndroidKeyStore.instance
         if (keystore.containsAlias(alias)) {
             val entry = keystore.getEntry(alias, null)

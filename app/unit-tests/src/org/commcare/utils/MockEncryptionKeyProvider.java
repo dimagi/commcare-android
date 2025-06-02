@@ -23,27 +23,23 @@ public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
 
     @Override
     public EncryptionKeyAndTransform getKeyForEncryption() {
-        try {
-            return getKey(true);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        return getKey(true);
     }
 
     @Override
     public EncryptionKeyAndTransform getKeyForDecryption() {
-        try {
-            return getKey(false);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
+        return getKey(false);
     }
 
-    private EncryptionKeyAndTransform getKey(boolean trueForEncrypt)
-            throws NoSuchAlgorithmException {
+    private EncryptionKeyAndTransform getKey(boolean trueForEncrypt) {
         if (keyPair == null) {
             //Create an RSA keypair that we can use to encrypt and decrypt
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            KeyPairGenerator keyGen = null;
+            try {
+                keyGen = KeyPairGenerator.getInstance("RSA");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
             keyGen.initialize(2048); // Standard key size for RSA
             keyPair = keyGen.generateKeyPair();
         }

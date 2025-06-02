@@ -12,8 +12,4 @@ object AndroidKeyStore {
             load(null)
         }
     }
-
-    fun doesKeyExists(alias: String): Boolean {
-        return instance.containsAlias(alias);
-    }
 }
