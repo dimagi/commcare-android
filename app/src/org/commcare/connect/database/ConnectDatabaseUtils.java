@@ -8,21 +8,23 @@ import org.commcare.util.Base64;
 import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyAndTransform;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
 public class ConnectDatabaseUtils {
+    // the value of the key should not be renamed due to backward compatibility
+    private static final String SECRET_NAME = "secret";
     public static void storeConnectDbPassphrase(@NotNull Context context, byte[] passphrase, boolean isLocal) {
         try {
             if (passphrase == null || passphrase.length == 0) {
                 throw new IllegalArgumentException("Passphrase must not be null or empty");
             }
 
-            EncryptionKeyAndTransform keyAndTransform = CommCareApplication.instance().getEncryptionKeyProvider()
-                    .getKey(context, true);
-
+            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false, SECRET_NAME);
+            EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForEncryption();
             String encoded = EncryptionUtils.encrypt(passphrase, keyAndTransform.getKey(),
                     keyAndTransform.getTransformation(), true);
 
@@ -78,9 +80,9 @@ public class ConnectDatabaseUtils {
             if (record != null) {
                 byte[] encrypted = Base64.decode(record.getEncryptedPassphrase());
 
-                EncryptionKeyAndTransform keyAndTransform = CommCareApplication.instance().getEncryptionKeyProvider()
-                        .getKey(context, false);
-
+                EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false,
+                        SECRET_NAME);
+                EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForDecryption();
                 return EncryptionUtils.decrypt(encrypted, keyAndTransform.getKey(), keyAndTransform.getTransformation(), true);
             } else {
                 CrashUtil.log("We don't find paraphrase in db");
@@ -91,5 +93,4 @@ public class ConnectDatabaseUtils {
             throw new RuntimeException(e);
         }
     }
-
 }
