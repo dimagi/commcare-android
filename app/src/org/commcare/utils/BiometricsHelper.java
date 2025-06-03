@@ -77,8 +77,8 @@ public class BiometricsHelper {
 
     public static void authenticateFingerprint(FragmentActivity activity,
                                                BiometricManager biometricManager,
-                                               BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
-        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback);
+                                               BiometricPrompt.AuthenticationCallback biometricPromptCallback, boolean allowOtherOptions) {
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback, allowOtherOptions);
     }
 
     /**
@@ -123,22 +123,29 @@ public class BiometricsHelper {
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
 
-        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback);
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback, true);
     }
 
     public static void authenticatePinOrBiometric(FragmentActivity activity, BiometricManager biometricManager,
-                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
+                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback, boolean allowOtherOptions) {
         if (BiometricsHelper.isPinConfigured(activity, biometricManager) || BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             BiometricPrompt prompt = new BiometricPrompt(activity,
                     ContextCompat.getMainExecutor(activity),
                     biometricPromptCallback);
 
-            prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
+            BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
                     .setTitle(activity.getString(R.string.connect_unlock_title))
-                    .setSubtitle(activity.getString(R.string.connect_unlock_message))
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
-                            BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK)
-                    .build());
+                    .setSubtitle(activity.getString(R.string.connect_unlock_message));
+
+            if(allowOtherOptions){
+                builder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
+                        BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+            }else{
+                builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+                builder.setNegativeButtonText(activity.getString(R.string.cancel));
+            }
+
+            prompt.authenticate(builder.build());
         }
     }
 

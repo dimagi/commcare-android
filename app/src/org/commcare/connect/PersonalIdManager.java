@@ -196,7 +196,7 @@ public class PersonalIdManager {
         BiometricManager bioManager = getBiometricManager(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
             boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks);
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks,allowOtherOptions);
         } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
