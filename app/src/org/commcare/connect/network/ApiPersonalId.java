@@ -250,18 +250,6 @@ public class ApiPersonalId {
         });
     }
 
-    public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
-                                     String newPassword, IApiCallback callback) {
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phoneNumber);
-        params.put("secret_key", recoverySecret);
-        params.put("password", newPassword);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.resetPassword(params);
-        callApi(context, call, callback);
-    }
-
     public static void confirmBackupCode(Context context,
                                 String backupCode,String token ,IApiCallback callback) {
 
@@ -273,20 +261,6 @@ public class ApiPersonalId {
 
         ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        callApi(context, call, callback);
-    }
-
-    public static void setBackupCode(Context context, String username, String password,
-                                     String backupCode, IApiCallback callback) {
-
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", backupCode);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.setBackupCode(token, params);
         callApi(context, call, callback);
     }
 
@@ -355,68 +329,6 @@ public class ApiPersonalId {
 
         ApiService apiService = ApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestRegistrationOtpPrimary(Context context, String username, String password,
-                                                     IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validatePhone(token, params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.requestOTPPrimary(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmRegistrationOtpPrimary(Context context, String username, String password,
-                                                     String token, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String basicToken = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("token", token);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmOTP(basicToken, params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmRecoveryOtpPrimary(Context context, String phone, String secret,
-                                                 String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.recoverConfirmOTP(params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestInitiateAccountDeactivation(Context context, String phone, String secretKey, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("secret_key", secretKey);
-        params.put("phone_number", phone);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.accountDeactivation(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmUserDeactivation(Context context, String phone, String secret,
-                                               String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone_number", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmDeactivation(params);
         callApi(context, call, callback);
     }
 
