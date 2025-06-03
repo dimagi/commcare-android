@@ -1,6 +1,5 @@
 package org.commcare.activities.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,21 +13,15 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
 
-    private NavController controller;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect_id);
-        controller = getHostFragment().getNavController();
         handleRedirection(getIntent());
-
         updateBackButton();
     }
 
@@ -49,8 +42,8 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
 
     private void handleRedirection(Intent intent) {
         String value = intent.getStringExtra(ConnectConstants.TASK);
-        if (value != null && value == ConnectConstants.BEGIN_REGISTRATION) {
-            beginRegistration(this);
+        if (ConnectConstants.BEGIN_REGISTRATION.equals(value)) {
+            beginRegistration();
         }
     }
 
@@ -82,7 +75,7 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         return navHostFragment;
     }
 
-    private void beginRegistration(Context parent) {
+    private void beginRegistration() {
         NavDirections navDirections = null;
 
         switch (PersonalIdManager.getInstance().getStatus()) {
@@ -93,12 +86,9 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         if (navDirections == null) {
             navDirections = PersonalIdPhoneFragmentDirections
                     .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
-
         }
-        controller.navigate(navDirections);
-
+        navController.navigate(navDirections);
     }
-
 
     private void updateBackButton() {
         ActionBar actionBar = getSupportActionBar();
@@ -112,7 +102,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     public void onBackPressed() {
         super.onBackPressed();
     }
-
 
     @Override
     protected boolean shouldShowBreadcrumbBar() {
