@@ -2,6 +2,7 @@ package org.commcare.fragments.personalId;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +17,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
@@ -26,6 +29,7 @@ import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.BiometricsHelper;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
@@ -35,13 +39,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import static android.app.Activity.RESULT_OK;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
 import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
 public class PersonalIdBiometricConfigFragment extends Fragment {
-
     private BiometricManager biometricManager;
     private boolean isAttemptingFingerprint = false;
     private BiometricPrompt.AuthenticationCallback biometricCallback;
@@ -256,6 +260,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
+                storeBiometricInvalidationKey();
                 if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
                     NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
                 } else {
@@ -266,6 +271,15 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Generates a biometric linked key in Android Key Store if not already there
+     */
+    private void storeBiometricInvalidationKey() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
         }
     }
 
