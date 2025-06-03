@@ -70,17 +70,18 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     private void configureUiByMode() {
         if (isRecovery) {
             titleId = R.string.connect_backup_code_title_confirm;
-            binding.confirmCodeLayout.setVisibility(View.GONE);
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
             binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message);
-            binding.nameLayout.setVisibility(View.VISIBLE);
+            binding.backupCodeLayout.setVisibility(View.VISIBLE);
+            binding.confirmCodeLayout.setVisibility(View.GONE);
             binding.notMeButton.setVisibility(View.VISIBLE);
             setUserNameAndPhoto();
         } else {
             titleId = R.string.connect_backup_code_title_set;
+            binding.backupCodeLayout.setVisibility(View.VISIBLE);
             binding.confirmCodeLayout.setVisibility(View.VISIBLE);
             binding.notMeButton.setVisibility(View.GONE);
-            binding.nameLayout.setVisibility(View.GONE);
+            binding.welcomeBackLayout.setVisibility(View.GONE);
         }
     }
 

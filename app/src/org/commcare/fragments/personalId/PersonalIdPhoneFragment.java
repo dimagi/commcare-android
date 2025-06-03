@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -195,6 +196,8 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
             HashMap<String, String> body) {
+        Log.d("Integrity", "Token: " + integrityToken);
+        Log.d("Integrity", "Hash: " + requestHash);
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
