@@ -52,7 +52,6 @@
                 android:layout_marginBottom="16dp"
                 android:paddingTop="@dimen/content_start"
                 android:paddingBottom="@dimen/content_start"
-                android:text="@string/back"
                 android:visibility="gone"
                 />
 
