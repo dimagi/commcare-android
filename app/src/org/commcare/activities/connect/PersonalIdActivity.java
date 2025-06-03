@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
@@ -18,7 +18,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
-public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
+public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
 
     private NavController controller;
 
@@ -70,7 +70,13 @@ public class PersonalIdActivity extends CommCareActivity<PersonalIdActivity> {
         return null;
     }
 
-    private NavHostFragment getHostFragment() {
+    @Override
+    protected int getLayoutResource() {
+        return R.layout.activity_connect_id;
+    }
+
+    @Override
+    protected NavHostFragment getHostFragment() {
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         return navHostFragment;
