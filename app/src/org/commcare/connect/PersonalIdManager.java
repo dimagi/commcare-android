@@ -43,6 +43,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.EncryptionKeyAndTransform;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -62,6 +64,7 @@ import java.util.concurrent.TimeUnit;
  * @author dviggiano
  */
 public class PersonalIdManager {
+    public static final String BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key";
     private static final long DAYS_TO_SECOND_OFFER = 30;
 
     /**
@@ -185,7 +188,12 @@ public class PersonalIdManager {
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                callback.connectActivityComplete(true);
+                if(hasBiometricInvalidated()) {
+                    callback.connectActivityComplete(true);
+                }else {
+                    Toast.makeText(activity, "Biometric Invalidated", Toast.LENGTH_SHORT).show();
+                    callback.connectActivityComplete(false);
+                }
             }
 
             @Override
@@ -206,6 +214,16 @@ public class PersonalIdManager {
             callback.connectActivityComplete(false);
             Logger.exception("No unlock method available when trying to unlock PersonalId", new Exception("No unlock option"));
             Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean hasBiometricInvalidated() {
+        try {
+            EncryptionKeyAndTransform key = new EncryptionKeyProvider(parentActivity, true,
+                    BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
+            return key != null;
+        } catch (Exception e) {
+            return false;
         }
     }
 
