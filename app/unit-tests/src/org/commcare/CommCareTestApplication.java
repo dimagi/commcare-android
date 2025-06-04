@@ -81,8 +81,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
         super.onCreate();
 
-        setEncryptionKeyProvider(new MockEncryptionKeyProvider());
-
         // allow "jr://resource" references
         ReferenceManager.instance().addReferenceFactory(new ResourceReferenceFactory());
         Thread.setDefaultUncaughtExceptionHandler((thread, ex) -> {
