@@ -69,6 +69,9 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 14)
     private boolean isDemo;
 
+    @Persisting(value = 15)
+    private String required_lock = PersonalIdSessionData.PIN;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
         lastPasswordDate = new Date();
@@ -79,7 +82,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
-                             Date lastPinVerifyDate, String photo, boolean isDemo) {
+                             Date lastPinVerifyDate, String photo, boolean isDemo,String required_lock) {
         this();
         this.primaryPhone = primaryPhone;
         this.userId = userId;
@@ -90,6 +93,7 @@ public class ConnectUserRecord extends Persisted {
         this.photo = photo;
         this.isDemo = isDemo;
         connectTokenExpiration = new Date();
+        this.required_lock = required_lock;
     }
 
     public String getUserId() {
@@ -215,7 +219,7 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV13(ConnectUserRecordV13 oldRecord) {
+    public static ConnectUserRecord fromV14(ConnectUserRecordV14 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
@@ -227,12 +231,16 @@ public class ConnectUserRecord extends Persisted {
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
         newRecord.secondaryPhoneVerified = true;
-        newRecord.photo = null;
-        newRecord.isDemo = false;
+        newRecord.photo = oldRecord.getPhoto();
+        newRecord.isDemo = oldRecord.isDemo();
         return newRecord;
     }
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public String getRequired_lock() {
+        return required_lock;
     }
 }

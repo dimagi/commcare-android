@@ -53,7 +53,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.13 - Added ConnectJobDeliveryFlagRecord table
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      */
-    private static final int CONNECT_DB_VERSION = 14;
+    private static final int CONNECT_DB_VERSION = 15;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 

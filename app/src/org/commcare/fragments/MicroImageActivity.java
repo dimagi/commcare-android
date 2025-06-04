@@ -58,9 +58,9 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 public class MicroImageActivity extends AppCompatActivity implements ImageAnalysis.Analyzer, FaceCaptureView.ImageStabilizedListener, RuntimePermissionRequester {
-    public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key" ;
-    public static final String MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA = "micro_image_max_dimension_px_extra" ;
-    public static final String  MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA = "micro_image_max_size_bytes_extra" ;
+    public static final String MICRO_IMAGE_BASE_64_RESULT_KEY = "micro_image_base_64_result_key";
+    public static final String MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA = "micro_image_max_dimension_px_extra";
+    public static final String MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA = "micro_image_max_size_bytes_extra";
     private static final int DEFAULT_MICRO_IMAGE_MAX_DIMENSION_PX = 72;
     private static final int DEFAULT_MICRO_IMAGE_MAX_SIZE_BYTES = 2 * 1024;
     public static final String BASE_64_IMAGE_PREFIX = "data:image/webp;base64,";
@@ -71,12 +71,12 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     private ImageView cameraShutterButton;
     private boolean isGooglePlayServicesAvailable = false;
 
-    ActivityResultLauncher<String>  cameraPermissionRequestLauncher = registerForActivityResult(
+    ActivityResultLauncher<String> cameraPermissionRequestLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
             isGranted -> {
                 if (isGranted) {
                     startCamera();
-                }else{
+                } else {
                     logErrorAndExit("Error acquiring camera permission", "microimage.camera.permission.denied", null);
                 }
             }
@@ -106,7 +106,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         checkForCameraPermission();
     }
 
-    private void checkForCameraPermission(){
+    private void checkForCameraPermission() {
         if (Permissions.missingAppPermission(this, Manifest.permission.CAMERA)) {
             if (Permissions.shouldShowPermissionRationale(this, Manifest.permission.CAMERA)) {
                 CommCareAlertDialog dialog =
@@ -192,13 +192,13 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     }
 
     // Set up image capture use case, for when Google Services is not available
-    private UseCase buildImageCaptureUseCase(Size targetResolution){
+    private UseCase buildImageCaptureUseCase(Size targetResolution) {
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(targetResolution).build();
 
         cameraShutterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imageCapture.takePicture(ContextCompat.getMainExecutor(getApplicationContext()), new ImageCapture.OnImageCapturedCallback(){
+                imageCapture.takePicture(ContextCompat.getMainExecutor(getApplicationContext()), new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
                         super.onCaptureSuccess(imageProxy);
@@ -219,8 +219,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
     }
 
     private Rect calcPreviewCaptureArea() {
-        int actualImageHeight = (int)(faceCaptureView.getImageHeight() * ((float)faceCaptureView.getHeight())/cameraView.getHeight());
-        int actualImageWidth = (int)(faceCaptureView.getImageWidth() * ((float)faceCaptureView.getWidth())/cameraView.getWidth());
+        int actualImageHeight = (int)(faceCaptureView.getImageHeight() * ((float)faceCaptureView.getHeight()) / cameraView.getHeight());
+        int actualImageWidth = (int)(faceCaptureView.getImageWidth() * ((float)faceCaptureView.getWidth()) / cameraView.getWidth());
         RectF rectF = faceCaptureView.calcCaptureArea(actualImageWidth, actualImageHeight);
         return new Rect((int)rectF.left, (int)rectF.top, (int)rectF.right, (int)rectF.bottom);
     }
@@ -275,6 +275,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
         faceCaptureView.setCaptureMode(FaceCaptureView.CaptureMode.ManualMode);
         startCamera();
     }
+
     @Override
     public void onImageStabilizedListener(Rect faceArea) {
         finalizeImageCapture(faceArea);
@@ -300,7 +301,7 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
             byte[] compressedByteArray = MediaUtil.compressBitmapToTargetSize(scaledBitmap, getMaxImageSize());
             String finalImageAsBase64 = BASE_64_IMAGE_PREFIX + Base64.encodeToString(compressedByteArray, Base64.DEFAULT);
             finishWithResul(finalImageAsBase64);
-        } catch (IOException |ImageSizeTooLargeException e) {
+        } catch (IOException | ImageSizeTooLargeException e) {
             logErrorAndExit(e.getMessage(), "microimage.cropping.failed", e.getCause());
         } finally {
             recycleBitmap(croppedBitmap);

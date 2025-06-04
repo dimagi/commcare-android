@@ -137,10 +137,10 @@ public class BiometricsHelper {
                     .setTitle(activity.getString(R.string.connect_unlock_title))
                     .setSubtitle(activity.getString(R.string.connect_unlock_message));
 
-            if(allowOtherOptions){
+            if (allowOtherOptions) {
                 builder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
                         BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
-            }else{
+            } else {
                 builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
                 builder.setNegativeButtonText(activity.getString(R.string.cancel));
             }
