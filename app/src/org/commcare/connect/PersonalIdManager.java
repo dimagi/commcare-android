@@ -572,7 +572,7 @@ public class PersonalIdManager {
         launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
-    public boolean isSeatedAppLinkedToPersonalId(String username) {
+    public boolean isSeatedAppCongigureWithPersonalId(String username) {
         try {
             if (isloggedIn()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -629,7 +629,7 @@ public class PersonalIdManager {
             return null;
         }
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
         if (user == null) {
             return null;
         }

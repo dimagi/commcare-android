@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -111,7 +112,7 @@ public class ConnectManager {
                 }
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.handleCorruptDb(parent);
+                ConnectDatabaseHelper.crashDb();
             }
         }
     }
@@ -368,7 +369,7 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
             }
 
@@ -384,7 +385,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override
@@ -441,7 +442,7 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
@@ -463,7 +464,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException();
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -566,7 +567,7 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -586,7 +587,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException();
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }
@@ -618,7 +619,7 @@ public class ConnectManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 Toast.makeText(context, R.string.connect_payment_confirm_failed, Toast.LENGTH_SHORT).show();
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
@@ -640,7 +641,7 @@ public class ConnectManager {
 
             @Override
             public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException(context);
+                ConnectNetworkHelper.handleTokenDeniedException();
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
             }

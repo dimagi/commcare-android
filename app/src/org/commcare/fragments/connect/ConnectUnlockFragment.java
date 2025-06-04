@@ -108,7 +108,7 @@ public class ConnectUnlockFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @androidx.annotation.Nullable InputStream errorResponse) {
                 setFragmentRedirection();
                 Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
@@ -129,7 +129,7 @@ public class ConnectUnlockFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenDeniedException(requireContext());
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override

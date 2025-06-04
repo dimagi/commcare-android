@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+
 public class MessageManager {
     public static ConnectMessagingMessageRecord handleReceivedMessage(Context context, Map<String, String> payloadData) {
         ConnectMessagingMessageRecord message = null;
@@ -119,7 +121,7 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 listener.connectActivityComplete(false);
             }
 
@@ -172,7 +174,7 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 Log.e("DEBUG_TESTING", "processFailure: " + responseCode);
                 //listener.connectActivityComplete(false);
                 getChannelEncryptionKey(context, channel, listener);
@@ -226,7 +228,7 @@ public class MessageManager {
                     }
 
                     @Override
-                    public void processFailure(int responseCode) {
+                    public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                         if (listener != null) {
                             listener.connectActivityComplete(false);
                         }
@@ -286,7 +288,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode) {
+                public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                     listener.connectActivityComplete(false);
                 }
 
@@ -340,7 +342,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode) {
+                public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                     listener.connectActivityComplete(false);
                 }
 

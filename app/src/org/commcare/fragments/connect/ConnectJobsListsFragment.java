@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
@@ -177,7 +178,7 @@ public class ConnectJobsListsFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
                 reportApiCall(false, 0, 0);
@@ -211,7 +212,7 @@ public class ConnectJobsListsFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 setJobListData(ConnectJobUtils.getCompositeJobs(getActivity(), -1, null));
-                ConnectNetworkHelper.handleTokenDeniedException(getContext());
+                ConnectNetworkHelper.handleTokenDeniedException();
                 reportApiCall(false, 0, 0);
                 refreshUi();
             }

@@ -465,4 +465,17 @@ public class ApiPersonalId {
                 context.getString(R.string.ConnectMessageSendURL),
                 API_VERSION_PERSONAL_ID, authInfo, params, false, true, callback);
     }
+
+    private static void handleNetworkError(Throwable t) {
+        String message = t.getMessage();
+        if (t instanceof IOException) {
+            // IOException is usually a network error (no internet, timeout, etc.)
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Network Error: " + message);
+        } else if (t instanceof HttpException) {
+            // Handle HTTP exceptions separately if needed
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "HTTP Error: " + message);
+        } else {
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unexpected Error: " + message);
+        }
+    }
 }
