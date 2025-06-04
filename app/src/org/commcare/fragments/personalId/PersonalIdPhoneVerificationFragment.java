@@ -50,7 +50,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private Activity activity;
     private String primaryPhone;
     private DateTime otpRequestTime;
-    private SMSBroadcastReceiver smsBroadcastReceiver;
     private ScreenPersonalidPhoneVerifyBinding binding;
     private final Handler resendTimerHandler = new Handler();
     private OtpManager otpManager;
@@ -174,25 +173,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        registerSmsBroadcastReceiver();
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         KeyboardHelper.showKeyboardOnInput(activity, binding.customOtpView);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        try {
-            activity.unregisterReceiver(smsBroadcastReceiver);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -211,18 +194,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PHONE, primaryPhone);
-    }
-
-    private void registerSmsBroadcastReceiver() {
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
-        smsBroadcastReceiver.setSmsListener(intent -> startActivityForResult(intent, REQ_USER_CONSENT));
-
-        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activity.registerReceiver(smsBroadcastReceiver, intentFilter, RECEIVER_NOT_EXPORTED);
-        } else {
-            activity.registerReceiver(smsBroadcastReceiver, intentFilter);
-        }
     }
 
     @Override
