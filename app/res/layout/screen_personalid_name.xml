@@ -69,7 +69,7 @@
                         android:layout_marginStart="16dp"
                         android:background="@drawable/connect_edit_text_bg"
                         android:hint="@string/connect_register_name"
-                        android:inputType="textPersonName"
+                        android:inputType="textPersonName|textCapWords"
                         android:imeOptions="actionNext"
                         android:paddingStart="16dp"
                         android:textColorHint="@color/connect_grey"
