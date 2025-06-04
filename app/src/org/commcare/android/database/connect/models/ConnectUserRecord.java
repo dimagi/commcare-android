@@ -1,7 +1,5 @@
 package org.commcare.android.database.connect.models;
 
-import android.content.Intent;
-
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.models.framework.Persisting;
@@ -70,7 +68,7 @@ public class ConnectUserRecord extends Persisted {
     private boolean isDemo;
 
     @Persisting(value = 15)
-    private String required_lock = PersonalIdSessionData.PIN;
+    private String requiredLock = PersonalIdSessionData.PIN;
 
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
@@ -82,7 +80,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
-                             Date lastPinVerifyDate, String photo, boolean isDemo,String required_lock) {
+                             Date lastPinVerifyDate, String photo, boolean isDemo,String requiredLock) {
         this();
         this.primaryPhone = primaryPhone;
         this.userId = userId;
@@ -93,7 +91,7 @@ public class ConnectUserRecord extends Persisted {
         this.photo = photo;
         this.isDemo = isDemo;
         connectTokenExpiration = new Date();
-        this.required_lock = required_lock;
+        this.requiredLock = requiredLock;
     }
 
     public String getUserId() {
@@ -240,7 +238,7 @@ public class ConnectUserRecord extends Persisted {
         this.photo = photo;
     }
 
-    public String getRequired_lock() {
-        return required_lock;
+    public String getRequiredLock() {
+        return requiredLock;
     }
 }

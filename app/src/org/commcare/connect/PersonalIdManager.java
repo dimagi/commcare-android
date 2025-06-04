@@ -198,9 +198,9 @@ public class PersonalIdManager {
         BiometricManager bioManager = getBiometricManager(activity);
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(user.getRequired_lock());
+            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(user.getRequiredLock());
             BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks,allowOtherOptions);
-        } else if (BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(user.getRequired_lock())) {
+        } else if (BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(user.getRequiredLock())) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
             callback.connectActivityComplete(false);
