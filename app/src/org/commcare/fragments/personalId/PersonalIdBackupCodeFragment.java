@@ -118,6 +118,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         binding.connectBackupCodeInput.addTextChangedListener(backupCodeWatcher);
         binding.connectBackupCodeRepeatInput.addTextChangedListener(backupCodeWatcher);
         binding.connectBackupCodeButton.setOnClickListener(v -> handleBackupCodeSubmission());
+        binding.notMeButton.setOnClickListener(v -> handleNotMeButtonPressed());
     }
 
     private void clearBackupCodeFields() {
@@ -144,6 +145,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
         binding.connectBackupCodeErrorMessage.setText(errorText);
         enableContinueButton(isValid);
+    }
+
+    private void handleNotMeButtonPressed(){
+        personalIdSessionData.setAccountExists(false);
+        clearBackupCodeFields();
+        configureUiByMode();
     }
 
     private void enableContinueButton(boolean isEnable) {

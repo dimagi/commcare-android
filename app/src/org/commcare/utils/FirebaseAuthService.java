@@ -54,7 +54,7 @@ public class FirebaseAuthService implements OtpAuthService {
                 };
 
         this.optionsBuilder = PhoneAuthOptions.newBuilder(firebaseAuth)
-                .setTimeout(60L, TimeUnit.SECONDS)
+                .setTimeout(0L, TimeUnit.SECONDS)
                 .setActivity(activity)
                 .setCallbacks(verificationCallbacks);
     }
