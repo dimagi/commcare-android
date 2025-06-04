@@ -149,7 +149,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void handleNotMeButtonPressed(){
         personalIdSessionData.setAccountExists(false);
-        navigateToSelf();
+        clearBackupCodeFields();
+        configureUiByMode();
     }
 
     private void enableContinueButton(boolean isEnable) {
@@ -239,11 +240,5 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 getString(R.string.connect_recovery_success_title),
                 getString(R.string.connect_recovery_success_message),
                 ConnectConstants.PERSONALID_RECOVERY_SUCCESS);
-    }
-
-    private void navigateToSelf() {
-        Navigation.findNavController(binding.getRoot())
-                .navigate(PersonalIdBackupCodeFragmentDirections
-                        .actionPersonalidBackupcodeSelf());
     }
 }
