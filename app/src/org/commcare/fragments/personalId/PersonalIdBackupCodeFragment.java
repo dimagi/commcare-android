@@ -203,7 +203,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
                 String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
                 personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser());
+                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
         navigateToSuccess();

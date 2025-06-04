@@ -24,6 +24,7 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
@@ -193,17 +194,18 @@ public class PersonalIdManager {
             }
         };
 
+
         BiometricManager bioManager = getBiometricManager(activity);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
         if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager);
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks);
-        } else if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
+            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(user.getRequiredLock());
+            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks,allowOtherOptions);
+        } else if (BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(user.getRequiredLock())) {
             BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
         } else {
             callback.connectActivityComplete(false);
             Logger.exception("No unlock method available when trying to unlock PersonalId", new Exception("No unlock option"));
             Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable), Toast.LENGTH_SHORT).show();
-
         }
     }
 

@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
@@ -33,6 +32,8 @@ import java.util.Locale;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
+import static androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON;
+import static androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
 import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
@@ -43,7 +44,6 @@ import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private BiometricManager biometricManager;
-    private boolean isAttemptingFingerprint = false;
     private BiometricPrompt.AuthenticationCallback biometricCallback;
     private static final String KEY_ATTEMPTING_FINGERPRINT = "attempting_fingerprint";
     private ScreenPersonalidVerifyBinding binding;
@@ -56,15 +56,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_ATTEMPTING_FINGERPRINT, isAttemptingFingerprint);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            isAttemptingFingerprint = savedInstanceState.getBoolean(KEY_ATTEMPTING_FINGERPRINT);
-        }
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
     }
 
@@ -99,13 +95,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                if (isAttemptingFingerprint) {
-                    isAttemptingFingerprint = false;
-                    if (BiometricsHelper.isPinConfigured(context, biometricManager)) {
-                        initiatePinAuthentication();
-                        return;
-                    }
-                }
                 Logger.exception("Biometric error", new Exception(String.format(Locale.getDefault(),
                         "Biometric error without PIN fallback: %s (%d)", errString, errorCode)));
                 Toast.makeText(context, getString(R.string.connect_verify_configuration_failed, errString),
@@ -115,7 +104,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                reportAuthSuccess();
+                reportAuthSuccess(result.getAuthenticationType() == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC? AnalyticsParamValue.CCC_SIGN_IN_METHOD_FINGERPRINT : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN);
                 navigateForward(false);
             }
 
@@ -127,9 +116,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         };
     }
 
-    private void reportAuthSuccess() {
-        String method = isAttemptingFingerprint ? AnalyticsParamValue.CCC_SIGN_IN_METHOD_FINGERPRINT
-                : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN;
+    private void reportAuthSuccess(String method) {
         FirebaseAnalyticsUtil.reportCccSignIn(method);
     }
 
@@ -212,8 +199,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
         if (status == BiometricsHelper.ConfigurationStatus.Configured) {
-            isAttemptingFingerprint = true;
-            BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricCallback);
+            BiometricsHelper.authenticateFingerprint(requireActivity(), biometricManager, biometricCallback,!BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock()));
         } else if (!BiometricsHelper.configureFingerprint(getActivity())) {
             navigateForward(true);
         }

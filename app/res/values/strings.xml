@@ -932,6 +932,7 @@
     <string name="recovery_failed_title">Recovery failed</string>
     <string name="recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
     <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="camera_permission_title">Permission for camera</string>
+    <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="capture_photo">Capture Photo</string>
-
 </resources>
