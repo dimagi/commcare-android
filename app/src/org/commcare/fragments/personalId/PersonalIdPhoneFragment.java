@@ -107,6 +107,8 @@ public class PersonalIdPhoneFragment extends Fragment {
                         } catch (ApiException e) {
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
                         }
+                    }else{
+                        binding.connectPrimaryPhoneInput.post(() -> binding.connectPrimaryPhoneInput.requestFocus());
                     }
                 }
         );

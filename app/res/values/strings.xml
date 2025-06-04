@@ -492,7 +492,7 @@
     <string name="connect_recovery_alt_change_button">Change number</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
-    <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your ConnectID.</string>
+    <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your PersonalId.</string>
     <string name="connect_recovery_success_button">OK</string>
     <string name="connect_recovery_failure">Error finalizing recovery, please try again later</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>
@@ -642,11 +642,11 @@
     <string name="connect_payment_confirm_yes">Yes!</string>
     <string name="connect_payment_confirm_no">Ask later</string>
     <string name="connect_payment_confirm_failed">Failed to send confirmation, we will ask again later.</string>
-    <string name="login_button_connectid">Login with ConnectID</string>
-    <string name="login_link_connectid_title">Link to ConnectID?</string>
-    <string name="login_link_connectid_message">Do you want to link this login to your ConnectID account? You will not need to type your password in the future.</string>
-    <string name="login_unlink_connectid_title">Unlink ConnectID?</string>
-    <string name="login_unlink_connectid_message">I see you logged in with your password although ConnectID was configured for auto-login. Would you like to sever this login from ConnectID?</string>
+    <string name="login_button_connectid">Login with PersonalId</string>
+    <string name="login_link_connectid_title">Link to PersonalId?</string>
+    <string name="login_link_connectid_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>
+    <string name="login_unlink_connectid_title">Unlink PersonalId?</string>
+    <string name="login_unlink_connectid_message">I see you logged in with your password although PersonalId was configured for auto-login. Would you like to sever this login from PersonalId?</string>
     <string name="login_link_connectid_yes">Yes</string>
     <string name="login_link_connectid_no">No</string>
     <string name="login_menu_connect_sign_in">Sign up for PersonalID</string>
@@ -934,4 +934,5 @@
     <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
     <string name="camera_permission_title">Permission for camera</string>
     <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="capture_photo">Capture Photo</string>
 </resources>
