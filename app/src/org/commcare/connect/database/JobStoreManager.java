@@ -26,16 +26,22 @@ public class JobStoreManager {
     }
 
     public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
-        ConnectDatabaseHelper.connectDatabase.beginTransaction();
-        List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
+        try {
+            ConnectDatabaseHelper.connectDatabase.beginTransaction();
+            List<ConnectJobRecord> existingList = getCompositeJobs(context, -1, jobStorage);
 
-        if (pruneMissing) {
-            pruneOldJobs(existingList, jobs);
+            if (pruneMissing) {
+                pruneOldJobs(existingList, jobs);
+            }
+            int newJob = processAndStoreJobs(existingList, jobs);
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+            return newJob;
+        } catch(Exception e) {
+            Logger.exception("Error storing jobs", e);
+            throw e;
+        } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
         }
-        int newJob = processAndStoreJobs(existingList, jobs);
-        ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
-        ConnectDatabaseHelper.connectDatabase.endTransaction();
-        return newJob;
     }
 
     private void pruneOldJobs(List<ConnectJobRecord> existingList, List<ConnectJobRecord> jobs) {
