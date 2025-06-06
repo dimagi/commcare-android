@@ -52,7 +52,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         activity = requireActivity();
         personalIdSessionData = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
-        isRecovery = personalIdSessionData.getAccountExists();
         configureUiByMode();
         setupInputFilters();
         setupListeners();
@@ -68,6 +67,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void configureUiByMode() {
+        isRecovery = personalIdSessionData.getAccountExists();
         if (isRecovery) {
             titleId = R.string.connect_backup_code_title_confirm;
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
@@ -118,6 +118,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         binding.connectBackupCodeInput.addTextChangedListener(backupCodeWatcher);
         binding.connectBackupCodeRepeatInput.addTextChangedListener(backupCodeWatcher);
         binding.connectBackupCodeButton.setOnClickListener(v -> handleBackupCodeSubmission());
+        binding.notMeButton.setOnClickListener(v -> handleNotMeButtonPressed());
     }
 
     private void clearBackupCodeFields() {
@@ -144,6 +145,12 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
         binding.connectBackupCodeErrorMessage.setText(errorText);
         enableContinueButton(isValid);
+    }
+
+    private void handleNotMeButtonPressed(){
+        personalIdSessionData.setAccountExists(false);
+        clearBackupCodeFields();
+        configureUiByMode();
     }
 
     private void enableContinueButton(boolean isEnable) {
@@ -196,7 +203,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
                 String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
                 personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser());
+                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
         navigateToSuccess();
