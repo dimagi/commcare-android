@@ -19,6 +19,7 @@ import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -119,6 +120,8 @@ public class PersonalIdManager {
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
                 personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
+
+                CrashUtil.registerUserData();
 
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
@@ -416,13 +419,13 @@ public class PersonalIdManager {
     }
 
     ///TODO update the code with connect code
-    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectManager.ConnectActivityCompleteListener listener) {
         switch (job.getStatus()) {
             case ConnectJobRecord.STATUS_LEARNING -> {
-//                updateLearningProgress(context, job, listener);
+                ConnectManager.updateLearningProgress(context, job, listener);
             }
             case ConnectJobRecord.STATUS_DELIVERING -> {
-//                updateDeliveryProgress(context, job, listener);
+                ConnectManager.updateDeliveryProgress(context, job, listener);
             }
             default -> {
                 listener.connectActivityComplete(true);
@@ -433,18 +436,17 @@ public class PersonalIdManager {
     public void goToConnectJobsList(Context parent) {
         parentActivity = parent;
         completeSignin();
-//        Intent i = new Intent(parent, ConnectActivity.class);
-//        parent.startActivity(i);
+        Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
     }
 
 
     public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
-        ///TODO uncomment with connect pahse pr
-//        completeSignin();
-//        Intent i = new Intent(activity, ConnectActivity.class);
-//        i.putExtra("info", true);
-//        i.putExtra("buttons", allowProgression);
-//        activity.startActivity(i);
+        completeSignin();
+        Intent i = new Intent(activity, ConnectActivity.class);
+        i.putExtra("info", true);
+        i.putExtra("buttons", allowProgression);
+        activity.startActivity(i);
     }
 
     public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -453,7 +455,7 @@ public class PersonalIdManager {
         if (appRecord != null) {
             job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
         }
-        setActiveJob(job);
+        ConnectManager.setActiveJob(job);
         return job;
     }
 
@@ -572,10 +574,6 @@ public class PersonalIdManager {
         launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
-    public void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
-    }
-
     public boolean isSeatedAppCongigureWithPersonalId(String username) {
         try {
             if (isloggedIn()) {
@@ -666,17 +664,6 @@ public class PersonalIdManager {
     public void setFailureAttempt(int failureAttempt) {
         failedPinAttempts = failureAttempt;
     }
-
-    public boolean shouldShowJobStatus(Context context, String appId) {
-        ConnectAppRecord record = getAppRecord(context, appId);
-        if(record == null || activeJob == null) {
-            return false;
-        }
-
-        //Only time not to show is when we're in learn app but job is in delivery state
-        return !record.getIsLearning() || activeJob.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
-    }
-
 
     /**
      * Interface for handling callbacks when a PersonalId activity finishes

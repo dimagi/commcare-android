@@ -9,6 +9,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
