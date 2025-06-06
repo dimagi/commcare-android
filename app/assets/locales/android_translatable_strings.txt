@@ -208,8 +208,8 @@ post.server.error=Server-side error (code ${0}) received from network request.
 post.gone.error=Case is not present on server.
 post.conflict.error=You have already claimed this case.
 
-version.id.long=CommCare Android, version "${0}"(${1}). App v${4}. CommCare Version ${0}. Build ${2}, built on: ${3}
-version.id.short=CCDroid:"${0}"(${1}). v${4} CC${0}b[${2}] on ${3}
+version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
+version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
 commcare.version=CommCare Android, version "${0}"(${1}), built on: ${2}
 
 auth.request.not.using.https=${0} is an invalid URL. CommCare can't connect with authentication to an insecure (HTTP) server.
