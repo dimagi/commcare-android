@@ -100,6 +100,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 logOtpVerification(false);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
+                binding.connectPhoneVerifyButton.setEnabled(true);
             }
         };
 
