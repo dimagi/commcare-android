@@ -8,7 +8,6 @@ import android.app.Activity;
 public class OtpManager {
 
     private final OtpAuthService authService;
-    private OtpVerificationCallback callback;
 
     /**
      * Constructs an OtpManager by instantiating a default FirebaseAuthService internally.
@@ -17,7 +16,6 @@ public class OtpManager {
      * @param callback Callback to handle OTP verification events
      */
     public OtpManager(Activity activity, OtpVerificationCallback callback) {
-        this.callback = callback;
         this.authService = new FirebaseAuthService(activity, callback);
     }
 
@@ -39,6 +37,5 @@ public class OtpManager {
         if (authService instanceof FirebaseAuthService) {
             ((FirebaseAuthService) authService).clearCallback();
         }
-        this.callback = null;
     }
 }
