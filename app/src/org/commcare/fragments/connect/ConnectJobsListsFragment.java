@@ -52,6 +52,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
+import org.commcare.utils.CommCareNavController;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -278,7 +279,8 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void launchJobInfo(ConnectJobRecord job) {
         ConnectManager.setActiveJob(job);
-        Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
+        CommCareNavController.navigateSafely(Navigation.findNavController(view),
+                ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
@@ -291,7 +293,9 @@ public class ConnectJobsListsFragment extends Fragment {
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             String title = getString(textId);
-            Navigation.findNavController(view).navigate(ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
+            CommCareNavController.navigateSafely(Navigation.findNavController(view),
+                    ConnectJobsListsFragmentDirections
+                            .actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
         }
     }
 
