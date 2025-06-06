@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class FirebaseAuthService implements OtpAuthService {
 
     private final FirebaseAuth firebaseAuth;
-    private final OtpVerificationCallback callback;
+    private OtpVerificationCallback callback;
     private PhoneAuthOptions.Builder optionsBuilder;
     private String verificationId;
 
@@ -71,7 +71,7 @@ public class FirebaseAuthService implements OtpAuthService {
     @Override
     public void verifyOtp(String code) {
         if (verificationId == null) {
-            callback.onFailure("No verification ID available. Request OTP first.");
+            callback.onFailure("Request OTP first");
             return;
         }
 
@@ -86,4 +86,9 @@ public class FirebaseAuthService implements OtpAuthService {
                     }
                 });
     }
+
+    public void clearCallback() {
+        this.callback = null;
+    }
+
 }
