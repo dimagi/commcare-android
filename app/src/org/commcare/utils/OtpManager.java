@@ -12,8 +12,8 @@ public class OtpManager {
     /**
      * Constructs an OtpManager by instantiating a default FirebaseAuthService internally.
      *
-     * @param activity   The calling activity, required by FirebaseAuth
-     * @param callback   Callback to handle OTP verification events
+     * @param activity The calling activity, required by FirebaseAuth
+     * @param callback Callback to handle OTP verification events
      */
     public OtpManager(Activity activity, OtpVerificationCallback callback) {
         this.authService = new FirebaseAuthService(activity, callback);
@@ -31,5 +31,11 @@ public class OtpManager {
             throw new IllegalArgumentException("OTP code cannot be null or empty");
         }
         authService.verifyOtp(code);
+    }
+
+    public void cancel() {
+        if (authService instanceof FirebaseAuthService) {
+            ((FirebaseAuthService) authService).clearCallback();
+        }
     }
 }

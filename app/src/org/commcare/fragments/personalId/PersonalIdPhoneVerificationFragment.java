@@ -100,6 +100,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 logOtpVerification(false);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
+                binding.connectPhoneVerifyButton.setEnabled(true);
             }
         };
 
@@ -167,9 +168,11 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void displayOtpError(String message) {
-        binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
-        binding.connectPhoneVerifyError.setText(message);
-        binding.customOtpView.setErrorState(true);
+        if (message != null && !message.isEmpty()){
+            binding.connectPhoneVerifyError.setVisibility(View.VISIBLE);
+            binding.connectPhoneVerifyError.setText(message);
+            binding.customOtpView.setErrorState(true);
+        }
     }
 
     @Override
@@ -205,6 +208,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        otpManager.cancel();
+        otpManager = null;
     }
 
     @Override
@@ -250,13 +255,17 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
     private void requestOtp() {
         clearOtpError();
-        if (primaryPhone != null && !primaryPhone.isEmpty()){
+        if (primaryPhone != null && !primaryPhone.isEmpty() && otpManager != null){
             otpRequestTime = new DateTime();
             otpManager.requestOtp(primaryPhone);
         }
     }
 
     private void verifyOtp() {
+        if (otpManager == null){
+            initOtpManager();
+        }
+        binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
 
