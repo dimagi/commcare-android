@@ -25,8 +25,6 @@ public class FirebaseAuthService implements OtpAuthService {
         this.callback = callback;
         this.firebaseAuth = FirebaseAuth.getInstance();
 
-         this.firebaseAuth.getFirebaseAuthSettings().setAppVerificationDisabledForTesting(true);
-
         PhoneAuthProvider.OnVerificationStateChangedCallbacks verificationCallbacks =
                 new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
@@ -56,7 +54,7 @@ public class FirebaseAuthService implements OtpAuthService {
                 };
 
         this.optionsBuilder = PhoneAuthOptions.newBuilder(firebaseAuth)
-                .setTimeout(60L, TimeUnit.SECONDS)
+                .setTimeout(0L, TimeUnit.SECONDS)
                 .setActivity(activity)
                 .setCallbacks(verificationCallbacks);
     }
