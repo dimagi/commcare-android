@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -107,6 +108,8 @@ public class PersonalIdPhoneFragment extends Fragment {
                         } catch (ApiException e) {
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
                         }
+                    }else{
+                        binding.connectPrimaryPhoneInput.post(() -> binding.connectPrimaryPhoneInput.requestFocus());
                     }
                 }
         );
@@ -141,28 +144,18 @@ public class PersonalIdPhoneFragment extends Fragment {
         enableContinueButton(isValidPhone && isConsentChecked);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data,
-                getActivity());
-        displayPhoneNumber(phone);
-    }
+    private void displayPhoneNumber(String fullPhoneNumber) {
 
-    private void displayPhoneNumber(String fullNumber) {
-        int defaultCode = phoneNumberHelper.getCountryCodeFromLocale(activity);
-        String formattedCode = PhoneNumberHelper.getInstance(activity).formatCountryCode(defaultCode);
+        if(TextUtils.isEmpty(fullPhoneNumber))return;
 
-        if (fullNumber != null && fullNumber.startsWith(formattedCode)) {
-            fullNumber = fullNumber.substring(formattedCode.length());
+        int countryCodeFromFullPhoneNumber = phoneNumberHelper.getCountryCode(fullPhoneNumber);
+        long nationPhoneNumberFromFullPhoneNumber = phoneNumberHelper.getNationalNumber(fullPhoneNumber);
+
+        if(countryCodeFromFullPhoneNumber!=-1 && nationPhoneNumberFromFullPhoneNumber!=-1){
+            binding.connectPrimaryPhoneInput.setText(String.valueOf(nationPhoneNumberFromFullPhoneNumber));
+            binding.countryCode.setText(phoneNumberHelper.formatCountryCode(countryCodeFromFullPhoneNumber));
         }
 
-        int countryCode = phoneNumberHelper.getCountryCode(
-                fullNumber != null && !fullNumber.isEmpty() ? fullNumber : "");
-        String countryCodeText = phoneNumberHelper.formatCountryCode(countryCode);
-
-        binding.connectPrimaryPhoneInput.setText(fullNumber);
-        binding.countryCode.setText(countryCodeText);
     }
 
     private void onContinueClicked() {

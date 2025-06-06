@@ -177,37 +177,41 @@
             android:textSize="16sp"
             android:visibility="gone"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/not_me_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/this_is_not_me"
-                android:layout_weight="1"
-                android:textColor="@color/cc_brand_color"
-                android:layout_marginStart="16dp"
-                android:clickable="true"
-                android:textStyle="bold"
-                android:layout_gravity="center"/>
+                <TextView
+                    android:id="@+id/not_me_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/this_is_not_me"
+                    android:textColor="@color/cc_brand_color"
+                    android:layout_marginStart="16dp"
+                    android:clickable="true"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/connect_backup_code_button"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textStyle="bold"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/connect_backup_code_button"
-                style="@style/CustomButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_gravity="end"
-                android:text="@string/review"
-                android:drawableRight="@drawable/connect_right_arrow"
-                />
-        </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/connect_backup_code_button"
+                    style="@style/CustomButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/review"
+                    android:drawableRight="@drawable/connect_right_arrow"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
     </ScrollView>
 </layout>
