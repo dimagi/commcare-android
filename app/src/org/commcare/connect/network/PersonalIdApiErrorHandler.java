@@ -1,7 +1,6 @@
 package org.commcare.connect.network;
 
 import android.app.Activity;
-import android.widget.Toast;
 
 import org.commcare.dalvik.R;
 
@@ -29,24 +28,19 @@ public class PersonalIdApiErrorHandler {
      * @param errorCode  the specific {@link PersonalIdApiHandler.PersonalIdApiErrorCodes} to handle
      * @param t          the exception that was thrown, if any; can be null
      */
-    public static void handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode,
+    public static String handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode,
                               Throwable t) {
         switch (errorCode) {
             case NETWORK_ERROR:
-                ConnectNetworkHelper.showNetworkError(activity);
-                break;
+                return activity.getString(R.string.recovery_network_unavailable);
             case TOKEN_UNAVAILABLE_ERROR:
-                ConnectNetworkHelper.handleTokenUnavailableException(activity);
-                break;
+                return activity.getString(R.string.recovery_network_token_unavailable);
             case TOKEN_DENIED_ERROR:
                 ConnectNetworkHelper.handleTokenDeniedException();
-                break;
+                return null;
             case OLD_API_ERROR:
-                ConnectNetworkHelper.showOutdatedApiError(activity);
-                break;
-            case FORBIDDEN_ERROR:
-            case JSON_PARSING_ERROR:
-            case INVALID_RESPONSE_ERROR:
+                return activity.getString(R.string.recovery_network_outdated);
+            default:
                 throw new RuntimeException(t);
         }
     }

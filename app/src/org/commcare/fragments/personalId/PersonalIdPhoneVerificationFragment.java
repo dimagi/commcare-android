@@ -98,7 +98,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             public void onFailure(String errorMessage) {
                 logOtpVerification(false);
-                Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
             }
         };
@@ -106,8 +105,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         // Pass the Activity and callback to the OtpManager (no need to manually build PhoneAuthOptions)
         otpManager = new OtpManager(requireActivity(), otpCallback);
     }
-
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -310,6 +307,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
+        displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
     }
 }

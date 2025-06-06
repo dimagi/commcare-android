@@ -75,6 +75,7 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
     private void verifyOrAddName() {
+        clearError();
         enableContinueButton(false);
         new PersonalIdApiHandler() {
             @Override
@@ -94,10 +95,21 @@ public class PersonalIdNameFragment extends Fragment {
 
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
+    }
+
+    private void clearError() {
+        binding.personalidNameError.setVisibility(View.GONE);
+        binding.personalidNameError.setText("");
+    }
+
+    private void showError(String message) {
+        binding.personalidNameError.setVisibility(View.VISIBLE);
+        binding.personalidNameError.setText(message);
     }
 
     private NavDirections navigateToBackupCodePage() {

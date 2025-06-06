@@ -82,6 +82,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void uploadImageAndCompleteProfile() {
+        clearError();
         disableSaveButton();
         disableTakePhotoButton();
         new PersonalIdApiHandler() {
@@ -100,19 +101,9 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
-        if (failureCode == PersonalIdApiHandler.PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR) {
-            onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
-        } else {
-            PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
-        }
-        if (failureCode.shouldAllowRetry()) {
-            enableSaveButton();
-        }
-    }
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
-    private void onPhotoUploadFailure(String error, boolean allowRetry) {
-        showError(error);
-        if (allowRetry) {
+        if (failureCode.shouldAllowRetry()) {
             enableTakePhotoButton();
             enableSaveButton();
         }
@@ -127,7 +118,6 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void onPhotoUploadSuccess(String photoAsBase64) {
-        clearError();
         enableTakePhotoButton();
         disableSaveButton();
         createAndSaveConnectUser(photoAsBase64);

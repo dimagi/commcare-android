@@ -176,6 +176,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void startConfigurationRequest() {
+        clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
@@ -237,10 +238,21 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
+    }
+
+    private void clearError() {
+        binding.personalidPhoneError.setVisibility(View.GONE);
+        binding.personalidPhoneError.setText("");
+    }
+
+    private void showError(String error) {
+        binding.personalidPhoneError.setVisibility(View.VISIBLE);
+        binding.personalidPhoneError.setText(error);
     }
 
     private NavDirections navigateToBiometricSetup() {
