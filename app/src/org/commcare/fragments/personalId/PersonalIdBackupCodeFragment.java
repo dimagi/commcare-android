@@ -186,8 +186,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
 
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);

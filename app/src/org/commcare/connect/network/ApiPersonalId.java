@@ -241,7 +241,7 @@ public class ApiPersonalId {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 dismissProgressDialog(context);
                 // Handle network errors, etc.
                 handleNetworkError(t);

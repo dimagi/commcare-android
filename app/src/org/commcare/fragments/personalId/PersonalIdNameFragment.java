@@ -83,8 +83,8 @@ public class PersonalIdNameFragment extends Fragment {
                 Navigation.findNavController(binding.getRoot()).navigate(navigateToBackupCodePage());
             }
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                navigateFailure(failureCode, t);
             }
         }.addOrVerifyNameCall(
                 requireActivity(),
@@ -93,11 +93,11 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
     }
 
     private NavDirections navigateToBackupCodePage() {

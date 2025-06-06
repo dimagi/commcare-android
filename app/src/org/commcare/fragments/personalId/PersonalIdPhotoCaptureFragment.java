@@ -91,19 +91,19 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                onCompleteProfileFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                onCompleteProfileFailure(failureCode, t);
             }
         }.completeProfile(requireContext(), personalIdSessionData.getUserName(),
                 photoAsBase64,
                 personalIdSessionData.getBackupCode(), personalIdSessionData.getToken(), personalIdSessionData);
     }
 
-    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
         if (failureCode == PersonalIdApiHandler.PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR) {
             onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
         } else {
-            PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+            PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
         }
         if (failureCode.shouldAllowRetry()) {
             enableSaveButton();

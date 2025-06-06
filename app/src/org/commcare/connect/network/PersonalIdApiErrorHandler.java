@@ -27,14 +27,11 @@ public class PersonalIdApiErrorHandler {
      *
      * @param activity   the context (usually the current Activity) used to display UI elements
      * @param errorCode  the specific {@link PersonalIdApiHandler.PersonalIdApiErrorCodes} to handle
+     * @param t          the exception that was thrown, if any; can be null
      */
-    public static void handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode) {
+    public static void handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode,
+                              Throwable t) {
         switch (errorCode) {
-            case INVALID_RESPONSE_ERROR:
-            case JSON_PARSING_ERROR:
-                Toast.makeText(activity, activity.getString(R.string.configuration_process_api_failed),
-                        Toast.LENGTH_LONG).show();
-                break;
             case NETWORK_ERROR:
                 ConnectNetworkHelper.showNetworkError(activity);
                 break;
@@ -47,6 +44,10 @@ public class PersonalIdApiErrorHandler {
             case OLD_API_ERROR:
                 ConnectNetworkHelper.showOutdatedApiError(activity);
                 break;
+            case FORBIDDEN_ERROR:
+            case JSON_PARSING_ERROR:
+            case INVALID_RESPONSE_ERROR:
+                throw new RuntimeException(t);
         }
     }
 }

@@ -38,7 +38,6 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -206,7 +205,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSucesss();
+                    onConfigurationSuccess();
                 } else {
                     // This is called when api returns success but with a a failure code
                     Logger.log(LogTypes.TYPE_USER,
@@ -216,14 +215,18 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
+                    onConfigurationFailure();
+                } else {
+                    navigateFailure(failureCode, t);
+                }
             }
         }.makeStartConfigurationCall(requireActivity(), body, integrityToken,requestHash);
     }
 
 
-    private void onConfigurationSucesss() {
+    private void onConfigurationSuccess() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
@@ -233,11 +236,11 @@ public class PersonalIdPhoneFragment extends Fragment {
                 navigateToMessageDisplay(failureMessage, false));
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t);
     }
 
     private NavDirections navigateToBiometricSetup() {
