@@ -31,10 +31,14 @@ public abstract class PersonalIdApiHandler {
         TOKEN_UNAVAILABLE_ERROR,
         TOKEN_DENIED_ERROR,
         INVALID_RESPONSE_ERROR,
-        JSON_PARSING_ERROR;
+        JSON_PARSING_ERROR,
+        FAILED_AUTH_ERROR,
+        SERVER_ERROR,
+        RATE_LIMIT_EXCEEDED_ERROR;
 
         public boolean shouldAllowRetry(){
-            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR;
+            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == SERVER_ERROR
+                    || this == RATE_LIMIT_EXCEEDED_ERROR;
         }
     }
 
@@ -60,8 +64,23 @@ public abstract class PersonalIdApiHandler {
 
             @Override
             public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                if(responseCode == 401) {
+                    onFailure(PersonalIdApiErrorCodes.FAILED_AUTH_ERROR, null);
+                    return;
+                }
+
                 if(responseCode == 403) {
                     onFailure(PersonalIdApiErrorCodes.FORBIDDEN_ERROR, null);
+                    return;
+                }
+
+                if(responseCode == 429 || responseCode == 503) {
+                    onFailure(PersonalIdApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
+                    return;
+                }
+
+                if(responseCode == 500) {
+                    onFailure(PersonalIdApiErrorCodes.SERVER_ERROR, null);
                     return;
                 }
 

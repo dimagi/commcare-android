@@ -34,6 +34,9 @@ public class PersonalIdApiErrorHandler {
             case NETWORK_ERROR:
                 return activity.getString(R.string.recovery_network_unavailable);
             case TOKEN_UNAVAILABLE_ERROR:
+            case RATE_LIMIT_EXCEEDED_ERROR:
+            case FAILED_AUTH_ERROR:
+            case SERVER_ERROR:
                 return activity.getString(R.string.recovery_network_token_unavailable);
             case TOKEN_DENIED_ERROR:
                 ConnectNetworkHelper.handleTokenDeniedException();
