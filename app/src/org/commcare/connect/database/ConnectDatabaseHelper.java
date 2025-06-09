@@ -105,7 +105,6 @@ public class ConnectDatabaseHelper {
 
     public static void crashDb(GlobalErrors error) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-
         throw new RuntimeException("Connect database crash");
     }
 

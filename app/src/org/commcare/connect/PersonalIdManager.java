@@ -1,5 +1,7 @@
 package org.commcare.connect;
 
+import static org.commcare.utils.GlobalErrors.PERSONALID_BIOMETRIC_INVALIDATED_ERROR;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +27,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
@@ -44,6 +47,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyProvider;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
@@ -181,7 +185,11 @@ public class PersonalIdManager {
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
         if (!isKeyValid()) {
-            ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_BIOMETRIC_INVALIDATED_ERROR);
+            GlobalErrorUtil.addError(
+                    new GlobalErrorRecord(new Date(), PERSONALID_BIOMETRIC_INVALIDATED_ERROR.ordinal()));
+            String message = activity.getString(PERSONALID_BIOMETRIC_INVALIDATED_ERROR.getMessageId());
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+            return;
         }
 
         BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
