@@ -35,6 +35,7 @@ import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
 import org.joda.time.DateTime;
@@ -96,11 +97,20 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(String errorMessage) {
+            public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
                 logOtpVerification(false);
-                Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
-                displayOtpError(errorMessage);
-                binding.connectPhoneVerifyButton.setEnabled(errorMessage.contains(getString(R.string.incorrect_otp)));
+
+                String userMessage = switch (errorType) {
+                    case INVALID_CREDENTIAL -> getString(R.string.incorrect_otp);
+                    case TOO_MANY_REQUESTS -> getString(R.string.too_many_attempts);
+                    case MISSING_ACTIVITY -> getString(R.string.missing_activity);
+                    default ->
+                            getString(R.string.otp_verification_failed) + errorMessage != null ? errorMessage : "Unknown error";
+                };
+
+                Toast.makeText(requireContext(), userMessage, Toast.LENGTH_SHORT).show();
+                displayOtpError(userMessage);
+                binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
 

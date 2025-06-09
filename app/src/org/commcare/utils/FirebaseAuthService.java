@@ -1,7 +1,8 @@
 package org.commcare.utils;
 
 import android.app.Activity;
-import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
@@ -13,11 +14,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
-import org.commcare.dalvik.R;
-
 import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
 
 public class FirebaseAuthService implements OtpAuthService {
 
@@ -26,7 +23,7 @@ public class FirebaseAuthService implements OtpAuthService {
     private PhoneAuthOptions.Builder optionsBuilder;
     private String verificationId;
 
-    public FirebaseAuthService(Activity activity, OtpVerificationCallback callback) {
+    public FirebaseAuthService(@NonNull Activity activity, @NonNull OtpVerificationCallback callback) {
         this.callback = callback;
         this.firebaseAuth = FirebaseAuth.getInstance();
 
@@ -40,41 +37,48 @@ public class FirebaseAuthService implements OtpAuthService {
                                         FirebaseUser user = task.getResult().getUser();
                                         callback.onSuccess(user);
                                     } else {
-                                        callback.onFailure("Verification failed");
+                                        callback.onFailure(OtpErrorType.GENERIC_ERROR, "Verification failed");
                                     }
                                 });
                     }
 
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
-                        callback.onFailure("Verification failed: " + e.getMessage());
+                        if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                            callback.onFailure(OtpErrorType.INVALID_CREDENTIAL, null);
+                        } else if (e instanceof FirebaseTooManyRequestsException) {
+                            callback.onFailure(OtpErrorType.TOO_MANY_REQUESTS, null);
+                        } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
+                            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
+                        } else {
+                            callback.onFailure(OtpErrorType.GENERIC_ERROR, e.getMessage());
+                        }
                     }
 
                     @Override
-                    public void onCodeSent(@NonNull String verificationId,
+                    public void onCodeSent(@NonNull String verId,
                                            @NonNull PhoneAuthProvider.ForceResendingToken token) {
-                        FirebaseAuthService.this.verificationId = verificationId;
-                        callback.onCodeSent(verificationId);
+                        verificationId = verId;
+                        callback.onCodeSent(verId);
                     }
                 };
 
         this.optionsBuilder = PhoneAuthOptions.newBuilder(firebaseAuth)
-                .setTimeout(0L, TimeUnit.SECONDS)
+                .setTimeout(60L, TimeUnit.SECONDS)
                 .setActivity(activity)
                 .setCallbacks(verificationCallbacks);
     }
 
     @Override
-    public void requestOtp(String phoneNumber) {
+    public void requestOtp(@NonNull String phoneNumber) {
         optionsBuilder.setPhoneNumber(phoneNumber);
-        PhoneAuthOptions options = optionsBuilder.build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
+        PhoneAuthProvider.verifyPhoneNumber(optionsBuilder.build());
     }
 
     @Override
-    public void verifyOtp(@NonNull String code, Context context) {
+    public void verifyOtp(@NonNull String code) {
         if (verificationId == null) {
-            callback.onFailure(context.getString(R.string.no_verification_id));
+            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Verification ID is missing.");
             return;
         }
 
@@ -87,22 +91,21 @@ public class FirebaseAuthService implements OtpAuthService {
                     } else {
                         Exception e = task.getException();
                         if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                            callback.onFailure(context.getString(R.string.incorrect_otp));
+                            callback.onFailure(OtpErrorType.INVALID_CREDENTIAL, null);
                         } else if (e instanceof FirebaseTooManyRequestsException) {
-                            callback.onFailure(context.getString(R.string.too_many_attempts));
+                            callback.onFailure(OtpErrorType.TOO_MANY_REQUESTS, null);
                         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
-                            callback.onFailure(context.getString(R.string.missing_activity));
+                            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
                         } else {
-                            // Other unknown failure
-                            callback.onFailure(context.getString(R.string.otp_verification_failed) +
-                                    (e != null ? e.getMessage() : "Unknown error"));
+                            callback.onFailure(OtpErrorType.GENERIC_ERROR,
+                                    e != null ? e.getMessage() : "OTP verification failed");
                         }
                     }
                 });
     }
 
+    @Override
     public void clearCallback() {
         this.callback = null;
     }
-
 }

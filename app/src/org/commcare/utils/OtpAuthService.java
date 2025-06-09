@@ -23,5 +23,7 @@ public interface OtpAuthService {
      *
      * @param code The OTP code to verify
      */
-    void verifyOtp(String code, Context context);
+    void verifyOtp(String code);
+
+    void clearCallback();
 }

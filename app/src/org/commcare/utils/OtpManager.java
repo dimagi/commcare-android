@@ -34,12 +34,12 @@ public class OtpManager {
         if (code == null || code.trim().isEmpty()) {
             throw new IllegalArgumentException(context.getString(R.string.otp_code_cannot_be_null_or_empty));
         }
-        authService.verifyOtp(code,context);
+        authService.verifyOtp(code);
     }
 
     public void cancel() {
         if (authService instanceof FirebaseAuthService) {
-            ((FirebaseAuthService) authService).clearCallback();
+            authService.clearCallback();
         }
     }
 }
