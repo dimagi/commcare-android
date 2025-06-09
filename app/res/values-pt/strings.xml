@@ -595,5 +595,11 @@
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="connect_appbar_title_password_verification">Verificação de palavra-passe</string>
-
+    <string name="incorrect_otp">O OTP inserido está incorreto. Tente novamente.</string>
+    <string name="too_many_attempts">Muitas tentativas. Tente novamente mais tarde.</string>
+    <string name="missing_activity">Falha na verificação devido à ausência do contexto da atividade. Tente novamente.</string>
+    <string name="no_verification_id">Nenhum ID de verificação disponível. Solicite o OTP novamente.</string>
+    <string name="otp_verification_failed">Falha na verificação do OTP:</string>
+    <string name="otp_code_cannot_be_null_or_empty">O código OTP não pode ser nulo ou vazio</string>
+    <string name="phone_number_cannot_be_null_or_empty">O número de telefone não pode ser nulo ou vazio</string>
 </resources>

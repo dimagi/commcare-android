@@ -580,4 +580,11 @@
     <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
     <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
     <string name="connect_messaging_channel_consent_decline">ኣውድቅ</string>
+    <string name="incorrect_otp">እቲ ዝኣተወ OTP ጌጋ እዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="too_many_attempts">ብዙሕ ፈተነታት። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
+    <string name="missing_activity">ምርግጋጽ ብሰንኪ ዝጎደለ ናይ ንጥፈታት ዓውዲ ኣይተዓወተን። በጃኹም ዳግማይ ፈትኑ።</string>
+    <string name="no_verification_id">ናይ ምርግጋጽ መለለዪ መንነት የለን። በጃኹም ደጊምኩም OTP ሕተቱ።</string>
+    <string name="otp_verification_failed">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
+    <string name="otp_code_cannot_be_null_or_empty">OTP ኮድ ባዶ ወይ ባዶ ክኸውን ኣይክእልን እዩ።</string>
+    <string name="phone_number_cannot_be_null_or_empty">ቁጽሪ ተሌፎን ባዶ ወይ ባዶ ክኸውን ኣይክእልን እዩ።</string>
 </resources>

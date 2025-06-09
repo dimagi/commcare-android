@@ -100,7 +100,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 logOtpVerification(false);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
-                binding.connectPhoneVerifyButton.setEnabled(true);
+                binding.connectPhoneVerifyButton.setEnabled(errorMessage.contains(getString(R.string.incorrect_otp)));
             }
         };
 
@@ -257,7 +257,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         clearOtpError();
         if (primaryPhone != null && !primaryPhone.isEmpty() && otpManager != null){
             otpRequestTime = new DateTime();
-            otpManager.requestOtp(primaryPhone);
+            otpManager.requestOtp(primaryPhone,requireContext());
         }
     }
 
@@ -272,7 +272,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         if (otpCode.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
-            otpManager.submitOtp(otpCode);
+            otpManager.submitOtp(otpCode,requireContext());
         }
     }
 
