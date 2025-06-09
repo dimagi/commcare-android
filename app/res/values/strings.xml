@@ -941,4 +941,5 @@
     <string name="otp_verification_failed">OTP verification failed:</string>
     <string name="otp_code_cannot_be_null_or_empty">OTP code cannot be null or empty</string>
     <string name="phone_number_cannot_be_null_or_empty">Phone number cannot be null or empty</string>
+    <string name="verification_failed">Verification failed and please try again</string>
 </resources>

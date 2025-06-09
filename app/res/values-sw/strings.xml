@@ -620,4 +620,5 @@
     <string name="otp_verification_failed">Uthibitishaji wa OTP haukufaulu:</string>
     <string name="otp_code_cannot_be_null_or_empty">Msimbo wa OTP hauwezi kuwa batili au tupu</string>
     <string name="phone_number_cannot_be_null_or_empty">Nambari ya simu haiwezi kuwa batili au tupu</string>
+    <string name="verification_failed">Uthibitishaji haukufaulu na tafadhali jaribu tena</string>
 </resources>

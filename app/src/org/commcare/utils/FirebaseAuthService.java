@@ -52,7 +52,7 @@ public class FirebaseAuthService implements OtpAuthService {
                         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
                             callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
                         } else if (e instanceof FirebaseAuthException) {
-                            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
+                            callback.onFailure(OtpErrorType.VERIFICATION_FAILED, null);
                         } else {
                             callback.onFailure(OtpErrorType.GENERIC_ERROR, e.getMessage());
                         }
@@ -100,7 +100,7 @@ public class FirebaseAuthService implements OtpAuthService {
                         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
                             callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
                         } else if (e instanceof FirebaseAuthException) {
-                            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
+                            callback.onFailure(OtpErrorType.VERIFICATION_FAILED, null);
                         } else {
                             callback.onFailure(OtpErrorType.GENERIC_ERROR,
                                     e != null ? e.getMessage() : "OTP verification failed");

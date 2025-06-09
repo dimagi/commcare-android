@@ -601,4 +601,5 @@
     <string name="otp_verification_failed">Falha na verificação do OTP:</string>
     <string name="otp_code_cannot_be_null_or_empty">O código OTP não pode ser nulo ou vazio</string>
     <string name="phone_number_cannot_be_null_or_empty">O número de telefone não pode ser nulo ou vazio</string>
+    <string name="verification_failed">A verificação falhou. Tente novamente.</string>
 </resources>
