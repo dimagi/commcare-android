@@ -49,8 +49,8 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static boolean dbExists(Context context) {
-        return DatabaseConnectOpenHelper.dbExists(context);
+    public static boolean dbExists() {
+        return DatabaseConnectOpenHelper.dbExists();
     }
 
     public static boolean isDbBroken() {

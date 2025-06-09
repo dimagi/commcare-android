@@ -236,10 +236,10 @@ public class PersonalIdManager {
 
 
     public void forgetUser(String reason) {
-        if (ConnectDatabaseHelper.dbExists(parentActivity)) {
+        if (ConnectDatabaseHelper.dbExists()) {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
-        ConnectUserDatabaseUtil.forgetUser(parentActivity);
+        ConnectUserDatabaseUtil.forgetUser();
         personalIdSatus = PersonalIdStatus.NotIntroduced;
     }
 
