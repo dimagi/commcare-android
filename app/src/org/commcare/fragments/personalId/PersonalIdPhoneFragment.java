@@ -126,7 +126,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                     if (granted) {
                         locationController.start();
                     } else {
-                        Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.location_permission_denied),
+                                Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -220,8 +221,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
         body.put("application_id", requireContext().getPackageName());
-        body.put("gps_location", location.getLatitude()+" "+location.getLongitude());
-
+        if (location != null) {
+            body.put("gps_location", location.getLatitude() + " " + location.getLongitude());
+        }
         integrityTokenApiRequestHelper.withIntegrityToken(body, (token, hash) -> {
             if (token != null) {
                 makeStartConfigurationCall(token, hash, body);
