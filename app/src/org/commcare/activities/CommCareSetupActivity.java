@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.RestrictionsManager;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
@@ -506,7 +507,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn());
+            item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn()
+                    && PersonalIdManager.getInstance().checkDeviceCompability());
         }
 
         item = menu.findItem(MENU_CONNECT_FORGET);
@@ -514,6 +516,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
         return true;
+    }
+
+    private boolean checkDeviceCompability() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
 

@@ -3,6 +3,7 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -659,6 +660,10 @@ public class PersonalIdManager {
         }
 
         return biometricManager;
+    }
+
+    public boolean checkDeviceCompability() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
     public int getFailureAttempt() {
