@@ -518,11 +518,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    private boolean checkDeviceCompability() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-    }
-
-
     /**
      * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
      * in response to Google play console policies for now. We are going to watch out for a while
