@@ -223,11 +223,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN) {
             PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
-            requireActivity().setResult(RESULT_OK);
+            requireActivity().setResult(resultCode);
             requireActivity().finish();
         }
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            navigateForward(false);
+            navigateForward(resultCode != RESULT_OK);
         }
     }
 
