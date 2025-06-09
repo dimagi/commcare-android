@@ -42,6 +42,7 @@ import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.CCAnalyticsEvent;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
@@ -185,11 +186,7 @@ public class PersonalIdManager {
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
         if (!isKeyValid()) {
-            GlobalErrorUtil.addError(
-                    new GlobalErrorRecord(new Date(), PERSONALID_BIOMETRIC_INVALIDATED_ERROR.ordinal()));
-            String message = activity.getString(PERSONALID_BIOMETRIC_INVALIDATED_ERROR.getMessageId());
-            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
-            return;
+            FirebaseAnalyticsUtil.reportBiometricInvalidated();
         }
 
         BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
