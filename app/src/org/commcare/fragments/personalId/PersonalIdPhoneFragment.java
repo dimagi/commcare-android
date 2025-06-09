@@ -2,6 +2,7 @@ package org.commcare.fragments.personalId;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -57,6 +58,7 @@ public class PersonalIdPhoneFragment extends Fragment {
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        checkDeviceCompability();
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
@@ -73,6 +75,14 @@ public class PersonalIdPhoneFragment extends Fragment {
         binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
         setupListeners();
         updateContinueButtonState();
+    }
+
+    private void checkDeviceCompability() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            navigateToMessageDisplay(
+                    getString(R.string.device_incompatible_version_error),
+                    false);
+        }
     }
 
     private void setupListeners() {
