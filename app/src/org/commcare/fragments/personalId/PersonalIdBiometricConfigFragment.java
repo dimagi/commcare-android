@@ -261,9 +261,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
      * Generates a biometric linked key in Android Key Store if not already there
      */
     private void storeBiometricInvalidationKey() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
-        }
+        new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
     }
 
     private NavDirections navigateToBiometricEnrollmentFailed() {
