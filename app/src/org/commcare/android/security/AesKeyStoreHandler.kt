@@ -2,10 +2,12 @@ package org.commcare.android.security
 
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import androidx.annotation.RequiresApi
 import org.commcare.utils.EncryptionKeyAndTransform
 import java.security.KeyStore
+import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
@@ -18,18 +20,41 @@ class AesKeyStoreHandler(
     private val needsUserAuth: Boolean
 ) : KeyStoreHandler {
 
+    companion object {
+        private const val TRANSFORM = "AES/CBC/PKCS7Padding";
+    }
+
     override fun getKeyOrGenerate(): EncryptionKeyAndTransform {
-        val keystore = AndroidKeyStore.instance
-        val entry = keystore.getEntry(alias, null)
-        val key = if (entry is KeyStore.SecretKeyEntry) {
-            entry.secretKey
-        } else {
-            generateAesKey(alias, needsUserAuth)
+        var key = getKeyIfExists()
+        if (key == null) {
+            key = generateAesKey(alias, needsUserAuth);
         }
         return EncryptionKeyAndTransform(
             key,
-            "AES/CBC/PKCS7Padding"
+            TRANSFORM
         )
+    }
+
+    override fun isKeyValid(): Boolean {
+        val key = getKeyIfExists() ?: return false
+        try {
+            val cipher = Cipher.getInstance(TRANSFORM);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return true
+        } catch (_: KeyPermanentlyInvalidatedException) {
+            return false
+        }
+    }
+
+    fun getKeyIfExists(): SecretKey? {
+        val keystore = AndroidKeyStore.instance
+        if (keystore.containsAlias(alias) && keystore.getEntry(alias, null) is KeyStore.SecretKeyEntry) {
+            val entry = keystore.getEntry(alias, null)
+            if (entry is KeyStore.SecretKeyEntry) {
+                return entry.secretKey
+            }
+        }
+        return null
     }
 
     private fun generateAesKey(alias: String, needsUserAuth: Boolean): SecretKey {

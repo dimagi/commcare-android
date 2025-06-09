@@ -43,8 +43,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.EncryptionKeyProvider;
+import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -180,6 +180,10 @@ public class PersonalIdManager {
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
+        if (!isKeyValid()) {
+            ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_BIOMETRIC_INVALIDATED_ERROR);
+        }
+
         BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -188,12 +192,7 @@ public class PersonalIdManager {
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                if(hasBiometricInvalidated()) {
-                    callback.connectActivityComplete(true);
-                }else {
-                    Toast.makeText(activity, "Biometric Invalidated", Toast.LENGTH_SHORT).show();
-                    callback.connectActivityComplete(false);
-                }
+                callback.connectActivityComplete(true);
             }
 
             @Override
@@ -217,14 +216,9 @@ public class PersonalIdManager {
         }
     }
 
-    private boolean hasBiometricInvalidated() {
-        try {
-            EncryptionKeyAndTransform key = new EncryptionKeyProvider(parentActivity, true,
-                    BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
-            return key != null;
-        } catch (Exception e) {
-            return false;
-        }
+    private boolean isKeyValid() {
+        return new EncryptionKeyProvider(parentActivity, true,
+                BIOMETRIC_INVALIDATION_KEY).isKeyValid();
     }
 
     public void completeSignin() {

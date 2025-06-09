@@ -45,4 +45,8 @@ public class EncryptionKeyProvider {
             return rsaKeystoreHandler;
         }
     }
+
+    public boolean isKeyValid() {
+        return getHandler(false).isKeyValid();
+    }
 }

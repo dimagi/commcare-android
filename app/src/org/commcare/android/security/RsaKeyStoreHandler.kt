@@ -30,6 +30,10 @@ class RsaKeyStoreHandler(
         }
     }
 
+    override fun isKeyValid(): Boolean {
+        return doesKeyExist()
+    }
+
     fun doesKeyExist(): Boolean {
         val keystore = AndroidKeyStore.instance
         if (keystore.containsAlias(alias)) {
