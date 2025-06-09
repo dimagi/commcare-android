@@ -143,6 +143,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
         }
 
+        binding.connectBackupCodeErrorMessage.setVisibility(TextUtils.isEmpty(errorText) ? View.GONE : View.VISIBLE);
         binding.connectBackupCodeErrorMessage.setText(errorText);
         enableContinueButton(isValid);
     }
