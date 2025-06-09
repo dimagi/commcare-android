@@ -37,7 +37,7 @@ public class PersonalIdApiErrorHandler {
                 return activity.getString(R.string.recovery_network_token_unavailable);
             case TOKEN_DENIED_ERROR:
                 ConnectNetworkHelper.handleTokenDeniedException();
-                return null;
+                return "";
             case OLD_API_ERROR:
                 return activity.getString(R.string.recovery_network_outdated);
             default:
