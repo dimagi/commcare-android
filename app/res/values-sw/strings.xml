@@ -616,8 +616,7 @@
     <string name="connect_appbar_title_password_verification">Uthibitishaji wa Nenosiri</string>
     <string name="incorrect_otp">OTP iliyoingizwa si sahihi. Tafadhali jaribu tena.</string>
     <string name="too_many_attempts">Majaribio mengi sana. Tafadhali jaribu tena baadaye.</string>
-    <string name="missing_activity">Uthibitishaji haukufaulu kwa sababu ya kukosa muktadha wa shughuli. Tafadhali jaribu tena.</string>
-    <string name="no_verification_id">Hakuna kitambulisho cha uthibitishaji kinachopatikana. Tafadhali omba OTP tena.</string>
+    <string name="missing_activity">Hitilafu fulani imetokea</string>
     <string name="otp_verification_failed">Uthibitishaji wa OTP haukufaulu:</string>
     <string name="otp_code_cannot_be_null_or_empty">Msimbo wa OTP hauwezi kuwa batili au tupu</string>
     <string name="phone_number_cannot_be_null_or_empty">Nambari ya simu haiwezi kuwa batili au tupu</string>

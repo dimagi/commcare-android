@@ -937,8 +937,7 @@
     <string name="capture_photo">Capture Photo</string>
     <string name="incorrect_otp">The OTP entered is incorrect. Please try again.</string>
     <string name="too_many_attempts">Too many attempts. Please try again later.</string>
-    <string name="missing_activity">Verification failed due to missing activity context. Please retry.</string>
-    <string name="no_verification_id">No verification ID available. Please request OTP again.</string>
+    <string name="missing_activity">Something went wrong</string>
     <string name="otp_verification_failed">OTP verification failed:</string>
     <string name="otp_code_cannot_be_null_or_empty">OTP code cannot be null or empty</string>
     <string name="phone_number_cannot_be_null_or_empty">Phone number cannot be null or empty</string>

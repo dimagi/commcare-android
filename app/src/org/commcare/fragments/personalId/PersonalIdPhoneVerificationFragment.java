@@ -107,8 +107,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                     default ->
                             getString(R.string.otp_verification_failed) + errorMessage != null ? errorMessage : "Unknown error";
                 };
-
-                Toast.makeText(requireContext(), userMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(userMessage);
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }

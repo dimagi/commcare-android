@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,6 +51,8 @@ public class FirebaseAuthService implements OtpAuthService {
                             callback.onFailure(OtpErrorType.TOO_MANY_REQUESTS, null);
                         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
                             callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
+                        } else if (e instanceof FirebaseAuthException) {
+                            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
                         } else {
                             callback.onFailure(OtpErrorType.GENERIC_ERROR, e.getMessage());
                         }
@@ -64,7 +67,7 @@ public class FirebaseAuthService implements OtpAuthService {
                 };
 
         this.optionsBuilder = PhoneAuthOptions.newBuilder(firebaseAuth)
-                .setTimeout(60L, TimeUnit.SECONDS)
+                .setTimeout(0L, TimeUnit.SECONDS)
                 .setActivity(activity)
                 .setCallbacks(verificationCallbacks);
     }
@@ -78,7 +81,7 @@ public class FirebaseAuthService implements OtpAuthService {
     @Override
     public void verifyOtp(@NonNull String code) {
         if (verificationId == null) {
-            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Verification ID is missing.");
+            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Please request OTP again.");
             return;
         }
 
@@ -95,6 +98,8 @@ public class FirebaseAuthService implements OtpAuthService {
                         } else if (e instanceof FirebaseTooManyRequestsException) {
                             callback.onFailure(OtpErrorType.TOO_MANY_REQUESTS, null);
                         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
+                            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
+                        } else if (e instanceof FirebaseAuthException) {
                             callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
                         } else {
                             callback.onFailure(OtpErrorType.GENERIC_ERROR,

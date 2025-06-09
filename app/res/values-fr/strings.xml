@@ -612,8 +612,7 @@ License.
     <string name="add_secondary_phone_number">Ajouter un numéro de téléphone secondaire</string>
     <string name="incorrect_otp">Le mot de passe à usage unique saisi est incorrect. Veuillez réessayer.</string>
     <string name="too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
-    <string name="missing_activity">La vérification a échoué en raison d\'un contexte d\'activité manquant. Veuillez réessayer.</string>
-    <string name="no_verification_id">Aucun identifiant de vérification disponible. Veuillez redemander votre OTP.</string>
+    <string name="missing_activity">Quelque chose s\'est mal passé</string>
     <string name="otp_verification_failed">Échec de la vérification OTP:</string>
     <string name="otp_code_cannot_be_null_or_empty">Le code OTP ne peut pas être nul ou vide</string>
     <string name="phone_number_cannot_be_null_or_empty">Le numéro de téléphone ne peut pas être nul ou vide</string>
