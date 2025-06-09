@@ -52,7 +52,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         activity = requireActivity();
         personalIdSessionData = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
-        isRecovery = personalIdSessionData.getAccountExists();
         configureUiByMode();
         setupInputFilters();
         setupListeners();
@@ -68,6 +67,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void configureUiByMode() {
+        isRecovery = personalIdSessionData.getAccountExists();
         if (isRecovery) {
             titleId = R.string.connect_backup_code_title_confirm;
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
@@ -143,6 +143,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
         }
 
+        binding.connectBackupCodeErrorMessage.setVisibility(TextUtils.isEmpty(errorText) ? View.GONE : View.VISIBLE);
         binding.connectBackupCodeErrorMessage.setText(errorText);
         enableContinueButton(isValid);
     }

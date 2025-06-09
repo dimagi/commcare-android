@@ -113,7 +113,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         setupInitialState();
         setupSmsRetriever();
         setupListeners();
-        startResendTimer();
 
         activity.setTitle(R.string.connect_verify_phone_title);
         return binding.getRoot();
@@ -173,29 +172,30 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        registerSmsBroadcastReceiver();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        startResendTimer();
+        registerSmsBroadcastReceiver();
         KeyboardHelper.showKeyboardOnInput(activity, binding.customOtpView);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        stopResendTimer();
         try {
             activity.unregisterReceiver(smsBroadcastReceiver);
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        stopResendTimer();
     }
 
     @Override
@@ -246,9 +246,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void requestOtp() {
-        otpRequestTime = new DateTime();
         clearOtpError();
         if (primaryPhone != null && !primaryPhone.isEmpty()){
+            otpRequestTime = new DateTime();
             otpManager.requestOtp(primaryPhone);
         }
     }

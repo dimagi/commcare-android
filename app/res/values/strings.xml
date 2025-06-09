@@ -914,7 +914,7 @@
     <string name="add_secondary_phone_number">Add Secondary Phone Number</string>
     <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
     <string name="login_via_connect">Ready to login!\n</string>
-    <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Connect ID. Please login with your password or restore your Connect ID login</string>
+    <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
     <string name="name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="name_empty_error">Name field cannot be empty</string>
     <string name="configuration_process_failed_title">Process Failed</string>
@@ -934,4 +934,5 @@
     <string name="camera_permission_title">Permission for camera</string>
     <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="capture_photo">Capture Photo</string>
+    <string name="device_incompatible_version_error">Your device is not compatible with this feature. Please use a device running Android 7 or higher.</string>
 </resources>

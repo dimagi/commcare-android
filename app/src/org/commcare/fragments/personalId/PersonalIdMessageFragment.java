@@ -10,12 +10,15 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -35,6 +38,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private static final String KEY_CALLING_CLASS = "calling_class";
     private static final String KEY_IS_CANCELLABLE = "is_cancellable";
     private ScreenPersonalidMessageBinding binding;
+    private PersonalIdSessionData personalIdSessionData;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -42,6 +47,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         binding = ScreenPersonalidMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         binding.connectMessageButton.setOnClickListener(v -> handleContinueButtonPress());
         binding.connectMessageButton2.setOnClickListener(v -> handleContinueButtonPress());
         loadArguments();
@@ -132,6 +139,10 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 break;
             case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
                 directions = navigateToPhoneFragment();
+                break;
+            case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
+                personalIdSessionData.setAccountExists(false);
+                directions = navigateToBackupCode();
                 break;
 
         }
