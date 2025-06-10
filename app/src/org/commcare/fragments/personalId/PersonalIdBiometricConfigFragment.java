@@ -13,6 +13,7 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -265,13 +266,18 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
-        NavDirections navDirections =
-                PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                        getString(R.string.configuration_process_failed_title),
-                        errorMessage,
-                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
-                        null).setIsCancellable(false);
-        Navigation.findNavController(requireView()).navigate(navDirections);
+        Logger.log("NavCheck", "Current destination: " +
+                Navigation.findNavController(requireView()).getCurrentDestination().getLabel());
+        NavController navController = Navigation.findNavController(requireView());
+        if (navController.getCurrentDestination().getId() != R.id.personalid_message_display) {
+            NavDirections navDirections =
+                    PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
+                            getString(R.string.configuration_process_failed_title),
+                            errorMessage,
+                            ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
+                            null).setIsCancellable(false);
+            navController.navigate(navDirections);
+        }
     }
 
     private NavDirections navigateToOtpScreen() {
