@@ -184,7 +184,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             if (integrityToken != null) {
                 makeStartConfigurationCall(integrityToken, requestHash, body);
             } else {
-                onConfigurationFailure();
+                onConfigurationFailure(getString(R.string.configuration_process_failed_security_subtitle,"play integrity"));
             }
             return null;
         });
@@ -205,7 +205,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                     // This is called when api returns success but with a a failure code
                     Logger.log(LogTypes.TYPE_USER,
                             personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
-                    onConfigurationFailure();
+                    onConfigurationFailure(getString(R.string.configuration_process_failed_subtitle));
                 }
             }
 
@@ -225,8 +225,7 @@ public class PersonalIdPhoneFragment extends Fragment {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-    private void onConfigurationFailure() {
-        String failureMessage = getString(R.string.configuration_process_failed_subtitle);
+    private void onConfigurationFailure(String failureMessage) {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false));
     }
