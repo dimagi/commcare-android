@@ -1,7 +1,11 @@
 package org.commcare.fragments.personalId;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,6 +20,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -23,6 +29,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.ResolvableApiException;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -32,6 +39,9 @@ import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.interfaces.RuntimePermissionRequester;
+import org.commcare.location.CommCareLocationController;
+import org.commcare.location.CommCareLocationListener;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
@@ -40,7 +50,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import androidx.navigation.fragment.NavHostFragment;
 
-public class PersonalIdPhoneFragment extends Fragment {
+public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener,
+        RuntimePermissionRequester {
 
     private ScreenPersonalidPhonenoBinding binding;
     private boolean shouldShowPhoneHintDialog = true;
@@ -49,6 +60,14 @@ public class PersonalIdPhoneFragment extends Fragment {
     private PersonalIdSessionDataViewModel personalIdSessionDataViewModel;
     private IntegrityTokenApiRequestHelper integrityTokenApiRequestHelper;
     private String phone;
+    private Location location;
+    private static final int LOCATION_SETTING_REQ = 102;
+    private CommCareLocationController locationController;
+    private ActivityResultLauncher<String[]> locationPermissionLauncher;
+    private static final String[] REQUIRED_PERMISSIONS = new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,14 +78,27 @@ public class PersonalIdPhoneFragment extends Fragment {
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
+        setupLocationPermissionLauncher();
         initializeUi();
+        checkAndRequestLocationPermission();
         return binding.getRoot();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (locationController != null) {
+            locationController.destroy();
+        }
         binding = null;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (locationController != null) {
+            locationController.stop();
+        }
     }
 
     private void initializeUi() {
@@ -93,6 +125,39 @@ public class PersonalIdPhoneFragment extends Fragment {
 
         binding.connectPrimaryPhoneInput.setOnFocusChangeListener(focusChangeListener);
         binding.countryCode.setOnFocusChangeListener(focusChangeListener);
+    }
+
+    private void setupLocationPermissionLauncher() {
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                result -> {
+                    boolean granted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+                            || result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
+                    if (granted) {
+                        locationController.start();
+                    } else {
+                        Toast.makeText(requireContext(), getString(R.string.location_permission_denied),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void checkAndRequestLocationPermission() {
+        if (hasLocationPermission()) {
+            locationController.start();
+        } else {
+            locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
+        }
+    }
+
+    private boolean hasLocationPermission() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(requireContext(), permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private ActivityResultLauncher<IntentSenderRequest> setupPhoneHintLauncher() {
@@ -185,6 +250,9 @@ public class PersonalIdPhoneFragment extends Fragment {
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
         body.put("application_id",requireContext().getPackageName());
+        if (location != null) {
+            body.put("gps_location", location.getLatitude() + " " + location.getLongitude());
+        }
 
         integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
             if (integrityToken != null) {
@@ -194,6 +262,38 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
             return null;
         });
+    }
+
+    @Override
+    public void onLocationResult(@NonNull Location result) {
+        location = result;
+        locationController.stop();
+    }
+
+    @Override
+    public void onLocationRequestFailure(@NonNull Failure failure) {
+        if (failure instanceof CommCareLocationListener.Failure.ApiException) {
+            Exception exception = ((CommCareLocationListener.Failure.ApiException)failure).getException();
+            if (exception instanceof ResolvableApiException) {
+                try {
+                    ((ResolvableApiException)exception).startResolutionForResult(requireActivity(),
+                            LOCATION_SETTING_REQ);
+                } catch (IntentSender.SendIntentException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onLocationRequestStart() {
+    }
+
+    @Override
+    public void requestNeededPermissions(int requestCode) {
+        ActivityCompat.requestPermissions(requireActivity(),
+                REQUIRED_PERMISSIONS,
+                requestCode);
     }
 
     private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
@@ -249,5 +349,10 @@ public class PersonalIdPhoneFragment extends Fragment {
                 getString(R.string.configuration_process_failed_title),
                 errorMessage,
                 ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null).setIsCancellable(isCancellable);
+    }
+
+    @Override
+    public void missingPermissions() {
+
     }
 }
