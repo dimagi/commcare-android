@@ -614,4 +614,9 @@
     <string name="connect_job_tile_daily_visits">Ziara za Kila Siku</string>
     <string name="connect_appbar_title_app_lock">Kufuli ya Programu</string>
     <string name="connect_appbar_title_password_verification">Uthibitishaji wa Nenosiri</string>
+    <string name="incorrect_otp">OTP iliyoingizwa si sahihi. Tafadhali jaribu tena.</string>
+    <string name="too_many_attempts">Majaribio mengi sana. Tafadhali jaribu tena baadaye.</string>
+    <string name="missing_activity">Hitilafu fulani imetokea</string>
+    <string name="otp_verification_failed">Uthibitishaji wa OTP haukufaulu:</string>
+    <string name="verification_failed">Uthibitishaji haukufaulu na tafadhali jaribu tena</string>
 </resources>
