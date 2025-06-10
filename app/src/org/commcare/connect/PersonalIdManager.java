@@ -1,7 +1,5 @@
 package org.commcare.connect;
 
-import static org.commcare.utils.GlobalErrors.PERSONALID_BIOMETRIC_INVALIDATED_ERROR;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
