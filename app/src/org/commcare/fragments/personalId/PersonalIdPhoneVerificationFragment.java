@@ -267,9 +267,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void verifyOtp() {
-        if (otpManager == null){
-            initOtpManager();
-        }
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();

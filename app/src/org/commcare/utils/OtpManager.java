@@ -21,16 +21,10 @@ public class OtpManager {
     }
 
     public void requestOtp(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }
         authService.requestOtp(phoneNumber);
     }
 
     public void submitOtp(String code) {
-        if (code == null || code.trim().isEmpty()) {
-            throw new IllegalArgumentException();
-        }
         authService.verifyOtp(code);
     }
 }

@@ -32,15 +32,7 @@ public class FirebaseAuthService implements OtpAuthService {
                 new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential credential) {
-                        firebaseAuth.signInWithCredential(credential)
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        FirebaseUser user = task.getResult().getUser();
-                                        callback.onSuccess(user);
-                                    } else {
-                                        handleFirebaseException(task.getException());
-                                    }
-                                });
+                        firebaseAuthenticator(credential);
                     }
 
                     @Override
@@ -76,6 +68,10 @@ public class FirebaseAuthService implements OtpAuthService {
         }
 
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+        firebaseAuthenticator(credential);
+    }
+
+    private void firebaseAuthenticator(PhoneAuthCredential credential) {
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
