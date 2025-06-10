@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +57,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private final Handler resendTimerHandler = new Handler();
     private OtpManager otpManager;
     private PersonalIdSessionData personalIdSessionData;
+    OtpVerificationCallback otpCallback;
+
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -78,14 +81,16 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void initOtpManager() {
-        OtpVerificationCallback otpCallback = new OtpVerificationCallback() {
+        otpCallback = new OtpVerificationCallback() {
             @Override
             public void onCodeSent(String verificationId) {
+                if (otpCallback == null) return;
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_sent), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSuccess(FirebaseUser user) {
+                if (otpCallback == null) return;
                 logOtpVerification(true);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_verified) + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
                 user.getIdToken(false).addOnCompleteListener(task -> {
@@ -98,8 +103,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
+                if (otpCallback == null) return;
                 logOtpVerification(false);
-
                 String userMessage = switch (errorType) {
                     case INVALID_CREDENTIAL -> getString(R.string.incorrect_otp);
                     case TOO_MANY_REQUESTS -> getString(R.string.too_many_attempts);
@@ -215,6 +220,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        otpCallback = null;
     }
 
     @Override
@@ -265,6 +271,9 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void verifyOtp() {
+        if (otpCallback == null){
+            initOtpManager();
+        }
         binding.connectPhoneVerifyButton.setEnabled(false);
         clearOtpError();
         String otpCode = binding.customOtpView.getOtpValue();
