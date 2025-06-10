@@ -49,4 +49,8 @@ public class EncryptionKeyProvider {
     public boolean isKeyValid() {
         return getHandler(false).isKeyValid();
     }
+
+    public void deleteKey() {
+        getHandler(false).deleteKey();
+    }
 }

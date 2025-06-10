@@ -46,6 +46,10 @@ class AesKeyStoreHandler(
         }
     }
 
+    override fun deleteKey() {
+        AndroidKeyStore.instance.deleteEntry(alias)
+    }
+
     fun getKeyIfExists(): SecretKey? {
         val keystore = AndroidKeyStore.instance
         if (keystore.containsAlias(alias) && keystore.getEntry(alias, null) is KeyStore.SecretKeyEntry) {

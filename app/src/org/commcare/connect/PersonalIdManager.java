@@ -185,9 +185,7 @@ public class PersonalIdManager {
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
-        if (!isKeyValid()) {
-            FirebaseAnalyticsUtil.reportBiometricInvalidated();
-        }
+        logBiometricInvalidations();
 
         BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
             @Override
@@ -221,10 +219,18 @@ public class PersonalIdManager {
         }
     }
 
-    private boolean isKeyValid() {
-        return new EncryptionKeyProvider(parentActivity, true,
-                BIOMETRIC_INVALIDATION_KEY).isKeyValid();
+    private void logBiometricInvalidations() {
+        EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity, true,
+                BIOMETRIC_INVALIDATION_KEY);
+        if (!encryptionKeyProvider.isKeyValid()) {
+            FirebaseAnalyticsUtil.reportBiometricInvalidated();
+
+            // reset key
+            encryptionKeyProvider.deleteKey();
+            encryptionKeyProvider.getKeyForEncryption();
+        }
     }
+
 
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
