@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,7 +41,6 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -73,6 +73,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
+        binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupListeners();
         updateContinueButtonState();
     }
@@ -169,6 +170,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void startConfigurationRequest() {
+        clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
@@ -198,7 +200,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSucesss();
+                    onConfigurationSuccess();
                 } else {
                     // This is called when api returns success but with a a failure code
                     Logger.log(LogTypes.TYPE_USER,
@@ -208,14 +210,18 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
+                    onConfigurationFailure();
+                } else {
+                    navigateFailure(failureCode, t);
+                }
             }
         }.makeStartConfigurationCall(requireActivity(), body, integrityToken,requestHash);
     }
 
 
-    private void onConfigurationSucesss() {
+    private void onConfigurationSuccess() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
@@ -225,11 +231,22 @@ public class PersonalIdPhoneFragment extends Fragment {
                 navigateToMessageDisplay(failureMessage, false));
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+    }
+
+    private void clearError() {
+        binding.personalidPhoneError.setVisibility(View.GONE);
+        binding.personalidPhoneError.setText("");
+    }
+
+    private void showError(String error) {
+        binding.personalidPhoneError.setVisibility(View.VISIBLE);
+        binding.personalidPhoneError.setText(error);
     }
 
     private NavDirections navigateToBiometricSetup() {

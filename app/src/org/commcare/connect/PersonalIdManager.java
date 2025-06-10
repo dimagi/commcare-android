@@ -500,9 +500,9 @@ public class PersonalIdManager {
         ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                try {
+                try (InputStream in = responseData) {
                     String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
+                            StreamsUtil.inputStreamToByteArray(in));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
                         String key = ConnectConstants.CONNECT_KEY_DB_KEY;

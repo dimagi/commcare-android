@@ -931,7 +931,6 @@
     <string name="connectid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
     <string name="this_is_not_me"><u>This is not me</u></string>
     <string name="welcome_back_msg">Welcome back %s</string>
-    <string name="configuration_process_api_failed">Unable to contact our servers at this time. Please try again and report an issue if it persists.</string>
     <string name="recovery_failed_title">Recovery failed</string>
     <string name="recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
     <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
