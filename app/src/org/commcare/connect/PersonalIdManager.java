@@ -3,6 +3,7 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -509,7 +510,9 @@ public class PersonalIdManager {
                             ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     Logger.exception("Parsing return from DB key request", e);
                 }
             }
@@ -655,6 +658,10 @@ public class PersonalIdManager {
         }
 
         return biometricManager;
+    }
+
+    public boolean checkDeviceCompability() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
     public int getFailureAttempt() {

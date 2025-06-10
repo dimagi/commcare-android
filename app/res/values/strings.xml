@@ -938,4 +938,5 @@
     <string name="camera_permission_title">Permission for camera</string>
     <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="capture_photo">Capture Photo</string>
+    <string name="device_incompatible_version_error">Your device is not compatible with this feature. Please use a device running Android 7 or higher.</string>
 </resources>
