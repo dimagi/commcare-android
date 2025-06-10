@@ -98,7 +98,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             public void onFailure(String errorMessage) {
                 logOtpVerification(false);
-                Toast.makeText(requireContext(), getString(R.string.connect_otp_error) + errorMessage, Toast.LENGTH_SHORT).show();
                 displayOtpError(errorMessage);
             }
         };
@@ -106,8 +105,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         // Pass the Activity and callback to the OtpManager (no need to manually build PhoneAuthOptions)
         otpManager = new OtpManager(requireActivity(), otpCallback);
     }
-
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -129,8 +126,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 navigateToNameEntry();
             }
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                handleFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                handleFailure(failureCode, t);
             }
         }.validateFirebaseIdToken(requireActivity(),firebaseIdToken,personalIdSessionData);
     }
@@ -309,7 +306,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
     }
 
-    private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+    private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
     }
 }

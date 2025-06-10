@@ -169,6 +169,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void confirmBackupCode() {
+        clearError();
         enableContinueButton(false);
         String backupCode = binding.connectBackupCodeInput.getText().toString();
 
@@ -187,8 +188,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
@@ -208,6 +209,16 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
         navigateToSuccess();
+    }
+
+    private void clearError() {
+        binding.connectBackupCodeErrorMessage.setVisibility(View.GONE);
+        binding.connectBackupCodeErrorMessage.setText("");
+    }
+
+    private void showError(String message) {
+        binding.connectBackupCodeErrorMessage.setVisibility(View.VISIBLE);
+        binding.connectBackupCodeErrorMessage.setText(message);
     }
 
     private void handleFailedBackupCodeAttempt() {
