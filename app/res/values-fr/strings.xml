@@ -610,4 +610,9 @@ License.
     <string name="connect_appbar_title_password_verification">Vérification du mot de passe</string>
     <string name="add_secondary_phone_number_to_reset_your_recovery_code">Ajoutez un numéro de téléphone secondaire pour réinitialiser votre code de récupération.</string>
     <string name="add_secondary_phone_number">Ajouter un numéro de téléphone secondaire</string>
+    <string name="incorrect_otp">Le mot de passe à usage unique saisi est incorrect. Veuillez réessayer.</string>
+    <string name="too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
+    <string name="missing_activity">Quelque chose s\'est mal passé</string>
+    <string name="otp_verification_failed">Échec de la vérification OTP:</string>
+    <string name="verification_failed">La vérification a échoué, veuillez réessayer.</string>
 </resources>

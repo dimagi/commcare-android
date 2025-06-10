@@ -34,15 +34,20 @@ public class PersonalIdApiErrorHandler {
             case NETWORK_ERROR:
                 return activity.getString(R.string.recovery_network_unavailable);
             case TOKEN_UNAVAILABLE_ERROR:
-            case RATE_LIMIT_EXCEEDED_ERROR:
-            case FAILED_AUTH_ERROR:
-            case SERVER_ERROR:
                 return activity.getString(R.string.recovery_network_token_unavailable);
+            case RATE_LIMIT_EXCEEDED_ERROR:
+                return activity.getString(R.string.recovery_network_cooldown);
+            case FAILED_AUTH_ERROR:
+                return activity.getString(R.string.recovery_network_unauthorized);
+            case SERVER_ERROR:
+                return activity.getString(R.string.recovery_network_server_error);
             case TOKEN_DENIED_ERROR:
                 ConnectNetworkHelper.handleTokenDeniedException();
                 return "";
             case OLD_API_ERROR:
                 return activity.getString(R.string.recovery_network_outdated);
+            case UNKNOWN_ERROR:
+                return activity.getString(R.string.recovery_network_unknown);
             default:
                 throw new RuntimeException(t);
         }
