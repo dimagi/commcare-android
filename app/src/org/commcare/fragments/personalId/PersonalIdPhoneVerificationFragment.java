@@ -1,8 +1,5 @@
 package org.commcare.fragments.personalId;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.RECEIVER_NOT_EXPORTED;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,13 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
@@ -42,6 +32,16 @@ import org.joda.time.DateTime;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
 
 public class PersonalIdPhoneVerificationFragment extends Fragment {
 
@@ -215,8 +215,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-        otpManager.cancel();
-        otpManager = null;
     }
 
     @Override
@@ -264,7 +262,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         clearOtpError();
         if (primaryPhone != null && !primaryPhone.isEmpty() && otpManager != null){
             otpRequestTime = new DateTime();
-            otpManager.requestOtp(primaryPhone,requireContext());
+            otpManager.requestOtp(primaryPhone);
         }
     }
 
@@ -279,7 +277,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         if (otpCode.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
-            otpManager.submitOtp(otpCode,requireContext());
+            otpManager.submitOtp(otpCode);
         }
     }
 

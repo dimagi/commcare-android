@@ -1,9 +1,6 @@
 package org.commcare.utils;
 
 import android.app.Activity;
-import android.content.Context;
-
-import org.commcare.dalvik.R;
 
 
 /**
@@ -23,23 +20,17 @@ public class OtpManager {
         this.authService = new FirebaseAuthService(activity, callback);
     }
 
-    public void requestOtp(String phoneNumber, Context context) {
+    public void requestOtp(String phoneNumber) {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            throw new IllegalArgumentException(context.getString(R.string.phone_number_cannot_be_null_or_empty));
+            throw new IllegalArgumentException();
         }
         authService.requestOtp(phoneNumber);
     }
 
-    public void submitOtp(String code, Context context) {
+    public void submitOtp(String code) {
         if (code == null || code.trim().isEmpty()) {
-            throw new IllegalArgumentException(context.getString(R.string.otp_code_cannot_be_null_or_empty));
+            throw new IllegalArgumentException();
         }
         authService.verifyOtp(code);
-    }
-
-    public void cancel() {
-        if (authService instanceof FirebaseAuthService) {
-            authService.clearCallback();
-        }
     }
 }

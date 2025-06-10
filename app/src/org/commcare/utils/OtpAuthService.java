@@ -1,8 +1,5 @@
 package org.commcare.utils;
 
-
-import android.content.Context;
-
 /**
  * Interface defining the contract for OTP-based authentication operations.
  * <p>
@@ -24,6 +21,4 @@ public interface OtpAuthService {
      * @param code The OTP code to verify
      */
     void verifyOtp(String code);
-
-    void clearCallback();
 }

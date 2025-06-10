@@ -584,7 +584,5 @@
     <string name="too_many_attempts">ብዙሕ ፈተነታት። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
     <string name="missing_activity">ገለ ነገር ተጋግዩ።</string>
     <string name="otp_verification_failed">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
-    <string name="otp_code_cannot_be_null_or_empty">OTP ኮድ ባዶ ወይ ባዶ ክኸውን ኣይክእልን እዩ።</string>
-    <string name="phone_number_cannot_be_null_or_empty">ቁጽሪ ተሌፎን ባዶ ወይ ባዶ ክኸውን ኣይክእልን እዩ።</string>
     <string name="verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
 </resources>
