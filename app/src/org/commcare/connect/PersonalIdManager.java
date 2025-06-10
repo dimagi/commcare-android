@@ -3,6 +3,7 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -497,9 +498,9 @@ public class PersonalIdManager {
         ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                try {
+                try (InputStream in = responseData) {
                     String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
+                            StreamsUtil.inputStreamToByteArray(in));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
                         String key = ConnectConstants.CONNECT_KEY_DB_KEY;
@@ -507,7 +508,9 @@ public class PersonalIdManager {
                             ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     Logger.exception("Parsing return from DB key request", e);
                 }
             }
@@ -657,6 +660,10 @@ public class PersonalIdManager {
         }
 
         return biometricManager;
+    }
+
+    public boolean checkDeviceCompability() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
     public int getFailureAttempt() {

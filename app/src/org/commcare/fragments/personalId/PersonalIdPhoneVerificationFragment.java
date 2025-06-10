@@ -117,8 +117,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         otpManager = new OtpManager(requireActivity(), otpCallback);
     }
 
-
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
@@ -139,8 +137,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 navigateToNameEntry();
             }
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                handleFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                handleFailure(failureCode, t);
             }
         }.validateFirebaseIdToken(requireActivity(),firebaseIdToken,personalIdSessionData);
     }
@@ -327,7 +325,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
     }
 
-    private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+    private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
     }
 }
