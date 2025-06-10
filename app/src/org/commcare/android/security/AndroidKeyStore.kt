@@ -12,4 +12,10 @@ object AndroidKeyStore {
             load(null)
         }
     }
+
+    fun deleteKey(alias: String) {
+        if (instance.containsAlias(alias)) {
+            instance.deleteEntry(alias)
+        }
+    }
 }

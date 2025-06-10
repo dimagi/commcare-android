@@ -330,7 +330,7 @@
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
     <string name="recovery_network_token_unavailable">There was a network issue, please try again.</string>
-    <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover account.</string>
+    <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
     <string name="recovery_app_manager">Go to App Manager</string>
     <string name="recovery_retry">Retry Recovery</string>
     <string name="notification_channel_errors_title">Errors</string>
