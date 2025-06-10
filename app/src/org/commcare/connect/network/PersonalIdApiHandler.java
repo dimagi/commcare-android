@@ -25,6 +25,7 @@ import java.util.Map;
 public abstract class PersonalIdApiHandler {
 
     public enum PersonalIdApiErrorCodes {
+        UNKNOWN_ERROR,
         NETWORK_ERROR,
         OLD_API_ERROR,
         FORBIDDEN_ERROR,
@@ -93,13 +94,9 @@ public abstract class PersonalIdApiHandler {
                             Toast.makeText(CommCareApplication.instance(), json.optString("error"),
                                     Toast.LENGTH_LONG).show();
                         }
-                    } catch (JSONException e) {
-                        Logger.exception("JSON error parsing API error response", e);
-                        onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR, e);
-                        return;
-                    } catch (IOException e) {
+                    } catch (JSONException | IOException e) {
                         Logger.exception("Error parsing API error response", e);
-                        onFailure(PersonalIdApiErrorCodes.NETWORK_ERROR, e);
+                        onFailure(PersonalIdApiErrorCodes.UNKNOWN_ERROR, e);
                         return;
                     }
                 }
