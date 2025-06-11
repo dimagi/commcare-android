@@ -110,8 +110,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                     case TOO_MANY_REQUESTS -> getString(R.string.too_many_attempts);
                     case MISSING_ACTIVITY -> getString(R.string.missing_activity);
                     case VERIFICATION_FAILED -> getString(R.string.verification_failed);
-                    default ->
-                            getString(R.string.otp_verification_failed) + errorMessage != null ? errorMessage : "Unknown error";
+                    default -> getString(R.string.otp_verification_failed) + (errorMessage != null ? errorMessage
+                            : "Unknown error");
                 };
                 displayOtpError(userMessage);
                 binding.connectPhoneVerifyButton.setEnabled(false);
