@@ -246,11 +246,11 @@ public class BiometricsHelper {
 
     private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
         return (fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ||
-                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, PIN);
+                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.personalid_configuration_process_failed_security_subtitle, PIN);
     }
 
     private static String getMinBioMetricHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus) {
-        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
+        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.personalid_configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
     }
 
     //// end: min secruity requirements

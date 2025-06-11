@@ -1,8 +1,6 @@
 package org.commcare.fragments.personalId;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -226,7 +224,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void onConfigurationFailure() {
-        String failureMessage = getString(R.string.configuration_process_failed_subtitle);
+        String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false));
     }
@@ -255,7 +253,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private NavDirections navigateToMessageDisplay(String errorMessage,boolean isCancellable) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
-                getString(R.string.configuration_process_failed_title),
+                getString(R.string.personalid_configuration_process_failed_title),
                 errorMessage,
                 ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null).setIsCancellable(isCancellable);
     }
