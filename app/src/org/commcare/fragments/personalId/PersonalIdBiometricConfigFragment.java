@@ -2,7 +2,6 @@ package org.commcare.fragments.personalId;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,8 +32,7 @@ import java.util.Locale;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
-import static androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON;
-import static androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED;
+
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
 import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
@@ -276,7 +274,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
         NavDirections navDirections =
                 PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                        getString(R.string.configuration_process_failed_title),
+                        getString(R.string.personalid_configuration_process_failed_title),
                         errorMessage,
                         ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
                         null).setIsCancellable(false);
