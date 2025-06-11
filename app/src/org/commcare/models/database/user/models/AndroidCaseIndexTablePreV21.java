@@ -2,11 +2,10 @@ package org.commcare.models.database.user.models;
 
 import android.content.ContentValues;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 
@@ -20,9 +19,9 @@ public class AndroidCaseIndexTablePreV21  {
     private static final String COL_INDEX_TYPE = "type";
     private static final String COL_INDEX_TARGET = "target";
 
-    private final SQLiteDatabase db;
+    private final IDatabase db;
 
-    public AndroidCaseIndexTablePreV21(SQLiteDatabase db) {
+    public AndroidCaseIndexTablePreV21(IDatabase db) {
         this.db = db;
     }
 

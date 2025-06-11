@@ -15,6 +15,7 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 
 /**

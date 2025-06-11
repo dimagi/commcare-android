@@ -1,11 +1,10 @@
 package org.commcare.android.tests.processing;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareTestApplication;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
 import org.commcare.models.database.AndroidSandbox;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.IndexedFixturePathUtils;
 import org.commcare.models.database.StoreFixturesOnFilesystemTests;
 import org.commcare.test.utilities.CaseTestUtils;
@@ -142,7 +141,7 @@ public class IndexedFixtureLoadingTest {
             e.printStackTrace();
         }
 
-        SQLiteDatabase db = sandbox.getUserDb();
+        IDatabase db = sandbox.getUserDb();
         List<String> allIndexedFixtures =
                 IndexedFixturePathUtils.getAllIndexedFixtureNames(db);
 

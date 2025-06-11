@@ -1,10 +1,9 @@
 package org.commcare.xml;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
@@ -45,7 +44,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
         this.storage = storage;
     }
 
-    protected SQLiteDatabase getDbHandle() {
+    protected IDatabase getDbHandle() {
         return CommCareApplication.instance().getUserDbHandle();
     }
 
@@ -56,8 +55,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
 
     @Override
     protected void performBulkRead(Set<String> currentBulkReadSet, Map<String, Case> currentOperatingSet) throws InvalidStructureException, IOException, XmlPullParserException {
-        SQLiteDatabase db;
-        db = getDbHandle();
+        IDatabase db = getDbHandle();
         db.beginTransaction();
         try {
             for (ACase c : storage.getBulkRecordsForIndex(Case.INDEX_CASE_ID, currentBulkReadSet)) {
@@ -71,8 +69,7 @@ public class AndroidBulkCaseXmlParser extends BulkProcessingCaseXmlParser {
 
     @Override
     protected void performBulkWrite(LinkedHashMap<String, Case> writeLog) throws IOException {
-        SQLiteDatabase db;
-        db = getDbHandle();
+        IDatabase db = getDbHandle();
         ArrayList<Integer> recordIdsToWipe = new ArrayList<>();
 
         db.beginTransaction();

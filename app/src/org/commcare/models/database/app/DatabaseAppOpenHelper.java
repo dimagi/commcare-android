@@ -10,6 +10,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;

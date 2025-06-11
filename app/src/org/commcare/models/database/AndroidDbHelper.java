@@ -4,8 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.util.Log;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
@@ -35,7 +33,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         this.c = c;
     }
 
-    public abstract SQLiteDatabase getHandle();
+    public abstract IDatabase getHandle();
 
     public ContentValues getContentValues(Externalizable e) {
         ContentValues contentValues = new ContentValues();

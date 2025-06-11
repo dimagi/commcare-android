@@ -4,8 +4,6 @@ import android.content.Context;
 
 import java.io.File;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.AppAvailableToInstall;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -15,6 +13,7 @@ import org.commcare.android.database.global.models.ConnectKeyRecordV6;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.TableBuilder;
@@ -32,7 +31,7 @@ class GlobalDatabaseUpgrader {
         this.c = c;
     }
 
-    public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(IDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
             if (upgradeOneTwo(db, oldVersion, newVersion)) {
                 oldVersion = 2;
@@ -66,7 +65,7 @@ class GlobalDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeOneTwo(IDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
             DbUtil.createNumbersTable(db);
@@ -77,7 +76,7 @@ class GlobalDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTwoThree(SQLiteDatabase db) {
+    private boolean upgradeTwoThree(IDatabase db) {
         db.beginTransaction();
 
         //First, migrate the old ApplicationRecord in storage to the new version being used for
@@ -123,19 +122,19 @@ class GlobalDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
+    private boolean upgradeThreeFour(IDatabase db) {
         return addTableForNewModel(db, ForceCloseLogEntry.STORAGE_KEY, new ForceCloseLogEntry());
     }
 
-    private boolean upgradeFourFive(SQLiteDatabase db) {
+    private boolean upgradeFourFive(IDatabase db) {
         return addTableForNewModel(db, AppAvailableToInstall.STORAGE_KEY, new AppAvailableToInstall());
     }
 
-    private boolean upgradeFiveSix(SQLiteDatabase db) {
+    private boolean upgradeFiveSix(IDatabase db) {
         return addTableForNewModel(db, ConnectKeyRecord.STORAGE_KEY, new ConnectKeyRecordV6());
     }
 
-    private boolean upgradeSixSeven(SQLiteDatabase db) {
+    private boolean upgradeSixSeven(IDatabase db) {
         db.beginTransaction();
 
         //Migrate the old ConnectKeyRecord in storage to the new version including isLocal
@@ -170,7 +169,7 @@ class GlobalDatabaseUpgrader {
         }
     }
 
-    private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,
+    private static boolean addTableForNewModel(IDatabase db, String storageKey,
                                                Persistable modelToAdd) {
         db.beginTransaction();
         try {
@@ -192,7 +191,7 @@ class GlobalDatabaseUpgrader {
      * performs the necessary one-time migration from a global db that still exists on a device
      * to the new per-app system
      */
-    private boolean upgradeProviderDb(SQLiteDatabase db, ProviderUtils.ProviderType type) {
+    private boolean upgradeProviderDb(IDatabase db, ProviderUtils.ProviderType type) {
         File oldDbFile = CommCareApplication.instance().getDatabasePath(type.getOldDbName());
         if (oldDbFile.exists()) {
             File newDbFile = CommCareApplication.instance().getDatabasePath(
@@ -217,7 +216,7 @@ class GlobalDatabaseUpgrader {
         return (count > 1);
     }
 
-    private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
+    private static ApplicationRecord getInstalledAppRecord(Context c, IDatabase db) {
         SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                 ApplicationRecord.STORAGE_KEY,
                 ApplicationRecord.class,

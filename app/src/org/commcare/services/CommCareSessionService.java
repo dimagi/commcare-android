@@ -18,7 +18,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -32,6 +31,7 @@ import org.commcare.dalvik.R;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.FormSubmissionHelper;
@@ -95,7 +95,7 @@ public class CommCareSessionService extends Service {
     private String userKeyRecordUUID;
     private int userKeyRecordID;
 
-    private SQLiteDatabase userDatabase;
+    private IDatabase userDatabase;
 
     // unique id for logged in notification
     private final static int NOTIFICATION = org.commcare.dalvik.R.string.notificationtitle;
@@ -219,7 +219,7 @@ public class CommCareSessionService extends Service {
 
     //Start CommCare Specific Functionality
 
-    public SQLiteDatabase getUserDbHandle() {
+    public IDatabase getUserDbHandle() {
         synchronized (lock) {
             return userDatabase;
         }

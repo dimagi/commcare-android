@@ -4,10 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.SqlStorage;
@@ -40,12 +39,12 @@ import java.io.DataInputStream;
 public class FixtureSerializationMigration {
     private static final String TAG = FixtureSerializationMigration.class.getSimpleName();
 
-    public static boolean migrateUnencryptedFixtureDbBytes(SQLiteDatabase db,
+    public static boolean migrateUnencryptedFixtureDbBytes(IDatabase db,
                                                            Context c) {
         return migrateFixtureDbBytes(db, c, null, null);
     }
 
-    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c,
+    public static boolean migrateFixtureDbBytes(IDatabase db, Context c,
                                                 String directoryName,
                                                 byte[] fileMigrationKeySeed) {
         long start = System.currentTimeMillis();
@@ -105,7 +104,7 @@ public class FixtureSerializationMigration {
         }
     }
 
-    public static void stageFixtureTables(SQLiteDatabase db) {
+    public static void stageFixtureTables(IDatabase db) {
         db.beginTransaction();
         try {
             boolean resumingMigration = doesTempFixtureTableExist(db);
@@ -127,7 +126,7 @@ public class FixtureSerializationMigration {
         }
     }
 
-    private static boolean doesTempFixtureTableExist(SQLiteDatabase db) {
+    private static boolean doesTempFixtureTableExist(IDatabase db) {
         // "SELECT name FROM sqlite_master WHERE type='table' AND name='oldfixture';";
         String whereClause = "type =? AND name =?";
         String[] whereArgs = new String[]{
@@ -146,7 +145,7 @@ public class FixtureSerializationMigration {
         }
     }
 
-    public static void dropTempFixtureTable(SQLiteDatabase db) {
+    public static void dropTempFixtureTable(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL("DROP TABLE oldfixture;");

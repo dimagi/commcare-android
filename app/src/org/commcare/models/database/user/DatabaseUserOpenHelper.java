@@ -15,6 +15,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.logging.XPathErrorEntry;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
@@ -211,7 +212,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("User", oldVersion, newVersion));
     }
 
-    public static void buildTable(SQLiteDatabase database,
+    public static void buildTable(IDatabase database,
                                   String tableName,
                                   Persistable dataObject) {
         database.beginTransaction();
@@ -225,7 +226,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void dropTable(SQLiteDatabase database,
+    public static void dropTable(IDatabase database,
                                  String tableName) {
         database.beginTransaction();
         try {

@@ -4,13 +4,12 @@ import android.net.ParseException;
 import android.net.Uri;
 import android.util.Pair;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.interfaces.CommcareRequestEndpoints;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.util.LogTypes;
@@ -85,14 +84,13 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         }
     }
 
-    protected SQLiteDatabase getDbHandle() {
+    protected IDatabase getDbHandle() {
         return CommCareApplication.instance().getUserDbHandle();
     }
 
     @Override
     public void commit(Case parsed) throws IOException {
-        SQLiteDatabase db;
-        db = getDbHandle();
+        IDatabase db = getDbHandle();
         db.beginTransaction();
         try {
             super.commit(parsed);

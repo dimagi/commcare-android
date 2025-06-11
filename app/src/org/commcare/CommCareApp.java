@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.references.JavaFileRoot;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
@@ -72,7 +71,7 @@ public class CommCareApp implements AppFilePathBuilder {
     public static CommCareApp currentSandbox;
 
     private final Object appDbHandleLock = new Object();
-    private SQLiteDatabase appDatabase;
+    private IDatabase appDatabase;
 
     private static Stylizer mStylizer;
 
@@ -402,7 +401,7 @@ public class CommCareApp implements AppFilePathBuilder {
     protected AndroidDbHelper buildAndroidDbHelper() {
         return new AndroidDbHelper(CommCareApplication.instance().getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 synchronized (appDbHandleLock) {
                     if (appDatabase == null || !appDatabase.isOpen()) {
                         appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase();
@@ -459,7 +458,7 @@ public class CommCareApp implements AppFilePathBuilder {
     /**
      * For testing purposes only
      */
-    public static SQLiteDatabase getAppDatabaseForTesting() {
+    public static IDatabase getAppDatabaseForTesting() {
         if (BuildConfig.DEBUG) {
             return CommCareApplication.instance().getCurrentApp().buildAndroidDbHelper().getHandle();
         } else {

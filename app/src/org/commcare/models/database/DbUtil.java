@@ -56,7 +56,7 @@ public class DbUtil {
         oldDb.close();
     }
 
-    public static void createNumbersTable(SQLiteDatabase db) {
+    public static void createNumbersTable(IDatabase db) {
         //Virtual Table
         String dropStatement = "DROP TABLE IF EXISTS integers;";
         db.execSQL(dropStatement);
@@ -68,7 +68,7 @@ public class DbUtil {
         }
     }
 
-    public static void explainSql(SQLiteDatabase handle, String sql, String[] args) {
+    public static void explainSql(IDatabase handle, String sql, String[] args) {
         Cursor explain = handle.rawQuery("EXPLAIN QUERY PLAN " + sql, args);
         Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor(explain);
@@ -79,7 +79,7 @@ public class DbUtil {
      * Table of files scheduled for deletion. Entries added when file-based
      * database transactions fail or when file-backed entries are removed.
      */
-    public static void createOrphanedFileTable(SQLiteDatabase db) {
+    public static void createOrphanedFileTable(IDatabase db) {
         String createStatement =
                 "CREATE TABLE IF NOT EXISTS "
                         + orphanFileTableName

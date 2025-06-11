@@ -3,13 +3,12 @@ package org.commcare.models.database.user.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.query.queryset.DualTableSingleMatchModelQuerySet;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
@@ -36,7 +35,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
     private static final String COL_INDEX_TARGET = "target";
     private static final String COL_INDEX_RELATIONSHIP = "relationship";
 
-    private final SQLiteDatabase db;
+    private final IDatabase db;
 
     //TODO: We should do some synchronization to make it the case that nothing can hold
     //an object for the same cache at once and let us manage the lifecycle
@@ -45,7 +44,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
         this.db = CommCareApplication.instance().getUserDbHandle();
     }
 
-    public AndroidCaseIndexTable(SQLiteDatabase dbHandle) {
+    public AndroidCaseIndexTable(IDatabase dbHandle) {
         this.db = dbHandle;
     }
 
@@ -60,7 +59,7 @@ public class AndroidCaseIndexTable implements CaseIndexTable {
                 ")";
     }
 
-    public static void createIndexes(SQLiteDatabase db) {
+    public static void createIndexes(IDatabase db) {
         String recordFirstIndexId = "RECORD_NAME_ID_TARGET";
         String recordFirstIndex = COL_CASE_RECORD_ID + ", " + COL_INDEX_NAME + ", " + COL_INDEX_TARGET;
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand(recordFirstIndexId, TABLE_NAME, recordFirstIndex));

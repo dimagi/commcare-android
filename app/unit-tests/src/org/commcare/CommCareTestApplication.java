@@ -20,6 +20,7 @@ import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;

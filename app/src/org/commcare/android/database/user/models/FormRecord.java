@@ -4,14 +4,13 @@ import android.database.SQLException;
 
 import androidx.annotation.StringDef;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.dalvik.R;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -381,7 +380,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
             // before moving on. We'll catch any errors here and just eat them
             // (since the task will also try the process and fail if it does).
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
-                SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+                IDatabase userDb = CommCareApplication.instance().getUserDbHandle();
                 userDb.beginTransaction();
                 try {
                     new FormRecordProcessor(CommCareApplication.instance()).process(current);

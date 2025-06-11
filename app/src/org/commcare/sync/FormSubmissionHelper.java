@@ -3,8 +3,6 @@ package org.commcare.sync;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
@@ -12,6 +10,7 @@ import org.commcare.cases.util.InvalidCaseGraphException;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.FormRecordProcessor;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.suite.model.Profile;
@@ -195,7 +194,7 @@ public class FormSubmissionHelper implements DataSubmissionListener {
 
             //If the form is complete, but unprocessed, process it.
             if (FormRecord.STATUS_COMPLETE.equals(record.getStatus())) {
-                SQLiteDatabase userDb =
+                IDatabase userDb =
                         CommCareApplication.instance().getUserDbHandle();
                 try {
                     userDb.beginTransaction();

@@ -21,6 +21,7 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.TableBuilder;
@@ -77,7 +78,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         getDbFile(context).delete();
     }
 
-    public static void rekeyDB(SQLiteDatabase db, String newPassphrase) throws Base64DecoderException {
+    public static void rekeyDB(IDatabase db, String newPassphrase) throws Base64DecoderException {
         if(db != null) {
             byte[] newBytes = Base64.decode(newPassphrase);
             String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);

@@ -9,13 +9,12 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.AsyncEntity;
 import org.commcare.cases.entity.EntityStorageCache;
 import org.commcare.engine.cases.CaseUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
@@ -55,7 +54,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
     // for which the related entity graph needs to be deleted from cache
     private static final String COL_IS_SHALLOW = "is_shallow";
 
-    private final SQLiteDatabase db;
+    private final IDatabase db;
     private final String mCacheName;
     private final String mAppId;
 
@@ -63,7 +62,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         this(cacheName, CommCareApplication.instance().getUserDbHandle(), AppUtils.getCurrentAppId());
     }
 
-    public CommCareEntityStorageCache(String cacheName, SQLiteDatabase db, String appId) {
+    public CommCareEntityStorageCache(String cacheName, IDatabase db, String appId) {
         this.db = db;
         this.mCacheName = cacheName;
         this.mAppId = appId;
@@ -83,14 +82,14 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                 ")";
     }
 
-    public static void createIndexes(SQLiteDatabase db) {
+    public static void createIndexes(IDatabase db) {
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("CACHE_TIMESTAMP", TABLE_NAME, COL_CACHE_NAME + ", " + COL_TIMESTAMP));
         db.execSQL(DatabaseIndexingUtils.indexOnTableCommand("NAME_ENTITY_KEY", TABLE_NAME, COL_CACHE_NAME + ", " + COL_ENTITY_KEY + ", " + COL_CACHE_KEY));
     }
 
     public Closeable lockCache() {
         //Get a db handle so we can get an outer lock
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        IDatabase db = CommCareApplication.instance().getUserDbHandle();
         //get the db lock
         db.beginTransaction();
         return () -> {
@@ -111,7 +110,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         cv.put(COL_CACHE_KEY, cacheKey);
         cv.put(COL_VALUE, value);
         cv.put(COL_TIMESTAMP, System.currentTimeMillis());
-        db.insertWithOnConflict(TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        db.insertWithOnConflict(TABLE_NAME, null, cv, db.getConflictReplace());
 
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             Log.d(TAG, "Cached value|" + entityKey + "|" + cacheKey);
@@ -203,13 +202,13 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         }
     }
 
-    public static void wipeCacheForCurrentAppWithoutCommit(SQLiteDatabase userDb) {
+    public static void wipeCacheForCurrentAppWithoutCommit(IDatabase userDb) {
         userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{AppUtils.getCurrentAppId()});
         setEntityCacheWipedPref();
     }
 
     public static void wipeCacheForCurrentApp() {
-        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        IDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         userDb.beginTransaction();
         try {
             userDb.delete(TABLE_NAME, COL_APP_ID + " = ?", new String[]{AppUtils.getCurrentAppId()});
@@ -262,7 +261,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                             + whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '"
                             + AppUtils.getCurrentAppId() +
                             "' AND cache_key IN " + validKeys;
-            SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+            IDatabase db = CommCareApplication.instance().getUserDbHandle();
             if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
                 DbUtil.explainSql(db, sqlStatement, args);
             }
@@ -318,7 +317,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
                         whereClause + " AND " + CommCareEntityStorageCache.COL_APP_ID + " = '"
                         + AppUtils.getCurrentAppId() +
                         "' AND cache_key IN " + validKeys;
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        IDatabase db = CommCareApplication.instance().getUserDbHandle();
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             DbUtil.explainSql(db, sqlStatement, args);
         }
@@ -385,8 +384,8 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
         return whereClause;
     }
 
-    private static void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args,
-            Hashtable<String, AsyncEntity> entitySet) {
+    private static void populateEntitySet(IDatabase db, String sqlStatement, String[] args,
+                                          Hashtable<String, AsyncEntity> entitySet) {
         Cursor walker = db.rawQuery(sqlStatement, args);
         while (walker.moveToNext()) {
             String entityKey = walker.getString(walker.getColumnIndex("entity_key"));
@@ -411,7 +410,7 @@ public class CommCareEntityStorageCache implements EntityStorageCache {
             cv.put(COL_ENTITY_KEY, recordId);
             cv.put(COL_IS_SHALLOW, 1);
             cv.put(COL_TIMESTAMP, System.currentTimeMillis());
-            db.insertWithOnConflict(TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+            db.insertWithOnConflict(TABLE_NAME, null, cv, db.getConflictReplace());
         }
     }
 

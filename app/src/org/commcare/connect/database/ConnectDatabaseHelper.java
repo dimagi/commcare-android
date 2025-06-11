@@ -5,13 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -28,7 +27,7 @@ import android.util.Base64;
  */
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
-    public static SQLiteDatabase connectDatabase;
+    public static IDatabase connectDatabase;
     static boolean dbBroken = false;
 
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
@@ -55,7 +54,7 @@ public class ConnectDatabaseHelper {
     static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
         return new SqlStorage<>(c.getAnnotation(Table.class).value(), c, new AndroidDbHelper(context) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {

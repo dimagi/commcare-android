@@ -1,7 +1,5 @@
 package org.commcare.models.database;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
@@ -65,13 +63,13 @@ public class AndroidSandbox extends UserSandbox {
 
     @Override
     public IndexedFixtureIdentifier getIndexedFixtureIdentifier(String fixtureName) {
-        SQLiteDatabase db = app.getUserDbHandle();
+        IDatabase db = app.getUserDbHandle();
         return IndexedFixturePathUtils.lookupIndexedFixturePaths(db, fixtureName);
     }
 
     @Override
     public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
-        SQLiteDatabase db = app.getUserDbHandle();
+        IDatabase db = app.getUserDbHandle();
         IndexedFixturePathUtils.insertIndexedFixturePathBases(db, fixtureName, baseName, childName, attrs);
     }
 
@@ -105,7 +103,7 @@ public class AndroidSandbox extends UserSandbox {
 
     }
 
-    public SQLiteDatabase getUserDb() {
+    public IDatabase getUserDb() {
         return app.getUserDbHandle();
     }
 }

@@ -2,20 +2,18 @@ package org.commcare.models.database.user;
 
 import android.content.Context;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
+
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
-
 import java.util.Date;
-
 import javax.crypto.SecretKey;
 
 /**
@@ -91,7 +89,7 @@ public class DemoUserBuilder {
     }
 
     private void writeNewUser(UserKeyRecord keyRecord) {
-        SQLiteDatabase userDatabase = null;
+        IDatabase userDatabase = null;
         try {
             userDatabase = new DatabaseUserOpenHelper(CommCareApplication.instance(),
                     keyRecord.getUuid(), UserSandboxUtils.getSqlCipherEncodedKey(randomKey)).getWritableDatabase();

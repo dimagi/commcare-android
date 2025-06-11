@@ -1,6 +1,5 @@
 package org.commcare.android.util;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
@@ -17,6 +16,7 @@ import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -87,14 +87,14 @@ public class TestUtils {
     /**
      * Get a form instance and case enabled parsing factory
      */
-    private static TransactionParserFactory getFactory(final SQLiteDatabase db) {
+    private static TransactionParserFactory getFactory(final IDatabase db) {
         return getFactory(db, false);
     }
 
     /**
      * Get a form instance and case enabled parsing factory
      */
-    private static TransactionParserFactory getFactory(final SQLiteDatabase db, final boolean bulkProcessingEnabled) {
+    private static TransactionParserFactory getFactory(final IDatabase db, final boolean bulkProcessingEnabled) {
         final Hashtable<String, String> formInstanceNamespaces;
         if (CommCareApplication.instance().getCurrentApp() != null) {
             formInstanceNamespaces = FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication.instance().getAppStorage(FormDefRecord.class));
@@ -121,7 +121,7 @@ public class TestUtils {
                 if (bulkProcessingEnabled) {
                     return new AndroidBulkCaseXmlParser(parser, getCaseStorage(db), commCareEntityStorageCache, new AndroidCaseIndexTable(db)) {
                         @Override
-                        protected SQLiteDatabase getDbHandle() {
+                        protected IDatabase getDbHandle() {
                             return db;
                         }
                     };
@@ -129,7 +129,7 @@ public class TestUtils {
                 } else {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), commCareEntityStorageCache, new AndroidCaseIndexTable(db)) {
                         @Override
-                        protected SQLiteDatabase getDbHandle() {
+                        protected IDatabase getDbHandle() {
                             return db;
                         }
                     };
@@ -155,7 +155,7 @@ public class TestUtils {
      */
     public static void processResourceTransaction(String resourcePath,
                                                   boolean bulkProcessingEnabled) {
-        final SQLiteDatabase db = getTestDb();
+        final IDatabase db = getTestDb();
 
         DataModelPullParser parser;
 
@@ -210,7 +210,7 @@ public class TestUtils {
     /**
      * @return The hook for the test user-db
      */
-    private static SQLiteDatabase getTestDb() {
+    private static IDatabase getTestDb() {
         DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(ApplicationProvider.getApplicationContext(), "Test", "Test");
         return helper.getWritableDatabase();
     }
@@ -227,7 +227,7 @@ public class TestUtils {
     }
 
     public static <T extends Persistable> SqlStorage<T> getStorage(String storageKey, Class<T> prototypeModel) {
-        SQLiteDatabase db = getTestDb();
+        IDatabase db = getTestDb();
         TableBuilder builder = new TableBuilder(storageKey);
 
         try {
@@ -253,7 +253,7 @@ public class TestUtils {
     /**
      * @return The case storage object for the provided db
      */
-    private static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
+    private static SqlStorage<ACase> getCaseStorage(IDatabase db) {
         return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(ApplicationProvider.getApplicationContext(), db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
@@ -262,7 +262,7 @@ public class TestUtils {
         });
     }
 
-    private static SqlStorage<Ledger> getLedgerStorage(SQLiteDatabase db) {
+    private static SqlStorage<Ledger> getLedgerStorage(IDatabase db) {
         return new SqlStorage<>(Ledger.STORAGE_KEY, Ledger.class, new ConcreteAndroidDbHelper(ApplicationProvider.getApplicationContext(), db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
@@ -291,7 +291,7 @@ public class TestUtils {
     }
 
     private static AndroidInstanceInitializer buildTestInstanceInitializer() {
-        final SQLiteDatabase db = getTestDb();
+        final IDatabase db = getTestDb();
 
         return new AndroidInstanceInitializer() {
             @Override
