@@ -2,8 +2,6 @@ package org.commcare.models.database.user;
 
 import android.content.Context;
 
-import net.zetetic.database.sqlcipher.SQLiteDatabaseHook;
-
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;

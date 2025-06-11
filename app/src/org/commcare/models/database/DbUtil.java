@@ -14,8 +14,6 @@ import org.commcare.modern.database.TableBuilder;
 
 import java.io.File;
 
-import androidx.annotation.NonNull;
-
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     public final static String orphanFileTableName = "OrphanedFiles";

@@ -17,7 +17,6 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.IDatabase;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;

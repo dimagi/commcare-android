@@ -30,7 +30,6 @@ import org.commcare.core.encryption.CryptUtil;
 import org.commcare.dalvik.R;
 import org.commcare.heartbeat.HeartbeatLifecycleManager;
 import org.commcare.interfaces.FormSaveCallback;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.preferences.HiddenPreferences;

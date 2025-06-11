@@ -1,7 +1,6 @@
 package org.commcare.models.database;
 
 import android.database.Cursor;
-import android.util.Log;
 
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.modern.database.DatabaseHelper;
@@ -24,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;

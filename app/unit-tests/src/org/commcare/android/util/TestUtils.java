@@ -18,7 +18,6 @@ import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.modern.database.TableBuilder;

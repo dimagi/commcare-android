@@ -13,7 +13,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.modern.database.TableBuilder;
-import org.commcare.util.LogTypes;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
