@@ -233,10 +233,9 @@ public class ApiPersonalId {
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
-                    if (response.errorBody() != null){
-                        callback.processFailure(response.code(), response.errorBody().byteStream());
-                    }
-                    callback.processFailure(response.code(), null);
+                    InputStream stream = response.errorBody() != null ?
+                            response.errorBody().byteStream() : null;
+                    callback.processFailure(response.code(), stream);
                 }
             }
 
