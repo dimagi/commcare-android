@@ -446,12 +446,12 @@ License.
     <string name="personalid_photo_capture_take_photo_button">Prendre une photo</string>
     <string name="personalid_photo_capture_save_photo_button">Enregistrer la photo</string>
     <string name="personalid_photo_upload_failure">Échec de l\'enregistrement de la photo. Veuillez vérifier votre connexion Internet et réessayer.</string>
-    <string name="personalid_this_is_not_me"><u>Ce n'est pas moi</u></string>
+    <string name="personalid_this_is_not_me"><u>Ce n\'est pas moi</u></string>
     <string name="personalid_welcome_back_msg">Bon retour %s</string>
     <string name="personalid_recovery_failed_title">La récupération a échoué</string>
     <string name="personalid_recovery_failed_message">Il semble que vous ayez oublié votre code de sauvegarde, nous créons un nouveau compte pour vous</string>
     <string name="personalid_wrong_backup_message">Vous avez saisi un code de secours erroné. Veuillez réessayer. Vous devrez créer un nouveau compte après %d tentatives incorrectes.</string>
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
-    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d'utiliser l'appareil photo de votre appareil.</string>
+    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
 </resources>
