@@ -406,7 +406,8 @@ License.
     <string name="connect_messaging_channel_notification_title">Nouvelle chaîne</string>
     <string name="connect_messaging_channel_notification_message">Un nouveau canal de messagerie est disponible depuis %s, appuyez ici pour voir</string>
     <string name="connect_job_learn_details">En savoir plus sur les détails</string>
-    <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\'évaluation et êtes prêt à livrer. Consultez le statut de la mission pour continuer.</string>    <string name="connect_results_summary_all">Tous</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">Vous avez réussi l\'évaluation et êtes prêt à livrer. Consultez le statut de la mission pour continuer.</string>
+    <string name="connect_results_summary_all">Tous</string>
     <string name="connect_results_summary_pending">En attente</string>
     <string name="connect_results_summary_rejected">Rejeté</string>
     <string name="connect_results_summary_approved">Approuvé</string>
