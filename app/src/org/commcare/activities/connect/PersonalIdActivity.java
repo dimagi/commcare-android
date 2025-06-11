@@ -2,6 +2,7 @@ package org.commcare.activities.connect;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
@@ -10,6 +11,9 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
+
+import java.util.Objects;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
@@ -80,15 +84,37 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
 
         switch (PersonalIdManager.getInstance().getStatus()) {
             case NotIntroduced, Registering:
-                navDirections = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentSelf();
-                break;
+                if (Objects.equals(getCurrentFragmentName(), "PersonalIdPhoneFragment")){
+                    navDirections = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentSelf();
+                    navController.navigate(navDirections);
+                    break;
+                }
         }
         if (navDirections == null) {
-            navDirections = PersonalIdPhoneFragmentDirections
-                    .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
+            if (Objects.equals(getCurrentFragmentName(), "PersonalIdPhoneFragment")){
+                navDirections = PersonalIdPhoneFragmentDirections
+                        .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
+                navController.navigate(navDirections);
+            }
         }
-        navController.navigate(navDirections);
     }
+
+    public String getCurrentFragmentName() {
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_connectid);
+
+        if (navHostFragment != null) {
+            Fragment currentFragment = navHostFragment.getChildFragmentManager()
+                    .getPrimaryNavigationFragment();
+
+            if (currentFragment != null) {
+                return currentFragment.getClass().getSimpleName();
+            }
+        }
+
+        return "UnknownFragment";
+    }
+
 
     private void updateBackButton() {
         ActionBar actionBar = getSupportActionBar();
