@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
@@ -259,7 +261,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
      * Generates a biometric linked key in Android Key Store if not already there
      */
     private void storeBiometricInvalidationKey() {
-        new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
+        CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
+        if(BiometricsHelper.isFingerprintConfigured(requireContext(),
+                PersonalIdManager.getInstance().getBiometricManager(activity))) {
+            new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
+        }
     }
 
     private NavDirections navigateToBiometricEnrollmentFailed() {
