@@ -2,16 +2,14 @@ package org.commcare.activities.connect;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
-import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
 
