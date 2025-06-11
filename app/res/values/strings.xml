@@ -592,28 +592,31 @@
     <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string>
     <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string>
     <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string>
-    <string name="login_via_connect">Ready to login!\n</string>
-    <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
-    <string name="name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
-    <string name="configuration_process_failed_title">Process Failed</string>
-    <string name="configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
-    <string name="configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
-    <string name="configuration_process_failed_server_msg">Invalid device security requirements from server: %s</string>
-    <string name="connectid_photo_capture_title">Welcome %1$s</string>
-    <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
-    <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
-    <string name="connectid_photo_capture_save_photo_button">Save Photo</string>
-    <string name="this_is_not_me"><u>This is not me</u></string>
-    <string name="welcome_back_msg">Welcome back %s</string>
-    <string name="recovery_failed_title">Recovery failed</string>
-    <string name="recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
+
+    <string name="personalid_login_via_connect">Ready to login!\n</string>
+    <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
+    <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
+    <string name="personalid_name_empty_error">Name field cannot be empty</string>
+    <string name="personalid_configuration_process_failed_title">Process Failed</string>
+    <string name="personalid_configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_failed_server_msg">Invalid device security requirements from server: %s</string>
+    <string name="personalid_photo_capture_title">Welcome %1$s</string>
+    <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
+    <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
+    <string name="personalid_photo_capture_save_photo_button">Save Photo</string>
+    <string name="personalid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
+    <string name="personalid_this_is_not_me"><u>This is not me</u></string>
+    <string name="personalid_welcome_back_msg">Welcome back %s</string>
+    <string name="personalid_recovery_failed_title">Recovery failed</string>
+    <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
     <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
-    <string name="camera_permission_title">Permission for camera</string>
-    <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
-    <string name="capture_photo">Capture Photo</string>
-    <string name="incorrect_otp">The OTP entered is incorrect. Please try again.</string>
-    <string name="too_many_attempts">Too many attempts. Please try again later.</string>
-    <string name="missing_activity">Something went wrong</string>
-    <string name="otp_verification_failed">OTP verification failed:</string>
-    <string name="verification_failed">Verification failed and please try again</string>
+    <string name="personalid_camera_permission_title">Permission for camera</string>
+    <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="personalid_capture_photo">Capture Photo</string>
+    <string name="personalid_incorrect_otp">The OTP entered is incorrect. Please try again.</string>
+    <string name="personalid_too_many_otp_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_otp_missing_activity">Something went wrong</string>
+    <string name="personalid_otp_verification_failed_generic">OTP verification failed:</string>
+    <string name="personalid_otp_verification_failed">Verification failed and please try again</string>
 </resources>

@@ -6,7 +6,6 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,12 +105,12 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 if (otpCallback == null) return;
                 logOtpVerification(false);
                 String userMessage = switch (errorType) {
-                    case INVALID_CREDENTIAL -> getString(R.string.incorrect_otp);
-                    case TOO_MANY_REQUESTS -> getString(R.string.too_many_attempts);
-                    case MISSING_ACTIVITY -> getString(R.string.missing_activity);
-                    case VERIFICATION_FAILED -> getString(R.string.verification_failed);
+                    case INVALID_CREDENTIAL -> getString(R.string.personalid_incorrect_otp);
+                    case TOO_MANY_REQUESTS -> getString(R.string.personalid_too_many_otp_attempts);
+                    case MISSING_ACTIVITY -> getString(R.string.personalid_otp_missing_activity);
+                    case VERIFICATION_FAILED -> getString(R.string.personalid_otp_verification_failed);
                     default ->
-                            getString(R.string.otp_verification_failed) + errorMessage != null ? errorMessage : "Unknown error";
+                            getString(R.string.personalid_otp_verification_failed_generic) + errorMessage != null ? errorMessage : "Unknown error";
                 };
                 displayOtpError(userMessage);
                 binding.connectPhoneVerifyButton.setEnabled(false);

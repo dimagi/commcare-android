@@ -426,9 +426,9 @@
     <string name="connect_visit_type_title">%s Ziara</string>
     <string name="connect_job_tile_daily_visits">Ziara za Kila Siku</string>
     <string name="connect_appbar_title_app_lock">Kufuli ya Programu</string>
-    <string name="incorrect_otp">OTP iliyoingizwa si sahihi. Tafadhali jaribu tena.</string>
-    <string name="too_many_attempts">Majaribio mengi sana. Tafadhali jaribu tena baadaye.</string>
-    <string name="missing_activity">Hitilafu fulani imetokea</string>
-    <string name="otp_verification_failed">Uthibitishaji wa OTP haukufaulu:</string>
-    <string name="verification_failed">Uthibitishaji haukufaulu na tafadhali jaribu tena</string>
+    <string name="personalid_incorrect_otp">OTP iliyoingizwa si sahihi. Tafadhali jaribu tena.</string>
+    <string name="personalid_too_many_otp_attempts">Majaribio mengi sana. Tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_otp_missing_activity">Hitilafu fulani imetokea</string>
+    <string name="personalid_otp_verification_failed_generic">Uthibitishaji wa OTP haukufaulu:</string>
+    <string name="personalid_otp_verification_failed">Uthibitishaji haukufaulu na tafadhali jaribu tena</string>
 </resources>
