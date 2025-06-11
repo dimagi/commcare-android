@@ -403,9 +403,9 @@
     <string name="connect_messaging_channel_consent_description">ኣብዚ ቻነል ናይ መልእኽቲ ፈትሊ ክትከፍቱ ትሰማምዑ ዶ?</string>
     <string name="connect_messaging_channel_consent_accept">ተቀበል</string>
     <string name="connect_messaging_channel_consent_decline">ኣውድቅ</string>
-    <string name="incorrect_otp">እቲ ዝኣተወ OTP ጌጋ እዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
-    <string name="too_many_attempts">ብዙሕ ፈተነታት። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
-    <string name="missing_activity">ገለ ነገር ተጋግዩ።</string>
-    <string name="otp_verification_failed">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
-    <string name="verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
+    <string name="personalid_incorrect_otp">እቲ ዝኣተወ OTP ጌጋ እዩ። በጃኹም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_too_many_otp_attempts">ብዙሕ ፈተነታት። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_otp_missing_activity">ገለ ነገር ተጋግዩ።</string>
+    <string name="personalid_otp_verification_failed_generic">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
+    <string name="personalid_otp_verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
 </resources>

@@ -86,7 +86,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void setUserNameAndPhoto() {
-        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, personalIdSessionData.getUserName()));
+        binding.welcomeBack.setText(getString(R.string.personalid_welcome_back_msg, personalIdSessionData.getUserName()));
         if (!TextUtils.isEmpty(personalIdSessionData.getPhotoBase64())) {
             binding.userPhoto.setImageBitmap(
                     MediaUtil.decodeBase64EncodedBitmap(personalIdSessionData.getPhotoBase64()));
@@ -179,8 +179,8 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() == 0) {
-                    navigateWithMessage(getString(R.string.recovery_failed_title),
-                            getString(R.string.recovery_failed_message),
+                    navigateWithMessage(getString(R.string.personalid_recovery_failed_title),
+                            getString(R.string.personalid_recovery_failed_message),
                             ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED);
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();

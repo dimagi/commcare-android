@@ -75,8 +75,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void setUpUi() {
-        requireActivity().setTitle(getString(R.string.capture_photo));
-        viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, personalIdSessionData.getUserName()));
+        requireActivity().setTitle(getString(R.string.personalid_capture_photo));
+        viewBinding.title.setText(getString(R.string.personalid_photo_capture_title, personalIdSessionData.getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
         viewBinding.savePhotoButton.setOnClickListener(v -> uploadImageAndCompleteProfile());
     }
