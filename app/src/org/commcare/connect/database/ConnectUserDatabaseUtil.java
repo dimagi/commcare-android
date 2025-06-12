@@ -34,10 +34,7 @@ public class ConnectUserDatabaseUtil {
         ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
     }
 
-    public static void forgetUser(Context context) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context must not be null");
-        }
+    public static void forgetUser() {
         DatabaseConnectOpenHelper.deleteDb();
         CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
         ConnectDatabaseHelper.dbBroken = false;
