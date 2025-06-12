@@ -26,6 +26,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
@@ -215,14 +216,16 @@ public class PersonalIdManager {
     }
 
     private void logBiometricInvalidations() {
-        EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity, true,
-                BIOMETRIC_INVALIDATION_KEY);
-        if (!encryptionKeyProvider.isKeyValid()) {
-            FirebaseAnalyticsUtil.reportBiometricInvalidated();
+        if(AndroidKeyStore.INSTANCE.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) {
+            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity,
+                    true, BIOMETRIC_INVALIDATION_KEY);
+            if (!encryptionKeyProvider.isKeyValid()) {
+                FirebaseAnalyticsUtil.reportBiometricInvalidated();
 
-            // reset key
-            encryptionKeyProvider.deleteKey();
-            encryptionKeyProvider.getKeyForEncryption();
+                // reset key
+                encryptionKeyProvider.deleteKey();
+                encryptionKeyProvider.getKeyForEncryption();
+            }
         }
     }
 

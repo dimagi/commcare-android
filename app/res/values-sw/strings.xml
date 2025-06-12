@@ -371,6 +371,7 @@
     <string name="choose_a_6_digit_recovery_code">Chagua Msimbo wa Urejeshaji wa Dijiti 6</string>
     <string name="download_app">Pakua</string>
     <string name="sync">Sawazisha</string>
+    <string name="micro_image_activity_title">Piga Picha ya Uso</string>
     <string name="connect_job_info_title">Maelezo ya Fursa</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>

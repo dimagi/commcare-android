@@ -369,6 +369,7 @@
     <string name="choose_a_6_digit_recovery_code">6 ኣሃዝ ዘለዎ ሓድሽ ኮድ ምረጽ</string>
     <string name="download_app">ዳውንሎድ</string>
     <string name="sync">ምትእስሳር</string>
+    <string name="micro_image_activity_title">ስእሊ ገጽ ምቕራጽ</string>
     <string name="connect_job_info_title">ዝርዝር ዕድል</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
