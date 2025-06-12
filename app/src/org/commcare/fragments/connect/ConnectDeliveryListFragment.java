@@ -123,14 +123,12 @@ public class ConnectDeliveryListFragment extends Fragment {
 
     private List<ConnectJobDeliveryRecord> getFilteredDeliveries() {
         List<ConnectJobDeliveryRecord> deliveryProgressList = new ArrayList<>();
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job != null) {
-            for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
-                if (delivery.getUnitName().equalsIgnoreCase(unitName) &&
-                        (currentFilter.equals(ALL_IDENTIFIER) ||
-                                delivery.getStatus().equalsIgnoreCase(currentFilter))) {
-                    deliveryProgressList.add(delivery);
-                }
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
+        for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+            if (delivery.getUnitName().equalsIgnoreCase(unitName) &&
+                    (currentFilter.equals(ALL_IDENTIFIER) ||
+                            delivery.getStatus().equalsIgnoreCase(currentFilter))) {
+                deliveryProgressList.add(delivery);
             }
         }
         return deliveryProgressList;

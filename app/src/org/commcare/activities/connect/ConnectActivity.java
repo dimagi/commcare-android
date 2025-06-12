@@ -68,7 +68,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         updateBackButton();
 
         if (getIntent().getBooleanExtra("info", false)) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectManager.requireActiveJob();
             int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
                     R.id.connect_job_delivery_progress_fragment :
                     R.id.connect_job_learning_progress_fragment;

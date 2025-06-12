@@ -38,7 +38,7 @@ public class ConnectResultsListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ConnectResultsListFragmentArgs args = ConnectResultsListFragmentArgs.fromBundle(getArguments());
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         boolean showPayments = args.getShowPayments();
         getActivity().setTitle(job.getTitle());
 
@@ -83,7 +83,7 @@ public class ConnectResultsListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectManager.requireActiveJob();
             if(holder instanceof VerificationViewHolder verificationHolder) {
                 ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
 
@@ -113,7 +113,7 @@ public class ConnectResultsListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectManager.requireActiveJob();
             return showPayments ? job.getPayments().size() : job.getDeliveries().size();
         }
 

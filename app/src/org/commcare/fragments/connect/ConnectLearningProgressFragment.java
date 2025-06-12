@@ -62,9 +62,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(getString(R.string.connect_learn_title));
-
 
         if(getArguments() != null) {
             showAppLaunch = getArguments().getBoolean("showLaunch", true);
@@ -76,7 +74,6 @@ public class ConnectLearningProgressFragment extends Fragment {
             refreshData();
         });
 
-//        updateUpdatedDate(job.getLastLearnUpdate());
         updateUi(view);
         refreshData();
 
@@ -98,7 +95,9 @@ public class ConnectLearningProgressFragment extends Fragment {
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         jobCardDataHandle(view, job);
+
         return view;
     }
 
@@ -112,7 +111,7 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void refreshData() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectManager.updateLearningProgress(getContext(), job, success -> {
             if(success) {
                 try {
@@ -135,7 +134,7 @@ public class ConnectLearningProgressFragment extends Fragment {
             return;
         }
 
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
 
         int percent = job.getLearningPercentComplete();
         boolean learningFinished = percent >= 100;

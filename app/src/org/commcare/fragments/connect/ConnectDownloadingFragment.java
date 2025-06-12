@@ -72,7 +72,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         ConnectManager.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
     }
@@ -80,7 +80,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         getActivity().setTitle(job.getTitle());
 
@@ -115,7 +115,7 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
             Navigation.findNavController(view).popBackStack();
 
             //Launch the learn/deliver app
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectManager.requireActiveJob();
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
             ConnectManager.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
         }

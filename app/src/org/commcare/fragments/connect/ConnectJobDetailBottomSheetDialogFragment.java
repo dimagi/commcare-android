@@ -52,7 +52,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding = FragmentConnectJobDetailBottomSheetDialogBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundResource(R.drawable.rounded_top_corners);
 
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         int maxPossibleVisits = job.getMaxPossibleVisits();
         int daysRemaining = job.getDaysRemaining();
 

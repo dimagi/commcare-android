@@ -68,20 +68,18 @@ public class ConnectResultsSummaryListFragment extends Fragment {
     }
 
     public void updateView() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job != null) {
-            //Payment Status
-            int total = 0;
-            for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                try {
-                    total += Integer.parseInt(payment.getAmount());
-                } catch (Exception e) {
-                    //Ignore at least for now
-                }
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
+        //Payment Status
+        int total = 0;
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            try {
+                total += Integer.parseInt(payment.getAmount());
+            } catch (Exception e) {
+                //Ignore at least for now
             }
-            earnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
-            transferredAmount.setText(job.getMoneyString(total));
         }
+        earnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
+        transferredAmount.setText(job.getMoneyString(total));
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -107,7 +105,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectManager.requireActiveJob();
             if (holder instanceof VerificationViewHolder verificationHolder) {
                 ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
 
@@ -166,7 +164,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectManager.requireActiveJob();
             return showPayments ? job.getPayments().size() : job.getDeliveries().size();
         }
 
