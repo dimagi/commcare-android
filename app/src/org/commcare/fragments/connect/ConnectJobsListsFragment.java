@@ -168,9 +168,10 @@ public class ConnectJobsListsFragment extends Fragment {
                         newJobs =  ConnectJobUtils.storeJobs(getContext(), jobs, true);
                         setJobListData(jobs);
                     }
-                } catch (IOException | JSONException e) {
-                    Logger.exception("Parsing / database error return from Opportunities request", e);
+                } catch (JSONException e) {
                     throw new RuntimeException(e);
+                } catch (IOException e) {
+                    Logger.exception("Error parsing return from Opportunities request", e);
                 }
 
                 reportApiCall(true, totalJobs, newJobs);
@@ -424,19 +425,15 @@ public class ConnectJobsListsFragment extends Fragment {
 
     public Date processJobRecords(ConnectJobRecord job, String jobType) {
         Date lastAssessedDate = new Date();
-        try {
-            String learnAppId = job.getLearnAppInfo().getAppId();
-            String deliverAppId = job.getDeliveryAppInfo().getAppId();
-            if (jobType.equalsIgnoreCase(JOB_LEARNING)) {
-                ConnectLinkedAppRecord learnRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(getActivity(), learnAppId, "");
-                return learnRecord != null ? learnRecord.getLastAccessed() : lastAssessedDate;
+        String learnAppId = job.getLearnAppInfo().getAppId();
+        String deliverAppId = job.getDeliveryAppInfo().getAppId();
+        if (jobType.equalsIgnoreCase(JOB_LEARNING)) {
+            ConnectLinkedAppRecord learnRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(getActivity(), learnAppId, "");
+            return learnRecord != null ? learnRecord.getLastAccessed() : lastAssessedDate;
 
-            } else if (jobType.equalsIgnoreCase(JOB_DELIVERY)) {
-                ConnectLinkedAppRecord deliverRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(getActivity(), deliverAppId, "");
-                return deliverRecord != null ? deliverRecord.getLastAccessed() : lastAssessedDate;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } else if (jobType.equalsIgnoreCase(JOB_DELIVERY)) {
+            ConnectLinkedAppRecord deliverRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(getActivity(), deliverAppId, "");
+            return deliverRecord != null ? deliverRecord.getLastAccessed() : lastAssessedDate;
         }
         return lastAssessedDate;
     }

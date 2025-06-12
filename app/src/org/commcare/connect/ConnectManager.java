@@ -363,7 +363,9 @@ public class ConnectManager {
                             ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     Logger.exception("Parsing return from DB key request", e);
                 }
             }
@@ -433,7 +435,9 @@ public class ConnectManager {
 
                         ConnectJobUtils.updateJobLearnProgress(context, job);
                     }
-                } catch (IOException | JSONException | ParseException e) {
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     Logger.exception("Parsing return from learn_progress request", e);
                 }
 
@@ -557,7 +561,9 @@ public class ConnectManager {
                             job.setPayments(payments);
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     Logger.exception("Parsing return from delivery progress request", e);
                     success = false;
                 }
