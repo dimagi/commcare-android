@@ -100,7 +100,7 @@ public abstract class PersonalIdApiHandler {
                         return;
                     }
                 }
-                onFailure(PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR, new Exception(info.toString()));
+                onFailure(PersonalIdApiErrorCodes.UNKNOWN_ERROR, new Exception(info.toString()));
             }
 
             @Override
