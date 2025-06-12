@@ -442,7 +442,6 @@ License.
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_process_failed_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment en raison de l\'indisponibilité de la fonctionnalité de sécurité. Veuillez réessayer sur un autre appareil.</string>
-    <string name="personalid_configuration_process_failed_server_msg">Exigences de sécurité de périphérique non valides du serveur : %s</string>
     <string name="personalid_photo_capture_title">Bienvenue %1$s</string>
     <string name="personalid_photo_capture_subtitle">Veuillez prendre une photo de vous pour terminer la configuration de votre compte</string>
     <string name="personalid_photo_capture_take_photo_button">Prendre une photo</string>
