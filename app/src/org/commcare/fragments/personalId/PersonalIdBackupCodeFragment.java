@@ -103,24 +103,22 @@ public class PersonalIdBackupCodeFragment extends Fragment {
 
     private void setupDoneKeys() {
         binding.connectBackupCodeInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-                if(isRecovery) {
-                    handleBackupCodeSubmission();
-                } else {
-                    binding.connectBackupCodeRepeatInput.requestFocus();
-                }
+            if ((actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE)
+                    && isRecovery && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
                 return true;
             }
+
             return false;
         });
 
         binding.connectBackupCodeRepeatInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
-                if(binding.connectBackupCodeButton.isEnabled()) {
-                    handleBackupCodeSubmission();
-                }
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
+                    && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
                 return true;
             }
+
             return false;
         });
     }
