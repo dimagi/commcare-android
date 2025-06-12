@@ -342,7 +342,7 @@ License.
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
     <string name="connect_payment_confirm_text">Vous avez été payé!\n%s %s payé %s.\nAvez-vous reçu le paiement?</string>
     <string name="connect_payment_confirm_yes">Oui!</string>
-    <string name="connect_payment_confirm_no">Demander plus tard</string>
+    <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="connect_payment_confirm_failed">Échec de l\'envoi de la confirmation, nous vous redemanderons plus tard.</string>
     <string name="login_button_connectid">Connectez-vous avec PersonalId</string>
     <string name="login_link_connectid_title">Lien vers PersonalId ?</string>
@@ -368,6 +368,7 @@ License.
     <string name="choose_a_6_digit_recovery_code">Choisissez un code de récupération à 6 chiffres</string>
     <string name="download_app">Télécharger</string>
     <string name="sync">Synchroniser</string>
+    <string name="micro_image_activity_title">Capturer Photo Visage</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
@@ -398,6 +399,7 @@ License.
 
     <string name="connect_recovery_button_phone">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
+    <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
     <string name="connect_messaging_title">Messagerie</string>
     <string name="connect_messaging_channel_list_title">Chaînes</string>
     <string name="connect_messaging_channel_list_unconsented">Canal non consenti</string>
