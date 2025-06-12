@@ -6,14 +6,11 @@ import android.os.Bundle;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
@@ -22,7 +19,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         updateBackButton();
-        beginRegistration();
     }
 
     @Override
@@ -61,21 +57,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         return navHostFragment;
-    }
-
-    private void beginRegistration() {
-        NavDirections navDirections = null;
-
-        switch (PersonalIdManager.getInstance().getStatus()) {
-            case NotIntroduced, Registering:
-                navDirections = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentSelf();
-                break;
-        }
-        if (navDirections == null) {
-            navDirections = PersonalIdPhoneFragmentDirections
-                    .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
-        }
-        navController.navigate(navDirections);
     }
 
     private void updateBackButton() {
