@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -55,6 +56,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         configureUiByMode();
         setupInputFilters();
         setupListeners();
+        setupDoneKeys();
         clearBackupCodeFields();
         activity.setTitle(getString(titleId));
         return binding.getRoot();
@@ -97,6 +99,28 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
         binding.connectBackupCodeInput.setFilters(filters);
         binding.connectBackupCodeRepeatInput.setFilters(filters);
+    }
+
+    private void setupDoneKeys() {
+        binding.connectBackupCodeInput.setOnEditorActionListener((v, actionId, event) -> {
+            if ((actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE)
+                    && isRecovery && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+                return true;
+            }
+
+            return false;
+        });
+
+        binding.connectBackupCodeRepeatInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
+                    && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private void setupListeners() {
