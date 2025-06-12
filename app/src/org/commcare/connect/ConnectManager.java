@@ -180,6 +180,13 @@ public class ConnectManager {
         return activeJob;
     }
 
+    public static  ConnectJobRecord requireActiveJob() {
+        if (activeJob == null) {
+            throw new IllegalStateException("No active job set in ConnectManager");
+        }
+        return activeJob;
+    }
+
     private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
         Intent intent = new Intent(parent, PersonalIdActivity.class);
         intent.putExtra("TASK", task);

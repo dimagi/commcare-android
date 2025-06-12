@@ -54,7 +54,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
         boolean isButtonVisible = args.getIsButtonVisible();
         getActivity().setTitle(getString(R.string.connect_job_info_title));

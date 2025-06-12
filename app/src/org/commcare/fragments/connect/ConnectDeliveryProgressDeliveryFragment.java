@@ -69,11 +69,11 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     public void updateView() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job == null || view == null) {
+        if (view == null) {
             return;
         }
 
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
@@ -111,64 +111,62 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     public void setDeliveriesData() {
         ConnectDeliveryDetails connectDeliveryDetails;
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job != null) {
-            List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
-            HashMap<String, HashMap<String, Integer>> paymentTypeAndStatusCounts = new HashMap<>();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
+        List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
+        HashMap<String, HashMap<String, Integer>> paymentTypeAndStatusCounts = new HashMap<>();
 
-            if (!job.getDeliveries().isEmpty()) {
-                // Loop through each delivery and count statuses
-                for (int i = 0; i < job.getDeliveries().size(); i++) {
-                    ConnectJobDeliveryRecord delivery = job.getDeliveries().get(i);
-                    if (delivery == null) {
-                        continue;
-                    }
-                    String deliverySlug = delivery.getSlug();
+        if (!job.getDeliveries().isEmpty()) {
+            // Loop through each delivery and count statuses
+            for (int i = 0; i < job.getDeliveries().size(); i++) {
+                ConnectJobDeliveryRecord delivery = job.getDeliveries().get(i);
+                if (delivery == null) {
+                    continue;
+                }
+                String deliverySlug = delivery.getSlug();
 
-                    if (!paymentTypeAndStatusCounts.containsKey(deliverySlug)) {
-                        paymentTypeAndStatusCounts.put(deliverySlug, new HashMap<>());
-                    }
-
-                    HashMap<String, Integer> typeCounts = paymentTypeAndStatusCounts.get(deliverySlug);
-                    String status = delivery.getStatus();
-
-                    int count = typeCounts.containsKey(status) ? typeCounts.get(status) : 0;
-                    typeCounts.put(status, count + 1);
+                if (!paymentTypeAndStatusCounts.containsKey(deliverySlug)) {
+                    paymentTypeAndStatusCounts.put(deliverySlug, new HashMap<>());
                 }
 
-                // Loop through the payment units and process the counts
-                for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                    if (unit == null) {
-                        continue;
-                    }
+                HashMap<String, Integer> typeCounts = paymentTypeAndStatusCounts.get(deliverySlug);
+                String status = delivery.getStatus();
 
-                    String unitIdKey = Integer.toString(unit.getUnitId());
-                    HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.containsKey(unitIdKey) ? paymentTypeAndStatusCounts.get(unitIdKey) : new HashMap<>();
-
-                    // Get pending and approved counts
-                    int totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
-                    int remaining = unit.getMaxTotal() - totalApproved;
-
-                    // Calculate the total amount for this delivery (numApproved * unit amount)
-                    String totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
-
-                    // Calculate remaining days for the delivery
-                    long daysRemaining = job.getDaysRemaining();
-
-                    double approvedPercentage = unit.getMaxTotal() > 0 ? (double) totalApproved / unit.getMaxTotal() * 100 : 0.0;
-                    connectDeliveryDetails = new ConnectDeliveryDetails(unit.getUnitId(), unit.getName(),
-                            totalApproved, remaining, totalAmount, daysRemaining, approvedPercentage);
-                    deliveryProgressList.add(connectDeliveryDetails);
-                }
-
-                recyclerView = view.findViewById(R.id.rvDeliveryProgressReport);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                ConnectDeliveryProgressReportAdapter adapter = new ConnectDeliveryProgressReportAdapter(getContext(), deliveryProgressList, unitName -> {
-                    Navigation.findNavController(recyclerView).navigate(ConnectDeliveryProgressFragmentDirections
-                            .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName));
-                });
-                recyclerView.setAdapter(adapter);
+                int count = typeCounts.containsKey(status) ? typeCounts.get(status) : 0;
+                typeCounts.put(status, count + 1);
             }
+
+            // Loop through the payment units and process the counts
+            for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
+                if (unit == null) {
+                    continue;
+                }
+
+                String unitIdKey = Integer.toString(unit.getUnitId());
+                HashMap<String, Integer> statusCounts = paymentTypeAndStatusCounts.containsKey(unitIdKey) ? paymentTypeAndStatusCounts.get(unitIdKey) : new HashMap<>();
+
+                // Get pending and approved counts
+                int totalApproved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
+                int remaining = unit.getMaxTotal() - totalApproved;
+
+                // Calculate the total amount for this delivery (numApproved * unit amount)
+                String totalAmount = job.getMoneyString(totalApproved * unit.getAmount());
+
+                // Calculate remaining days for the delivery
+                long daysRemaining = job.getDaysRemaining();
+
+                double approvedPercentage = unit.getMaxTotal() > 0 ? (double) totalApproved / unit.getMaxTotal() * 100 : 0.0;
+                connectDeliveryDetails = new ConnectDeliveryDetails(unit.getUnitId(), unit.getName(),
+                        totalApproved, remaining, totalAmount, daysRemaining, approvedPercentage);
+                deliveryProgressList.add(connectDeliveryDetails);
+            }
+
+            recyclerView = view.findViewById(R.id.rvDeliveryProgressReport);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            ConnectDeliveryProgressReportAdapter adapter = new ConnectDeliveryProgressReportAdapter(getContext(), deliveryProgressList, unitName -> {
+                Navigation.findNavController(recyclerView).navigate(ConnectDeliveryProgressFragmentDirections
+                        .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName));
+            });
+            recyclerView.setAdapter(adapter);
         }
     }
 }

@@ -73,7 +73,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         getActivity().setTitle(R.string.connect_progress_delivery);
 
 
@@ -240,7 +240,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     public void updateConnectWarningMessage(View cardView) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
 
         int totalVisitCount = job.getDeliveries().size();
         int dailyVisitCount = job.numberOfDeliveriesToday();
@@ -304,7 +304,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     public void refreshData() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 try {
@@ -320,7 +320,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private void updatePaymentConfirmationTile(Context context, boolean forceHide) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectManager.requireActiveJob();
         paymentToConfirm = null;
         if (!forceHide) {
             //Look for at least one payment that needs to be confirmed
