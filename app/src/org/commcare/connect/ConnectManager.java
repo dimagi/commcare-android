@@ -132,27 +132,6 @@ public class ConnectManager {
         return SimpleDateFormat.getDateTimeInstance().format(date);
     }
 
-    public static void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
-        tile.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if (show) {
-            ConnectUserRecord user = getUser(context);
-            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
-            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
-
-            TextView view = tile.findViewById(R.id.connect_phone_label);
-            view.setText(message);
-
-            Button yesButton = tile.findViewById(R.id.connect_phone_yes_button);
-            yesButton.setOnClickListener(listener);
-
-            Button noButton = tile.findViewById(R.id.connect_phone_no_button);
-            noButton.setOnClickListener(v -> {
-                tile.setVisibility(View.GONE);
-            });
-        }
-    }
-
     public static ConnectUserRecord getUser(Context context) {
         return ConnectUserDatabaseUtil.getUser(context);
     }

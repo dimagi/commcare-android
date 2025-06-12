@@ -72,7 +72,6 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
-    private CardView connectTile;
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
@@ -95,7 +94,6 @@ public class ConnectJobsListsFragment extends Fragment {
         getActivity().setTitle(R.string.connect_title);
 
         view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
-        connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
         updateText.setVisibility(View.GONE);
