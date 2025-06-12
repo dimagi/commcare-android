@@ -32,8 +32,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
                 || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
-        } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
-            beginRegistration();
         }
     }
 
