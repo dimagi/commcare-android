@@ -26,7 +26,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
@@ -41,14 +40,11 @@ import org.commcare.connect.network.TokenUnavailableException;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.CCAnalyticsEvent;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyProvider;
-import org.commcare.utils.GlobalErrorUtil;
-import org.commcare.utils.GlobalErrors;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -581,19 +577,6 @@ public class PersonalIdManager {
 
     public String getConnectUsername(Context context) {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
-    }
-
-    public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = false;
-        if (isloggedIn()) {
-            ConnectUserRecord user = getUser(context);
-            show = !user.getSecondaryPhoneVerified();
-        }
-        return show;
-    }
-
-    public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
-        launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
     public void setActiveJob(ConnectJobRecord job) {
