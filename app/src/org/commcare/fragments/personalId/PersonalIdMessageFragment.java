@@ -138,7 +138,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
 
                 break;
             case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
-                directions = navigateToPhoneFragment();
+                requireActivity().finish();
                 break;
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
                 personalIdSessionData.setAccountExists(false);
