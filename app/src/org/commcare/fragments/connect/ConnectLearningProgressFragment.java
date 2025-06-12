@@ -109,7 +109,7 @@ public class ConnectLearningProgressFragment extends Fragment {
 
         updateProgressViews(progressPercent, hasPassed);
         updateCertificateView(job, learningComplete, hasPassed);
-        updateButtons(job, learningComplete, hasPassed, hasAttempted);
+        updateButtons(job, learningComplete, hasPassed);
         updateLearningStatus(job, learningComplete, hasPassed, hasAttempted);
     }
 
@@ -160,7 +160,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         return latestDate != null ? latestDate : new Date();
     }
 
-    private void updateButtons(ConnectJobRecord job, boolean complete, boolean passed, boolean attempted) {
+    private void updateButtons(ConnectJobRecord job, boolean complete, boolean passed) {
 
         viewBinding.connectLearningReviewButton.setVisibility(View.GONE); // reserved for future logic
 
