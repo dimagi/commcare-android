@@ -267,12 +267,7 @@ public class PersonalIdManager {
     }
 
     public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
-        launchPersonalId(parent, ConnectConstants.BEGIN_REGISTRATION, requestCode);
-    }
-
-    private void launchPersonalId(CommCareActivity<?> parent, String task, int requestCode) {
         Intent intent = new Intent(parent, PersonalIdActivity.class);
-        intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, requestCode);
     }
 

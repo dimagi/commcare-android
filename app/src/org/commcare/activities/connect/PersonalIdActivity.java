@@ -21,8 +21,8 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        handleRedirection(getIntent());
         updateBackButton();
+        beginRegistration();
     }
 
     @Override
@@ -33,16 +33,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
         } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
-            handleRedirection(data);
-        }
-        if (requestCode == RESULT_OK) {
-            finish();
-        }
-    }
-
-    private void handleRedirection(Intent intent) {
-        String value = intent.getStringExtra(ConnectConstants.TASK);
-        if (ConnectConstants.BEGIN_REGISTRATION.equals(value)) {
             beginRegistration();
         }
     }
