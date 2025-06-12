@@ -26,7 +26,6 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
     @Override
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        setStyle(STYLE_NORMAL, R.style.TransparentBottomSheet);
         view.post(() -> {
             BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
             if (dialog != null) {

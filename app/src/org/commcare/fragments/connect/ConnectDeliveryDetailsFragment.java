@@ -26,6 +26,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.MultipleAppsUtil;
 
 
@@ -176,6 +177,6 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     .actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(title, false);
         }
 
-        Navigation.findNavController(button).navigate(directions);
+        CommCareNavController.navigateSafely(Navigation.findNavController(button), directions);
     }
 }

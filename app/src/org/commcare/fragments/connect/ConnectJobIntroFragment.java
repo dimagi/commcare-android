@@ -10,12 +10,12 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
@@ -23,8 +23,8 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.CommCareNavController;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,11 +97,14 @@ public class ConnectJobIntroFragment extends Fragment {
                         ConnectJobUtils.upsertJob(getContext(), job);
 
                         if (appInstalled) {
-                            ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
+                            ConnectManager.launchApp(getActivity(), true,
+                                    job.getLearnAppInfo().getAppId());
                         } else {
                             String title = getString(R.string.connect_downloading_learn);
-                            Navigation.findNavController(button).navigate(ConnectJobIntroFragmentDirections.
-                                    actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true));
+                            CommCareNavController.navigateSafely(Navigation.findNavController(button),
+                                    ConnectJobIntroFragmentDirections.
+                                            actionConnectJobIntroFragmentToConnectDownloadingFragment(
+                                                    title, true));
                         }
                     }
 
@@ -152,7 +155,9 @@ public class ConnectJobIntroFragment extends Fragment {
         TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
 
         viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectJobIntroFragmentDirections.actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
+            CommCareNavController.navigateSafely(Navigation.findNavController(viewMore),
+                    ConnectJobIntroFragmentDirections
+                            .actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
         tvJobTitle.setText(job.getTitle());
