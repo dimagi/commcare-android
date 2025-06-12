@@ -230,7 +230,6 @@ public class ConnectJobsListsFragment extends Fragment {
         Context context = getContext();
         if(context != null) {
             updateUpdatedDate(new Date());
-            updateSecondaryPhoneConfirmationTile(context);
         }
     }
 
@@ -242,16 +241,6 @@ public class ConnectJobsListsFragment extends Fragment {
                 Logger.exception("JSONException while retrieving corrupt opportunity title", e);
             }
         }
-    }
-
-    private void updateSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = PersonalIdManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(context);
-
-        ConnectManager.updateSecondaryPhoneConfirmationTile(context, connectTile, show, v -> {
-            ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {
-                updateSecondaryPhoneConfirmationTile(context);
-            });
-        });
     }
 
     private void updateUpdatedDate(Date lastUpdate) {
