@@ -48,7 +48,9 @@ public abstract class PersonalIdApiHandler {
                     try (InputStream in = responseData) {
                         JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
                         parser.parse(json, sessionData);
-                    } catch (IOException | JSONException e) {
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
                         Logger.exception("Error parsing API response", e);
                         onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
                     }
@@ -65,7 +67,9 @@ public abstract class PersonalIdApiHandler {
                             Toast.makeText(CommCareApplication.instance(), json.optString("error"),
                                     Toast.LENGTH_LONG).show();
                         }
-                    } catch (IOException | JSONException e) {
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
                         Logger.exception("Error parsing API error response", e);
                         onFailure(defaultFailureCode);
                     }

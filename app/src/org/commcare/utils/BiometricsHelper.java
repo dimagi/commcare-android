@@ -23,10 +23,9 @@ import static org.commcare.android.database.connect.models.PersonalIdSessionData
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
 
 /**
- * Helper class for biometric configuration and verification.
- * Provides methods to check biometric availability, configure biometrics,
- * and perform authentication using fingerprint or PIN or Password.
- * Supports both biometric strong authentication and device credentials.
+ * Helper class for biometric configuration and verification
+ *
+ * @author dviggiano
  */
 public class BiometricsHelper {
 
@@ -50,7 +49,7 @@ public class BiometricsHelper {
      * @return The fingerprint configuration status.
      */
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        return checkStatus(context, biometricManager, StrongBiometric);
     }
 
     /**
@@ -71,7 +70,7 @@ public class BiometricsHelper {
      * @return True if the configuration process starts successfully, false otherwise.
      */
     public static boolean configureFingerprint(Activity activity) {
-        return configureBiometric(activity, BiometricManager.Authenticators.BIOMETRIC_STRONG);
+        return configureBiometric(activity, StrongBiometric);
     }
 
 

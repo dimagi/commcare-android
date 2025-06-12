@@ -5,6 +5,7 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.util.Base64;
+import org.commcare.util.Base64DecoderException;
 import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EncryptionKeyAndTransform;
@@ -36,12 +37,10 @@ public class ConnectDatabaseUtils {
             }
 
             CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).write(record);
-        } catch (Exception e) {
-            Logger.exception("Storing DB passphrase", e);
+        } catch (EncryptionUtils.EncryptionException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     public static ConnectKeyRecord getKeyRecord(boolean local) {
         Vector<ConnectKeyRecord> records = CommCareApplication.instance()
@@ -55,8 +54,7 @@ public class ConnectDatabaseUtils {
         try {
             byte[] bytes = Base64.decode(base64EncodedPassphrase);
             storeConnectDbPassphrase(context, bytes, isLocal);
-        } catch (Exception e) {
-            Logger.exception("Encoding DB passphrase to Base64", e);
+        } catch (Base64DecoderException e) {
             throw new RuntimeException(e);
         }
     }
@@ -88,8 +86,7 @@ public class ConnectDatabaseUtils {
                 CrashUtil.log("We don't find paraphrase in db");
                 throw new RuntimeException("We don't find a record in db to get passphrase");
             }
-        } catch (Exception e) {
-            Logger.exception("Getting DB passphrase", e);
+        } catch (Base64DecoderException | EncryptionUtils.EncryptionException e) {
             throw new RuntimeException(e);
         }
     }
