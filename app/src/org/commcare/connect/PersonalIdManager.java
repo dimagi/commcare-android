@@ -270,12 +270,7 @@ public class PersonalIdManager {
     }
 
     public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
-        launchPersonalId(parent, ConnectConstants.BEGIN_REGISTRATION, requestCode);
-    }
-
-    private void launchPersonalId(CommCareActivity<?> parent, String task, int requestCode) {
         Intent intent = new Intent(parent, PersonalIdActivity.class);
-        intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, requestCode);
     }
 
@@ -580,19 +575,6 @@ public class PersonalIdManager {
 
     public String getConnectUsername(Context context) {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
-    }
-
-    public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = false;
-        if (isloggedIn()) {
-            ConnectUserRecord user = getUser(context);
-            show = !user.getSecondaryPhoneVerified();
-        }
-        return show;
-    }
-
-    public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
-        launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
     }
 
     public void setActiveJob(ConnectJobRecord job) {
