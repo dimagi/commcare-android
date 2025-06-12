@@ -448,7 +448,6 @@
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_process_failed_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu kwa sababu ya kutopatikana kwa kipengele cha usalama cha %s. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
-    <string name="personalid_configuration_process_failed_server_msg">Mahitaji batili ya usalama wa kifaa kutoka kwa seva: %s</string>
     <string name="personalid_photo_capture_title">Karibu %1$s</string>
     <string name="personalid_photo_capture_subtitle">Tafadhali jipige picha ili ukamilishe kusanidi akaunti yako</string>
     <string name="personalid_photo_capture_take_photo_button">Piga Picha</string>

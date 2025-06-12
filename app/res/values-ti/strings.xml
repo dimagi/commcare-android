@@ -434,7 +434,6 @@
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_process_failed_subtitle">መሳርሒኻ ኣብዚ እዋን\'ዚ ን PersonalID ንምምዝጋብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_security_subtitle">መሳርሒኻ ኣብዚ እዋን እዚ ብሰንኪ %s ናይ ጸጥታ ባህሪ ዘይምህላዉ ንPersonalID ክምዝገብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
-    <string name="personalid_configuration_process_failed_server_msg">ዘይሕጋዊ ናይ መሳርሒ ድሕነት ጠለባት ካብ ኣገልጋሊ: %s</string>
     <string name="personalid_photo_capture_title">እንቋዕ ብደሓን መጻእኩም %1$s</string>
     <string name="personalid_photo_capture_subtitle">ምድላው ኣካውንትኩም ንምዝዛም ፎቶኹም ውሰዱ</string>
     <string name="personalid_photo_capture_take_photo_button">ፎቶ ውሰድ</string>
