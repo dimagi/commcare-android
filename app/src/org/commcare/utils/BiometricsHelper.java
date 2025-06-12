@@ -235,13 +235,13 @@ public class BiometricsHelper {
                     getMinBioMetricHardwareErrorForSecurityIfAny(activity, fingerprintStatus);
             default -> {
                 crashWithInvalidSecurityTypeException(activity, requiredLock);
-                yield activity.getString(R.string.personalid_configuration_process_failed_server_msg, requiredLock);
+                yield null;
             }
         };
     }
 
     private static void crashWithInvalidSecurityTypeException(Activity activity, String requiredLock) {
-        new RuntimeException(activity.getString(R.string.personalid_configuration_process_failed_server_msg, requiredLock));
+        throw new IllegalStateException("Invalid device security requirements from server: " + requiredLock);
     }
 
     private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
