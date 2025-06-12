@@ -39,7 +39,7 @@ public abstract class PersonalIdApiHandler {
 
         public boolean shouldAllowRetry(){
             return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == SERVER_ERROR
-                    || this == RATE_LIMIT_EXCEEDED_ERROR;
+                    || this == UNKNOWN_ERROR;
         }
     }
 
