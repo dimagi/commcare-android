@@ -18,4 +18,8 @@ object AndroidKeyStore {
             instance.deleteEntry(alias)
         }
     }
+
+    fun doesKeyExist(alias: String): Boolean {
+        return instance.containsAlias(alias)
+    }
 }

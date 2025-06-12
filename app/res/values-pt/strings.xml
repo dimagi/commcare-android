@@ -385,6 +385,7 @@
     <string name="choose_a_6_digit_recovery_code">Escolha um código de recuperação de 6 dígitos</string>
     <string name="download_app">Descarregamento</string>
     <string name="sync">Sincronizar</string>
+    <string name="micro_image_activity_title">Capturar Imagem Facial</string>
     <string name="connect_job_info_title">Detalhes de oportunidade</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>

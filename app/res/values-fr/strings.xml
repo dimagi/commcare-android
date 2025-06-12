@@ -342,7 +342,7 @@ License.
     <string name="connect_results_payment_not_confirmed">Non confirmé</string>
     <string name="connect_payment_confirm_text">Vous avez été payé!\n%s %s payé %s.\nAvez-vous reçu le paiement?</string>
     <string name="connect_payment_confirm_yes">Oui!</string>
-    <string name="connect_payment_confirm_no">Demander plus tard</string>
+    <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="connect_payment_confirm_failed">Échec de l\'envoi de la confirmation, nous vous redemanderons plus tard.</string>
     <string name="login_button_connectid">Connectez-vous avec PersonalId</string>
     <string name="login_link_connectid_title">Lien vers PersonalId ?</string>
@@ -368,6 +368,7 @@ License.
     <string name="choose_a_6_digit_recovery_code">Choisissez un code de récupération à 6 chiffres</string>
     <string name="download_app">Télécharger</string>
     <string name="sync">Synchroniser</string>
+    <string name="micro_image_activity_title">Capturer Photo Visage</string>
     <string name="connect_job_info_title">Détails de l\'opportunité</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
@@ -398,6 +399,7 @@ License.
 
     <string name="connect_recovery_button_phone">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
+    <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
     <string name="connect_messaging_title">Messagerie</string>
     <string name="connect_messaging_channel_list_title">Chaînes</string>
     <string name="connect_messaging_channel_list_unconsented">Canal non consenti</string>
@@ -446,12 +448,12 @@ License.
     <string name="personalid_photo_capture_take_photo_button">Prendre une photo</string>
     <string name="personalid_photo_capture_save_photo_button">Enregistrer la photo</string>
     <string name="personalid_photo_upload_failure">Échec de l\'enregistrement de la photo. Veuillez vérifier votre connexion Internet et réessayer.</string>
-    <string name="personalid_this_is_not_me"><u>Ce n'est pas moi</u></string>
+    <string name="personalid_this_is_not_me"><u>Ce n\'est pas moi</u></string>
     <string name="personalid_welcome_back_msg">Bon retour %s</string>
     <string name="personalid_recovery_failed_title">La récupération a échoué</string>
     <string name="personalid_recovery_failed_message">Il semble que vous ayez oublié votre code de sauvegarde, nous créons un nouveau compte pour vous</string>
     <string name="personalid_wrong_backup_message">Vous avez saisi un code de secours erroné. Veuillez réessayer. Vous devrez créer un nouveau compte après %d tentatives incorrectes.</string>
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
-    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d'utiliser l'appareil photo de votre appareil.</string>
+    <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
 </resources>
