@@ -3,8 +3,6 @@ package org.commcare.engine.cases;
 import static org.commcare.cases.model.Case.INDEX_CASE_ID;
 import static org.commcare.cases.util.CaseDBUtils.xordata;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
@@ -13,6 +11,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.cases.util.InvalidCaseGraphException;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
@@ -81,7 +80,7 @@ public class CaseUtils {
         long start = System.currentTimeMillis();
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
         Vector<String> owners = getAllOwners();
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        IDatabase db = CommCareApplication.instance().getUserDbHandle();
         int removedCaseCount;
         int removedLedgers;
         db.beginTransaction();

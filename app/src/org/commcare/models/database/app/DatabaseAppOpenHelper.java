@@ -1,16 +1,17 @@
 package org.commcare.models.database.app;
 
 import android.content.Context;
-import android.util.Log;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -53,11 +54,14 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mAppId;
+    private final String key;
 
-    public DatabaseAppOpenHelper(Context context, String appId) {
-        super(context, getDbName(appId), null, DB_VERSION_APP);
+    public DatabaseAppOpenHelper(Context context, String appId, String key) {
+        super(context, getDbName(appId), key, null, DB_VERSION_APP, 0, null, null, false);
+
         this.mAppId = appId;
         this.context = context;
+        this.key = key;
     }
 
     public static String getDbName(String appId) {
@@ -65,7 +69,8 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(GLOBAL_RESOURCE_TABLE_NAME);
@@ -117,19 +122,19 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mAppId));
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("App", oldVersion, newVersion));
-        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
+        new AppDatabaseUpgrader(context).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("App", oldVersion, newVersion));
     }
 }

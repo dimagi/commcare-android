@@ -1,10 +1,10 @@
 package org.commcare.models.database.user;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogEntry;
@@ -15,6 +15,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.logging.XPathErrorEntry;
+import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IndexedFixturePathUtils;
@@ -76,10 +78,12 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mUserId;
+    private final String key;
     private byte[] fileMigrationKeySeed = null;
 
-    public DatabaseUserOpenHelper(Context context, String userKeyRecordId) {
-        super(context, getDbName(userKeyRecordId), null, USER_DB_VERSION);
+    public DatabaseUserOpenHelper(Context context, String userKeyRecordId, String key) {
+        super(context, getDbName(userKeyRecordId), key, null, USER_DB_VERSION, 0, null, null, false);
+        this.key = key;
         this.context = context;
         this.mUserId = userKeyRecordId;
     }
@@ -89,7 +93,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(ACase.STORAGE_KEY);
@@ -178,14 +183,14 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         fileMigrationKeySeed = key.getBytes();
 
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mUserId));
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         }
     }
 
@@ -205,11 +210,11 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
 
         }
-        new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
+        new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("User", oldVersion, newVersion));
     }
 
-    public static void buildTable(SQLiteDatabase database,
+    public static void buildTable(IDatabase database,
                                   String tableName,
                                   Persistable dataObject) {
         database.beginTransaction();
@@ -223,7 +228,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public static void dropTable(SQLiteDatabase database,
+    public static void dropTable(IDatabase database,
                                  String tableName) {
         database.beginTransaction();
         try {
