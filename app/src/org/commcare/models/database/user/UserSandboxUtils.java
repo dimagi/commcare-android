@@ -34,7 +34,7 @@ public class UserSandboxUtils {
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Database is re-keyed and ready for use. Copying over files now");
         //OK, so now we have the Db transitioned. What we need to do now is go through and rekey all of our file references.
-        final IDatabase db = new DatabaseUserOpenHelper(CommCareApplication.instance(), newSandbox.getUuid(), newKeyEncoded).getWritableDatabase();
+        final IDatabase db = CommCareApplication.instance().createOrOpenUserDatabase(newSandbox.getUuid(), newKeyEncoded);
 
         try {
             //If we were able to iterate over the users, the key was fine, so let's use it to open our db
@@ -86,7 +86,7 @@ public class UserSandboxUtils {
 
         String oldKeyEncoded = getSqlCipherEncodedKey(unwrappedOldKey);
         String newKeyEncoded = getSqlCipherEncodedKey(unwrappedNewKey);
-        IDatabase rawDbHandle = SQLiteDatabase.openDatabase(newDb.getAbsolutePath(), oldKeyEncoded, null, SQLiteDatabase.OPEN_READWRITE, null, null);
+        IDatabase rawDbHandle = CommCareApplication.instance().openUserDatabase(newDb.getAbsolutePath(), oldKeyEncoded);
 
         rawDbHandle.execSQL("PRAGMA key = '" + oldKeyEncoded + "';");
         rawDbHandle.execSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
@@ -181,7 +181,7 @@ public class UserSandboxUtils {
             ukr.remove(sandbox);
         }
 
-        final IDatabase db = new DatabaseUserOpenHelper(CommCareApplication.instance(), sandbox.getUuid(), getSqlCipherEncodedKey(key)).getWritableDatabase();
+        final IDatabase db = CommCareApplication.instance().createOrOpenUserDatabase(sandbox.getUuid(), getSqlCipherEncodedKey(key));
 
         try {
             AndroidDbHelper dbh = new AndroidDbHelper(context) {

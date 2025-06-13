@@ -73,11 +73,14 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
@@ -596,7 +599,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private int initGlobalDb() {
         IDatabase database;
         try {
-            database = new DatabaseGlobalOpenHelper(this).getWritableDatabase();
+            database = createOrOpenGlobalDatabase();
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
@@ -625,7 +628,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             public IDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
                     if (globalDatabase == null || !globalDatabase.isOpen()) {
-                        globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase();
+                        globalDatabase = createOrOpenGlobalDatabase();
                     }
                     return globalDatabase;
                 }
@@ -1255,5 +1258,21 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
         }
+    }
+
+    public IDatabase createOrOpenGlobalDatabase() {
+        return new EncryptedDatabaseAdapter(new DatabaseGlobalOpenHelper(this, "null"));
+    }
+
+    public IDatabase createOrOpenUserDatabase(String userKeyRecordId, String key) {
+        return new EncryptedDatabaseAdapter(new DatabaseUserOpenHelper(this, userKeyRecordId, key));
+    }
+
+    public IDatabase openUserDatabase(String path, String password) {
+        return new EncryptedDatabaseAdapter(path, password);
+    }
+
+    public IDatabase createOrOpenAppDatabase(String appId) {
+        return new EncryptedDatabaseAdapter(new DatabaseAppOpenHelper(this, appId, "null"));
     }
 }

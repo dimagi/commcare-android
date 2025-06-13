@@ -13,7 +13,6 @@ import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.Table;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -404,7 +403,7 @@ public class CommCareApp implements AppFilePathBuilder {
             public IDatabase getHandle() {
                 synchronized (appDbHandleLock) {
                     if (appDatabase == null || !appDatabase.isOpen()) {
-                        appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase();
+                        appDatabase = CommCareApplication.instance().createOrOpenAppDatabase(record.getApplicationId());
                     }
                     return appDatabase;
                 }
