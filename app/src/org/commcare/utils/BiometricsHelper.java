@@ -6,8 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
-
-import com.google.zxing.integration.android.IntentIntegrator;
+import android.text.TextUtils;
 
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
@@ -19,6 +18,9 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
 
 /**
  * Helper class for biometric configuration and verification.
@@ -75,8 +77,8 @@ public class BiometricsHelper {
 
     public static void authenticateFingerprint(FragmentActivity activity,
                                                BiometricManager biometricManager,
-                                               BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
-        authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
+                                               BiometricPrompt.AuthenticationCallback biometricPromptCallback, boolean allowOtherOptions) {
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback, allowOtherOptions);
     }
 
     /**
@@ -121,22 +123,29 @@ public class BiometricsHelper {
     public static void authenticatePin(FragmentActivity activity, BiometricManager biometricManager,
                                        BiometricPrompt.AuthenticationCallback biometricPromptCallback) {
 
-        authenticatePinOrBiometric(activity,biometricManager, biometricPromptCallback);
+        authenticatePinOrBiometric(activity, biometricManager, biometricPromptCallback, true);
     }
 
     public static void authenticatePinOrBiometric(FragmentActivity activity, BiometricManager biometricManager,
-                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback){
-        if (BiometricsHelper.isPinConfigured(activity, biometricManager)|| BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
+                                                  BiometricPrompt.AuthenticationCallback biometricPromptCallback, boolean allowOtherOptions) {
+        if (BiometricsHelper.isPinConfigured(activity, biometricManager) || BiometricsHelper.isFingerprintConfigured(activity, biometricManager)) {
             BiometricPrompt prompt = new BiometricPrompt(activity,
                     ContextCompat.getMainExecutor(activity),
                     biometricPromptCallback);
 
-            prompt.authenticate(new BiometricPrompt.PromptInfo.Builder()
+            BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
                     .setTitle(activity.getString(R.string.connect_unlock_title))
-                    .setSubtitle(activity.getString(R.string.connect_unlock_message))
-                    .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
-                            BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK)
-                    .build());
+                    .setSubtitle(activity.getString(R.string.connect_unlock_message));
+
+            if (allowOtherOptions) {
+                builder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
+                        BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+            } else {
+                builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+                builder.setNegativeButtonText(activity.getString(R.string.cancel));
+            }
+
+            prompt.authenticate(builder.build());
         }
     }
 
@@ -204,4 +213,45 @@ public class BiometricsHelper {
         activity.startActivityForResult(enrollIntent, ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE);
         return true;
     }
+
+
+    //// start: min security requirements
+
+    public static String getMinHardwareErrorForSecurityIfAny(BiometricManager biometricManager, Activity activity, String requiredLock) {
+
+        if (TextUtils.isEmpty(requiredLock)) {
+            crashWithInvalidSecurityTypeException(activity, requiredLock);
+        }
+
+        BiometricsHelper.ConfigurationStatus fingerprintStatus = BiometricsHelper.checkFingerprintStatus(
+                activity, biometricManager);
+        BiometricsHelper.ConfigurationStatus pinStatus = BiometricsHelper.checkPinStatus(activity,
+                biometricManager);
+
+        return switch (requiredLock) {
+            case PIN ->
+                    getMinPinHardwareErrorForSecurityIfAny(activity, fingerprintStatus, pinStatus);
+            case BIOMETRIC_TYPE ->
+                    getMinBioMetricHardwareErrorForSecurityIfAny(activity, fingerprintStatus);
+            default -> {
+                crashWithInvalidSecurityTypeException(activity, requiredLock);
+                yield activity.getString(R.string.configuration_process_failed_server_msg, requiredLock);
+            }
+        };
+    }
+
+    private static void crashWithInvalidSecurityTypeException(Activity activity, String requiredLock) {
+        new RuntimeException(activity.getString(R.string.configuration_process_failed_server_msg, requiredLock));
+    }
+
+    private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
+        return (fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ||
+                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, PIN);
+    }
+
+    private static String getMinBioMetricHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus) {
+        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
+    }
+
+    //// end: min secruity requirements
 }

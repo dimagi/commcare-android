@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-    android:background="@color/cc_core_bg"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
@@ -74,7 +74,18 @@
                             android:paddingStart="@dimen/login_box_margins">
 
                             <TextView
-                android:textStyle="bold"
+                                android:textStyle="bold"
+                                android:id="@+id/error_msg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="@dimen/content_min_margin"
+                                android:textColor="@color/red_500"
+                                android:visibility="gone"
+                                android:textSize="@dimen/text_medium" />
+
+                            <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/welcome_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -94,7 +105,7 @@
                                 android:visibility="gone"/>
 
                             <TextView
-                android:textStyle="bold"
+                                android:textStyle="bold"
                                 android:id="@+id/login_or"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -131,16 +142,16 @@
                                 android:id="@+id/edit_username"
                                 style="@style/LoginEditTextV2"
                                 android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
+                                android:paddingLeft="15dp"
+                                android:layout_height="50dp"
                                 android:background="@drawable/login_edit_text"
-                                android:drawableLeft="@drawable/icon_user_neutral50"
                                 android:drawableStart="@drawable/icon_user_neutral50"
                                 android:hint="Username"
                                 android:imeOptions="actionNext"
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textAlignment="viewStart"
-                                android:textSize="@dimen/text_medium"
+                                android:textSize="18sp"
                                 tools:ignore="RtlCompat">
 
                                 <requestFocus />
@@ -149,23 +160,24 @@
                             <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                 android:id="@+id/password_wrapper"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
+                                android:layout_height="50dp"
+                                android:padding="0dp"
+                                android:layout_marginTop="15dp"
+                                android:background="@drawable/login_edit_text">
 
                                 <EditText
                                     android:id="@+id/edit_password"
                                     style="@style/LoginEditTextV2"
                                     android:layout_width="fill_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="@dimen/content_start"
-                                    android:background="@drawable/login_edit_text"
-                                    android:drawableLeft="@drawable/icon_lock_neutral50"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
                                     android:drawableStart="@drawable/icon_lock_neutral50"
                                     android:hint="Password"
+                                    android:textSize="18sp"
                                     android:imeOptions="actionDone"
                                     android:inputType="textPassword"
                                     android:nextFocusUp="@+id/edit_username"
                                     android:textAlignment="viewStart"
-                                    android:textSize="@dimen/text_medium"
                                     tools:ignore="RtlCompat" />
 
                                 <Button

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.57">
+          android:versionName="2.58">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -36,6 +36,7 @@
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -136,6 +137,9 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="face" />
         <receiver
             android:name="org.commcare.connect.SMSBroadcastReceiver"
             android:exported="true"
@@ -170,7 +174,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:name="org.commcare.activities.connect.PersonalIdActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:label="@string/application_name"
@@ -341,6 +345,13 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Service that maintains an encryption key in memory to securely submit data to the server" />
+        </service>
+        <service
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="true"
+            android:foregroundServiceType="microphone"
+            android:name="org.commcare.views.widgets.AudioRecordingService">
         </service>
         <activity
             android:launchMode="singleTop"
@@ -569,6 +580,7 @@
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
+        <activity android:name="org.commcare.fragments.MicroImageActivity" />
         <!-- Start Collect Manifest -->
 
         <meta-data

@@ -1,16 +1,11 @@
 package org.commcare.connect.network.connectId;
 
-import org.commcare.connect.network.ApiConnectId;
 import org.commcare.dalvik.BuildConfig;
 
-import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -21,20 +16,20 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
     public static final String BASE_URL = "https://connectid.dimagi.com";  // Replace with actual base URL
     private static final String API_VERSION = "1.0";  // Replace with actual version value
-    private static volatile Retrofit retrofit;
+    private static volatile ApiService apiService;
 
     private ApiClient() {
     }
 
-    public static Retrofit getClient() {
-        if (retrofit == null) {
+    public static ApiService getClientApi() {
+        if (apiService == null) {
             synchronized (ApiClient.class) { // Double-checked locking
-                if (retrofit == null) {
-                    retrofit = buildRetrofitClient();
+                if (apiService == null) {
+                    apiService = buildRetrofitClient().create(ApiService.class);
                 }
             }
         }
-        return retrofit;
+        return apiService;
     }
 
     private static Retrofit buildRetrofitClient() {

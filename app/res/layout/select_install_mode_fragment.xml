@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    android:id="@+id/screen_first_start_main"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/screen_first_start_main"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/cc_core_bg"
@@ -28,6 +27,17 @@
                 android:layout_height="match_parent"
                 android:gravity="center_horizontal"
                 android:orientation="vertical">
+
+                <TextView
+                    android:textStyle="bold"
+                    android:id="@+id/error_msg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/content_min_margin"
+                    android:textColor="@color/red_500"
+                    android:visibility="gone"
+                    android:textSize="@dimen/text_medium" />
 
                 <TextView
                     android:id="@+id/str_setup_message"
@@ -119,6 +129,7 @@
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/screen_first_start_second_row"
                     android:layout_width="match_parent"

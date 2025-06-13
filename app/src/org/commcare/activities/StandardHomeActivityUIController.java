@@ -17,7 +17,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.preferences.DeveloperPreferences;
@@ -76,7 +76,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectIDManager.getInstance().shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!PersonalIdManager.getInstance().shouldShowJobStatus(activity, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;
@@ -112,8 +112,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateSecondaryPhoneConfirmationTile() {
-        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN, false)
-                && ConnectIDManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
+        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false)
+                && PersonalIdManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
         View connectTile = activity.findViewById(R.id.connect_alert_tile);
         updateSecondaryPhoneConfirmationTile(activity, connectTile, show);
     }
@@ -122,7 +122,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         tile.setVisibility(show ? View.VISIBLE : View.GONE);
 
         if (show) {
-            ConnectUserRecord user = ConnectIDManager.getInstance().getUser(context);
+            ConnectUserRecord user = PersonalIdManager.getInstance().getUser(context);
             String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
             String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
 

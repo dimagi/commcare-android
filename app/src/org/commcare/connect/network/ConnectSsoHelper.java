@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -106,19 +106,19 @@ public class ConnectSsoHelper {
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
             throws TokenDeniedException, TokenUnavailableException {
         //See if we already have a valid token
-        AuthInfo.TokenAuth connectToken = ConnectIDManager.getInstance().getConnectToken();
+        AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
         if (connectToken != null) {
             return connectToken;
         }
 
-        return ApiConnectId.retrieveConnectIdTokenSync(context, user);
+        return ApiPersonalId.retrieveConnectIdTokenSync(context, user);
     }
 
     public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws TokenDeniedException, TokenUnavailableException {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = ConnectIDManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
+        AuthInfo.TokenAuth hqTokenAuth = PersonalIdManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
         if(hqTokenAuth != null) {
             return hqTokenAuth;
         }
@@ -130,11 +130,11 @@ public class ConnectSsoHelper {
 
             if (!appRecord.getWorkerLinked()) {
                 //Link user if necessary
-                ApiConnectId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
+                ApiPersonalId.linkHqWorker(context, hqUsername, appRecord, connectIdToken.bearerToken);
             }
 
             //Retrieve HQ token
-            return ApiConnectId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
+            return ApiPersonalId.retrieveHqTokenSync(context, hqUsername, connectIdToken.bearerToken);
         }
 
         throw new TokenUnavailableException();

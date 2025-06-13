@@ -2,35 +2,57 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <ScrollView
         android:background="@color/white"
-        android:orientation="vertical">
+        android:fillViewport="true"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
 
-        <ImageView
-            android:id="@+id/company_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginTop="40dp"
-            android:layout_centerHorizontal="true"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_dimagi_logo" />
+        <LinearLayout
+            android:background="@color/white"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical">
+
+        <include layout="@layout/grid_header_top_banner"/>
 
         <View
             android:id="@+id/divider"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginHorizontal="20dp"
-            android:layout_below="@+id/company_logo"
             android:layout_marginTop="40dp"
             android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:id="@+id/welcome_back_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp">
+            <ImageView
+                android:id="@+id/user_photo"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:contentDescription="@null"
+                android:src="@drawable/baseline_person_24" />
+            <TextView
+                android:id="@+id/welcome_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="16dp"
+                android:textColor="@color/connect_dark_blue_color"
+                android:textSize="18sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/recovery_code_tilte"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/divider"
             android:textStyle="bold"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -40,26 +62,23 @@
             android:textSize="18sp" />
 
         <TextView
-                android:textStyle="bold"
-            android:id="@+id/phone_title"
+            android:textStyle="bold"
+            android:id="@+id/backup_code_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/recovery_code_tilte"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-
             android:layout_marginBottom="16dp"
             android:text="@string/choose_a_6_digit_recovery_code"
             android:textColor="@color/connect_subtext"
             android:textSize="12sp" />
 
         <LinearLayout
-            android:id="@+id/name_layout"
+            android:id="@+id/backup_code_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_below="@id/phone_title"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp">
 
@@ -86,7 +105,7 @@
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/connect_pin_input"
+                    android:id="@+id/connect_backup_code_input"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginStart="16dp"
@@ -106,8 +125,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_below="@id/name_layout" >
+            android:layout_marginEnd="16dp" >
 
             <LinearLayout
                 android:layout_width="42dp"
@@ -125,14 +143,14 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/connect_pin_repeat_holder"
+                android:id="@+id/connect_backup_code_repeat_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:hintEnabled="false"
                 app:passwordToggleEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/connect_pin_repeat_input"
+                    android:id="@+id/connect_backup_code_repeat_input"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_marginStart="16dp"
@@ -147,48 +165,53 @@
         </LinearLayout>
 
         <TextView
-                android:textStyle="bold"
-            android:id="@+id/connect_pin_error_message"
+            android:textStyle="bold"
+            android:id="@+id/connect_backup_code_error_message"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/confirm_code_layout"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:gravity="start"
             android:textColor="@color/red"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:visibility="gone"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/forgot_button"
-            style="@style/NegativeButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/connect_pin_error_message"
-            android:layout_alignParentLeft="true"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:gravity="start|center"
-            android:text="@string/connect_pin_verify_forgot" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/connect_pin_button"
-            style="@style/CustomButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/connect_pin_error_message"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:gravity="start|center"
-            android:text="@string/review"
-            android:drawableRight="@drawable/connect_right_arrow"
-            />
+                <TextView
+                    android:id="@+id/not_me_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/this_is_not_me"
+                    android:textColor="@color/cc_brand_color"
+                    android:layout_marginStart="16dp"
+                    android:clickable="true"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/connect_backup_code_button"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textStyle="bold"/>
 
-
-    </RelativeLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/connect_backup_code_button"
+                    style="@style/CustomButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/review"
+                    android:drawableRight="@drawable/connect_right_arrow"
+                    />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+    </ScrollView>
 </layout>

@@ -9,7 +9,7 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
@@ -39,6 +39,7 @@ public class FirebaseAnalyticsUtil {
 
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
+    private static final int MAX_USER_PROPERTY_VALUE_LENGTH = 36;
 
 
     private static void reportEvent(String eventName) {
@@ -77,7 +78,11 @@ public class FirebaseAnalyticsUtil {
     }
 
     private static void setUserProperties(FirebaseAnalytics analyticsInstance) {
-        analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, ReportingUtils.getDeviceId());
+        String deviceId = ReportingUtils.getDeviceId();
+        if(deviceId.length() > MAX_USER_PROPERTY_VALUE_LENGTH) {
+            deviceId = deviceId.substring(deviceId.length() - MAX_USER_PROPERTY_VALUE_LENGTH);
+        }
+        analyticsInstance.setUserProperty(CCAnalyticsParam.DEVICE_ID, deviceId);
 
         String domain = ReportingUtils.getDomain();
         if (!TextUtils.isEmpty(domain)) {
@@ -105,7 +110,7 @@ public class FirebaseAnalyticsUtil {
         }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(ConnectIDManager.getInstance().isloggedIn()));
+                String.valueOf(PersonalIdManager.getInstance().isloggedIn()));
     }
 
     private static String getFreeDiskBucket() {

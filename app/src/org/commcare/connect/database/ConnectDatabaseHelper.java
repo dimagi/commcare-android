@@ -5,8 +5,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
+
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
@@ -16,10 +19,14 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
+import org.commcare.utils.GlobalErrorUtil;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import android.util.Base64;
+import java.util.Date;
+
 
 /**
  * Helper class for accessing the Connect DB
@@ -40,7 +47,7 @@ public class ConnectDatabaseHelper {
             }
         } catch (Exception e) {
             Logger.exception("Handling received DB passphrase", e);
-            handleCorruptDb(context);
+            crashDb();
         }
     }
 
@@ -77,8 +84,8 @@ public class ConnectDatabaseHelper {
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
-                            handleCorruptDb(context);
                             Logger.exception("Corrupt Connect DB", e);
+                            crashDb();
                         }
                     }
                     return connectDatabase;
@@ -96,11 +103,14 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static void handleCorruptDb(Context context) {
-        ConnectUserDatabaseUtil.forgetUser(context);
-        new Handler(Looper.getMainLooper()).post(() ->
-                Toast.makeText(context, context.getString(R.string.connect_db_corrupt), Toast.LENGTH_LONG).show()
-        );
+    public static void crashDb() {
+        crashDb(GlobalErrors.PERSONALID_GENERIC_ERROR);
+    }
+
+    public static void crashDb(GlobalErrors error) {
+        GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
+
+        throw new RuntimeException("Connect database crash");
     }
 
     public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {

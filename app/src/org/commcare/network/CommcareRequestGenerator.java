@@ -8,7 +8,7 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.TokenDeniedException;
 import org.commcare.connect.network.TokenUnavailableException;
@@ -176,11 +176,11 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private AuthInfo buildAuth() throws TokenDeniedException, TokenUnavailableException {
         if (username != null) {
-            AuthInfo.TokenAuth tokenAuth = ConnectIDManager.getInstance().getHqTokenIfLinked(username);
+            AuthInfo.TokenAuth tokenAuth = PersonalIdManager.getInstance().getHqTokenIfLinked(username);
             if (tokenAuth != null) {
                 return tokenAuth;
             } else {
-                if (ConnectIDManager.getInstance().isSeatedAppLinkedToConnectId(username)) {
+                if (PersonalIdManager.getInstance().isSeatedAppCongigureWithPersonalId(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("No token Auth available for a connect managed app"));
                 }

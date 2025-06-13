@@ -485,7 +485,6 @@ public abstract class DataPullTask<R>
 
     private void wipeLoginIfItOccurred() {
         if (wasKeyLoggedIn) {
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Wiping user login");
             CommCareApplication.instance().releaseUserResourcesAndServices();
         }
     }
