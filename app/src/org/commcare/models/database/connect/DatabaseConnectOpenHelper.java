@@ -19,6 +19,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
@@ -52,8 +53,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.12 - Added ConnectMessagingChannelRecord table and ConnectMessagingMessageRecord table
      * V.13 - Added ConnectJobDeliveryFlagRecord table
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
+     * V.16 - Added  personal_id_credential table
      */
-    private static final int CONNECT_DB_VERSION = 15;
+    private static final int CONNECT_DB_VERSION = 16;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -127,6 +129,9 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(PersonalIdCredential.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
