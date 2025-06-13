@@ -40,10 +40,12 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     private static final String GLOBAL_DB_LOCATOR = "database_global";
 
     private final Context mContext;
+    private final String key;
 
-    public DatabaseGlobalOpenHelper(Context context) {
+    public DatabaseGlobalOpenHelper(Context context, String key) {
         super(context, GLOBAL_DB_LOCATOR, "null", null, GLOBAL_DB_VERSION, 0, null, null, false);
         this.mContext = context;
+        this.key = key;
     }
 
     @Override
@@ -88,7 +90,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
         try {
             return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
-            DbUtil.trySqlCipherDbUpdate("null", mContext, GLOBAL_DB_LOCATOR);
+            DbUtil.trySqlCipherDbUpdate(key, mContext, GLOBAL_DB_LOCATOR);
             return super.getWritableDatabase();
         }
     }

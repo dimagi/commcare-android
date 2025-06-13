@@ -54,11 +54,14 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mAppId;
+    private final String key;
 
-    public DatabaseAppOpenHelper(Context context, String appId) {
-        super(context, getDbName(appId), "null", null, DB_VERSION_APP, 0, null, null, false);
+    public DatabaseAppOpenHelper(Context context, String appId, String key) {
+        super(context, getDbName(appId), key, null, DB_VERSION_APP, 0, null, null, false);
+
         this.mAppId = appId;
         this.context = context;
+        this.key = key;
     }
 
     public static String getDbName(String appId) {
@@ -121,14 +124,12 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     @Override
     public SQLiteDatabase getWritableDatabase() {
         try {
-
             return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
-            DbUtil.trySqlCipherDbUpdate("null", context, getDbName(mAppId));
+            DbUtil.trySqlCipherDbUpdate(key, context, getDbName(mAppId));
             return super.getWritableDatabase();
         }
     }
-
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
