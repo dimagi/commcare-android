@@ -23,8 +23,7 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
-
-
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,80 +33,62 @@ public class ConnectDeliveryListFragment extends Fragment {
     private static final String APPROVED_IDENTIFIER = "approved";
     private static final String REJECTED_IDENTIFIER = "rejected";
     private static final String PENDING_IDENTIFIER = "pending";
+    private static final String[] FILTERS = {
+            ALL_IDENTIFIER, APPROVED_IDENTIFIER, REJECTED_IDENTIFIER, PENDING_IDENTIFIER
+    };
 
-    private static final String[] FILTERS = {ALL_IDENTIFIER, APPROVED_IDENTIFIER,
-            REJECTED_IDENTIFIER, PENDING_IDENTIFIER};
-
-    private String currentFilter = FILTERS[0];
+    private FragmentConnectDeliveryListBinding binding;
+    private String currentFilter = ALL_IDENTIFIER;
     private String unitName;
     private DeliveryAdapter adapter;
-
-    public ConnectDeliveryListFragment() {
-        // Required empty public constructor
-    }
 
     public static ConnectDeliveryListFragment newInstance() {
         return new ConnectDeliveryListFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ConnectDeliveryListFragmentArgs args = ConnectDeliveryListFragmentArgs.fromBundle(getArguments());
-        unitName = args.getUnitId();
+        binding = FragmentConnectDeliveryListBinding.inflate(inflater, container, false);
+        unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
         requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
 
-        View view = inflater.inflate(R.layout.fragment_connect_delivery_list, container, false);
-        setupRecyclerView(view);
-        setupFilterViews(view);
-
-        return view;
+        setupRecyclerView();
+        setupFilterControls();
+        return binding.getRoot();
     }
 
-    private void setupRecyclerView(View view) {
-        RecyclerView recyclerView = view.findViewById(R.id.delivery_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+    private void setupRecyclerView() {
+        binding.deliveryList.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new DeliveryAdapter(getContext(), getFilteredDeliveries());
-        recyclerView.setAdapter(adapter);
+        binding.deliveryList.setAdapter(adapter);
     }
 
-    private void setupFilterViews(View view) {
+    private void setupFilterControls() {
         CardView[] filterCards = {
-                view.findViewById(R.id.cvFilterAll),
-                view.findViewById(R.id.llFilterApproved),
-                view.findViewById(R.id.llFilterRejected),
-                view.findViewById(R.id.llFilterPending)
+                binding.cvFilterAll, binding.llFilterApproved, binding.llFilterRejected, binding.llFilterPending
         };
 
-        TextView[] filterTexts = {
-                view.findViewById(R.id.tvFilterAll),
-                view.findViewById(R.id.tvFilterApproved),
-                view.findViewById(R.id.tvFilterRejected),
-                view.findViewById(R.id.tvFilterPending)
+        TextView[] filterLabels = {
+                binding.tvFilterAll, binding.tvFilterApproved, binding.tvFilterRejected, binding.tvFilterPending
         };
 
         for (int i = 0; i < filterCards.length; i++) {
             final String filter = FILTERS[i];
-            filterCards[i].setOnClickListener(v -> setFilter(filter, filterCards, filterTexts));
+            filterCards[i].setOnClickListener(v -> onFilterSelected(filter, filterCards, filterLabels));
         }
 
-        // Set the initial selected filter's background color
-        setFilterBackground(filterCards[0], filterTexts[0], true);
+        setFilterHighlight(filterCards[0], filterLabels[0], true);
     }
 
-    private void setFilter(String filter, CardView[] filterCards, TextView[] filterTexts) {
-        currentFilter = filter;
+    private void onFilterSelected(String selectedFilter, CardView[] filterCards, TextView[] filterLabels) {
+        currentFilter = selectedFilter;
         for (int i = 0; i < filterCards.length; i++) {
-            setFilterBackground(filterCards[i], filterTexts[i], filterCards[i].getId() == getFilterId(filter));
+            setFilterHighlight(filterCards[i], filterLabels[i], filterCards[i].getId() == getFilterCardId(selectedFilter));
         }
         adapter.updateDeliveries(getFilteredDeliveries());
     }
 
-    private int getFilterId(String filter) {
+    private int getFilterCardId(String filter) {
         return switch (filter) {
             case APPROVED_IDENTIFIER -> R.id.llFilterApproved;
             case REJECTED_IDENTIFIER -> R.id.llFilterRejected;
@@ -116,65 +97,64 @@ public class ConnectDeliveryListFragment extends Fragment {
         };
     }
 
-    private void setFilterBackground(CardView card, TextView textView, boolean isSelected) {
-        card.setCardBackgroundColor(getResources().getColor(isSelected ? R.color.connect_blue_color : R.color.connect_blue_color_10));
-        textView.setTextColor(getResources().getColor(isSelected ? android.R.color.white : R.color.connect_blue_color));
+    private void setFilterHighlight(CardView card, TextView label, boolean selected) {
+        int bgColor = getResources().getColor(selected ? R.color.connect_blue_color : R.color.connect_blue_color_10);
+        int textColor = getResources().getColor(selected ? android.R.color.white : R.color.connect_blue_color);
+        card.setCardBackgroundColor(bgColor);
+        label.setTextColor(textColor);
     }
 
     private List<ConnectJobDeliveryRecord> getFilteredDeliveries() {
-        List<ConnectJobDeliveryRecord> deliveryProgressList = new ArrayList<>();
+        List<ConnectJobDeliveryRecord> filteredList = new ArrayList<>();
         ConnectJobRecord job = ConnectManager.getActiveJob();
         if (job != null) {
             for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
-                if (delivery.getUnitName().equalsIgnoreCase(unitName) &&
-                        (currentFilter.equals(ALL_IDENTIFIER) ||
-                                delivery.getStatus().equalsIgnoreCase(currentFilter))) {
-                    deliveryProgressList.add(delivery);
+                boolean matchesUnit = delivery.getUnitName().equalsIgnoreCase(unitName);
+                boolean matchesFilter = currentFilter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(currentFilter);
+                if (matchesUnit && matchesFilter) {
+                    filteredList.add(delivery);
                 }
             }
         }
-        return deliveryProgressList;
+        return filteredList;
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {
-        private final List<ConnectJobDeliveryRecord> filteredDeliveries;
-        Context context;
+        private final List<ConnectJobDeliveryRecord> deliveries;
+        private final Context context;
 
-        public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> filteredDeliveries) {
+        public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> deliveries) {
             this.context = context;
-            this.filteredDeliveries = filteredDeliveries;
+            this.deliveries = deliveries;
         }
 
         @NonNull
         @Override
         public VerificationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new VerificationViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_delivery_item, parent, false));
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.connect_delivery_item, parent, false);
+            return new VerificationViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull VerificationViewHolder holder, int position) {
-            ConnectJobDeliveryRecord delivery = filteredDeliveries.get(position);
-            holder.bind(context, delivery);
+            holder.bind(context, deliveries.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return filteredDeliveries.size();
+            return deliveries.size();
         }
 
-        public void updateDeliveries(List<ConnectJobDeliveryRecord> newDeliveries) {
-            filteredDeliveries.clear();
-            filteredDeliveries.addAll(newDeliveries);
+        public void updateDeliveries(List<ConnectJobDeliveryRecord> updatedList) {
+            deliveries.clear();
+            deliveries.addAll(updatedList);
             notifyDataSetChanged();
         }
 
         static class VerificationViewHolder extends RecyclerView.ViewHolder {
-            final TextView nameText;
-            final TextView dateText;
-            final TextView statusText;
-            final TextView reasonText;
-            final LinearLayout llDeliveryStatus;
-            final ImageView imgDeliveryStatus;
+            final TextView nameText, dateText, statusText, reasonText;
+            final LinearLayout statusLayout;
+            final ImageView statusIcon;
 
             public VerificationViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -182,52 +162,49 @@ public class ConnectDeliveryListFragment extends Fragment {
                 dateText = itemView.findViewById(R.id.delivery_item_date);
                 statusText = itemView.findViewById(R.id.delivery_item_status);
                 reasonText = itemView.findViewById(R.id.delivery_item_reason);
-                llDeliveryStatus = itemView.findViewById(R.id.llDeliveryStatus);
-                imgDeliveryStatus = itemView.findViewById(R.id.imgDeliveryStatus);
+                statusLayout = itemView.findViewById(R.id.llDeliveryStatus);
+                statusIcon = itemView.findViewById(R.id.imgDeliveryStatus);
             }
 
             public void bind(Context context, ConnectJobDeliveryRecord delivery) {
                 nameText.setText(delivery.getEntityName());
                 dateText.setText(ConnectManager.paymentDateFormat(delivery.getDate()));
                 statusText.setText(delivery.getStatus());
-
-                String descriptionText = delivery.getReason();
-                if (Strings.isNullOrEmpty(descriptionText)) {
-                    if (delivery.getFlags() != null) {
-                        List<String> flagStrings = new ArrayList<>();
-                        for (ConnectJobDeliveryFlagRecord flag : delivery.getFlags()) {
-                            flagStrings.add(flag.getDescription());
-                        }
-                        descriptionText = String.join(", ", flagStrings);
-                    } else {
-                        descriptionText = "";
-                    }
-                }
-                reasonText.setText(descriptionText);
-
-                handleUI(context, delivery.getStatus());
+                reasonText.setText(getDisplayReason(delivery));
+                updateStatusUI(context, delivery.getStatus());
             }
 
-            public void handleUI(Context context, String status) {
-                switch (status) {
-                    case PENDING_IDENTIFIER: {
-                        llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_pending);
-                        imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_pending));
-                        break;
-                    }
-
-                    case APPROVED_IDENTIFIER: {
-                        llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_approved);
-                        imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_approved));
-                        break;
-                    }
-
-                    case REJECTED_IDENTIFIER: {
-                        llDeliveryStatus.setBackgroundResource(R.drawable.shape_connect_delivery_rejected);
-                        imgDeliveryStatus.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_connect_delivery_rejected));
-                        break;
-                    }
+            private String getDisplayReason(ConnectJobDeliveryRecord delivery) {
+                if (!Strings.isNullOrEmpty(delivery.getReason())) {
+                    return delivery.getReason();
                 }
+                if (delivery.getFlags() != null) {
+                    List<String> flagDescriptions = new ArrayList<>();
+                    for (ConnectJobDeliveryFlagRecord flag : delivery.getFlags()) {
+                        flagDescriptions.add(flag.getDescription());
+                    }
+                    return String.join(", ", flagDescriptions);
+                }
+                return "";
+            }
+
+            private void updateStatusUI(Context context, String status) {
+                int bgResId, iconResId;
+                switch (status.toLowerCase()) {
+                    case APPROVED_IDENTIFIER :
+                        bgResId = R.drawable.shape_connect_delivery_approved;
+                        iconResId = R.drawable.ic_connect_delivery_approved;
+                        break;
+                    case REJECTED_IDENTIFIER :
+                        bgResId = R.drawable.shape_connect_delivery_rejected;
+                        iconResId = R.drawable.ic_connect_delivery_rejected;
+                        break;
+                    default :
+                        bgResId = R.drawable.shape_connect_delivery_pending;
+                        iconResId = R.drawable.ic_connect_delivery_pending;
+                }
+                statusLayout.setBackgroundResource(bgResId);
+                statusIcon.setImageDrawable(ContextCompat.getDrawable(context, iconResId));
             }
         }
     }
