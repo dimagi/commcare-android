@@ -29,6 +29,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
+import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
@@ -112,6 +113,10 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 14) {
             upgradeFourteenFifteen(db);
             oldVersion = 15;
+        }
+        if (oldVersion == 15) {
+            upgradeFifteenSixteen(db);
+            oldVersion = 16;
         }
     }
 
@@ -582,6 +587,10 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeFifteenSixteen(SQLiteDatabase db) {
+        addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
     }
 
     private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
