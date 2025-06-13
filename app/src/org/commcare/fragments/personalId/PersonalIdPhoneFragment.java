@@ -1,10 +1,11 @@
 package org.commcare.fragments.personalId;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +39,6 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -71,6 +71,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
+        binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupListeners();
         updateContinueButtonState();
     }
@@ -143,28 +144,18 @@ public class PersonalIdPhoneFragment extends Fragment {
         enableContinueButton(isValidPhone && isConsentChecked);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data,
-                getActivity());
-        displayPhoneNumber(phone);
-    }
+    private void displayPhoneNumber(String fullPhoneNumber) {
 
-    private void displayPhoneNumber(String fullNumber) {
-        int defaultCode = phoneNumberHelper.getCountryCodeFromLocale(activity);
-        String formattedCode = PhoneNumberHelper.getInstance(activity).formatCountryCode(defaultCode);
+        if(TextUtils.isEmpty(fullPhoneNumber))return;
 
-        if (fullNumber != null && fullNumber.startsWith(formattedCode)) {
-            fullNumber = fullNumber.substring(formattedCode.length());
+        int countryCodeFromFullPhoneNumber = phoneNumberHelper.getCountryCode(fullPhoneNumber);
+        long nationPhoneNumberFromFullPhoneNumber = phoneNumberHelper.getNationalNumber(fullPhoneNumber);
+
+        if(countryCodeFromFullPhoneNumber!=-1 && nationPhoneNumberFromFullPhoneNumber!=-1){
+            binding.connectPrimaryPhoneInput.setText(String.valueOf(nationPhoneNumberFromFullPhoneNumber));
+            binding.countryCode.setText(phoneNumberHelper.formatCountryCode(countryCodeFromFullPhoneNumber));
         }
 
-        int countryCode = phoneNumberHelper.getCountryCode(
-                fullNumber != null && !fullNumber.isEmpty() ? fullNumber : "");
-        String countryCodeText = phoneNumberHelper.formatCountryCode(countryCode);
-
-        binding.connectPrimaryPhoneInput.setText(fullNumber);
-        binding.countryCode.setText(countryCodeText);
     }
 
     private void onContinueClicked() {
@@ -177,6 +168,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void startConfigurationRequest() {
+        clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
@@ -206,7 +198,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSucesss();
+                    onConfigurationSuccess();
                 } else {
                     // This is called when api returns success but with a a failure code
                     Logger.log(LogTypes.TYPE_USER,
@@ -216,28 +208,43 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
+                    onConfigurationFailure();
+                } else {
+                    navigateFailure(failureCode, t);
+                }
             }
         }.makeStartConfigurationCall(requireActivity(), body, integrityToken,requestHash);
     }
 
 
-    private void onConfigurationSucesss() {
+    private void onConfigurationSuccess() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
     private void onConfigurationFailure() {
-        String failureMessage = getString(R.string.configuration_process_failed_subtitle);
+        String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false));
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+    }
+
+    private void clearError() {
+        binding.personalidPhoneError.setVisibility(View.GONE);
+        binding.personalidPhoneError.setText("");
+    }
+
+    private void showError(String error) {
+        binding.personalidPhoneError.setVisibility(View.VISIBLE);
+        binding.personalidPhoneError.setText(error);
     }
 
     private NavDirections navigateToBiometricSetup() {
@@ -246,7 +253,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private NavDirections navigateToMessageDisplay(String errorMessage,boolean isCancellable) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
-                getString(R.string.configuration_process_failed_title),
+                getString(R.string.personalid_configuration_process_failed_title),
                 errorMessage,
                 ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null).setIsCancellable(isCancellable);
     }

@@ -185,7 +185,7 @@
                     android:id="@+id/not_me_button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/this_is_not_me"
+                    android:text="@string/personalid_this_is_not_me"
                     android:textColor="@color/cc_brand_color"
                     android:layout_marginStart="16dp"
                     android:clickable="true"

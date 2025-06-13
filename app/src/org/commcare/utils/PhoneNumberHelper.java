@@ -93,6 +93,21 @@ public class PhoneNumberHelper {
     }
 
     /**
+     * Extracts the national phone number from a given full phone number.
+     */
+    public long getNationalNumber(String phone) {
+        try {
+            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
+            if (phoneNumberUtil.isValidNumber(phoneNumber)) {
+                return phoneNumber.getNationalNumber();
+            }
+        } catch (NumberParseException e) {
+            // Ignore
+        }
+        return -1;
+    }
+
+    /**
      * Retrieves the country code for the user's current locale.
      */
     public int getCountryCodeFromLocale(Context context) {

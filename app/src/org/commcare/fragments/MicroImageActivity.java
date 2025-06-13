@@ -112,8 +112,8 @@ public class MicroImageActivity extends AppCompatActivity implements ImageAnalys
                 CommCareAlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 -1, // actually not required due to launcher activity
-                                getString(R.string.camera_permission_title),
-                                getString(R.string.camera_permission_msg));
+                                getString(R.string.personalid_camera_permission_title),
+                                getString(R.string.personalid_camera_permission_msg));
                 dialog.showNonPersistentDialog(this);
             } else {
                 requestNeededPermissions(-1);

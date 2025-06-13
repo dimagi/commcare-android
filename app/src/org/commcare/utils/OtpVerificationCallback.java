@@ -2,6 +2,8 @@ package org.commcare.utils;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import androidx.annotation.Nullable;
+
 /**
  * Callback interface for OTP (One-Time Password) verification operations.
  * <p>
@@ -27,7 +29,8 @@ public interface OtpVerificationCallback {
     /**
      * Called when an error occurs during the OTP process.
      *
-     * @param errorMessage A description of the error that occurred
+     * @param message A description of the error that occurred
      */
-    void onFailure(String errorMessage);
+    void onFailure(OtpErrorType errorType, @Nullable String message);
+
 }

@@ -73,10 +73,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/connect_payment_confirm_yes_button"
                         android:layout_width="wrap_content"
-                        android:layout_height="35dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:text="@string/connect_payment_confirm_yes"
-                        android:textColor="@color/blue"
                         android:textSize="18sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/connect_payment_confirm_label" />
@@ -84,10 +83,9 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/connect_payment_confirm_no_button"
                         android:layout_width="wrap_content"
-                        android:layout_height="35dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginEnd="10dp"
                         android:text="@string/connect_payment_confirm_no"
-                        android:textColor="@color/blue"
                         android:textSize="18sp"
                         style="@style/NegativeButtonStyle"
                         app:layout_constraintEnd_toStartOf="@id/connect_payment_confirm_yes_button"

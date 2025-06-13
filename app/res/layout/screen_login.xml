@@ -133,7 +133,7 @@
                                 android:layout_gravity="center"
                                 android:layout_margin="@dimen/content_min_margin"
                                 android:textStyle="bold"
-                                android:text="@string/login_via_connect"
+                                android:text="@string/personalid_login_via_connect"
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone"/>

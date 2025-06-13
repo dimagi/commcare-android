@@ -75,13 +75,14 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void setUpUi() {
-        requireActivity().setTitle(getString(R.string.capture_photo));
-        viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, personalIdSessionData.getUserName()));
+        requireActivity().setTitle(getString(R.string.personalid_capture_photo));
+        viewBinding.title.setText(getString(R.string.personalid_photo_capture_title, personalIdSessionData.getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
         viewBinding.savePhotoButton.setOnClickListener(v -> uploadImageAndCompleteProfile());
     }
 
     private void uploadImageAndCompleteProfile() {
+        clearError();
         disableSaveButton();
         disableTakePhotoButton();
         new PersonalIdApiHandler() {
@@ -91,28 +92,18 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                onCompleteProfileFailure(failureCode);
+            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+                onCompleteProfileFailure(failureCode, t);
             }
         }.completeProfile(requireContext(), personalIdSessionData.getUserName(),
                 photoAsBase64,
                 personalIdSessionData.getBackupCode(), personalIdSessionData.getToken(), personalIdSessionData);
     }
 
-    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
-        if (failureCode == PersonalIdApiHandler.PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR) {
-            onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
-        } else {
-            PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
-        }
-        if (failureCode.shouldAllowRetry()) {
-            enableSaveButton();
-        }
-    }
+    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
-    private void onPhotoUploadFailure(String error, boolean allowRetry) {
-        showError(error);
-        if (allowRetry) {
+        if (failureCode.shouldAllowRetry()) {
             enableTakePhotoButton();
             enableSaveButton();
         }
@@ -127,7 +118,6 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void onPhotoUploadSuccess(String photoAsBase64) {
-        clearError();
         enableTakePhotoButton();
         disableSaveButton();
         createAndSaveConnectUser(photoAsBase64);

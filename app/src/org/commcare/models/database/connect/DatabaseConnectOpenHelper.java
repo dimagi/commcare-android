@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
@@ -64,16 +65,16 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         this.mContext = context;
     }
 
-    private static File getDbFile(Context context) {
-        return context.getDatabasePath(CONNECT_DB_LOCATOR);
+    private static File getDbFile() {
+        return CommCareApplication.instance().getDatabasePath(CONNECT_DB_LOCATOR);
     }
 
-    public static boolean dbExists(Context context) {
-        return getDbFile(context).exists();
+    public static boolean dbExists() {
+        return getDbFile().exists();
     }
 
-    public static void deleteDb(Context context) {
-        getDbFile(context).delete();
+    public static void deleteDb() {
+        getDbFile().delete();
     }
 
     public static void rekeyDB(SQLiteDatabase db, String newPassphrase) throws Base64DecoderException {

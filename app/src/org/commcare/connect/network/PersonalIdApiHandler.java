@@ -25,22 +25,26 @@ import java.util.Map;
 public abstract class PersonalIdApiHandler {
 
     public enum PersonalIdApiErrorCodes {
+        UNKNOWN_ERROR,
         NETWORK_ERROR,
         OLD_API_ERROR,
+        FORBIDDEN_ERROR,
         TOKEN_UNAVAILABLE_ERROR,
         TOKEN_DENIED_ERROR,
         INVALID_RESPONSE_ERROR,
-        JSON_PARSING_ERROR;
+        JSON_PARSING_ERROR,
+        FAILED_AUTH_ERROR,
+        SERVER_ERROR,
+        RATE_LIMIT_EXCEEDED_ERROR;
 
         public boolean shouldAllowRetry(){
-            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == INVALID_RESPONSE_ERROR
-                    || this == JSON_PARSING_ERROR;
+            return this == NETWORK_ERROR || this == TOKEN_UNAVAILABLE_ERROR || this == SERVER_ERROR
+                    || this == UNKNOWN_ERROR;
         }
     }
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
-                                        PersonalIdApiResponseParser parser,
-                                        PersonalIdApiErrorCodes defaultFailureCode) {
+                                        PersonalIdApiResponseParser parser) {
         return new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -48,9 +52,12 @@ public abstract class PersonalIdApiHandler {
                     try (InputStream in = responseData) {
                         JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
                         parser.parse(json, sessionData);
-                    } catch (IOException | JSONException e) {
+                    } catch (JSONException e) {
+                        Logger.exception("JSON error parsing API response", e);
+                        onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR, e);
+                    } catch (IOException e) {
                         Logger.exception("Error parsing API response", e);
-                        onFailure(PersonalIdApiErrorCodes.JSON_PARSING_ERROR);
+                        onFailure(PersonalIdApiErrorCodes.NETWORK_ERROR, e);
                     }
                 }
                 onSuccess(sessionData);
@@ -58,39 +65,64 @@ public abstract class PersonalIdApiHandler {
 
             @Override
             public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                if(responseCode == 401) {
+                    onFailure(PersonalIdApiErrorCodes.FAILED_AUTH_ERROR, null);
+                    return;
+                }
+
+                if(responseCode == 403) {
+                    onFailure(PersonalIdApiErrorCodes.FORBIDDEN_ERROR, null);
+                    return;
+                }
+
+                if(responseCode == 429 || responseCode == 503) {
+                    onFailure(PersonalIdApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
+                    return;
+                }
+
+                if(responseCode == 500) {
+                    onFailure(PersonalIdApiErrorCodes.SERVER_ERROR, null);
+                    return;
+                }
+
+                StringBuilder info = new StringBuilder("Response " + responseCode);
                 if (errorResponse != null) {
                     try (InputStream in = errorResponse) {
                         JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(in)));
                         if (json.has("error")) {
+                            info.append(": ").append(json.optString("error"));
                             Toast.makeText(CommCareApplication.instance(), json.optString("error"),
                                     Toast.LENGTH_LONG).show();
                         }
-                    } catch (IOException | JSONException e) {
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
                         Logger.exception("Error parsing API error response", e);
-                        onFailure(defaultFailureCode);
+                        onFailure(PersonalIdApiErrorCodes.UNKNOWN_ERROR, e);
+                        return;
                     }
                 }
-                onFailure(defaultFailureCode);
+                onFailure(PersonalIdApiErrorCodes.UNKNOWN_ERROR, new Exception(info.toString()));
             }
 
             @Override
             public void processNetworkFailure() {
-                onFailure(PersonalIdApiErrorCodes.NETWORK_ERROR);
+                onFailure(PersonalIdApiErrorCodes.NETWORK_ERROR, null);
             }
 
             @Override
             public void processTokenUnavailableError() {
-                onFailure(PersonalIdApiErrorCodes.TOKEN_UNAVAILABLE_ERROR);
+                onFailure(PersonalIdApiErrorCodes.TOKEN_UNAVAILABLE_ERROR, null);
             }
 
             @Override
             public void processTokenRequestDeniedError() {
-                onFailure(PersonalIdApiErrorCodes.TOKEN_DENIED_ERROR);
+                onFailure(PersonalIdApiErrorCodes.TOKEN_DENIED_ERROR, null);
             }
 
             @Override
             public void processOldApiError() {
-                onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR);
+                onFailure(PersonalIdApiErrorCodes.OLD_API_ERROR, null);
             }
         };
     }
@@ -102,40 +134,35 @@ public abstract class PersonalIdApiHandler {
         PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.startConfiguration(activity, body, integrityToken, requestHash,
                 createCallback(sessionData,
-                        new StartConfigurationResponseParser(),
-                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+                        new StartConfigurationResponseParser()));
     }
     public void validateFirebaseIdToken(Activity activity, String firebaseIdToken,PersonalIdSessionData sessionData) {
         ApiPersonalId.validateFirebaseIdToken(sessionData.getToken(),activity,firebaseIdToken,
                 createCallback(sessionData,
-                        null,
-                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+                        null));
     }
 
     public void addOrVerifyNameCall(Activity activity, String name, PersonalIdSessionData sessionData) {
         ApiPersonalId.addOrVerifyName(activity, name, sessionData.getToken(),
                 createCallback(sessionData,
-                        new AddOrVerifyNameParser(),
-                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+                        new AddOrVerifyNameParser()));
     }
 
     public void confirmBackupCode(Activity activity, String backupCode, PersonalIdSessionData sessionData) {
         ApiPersonalId.confirmBackupCode(activity, backupCode, sessionData.getToken(),
                 createCallback(sessionData,
-                        new ConfirmBackupCodeResponseParser(),
-                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+                        new ConfirmBackupCodeResponseParser()));
     }
 
     public void completeProfile(Context context, String userName,
                                 String photoAsBase64, String backupCode, String token,PersonalIdSessionData sessionData) {
         ApiPersonalId.setPhotoAndCompleteProfile(context, userName, photoAsBase64, backupCode, token,
                 createCallback(sessionData,
-                        new CompleteProfileResponseParser(),
-                        PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR));
+                        new CompleteProfileResponseParser()));
     }
 
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
-    protected abstract void onFailure(PersonalIdApiErrorCodes errorCode);
+    protected abstract void onFailure(PersonalIdApiErrorCodes errorCode, Throwable t);
 }
