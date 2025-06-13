@@ -4,6 +4,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,21 +80,21 @@ public class PersonalIdCredential extends Persisted implements Serializable {
     public void setTitle(String title) { this.title = title; }
     public void setCredential(String credential) { this.credential = credential; }
 
-    public static List<PersonalIdCredential> fromJson(JSONArray jsonArray) {
+    public static List<PersonalIdCredential> fromJsonArray(JSONArray jsonArray) {
         List<PersonalIdCredential> credentials = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             try {
                 JSONObject obj = jsonArray.getJSONObject(i);
                 PersonalIdCredential credential = new PersonalIdCredential();
-                credential.setAppName(obj.optString("app_name"));
-                credential.setSlug(obj.optString("slug"));
-                credential.setType(obj.optString("type"));
-                credential.setIssuedDate(obj.optString("issued_date"));
-                credential.setTitle(obj.optString("title"));
-                credential.setCredential(obj.optString("credential"));
+                credential.setAppName(obj.optString(META_APP_NAME));
+                credential.setSlug(obj.optString(META_SLUG));
+                credential.setType(obj.optString(META_TYPE));
+                credential.setIssuedDate(obj.optString(META_ISSUED_DATE));
+                credential.setTitle(obj.optString(META_TITLE));
+                credential.setCredential(obj.optString(META_CREDENTIAL));
                 credentials.add(credential);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Logger.exception("Error parsing PersonalIdCredential json", e);
             }
         }
         return credentials;
