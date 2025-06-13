@@ -15,6 +15,7 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 
@@ -46,7 +47,8 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(ApplicationRecord.class);
@@ -95,7 +97,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Global", oldVersion, newVersion));
-        new GlobalDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
+        new GlobalDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Global", oldVersion, newVersion));
     }
 

@@ -23,6 +23,7 @@ import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.Base64;
@@ -89,7 +90,8 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(ConnectUserRecord.class);
@@ -160,7 +162,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Connect", oldVersion, newVersion));
-        new ConnectDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
+        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Connect", oldVersion, newVersion));
     }
 }

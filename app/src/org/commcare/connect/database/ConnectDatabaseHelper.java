@@ -11,6 +11,7 @@ import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -62,15 +63,17 @@ public class ConnectDatabaseHelper {
 
                             String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
                             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
+                            DatabaseConnectOpenHelper dbConnectOpenHelper;
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
-                                connectDatabase = new DatabaseConnectOpenHelper(this.c,
-                                        UserSandboxUtils.getSqlCipherEncodedKey(passphrase)).getWritableDatabase();
+                                dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
+                                        UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
-                                connectDatabase = new DatabaseConnectOpenHelper(this.c,
-                                        Base64.encodeToString(passphrase, Base64.NO_WRAP)).getWritableDatabase();
+                                dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
+                                        Base64.encodeToString(passphrase, Base64.NO_WRAP));
                             }
+                            connectDatabase = new EncryptedDatabaseAdapter(dbConnectOpenHelper);
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;

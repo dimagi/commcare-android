@@ -10,6 +10,7 @@ import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.IDatabase;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.models.database.DbUtil;
@@ -65,7 +66,8 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(GLOBAL_RESOURCE_TABLE_NAME);
@@ -131,7 +133,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("App", oldVersion, newVersion));
-        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
+        new AppDatabaseUpgrader(context).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("App", oldVersion, newVersion));
     }
 }
