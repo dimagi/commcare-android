@@ -448,7 +448,6 @@
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_process_failed_subtitle">De momento, o seu dispositivo não está qualificado para se inscrever no PersonalID. Tente novamente noutro dispositivo.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">De momento, o seu dispositivo não está qualificado para se inscrever no PersonalID devido à indisponibilidade da funcionalidade de segurança %s. Tente novamente noutro dispositivo.</string>
-    <string name="personalid_configuration_process_failed_server_msg">Requisitos de segurança do dispositivo inválidos do servidor: %s</string>
     <string name="personalid_photo_capture_title">Bem-vindo %1$s</string>
     <string name="personalid_photo_capture_subtitle">Por favor, tire uma fotografia sua para concluir a configuração da sua conta</string>
     <string name="personalid_photo_capture_take_photo_button">Tirar foto</string>
