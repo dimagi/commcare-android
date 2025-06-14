@@ -233,15 +233,14 @@ public class ApiPersonalId {
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
-                    if (response.errorBody() != null){
-                        callback.processFailure(response.code(), response.errorBody().byteStream());
-                    }
-                    callback.processFailure(response.code(), null);
+                    InputStream stream = response.errorBody() != null ?
+                            response.errorBody().byteStream() : null;
+                    callback.processFailure(response.code(), stream);
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 dismissProgressDialog(context);
                 // Handle network errors, etc.
                 handleNetworkError(t);
