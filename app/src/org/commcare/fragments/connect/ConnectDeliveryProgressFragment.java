@@ -375,7 +375,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         public void refresh() {
             for (Fragment fragment : fragmentList) {
                 if (fragment instanceof ConnectDeliveryProgressDeliveryFragment) {
-                    ((ConnectDeliveryProgressDeliveryFragment) fragment).updateView();
+                    ((ConnectDeliveryProgressDeliveryFragment) fragment).updateProgressSummary();
                 } else if (fragment instanceof ConnectResultsSummaryListFragment) {
                     ((ConnectResultsSummaryListFragment) fragment).updateView();
                 }
