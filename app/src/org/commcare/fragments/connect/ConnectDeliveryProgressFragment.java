@@ -1,6 +1,5 @@
 package org.commcare.fragments.connect;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -8,8 +7,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,123 +28,75 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
+import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
-
-
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-/**
- * Fragment for showing delivery progress for a Connect job
- *
- * @author dviggiano
- */
 public class ConnectDeliveryProgressFragment extends Fragment {
-    private ConnectDeliveryProgressFragment.ViewStateAdapter viewStateAdapter;
-    private TextView updateText;
 
-    private CardView paymentAlertTile;
-    private TextView paymentAlertText;
+    private FragmentConnectDeliveryProgressBinding binding;
+    private ViewStateAdapter viewPagerAdapter;
     private ConnectJobPaymentRecord paymentToConfirm = null;
-    private String tabPosition = "";
-    boolean isTabChange = false;
-
-    public ConnectDeliveryProgressFragment() {
-        // Required empty public constructor
-    }
+    private String initialTabPosition = "";
+    private boolean isProgrammaticTabChange = false;
 
     public static ConnectDeliveryProgressFragment newInstance() {
-        ConnectDeliveryProgressFragment fragment = new ConnectDeliveryProgressFragment();
-        return fragment;
+        return new ConnectDeliveryProgressFragment();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
         ConnectJobRecord job = ConnectManager.getActiveJob();
-        getActivity().setTitle(R.string.connect_progress_delivery);
-
+        requireActivity().setTitle(R.string.connect_progress_delivery);
 
         if (getArguments() != null) {
-            tabPosition = getArguments().getString("tabPosition", "0");
+            initialTabPosition = getArguments().getString("tabPosition", "0");
         }
 
-        View view = inflater.inflate(R.layout.fragment_connect_delivery_progress, container, false);
+        setupTabViewPager();
+        setupMenuProvider();
+        setupJobCard(job);
+        setupRefreshAndConfirmationActions();
 
-        updateText = view.findViewById(R.id.connect_delivery_last_update);
-        updateUpdatedDate(job.getLastDeliveryUpdate());
+        updateLastUpdatedText(job.getLastDeliveryUpdate());
+        updateWarningMessage();
+        updatePaymentConfirmationTile(false);
 
-        ImageView refreshButton = view.findViewById(R.id.connect_delivery_refresh);
-        refreshButton.setOnClickListener(v -> refreshData());
+        return binding.getRoot();
+    }
 
-        paymentAlertTile = view.findViewById(R.id.connect_delivery_progress_alert_tile);
-        paymentAlertText = view.findViewById(R.id.connect_payment_confirm_label);
-        Button paymentAlertNoButton = view.findViewById(R.id.connect_payment_confirm_no_button);
-        paymentAlertNoButton.setOnClickListener(v -> {
-            updatePaymentConfirmationTile(getContext(), true);
-            FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
-        });
+    private void setupTabViewPager() {
+        viewPagerAdapter = new ViewStateAdapter(getChildFragmentManager(), getLifecycle());
+        binding.connectDeliveryProgressViewPager.setAdapter(viewPagerAdapter);
 
-        Button paymentAlertYesButton = view.findViewById(R.id.connect_payment_confirm_yes_button);
-        paymentAlertYesButton.setOnClickListener(v -> {
-            final ConnectJobPaymentRecord payment = paymentToConfirm;
-            //Dismiss the tile
-            updatePaymentConfirmationTile(getContext(), true);
-
-            if (payment != null) {
-                FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-
-                ConnectManager.updatePaymentConfirmed(getContext(), payment, true, success -> {
-                    //Nothing to do
-                });
-            }
-        });
-
-        final ViewPager2 pager = view.findViewById(R.id.connect_delivery_progress_view_pager);
-        viewStateAdapter = new ConnectDeliveryProgressFragment.ViewStateAdapter(getChildFragmentManager(),
-                getLifecycle());
-        pager.setAdapter(viewStateAdapter);
-
-        final TabLayout tabLayout = view.findViewById(R.id.connect_delivery_progress_tabs);
+        TabLayout tabLayout = binding.connectDeliveryProgressTabs;
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_payment));
 
-        if (tabPosition.equals("1")) {
-            TabLayout.Tab tab = tabLayout.getTabAt(Integer.parseInt(tabPosition));
+        if (initialTabPosition.equals("1")) {
+            TabLayout.Tab tab = tabLayout.getTabAt(1);
             if (tab != null) {
-                isTabChange = true;
+                isProgrammaticTabChange = true;
                 tabLayout.selectTab(tab);
-                pager.setCurrentItem(Integer.parseInt(tabPosition), false);
+                binding.connectDeliveryProgressViewPager.setCurrentItem(1, false);
             }
         }
 
-        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        binding.connectDeliveryProgressViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                // This flag is used to handle cases when a tab is set programmatically,
-                // ensuring that onPageSelection does not set the default tab in such scenarios.
-                if (!isTabChange) {
-                    TabLayout.Tab tab = tabLayout.getTabAt(position);
-                    tabLayout.selectTab(tab);
-
-                    View view = viewStateAdapter.createFragment(position).getView();
-                    if(view != null) {
-                        pager.getLayoutParams().height = view.getMeasuredHeight();
-                        pager.requestLayout();
-                    }
-
-                    FirebaseAnalyticsUtil.reportConnectTabChange(tab.getText().toString());
+                if (!isProgrammaticTabChange) {
+                    tabLayout.selectTab(tabLayout.getTabAt(position));
+                    FirebaseAnalyticsUtil.reportConnectTabChange(tabLayout.getTabAt(position).getText().toString());
                 } else {
-                    isTabChange = false;
+                    isProgrammaticTabChange = false;
                 }
             }
         });
@@ -155,151 +104,74 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                pager.setCurrentItem(tab.getPosition());
+                binding.connectDeliveryProgressViewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
+            public void onTabUnselected(TabLayout.Tab tab) {}
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
+    }
 
-        MenuHost host = (MenuHost)requireActivity();
+    private void setupMenuProvider() {
+        MenuHost host = requireActivity();
         host.addMenuProvider(new MenuProvider() {
             @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                //Activity loads the menu
-            }
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {}
 
             @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                if (menuItem.getItemId() == R.id.action_sync) {
+            public boolean onMenuItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.action_sync) {
                     refreshData();
                     return true;
                 }
-
                 return false;
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-
-        updateConnectWarningMessage(view);
-        updatePaymentConfirmationTile(getContext(), false);
-
-        jobCardDataHandle(view,job);
-        return view;
     }
 
-    private void jobCardDataHandle(View view, ConnectJobRecord job) {
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        TextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
-        TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-        TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-        TextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
-        TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
+    private void setupRefreshAndConfirmationActions() {
+        binding.connectDeliveryRefresh.setOnClickListener(v -> refreshData());
 
-        viewMore.setOnClickListener(view1 -> {
-            Navigation.findNavController(viewMore).navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
+        binding.connectPaymentConfirmNoButton.setOnClickListener(v -> {
+            updatePaymentConfirmationTile(true);
+            FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(false);
         });
 
-        tvJobTitle.setText(job.getTitle());
-        tvJobDescription.setText(job.getDescription());
-        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
-
-        String workingHours = job.getWorkingHours();
-        boolean showHours = workingHours != null;
-        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        if(showHours) {
-            tv_job_time.setText(workingHours);
-        }
+        binding.connectPaymentConfirmYesButton.setOnClickListener(v -> {
+            updatePaymentConfirmationTile(true);
+            if (paymentToConfirm != null) {
+                FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
+                ConnectManager.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {});
+            }
+        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_sync) {
-            refreshData();
-            return true;
-        }
+    private void setupJobCard(ConnectJobRecord job) {
+        ViewJobCardBinding jobCard =binding.viewJobCard;
+        jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
+                .navigate(ConnectDeliveryProgressFragmentDirections.actionConnectJobDeliveryProgressFragmentToConnectJobDetailBottomSheetDialogFragment()));
 
-        return false;
+        jobCard.tvJobTitle.setText(job.getTitle());
+        jobCard.tvJobDescription.setText(job.getDescription());
+        jobCard.connectJobEndDate
+                .setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+
+        String workingHours = job.getWorkingHours();
+        boolean hasHours = workingHours != null;
+        jobCard.tvJobTime.setVisibility(hasHours ? View.VISIBLE : View.GONE);
+        jobCard.tvDailyVisitTitle.setVisibility(hasHours ? View.VISIBLE : View.GONE);
+        if (hasHours) {
+            (jobCard.tvJobTime).setText(workingHours);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
         if (PersonalIdManager.getInstance().isloggedIn()) {
             refreshData();
-        }
-    }
-
-    public void updateConnectWarningMessage(View cardView) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-
-        int totalVisitCount = job.getDeliveries().size();
-        int dailyVisitCount = job.numberOfDeliveriesToday();
-        boolean finished = job.isFinished();
-        String warningText = null;
-        if (finished) {
-            warningText = getString(R.string.connect_progress_warning_ended);
-        } else if (job.getProjectStartDate().after(new Date())) {
-            warningText = getString(R.string.connect_progress_warning_not_started);
-        } else if (job.getIsUserSuspended()) {
-            warningText = getString(R.string.user_suspended);
-        } else if (job.isMultiPayment()) {
-            List<String> warnings = new ArrayList<>();
-            Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
-            Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
-            for (int i = 0; i < job.getPaymentUnits().size(); i++) {
-                ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
-                String stringKey = Integer.toString(unit.getUnitId());
-
-                int totalCount = 0;
-                if (totalPaymentCounts.containsKey(stringKey)) {
-                    totalCount = totalPaymentCounts.get(stringKey);
-                }
-
-                if (totalCount >= unit.getMaxTotal()) {
-                    //Reached max total for this type
-                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
-                } else {
-                    int todayCount = 0;
-                    if (todayPaymentCounts.containsKey(stringKey)) {
-                        todayCount = todayPaymentCounts.get(stringKey);
-                    }
-
-                    if (todayCount >= unit.getMaxDaily()) {
-                        //Reached daily max for this type
-                        warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                                unit.getName()));
-                    }
-                }
-            }
-
-            if (warnings.size() > 0) {
-                warningText = String.join("\n", warnings);
-            }
-        } else {
-            if (totalVisitCount >= job.getMaxVisits()) {
-                warningText = getString(R.string.connect_progress_warning_max_reached_single);
-            } else if (dailyVisitCount >= job.getMaxDailyVisits()) {
-                warningText = getString(R.string.connect_progress_warning_daily_max_reached_single);
-            }
-        }
-
-        CardView connectMessageCard = cardView.findViewById(R.id.cvConnectMessage);
-        if(connectMessageCard != null) {
-            connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-            if (warningText != null) {
-                TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
-                tv.setText(warningText);
-            }
         }
     }
 
@@ -308,22 +180,67 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 try {
-                    updateUpdatedDate(new Date());
-                    updateConnectWarningMessage(getView());
-                    updatePaymentConfirmationTile(getContext(), false);
-                    viewStateAdapter.refresh();
-                } catch (Exception e) {
-                    //Ignore exception, happens if we leave the page before API call finishes
-                }
+                    updateLastUpdatedText(new Date());
+                    updateWarningMessage();
+                    updatePaymentConfirmationTile(false);
+                    viewPagerAdapter.refresh();
+                } catch (Exception ignored) {}
             }
         });
     }
 
-    private void updatePaymentConfirmationTile(Context context, boolean forceHide) {
+    private void updateWarningMessage() {
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        String warningText = computeWarningText(job);
+
+        CardView warningCard = binding.getRoot().findViewById(R.id.cvConnectMessage);
+        if (warningCard != null) {
+            warningCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+            if (warningText != null) {
+                ((TextView) warningCard.findViewById(R.id.tvConnectMessage)).setText(warningText);
+            }
+        }
+    }
+
+    private String computeWarningText(ConnectJobRecord job) {
+        if (job.isFinished()) {
+            return getString(R.string.connect_progress_warning_ended);
+        } else if (job.getProjectStartDate().after(new Date())) {
+            return getString(R.string.connect_progress_warning_not_started);
+        } else if (job.getIsUserSuspended()) {
+            return getString(R.string.user_suspended);
+        } else if (job.isMultiPayment()) {
+            List<String> warnings = new ArrayList<>();
+            Hashtable<String, Integer> total = job.getDeliveryCountsPerPaymentUnit(false);
+            Hashtable<String, Integer> today = job.getDeliveryCountsPerPaymentUnit(true);
+
+            for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
+                String key = String.valueOf(unit.getUnitId());
+                int totalCount = total.containsKey(key) ? total.get(key) : 0;
+                int todayCount = today.containsKey(key) ? today.get(key) : 0;
+
+                if (totalCount >= unit.getMaxTotal()) {
+                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
+                } else if (todayCount >= unit.getMaxDaily()) {
+                    warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi, unit.getName()));
+                }
+            }
+            return warnings.isEmpty() ? null : String.join("\n", warnings);
+        } else {
+            if (job.getDeliveries().size() >= job.getMaxVisits()) {
+                return getString(R.string.connect_progress_warning_max_reached_single);
+            } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
+                return getString(R.string.connect_progress_warning_daily_max_reached_single);
+            }
+        }
+        return null;
+    }
+
+    private void updatePaymentConfirmationTile(boolean forceHide) {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         paymentToConfirm = null;
+
         if (!forceHide) {
-            //Look for at least one payment that needs to be confirmed
             for (ConnectJobPaymentRecord payment : job.getPayments()) {
                 if (payment.allowConfirm()) {
                     paymentToConfirm = payment;
@@ -332,52 +249,52 @@ public class ConnectDeliveryProgressFragment extends Fragment {
             }
         }
 
-        //NOTE: Checking for network connectivity here
-        boolean show = paymentToConfirm != null;
-        if (show) {
-            show = ConnectivityStatus.isNetworkAvailable(context);
-            FirebaseAnalyticsUtil.reportCccPaymentConfirmationOnlineCheck(show);
-        }
+        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(getContext());
+        binding.connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
-        paymentAlertTile.setVisibility(show ? View.VISIBLE : View.GONE);
-        if (show) {
+        if (showTile) {
             String date = ConnectManager.formatDate(paymentToConfirm.getDate());
-            paymentAlertText.setText(getString(R.string.connect_payment_confirm_text, paymentToConfirm.getAmount(), job.getCurrency(), date));
-
+            binding.connectPaymentConfirmLabel.setText(getString(
+                    R.string.connect_payment_confirm_text,
+                    paymentToConfirm.getAmount(),
+                    job.getCurrency(),
+                    date));
             FirebaseAnalyticsUtil.reportCccPaymentConfirmationDisplayed();
         }
     }
 
-    private void updateUpdatedDate(Date lastUpdate) {
-        updateText.setText(getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
+    private void updateLastUpdatedText(Date lastUpdate) {
+        binding.connectDeliveryLastUpdate.setText(
+                getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
-        private final List<Fragment> fragmentList = new ArrayList<>();
+        private final List<Fragment> fragments;
 
-        public ViewStateAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-            super(fragmentManager, lifecycle);
-            fragmentList.add(ConnectDeliveryProgressDeliveryFragment.newInstance());
-            fragmentList.add(ConnectResultsSummaryListFragment.newInstance());
+        public ViewStateAdapter(@NonNull FragmentManager fm, @NonNull Lifecycle lifecycle) {
+            super(fm, lifecycle);
+            fragments = new ArrayList<>();
+            fragments.add(ConnectDeliveryProgressDeliveryFragment.newInstance());
+            fragments.add(ConnectResultsSummaryListFragment.newInstance());
         }
 
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            return fragmentList.get(position);
+            return fragments.get(position);
         }
 
         @Override
         public int getItemCount() {
-            return fragmentList.size();
+            return fragments.size();
         }
 
         public void refresh() {
-            for (Fragment fragment : fragmentList) {
-                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment) {
-                    ((ConnectDeliveryProgressDeliveryFragment) fragment).updateProgressSummary();
-                } else if (fragment instanceof ConnectResultsSummaryListFragment) {
-                    ((ConnectResultsSummaryListFragment) fragment).updateView();
+            for (Fragment fragment : fragments) {
+                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment) {
+                    deliveryFragment.updateProgressSummary();
+                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment) {
+                    summaryFragment.updateView();
                 }
             }
         }
