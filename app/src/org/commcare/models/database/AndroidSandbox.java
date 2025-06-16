@@ -6,7 +6,7 @@ import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.UserDatabaseSchemaManager;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
@@ -56,8 +56,8 @@ public class AndroidSandbox extends UserSandbox {
                                            StorageIndexedTreeElementModel exampleEntry,
                                            Set<String> indices) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        DatabaseUserOpenHelper.dropTable(app.getUserDbHandle(), tableName);
-        DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
+        UserDatabaseSchemaManager.dropTable(app.getUserDbHandle(), tableName);
+        UserDatabaseSchemaManager.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
         IndexedFixturePathUtils.buildFixtureIndices(app.getUserDbHandle(), tableName, indices);
     }
 

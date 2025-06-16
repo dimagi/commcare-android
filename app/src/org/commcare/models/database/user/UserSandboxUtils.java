@@ -70,8 +70,8 @@ public class UserSandboxUtils {
     private static String rekeyDB(Context c, UserKeyRecord incomingSandbox, UserKeyRecord newSandbox,
                                   byte[] unwrappedOldKey, byte[] unwrappedNewKey)
             throws IOException {
-        File oldDb = c.getDatabasePath(DatabaseUserOpenHelper.getDbName(incomingSandbox.getUuid()));
-        File newDb = c.getDatabasePath(DatabaseUserOpenHelper.getDbName(newSandbox.getUuid()));
+        File oldDb = c.getDatabasePath(UserDatabaseSchemaManager.getDbName(incomingSandbox.getUuid()));
+        File newDb = c.getDatabasePath(UserDatabaseSchemaManager.getDbName(newSandbox.getUuid()));
 
         //TODO: Make sure old sandbox is already on newest version?
         if (newDb.exists()) {
@@ -174,7 +174,7 @@ public class UserSandboxUtils {
         //Ok, three steps here. Wipe files out, wipe database, remove key record
 
         //If the db is gone already, just remove the record and move on (something odd has happened)
-        if (!context.getDatabasePath(DatabaseUserOpenHelper.getDbName(sandbox.getUuid())).exists()) {
+        if (!context.getDatabasePath(UserDatabaseSchemaManager.getDbName(sandbox.getUuid())).exists()) {
             Logger.log(LogTypes.TYPE_MAINTENANCE, "Sandbox " + sandbox.getUuid() + " has already been purged. removing the record");
 
             SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
@@ -218,7 +218,7 @@ public class UserSandboxUtils {
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "All files removed for sandbox. Deleting DB");
 
-        context.getDatabasePath(DatabaseUserOpenHelper.getDbName(sandbox.getUuid())).delete();
+        context.getDatabasePath(UserDatabaseSchemaManager.getDbName(sandbox.getUuid())).delete();
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Database is gone. Get rid of this record");
 

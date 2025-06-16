@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import static org.commcare.engine.resource.AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY;
+import static org.commcare.models.database.app.AppDatabaseSchemaManager.indexOnTableWithPGUIDCommand;
 import static org.commcare.utils.AndroidCommCarePlatform.GLOBAL_RESOURCE_TABLE_NAME;
 import static org.commcare.utils.AndroidCommCarePlatform.RECOVERY_RESOURCE_TABLE_NAME;
 import static org.commcare.utils.AndroidCommCarePlatform.UPGRADE_RESOURCE_TABLE_NAME;
@@ -166,9 +167,9 @@ class AppDatabaseUpgrader {
     private boolean upgradeThreeFour(IDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
+            db.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
+            db.execSQL(indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
+            db.execSQL(indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -198,7 +199,7 @@ class AppDatabaseUpgrader {
             builder.addData(new ResourceV13());
             db.execSQL(builder.getTableCreateString());
             String tableCmd =
-                    DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("temp_upgrade_index_id",
+                    AppDatabaseSchemaManager.indexOnTableWithPGUIDCommand("temp_upgrade_index_id",
                             TEMP_UPGRADE_TABLE_KEY);
             db.execSQL(tableCmd);
 
