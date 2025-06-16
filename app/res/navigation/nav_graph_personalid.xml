@@ -18,6 +18,10 @@
             android:id="@+id/action_personalid_biometric_config_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_biometric_config" />
+        <action
+            android:id="@+id/action_personalid_biometric_config_to_personalid_name"
+            app:destination="@id/personalid_name"
+            app:popUpTo="@id/personalid_biometric_config" />
     </fragment>
 
     <fragment
@@ -29,10 +33,6 @@
             android:id="@+id/action_personalid_otp_page_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_otp_page" />
-        <argument
-            android:name="primaryPhone"
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_name"
             app:destination="@id/personalid_name" />
@@ -51,7 +51,7 @@
             app:destination="@id/personalid_biometric_config"
             app:popUpTo="@id/personalid_message_display" />
         <action
-            android:id="@+id/action_personalid_message_to_personalid_pin"
+            android:id="@+id/action_personalid_message_to_personalid_backupcode"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_message_display" />
         <action
@@ -75,50 +75,40 @@
             app:nullable="false" />
         <argument
             android:name="buttonText"
+            app:nullable="false"
             app:argType="string" />
         <argument
             android:name="button2Text"
             app:argType="string"
             app:nullable="true" />
         <argument
-            android:name="phone"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
-            android:name="password"
-            app:argType="string"
-            app:nullable="true" />
-        <argument
             android:name="isCancellable"
             android:defaultValue="true"
             app:argType="boolean" />
+        <action
+            android:id="@+id/action_personalid_message_display_to_personalid_phone_fragment"
+            app:destination="@id/personalid_phone_fragment"
+            app:popUpTo="@id/personalid_message_display"
+            app:popUpToInclusive="true" />
     </dialog>
 
     <fragment
         android:id="@+id/personalid_backup_code"
         android:name="org.commcare.fragments.personalId.PersonalIdBackupCodeFragment"
-        android:label="fragment_personalid_pin"
+        android:label="fragment_personalid_backup_code"
         tools:layout="@layout/fragment_recovery_code">
         <action
-            android:id="@+id/action_personalid_pin_to_personalid_message"
+            android:id="@+id/action_personalid_backupcode_to_personalid_message"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_backup_code" />
         <action
-            android:id="@+id/action_personalid_pin_self"
+            android:id="@+id/action_personalid_backupcode_self"
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_backup_code" />
-        <argument
-            android:name="isRecovery"
-            app:argType="boolean"
-            android:defaultValue="false"
-            />
-        <argument
-            android:name="name"
-            app:argType="string"/>
-        <argument
-            android:name="photo"
-            app:argType="string"
-            app:nullable="true"/>
+        <action
+            android:id="@+id/action_personalid_backupcode_to_personalid_photo_capture"
+            app:destination="@id/personalid_photo_capture"
+            app:popUpTo="@id/personalid_backup_code" />
     </fragment>
 
     <fragment
@@ -131,7 +121,7 @@
             app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_personalid_phone_fragment_to_personalid_biometric_config"
-            app:destination="@id/personalid_biometric_config" />
+            app:destination="@id/personalid_biometric_config"/>
         <action
             android:id="@+id/action_personalid_phone_fragment_self"
             app:destination="@id/personalid_phone_fragment" />
@@ -146,5 +136,18 @@
         <action
             android:id="@+id/action_personalid_name_to_personalid_backup_code"
             app:destination="@id/personalid_backup_code" />
+    </fragment>
+    <fragment
+        android:id="@+id/personalid_photo_capture"
+        android:name="org.commcare.fragments.personalId.PersonalIdPhotoCaptureFragment"
+        android:label="fragment_personalid_photo_capture"
+        tools:layout="@layout/screen_personalid_photo_capture">
+        <action
+            android:id="@+id/action_personalid_signup_fragment_self"
+            app:destination="@id/personalid_photo_capture" />
+        <action
+            android:id="@+id/action_personalid_photo_capture_to_personalid_message"
+            app:destination="@id/personalid_message_display"
+            app:popUpTo="@id/personalid_photo_capture" />
     </fragment>
 </navigation>

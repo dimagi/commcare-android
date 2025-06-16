@@ -34,6 +34,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.ConnectManager;
@@ -58,6 +59,7 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -137,9 +139,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-        personalIdManager = PersonalIdManager.getInstance();
 
+        uiController.checkForGlobalErrors();
+
+        personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
+
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;

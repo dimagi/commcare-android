@@ -1,12 +1,10 @@
 package org.commcare.activities.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
@@ -20,10 +18,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
-
-    public boolean forgotPin = false;
-    public String primaryPhone;
-    public String recoverSecret;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +43,8 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
 
     private void handleRedirection(Intent intent) {
         String value = intent.getStringExtra(ConnectConstants.TASK);
-        if (value != null && value == ConnectConstants.BEGIN_REGISTRATION) {
-            beginRegistration(this);
+        if (ConnectConstants.BEGIN_REGISTRATION.equals(value)) {
+            beginRegistration();
         }
     }
 
@@ -82,8 +76,7 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         return navHostFragment;
     }
 
-    private void beginRegistration(Context parent) {
-        forgotPin = false;
+    private void beginRegistration() {
         NavDirections navDirections = null;
 
         switch (PersonalIdManager.getInstance().getStatus()) {
@@ -94,11 +87,9 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         if (navDirections == null) {
             navDirections = PersonalIdPhoneFragmentDirections
                     .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
-
         }
-        CommCareNavController.navigateSafely(navController, navDirections);
+        navController.navigate(navDirections);
     }
-
 
     private void updateBackButton() {
         ActionBar actionBar = getSupportActionBar();
@@ -113,7 +104,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         super.onBackPressed();
     }
 
-
     @Override
     protected boolean shouldShowBreadcrumbBar() {
         return false;
@@ -123,12 +113,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     public void setTitle(CharSequence title) {
         super.setTitle(title);
         getSupportActionBar().setTitle(title);
-    }
-
-    public void reset() {
-        primaryPhone = null;
-        recoverSecret = null;
-        forgotPin = false;
     }
 }
 

@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
@@ -120,7 +121,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode) {
+                    public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                         Toast.makeText(getContext(), "Connect: error claming job", Toast.LENGTH_SHORT).show();
                         reportApiCall(false);
                     }
@@ -139,7 +140,7 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
 
                     @Override
                     public void processTokenRequestDeniedError() {
-                        ConnectNetworkHelper.handleTokenDeniedException(requireContext());
+                        ConnectNetworkHelper.handleTokenDeniedException();
                         reportApiCall(false);
                     }
 

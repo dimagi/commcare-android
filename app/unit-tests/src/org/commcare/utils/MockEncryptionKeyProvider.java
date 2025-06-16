@@ -16,13 +16,31 @@ import java.security.NoSuchAlgorithmException;
  */
 public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private KeyPair keyPair = null;
+    private static final String TEST_SECRET = "test-secret";
+
+    public MockEncryptionKeyProvider(Context context) {
+        super(context, false, TEST_SECRET);
+    }
 
     @Override
-    public EncryptionKeyAndTransform getKey(Context context, boolean trueForEncrypt)
-            throws NoSuchAlgorithmException {
+    public EncryptionKeyAndTransform getKeyForEncryption() {
+        return getKey(true);
+    }
+
+    @Override
+    public EncryptionKeyAndTransform getKeyForDecryption() {
+        return getKey(false);
+    }
+
+    private EncryptionKeyAndTransform getKey(boolean trueForEncrypt) {
         if (keyPair == null) {
             //Create an RSA keypair that we can use to encrypt and decrypt
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            KeyPairGenerator keyGen = null;
+            try {
+                keyGen = KeyPairGenerator.getInstance("RSA");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
             keyGen.initialize(2048); // Standard key size for RSA
             keyPair = keyGen.generateKeyPair();
         }

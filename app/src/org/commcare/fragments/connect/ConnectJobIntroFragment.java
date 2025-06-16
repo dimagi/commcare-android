@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -105,7 +106,7 @@ public class ConnectJobIntroFragment extends Fragment {
                     }
 
                     @Override
-                    public void processFailure(int responseCode) {
+                    public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
                         Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
                         reportApiCall(false);
                     }
@@ -124,7 +125,7 @@ public class ConnectJobIntroFragment extends Fragment {
 
                     @Override
                     public void processTokenRequestDeniedError() {
-                        ConnectNetworkHelper.handleTokenDeniedException(requireContext());
+                        ConnectNetworkHelper.handleTokenDeniedException();
                         reportApiCall(false);
                     }
 

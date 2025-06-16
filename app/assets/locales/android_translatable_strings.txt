@@ -1014,3 +1014,11 @@ android.package.name.callout.commcare.org.sendussd=Commcare USSD
 android.package.name.org.commcare.dalvik.abha=CommCare ABHA
 
 location.capture.cancelled=Location capture cancelled
+
+microimage.camera.start.failed=Camera failed to start
+microimage.face.detection.mode.failed=Face detection mode failed, switching to manual mode
+microimage.cropping.failed=Image cropping failed, make sure the target is inside the capture area
+microimage.decoding.no.image=Image processing failed. Please try again
+microimage.scalingdown.compression.error=Image compression failed. Please try again
+microimage.manual.face.capture.failed=Manual capture failed, contact CommCare Support if the issue persists
+microimage.camera.permission.denied=Go to settings and enable camera permission to use this feature
