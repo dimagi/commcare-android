@@ -235,22 +235,22 @@ public class BiometricsHelper {
                     getMinBioMetricHardwareErrorForSecurityIfAny(activity, fingerprintStatus);
             default -> {
                 crashWithInvalidSecurityTypeException(activity, requiredLock);
-                yield activity.getString(R.string.configuration_process_failed_server_msg, requiredLock);
+                yield null;
             }
         };
     }
 
     private static void crashWithInvalidSecurityTypeException(Activity activity, String requiredLock) {
-        new RuntimeException(activity.getString(R.string.configuration_process_failed_server_msg, requiredLock));
+        throw new IllegalStateException("Invalid device security requirements from server: " + requiredLock);
     }
 
     private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
         return (fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ||
-                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, PIN);
+                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.personalid_configuration_process_failed_security_subtitle, PIN);
     }
 
     private static String getMinBioMetricHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus) {
-        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
+        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.personalid_configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
     }
 
     //// end: min secruity requirements

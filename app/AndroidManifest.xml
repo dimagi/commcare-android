@@ -580,7 +580,9 @@
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
-        <activity android:name="org.commcare.fragments.MicroImageActivity" />
+        <activity
+            android:name="org.commcare.fragments.MicroImageActivity"
+            android:screenOrientation="portrait"/>
         <!-- Start Collect Manifest -->
 
         <meta-data
