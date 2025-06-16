@@ -124,18 +124,19 @@ public class PersonalIdCredential extends Persisted implements Serializable {
      * Any corrupt entries are logged and collected separately.
      */
     public static List<PersonalIdCredential> fromJsonArray(JSONArray jsonArray) {
+        corruptCredentialItems.clear();
         List<PersonalIdCredential> credentials = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject obj = null;
             try {
                 obj = jsonArray.getJSONObject(i);
                 PersonalIdCredential credential = new PersonalIdCredential();
-                credential.setAppName(obj.optString(META_APP_NAME));
-                credential.setSlug(obj.optString(META_SLUG));
-                credential.setType(obj.optString(META_TYPE));
-                credential.setIssuedDate(obj.optString(META_ISSUED_DATE));
-                credential.setTitle(obj.optString(META_TITLE));
-                credential.setCredential(obj.optString(META_CREDENTIAL));
+                credential.setAppName(obj.getString(META_APP_NAME));
+                credential.setSlug(obj.getString(META_SLUG));
+                credential.setType(obj.getString(META_TYPE));
+                credential.setIssuedDate(obj.getString(META_ISSUED_DATE));
+                credential.setTitle(obj.getString(META_TITLE));
+                credential.setCredential(obj.getString(META_CREDENTIAL));
                 credentials.add(credential);
             } catch (JSONException e) {
                 Logger.exception("Error parsing PersonalIdCredential JSON", e);
@@ -165,14 +166,15 @@ public class PersonalIdCredential extends Persisted implements Serializable {
      */
     public static PersonalIdCredential corruptCredentialItemsFromJson(JSONObject json) throws JSONException {
         PersonalIdCredential credItem = new PersonalIdCredential();
-        credItem.appName = json.optString(META_APP_NAME, "");
-        credItem.slug = json.optString(META_SLUG, "");
-        credItem.type = json.optString(META_TYPE, "");
-        credItem.issuedDate = json.optString(META_ISSUED_DATE, "");
-        credItem.title = json.optString(META_TITLE, "");
-        credItem.credential = json.optString(META_CREDENTIAL, "");
+        credItem.appName = json.has(META_APP_NAME) ? json.getString(META_APP_NAME) : "";
+        credItem.slug = json.has(META_SLUG) ? json.getString(META_SLUG) : "";
+        credItem.type = json.has(META_TYPE) ? json.getString(META_TYPE) : "";
+        credItem.issuedDate = json.has(META_ISSUED_DATE) ? json.getString(META_ISSUED_DATE) : "";
+        credItem.title = json.has(META_TITLE) ? json.getString(META_TITLE) : "";
+        credItem.credential = json.has(META_CREDENTIAL) ? json.getString(META_CREDENTIAL) : "";
         return credItem;
     }
+
 
     /**
      * Returns all collected corrupt entries, if any.
