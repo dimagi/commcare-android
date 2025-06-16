@@ -162,7 +162,7 @@ public class PersonalIdCredential extends Persisted implements Serializable {
     }
 
     /**
-     * Creates a PersonalIdCredential from corrupt JSON data using fallback defaults.
+     * Creates a PersonalIdCredential from corrupt JSON data.
      */
     public static PersonalIdCredential corruptCredentialItemsFromJson(JSONObject json) throws JSONException {
         PersonalIdCredential credItem = new PersonalIdCredential();
