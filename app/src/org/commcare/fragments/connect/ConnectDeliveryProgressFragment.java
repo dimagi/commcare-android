@@ -175,6 +175,12 @@ public class ConnectDeliveryProgressFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     public void refreshData() {
         ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {

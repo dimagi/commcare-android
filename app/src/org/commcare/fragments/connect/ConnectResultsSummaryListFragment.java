@@ -53,6 +53,12 @@ public class ConnectResultsSummaryListFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;        // prevent view-leak
+    }
+
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.resultsList.setLayoutManager(layoutManager);
@@ -229,7 +235,9 @@ public class ConnectResultsSummaryListFragment extends Fragment {
             layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
 
             int marginInPx = (int)(10 * context.getResources().getDisplayMetrics().density);
-            layoutParams.horizontalMargin = marginInPx;
+            float marginFraction = marginInPx /
+                            (float) context.getResources().getDisplayMetrics().widthPixels;
+            layoutParams.horizontalMargin = marginFraction;
             dialog.getWindow().setAttributes(layoutParams);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.WRAP_CONTENT);

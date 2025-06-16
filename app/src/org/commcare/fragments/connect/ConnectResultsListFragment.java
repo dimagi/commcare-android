@@ -45,7 +45,7 @@ public class ConnectResultsListFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new ResultsAdapter(showPayments);
+        adapter = new ResultsAdapter(showPayments, getContext());
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), layoutManager.getOrientation()));
     }
@@ -56,16 +56,16 @@ public class ConnectResultsListFragment extends Fragment {
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final boolean showPayments;
-        private Context context;
+        private final Context context;
 
-        ResultsAdapter(boolean showPayments) {
+        ResultsAdapter(boolean showPayments, Context context) {
             this.showPayments = showPayments;
+            this.context = context;
         }
 
         @NonNull
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            context = parent.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
             return showPayments ?
                     new PaymentViewHolder(inflater.inflate(R.layout.connect_payment_item, parent, false)) :
