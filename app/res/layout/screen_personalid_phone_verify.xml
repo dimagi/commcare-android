@@ -33,9 +33,9 @@
 
         <TextView
             android:id="@+id/connect_phone_verify_label"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="16dp"
             android:textColor="@color/connect_secondary_text"
             android:textSize="16sp"
             tools:text="+91 7748962888"
@@ -45,8 +45,7 @@
             android:id="@+id/connect_phone_verify_change"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:gravity="end"
+            android:layout_marginStart="16dp"
             android:text="@string/connect_verify_phone_change"
             android:textColor="@color/connect_blue_color"
             android:textSize="16sp"

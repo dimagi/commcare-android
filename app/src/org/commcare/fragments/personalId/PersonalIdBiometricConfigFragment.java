@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
@@ -25,6 +26,7 @@ import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.BiometricsHelper;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.javarosa.core.services.Logger;
 
 import java.util.Locale;
@@ -32,17 +34,16 @@ import java.util.Locale;
 import androidx.navigation.fragment.NavHostFragment;
 
 import static android.app.Activity.RESULT_OK;
-import static androidx.biometric.BiometricPrompt.ERROR_NEGATIVE_BUTTON;
-import static androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED;
+
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
 import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
 public class PersonalIdBiometricConfigFragment extends Fragment {
-
     private BiometricManager biometricManager;
     private BiometricPrompt.AuthenticationCallback biometricCallback;
     private static final String KEY_ATTEMPTING_FINGERPRINT = "attempting_fingerprint";
@@ -223,11 +224,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN) {
             PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
             ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
-            requireActivity().setResult(RESULT_OK);
+            requireActivity().setResult(resultCode);
             requireActivity().finish();
         }
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            navigateForward(false);
+            navigateForward(resultCode != RESULT_OK);
         }
     }
 
@@ -242,6 +243,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             boolean isConfigured = fingerprint == BiometricsHelper.ConfigurationStatus.Configured ||
                     pin == BiometricsHelper.ConfigurationStatus.Configured;
             if (isConfigured) {
+                storeBiometricInvalidationKey();
                 if (Boolean.FALSE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getDemoUser())) {
                     NavHostFragment.findNavController(this).navigate(navigateToOtpScreen());
                 } else {
@@ -252,6 +254,17 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Generates a biometric linked key in Android Key Store if not already there
+     */
+    private void storeBiometricInvalidationKey() {
+        CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
+        if(BiometricsHelper.isFingerprintConfigured(activity,
+                PersonalIdManager.getInstance().getBiometricManager(activity))) {
+            new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
         }
     }
 
@@ -267,7 +280,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
         NavDirections navDirections =
                 PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                        getString(R.string.configuration_process_failed_title),
+                        getString(R.string.personalid_configuration_process_failed_title),
                         errorMessage,
                         ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
                         null).setIsCancellable(false);

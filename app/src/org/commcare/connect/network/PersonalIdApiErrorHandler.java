@@ -1,7 +1,6 @@
 package org.commcare.connect.network;
 
 import android.app.Activity;
-import android.widget.Toast;
 
 import org.commcare.dalvik.R;
 
@@ -27,26 +26,30 @@ public class PersonalIdApiErrorHandler {
      *
      * @param activity   the context (usually the current Activity) used to display UI elements
      * @param errorCode  the specific {@link PersonalIdApiHandler.PersonalIdApiErrorCodes} to handle
+     * @param t          the exception that was thrown, if any; can be null
      */
-    public static void handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode) {
+    public static String handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode,
+                              Throwable t) {
         switch (errorCode) {
-            case INVALID_RESPONSE_ERROR:
-            case JSON_PARSING_ERROR:
-                Toast.makeText(activity, activity.getString(R.string.configuration_process_api_failed),
-                        Toast.LENGTH_LONG).show();
-                break;
             case NETWORK_ERROR:
-                ConnectNetworkHelper.showNetworkError(activity);
-                break;
+                return activity.getString(R.string.recovery_network_unavailable);
             case TOKEN_UNAVAILABLE_ERROR:
-                ConnectNetworkHelper.handleTokenUnavailableException(activity);
-                break;
+                return activity.getString(R.string.recovery_network_token_unavailable);
+            case RATE_LIMIT_EXCEEDED_ERROR:
+                return activity.getString(R.string.recovery_network_cooldown);
+            case FAILED_AUTH_ERROR:
+                return activity.getString(R.string.recovery_network_unauthorized);
+            case SERVER_ERROR:
+                return activity.getString(R.string.recovery_network_server_error);
             case TOKEN_DENIED_ERROR:
                 ConnectNetworkHelper.handleTokenDeniedException();
-                break;
+                return "";
             case OLD_API_ERROR:
-                ConnectNetworkHelper.showOutdatedApiError(activity);
-                break;
+                return activity.getString(R.string.recovery_network_outdated);
+            case UNKNOWN_ERROR:
+                return activity.getString(R.string.recovery_network_unknown);
+            default:
+                throw new RuntimeException(t);
         }
     }
 }
