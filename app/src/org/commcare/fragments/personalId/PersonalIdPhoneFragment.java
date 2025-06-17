@@ -228,6 +228,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     @Override
     public void onLocationResult(@NonNull Location result) {
         location = result;
+        updateContinueButtonState();
         locationController.stop();
     }
 
