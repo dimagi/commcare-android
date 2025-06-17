@@ -23,7 +23,7 @@ import androidx.core.app.NotificationCompat;
  * This class is to facilitate handling the FCM Message Data object. It should contain all the
  * necessary checks and transformations
  */
-public class FCMMessageData implements Externalizable{
+public class FCMMessageData implements Externalizable {
     private FirebaseMessagingUtil.ActionTypes actionType;
     private String username;
     private String domain;
@@ -37,11 +37,7 @@ public class FCMMessageData implements Externalizable{
     private String notificationChannel;
     private Map<String, String> payloadData;
 
-    /**
-     * Constructor for FCMMessageData
-     * @param payloadData
-     */
-    public FCMMessageData(Map<String, String> payloadData){
+    public FCMMessageData(Map<String, String> payloadData) {
         this.payloadData = payloadData;
         actionType = getActionType(payloadData.get("action"));
         username = payloadData.get("username");
@@ -54,48 +50,28 @@ public class FCMMessageData implements Externalizable{
         notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
         smallIcon = R.drawable.commcare_actionbar_logo;
     }
-    
-    public FCMMessageData(){}
 
-    /**
-     * Getter for username
-     * @return
-     */
+    public FCMMessageData() {
+    }
+
     public String getUsername() {
         return username;
     }
 
-    /**
-     * Getter for domain
-     * @return
-     */
     public String getDomain() {
         return domain;
     }
 
-    /**
-     * Getter for creation time
-     * @return
-     */
     public DateTime getCreationTime() {
         return creationTime;
     }
 
-    /**
-     * Getter for action type
-     * @return
-     */
     public FirebaseMessagingUtil.ActionTypes getActionType() {
         return actionType;
     }
 
-    /**
-     * Convert ISO 8601 string to DateTime object
-     * @param timeInISO8601
-     * @return
-     */
     private DateTime convertISO8601ToDateTime(String timeInISO8601) {
-        if (timeInISO8601 == null){
+        if (timeInISO8601 == null) {
             return new DateTime();
         }
         try {
@@ -106,11 +82,6 @@ public class FCMMessageData implements Externalizable{
         }
     }
 
-    /**
-     * Get action type based on action
-     * @param action
-     * @return
-     */
     private FirebaseMessagingUtil.ActionTypes getActionType(String action) {
         if (action == null) {
             return FirebaseMessagingUtil.ActionTypes.INVALID;
@@ -142,122 +113,62 @@ public class FCMMessageData implements Externalizable{
         ExtUtil.writeNumeric(out, creationTime.getMillis());
     }
 
-    /**
-     * Getter for notification title
-     * @return
-     */
     public String getNotificationTitle() {
         return notificationTitle;
     }
 
-    /**
-     * Setter for notification title
-     * @param notificationTitle
-     */
     public void setNotificationTitle(String notificationTitle) {
         this.notificationTitle = notificationTitle;
     }
 
-    /**
-     * Getter for notification text
-     * @return
-     */
     public String getNotificationText() {
         return notificationText;
     }
 
-    /**
-     * Setter for notification text
-     * @param notificationText
-     */
     public void setNotificationText(String notificationText) {
         this.notificationText = notificationText;
     }
 
-    /**
-     * Getter for priority
-     * @return
-     */
     public int getPriority() {
         return priority;
     }
 
-    /**
-     * Setter for priority
-     * @param priority
-     */
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
-    /**
-     * Getter for large icon
-     * @return
-     */
     public Bitmap getLargeIcon() {
         return largeIcon;
     }
 
-    /**
-     * Setter for large icon
-     * @param largeIcon
-     */
     public void setLargeIcon(Bitmap largeIcon) {
         this.largeIcon = largeIcon;
     }
 
-    /**
-     * Getter for small icon
-     * @return
-     */
     public int getSmallIcon() {
         return smallIcon;
     }
 
-    /**
-     * Setter for small icon
-     * @param smallIcon
-     */
-    public void setSmallIcon( int smallIcon) {
+    public void setSmallIcon(int smallIcon) {
         this.smallIcon = smallIcon;
     }
 
-    /**
-     * Getter for action
-     * @param action
-     */
     public void setAction(String action) {
         this.action = action;
     }
 
-    /**
-     * Getter for action
-     * @return
-     */
     public String getAction() {
         return action;
     }
 
-    /**
-     * Getter for notification channel
-     * @return
-     */
     public String getNotificationChannel() {
         return notificationChannel;
     }
 
-    /**
-     * Setter for notification channel
-     * @param notificationChannel
-     */
     public void setNotificationChannel(String notificationChannel) {
         this.notificationChannel = notificationChannel;
     }
 
-    /**
-     * Getter for payload data
-     * @return
-     */
     public Map<String, String> getPayloadData() {
         return payloadData;
     }

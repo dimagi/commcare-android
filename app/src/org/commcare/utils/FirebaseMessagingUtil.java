@@ -42,6 +42,13 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 
+/**
+ * This class will be used to handle notification whenever
+ * 1. App receives notification when app is in foreground
+ * 2. App receives notification when app is in background/killed and user clicks on such notification. Launcher activity will call
+ * this class to handle the notification
+ *
+ */
 public class FirebaseMessagingUtil {
     public static final String FCM_TOKEN = "fcm_token";
     public static final String FCM_TOKEN_TIME = "fcm_token_time";
@@ -102,18 +109,6 @@ public class FirebaseMessagingUtil {
         return null;
     }
 
-    //// start: handle notification
-
-    /**
-     * This class will be used to handle notification whenever
-     * 1. App receives notification when app is in foreground
-     * 2. App receives notification when app is in background/killed and user clicks on such notification. Launcher activity will call
-     * this function to handle the notification
-     * TODO
-     * App needs to handle the intent code in launcher activity for data payload which are transmitted to launcher activity
-     * from notification system tray. These type of the notifications are received when app is in background/killed
-     */
-
 
     /**
      * DataSyncer singleton class
@@ -150,7 +145,7 @@ public class FirebaseMessagingUtil {
             return handleGeneralApplicationPushNotification(context,fcmMessageData,showNotification);
         }else if (hasCccAction(fcmMessageData.getAction())){
             return handleCCCActionPushNotification(context,fcmMessageData,showNotification);
-        }else if (!hasCccAction(fcmMessageData.getAction()) && fcmMessageData.getActionType() == ActionTypes.SYNC){
+        }else if (fcmMessageData.getActionType() == ActionTypes.SYNC){
             getDataSyncer(context).syncData(fcmMessageData);
             return null;
         }else{
@@ -381,8 +376,6 @@ public class FirebaseMessagingUtil {
     public static boolean hasCccAction(String action) {
         return action != null && action.contains("ccc_");
     }
-
-    //// end: handle notification
 
 
 
