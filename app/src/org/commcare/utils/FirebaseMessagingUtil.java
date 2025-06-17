@@ -136,20 +136,19 @@ public class FirebaseMessagingUtil {
      * @param context - application context
      * @param notificationPayload - This will be notification data payload when calling from CommCareFirebaseMessagingService or will
      *                            be intent data payload when calling from launcher activity
-     * @param showNotification - This should be true when calling from CommCareFirebaseMessagingService and false when calling from launcher activity
      * @return Intent - if need for launcher activity to start the activity
      */
-    public static Intent handleNotification(Context context, Map<String, String>notificationPayload, boolean showNotification){
+    public static Intent handleNotification(Context context, Map<String, String>notificationPayload){
         FCMMessageData fcmMessageData = new FCMMessageData(notificationPayload);
         if (fcmMessageData.getPayloadData() == null || fcmMessageData.getPayloadData().isEmpty()) {
-            return handleGeneralApplicationPushNotification(context,fcmMessageData,showNotification);
+            return handleGeneralApplicationPushNotification(context,fcmMessageData);
         }else if (hasCccAction(fcmMessageData.getAction())){
-            return handleCCCActionPushNotification(context,fcmMessageData,showNotification);
+            return handleCCCActionPushNotification(context,fcmMessageData);
         }else if (fcmMessageData.getActionType() == ActionTypes.SYNC){
             getDataSyncer(context).syncData(fcmMessageData);
             return null;
         }else{
-            return handleGeneralApplicationPushNotification(context,fcmMessageData,showNotification);
+            return handleGeneralApplicationPushNotification(context,fcmMessageData);
         }
     }
 
@@ -157,18 +156,17 @@ public class FirebaseMessagingUtil {
      * handle CCC action push notification
      * @param context
      * @param fcmMessageData
-     * @param showNotification
      * @return Intent
      */
-    public static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification){
+    public static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData){
 
         FirebaseAnalyticsUtil.reportNotificationType(fcmMessageData.getAction());
         if(fcmMessageData.getAction().equals(CCC_MESSAGE)){
-            return handleCCCMessageChannelPushNotification(context,fcmMessageData,showNotification);
+            return handleCCCMessageChannelPushNotification(context,fcmMessageData);
         }else if(fcmMessageData.getAction().equals(CCC_DEST_PAYMENTS)){
-            return handleCCCPaymentPushNotification(context,fcmMessageData,showNotification);
+            return handleCCCPaymentPushNotification(context,fcmMessageData);
         }else{  // All other notifications for connect
-            return handleCCCConnectPushNotification(context,fcmMessageData,showNotification);
+            return handleCCCConnectPushNotification(context,fcmMessageData);
         }
 
     }
@@ -177,13 +175,12 @@ public class FirebaseMessagingUtil {
      * Handle CCC connect push notification
      * @param context
      * @param fcmMessageData
-     * @param showNotification
      * @return Intent
      */
 
-    public static Intent handleCCCConnectPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification){
+    public static Intent handleCCCConnectPushNotification(Context context, FCMMessageData fcmMessageData){
         Intent intent = getConnectActivityNotification(context,fcmMessageData);
-        if(showNotification)showNotification(context,buildNotification(context,intent, fcmMessageData));
+        showNotification(context,buildNotification(context,intent, fcmMessageData));
         return intent;
     }
 
@@ -191,11 +188,10 @@ public class FirebaseMessagingUtil {
      * Handle CCC payment push notification
      * @param context
      * @param fcmMessageData
-     * @param showNotification
      * @return Intent
      */
 
-    public static Intent handleCCCPaymentPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification){
+    public static Intent handleCCCPaymentPushNotification(Context context, FCMMessageData fcmMessageData){
         Intent intent = getConnectActivityNotification(context,fcmMessageData);
 
         NotificationCompat.Builder fcmNotification = buildNotification(context,intent, fcmMessageData);
@@ -223,7 +219,7 @@ public class FirebaseMessagingUtil {
         fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
         fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
 
-        if(showNotification)showNotification(context,fcmNotification);
+        showNotification(context,fcmNotification);
         return intent;
     }
 
@@ -231,14 +227,13 @@ public class FirebaseMessagingUtil {
      * This will handle general application push notification. No need to return intent as it will be already in launcher activity i.e. DispatchActivity
      * @param context
      * @param fcmMessageData
-     * @param showNotification
      * @return Intent
      */
-    public static Intent handleGeneralApplicationPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification){
+    public static Intent handleGeneralApplicationPushNotification(Context context, FCMMessageData fcmMessageData){
         Intent intent = new Intent(context, DispatchActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        if(showNotification)showNotification(context,buildNotification(context,intent,fcmMessageData));
+        showNotification(context,buildNotification(context,intent,fcmMessageData));
         return null;    // This will always null as we are already in DispatchActivity and don't want to start again
     }
 
@@ -247,11 +242,10 @@ public class FirebaseMessagingUtil {
      * Handle CCC messaging/channel push notification
      * @param context
      * @param fcmMessageData
-     * @param showNotification
      * @return Intent
      */
 
-    public static Intent handleCCCMessageChannelPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification){
+    public static Intent handleCCCMessageChannelPushNotification(Context context, FCMMessageData fcmMessageData){
         Intent intent = null;
         fcmMessageData.setNotificationChannel(CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID);
         fcmMessageData.setPriority(NotificationCompat.PRIORITY_MAX);
@@ -269,7 +263,6 @@ public class FirebaseMessagingUtil {
             channelId = fcmMessageData.getPayloadData().get("channel");
         } else {
             //Channel
-            // TODO to be removed when backend starts sending channel name in new channel push notification
             ConnectMessagingChannelRecord channel = MessageManager.handleReceivedChannel(context,
                     fcmMessageData.getPayloadData());
 
@@ -296,7 +289,7 @@ public class FirebaseMessagingUtil {
             intent.putExtra("action", fcmMessageData.getAction());
         }
 
-        if(intent!=null && showNotification){
+        if(intent!=null){
             showNotification(context,buildNotification(context,intent, fcmMessageData));
         }
         return intent;
