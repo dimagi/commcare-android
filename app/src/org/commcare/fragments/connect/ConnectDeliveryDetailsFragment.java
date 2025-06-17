@@ -148,9 +148,18 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
         CommCareApplication.instance().closeUserSession();
 
         NavDirections directions = installed
-                ? ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment()
-                : ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(getString(R.string.connect_downloading_delivery), false);
+                ? navigateToDeliverProgress()
+                : navigateToDownloadingPage();
 
         Navigation.findNavController(button).navigate(directions);
+    }
+
+    private NavDirections navigateToDeliverProgress() {
+        return ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectJobDeliveryProgressFragment();
+    }
+
+    private NavDirections navigateToDownloadingPage() {
+        return ConnectDeliveryDetailsFragmentDirections.actionConnectJobDeliveryDetailsFragmentToConnectDownloadingFragment(
+                getString(R.string.connect_downloading_delivery), false);
     }
 }
