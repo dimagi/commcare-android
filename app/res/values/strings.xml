@@ -621,5 +621,6 @@
     <string name="camera_permission_title">Permission for camera</string>
     <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="capture_photo">Capture Photo</string>
-    <string name="location_permission_denied">Location permission denied</string>
+    <string name="personaliid_location_permission_denied">Location permission denied</string>
+    <string name="personaliid_location_permission_error">Location permission denied</string>
 </resources>

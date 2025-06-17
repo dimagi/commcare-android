@@ -1,9 +1,7 @@
 package org.commcare.fragments.personalId;
 
 import android.Manifest;
-import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -23,10 +21,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -49,17 +44,15 @@ import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.GeoUtils;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.PhoneNumberHelper;
-import org.commcare.utils.StringUtils;
-import org.commcare.views.dialogs.CommCareAlertDialog;
-import org.commcare.views.dialogs.DialogCreationHelpers;
-import org.commcare.views.dialogs.GeoProgressDialog;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+
+import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener,
         RuntimePermissionRequester {
@@ -74,11 +67,11 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private Location location;
     private static final int LOCATION_SETTING_REQ = 102;
     private CommCareLocationController locationController;
+    private ActivityResultLauncher<String[]> locationPermissionLauncher;
+
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
-            Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
-    private GeoProgressDialog locationDialog;
 
 
     @Override
@@ -93,26 +86,24 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         locationController = CommCareLocationControllerFactory.getLocationController(requireActivity(), this);
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
-        setupLocationDialog();
-        requestLocationPermission();
+        registerLocationPermissionLauncher();
         return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkPermission();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (locationController != null) {
+            locationController.stop();
             locationController.destroy();
         }
         binding = null;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (locationController != null) {
-            locationController.stop();
-        }
     }
 
     private void initializeUi() {
@@ -188,7 +179,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         boolean isValidPhone = phoneNumberHelper.isValidPhoneNumber(phone);
         boolean isConsentChecked = binding.connectConsentCheck.isChecked();
 
-        enableContinueButton(isValidPhone && isConsentChecked);
+        enableContinueButton(isValidPhone && isConsentChecked && location!=null);
     }
 
     private void displayPhoneNumber(String fullPhoneNumber) {
@@ -214,27 +205,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         binding.personalidPhoneContinueButton.setEnabled(isEnabled);
     }
 
-    private void setupLocationDialog() {
-        // dialog displayed while fetching gps location
-
-        View.OnClickListener cancelButtonListener = v -> {
-            location = null;
-            requireActivity().finish();
-        };
-
-        View.OnClickListener okButtonListener = v -> requestLocationPermission();
-
-        locationDialog = new GeoProgressDialog(requireActivity(),
-                StringUtils.getStringRobust(requireActivity(), R.string.found_location),
-                StringUtils.getStringRobust(requireActivity(), R.string.finding_location));
-        locationDialog.setImage(getResources().getDrawable(R.drawable.green_check_mark));
-        locationDialog.setMessage(StringUtils.getStringRobust(requireActivity(), R.string.please_wait_long));
-        locationDialog.setOKButton(StringUtils.getStringRobust(requireActivity(), R.string.accept_location),
-                okButtonListener);
-        locationDialog.setCancelButton(StringUtils.getStringRobust(requireActivity(), R.string.cancel_location),
-                cancelButtonListener);
-    }
-
     private void startConfigurationRequest() {
         clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
@@ -245,7 +215,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
         body.put("application_id", requireContext().getPackageName());
-        body.put("gps_location", location.getLatitude() + " " + location.getLongitude());
+        body.put("gps_location", GeoUtils.locationToString(location));
 
         integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
             if (integrityToken != null) {
@@ -278,33 +248,62 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         }
     }
 
+    private boolean isOnPermissionErrorScreen() {
+        return Navigation.findNavController(requireView())
+                .getCurrentDestination()
+                .getId() == R.id.personalid_message_display;
+    }
+
     @Override
     public void onLocationRequestStart() {
     }
 
     @Override
     public void requestNeededPermissions(int requestCode) {
-        missingPermissions();
     }
 
-    private void requestLocationPermission() {
-        if (Permissions.missingAppPermission((AppCompatActivity)requireActivity(), REQUIRED_PERMISSIONS)) {
-            if (Permissions.shouldShowPermissionRationale((AppCompatActivity)requireActivity(),
-                    REQUIRED_PERMISSIONS)) {
-                CommCareAlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog((AppCompatActivity)requireActivity(),
-                                this,
-                                LOCATION_SETTING_REQ,
-                                Localization.get("permission.location.title"),
-                                Localization.get("permission.location.message"));
-                dialog.showNonPersistentDialog(requireActivity());
+    private void checkPermission() {
+        if (Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)) {
+            if (shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
+                navigateToPermissionErrorMessageDisplay();
             } else {
-                missingPermissions();
+                locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
             }
         } else {
             locationController.start();
         }
     }
+
+    private void registerLocationPermissionLauncher() {
+        locationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                result -> {
+                    boolean allPermissionsGranted = !Permissions.missingAppPermission(requireContext(), REQUIRED_PERMISSIONS);
+
+                    if (allPermissionsGranted) {
+                        locationController.start();
+                    } else {
+                        boolean permanentlyDenied = false;
+                        for (String permission : REQUIRED_PERMISSIONS) {
+                            if (!Permissions.shouldShowPermissionRationale(requireActivity(), permission)
+                                    && Permissions.missingAppPermission(requireContext(), permission)) {
+                                permanentlyDenied = true;
+                                break;
+                            }
+                        }
+
+                        if (permanentlyDenied) {
+                            if (!isOnPermissionErrorScreen()) {
+                                navigateToPermissionErrorMessageDisplay(); // Show error with navigation to settings
+                            }
+                        } else {
+                            locationPermissionLauncher.launch(REQUIRED_PERMISSIONS); // Retry asking
+                        }
+                    }
+                }
+        );
+    }
+
 
     private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
                                             HashMap<String, String> body) {
@@ -344,7 +343,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void onConfigurationFailure() {
         String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                navigateToMessageDisplay(failureMessage, false));
+                navigateToMessageDisplay(failureMessage,false,   ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED));
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
@@ -369,17 +368,22 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay(String errorMessage,boolean isCancellable) {
+    private NavDirections navigateToMessageDisplay(String errorMessage, boolean isCancellable,int phase) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                 getString(R.string.personalid_configuration_process_failed_title),
                 errorMessage,
-                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null).setIsCancellable(isCancellable);
+                phase, getString(R.string.ok),
+                null).setIsCancellable(isCancellable);
     }
+
+    private void navigateToPermissionErrorMessageDisplay() {
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
+                navigateToMessageDisplay(
+                        requireActivity().getString(R.string.personaliid_location_permission_error), true,
+                        ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE));
+    }
+
     @Override
     public void missingPermissions() {
-        ActivityCompat.requestPermissions(requireActivity(),
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                LOCATION_SETTING_REQ);
     }
 }
