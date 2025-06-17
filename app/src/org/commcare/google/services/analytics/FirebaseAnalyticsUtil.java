@@ -526,4 +526,8 @@ public class FirebaseAnalyticsUtil {
     public static void reportRekeyedDatabase() {
         reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
     }
+
+    public static void reportBiometricInvalidated() {
+        reportEvent(CCAnalyticsEvent.CCC_BIOMETRIC_INVALIDATED);
+    }
 }

@@ -72,7 +72,6 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobsListsFragment extends Fragment {
-    private CardView connectTile;
     private TextView updateText;
     private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
@@ -95,7 +94,6 @@ public class ConnectJobsListsFragment extends Fragment {
         getActivity().setTitle(R.string.connect_title);
 
         view = inflater.inflate(R.layout.fragment_connect_jobs_list, container, false);
-        connectTile = view.findViewById(R.id.connect_alert_tile);
 
         updateText = view.findViewById(R.id.connect_jobs_last_update);
         updateText.setVisibility(View.GONE);
@@ -230,7 +228,6 @@ public class ConnectJobsListsFragment extends Fragment {
         Context context = getContext();
         if(context != null) {
             updateUpdatedDate(new Date());
-            updateSecondaryPhoneConfirmationTile(context);
         }
     }
 
@@ -242,16 +239,6 @@ public class ConnectJobsListsFragment extends Fragment {
                 Logger.exception("JSONException while retrieving corrupt opportunity title", e);
             }
         }
-    }
-
-    private void updateSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = PersonalIdManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(context);
-
-        ConnectManager.updateSecondaryPhoneConfirmationTile(context, connectTile, show, v -> {
-            ConnectManager.beginSecondaryPhoneVerification((CommCareActivity<?>) getActivity(), success -> {
-                updateSecondaryPhoneConfirmationTile(context);
-            });
-        });
     }
 
     private void updateUpdatedDate(Date lastUpdate) {

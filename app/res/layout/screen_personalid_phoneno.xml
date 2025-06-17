@@ -116,7 +116,7 @@
 
                     <TextView
                         android:textStyle="bold"
-                        android:id="@+id/personalid_name_error"
+                        android:id="@+id/personalid_phone_error"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="16dp"
