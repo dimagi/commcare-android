@@ -20,7 +20,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
@@ -92,7 +91,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     @Override
     public void onResume() {
         super.onResume();
-        checkPermission();
+        checkLocationPermission();
     }
 
     @Override
@@ -255,16 +254,22 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     public void requestNeededPermissions(int requestCode) {
     }
 
-    private void checkPermission() {
+    private void checkLocationPermission() {
         if (Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)) {
-            if (shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
-                navigateToPermissionErrorMessageDisplay();
-            } else {
+            if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
                 locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
+            } else {
+                navigateToPermissionErrorMessageDisplay();
             }
         } else {
             locationController.start();
         }
+    }
+
+    private boolean isOnPermissionErrorScreen() {
+        return Navigation.findNavController(requireView())
+                .getCurrentDestination()
+                .getId() == R.id.personalid_message_display;
     }
 
     private void registerLocationPermissionLauncher() {
@@ -286,7 +291,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                         }
 
                         if (permanentlyDenied) {
-                            navigateToPermissionErrorMessageDisplay(); // Show error with navigation to settings
+                            if (!isOnPermissionErrorScreen()) {
+                                navigateToPermissionErrorMessageDisplay();// Show error with navigation to settings
+                            }
                         } else {
                             locationPermissionLauncher.launch(REQUIRED_PERMISSIONS); // Retry asking
                         }
@@ -370,7 +377,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void navigateToPermissionErrorMessageDisplay() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(
-                        requireActivity().getString(R.string.personaliid_location_permission_error), true,
+                        requireActivity().getString(R.string.personalid_location_permission_error), true,
                         ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE));
     }
 
