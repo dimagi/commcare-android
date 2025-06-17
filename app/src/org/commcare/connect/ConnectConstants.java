@@ -51,4 +51,6 @@ public class ConnectConstants {
     public final static int PERSONALID_RECOVERY_WRONG_BACKUPCODE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
     public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
     public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
+    public final static int PERSONALID_LOCATION_PERMISSION_FAILURE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
+
 }
