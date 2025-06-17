@@ -3,6 +3,7 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
@@ -44,6 +46,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -63,6 +66,7 @@ import java.util.concurrent.TimeUnit;
  * @author dviggiano
  */
 public class PersonalIdManager {
+    public static final String BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key";
     private static final long DAYS_TO_SECOND_OFFER = 30;
 
     /**
@@ -180,6 +184,8 @@ public class PersonalIdManager {
     }
 
     public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
+        logBiometricInvalidations();
+
         BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
@@ -212,6 +218,21 @@ public class PersonalIdManager {
         }
     }
 
+    private void logBiometricInvalidations() {
+        if(AndroidKeyStore.INSTANCE.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) {
+            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity,
+                    true, BIOMETRIC_INVALIDATION_KEY);
+            if (!encryptionKeyProvider.isKeyValid()) {
+                FirebaseAnalyticsUtil.reportBiometricInvalidated();
+
+                // reset key
+                encryptionKeyProvider.deleteKey();
+                encryptionKeyProvider.getKeyForEncryption();
+            }
+        }
+    }
+
+
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
         scheduleHearbeat();
@@ -227,10 +248,10 @@ public class PersonalIdManager {
 
 
     public void forgetUser(String reason) {
-        if (ConnectDatabaseHelper.dbExists(parentActivity)) {
+        if (ConnectDatabaseHelper.dbExists()) {
             FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
         }
-        ConnectUserDatabaseUtil.forgetUser(parentActivity);
+        ConnectUserDatabaseUtil.forgetUser();
         personalIdSatus = PersonalIdStatus.NotIntroduced;
     }
 
@@ -252,12 +273,7 @@ public class PersonalIdManager {
     }
 
     public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
-        launchPersonalId(parent, ConnectConstants.BEGIN_REGISTRATION, requestCode);
-    }
-
-    private void launchPersonalId(CommCareActivity<?> parent, String task, int requestCode) {
         Intent intent = new Intent(parent, PersonalIdActivity.class);
-        intent.putExtra(ConnectConstants.TASK, task);
         parent.startActivityForResult(intent, requestCode);
     }
 
@@ -499,9 +515,9 @@ public class PersonalIdManager {
         ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
-                try {
+                try (InputStream in = responseData) {
                     String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
+                            StreamsUtil.inputStreamToByteArray(in));
                     if (responseAsString.length() > 0) {
                         JSONObject json = new JSONObject(responseAsString);
                         String key = ConnectConstants.CONNECT_KEY_DB_KEY;
@@ -509,7 +525,9 @@ public class PersonalIdManager {
                             ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
                         }
                     }
-                } catch (IOException | JSONException e) {
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
                     Logger.exception("Parsing return from DB key request", e);
                 }
             }
@@ -561,17 +579,8 @@ public class PersonalIdManager {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
     }
 
-    public boolean shouldShowSecondaryPhoneConfirmationTile(Context context) {
-        boolean show = false;
-        if (isloggedIn()) {
-            ConnectUserRecord user = getUser(context);
-            show = !user.getSecondaryPhoneVerified();
-        }
-        return show;
-    }
-
-    public void beginSecondaryPhoneVerification(CommCareActivity<?> parent, int requestCode) {
-        launchPersonalId(parent, ConnectConstants.VERIFY_PHONE, requestCode);
+    public void setActiveJob(ConnectJobRecord job) {
+        activeJob = job;
     }
 
     public boolean isSeatedAppCongigureWithPersonalId(String username) {
@@ -655,6 +664,10 @@ public class PersonalIdManager {
         }
 
         return biometricManager;
+    }
+
+    public boolean checkDeviceCompability() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
     }
 
     public int getFailureAttempt() {

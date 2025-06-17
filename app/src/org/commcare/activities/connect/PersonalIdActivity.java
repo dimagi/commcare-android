@@ -6,15 +6,10 @@ import android.os.Bundle;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections;
-import org.commcare.utils.CommCareNavController;
 import org.commcare.views.dialogs.CustomProgressDialog;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
@@ -22,7 +17,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        handleRedirection(getIntent());
         updateBackButton();
     }
 
@@ -33,18 +27,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
                 || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode, data);
-        } else if (requestCode == ConnectConstants.CONNECT_JOB_INFO) {
-            handleRedirection(data);
-        }
-        if (requestCode == RESULT_OK) {
-            finish();
-        }
-    }
-
-    private void handleRedirection(Intent intent) {
-        String value = intent.getStringExtra(ConnectConstants.TASK);
-        if (ConnectConstants.BEGIN_REGISTRATION.equals(value)) {
-            beginRegistration();
         }
     }
 
@@ -74,21 +56,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
         NavHostFragment navHostFragment =
                 (NavHostFragment)getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connectid);
         return navHostFragment;
-    }
-
-    private void beginRegistration() {
-        NavDirections navDirections = null;
-
-        switch (PersonalIdManager.getInstance().getStatus()) {
-            case NotIntroduced, Registering:
-                navDirections = PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentSelf();
-                break;
-        }
-        if (navDirections == null) {
-            navDirections = PersonalIdPhoneFragmentDirections
-                    .actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
-        }
-        navController.navigate(navDirections);
     }
 
     private void updateBackButton() {

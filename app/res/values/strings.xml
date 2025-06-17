@@ -8,7 +8,6 @@
     <string name="title_bar_name">@string/application_name</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
     <!-- string name="ota_restore_url">https://pact.dimagi.com/provider/caselist</string -->
-    <string name="default_app_server">jr://asset/testing/profile.ccpr</string>
     <string name="PostURL" translatable="false">https://staging.commcarehq.org/receiver/submit/pf</string>
     <string name="ota_restore_url" translatable="false">https://staging.commcarehq.org/ota_restore</string>
     <!-- string name="PostURL">https://pact.dimagi.com/receiver/submit/pact</string -->
@@ -18,7 +17,6 @@
     <string name="ConnectHeartbeatURL">/users/heartbeat</string>
     <!-- region: All strings for multiple apps and app-agnostic properties -->
 
-    <string name="key_server" translatable="false">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
     <string name="support_email_address_default">commcarehq-support@dimagi.com</string>
     <string name="manager_activity_name">App Manager</string>
@@ -28,7 +26,6 @@
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
     <string name="update_canceled">Your update was paused</string>
-    <string name="update_pinned_notification">Update downloading</string>
     <string name="verify_resources">Validate Multimedia</string>
     <string name="skip_button_text">Skip For Now</string>
     <string name="retry_button_text">Retry</string>
@@ -72,7 +69,6 @@
     <string name="submission_logs_title">Submitting CommCare Logs</string>
     <string name="remote_form_payload_url" />
 
-    <string name="url_prompt">Choose a URL</string>
     <string name="about_dialog" formatted="false">%s\n\n_Copyright 2016, Dimagi inc, All rights reserved_ \n\n---------------- \n\n__Acknowledgements:__ \n\n%sSome images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n* “Door” symbol by Tak Imoto \n* “Pencil” symbol by Creologica \n* “Notebook” symbol by Carlo \n* “Antenna” symbol by Dima \n* “Map Marker” symbol by P.J. Onori \n* "List" by Landan Lloyd \n* broken screen by Sam Martin from the Noun Project \n\n
 
 </string>
@@ -92,7 +88,6 @@
     <string name="permission_group_internal_action_label">Permission group for CommCare Internal Actions</string>
 
     <string name="title_activity_report_problem">ReportProblemActivity</string>
-    <string name="title_activity_comm_care_verification">CommCareVerificationActivity</string>
     <string name="panes">one</string>
 
     <string name="restore_session_prompt">Restore saved session upon login</string>
@@ -109,25 +104,18 @@
 
     <string name="accuracy">Accuracy</string>
     <string name="activity_not_found">No activity found to handle: %s</string>
-    <string name="advance">forward to\nnext\nprompt</string>
     <string name="altitude">Altitude</string>
 
     <string name="attachment_oversized">Warning: attached large file of size %s mb. This could cause problems with submitting to the server depending on your network conditions.</string>
     <string name="attachment_above_size_limit" formatted="false">Media attachment too large (%1$s mb). Max allowed size is %2$s mb.</string>
-    <string name="audio_file_error">No audio file was specified.</string>
 
     <string name="audio_file_invalid">File: %s is not a valid audio file.</string>
-    <string name="backup">back to\nprevious\nprompt</string>
-    <string name="proceed">PROCEED</string>
 
 
     <!-- Start Collect Strings -->
 
     <string name="cancel">CANCEL</string>
-    <string name="cancel_loading_form">Cancel</string>
     <string name="cancel_location">Cancel</string>
-    <string name="cancel_saving_form">Cancel</string>
-    <string name="cannot_edit_completed_form">This form cannot be edited once it has been marked as complete.</string>
     <string name="capture_audio">Record Sound</string>
     <string name="capture_image">Take Picture</string>
     <string name="capture_video">Record Video</string>
@@ -136,145 +124,53 @@
     <string name="clear_answer">Remove response</string>
     <string name="clear_answer_ask">Remove This Response?</string>
     <string name="clear_answer_no">CANCEL</string>
-    <string name="completed_data">Complete (%s)</string>
-    <string name="data">Saved Forms</string>
-    <string name="delete_confirm">Delete %s form(s)?</string>
-    <string name="delete_file">Delete Selected</string>
-    <string name="delete_no">Do Not Delete</string>
-    <string name="delete_yes">Delete Forms</string>
     <string name="discard_answer">REMOVE RESPONSE</string>
     <string name="discard_image">Remove Image</string>
-    <string name="download">Get Selected</string>
-    <string name="download_forms_result">Download Result</string>
-    <string name="downloading_data">Connecting to Server</string>
-    <string name="download_all_successful">All forms downloaded successfully.</string>
-    <string name="download_complete">Form Get Complete</string>
-    <string name="download_failed_with_error">Form \"%1$s\" failed. %2$s.</string>
-    <string name="do_not_change">Cancel</string>
     <string name="do_not_exit">STAY IN FORM</string>
     <string name="do_not_save">EXIT WITHOUT SAVING</string>
-    <string name="enter">start</string>
-    <string name="enter_data">Fill Blank Form</string>
-    <string name="enter_data_button">Fill Blank Form</string>
-    <string name="enter_data_description">You are at the start of \"%s\". Swipe the screen as shown below to begin.</string>
-    <string name="enter_data_message">To navigate, swipe your finger horizontally on the screen as if turning pages in a book. Press the Menu button for more choices.</string>
-    <string name="error_downloading">Error Getting Form</string>
     <string name="error_occured">Error Occurred</string>
-    <string name="fetching_file">Getting %1$s.\n\nForm %2$s of %3$s form(s).</string>
-    <string name="file_deleted_error">Sorry, %1$s of %2$s selected form(s) failed to delete!</string>
-    <string name="file_deleted_ok">%s form(s) successfully deleted!</string>
     <string name="file_invalid">File: %s is invalid.</string>
     <string name="file_missing">File: %s is missing.</string>
-    <string name="finished_disk_scan">Finished scanning. All forms loaded.</string>
-    <string name="form">Form</string>
-    <string name="forms">Blank Forms</string>
-    <string name="form_renamed">%1$s was renamed %2$s.</string>
-    <string name="getting_location">Loading Location</string>
-    <string name="get_forms">Get Blank Form</string>
     <string name="get_location">Record Location</string>
-    <string name="provider_disabled_error">Sorry, Location providers are disabled!</string>
     <string name="invalid_answer_error">Sorry, this response is invalid!</string>
     <string name="jump_to_beginning">Go To Start</string>
     <string name="jump_to_end">Go To End</string>
     <string name="jump_to_previous">Go Up</string>
     <string name="latitude">Latitude</string>
-    <string name="leaving_repeat">Add Group</string>
-    <string name="leaving_repeat_ask">And One More Group?</string>
-    <string name="list_failed_with_error">Form listing failed. %s.</string>
     <string name="loading_form">Loading Form</string>
-    <string name="load_remote_form_error">Error Getting Form List</string>
     <string name="location_provider_accuracy">Location accuracy: %1$s m.</string>
-    <string name="location_provider">Using %1$s provider. Please wait for greater accuracy.</string>
-    <string name="location_accuracy">Location found. Accuracy is %1$s m</string>
     <string name="longitude">Longitude</string>
-    <string name="manage_files">Delete Saved Form</string>
-    <string name="no">No</string>
-    <string name="noselect_error">Sorry, you have not selected any forms!</string>
-    <string name="no_capture">Nothing recorded yet.</string>
-    <string name="no_connection">No network connection available</string>
     <string name="no_items_display">Nothing available to display.</string>
-    <string name="no_items_display_forms">Nothing available to display.\n\nTry getting and filling out a blank form.</string>
-    <string name="no_items_display_instances">Nothing available to display.\n\nTry finalizing saved forms before sending.</string>
-    <string name="no_items_error">Nothing available to %s!</string>
-    <string name="no_sd_error">Sorry, your memory card is not working!</string>
     <string name="ok">OK</string>
-    <string name="one_capture">Multimedia recorded.</string>
     <string name="parse_error">Sorry, unable to parse form.</string>
-    <string name="parse_legacy_formlist_failed">The server has not provided an available-forms document compatible with Aggregate 0.9.x. : %s</string>
-    <string name="parse_openrosa_formlist_failed">The server has not provided an available-forms document compatible with the OpenRosa version 1.0 standard: %s</string>
     <string name="play_audio">Play Sound</string>
     <string name="play_video">Play Video</string>
     <string name="please_wait">Please wait a few moments.</string>
     <string name="please_wait_long">Please wait. This could take a few minutes.</string>
     <string name="quit_application">Exit %s</string>
-    <string name="quit_entry">Save Form and Exit</string>
     <string name="quit_form_title">Exit Form?</string>
     <string name="refresh">Refresh</string>
-    <string name="replace_audio">Replace Sound</string>
-    <string name="replace_barcode">Replace Barcode</string>
-    <string name="replace_image">Replace Picture</string>
     <string name="replace_location">Replace Location</string>
-    <string name="replace_video">Replace Video</string>
     <string name="required_answer_error">Sorry, this response is required!</string>
     <string name="review">Continue</string>
-    <string name="review_data">Edit Saved Form</string>
-    <string name="review_data_button">Edit Saved Form</string>
-    <string name="saved_data">Incomplete (%s)</string>
     <string name="save_all_answers">Save Form</string>
-    <string name="save_data_message">Please save form to keep your responses.</string>
-    <string name="save_enter_data_description">You are at the end of \"%s\".</string>
     <string name="saving_form">Saving Form</string>
-    <string name="send">send</string>
-    <string name="sending_items">Sending %1$s of %2$s form(s)</string>
-    <string name="send_data">Send Finalized Form</string>
-    <string name="send_data_button">Send Finalized Form</string>
-    <string name="send_selected_data">Send Selected</string>
-    <string name="server_auth_credentials">Please enter username and password for server:\n%s</string>
-    <string name="server_requires_auth">Server Requires Authentication</string>
-    <string name="server_url">URL</string>
-    <string name="server_preferences">Server</string>
-    <string name="toggle_selected">Toggle All</string>
     <string name="trigger">OK. Please continue.</string>
-    <string name="uploading_data">Sending Form</string>
-    <string name="upload_all_successful">%s form(s) sent successfully.</string>
-    <string name="upload_some_failed">Sorry, %s form(s) failed to send!</string>
-    <string name="url_error">Sorry, invalid URL!</string>
-    <string name="username">Username</string>
     <string name="view_hierarchy">Go To Prompt</string>
     <string name="form_entry_settings">Change Settings</string>
-    <string name="first_run">Do first run on restart</string>
-    <string name="client">Client</string>
-    <string name="use_odk_default">Use Default Image</string>
     <string name="show_location">Show Location</string>
     <string name="keep_changes">SAVE INCOMPLETE</string>
     <string name="go_to_location">Go to Location</string>
     <string name="font_size">Text Font Size</string>
     <string name="change_font_size">Text Font Size</string>
-    <string name="form_scan_starting">Scanning for forms...</string>
-    <string name="form_scan_finished">Form scanning completed</string>
-    <string name="access_error">Error while accessing %s: </string>
-    <string name="manifest_server_error">Manifest reply does not report an OpenRosa version -- bad server?</string>
-    <string name="root_element_error">Root element is not &lt;manifest\&gt; -- was %s</string>
-    <string name="root_namespace_error">Root element Namespace is incorrect: %s</string>
-    <string name="manifest_tag_error">Manifest entry %s is missing one or more tags: filename, hash, or downloadUrl</string>
-    <string name="form_download_progress">%1$s. Getting media files: %2$s of %3$s</string>
-    <string name="file_fetch_failed">Error: %2$s (%3$s) at %1$s</string>
-    <string name="fetching_manifest">%s. Getting manifest </string>
     <string name="success">Success</string>
-    <string name="no_forms_uploaded">Sorry, no form was uploaded.</string>
-    <string name="upload_results">Upload Results</string>
-    <string name="xform_parse_error">XForm parse error. %1$s is missing element %2$s</string>
     <string name="choose_sound">Choose Sound</string>
     <string name="choose_video">Choose Video</string>
     <string name="choose_image">Choose Image</string>
     <string name="choose_document">Choose Document</string>
     <string name="selected">Selected: </string>
     <string name="select_answer">Select Answer</string>
-    <string name="save_form_as">Name this form:</string>
-    <string name="save_as_error">Saved name must not be blank!</string>
-    <string name="form_name">Form Name:</string>
     <string name="edit_prompt">Edit Prompt</string>
-    <string name="exit">Exit</string>
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
@@ -312,7 +208,6 @@
     <string name="recovery_mode_title">CommCare Recovery Mode</string>
     <string name="recovery_mode_detail">CommCare has entered recovery mode due to a problem with your app. We are trying to recover your app. Please wait...</string>
     <string name="recovery_resource_progress">Recovered %1$s out of %2$s resources</string>
-    <string name="recovery_error_poor_connection">Recovery failed due to bad internet. Please make sure that you have a stable internet connection and try again</string>
     <string name="recovery_error_unknown">Recovery failed due to an unknown reason. Please try again or reinstall your app by going to App Manager</string>
     <string name="recovery_success">App recovery has been successful. Please press back to resume your work</string>
     <string name="recovery_forms_send_progress">Submitting form(s) to the server...</string>
@@ -330,7 +225,11 @@
     <string name="recovery_network_unavailable">No network connection. Please check your internet and try again.</string>
     <string name="recovery_network_outdated">The app is outdated and can no longer communicate with the server. Please update the app on the Google Play Store.</string>
     <string name="recovery_network_token_unavailable">There was a network issue, please try again.</string>
-    <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover account.</string>
+    <string name="recovery_network_token_request_rejected">Lost PersonalID configuration with server, please recover your Personal ID account and retry</string>
+    <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
+    <string name="recovery_network_server_error">There was an error processing your request.</string>
+    <string name="recovery_network_cooldown">Too many request attempts, try again after an hour.</string>
+    <string name="recovery_network_unknown">Something went wrong, please try again.</string>
     <string name="recovery_app_manager">Go to App Manager</string>
     <string name="recovery_retry">Retry Recovery</string>
     <string name="notification_channel_errors_title">Errors</string>
@@ -354,16 +253,12 @@
     <string name="recovery_measure_app_reinstall_progress">Reinstalling %1$s out of %2$s resources</string>
     <string name="recovery_measure_app_update_progress">Updating %1$s out of %2$s resources</string>
     <string name="recovery_measure_known_error">An error occurred during recovery. Error details - \n %1$s</string>
-    <string name="recovery_measure_ccz_scan_in_progress">Scanning your phone for ccz files</string>
-    <string name="recovery_measure_ccz_found_scan_in_progress">We found a CCZ file for the app on your phone. We are still scanning your device to see if there is a newer CCZ file present. You can wait for the scan to complete or click reinstall below to immediately reinstall the app</string>
 
     <!--Recovery Measures-->
     <string name="recovery_measure_reinstall">Reinstall</string>
-    <string name="recovery_measure_no_ccz_found">No CCZ file found for your app. You can manually locate CCZ file by clicking \"Select CCZ\" button below. In case you can not find CCZ file on your phone, please contact your help desk.</string>
     <string name="recovery_measure_select_ccz">Select CCZ</string>
     <string name="recovery_measure_select_ccz_no_file_browser">You need a file manager to access the files on this device. You have not installed a file manager, please go to the Google Play Store and download a file manager, then return to this screen.</string>
     <string name="recovery_measure_invalid_ccz_path">Unable to process the CCZ file you selected. Please retry</string>
-    <string name="recovery_measure_ccz_scan_failed">An error occurred while loacting CCZ file on your phone. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
     <string name="recovery_measure_unzip_error">An error occurred while installing the app from CCZ file. Please retry or locate CCZ file manually by clicking \"Select CCZ\" button below.</string>
     <string name="recovery_measure_update_cancelled">Update cancelled</string>
     <string name="recovery_measure_offline_install_cancelled">Offline install cancelled</string>
@@ -402,8 +297,6 @@
     <string name="dependency_missing_dialog_playstore_not_found">No Play Store found on your device</string>
     <string name="fcm_notification">FCM Notification</string>
     <string name="fcm_default_notification_channel">notification-channel-push-notifications</string>
-    <string name="app_select_message">Select an app:</string>
-    <string name="connect_id_enabled">PersonalID Enabled</string>
     <string name="login_password_by_connect">Via PersonalID (or press here)</string>
     <string name="login_welcome_connect_signed_in">Welcome %s!</string>
     <string name="login_connect_secondary_phone_message">Please confirm your secondary phone by %s to keep using PersonalID.</string>
@@ -415,96 +308,33 @@
     <!-- PersonalID strings -->
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
-    <string name="connect_signup">Signup</string>
-    <string name="connect_recover">Recover</string>
-    <string name="connect_registration_have_account">Already have\nan Account?</string>
-    <string name="connect_recover_no_account">Don\'t have\nPersonalID?</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
-    <string name="connect_phone_page_title">Phone Number</string>
-    <string name="connect_phone_title_primary">Primary Phone</string>
-
-    <string name="connect_phone_message_primary">Please enter your primary phone number</string>
-
-    <string name="connect_phone_title_alternate">Alternate Phone</string>
-    <string name="connect_phone_message_alternate">Enter a phone number of a friend or family who can provide you an SMS OTP if you forget your Code.</string>
-
-    <string name="connect_phone_button">OK</string>
-    <string name="connect_phone_checking">Checking…</string>
 
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
 
-    <string name="connect_phone_available">Phone number is available!</string>
-    <string name="connect_phone_unavailable">Phone number is already in use</string>
-    <string name="connect_phone_invalid">Enter a valid phone number</string>
-    <string name="connect_phone_not_alt">Can not use your alt. number</string>
-    <string name="connect_phone_not_primary">Alt. number must be different than primary</string>
-
-    <string name="connect_phone_not_found">Phone number not found</string>
-    <string name="connect_phone_change_error">Error changing phone number</string>
-    <string name="connect_password_button">OK</string>
-
     <string name="connect_otp_sent">OTP Sent</string>
     <string name="connect_otp_verified">OTP Verified</string>
-    <string name="connect_otp_error">OTP Error</string>
     <string name="connect_enter_otp">Enter OTP</string>
-    <string name="connect_otp_verification_failed">OTP verification failed due to </string>
 
     <string name="connect_backup_code_title_set">Backup Code</string>
     <string name="connect_backup_code_title_confirm">Confirm Backup Code</string>
     <string name="connect_backup_code_message_title">PersonalId Backup Code</string>
     <string name="connect_backup_code_message">Enter your 6-digit Backup Code</string>
-    <string name="connect_backup_code">Enter Backup Code</string>
-    <string name="connect_backup_code_repeat">Confirm Backup Code</string>
     <string name="connect_backup_code_length">Backup code must be %d digits</string>
     <string name="connect_backup_code_mismatch">Backup codes must match</string>
 
-    <string name="connect_password_verify_title">Enter Your Password</string>
-    <string name="connect_password_verify_message">Please enter your recovery password to continue.</string>
-    <string name="connect_password_verify">Enter Password</string>
-    <string name="connect_password_verify_forgot">Don\'t have or forgot your password?</string>
-    <string name="connect_password_verify_button">Submit</string>
-    <string name="connect_password_fail_title">Wrong Password</string>
-    <string name="connect_password_fail_message">You entered the wrong password, please try again.</string>
-    <string name="connect_password_recovery_message">You entered the wrong password too many times, you will need to recover your account.</string>
-    <string name="connect_password_fail_button">OK</string>
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
-    <string name="connect_backup_code_fail_message">You entered the wrong Code, please try again.</string>
-    <string name="connect_backup_code_recovery_message">You entered the wrong Code too many times, you will need to recover your account.\n On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
 
-    <string name="connect_backup_code_confirm_message">You entered the wrong Code too many times, you will have to configure the code again.\n On the next screen, we\'ll redirect you to the configure code page.</string>
-    <string name="connect_backup_code_verify_forgot">Forgot Code</string>
-    <string name="connect_recovery_title">PersonalID Recovery</string>
-
-
-
-    <string name="connect_recovery_decision_new">Choose a step below</string>
-    <string name="connect_recovery_button_new">Create New PersonalID Account</string>
-    <string name="connect_recovery_button_recover">Recover Existing Account</string>
-    <string name="connect_recovery_decision_phone">Please enter the primary phone number you entered with your account</string>
 
     <string name="connect_recovery_button_phone">Continue</string>
-    <string name="connect_recovery_button_extended">More Options</string>
-    <string name="connect_recovery_alt_title">Alternate Phone</string>
-    <string name="connect_recovery_alt_message">On the next screen, we\'ll send a code via SMS to the alternate phone number associated with your account.</string>
-    <string name="connect_recovery_alt_button">Continue</string>
-    <string name="connect_recovery_alt_change_button">Change number</string>
 
     <string name="connect_recovery_success_title">Account Recovered</string>
     <string name="connect_recovery_success_message">You have successfully recovered your account and can now resume using your PersonalId.</string>
-    <string name="connect_recovery_success_button">OK</string>
-    <string name="connect_recovery_failure">Error finalizing recovery, please try again later</string>
     <string name="connect_unlock_title">Unlock PersonalID</string>
     <string name="connect_unlock_message">Please unlock to continue</string>
-    <string name="connect_unlock_button_pin">Unlock with PIN</string>
-    <string name="connect_unlock_button_password">Unlock with Password</string>
     <string name="connect_unlock_unavailable">Please configure a screen unlock mechanism</string>
-
-    <string name="connect_unlock_trouble_message">Trouble unlocking?</string>
-    <string name="connect_unlock_fingerprint_title">Unlock via fingerprint</string>
-    <string name="connect_unlock_fingerprint_message">Use your fingerprint to continue</string>
-    <string name="connect_unlock_other_options">Other options</string>
 
     <string name="connect_biometric_enroll_fail_title">Biometric Issue</string>
     <string name="connect_biometric_enroll_fail_message">You will need to configure this biometric manually in the Android settings.</string>
@@ -529,10 +359,7 @@
 
     <string name="connect_verify_phone_title">Verification Code</string>
     <string name="connect_verify_phone_label">We attempted to send you a SMS ending with %s.</string>
-    <string name="connect_verify_phone_label_secondary">We attempted to send you a SMS on your secondary phone number.</string>
-    <string name="connect_verify_phone_label_deactivate">In order to deactivate your account, please enter the code sent by SMS to your primary phone number.</string>
     <string name="connect_verify_phone_resend">Didn\'t receive your code? Resend</string>
-    <string name="connect_verify_phone_error">Error verifying SMS code</string>
     <string name="connect_verify_phone_resend_code">Resend Code</string>
     <string name="connect_verify_skip_phone_number">I see you\'re a demo user, so we\'ll skip the OTP</string>
 
@@ -544,8 +371,6 @@
     <string name="connect_messaging_title">Messaging</string>
     <string name="connect_messaging_channel_list_title">Channels</string>
     <string name="connect_messaging_channel_list_unconsented">Unconsented channel</string>
-    <string name="connect_messaging_channel_preview_you">You</string>
-    <string name="connect_messaging_channel_preview_them">Them</string>
     <string name="connect_messaging_channel_consent_title">Consent to channel</string>
     <string name="connect_messaging_channel_consent_description">Do you agree to open a messaging thread on this channel?</string>
     <string name="connect_messaging_channel_consent_failure_msg">Failed to grant consent to channel</string>
@@ -556,7 +381,6 @@
     <string name="connect_messaging_message_notification_message">You received a new message from %s, press here to view.</string>
     <string name="connect_messaging_channel_notification_title">🔔 New Channel 🔔</string>
     <string name="connect_messaging_channel_notification_message">A new messaging channel is available from %s, press here to view</string>
-    <string name="connect_messaging_channel_not_found">Something went wrong, channel not found</string>
     <string name="connect_messaging_send_message_fail_msg">Fail to send message</string>
     <string name="connect_messaging_retrieve_messages_fail">Failed to retrieve messages</string>
     <string name="connect_send_message_hint">Type message</string>
@@ -569,7 +393,6 @@
 
     <string name="connect_job_intro_title">Opportunity</string>
 
-    <string name="connect_job_none_available">There are no available opportunities right now</string>
     <string name="connect_job_learn_details">Learn Details</string>
     <string name="connect_job_you_will_learn">Complete the following learn modules and earn a certificate</string>
     <string name="connect_job_no_learning_required">No learning required</string>
@@ -607,12 +430,7 @@
     <string name="connect_progress_delivery">Delivery</string>
     <string name="connect_progress_title">Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
-    <string name="connect_progress_begin_date">Project Begins %s\nComplete Delivery by %s</string>
-    <string name="connect_progress_complete_by">Complete Delivery by %s</string>
-    <string name="connect_progress_ended">Job ended %s</string>
-    <string name="connect_progress_review">Review Learning</string>
 
-    <string name="connect_progress_launch">Launch App</string>
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
@@ -622,7 +440,6 @@
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
-    <string name="connect_downloading_status">%d%% Complete</string>
     <string name="connect_results_summary_all">All</string>
     <string name="connect_results_summary_pending">Pending</string>
     <string name="connect_results_summary_rejected">Rejected</string>
@@ -668,16 +485,13 @@
     <string name="connect_payment_acknowledge_notification_no">No</string>
 
     <string name="enter_otp">Enter One Time Password</string>
-    <string name="change">Change</string>
     <string name="create_a_new_recovery_code">Create a new Backup Code</string>
     <string name="confirm_code">Confirm Code</string>
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Backup Code</string>
     <string name="download_app">Download</string>
-    <string name="progress">Progress</string>
     <string name="sync">Sync</string>
     <string name="back">Back</string>
-    <string name="recover">Recover</string>
 
     <string-array name="frequency_vals">
         <item>freq-never</item>
@@ -717,24 +531,6 @@
         <item>default_show</item>
         <item>default_hide</item>
     </string-array>
-    <string-array name="target_density_labels">
-        <item>DENSITY_LOW</item>
-        <item>DENSITY_MEDIUM</item>
-        <item>DENSITY_HIGH</item>
-        <item>DENSITY_280</item>
-        <item>DENSITY_XHIGH</item>
-        <item>DENSITY_400</item>
-        <item>DENSITY_XXHIGH</item>
-    </string-array>
-    <string-array name="target_density_vals">
-        <item>120</item>
-        <item>160</item>
-        <item>240</item>
-        <item>280</item>
-        <item>320</item>
-        <item>400</item>
-        <item>480</item>
-    </string-array>
     <string-array name="update_target_labels">
         <item>Latest starred version</item>
         <item>Latest version</item>
@@ -755,7 +551,6 @@
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
-    <string name="connect_job_info_per_visit">per visit</string>
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
     <string name="connect_job_info_start_visit">Start Visit</string>
@@ -777,165 +572,54 @@
     <string name="connect_payment_revert">Revert</string>
 
     <string name="connect_deactivate_account">Deactivate Account</string>
-    <string name="connect_deactivate_account_message">Are you sure you want to permanently deactivate this account? Once finished, you will need to register a new account for this phone number.</string>
-    <string name="connect_deactivate_account_delete">Deactivate Account</string>
-    <string name="connect_deactivate_account_go_back">Go Back</string>
-    <string name="connect_deactivate_account_deactivated">Account deactivated, you may now register a new account with your primary phone number</string>
-    <string name="connect_deactivate_account_creation">Ok</string>
-    <string name="connect_deactivate_dialog_title">Are you sure?</string>
-    <string name="connect_deactivate_dialog_description">You want to deactivate you account permanently?</string>
 
     <string name="connect_new_opportunity">New Opportunity</string>
     <string name="connect_learn">Learn</string>
     <string name="connect_delivery">Delivery</string>
     <string name="connect_expired">Expired</string>
     <string name="connect_job_tile_daily_limit_description">Daily Limit reached. No Payment for submitting forms</string>
-    <string name="connect_job_tile_daily_limit">Over Limit</string>
     <string name="connect_job_tile_daily_visits">Daily Visits</string>
     <string name="connect_appbar_title_app_lock">App Lock</string>
-    <string name="connect_appbar_title_password_verification">Password Verification</string>
 
     <!--    Entity List Progresss Indicators-->
 
     <string name="entity_list_initializing">Initializing list…</string>
     <string name="entity_list_loading">Loading list: %s</string>
     <string name="entity_list_finishing">Finishing list calculations…</string>
-    <string name="connect_password_title">Set Password</string>
-    <string name="connect_password_message">Please choose a password</string>
-    <string name="connect_password_message_recovery">Please choose a password for recovery</string>
-    <string name="connect_password">Enter Password</string>
-    <string name="connect_password_repeat">Confirm Password</string>
-    <string name="connect_password_mismatch">Passwords must match</string>
-    <string name="connect_password_weak">Please choose a stronger password</string>
-    <string name="connect_password_error">Error changing password</string>
-    <string name="connect_recovery_title2">Identify Existing Account</string>
-    <string name="connect_unlock_pin_title">Unlock via PIN</string>
-    <string name="connect_unlock_pin_message">Enter your PIN to continue</string>
-    <string name="connect_register_title">Create Account</string>
-    <string name="connect_register_title2">PersonalID</string>
-    <string name="connect_register_dob">Date of Birth (YYYY-MM-DD)</string>
-    <string name="connect_register_phone">Phone Number (+18887776666)</string>
-    <string name="connect_register_phone_alt">Alternate Phone Number</string>
-    <string name="connect_register_create">Continue</string>
-    <string name="connect_register_error_id">ID can not be empty</string>
-    <string name="connect_register_error_name">Name can not be empty</string>
 
-    <string name="connect_register_error_phone">Valid phone number required</string>
-    <string name="connect_register_error_same_number">Primary and alt phones must be different</string>
-    <string name="connect_verify_use_fingerprint">Use Fingerprint</string>
-    <string name="connect_verify_use_pin">Use PIN</string>
-    <string name="connect_verify_password_only">Create a password instead</string>
-    <string name="connect_verify_fingerprint">Fingerprint</string>
-    <string name="connect_verify_pin">PIN</string>
-    <string name="connect_verify_button_configured">Continue</string>
-    <string name="connect_verify_button_password">Use Password Only</string>
-    <string name="connect_verify_phone_title2">Enter verification code</string>
-    <string name="connect_verify_phone_label_alternate">Almost there! Please enter the code sent via SMS to your alternate phone%s.</string>
-    <string name="connect_jobs_all">ALL JOBS</string>
-    <string name="connect_jobs_mine">MY JOBS</string>
-    <string name="connect_job_new">NEW</string>
-    <string name="connect_job_visits">Cover %d Households in %d Days</string>
-
-    <string name="connect_job_training_complete">Learning Completed &amp; Certified</string>
-    <string name="connect_job_needs_assessment">Assessment Required</string>
-    <string name="connect_job_passed_assessment">Assessment Completed</string>
-    <string name="connect_job_training_progress">%s %d%% Complete</string>
-    <string name="connect_job_visits_completed">Completed %d visits</string>
-    <string name="connect_job_remaining">%d days remaining%s</string>
-    <string name="connect_job_remaining_from"> from %s</string>
-
-    <string name="connect_job_learning">Learning</string>
-    <string name="connect_job_learning_not_completed">Learning not completed</string>
-    <string name="connect_job_assessment_not_completed">Assessment not completed</string>
-    <string name="connect_job">Job</string>
-    <string name="connect_job_none_training">You\'re not training for any jobs right now</string>
-    <string name="connect_job_none_active">You don\'t have any active jobs right now</string>
-    <string name="connect_job_training">Jobs I\'m Training For</string>
-    <string name="connect_job_claimed">Jobs In Delivery</string>
-    <string name="connect_job_ended">Ended Jobs</string>
-    <string name="connect_job_completed">Ended %s</string>
-    <string name="connect_job_start_training">Start Training for this Job</string>
-    <string name="connect_end_date">Complete Project by %s</string>
-    <string name="connect_job_download_learn_app">Download Learn App</string>
-    <string name="connect_learn_claim_label">Claim Job to Deliver Care</string>
-    <string name="connect_delivery_title">Delivery Details</string>
-    <string name="connect_delivery_review_title">Review Job Details</string>
-    <string name="connect_delivery_days_remaining">%d days to complete from %s</string>
-    <string name="connect_delivery_today">today</string>
-    <string name="connect_delivery_latest_start">Latest start: %s</string>
-    <string name="connect_delivery_max_visits">%d Visits in %d Days</string>
-    <string name="connect_delivery_earn_single">Earn %s per visit</string>
-    <string name="connect_delivery_max_daily_visits">%d Maximum Visits per Day</string>
-    <string name="connect_delivery_ready_to_claim">Ready to Start Visits?</string>
-    <string name="connect_delivery_expired">Opportunity Expired</string>
-    <string name="connect_delivery_ready_to_claim_detailed">Claim Job Below and Download Deliver App</string>
-    <string name="connect_delivery_expired_detailed">The last date for the project is over. You will be notified if the opportunity opens up again.</string>
-    <string name="connect_delivery_claim">Claim Job</string>
-    <string name="connect_delivery_get_app">Download App</string>
-    <string name="connect_progress_delivery_verification">Verification &amp; Payments</string>
-    <string name="connect_progress_expired_dialog_title">Project Expired</string>
-    <string name="connect_progress_max_visits_dialog_title">Max Visits Reached</string>
-    <string name="connect_progress_expired">The last date for the project is over and visits will not count towards payment.</string>
-    <string name="connect_progress_visits_completed">You have reached the maximum number of visits, additional visits will not count towards payment.</string>
-    <string name="connect_progress_paid">PAID</string>
-    <string name="connect_progress_warning">Not seeing your expected progress?</string>
-    <string name="connect_progress_warning_learn">Learn why</string>
-    <string name="connect_progress_warning_full">You may not see your expected progress if your number of visits exceeds the maximum for the day OR if your forms have not been uploaded. You can wait for your forms to sync with a better network and check progress again.</string>
-    <string name="connect_results_summary_verifications_title">Verification Status</string>
-    <string name="connect_results_summary_verifications_description">Pending Verification: %d\nNot Approved: %d\nApproved: %d</string>
-    <string name="connect_results_summary_view_deliveries">View Deliveries</string>
-    <string name="connect_results_summary_payments_title">Payments</string>
-    <string name="connect_results_summary_view_payments">View Payments</string>
-    <string name="login_menu_connect_sign_out">Sign out of PersonalID</string>
-    <string name="connect_home_progress_today">Today\'s Visits: %d</string>
-    <string name="suspended">Suspended</string>
-    <string name="select_phone_number">Select Phone Number</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="consent_string">I have read and agree to Dimagi’s Privacy Policy, Terms of Service, Business Agreement and Acceptable Use Policy.</string>
-    <string name="learn_more">Learn More</string>
-    <string name="click_to_sync">Click to sync progress</string>
-    <string name="connect_commcare_app">CommCare App</string>
-    <string name="login_button_connect">Unlock PersonalID</string>
-    <string name="login_welcome_connect_signed_out">Unlock PersonalID first and then enter your app.</string>
-    <string name="default_welcome_message">Welcome</string>
-    <string name="connect_navigation_error">Navigation issue</string>
-    <string name="connect_biometric_error">Authentication Failed</string>
-    <string name="login_input_auto">AUTO</string>
-    <string name="connect_consent_title">Consent</string>
     <string name="personalid_generic_error">A problem occurred, please configure your PersonalID account again by selecting Sign Up for Personal ID from the menu.</string>
-    <string name="ConnectOpportunitiesURL" translatable="false">https://%s/api/opportunity/</string>
-    <string name="ConnectStartLearningURL" translatable="false">https://%s/users/start_learn_app/</string>
-    <string name="ConnectLearnProgressURL" translatable="false">https://%s/api/opportunity/%d/learn_progress</string>
-    <string name="ConnectClaimJobURL" translatable="false">https://%s/api/opportunity/%d/claim</string>
-    <string name="ConnectDeliveriesURL" translatable="false">https://%s/api/opportunity/%d/delivery_progress</string>
-    <string name="ConnectPaymentConfirmationURL" translatable="false">https://%s/api/payment/%s/confirm</string>
     <string name="ConnectMessageRetrieveMessagesURL" translatable="false">https://connectid.dimagi.com/messaging/retrieve_messages/</string>
     <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string>
     <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string>
     <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string>
-    <string name="primary_and_alternate_phone_number">Primary and alternate phone number are same</string>
-    <string name="add_secondary_phone_number">Add Secondary Phone Number</string>
-    <string name="add_secondary_phone_number_to_reset_your_recovery_code">Add secondary phone number to reset your Recovery Code.</string>
-    <string name="login_via_connect">Ready to login!\n</string>
-    <string name="failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
-    <string name="name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
-    <string name="name_empty_error">Name field cannot be empty</string>
-    <string name="configuration_process_failed_title">Process Failed</string>
-    <string name="configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
-    <string name="configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
-    <string name="configuration_process_failed_server_msg">Invalid device security requirements from server: %s</string>
-    <string name="connectid_photo_capture_title">Welcome %1$s</string>
-    <string name="connectid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
-    <string name="connectid_photo_capture_take_photo_button">Take Photo</string>
-    <string name="connectid_photo_capture_save_photo_button">Save Photo</string>
-    <string name="connectid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
-    <string name="this_is_not_me"><u>This is not me</u></string>
-    <string name="welcome_back_msg">Welcome back %s</string>
-    <string name="configuration_process_api_failed">Unable to contact our servers at this time. Please try again and report an issue if it persists.</string>
-    <string name="recovery_failed_title">Recovery failed</string>
-    <string name="recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
+
+    <string name="personalid_login_via_connect">Ready to login!\n</string>
+    <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when tying to login using your Personal ID. Please login with your password or restore your Personal ID login</string>
+    <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
+    <string name="personalid_name_empty_error">Name field cannot be empty</string>
+    <string name="personalid_configuration_process_failed_title">Process Failed</string>
+    <string name="personalid_configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
+    <string name="personalid_photo_capture_title">Welcome %1$s</string>
+    <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
+    <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
+    <string name="personalid_photo_capture_save_photo_button">Save Photo</string>
+    <string name="personalid_photo_upload_failure">"Failed to save photo. Please check your internet and try again. "</string>
+    <string name="personalid_this_is_not_me"><u>This is not me</u></string>
+    <string name="personalid_welcome_back_msg">Welcome back %s</string>
+    <string name="personalid_recovery_failed_title">Recovery failed</string>
+    <string name="personalid_recovery_failed_message">Looks like you’ve forgotten your Backup Code, we’re creating a new account for you</string>
     <string name="personalid_wrong_backup_message">You entered the wrong Backup Code, please try again. You will need to create a new account after %d more incorrect attempts.</string>
+    <string name="personalid_camera_permission_title">Permission for camera</string>
+    <string name="personalid_camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="personalid_capture_photo">Capture Photo</string>
+    <string name="personalid_incorrect_otp">The OTP entered is incorrect. Please try again.</string>
+    <string name="personalid_too_many_otp_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_otp_missing_activity">Something went wrong</string>
+    <string name="personalid_otp_verification_failed_generic">OTP verification failed:</string>
+    <string name="personalid_otp_verification_failed">Verification failed and please try again</string>
     <string name="camera_permission_title">Permission for camera</string>
     <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="capture_photo">Capture Photo</string>
+    <string name="connect_claim_job_error">Error claiming job</string>
 </resources>
