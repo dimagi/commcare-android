@@ -10,9 +10,7 @@ import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
-import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -49,7 +47,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,7 +55,6 @@ import java.util.Locale;
 import java.util.Random;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -67,8 +63,6 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class ConnectManager {
     private static final int APP_DOWNLOAD_TASK_ID = 4;
-
-    public static final int PENDING_ACTION_NONE = 0;
 
 
     /**
@@ -138,27 +132,6 @@ public class ConnectManager {
         return SimpleDateFormat.getDateTimeInstance().format(date);
     }
 
-    public static void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show, View.OnClickListener listener) {
-        tile.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if (show) {
-            ConnectUserRecord user = getUser(context);
-            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
-            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
-
-            TextView view = tile.findViewById(R.id.connect_phone_label);
-            view.setText(message);
-
-            Button yesButton = tile.findViewById(R.id.connect_phone_yes_button);
-            yesButton.setOnClickListener(listener);
-
-            Button noButton = tile.findViewById(R.id.connect_phone_no_button);
-            noButton.setOnClickListener(v -> {
-                tile.setVisibility(View.GONE);
-            });
-        }
-    }
-
     public static ConnectUserRecord getUser(Context context) {
         return ConnectUserDatabaseUtil.getUser(context);
     }
@@ -178,16 +151,6 @@ public class ConnectManager {
 
     public static ConnectJobRecord getActiveJob() {
         return activeJob;
-    }
-
-    private static void launchConnectId(CommCareActivity<?> parent, String task, ConnectActivityCompleteListener listener) {
-        Intent intent = new Intent(parent, PersonalIdActivity.class);
-        intent.putExtra("TASK", task);
-        parent.startActivityForResult(intent, ConnectConstants.CONNECT_JOB_INFO);
-    }
-
-    public static void beginSecondaryPhoneVerification(CommCareActivity<?> parent, ConnectActivityCompleteListener callback) {
-        launchConnectId(parent, ConnectConstants.VERIFY_PHONE, callback);
     }
 
     public static void goToMessaging(Context parent) {

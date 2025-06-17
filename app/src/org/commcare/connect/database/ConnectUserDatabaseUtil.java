@@ -6,7 +6,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
-import org.javarosa.core.services.Logger;
 
 public class ConnectUserDatabaseUtil {
 
@@ -14,7 +13,7 @@ public class ConnectUserDatabaseUtil {
         if (context == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-        if (!ConnectDatabaseHelper.dbExists(context)) {
+        if (!ConnectDatabaseHelper.dbExists()) {
             return null;
         }
         Iterable<ConnectUserRecord> records = ConnectDatabaseHelper.getConnectStorage(
@@ -35,12 +34,8 @@ public class ConnectUserDatabaseUtil {
         ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
     }
 
-    public static void forgetUser(Context context) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context must not be null");
-        }
-
-        DatabaseConnectOpenHelper.deleteDb(context);
+    public static void forgetUser() {
+        DatabaseConnectOpenHelper.deleteDb();
         CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
         ConnectDatabaseHelper.dbBroken = false;
         ConnectDatabaseHelper.teardown();
