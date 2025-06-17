@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#e1e0e0"
@@ -172,3 +172,4 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
+</layout>
