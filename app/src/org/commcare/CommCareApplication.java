@@ -18,22 +18,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.text.format.DateUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ProcessLifecycleOwner;
-import androidx.preference.PreferenceManager;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
@@ -42,11 +26,14 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectManager;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -143,6 +130,20 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.preference.PreferenceManager;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
@@ -383,6 +384,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
             // Switch loggers back over to using global storage, now that we don't have a session
             setupLoggerStorage(false);
+
+            CrashUtil.registerUserData();
         }
     }
 
@@ -430,6 +433,15 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
         analyticsInstance.setUserId(getUserIdOrNull());
 
+        ConnectUserRecord user = ConnectManager.getUser(this);
+        if (user != null) {
+            analyticsInstance.setUserProperty("user_cid", user.getUserId());
+        }
+
+        ConnectJobRecord activeJob = ConnectManager.getActiveJob();
+        if (activeJob != null) {
+            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(activeJob.getJobId()));
+        }
         return analyticsInstance;
     }
 

@@ -34,9 +34,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -58,7 +58,6 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -145,8 +144,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        ///TODO: connect uncomment with connect merge
-//        appLaunchedFromConnect = PersonalIDManager.wasAppLaunchedFromConnect(presetAppId);
+        appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -411,6 +409,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            passwordOrPin = ConnectManager.checkAutoLoginAndOverridePassword(this,
+                    presetAppId, username, passwordOrPin, appLaunchedFromConnect,
+                    loginManagedByPersonalId());
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -528,7 +529,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
                 }
                 case PersonalId -> {
-                    uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
+                    uiController.setErrorMessageUI(getString(R.string.personalid_failed_to_login_with_connectid), false);
                 }
             }
         }
@@ -552,7 +553,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!personalIdManager.isloggedIn());
+        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(
+                !personalIdManager.isloggedIn() && personalIdManager.checkDeviceCompability());
         menu.findItem(MENU_CONNECT_FORGET).setVisible(personalIdManager.isloggedIn());
         return true;
     }
