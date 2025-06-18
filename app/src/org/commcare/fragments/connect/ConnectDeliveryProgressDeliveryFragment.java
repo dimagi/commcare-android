@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,22 +15,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.adapters.ConnectDeliveryProgressReportAdapter;
 import org.commcare.android.database.connect.models.ConnectDeliveryDetails;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.connect.CircleProgressBar;
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
-public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
+public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment {
     private View view;
 
     private RecyclerView recyclerView;
@@ -73,7 +68,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
             return;
         }
 
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
@@ -111,7 +105,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
 
     public void setDeliveriesData() {
         ConnectDeliveryDetails connectDeliveryDetails;
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
         HashMap<String, HashMap<String, Integer>> paymentTypeAndStatusCounts = new HashMap<>();
 

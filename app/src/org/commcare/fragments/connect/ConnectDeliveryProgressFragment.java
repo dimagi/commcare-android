@@ -34,8 +34,6 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
 
-
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -46,7 +44,7 @@ import java.util.List;
  *
  * @author dviggiano
  */
-public class ConnectDeliveryProgressFragment extends Fragment {
+public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
     private ConnectDeliveryProgressFragment.ViewStateAdapter viewStateAdapter;
     private TextView updateText;
 
@@ -73,9 +71,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         getActivity().setTitle(R.string.connect_progress_delivery);
-
 
         if (getArguments() != null) {
             tabPosition = getArguments().getString("tabPosition", "0");
@@ -240,8 +236,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     public void updateConnectWarningMessage(View cardView) {
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
-
         int totalVisitCount = job.getDeliveries().size();
         int dailyVisitCount = job.numberOfDeliveriesToday();
         boolean finished = job.isFinished();
@@ -304,7 +298,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     public void refreshData() {
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 try {
@@ -320,7 +313,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private void updatePaymentConfirmationTile(Context context, boolean forceHide) {
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         paymentToConfirm = null;
         if (!forceHide) {
             //Look for at least one payment that needs to be confirmed

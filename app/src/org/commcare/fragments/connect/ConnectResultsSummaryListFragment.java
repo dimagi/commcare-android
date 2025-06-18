@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +29,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 
 
-public class ConnectResultsSummaryListFragment extends Fragment {
+public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
     private TextView earnedAmount;
     private TextView transferredAmount;
 
@@ -60,7 +59,7 @@ public class ConnectResultsSummaryListFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.results_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
-        ResultsAdapter adapter = new ResultsAdapter(true);
+        ResultsAdapter adapter = new ResultsAdapter(job, true);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), linearLayoutManager.getOrientation()));
 
@@ -68,7 +67,6 @@ public class ConnectResultsSummaryListFragment extends Fragment {
     }
 
     public void updateView() {
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         //Payment Status
         int total = 0;
         for (ConnectJobPaymentRecord payment : job.getPayments()) {
@@ -83,10 +81,12 @@ public class ConnectResultsSummaryListFragment extends Fragment {
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private ConnectJobRecord job;
         private final boolean showPayments;
         private Context parentContext;
 
-        public ResultsAdapter(boolean showPayments) {
+        public ResultsAdapter(ConnectJobRecord job, boolean showPayments) {
+            this.job = job;
             this.showPayments = showPayments;
         }
 
@@ -105,7 +105,6 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            ConnectJobRecord job = ConnectManager.requireActiveJob();
             if (holder instanceof VerificationViewHolder verificationHolder) {
                 ConnectJobDeliveryRecord delivery = job.getDeliveries().get(position);
 
@@ -164,7 +163,6 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            ConnectJobRecord job = ConnectManager.requireActiveJob();
             return showPayments ? job.getPayments().size() : job.getDeliveries().size();
         }
 

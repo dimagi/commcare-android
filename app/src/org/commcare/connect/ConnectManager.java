@@ -49,7 +49,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,7 +57,6 @@ import java.util.Locale;
 import java.util.Random;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Manager class for ConnectID, handles workflow navigation and user management
@@ -177,13 +175,6 @@ public class ConnectManager {
     }
 
     public static ConnectJobRecord getActiveJob() {
-        return activeJob;
-    }
-
-    public static  ConnectJobRecord requireActiveJob() {
-        if (activeJob == null) {
-            throw new IllegalStateException("No active job set in ConnectManager");
-        }
         return activeJob;
     }
 

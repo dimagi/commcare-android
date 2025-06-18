@@ -9,14 +9,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
-import android.content.Context;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.TextView;
-
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -47,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -85,7 +79,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
         if (show) {
-            ConnectJobRecord job = ConnectManager.requireActiveJob();
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            Objects.requireNonNull(job);
             TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             TextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
@@ -115,7 +110,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         if (record != null) {
-            ConnectJobRecord job = ConnectManager.requireActiveJob();
+            ConnectJobRecord job = ConnectManager.getActiveJob();
+            Objects.requireNonNull(job);
             if (job.isFinished()) {
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
             } else if (job.getProjectStartDate().after(new Date())) {

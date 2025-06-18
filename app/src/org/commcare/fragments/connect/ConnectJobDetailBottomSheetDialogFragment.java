@@ -19,6 +19,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobDetailBottomSheetDialogBinding;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     private FragmentConnectJobDetailBottomSheetDialogBinding binding;
@@ -52,7 +54,9 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding = FragmentConnectJobDetailBottomSheetDialogBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundResource(R.drawable.rounded_top_corners);
 
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
+        ConnectJobRecord job = ConnectManager.getActiveJob();
+        Objects.requireNonNull(job);
+
         int maxPossibleVisits = job.getMaxPossibleVisits();
         int daysRemaining = job.getDaysRemaining();
 

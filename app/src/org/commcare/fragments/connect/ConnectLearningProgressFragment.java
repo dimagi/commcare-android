@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -39,7 +38,7 @@ import androidx.navigation.Navigation;
  *
  * @author dviggiano
  */
-public class ConnectLearningProgressFragment extends Fragment {
+public class ConnectLearningProgressFragment extends ConnectJobFragment {
     boolean showAppLaunch = true;
 
     TextView viewMore;
@@ -95,7 +94,6 @@ public class ConnectLearningProgressFragment extends Fragment {
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         jobCardDataHandle(view, job);
 
         return view;
@@ -111,7 +109,6 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void refreshData() {
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
         ConnectManager.updateLearningProgress(getContext(), job, success -> {
             if(success) {
                 try {
@@ -133,8 +130,6 @@ public class ConnectLearningProgressFragment extends Fragment {
         if(view == null) {
             return;
         }
-
-        ConnectJobRecord job = ConnectManager.requireActiveJob();
 
         int percent = job.getLearningPercentComplete();
         boolean learningFinished = percent >= 100;
