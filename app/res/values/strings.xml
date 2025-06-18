@@ -618,4 +618,9 @@
     <string name="personalid_otp_missing_activity">Something went wrong</string>
     <string name="personalid_otp_verification_failed_generic">OTP verification failed:</string>
     <string name="personalid_otp_verification_failed">Verification failed and please try again</string>
+    <string name="camera_permission_title">Permission for camera</string>
+    <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="capture_photo">Capture Photo</string>
+    <string name="connect_claim_job_error">Error claiming job</string>
+    <string name="my_credentials">My Credentials</string>
 </resources>
