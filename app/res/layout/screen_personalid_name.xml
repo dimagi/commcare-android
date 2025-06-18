@@ -34,7 +34,7 @@
                     android:textStyle="bold"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
-                    android:text="@string/name_fragment_subtitle"
+                    android:text="@string/personalid_name_fragment_subtitle"
                     android:textColor="@color/connect_dark_blue_color"
                     android:textSize="16sp" />
 

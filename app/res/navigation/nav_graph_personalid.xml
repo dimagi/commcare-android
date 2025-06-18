@@ -35,7 +35,8 @@
             app:popUpTo="@id/personalid_otp_page" />
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_name"
-            app:destination="@id/personalid_name" />
+            app:destination="@id/personalid_name"
+            app:popUpTo="@id/personalid_phone_fragment"/>
         <action
             android:id="@+id/action_personalid_otp_page_to_personalid_phone_fragment"
             app:destination="@id/personalid_phone_fragment" />

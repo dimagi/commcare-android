@@ -267,32 +267,4 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         adapter.setMessagePayload(adapter.getSyncButtonPosition(), message);
         adapter.notifyItemChanged(adapter.getSyncButtonPosition());
     }
-
-    public void updateSecondaryPhoneConfirmationTile() {
-        boolean show = activity.getIntent().getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false)
-                && PersonalIdManager.getInstance().shouldShowSecondaryPhoneConfirmationTile(activity);
-        View connectTile = activity.findViewById(R.id.connect_alert_tile);
-        updateSecondaryPhoneConfirmationTile(activity, connectTile, show);
-    }
-
-    private void updateSecondaryPhoneConfirmationTile(Context context, View tile, boolean show) {
-        tile.setVisibility(show ? View.VISIBLE : View.GONE);
-
-        if (show) {
-            ConnectUserRecord user = PersonalIdManager.getInstance().getUser(context);
-            String dateStr = formatDate(user.getSecondaryPhoneVerifyByDate());
-            String message = context.getString(R.string.login_connect_secondary_phone_message, dateStr);
-
-            TextView view = tile.findViewById(R.id.connect_phone_label);
-            view.setText(message);
-
-            MaterialButton yesButton = tile.findViewById(R.id.connect_phone_yes_button);
-            yesButton.setOnClickListener(v -> activity.performSecondaryPhoneVerification());
-
-            MaterialButton noButton = tile.findViewById(R.id.connect_phone_no_button);
-            noButton.setOnClickListener(v -> {
-                tile.setVisibility(View.GONE);
-            });
-        }
-    }
 }

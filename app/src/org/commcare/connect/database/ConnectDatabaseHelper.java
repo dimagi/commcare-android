@@ -55,8 +55,8 @@ public class ConnectDatabaseHelper {
         }
     }
 
-    public static boolean dbExists(Context context) {
-        return DatabaseConnectOpenHelper.dbExists(context);
+    public static boolean dbExists() {
+        return DatabaseConnectOpenHelper.dbExists();
     }
 
     public static boolean isDbBroken() {
@@ -113,7 +113,6 @@ public class ConnectDatabaseHelper {
 
     public static void crashDb(GlobalErrors error) {
         GlobalErrorUtil.addError(new GlobalErrorRecord(new Date(), error.ordinal()));
-
         throw new RuntimeException("Connect database crash");
     }
 
