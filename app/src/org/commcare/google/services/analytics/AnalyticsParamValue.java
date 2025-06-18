@@ -183,7 +183,7 @@ public class AnalyticsParamValue {
     public static final String ENTITY_SELECT_MENU = "entity_select";
     public static final String CC_SETUP_MENU = "cc_setup";
     public static final String INSTALL_FROM_LIST_MENU = "install_from_list";
-    public static final String GLOBAL_PRIVILIGES_MENU = "global_priviliges";
+    public static final String GLOBAL_PRIVILEGES_MENU = "global_privileges";
     public static final String FORM_RECORD_LIST_MENU = "form_record_list";
 
     // Param values for personal ID configuration failure

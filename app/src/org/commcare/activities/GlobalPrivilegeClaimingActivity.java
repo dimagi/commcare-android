@@ -146,9 +146,14 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.GLOBAL_PRIVILEGES_MENU);
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.GLOBAL_PRIVILIGES_MENU);
         menu.findItem(DISABLE).setVisible(GlobalPrivilegesManager.getEnabledPrivileges().size() > 0);
         return true;
     }

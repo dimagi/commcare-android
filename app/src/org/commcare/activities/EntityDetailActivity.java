@@ -246,9 +246,14 @@ public class EntityDetailActivity
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.ENTITY_DETAIL_MENU);
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.ENTITY_DETAIL_MENU);
         menu.findItem(MENU_PRINT_DETAIL).setVisible(detail != null && detail.isPrintEnabled());
         return true;
     }

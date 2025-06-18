@@ -431,9 +431,14 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.INSTALL_FROM_LIST_MENU);
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.INSTALL_FROM_LIST_MENU);
         boolean appListIsShowing = appsListContainer.getVisibility() == View.VISIBLE;
         menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appListIsShowing);
         menu.findItem(R.id.refresh_app_list_item).setVisible(appListIsShowing);

@@ -754,6 +754,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.ENTITY_SELECT_MENU);
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
@@ -764,7 +770,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // before we're ready
             menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
         }
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.ENTITY_SELECT_MENU);
         return super.onPrepareOptionsMenu(menu);
     }
 
