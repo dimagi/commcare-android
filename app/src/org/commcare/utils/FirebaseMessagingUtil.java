@@ -141,7 +141,8 @@ public class FirebaseMessagingUtil {
     public static Intent handleNotification(Context context, Map<String, String>notificationPayload){
         FCMMessageData fcmMessageData = new FCMMessageData(notificationPayload);
         if (fcmMessageData.getPayloadData() == null || fcmMessageData.getPayloadData().isEmpty()) {
-            return handleGeneralApplicationPushNotification(context,fcmMessageData);
+            Logger.exception("Empty push notification", new Throwable(String.format("Empty notification without payload")));
+            return null;
         }else if (hasCccAction(fcmMessageData.getAction())){
             return handleCCCActionPushNotification(context,fcmMessageData);
         }else if (fcmMessageData.getActionType() == ActionTypes.SYNC){
@@ -165,8 +166,8 @@ public class FirebaseMessagingUtil {
             return handleCCCMessageChannelPushNotification(context,fcmMessageData);
         }else if(fcmMessageData.getAction().equals(CCC_DEST_PAYMENTS)){
             return handleCCCPaymentPushNotification(context,fcmMessageData);
-        }else{  // All other notifications for connect
-            return handleCCCConnectPushNotification(context,fcmMessageData);
+        }else{  // some unknown CCC_ so ignoring it
+            return null;
         }
 
     }
