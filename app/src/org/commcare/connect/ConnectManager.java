@@ -11,6 +11,7 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectMessagingActivity;
+import org.commcare.activities.connect.PersonalIdCredentialActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -156,6 +157,11 @@ public class ConnectManager {
     public static void goToMessaging(Context parent) {
         getInstance().parentActivity = parent;
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
+        parent.startActivity(i);
+    }
+    public static void goToPersonalIdCredential(Context parent) {
+        getInstance().parentActivity = parent;
+        Intent i = new Intent(parent, PersonalIdCredentialActivity.class);
         parent.startActivity(i);
     }
 
