@@ -139,11 +139,12 @@ public class FirebaseMessagingUtil {
      * @return Intent - if need for launcher activity to start the activity
      */
     public static Intent handleNotification(Context context, Map<String, String>notificationPayload){
-        FCMMessageData fcmMessageData = new FCMMessageData(notificationPayload);
-        if (fcmMessageData.getPayloadData() == null || fcmMessageData.getPayloadData().isEmpty()) {
+        if (notificationPayload == null || notificationPayload.isEmpty()) {
             Logger.exception("Empty push notification", new Throwable(String.format("Empty notification without payload")));
             return null;
-        }else if (hasCccAction(fcmMessageData.getAction())){
+        }
+        FCMMessageData fcmMessageData = new FCMMessageData(notificationPayload);
+        if (hasCccAction(fcmMessageData.getAction())){
             return handleCCCActionPushNotification(context,fcmMessageData);
         }else if (fcmMessageData.getActionType() == ActionTypes.SYNC){
             getDataSyncer(context).syncData(fcmMessageData);
