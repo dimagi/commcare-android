@@ -4,14 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.parser.PersonalIdApiResponseParser;
+import org.commcare.connect.network.parser.PersonalIdCredentialParser;
 import org.commcare.connect.network.parser.StartConfigurationResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -21,6 +20,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+
+import androidx.annotation.Nullable;
 
 public abstract class PersonalIdApiHandler {
 
@@ -159,6 +160,11 @@ public abstract class PersonalIdApiHandler {
                         new CompleteProfileResponseParser()));
     }
 
+    public void retrieveCredentials(Context context, String userName, String password) {
+        PersonalIdSessionData sessionData = new PersonalIdSessionData();
+        ApiPersonalId.retrieveCredentials(context, userName, password, createCallback(sessionData,
+                        new PersonalIdCredentialParser()));
+    }
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);
 
