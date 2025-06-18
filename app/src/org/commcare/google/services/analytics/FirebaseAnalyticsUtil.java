@@ -535,4 +535,10 @@ public class FirebaseAnalyticsUtil {
     public static void reportBiometricInvalidated() {
         reportEvent(CCAnalyticsEvent.CCC_BIOMETRIC_INVALIDATED);
     }
+
+    public static void reportPersonalIdConfigurationFailure(String failureCause) {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONFIGURATION_FAILURE,
+                new String[]{CCAnalyticsParam.REASON},
+                new String[]{failureCause});
+    }
 }

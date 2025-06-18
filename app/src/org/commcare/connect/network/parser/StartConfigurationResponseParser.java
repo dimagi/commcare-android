@@ -22,7 +22,7 @@ public class StartConfigurationResponseParser implements PersonalIdApiResponsePa
         sessionData.setRequiredLock(JsonExtensions.optStringSafe(json, "required_lock", null));
         sessionData.setDemoUser(json.optBoolean("demo_user", false));
         sessionData.setToken(JsonExtensions.optStringSafe(json, "token", null));
-        sessionData.setSessionFailureCode(JsonExtensions.optStringSafe(json, "failure_code", null));
+        sessionData.setSessionFailureCode(JsonExtensions.optStringSafe(json, "failure_code", "UNKNOWN_ERROR"));
         sessionData.setSessionFailureSubcode(JsonExtensions.optStringSafe(json, "failure_subcode", null));
     }
 }

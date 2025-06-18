@@ -185,4 +185,9 @@ public class AnalyticsParamValue {
     public static final String INSTALL_FROM_LIST_MENU = "install_from_list";
     public static final String GLOBAL_PRIVILIGES_MENU = "global_priviliges";
     public static final String FORM_RECORD_LIST_MENU = "form_record_list";
+
+    // Param values for personal ID configuration failure
+    public static final String START_CONFIGURATION_INTEGRITY_FAILURE = "start_configuration_integrity_failure";
+    public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
+    public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
 }
