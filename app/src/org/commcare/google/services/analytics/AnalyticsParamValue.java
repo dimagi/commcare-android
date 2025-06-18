@@ -6,7 +6,6 @@ package org.commcare.google.services.analytics;
 
 public class AnalyticsParamValue {
 
-
     // Param values for graphing actions
     static final String GRAPH_ATTACH = "start_viewing_graph";
     static final String GRAPH_DETACH = "stop_viewing_graph";
@@ -31,6 +30,17 @@ public class AnalyticsParamValue {
     public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
     public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
     public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
+    public static final String CC_SETUP_MENU_OFFLINE_INSTALL = "cc_setup_menu_offline_install";
+    public static final String CC_SETUP_MENU_INSTALL_FROM_LIST = "cc_setup_menu_install_from_list";
+    public static final String CC_SETUP_MENU_PERSONAL_ID_SIGN_IN = "cc_setup_menu_personal_id_sign_in";
+    public static final String CC_SETUP_MENU_PERSONAL_ID_FORGET = "cc_setup_menu_personal_id_forget";
+    public static final String LOGIN_MENU_PRACTICE_MODE = "login_menu_practice_mode";
+    public static final String LOGIN_MENU_ABOUT_COMMCARE = "login_menu_about_commcare";
+    public static final String LOGIN_MENU_ACQUIRE_PERMISSIONS = "login_menu_acquire_permissions";
+    public static final String LOGIN_MENU_FORGOT_PIN = "login_menu_forgot_pin";
+    public static final String LOGIN_MENU_APP_MANAGER = "login_menu_app_manager";
+    public static final String LOGIN_MENU_PERSONAL_ID_SIGN_IN = "login_menu_personal_id_sign_in";
+    public static final String LOGIN_MENU_PERSONAL_ID_FORGET = "login_menu_personal_id_forget";
 
     // Param values for sync attempts
     public static final String SYNC_TRIGGER_USER = "user_triggered_sync";

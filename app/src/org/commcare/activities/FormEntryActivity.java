@@ -570,7 +570,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
