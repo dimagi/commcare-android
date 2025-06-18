@@ -557,7 +557,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return super.onPrepareOptionsMenu(menu);
         }
         super.onPrepareOptionsMenu(menu);
-
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.FORM_ENTRY_MENU);
         menu.findItem(FormEntryConstants.MENU_SAVE).setVisible(mIncompleteEnabled && !instanceIsReadOnly);
 
         boolean hasMultipleLanguages = (!(mFormController == null ||

@@ -504,7 +504,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.CC_SETUP_MENU);
         MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
         if (item != null) {
             item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn()

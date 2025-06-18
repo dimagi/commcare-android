@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.google.zxing.BarcodeFormat;
 
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.GlobalConstants;
@@ -146,6 +148,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.GLOBAL_PRIVILIGES_MENU);
         menu.findItem(DISABLE).setVisible(GlobalPrivilegesManager.getEnabledPrivileges().size() > 0);
         return true;
     }

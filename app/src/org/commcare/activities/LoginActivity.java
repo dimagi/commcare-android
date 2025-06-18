@@ -548,6 +548,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.LOGIN_MENU);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(

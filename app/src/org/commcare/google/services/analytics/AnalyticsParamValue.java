@@ -6,6 +6,7 @@ package org.commcare.google.services.analytics;
 
 public class AnalyticsParamValue {
 
+
     // Param values for graphing actions
     static final String GRAPH_ATTACH = "start_viewing_graph";
     static final String GRAPH_DETACH = "stop_viewing_graph";
@@ -162,4 +163,16 @@ public class AnalyticsParamValue {
     public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
     public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
     public static final String CCC_DB_ERROR = "global_connect_error";
+
+    // Param values for options menu opened event
+    public static final String HOME_MENU = "home";
+    public static final String LOGIN_MENU = "login";
+    public static final String UPDATE_MENU = "update";
+    public static final String FORM_ENTRY_MENU = "form_entry";
+    public static final String ENTITY_DETAIL_MENU = "entity_detail";
+    public static final String ENTITY_SELECT_MENU = "entity_select";
+    public static final String CC_SETUP_MENU = "cc_setup";
+    public static final String INSTALL_FROM_LIST_MENU = "install_from_list";
+    public static final String GLOBAL_PRIVILIGES_MENU = "global_priviliges";
+    public static final String FORM_RECORD_LIST_MENU = "form_record_list";
 }

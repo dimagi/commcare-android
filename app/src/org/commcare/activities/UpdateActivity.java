@@ -19,6 +19,8 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.DataChangeLog;
@@ -609,6 +611,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.UPDATE_MENU);
         menu.findItem(MENU_UPDATE_TARGET_OPTIONS).setVisible(
                 DeveloperPreferences.shouldShowUpdateOptionsSetting());
         menu.findItem(MENU_UPDATE_FROM_CCZ).setVisible(BuildConfig.DEBUG ||

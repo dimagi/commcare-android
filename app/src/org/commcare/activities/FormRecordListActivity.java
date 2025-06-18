@@ -545,7 +545,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.FORM_RECORD_LIST_MENU);
         if (adapter != null) {
             MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
             if (quarantine != null) {

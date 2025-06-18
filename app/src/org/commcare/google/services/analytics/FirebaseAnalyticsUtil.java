@@ -138,6 +138,11 @@ public class FirebaseAnalyticsUtil {
                 location.getSimpleName() + "_" + itemLabel);
     }
 
+    public static void reportOptionsMenuOpened(String menuType) {
+        reportEvent(CCAnalyticsEvent.OPTIONS_MENU_OPENED,
+                FirebaseAnalytics.Param.ITEM_NAME, menuType);
+    }
+
     /**
      * Report a user event of changing the value of a SharedPreference
      */

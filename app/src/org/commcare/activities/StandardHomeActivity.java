@@ -140,7 +140,7 @@ public class StandardHomeActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.HOME_MENU);
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
         menu.findItem(R.id.action_update).setVisible(enableMenus);

@@ -23,6 +23,8 @@ import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.GlobalPrivilegesManager;
@@ -431,6 +433,7 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.INSTALL_FROM_LIST_MENU);
         boolean appListIsShowing = appsListContainer.getVisibility() == View.VISIBLE;
         menu.findItem(RETRIEVE_APPS_FOR_DIFF_USER).setVisible(appListIsShowing);
         menu.findItem(R.id.refresh_app_list_item).setVisible(appListIsShowing);
