@@ -537,6 +537,9 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportPersonalIdConfigurationFailure(String failureCause) {
+        if (failureCause == null) {
+            failureCause = "UNKNOWN_ERROR";
+        }
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONFIGURATION_FAILURE,
                 new String[]{CCAnalyticsParam.REASON},
                 new String[]{failureCause});

@@ -205,7 +205,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                     String failureCode =
                             personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
                     // This is called when api returns success but with a a failure code
-                    Logger.log(LogTypes.TYPE_USER, failureCode);
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Start Config API failed with " + failureCode);
                     onConfigurationFailure(failureCode);
                 }
             }
