@@ -37,6 +37,7 @@ public class StandardHomeActivity
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -124,7 +125,7 @@ public class StandardHomeActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_app_home, menu);
-
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.findItem(R.id.action_update).setTitle(Localization.get("home.menu.update"));
         menu.findItem(R.id.action_saved_forms).setTitle(Localization.get("home.menu.saved.forms"));
         menu.findItem(R.id.action_change_language).setTitle(Localization.get("home.menu.locale.change"));
@@ -179,8 +180,6 @@ public class StandardHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
