@@ -623,4 +623,5 @@
     <string name="capture_photo">Capture Photo</string>
     <string name="connect_claim_job_error">Error claiming job</string>
     <string name="my_credentials">My Credentials</string>
+    <string name="credential">Credential</string>
 </resources>

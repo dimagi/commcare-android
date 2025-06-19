@@ -159,11 +159,6 @@ public class ConnectManager {
         Intent i = new Intent(parent, ConnectMessagingActivity.class);
         parent.startActivity(i);
     }
-    public static void goToPersonalIdCredential(Context parent) {
-        getInstance().parentActivity = parent;
-        Intent i = new Intent(parent, PersonalIdCredentialActivity.class);
-        parent.startActivity(i);
-    }
 
     public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
         ConnectJobRecord job = null;

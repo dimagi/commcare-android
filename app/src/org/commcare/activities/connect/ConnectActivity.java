@@ -175,7 +175,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         }
 
         if (item.getItemId() == R.id.action_credential) {
-            ConnectManager.goToPersonalIdCredential(this);
+            startActivity(new Intent(this, PersonalIdCredentialActivity.class));
             return true;
         }
 
