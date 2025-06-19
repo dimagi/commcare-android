@@ -543,12 +543,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.FORM_RECORD_LIST_MENU);
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         if (adapter != null) {

@@ -549,12 +549,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.LOGIN_MENU);
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);

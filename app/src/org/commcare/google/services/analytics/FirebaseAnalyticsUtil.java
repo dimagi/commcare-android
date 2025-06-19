@@ -138,9 +138,9 @@ public class FirebaseAnalyticsUtil {
                 location.getSimpleName() + "_" + itemLabel);
     }
 
-    public static void reportOptionsMenuOpened(String menuType) {
+    public static void reportOptionsMenuOpened(String screenName) {
         reportEvent(CCAnalyticsEvent.OPTIONS_MENU_OPENED,
-                FirebaseAnalytics.Param.ITEM_NAME, menuType);
+                FirebaseAnalytics.Param.ITEM_NAME, screenName);
     }
 
     /**

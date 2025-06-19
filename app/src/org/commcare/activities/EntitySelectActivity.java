@@ -754,12 +754,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.ENTITY_SELECT_MENU);
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);

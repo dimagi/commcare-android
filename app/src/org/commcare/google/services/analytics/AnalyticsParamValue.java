@@ -174,18 +174,6 @@ public class AnalyticsParamValue {
     public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
     public static final String CCC_DB_ERROR = "global_connect_error";
 
-    // Param values for options menu opened event
-    public static final String HOME_MENU = "home";
-    public static final String LOGIN_MENU = "login";
-    public static final String UPDATE_MENU = "update";
-    public static final String FORM_ENTRY_MENU = "form_entry";
-    public static final String ENTITY_DETAIL_MENU = "entity_detail";
-    public static final String ENTITY_SELECT_MENU = "entity_select";
-    public static final String CC_SETUP_MENU = "cc_setup";
-    public static final String INSTALL_FROM_LIST_MENU = "install_from_list";
-    public static final String GLOBAL_PRIVILEGES_MENU = "global_privileges";
-    public static final String FORM_RECORD_LIST_MENU = "form_record_list";
-
     // Param values for personal ID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_FAILURE = "start_configuration_integrity_failure";
     public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";

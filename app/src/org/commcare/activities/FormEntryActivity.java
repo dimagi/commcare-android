@@ -552,12 +552,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.FORM_ENTRY_MENU);
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (CommCareApplication.instance().isConsumerApp()) {
             // Do not show options menu at all if this is a consumer app

@@ -139,12 +139,6 @@ public class StandardHomeActivity
     }
 
     @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.HOME_MENU);
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         //In Holo theme this gets called on startup

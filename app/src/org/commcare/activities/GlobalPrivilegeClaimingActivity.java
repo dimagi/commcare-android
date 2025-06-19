@@ -147,7 +147,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
 
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
-        FirebaseAnalyticsUtil.reportOptionsMenuOpened(AnalyticsParamValue.GLOBAL_PRIVILEGES_MENU);
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(getClass().getSimpleName());
         return super.onMenuOpened(featureId, menu);
     }
 
