@@ -22,6 +22,7 @@ public class CCAnalyticsEvent {
     static final String HOME_BUTTON_CLICK = "home_button_click";
     static final String OPEN_ARCHIVED_FORM = "open_archived_form";
     static final String SELECT_OPTIONS_MENU_ITEM = "select_options_menu_item";
+    static final String OPTIONS_MENU_OPENED = "options_menu_opened";
     static final String SYNC_ATTEMPT = "sync_attempt";
     static final String TIMED_SESSION = "timed_session";
     static final String VIEW_ARCHIVED_FORMS_LIST = "view_archived_forms_list";
@@ -51,5 +52,6 @@ public class CCAnalyticsEvent {
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
     static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
     static final String CCC_BIOMETRIC_INVALIDATED = "ccc_biometric_invalidated";
+    static final String PERSONAL_ID_CONFIGURATION_FAILURE = "personal_id_configuration_failure";
 
 }

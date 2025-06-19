@@ -545,7 +545,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
         if (adapter != null) {
             MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
             if (quarantine != null) {
