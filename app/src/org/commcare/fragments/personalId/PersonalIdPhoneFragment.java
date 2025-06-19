@@ -184,7 +184,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             if (integrityToken != null) {
                 makeStartConfigurationCall(integrityToken, requestHash, body);
             } else {
-                onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_FAILURE);
+                onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE);
             }
             return null;
         });
@@ -213,7 +213,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
                 if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
-                    onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_FAILURE);
+                    onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE);
                 } else {
                     navigateFailure(failureCode, t);
                 }
