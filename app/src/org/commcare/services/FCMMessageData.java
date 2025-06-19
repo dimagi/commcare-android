@@ -24,7 +24,7 @@ import androidx.core.app.NotificationCompat;
  * necessary checks and transformations
  */
 public class FCMMessageData implements Externalizable {
-    private FirebaseMessagingUtil.ActionTypes actionType;
+    private ActionTypes actionType;
     private String username;
     private String domain;
     private DateTime creationTime;
@@ -37,14 +37,27 @@ public class FCMMessageData implements Externalizable {
     private String notificationChannel;
     private Map<String, String> payloadData;
 
+
+    public static String NOTIFICATION_TITLE = "title";
+    public static String NOTIFICATION_BODY = "body";
+
+
+    /**
+     * Action Type for data syncer
+     */
+    public enum ActionTypes {
+        SYNC,
+        INVALID
+    }
+
     public FCMMessageData(Map<String, String> payloadData) {
         this.payloadData = payloadData;
         actionType = getActionType(payloadData.get("action"));
         username = payloadData.get("username");
         domain = payloadData.get("domain");
         creationTime = convertISO8601ToDateTime(payloadData.get("created_at"));
-        notificationTitle = payloadData.get("title");
-        notificationText = payloadData.get("body");
+        notificationTitle = payloadData.get(NOTIFICATION_TITLE);
+        notificationText = payloadData.get(NOTIFICATION_BODY);
         action = payloadData.get("action");
         priority = NotificationCompat.PRIORITY_HIGH;
         notificationChannel = CommCareNoficationManager.NOTIFICATION_CHANNEL_PUSH_NOTIFICATIONS_ID;
@@ -66,7 +79,7 @@ public class FCMMessageData implements Externalizable {
         return creationTime;
     }
 
-    public FirebaseMessagingUtil.ActionTypes getActionType() {
+    public ActionTypes getActionType() {
         return actionType;
     }
 
@@ -82,24 +95,24 @@ public class FCMMessageData implements Externalizable {
         }
     }
 
-    private FirebaseMessagingUtil.ActionTypes getActionType(String action) {
+    private ActionTypes getActionType(String action) {
         if (action == null) {
-            return FirebaseMessagingUtil.ActionTypes.INVALID;
+            return ActionTypes.INVALID;
         }
 
         switch (action.toUpperCase()) {
             case "SYNC" -> {
-                return FirebaseMessagingUtil.ActionTypes.SYNC;
+                return ActionTypes.SYNC;
             }
             default -> {
-                return FirebaseMessagingUtil.ActionTypes.INVALID;
+                return ActionTypes.INVALID;
             }
         }
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        actionType = FirebaseMessagingUtil.ActionTypes.valueOf(ExtUtil.readString(in));
+        actionType = ActionTypes.valueOf(ExtUtil.readString(in));
         username = ExtUtil.readString(in);
         domain = ExtUtil.readString(in);
         creationTime = new DateTime(ExtUtil.readLong(in));

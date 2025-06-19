@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -24,9 +25,9 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
             return;
         }
 
-        opportunityId = intent.getStringExtra(FirebaseMessagingUtil.OPPORTUNITY_ID);
-        paymentId = intent.getStringExtra(FirebaseMessagingUtil.PAYMENT_ID);
-        paymentStatus = intent.getBooleanExtra(FirebaseMessagingUtil.PAYMENT_STATUS, false);
+        opportunityId = intent.getStringExtra(ConnectConstants.OPPORTUNITY_ID);
+        paymentId = intent.getStringExtra(ConnectConstants.PAYMENT_ID);
+        paymentStatus = intent.getBooleanExtra(ConnectConstants.PAYMENT_STATUS, false);
 
         if (paymentId == null || opportunityId == null) {
             return;

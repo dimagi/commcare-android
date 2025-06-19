@@ -55,7 +55,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
                 remoteMessage.getData());
-        FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData());
+        FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),remoteMessage.getNotification());
     }
 
     @Override

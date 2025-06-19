@@ -34,6 +34,11 @@ public class ConnectConstants {
     public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
     public static final String CCC_DEST_PAYMENTS = "ccc_payment";
     public static final String CCC_MESSAGE = "ccc_message";
+    public static final String CCC_PAYMENT_INFO_CONFIRMATION = "ccc_payment_info_confirmation";
+    public static final String CCC_PAYMENT_INFO_CONFIRMATION_STATUS = "confirmation_status";
+    public static final String OPPORTUNITY_ID = "opportunity_id";
+    public static final String PAYMENT_ID = "payment_id";
+    public static final String PAYMENT_STATUS = "payment_status";
     public static final String CONNECT_KEY_USERNAME = "username";
     public static final String CONNECT_KEY_NAME = "name";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
