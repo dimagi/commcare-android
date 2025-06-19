@@ -179,6 +179,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private String selectedEntityPostSync = null;
 
     private FirebaseMessagingDataSyncer dataSyncer;
+    private boolean isVisible;
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
@@ -1311,8 +1312,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     SimpleDateFormat.getDateTimeInstance().format(lastUploadSyncAttempt);
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
         }
-
-        refreshUI();
+        if (isVisible) {
+            refreshUI();
+        }
         sendFormsOrSync(false);
     }
 
@@ -1333,6 +1335,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
         shouldTriggerBackgroundSync = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isVisible = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isVisible = false;
     }
 
     private void attemptDispatchHomeScreen() {
