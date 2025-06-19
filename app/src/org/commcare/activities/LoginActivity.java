@@ -36,6 +36,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -143,8 +144,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        ///TODO: connect uncomment with connect merge
-//        appLaunchedFromConnect = PersonalIDManager.wasAppLaunchedFromConnect(presetAppId);
+        appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -409,6 +409,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            passwordOrPin = ConnectManager.checkAutoLoginAndOverridePassword(this,
+                    presetAppId, username, passwordOrPin, appLaunchedFromConnect,
+                    loginManagedByPersonalId());
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
