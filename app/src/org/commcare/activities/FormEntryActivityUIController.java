@@ -759,7 +759,9 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
             if (oldWidgets.get(i) instanceof ImageWidget) {
                 // If there was change(in particular image-remove) in an image widget,
                 // only then update the form to disk.
-                activity.onExternalAttachmentUpdated();
+                if (i == indexOfLastChangedWidget) {
+                    activity.onExternalAttachmentUpdated();
+                }
             }
 
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
