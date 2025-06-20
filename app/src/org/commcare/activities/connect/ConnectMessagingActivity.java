@@ -60,7 +60,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     private void handleRedirectIfAny() {
         String action = getIntent().getStringExtra("action");
         if (CCC_MESSAGE.equals(action)) {
-            ConnectManager.init(this);
+            PersonalIdManager.getInstance().init(this);
             PersonalIdManager.getInstance().unlockConnect(this, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(

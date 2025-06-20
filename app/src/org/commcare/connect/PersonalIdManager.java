@@ -52,7 +52,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;

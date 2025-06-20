@@ -21,7 +21,6 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
@@ -47,12 +46,10 @@ import java.io.InputStream;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import androidx.annotation.Nullable;
 
@@ -72,7 +69,6 @@ public class ConnectManager {
     }
 
     private static volatile ConnectManager manager = null;
-    private PersonalIdManager.PersonalIdStatus connectStatus = PersonalIdManager.PersonalIdStatus.NotIntroduced;
     private String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
@@ -92,27 +88,6 @@ public class ConnectManager {
             }
         }
         return manager;
-    }
-
-    public static void init(Context context) {
-        ConnectManager manager = getInstance();
-
-        if (manager.connectStatus == PersonalIdManager.PersonalIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-            if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
-                manager.connectStatus = registering ? PersonalIdManager.PersonalIdStatus.Registering :
-                        PersonalIdManager.PersonalIdStatus.LoggedIn;
-
-                String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
-                if (remotePassphrase == null) {
-                    getRemoteDbPassphrase(context, user);
-                }
-            } else if (ConnectDatabaseHelper.isDbBroken()) {
-                //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.crashDb();
-            }
-        }
     }
 
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
@@ -319,54 +294,6 @@ public class ConnectManager {
         CommCareLauncher.launchCommCareForAppId(activity, appId);
 
         activity.finish();
-    }
-
-    public static void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
-        ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                        if (json.has(key)) {
-                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                        }
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    Logger.exception("Parsing return from DB key request", e);
-                }
-            }
-
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                Logger.log("ERROR", "Failed (network)");
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                Logger.log("ERROR", "Failed (token unavailable)");
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException();
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(context);
-            }
-        });
     }
 
     public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
