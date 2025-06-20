@@ -3,9 +3,6 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
@@ -57,16 +54,15 @@ import java.util.Random;
 import androidx.annotation.Nullable;
 
 /**
- * Manager class for ConnectID, handles workflow navigation and user management
+ * Manager class for Connect, handles workflow navigation and opportunity management
  *
  * @author dviggiano
  */
 public class ConnectManager {
     private static final int APP_DOWNLOAD_TASK_ID = 4;
 
-
     /**
-     * Interface for handling callbacks when a ConnectID activity finishes
+     * Interface for handling callbacks when a Connect activity finishes
      */
     public interface ConnectActivityCompleteListener {
         void connectActivityComplete(boolean success);
@@ -74,9 +70,7 @@ public class ConnectManager {
 
     private static volatile ConnectManager manager = null;
     private PersonalIdManager.PersonalIdStatus connectStatus = PersonalIdManager.PersonalIdStatus.NotIntroduced;
-    private Context parentActivity;
-
-    private static String primedAppIdForAutoLogin = null;
+    private String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
     private ConnectManager() {
@@ -97,30 +91,25 @@ public class ConnectManager {
         return manager;
     }
 
-    public static void init(Context parent) {
+    public static void init(Context context) {
         ConnectManager manager = getInstance();
-        manager.parentActivity = parent;
 
         if (manager.connectStatus == PersonalIdManager.PersonalIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
-                manager.connectStatus = registering ? PersonalIdManager.PersonalIdStatus.Registering : PersonalIdManager.PersonalIdStatus.LoggedIn;
+                manager.connectStatus = registering ? PersonalIdManager.PersonalIdStatus.Registering :
+                        PersonalIdManager.PersonalIdStatus.LoggedIn;
 
-                String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
+                String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
                 if (remotePassphrase == null) {
-                    getRemoteDbPassphrase(parent, user);
+                    getRemoteDbPassphrase(context, user);
                 }
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
                 ConnectDatabaseHelper.crashDb();
             }
         }
-    }
-
-
-    public static void setParent(Context parent) {
-        getInstance().parentActivity = parent;
     }
 
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
@@ -147,8 +136,8 @@ public class ConnectManager {
 
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = primedAppIdForAutoLogin;
-        primedAppIdForAutoLogin = null;
+        String primed = getInstance().primedAppIdForAutoLogin;
+        getInstance().primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
     }
 
@@ -160,10 +149,9 @@ public class ConnectManager {
         return activeJob;
     }
 
-    public static void goToMessaging(Context parent) {
-        getInstance().parentActivity = parent;
-        Intent i = new Intent(parent, ConnectMessagingActivity.class);
-        parent.startActivity(i);
+    public static void goToMessaging(Context context) {
+        Intent i = new Intent(context, ConnectMessagingActivity.class);
+        context.startActivity(i);
     }
 
     public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -289,9 +277,7 @@ public class ConnectManager {
         String password = generatePassword();
 
         //Store ConnectLinkedAppRecord (note worker already linked)
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.storeApp(context, appId, username, true, password, true, false);
-
-        return appRecord;
+        return ConnectAppDatabaseUtil.storeApp(context, appId, username, true, password, true, false);
     }
 
     public static String generatePassword() {
@@ -504,11 +490,7 @@ public class ConnectManager {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject obj = (JSONObject) array.get(i);
-                                ConnectJobDeliveryRecord delivery = ConnectJobDeliveryRecord.fromJson(obj, job.getJobId());
-                                if (delivery != null) {
-                                    //Note: Ignoring faulty deliveries (non-fatal exception logged)
-                                    deliveries.add(delivery);
-                                }
+                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
                             }
 
                             //Store retrieved deliveries

@@ -86,17 +86,12 @@ public class PersonalIdManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
-    public static final int MethodRegistrationPrimary = 1;
-    public static final int MethodRecoveryPrimary = 2;
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
     private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
-    private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
-    private ConnectJobRecord activeJob = null;
-
 
     //Singleton, private constructor
     private PersonalIdManager() {
@@ -463,16 +458,6 @@ public class PersonalIdManager {
         i.putExtra("info", true);
         i.putExtra("buttons", allowProgression);
         activity.startActivity(i);
-    }
-
-    public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
-        ConnectJobRecord job = null;
-        ConnectAppRecord appRecord = getAppRecord(context, appId);
-        if (appRecord != null) {
-            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
-        }
-        ConnectManager.setActiveJob(job);
-        return job;
     }
 
     public boolean isLoginManagedByPersonalId(String appId, String userId) {
