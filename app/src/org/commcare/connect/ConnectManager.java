@@ -11,7 +11,6 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.connect.ConnectMessagingActivity;
-import org.commcare.activities.connect.PersonalIdCredentialActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
