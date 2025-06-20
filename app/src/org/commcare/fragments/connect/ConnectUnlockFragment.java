@@ -180,11 +180,13 @@ public class ConnectUnlockFragment extends Fragment {
             fragmentId = R.id.connect_jobs_list_fragment;
         }
 
-        NavController navController = Navigation.findNavController(view);
-        navController.popBackStack();
-        NavOptions options = new NavOptions.Builder()
-                .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)
-                .build();
-        navController.navigate(fragmentId, bundle, options);
+        requireActivity().runOnUiThread(() -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.popBackStack();
+            NavOptions options = new NavOptions.Builder()
+                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)
+                    .build();
+            navController.navigate(fragmentId, bundle, options);
+        });
     }
 }
