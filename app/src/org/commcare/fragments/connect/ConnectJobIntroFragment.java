@@ -155,4 +155,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
     private void reportApiCall(boolean success) {
         FirebaseAnalyticsUtil.reportCccApiStartLearning(success);
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 }

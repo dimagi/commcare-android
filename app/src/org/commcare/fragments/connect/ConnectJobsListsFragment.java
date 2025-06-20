@@ -354,4 +354,10 @@ public class ConnectJobsListsFragment extends Fragment {
 
         return appRecord != null ? appRecord.getLastAccessed() : new Date();
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 }
