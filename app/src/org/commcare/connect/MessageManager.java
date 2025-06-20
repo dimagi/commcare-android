@@ -4,18 +4,12 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.ConnectSsoHelper;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.TokenDeniedException;
-import org.commcare.connect.network.TokenUnavailableException;
-import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
@@ -32,34 +26,6 @@ import java.util.Map;
 import androidx.annotation.Nullable;
 
 public class MessageManager {
-    public static ConnectMessagingMessageRecord handleReceivedMessage(Context context, Map<String, String> payloadData) {
-        ConnectMessagingMessageRecord message = null;
-        String channelId = payloadData.get(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
-
-        //Make sure we know and have consented to the channel
-        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, channelId);
-        if(channel != null && channel.getConsented()) {
-            if(Strings.isNullOrEmpty(channel.getKey())) {
-                //Attempt to get the encryption key now if we don't have it yet
-                try {
-                    ConnectUserRecord user = ConnectManager.getUser(context);
-                    AuthInfo.TokenAuth auth = ConnectSsoHelper.retrieveConnectIdTokenSync(context, user);
-                    ApiPersonalId.retrieveChannelEncryptionKeySync(context, channel, auth);
-                } catch (TokenDeniedException | TokenUnavailableException e) {
-                    Logger.exception("Retrieving channel encryption key", e);
-                    return null;
-                }
-            }
-
-            //If we still don't have a key, this will return null and we'll ignore the message
-            message = ConnectMessagingMessageRecord.fromMessagePayload(payloadData, channel.getKey());
-            if(message != null) {
-                ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
-            }
-        }
-
-        return message;
-    }
 
     public static ConnectMessagingChannelRecord handleReceivedChannel(Context context, Map<String, String> payloadData) {
         ConnectMessagingChannelRecord channel = ConnectMessagingChannelRecord.fromMessagePayload(payloadData);
@@ -218,7 +184,7 @@ public class MessageManager {
                     @Override
                     public void processSuccess(int responseCode, InputStream responseData) {
                         try (InputStream in = responseData){
-                            ApiPersonalId.handleReceivedEncryptionKey(context, in, channel);
+                            ApiPersonalId.handleReceivedChannelEncryptionKey(context, in, channel);
                             if (listener != null) {
                                 listener.connectActivityComplete(true);
                             }
