@@ -31,6 +31,7 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 
@@ -108,7 +109,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         updateMessagingIcon();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
-                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
     }
 
     @Override
