@@ -12,8 +12,8 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPersonalIdCredentialBinding.inflate(layoutInflater)
-        setContentView(binding?.root)
-        supportActionBar?.title = getString(R.string.my_credentials)
+        setContentView(binding!!.root)
+        supportActionBar!!.title = getString(R.string.my_credentials)
     }
 
     override fun onDestroy() {
