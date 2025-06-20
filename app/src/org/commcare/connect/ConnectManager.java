@@ -43,6 +43,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -284,9 +285,10 @@ public class ConnectManager {
         int passwordLength = 20;
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder(passwordLength);
         for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
+            password.append(charSet.charAt(secureRandom.nextInt(charSet.length())));
         }
 
         return password.toString();

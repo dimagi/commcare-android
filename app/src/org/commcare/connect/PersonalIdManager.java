@@ -133,20 +133,7 @@ public class PersonalIdManager {
         }
     }
 
-    public String generatePassword() {
-        int passwordLength = 20;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        SecureRandom secureRandom = new SecureRandom();
-        StringBuilder password = new StringBuilder(passwordLength);
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(secureRandom.nextInt(charSet.length())));
-        }
-
-        return password.toString();
-    }
-
-    private void scheduleHearbeat() {
+    private void scheduleHeartbeat() {
         if (isloggedIn()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -230,7 +217,7 @@ public class PersonalIdManager {
 
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
-        scheduleHearbeat();
+        scheduleHeartbeat();
         CrashUtil.registerUserData();
     }
 
