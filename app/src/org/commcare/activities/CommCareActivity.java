@@ -39,6 +39,8 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarHelper;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorViewModel;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
@@ -246,6 +248,12 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      */
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
 
+    }
+
+    @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(getClass().getSimpleName());
+        return super.onMenuOpened(featureId, menu);
     }
 
     @Override
