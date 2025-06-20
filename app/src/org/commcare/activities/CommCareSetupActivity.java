@@ -26,6 +26,7 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -663,7 +664,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
             PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                PersonalIdManager.getInstance().goToConnectJobsList(this);
+                ConnectManager.goToConnectJobsList(this);
             });
         });
     }

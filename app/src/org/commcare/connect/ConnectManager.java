@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
@@ -46,6 +47,7 @@ import java.io.InputStream;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -153,6 +155,18 @@ public class ConnectManager {
     public static void goToMessaging(Context context) {
         Intent i = new Intent(context, ConnectMessagingActivity.class);
         context.startActivity(i);
+    }
+
+    public static void goToConnectJobsList(Context parent) {
+        Intent i = new Intent(parent, ConnectActivity.class);
+        parent.startActivity(i);
+    }
+
+    public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
+        Intent i = new Intent(activity, ConnectActivity.class);
+        i.putExtra("info", true);
+        i.putExtra("buttons", allowProgression);
+        activity.startActivity(i);
     }
 
     public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -353,6 +367,20 @@ public class ConnectManager {
                 ConnectNetworkHelper.showOutdatedApiError(context);
             }
         });
+    }
+
+    public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+        switch (job.getStatus()) {
+            case ConnectJobRecord.STATUS_LEARNING -> {
+                updateLearningProgress(context, job, listener);
+            }
+            case ConnectJobRecord.STATUS_DELIVERING -> {
+                updateDeliveryProgress(context, job, listener);
+            }
+            default -> {
+                listener.connectActivityComplete(true);
+            }
+        }
     }
 
     public static void updateLearningProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {

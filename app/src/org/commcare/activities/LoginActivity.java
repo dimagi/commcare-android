@@ -471,13 +471,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
         if (personalIdManager.isloggedIn()) {
-            personalIdManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             ConnectJobRecord job = ConnectManager.setConnectJobForApp(context, appId);
 
             if (job != null) {
                 personalIdManager.updateAppAccess(context, appId, username);
-                personalIdManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+                ConnectManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
                 personalIdManager.checkPersonalIdLink(context,
@@ -514,7 +513,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         personalIdManager.unlockConnect(this, success -> {
             if(success) {
-                personalIdManager.goToConnectJobsList(this);
+                ConnectManager.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
             }

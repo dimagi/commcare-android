@@ -1,6 +1,5 @@
 package org.commcare.connect;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -20,10 +19,8 @@ import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -176,6 +173,7 @@ public class PersonalIdManager {
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                completeSignin();
                 callback.connectActivityComplete(true);
             }
 
@@ -224,7 +222,8 @@ public class PersonalIdManager {
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
         parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
-            goToConnectJobsList(activity);
+            completeSignin();
+            ConnectManager.goToConnectJobsList(activity);
         }
     }
 
@@ -416,37 +415,6 @@ public class PersonalIdManager {
 
     }
 
-    ///TODO update the code with connect code
-    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectManager.ConnectActivityCompleteListener listener) {
-        switch (job.getStatus()) {
-            case ConnectJobRecord.STATUS_LEARNING -> {
-                ConnectManager.updateLearningProgress(context, job, listener);
-            }
-            case ConnectJobRecord.STATUS_DELIVERING -> {
-                ConnectManager.updateDeliveryProgress(context, job, listener);
-            }
-            default -> {
-                listener.connectActivityComplete(true);
-            }
-        }
-    }
-
-    public void goToConnectJobsList(Context parent) {
-        parentActivity = parent;
-        completeSignin();
-        Intent i = new Intent(parent, ConnectActivity.class);
-        parent.startActivity(i);
-    }
-
-
-    public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
-        completeSignin();
-        Intent i = new Intent(activity, ConnectActivity.class);
-        i.putExtra("info", true);
-        i.putExtra("buttons", allowProgression);
-        activity.startActivity(i);
-    }
-
     public boolean isLoginManagedByPersonalId(String appId, String userId) {
         AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
         return auth != null;
@@ -549,10 +517,6 @@ public class PersonalIdManager {
 
     public String getConnectUsername(Context context) {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
-    }
-
-    public void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
     }
 
     public boolean isSeatedAppCongigureWithPersonalId(String username) {
