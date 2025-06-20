@@ -756,12 +756,10 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 continue;
             }
 
-            if (oldWidgets.get(i) instanceof ImageWidget) {
+            if ((i == indexOfLastChangedWidget) && oldWidgets.get(i) instanceof ImageWidget) {
                 // If there was change(in particular image-remove) in an image widget,
                 // only then update the form to disk.
-                if (i == indexOfLastChangedWidget) {
-                    activity.onExternalAttachmentUpdated();
-                }
+                activity.onExternalAttachmentUpdated();
             }
 
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
