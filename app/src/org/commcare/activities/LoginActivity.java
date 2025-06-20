@@ -254,6 +254,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
+        if (!isUsernameValid(getUniformUsername())) {
+            raiseLoginMessage(StockMessages.Auth_InsufficientRolePermission, false);
+            return;
+        }
+
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
@@ -268,6 +273,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             localLoginOrPullAndLogin(restoreSession);
         }
+    }
+
+    private boolean isUsernameValid(String username) {
+        if (username !=null && !username.isEmpty()) {
+            if (!username.contains("@") || (username.contains("@") && username.endsWith(".commcarehq.org"))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
