@@ -59,6 +59,10 @@ public class ConnectJobUtils {
         return new ArrayList<>(jobs);
     }
 
+    public static int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
+        return new JobStoreManager(context).storeJobs(context, jobs, pruneMissing);
+    }
+
     private static void populateJobs(Context context, Vector<ConnectJobRecord> jobs) {
         SqlStorage<ConnectAppRecord> appInfoStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class);
         SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);
@@ -220,15 +224,17 @@ public class ConnectJobUtils {
         SqlStorage<ConnectJobDeliveryFlagRecord> storage = ConnectDatabaseHelper.getConnectStorage(context,
                 ConnectJobDeliveryFlagRecord.class);
         ConnectDatabaseHelper.connectDatabase.beginTransaction();
+        try {
+            storage.removeAll(storage.getIDsForValues(new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
+                    new Object[]{deliveryId}));
 
-        storage.removeAll(storage.getIDsForValues(new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
-                new Object[]{deliveryId}));
-
-        for (ConnectJobDeliveryFlagRecord incomingRecord : flags) {
-            storage.write(incomingRecord);
+            for (ConnectJobDeliveryFlagRecord incomingRecord : flags) {
+                storage.write(incomingRecord);
+            }
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
         }
-
-        ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
     }
 
     public static void storePayment(Context context, ConnectJobPaymentRecord payment) {

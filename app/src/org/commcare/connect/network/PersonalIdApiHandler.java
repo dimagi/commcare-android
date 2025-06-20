@@ -94,7 +94,9 @@ public abstract class PersonalIdApiHandler {
                             Toast.makeText(CommCareApplication.instance(), json.optString("error"),
                                     Toast.LENGTH_LONG).show();
                         }
-                    } catch (JSONException | IOException e) {
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    } catch (IOException e) {
                         Logger.exception("Error parsing API error response", e);
                         onFailure(PersonalIdApiErrorCodes.UNKNOWN_ERROR, e);
                         return;
