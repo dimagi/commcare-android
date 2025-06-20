@@ -72,7 +72,7 @@ public class ConnectManager {
         void connectActivityComplete(boolean success);
     }
 
-    private static ConnectManager manager = null;
+    private static volatile ConnectManager manager = null;
     private PersonalIdManager.PersonalIdStatus connectStatus = PersonalIdManager.PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
 
@@ -80,13 +80,20 @@ public class ConnectManager {
 
     //Singleton, private constructor
     private ConnectManager() {
+        // Protect against reflection
+        if (manager != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
     }
 
     private static ConnectManager getInstance() {
         if (manager == null) {
-            manager = new ConnectManager();
+            synchronized (ConnectManager.class) {
+                if (manager == null) {
+                    manager = new ConnectManager();
+                }
+            }
         }
-
         return manager;
     }
 
