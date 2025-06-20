@@ -16,5 +16,5 @@ public class ApiEndPoints {
     public static final String connectClaimJobURL = "https://%s/api/opportunity/%d/claim";
     public static final String connectDeliveriesURL = "https://%s/api/opportunity/%d/delivery_progress";
     public static final String connectPaymentConfirmationURL = "https://%s/api/payment/%s/confirm";
-    public static final String credentials = "/users/credentials";
+    public static final String CREDENTIALS = "/users/credentials";
 }

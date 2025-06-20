@@ -3,8 +3,12 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
+import org.javarosa.core.services.Logger;
+import org.json.JSONArray;
 
 import java.util.Vector;
 
@@ -62,5 +66,19 @@ public class ConnectAppDatabaseUtil {
 
     public static void storeApp(Context context, ConnectLinkedAppRecord record) {
         ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
+    }
+
+    public static void storeCredentialDataInTable(Context context, JSONArray credentialsArray) {
+        SqlStorage<PersonalIdCredential> storage =
+                ConnectDatabaseHelper.getConnectStorage(context, PersonalIdCredential.class);
+
+        storage.removeAll();
+
+        PersonalIdValidAndCorruptCredential result =
+                PersonalIdCredential.fromJsonArray(credentialsArray);
+
+        for (PersonalIdCredential credential : result.getValidCredentials()) {
+            storage.write(credential);
+        }
     }
 }

@@ -163,7 +163,7 @@ public abstract class PersonalIdApiHandler {
     public void retrieveCredentials(Context context, String userName, String password) {
         PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.retrieveCredentials(context, userName, password, createCallback(sessionData,
-                        new PersonalIdCredentialParser()));
+                        new PersonalIdCredentialParser(context)));
     }
 
     protected abstract void onSuccess(PersonalIdSessionData sessionData);

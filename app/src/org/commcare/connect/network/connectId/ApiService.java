@@ -32,6 +32,6 @@ public interface ApiService {
     Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
                                          @Body Map<String, String> confirmBackupCodeRequest);
 
-    @POST(ApiEndPoints.credentials)
+    @POST(ApiEndPoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
 }
