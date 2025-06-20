@@ -20,7 +20,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectResultsListBinding;
 
-public class ConnectResultsListFragment extends Fragment {
+public class ConnectResultsListFragment extends ConnectJobFragment {
     private ResultsAdapter adapter;
     private FragmentConnectResultsListBinding binding;
 
@@ -37,7 +37,6 @@ public class ConnectResultsListFragment extends Fragment {
 
     private void setupRecyclerView() {
         ConnectResultsListFragmentArgs args = ConnectResultsListFragmentArgs.fromBundle(getArguments());
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         boolean showPayments = args.getShowPayments();
         requireActivity().setTitle(job.getTitle());
 
@@ -55,6 +54,7 @@ public class ConnectResultsListFragment extends Fragment {
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private ConnectJobRecord job;
         private final boolean showPayments;
         private final Context context;
 
@@ -75,7 +75,6 @@ public class ConnectResultsListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
 
             if (holder instanceof VerificationViewHolder verificationHolder) {
                 bindVerificationItem(verificationHolder, job.getDeliveries().get(position));
@@ -108,7 +107,6 @@ public class ConnectResultsListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
             return showPayments ? job.getPayments().size() : job.getDeliveries().size();
         }
 

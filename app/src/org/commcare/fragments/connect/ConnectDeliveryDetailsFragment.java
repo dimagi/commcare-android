@@ -29,7 +29,7 @@ import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.InputStream;
 
-public class ConnectDeliveryDetailsFragment extends Fragment {
+public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
     private FragmentConnectDeliveryDetailsBinding binding;
 
@@ -41,7 +41,6 @@ public class ConnectDeliveryDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentConnectDeliveryDetailsBinding.inflate(inflater, container, false);
 
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
 
         getActivity().setTitle(getString(R.string.connect_job_info_title));

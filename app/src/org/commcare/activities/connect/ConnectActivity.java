@@ -35,6 +35,8 @@ import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 
+import java.util.Objects;
+
 import javax.annotation.Nullable;
 
 public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngineListener> {
@@ -70,6 +72,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
         if (getIntent().getBooleanExtra("info", false)) {
             ConnectJobRecord job = ConnectManager.getActiveJob();
+            Objects.requireNonNull(job);
+
             int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
                     R.id.connect_job_delivery_progress_fragment :
                     R.id.connect_job_learning_progress_fragment;

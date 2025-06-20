@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,7 +15,6 @@ import org.commcare.android.database.connect.models.ConnectDeliveryDetails;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectProgressDeliveryBinding;
 import org.commcare.views.connect.CircleProgressBar;
@@ -27,7 +25,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
+public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment {
     private FragmentConnectProgressDeliveryBinding binding;
     private RecyclerView recyclerView;
 
@@ -53,11 +51,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     public void updateProgressSummary() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job == null || binding.getRoot() == null) {
-            return;
-        }
-
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;
@@ -87,8 +80,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends Fragment {
     }
 
     private void populateDeliveryProgress() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job == null || job.getDeliveries().isEmpty()) {
+        if (job.getDeliveries().isEmpty()) {
             return;
         }
 
