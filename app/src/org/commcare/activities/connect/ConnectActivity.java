@@ -45,6 +45,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     String redirectionAction = "";
     String opportunityId = "";
     MenuItem messagingMenuItem = null;
+    MenuItem credentialItem = null;
 
     final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -142,6 +143,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         messagingMenuItem = menu.findItem(R.id.action_notification);
+        credentialItem = menu.findItem(R.id.action_credential);
         updateMessagingIcon();
 
         return super.onCreateOptionsMenu(menu);
@@ -174,6 +176,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_notification) {
             ConnectManager.goToMessaging(this);
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_credential) {
+            startActivity(new Intent(this, PersonalIdCredentialActivity.class));
             return true;
         }
 
