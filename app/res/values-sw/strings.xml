@@ -362,7 +362,6 @@
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
     <string name="audio_recording_notification">Arifa ya Kurekodi Sauti</string>
     <string name="user_suspended">Mtumiaji Amesimamishwa. Tafadhali wasiliana na msimamizi.</string>
-    <string name="connect_job_list_api_failure">Hitilafu ilitokea wakati wa kuunganisha kwenye seva.</string>
     <string name="connect_payment_acknowledge_notification_yes">Ndiyo</string>
     <string name="connect_payment_acknowledge_notification_no">Hapana</string>
     <string name="enter_otp">Weka Msimbo wa SMS</string>

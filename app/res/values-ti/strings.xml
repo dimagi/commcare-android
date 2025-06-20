@@ -360,7 +360,6 @@
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
     <string name="audio_recording_notification">ድምጺ ምቕራጽ (ምቅዳሕ) መፍለጢ</string>
     <string name="user_suspended">ተገልጋላይ ተኣጊዱ ኣሎ። ንመመሓዳሪኦም/ኣድሚን ይርከቡ</string>
-    <string name="connect_job_list_api_failure">ምስቲ ሰርቨር ኣብ እትራኸበሉ እዋን ጌጋ ኣጋጢሙ</string>
     <string name="connect_payment_acknowledge_notification_yes">እወ</string>
     <string name="connect_payment_acknowledge_notification_no">ኣይፋል</string>
     <string name="enter_otp">ናይ ኤስኤምኤስ ኮድ ኣእትዉ</string>

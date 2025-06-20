@@ -359,7 +359,6 @@ License.
     <string name="app_with_id_not_found">L\'application CommCare requise n\'est pas installée sur l\'appareil</string>
     <string name="audio_recording_notification">Notification d\'enregistrement audio</string>
     <string name="user_suspended">L\'utilisateur est suspendu. Veuillez contacter l\'administrateur.</string>
-    <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
     <string name="enter_otp">Entrez le code SMS</string>

@@ -483,7 +483,6 @@
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
-    <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
     <string name="connect_payment_acknowledge_notification_yes">Yes</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
 
