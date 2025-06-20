@@ -138,6 +138,11 @@ public class FirebaseAnalyticsUtil {
                 location.getSimpleName() + "_" + itemLabel);
     }
 
+    public static void reportOptionsMenuOpened(String screenName) {
+        reportEvent(CCAnalyticsEvent.OPTIONS_MENU_OPENED,
+                FirebaseAnalytics.Param.ITEM_NAME, screenName);
+    }
+
     /**
      * Report a user event of changing the value of a SharedPreference
      */
@@ -529,5 +534,14 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportBiometricInvalidated() {
         reportEvent(CCAnalyticsEvent.CCC_BIOMETRIC_INVALIDATED);
+    }
+
+    public static void reportPersonalIdConfigurationFailure(String failureCause) {
+        if (failureCause == null) {
+            failureCause = "UNKNOWN_ERROR";
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONFIGURATION_FAILURE,
+                new String[]{CCAnalyticsParam.REASON},
+                new String[]{failureCause});
     }
 }

@@ -33,6 +33,8 @@ import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
@@ -182,7 +184,7 @@ public class PersonalIdPhoneFragment extends Fragment {
             if (integrityToken != null) {
                 makeStartConfigurationCall(integrityToken, requestHash, body);
             } else {
-                onConfigurationFailure();
+                onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE);
             }
             return null;
         });
@@ -200,17 +202,18 @@ public class PersonalIdPhoneFragment extends Fragment {
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSuccess();
                 } else {
+                    String failureCode =
+                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
                     // This is called when api returns success but with a a failure code
-                    Logger.log(LogTypes.TYPE_USER,
-                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
-                    onConfigurationFailure();
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Start Config API failed with " + failureCode);
+                    onConfigurationFailure(failureCode);
                 }
             }
 
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
                 if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
-                    onConfigurationFailure();
+                    onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE);
                 } else {
                     navigateFailure(failureCode, t);
                 }
@@ -223,7 +226,8 @@ public class PersonalIdPhoneFragment extends Fragment {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-    private void onConfigurationFailure() {
+    private void onConfigurationFailure(String failureCause) {
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause);
         String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false));
@@ -231,7 +235,6 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
-
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
