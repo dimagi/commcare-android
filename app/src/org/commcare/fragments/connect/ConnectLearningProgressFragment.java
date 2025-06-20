@@ -36,7 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectLearningProgressFragment extends Fragment {
+public class ConnectLearningProgressFragment extends ConnectJobFragment {
 
     private boolean showAppLaunch = true;
     private @NonNull FragmentConnectLearningProgressBinding viewBinding;
@@ -55,7 +55,7 @@ public class ConnectLearningProgressFragment extends Fragment {
         viewBinding = FragmentConnectLearningProgressBinding.inflate(inflater, container, false);
         setupToolbar();
         setupRefreshButton();
-        populateJobCard(ConnectManager.getActiveJob());
+        populateJobCard(job);
         refreshLearningData();
         return viewBinding.getRoot();
     }
@@ -92,7 +92,6 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void refreshLearningData() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectManager.updateLearningProgress(getContext(), job, success -> {
             if (success && isAdded()) {
                 updateLearningUI();
@@ -101,7 +100,6 @@ public class ConnectLearningProgressFragment extends Fragment {
     }
 
     private void updateLearningUI() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         int progressPercent = job.getLearningPercentComplete();
         boolean learningComplete = progressPercent >= 100;
         boolean hasAttempted = job.attemptedAssessment();

@@ -14,13 +14,11 @@ import com.google.common.base.Strings;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
@@ -28,7 +26,7 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConnectDeliveryListFragment extends Fragment {
+public class ConnectDeliveryListFragment extends ConnectJobFragment {
     private static final String ALL_IDENTIFIER = "all";
     private static final String APPROVED_IDENTIFIER = "approved";
     private static final String REJECTED_IDENTIFIER = "rejected";
@@ -106,14 +104,12 @@ public class ConnectDeliveryListFragment extends Fragment {
 
     private List<ConnectJobDeliveryRecord> getFilteredDeliveries() {
         List<ConnectJobDeliveryRecord> filteredList = new ArrayList<>();
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job != null) {
-            for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
-                boolean matchesUnit = delivery.getUnitName().equalsIgnoreCase(unitName);
-                boolean matchesFilter = currentFilter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(currentFilter);
-                if (matchesUnit && matchesFilter) {
-                    filteredList.add(delivery);
-                }
+
+        for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+            boolean matchesUnit = delivery.getUnitName().equalsIgnoreCase(unitName);
+            boolean matchesFilter = currentFilter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(currentFilter);
+            if (matchesUnit && matchesFilter) {
+                filteredList.add(delivery);
             }
         }
         return filteredList;

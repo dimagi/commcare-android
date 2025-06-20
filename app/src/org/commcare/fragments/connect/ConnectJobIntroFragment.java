@@ -9,7 +9,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -35,7 +34,7 @@ import java.util.Locale;
  *
  * @author dviggiano
  */
-public class ConnectJobIntroFragment extends Fragment {
+public class ConnectJobIntroFragment extends ConnectJobFragment {
     private boolean showLaunchButton = true;
 
     public ConnectJobIntroFragment() {
@@ -56,7 +55,6 @@ public class ConnectJobIntroFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         getActivity().setTitle(getString(R.string.connect_job_intro_title));
 
         View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);

@@ -26,7 +26,8 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
-import org.commcare.services.CommCareFirebaseMessagingService;
+
+import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,7 +74,7 @@ public class ConnectMessageFragment extends Fragment {
         activeChannel = channelId;
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
-                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
 
         // Start periodic API calls
         handler.post(apiCallRunnable);

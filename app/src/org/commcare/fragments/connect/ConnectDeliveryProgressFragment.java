@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-public class ConnectDeliveryProgressFragment extends Fragment {
+public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
 
     private FragmentConnectDeliveryProgressBinding binding;
     private ViewStateAdapter viewPagerAdapter;
@@ -53,7 +53,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentConnectDeliveryProgressBinding.inflate(inflater, container, false);
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         requireActivity().setTitle(R.string.connect_progress_delivery);
 
         if (getArguments() != null) {
@@ -182,7 +181,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     public void refreshData() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 try {
@@ -196,7 +194,7 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private void updateWarningMessage() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+
         String warningText = computeWarningText(job);
 
         CardView warningCard = binding.getRoot().findViewById(R.id.cvConnectMessage);
@@ -243,7 +241,6 @@ public class ConnectDeliveryProgressFragment extends Fragment {
     }
 
     private void updatePaymentConfirmationTile(boolean forceHide) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         paymentToConfirm = null;
 
         if (!forceHide) {

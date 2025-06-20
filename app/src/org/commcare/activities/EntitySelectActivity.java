@@ -40,6 +40,8 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.gis.EntityMapActivity;
 import org.commcare.gis.EntityMapboxActivity;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
@@ -762,7 +764,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // before we're ready
             menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication.instance().isConsumerApp());
         }
-
         return super.onPrepareOptionsMenu(menu);
     }
 

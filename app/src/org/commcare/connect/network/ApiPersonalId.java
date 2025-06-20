@@ -372,17 +372,22 @@ public class ApiPersonalId {
                 API_VERSION_PERSONAL_ID, authInfo, params, false, false, callback);
     }
 
-    public static void retrieveChannelEncryptionKeySync(Context context, ConnectMessagingChannelRecord channel, AuthInfo.TokenAuth auth) {
-        if(auth != null) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("channel_id", channel.getChannelId());
-
-            ConnectNetworkHelper.PostResult result = ConnectNetworkHelper.postSync(context,
-                    channel.getKeyUrl(), null, auth, params, true, true);
-
-            if(result.responseCode >= 200 && result.responseCode < 300) {
-                handleReceivedEncryptionKey(context, result.responseStream, channel);
-            }
+    private static void handleApiError(Response<?> response) {
+        String message = response.message();
+        if (response.code() == 400) {
+            // Bad request (e.g., validation failed)
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Bad Request: " + message);
+        } else if (response.code() == 401) {
+            // Unauthorized (e.g., invalid credentials)
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unauthorized: " + message);
+        } else if (response.code() == 404) {
+            // Not found
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Not Found: " + message);
+        } else if (response.code() >= 500) {
+            // Server error
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Server Error: " + message);
+        } else {
+            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "API Error: " + message);
         }
     }
 
@@ -410,7 +415,7 @@ public class ApiPersonalId {
         });
     }
 
-    public static void handleReceivedEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
+    public static void handleReceivedChannelEncryptionKey(Context context, InputStream stream, ConnectMessagingChannelRecord channel) {
         try {
             String responseAsString = new String(
                     StreamsUtil.inputStreamToByteArray(stream));
