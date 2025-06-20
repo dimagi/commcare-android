@@ -25,6 +25,7 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.CommCareNavController;
 import org.commcare.utils.MultipleAppsUtil;
 
 import java.io.InputStream;
@@ -150,7 +151,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
                 ? navigateToDeliverProgress()
                 : navigateToDownloadingPage();
 
-        Navigation.findNavController(button).navigate(directions);
+        CommCareNavController.navigateSafely(Navigation.findNavController(button), directions);
     }
 
     private NavDirections navigateToDeliverProgress() {

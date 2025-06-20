@@ -12,7 +12,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
@@ -202,10 +202,10 @@ public class DispatchActivity extends AppCompatActivity {
                 } else if(redirectToConnectHome) {
                     redirectToConnectHome = false;
                     CommCareApplication.instance().closeUserSession();
-                    PersonalIdManager.getInstance().goToConnectJobsList(this);
+                    ConnectManager.goToConnectJobsList(this);
                 } else if(redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    PersonalIdManager.getInstance().goToActiveInfoForJob(this, true);
+                    ConnectManager.goToActiveInfoForJob(this, true);
                 } else {
                     launchHomeScreen();
                 }

@@ -22,13 +22,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialogFragment {
-
     private FragmentConnectJobDetailBottomSheetDialogBinding binding;
 
     @Override
     public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-//        setStyle(STYLE_NORMAL, R.style.TransparentBottomSheet);
         view.post(() -> {
             BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
             if (dialog != null) {
@@ -47,7 +45,6 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         });
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,17 +54,15 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         ConnectJobRecord job = ConnectManager.getActiveJob();
         Objects.requireNonNull(job);
 
-        int maxPossibleVisits = job.getMaxPossibleVisits();
-        int daysRemaining = job.getDaysRemaining();
-
-        binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit, maxPossibleVisits));
-        binding.connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days, daysRemaining));
-        binding.connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit, job.getMaxDailyVisits()));
-
-        String paymentText = buildPaymentText(job);
-        binding.connectDeliveryBudgetText.setText(paymentText);
-
+        binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,
+                job.getMaxPossibleVisits()));
+        binding.connectDeliveryDaysText.setText(getString(R.string.connect_job_info_days,
+                job.getDaysRemaining()));
+        binding.connectDeliveryMaxDailyText.setText(getString(R.string.connect_job_info_max_visit,
+                job.getMaxDailyVisits()));
+        binding.connectDeliveryBudgetText.setText(buildPaymentText(job));
         binding.imgCloseDialog.setOnClickListener(view -> dismiss());
+
         return binding.getRoot();
     }
 
@@ -77,7 +72,8 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         if (job.isMultiPayment()) {
             paymentTextBuilder.append(getString(R.string.connect_delivery_earn_multi));
             for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                paymentTextBuilder.append(String.format("\n\u2022 %s: %s", unit.getName(), job.getMoneyString(unit.getAmount())));
+                paymentTextBuilder.append(String.format("\n• %s: %s", unit.getName(),
+                        job.getMoneyString(unit.getAmount())));
             }
         } else if (!job.getPaymentUnits().isEmpty()) {
             String moneyValue = job.getMoneyString(job.getPaymentUnits().get(0).getAmount());

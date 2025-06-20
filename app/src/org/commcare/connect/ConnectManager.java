@@ -3,13 +3,11 @@ package org.commcare.connect;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
@@ -23,7 +21,6 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
@@ -46,74 +43,51 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import androidx.annotation.Nullable;
 
 /**
- * Manager class for ConnectID, handles workflow navigation and user management
+ * Manager class for Connect, handles workflow navigation and opportunity management
  *
  * @author dviggiano
  */
 public class ConnectManager {
     private static final int APP_DOWNLOAD_TASK_ID = 4;
 
-
     /**
-     * Interface for handling callbacks when a ConnectID activity finishes
+     * Interface for handling callbacks when a Connect activity finishes
      */
     public interface ConnectActivityCompleteListener {
         void connectActivityComplete(boolean success);
     }
 
-    private static ConnectManager manager = null;
-    private PersonalIdManager.PersonalIdStatus connectStatus = PersonalIdManager.PersonalIdStatus.NotIntroduced;
-    private Context parentActivity;
-
-    private static String primedAppIdForAutoLogin = null;
+    private static volatile ConnectManager manager = null;
+    private String primedAppIdForAutoLogin = null;
 
     //Singleton, private constructor
     private ConnectManager() {
+        // Protect against reflection
+        if (manager != null) {
+            throw new IllegalStateException("Already initialized.");
+        }
     }
 
     private static ConnectManager getInstance() {
         if (manager == null) {
-            manager = new ConnectManager();
-        }
-
-        return manager;
-    }
-
-    public static void init(Context parent) {
-        ConnectManager manager = getInstance();
-        manager.parentActivity = parent;
-
-        if (manager.connectStatus == PersonalIdManager.PersonalIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
-            if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
-                manager.connectStatus = registering ? PersonalIdManager.PersonalIdStatus.Registering : PersonalIdManager.PersonalIdStatus.LoggedIn;
-
-                String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
-                if (remotePassphrase == null) {
-                    getRemoteDbPassphrase(parent, user);
+            synchronized (ConnectManager.class) {
+                if (manager == null) {
+                    manager = new ConnectManager();
                 }
-            } else if (ConnectDatabaseHelper.isDbBroken()) {
-                //Corrupt DB, inform user to recover
-                ConnectDatabaseHelper.crashDb();
             }
         }
-    }
-
-
-    public static void setParent(Context parent) {
-        getInstance().parentActivity = parent;
+        return manager;
     }
 
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
@@ -140,8 +114,8 @@ public class ConnectManager {
 
 
     public static boolean wasAppLaunchedFromConnect(String appId) {
-        String primed = primedAppIdForAutoLogin;
-        primedAppIdForAutoLogin = null;
+        String primed = getInstance().primedAppIdForAutoLogin;
+        getInstance().primedAppIdForAutoLogin = null;
         return primed != null && primed.equals(appId);
     }
 
@@ -153,10 +127,21 @@ public class ConnectManager {
         return activeJob;
     }
 
-    public static void goToMessaging(Context parent) {
-        getInstance().parentActivity = parent;
-        Intent i = new Intent(parent, ConnectMessagingActivity.class);
+    public static void goToMessaging(Context context) {
+        Intent i = new Intent(context, ConnectMessagingActivity.class);
+        context.startActivity(i);
+    }
+
+    public static void goToConnectJobsList(Context parent) {
+        Intent i = new Intent(parent, ConnectActivity.class);
         parent.startActivity(i);
+    }
+
+    public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
+        Intent i = new Intent(activity, ConnectActivity.class);
+        i.putExtra("info", true);
+        i.putExtra("buttons", allowProgression);
+        activity.startActivity(i);
     }
 
     public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {
@@ -282,18 +267,17 @@ public class ConnectManager {
         String password = generatePassword();
 
         //Store ConnectLinkedAppRecord (note worker already linked)
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.storeApp(context, appId, username, true, password, true, false);
-
-        return appRecord;
+        return ConnectAppDatabaseUtil.storeApp(context, appId, username, true, password, true, false);
     }
 
     public static String generatePassword() {
         int passwordLength = 20;
 
         String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        StringBuilder password = new StringBuilder();
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder password = new StringBuilder(passwordLength);
         for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(new Random().nextInt(charSet.length())));
+            password.append(charSet.charAt(secureRandom.nextInt(charSet.length())));
         }
 
         return password.toString();
@@ -312,52 +296,18 @@ public class ConnectManager {
         activity.finish();
     }
 
-    public static void getRemoteDbPassphrase(Context context, ConnectUserRecord user) {
-        ApiPersonalId.fetchDbPassphrase(context, user, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(
-                            StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        JSONObject json = new JSONObject(responseAsString);
-                        String key = ConnectConstants.CONNECT_KEY_DB_KEY;
-                        if (json.has(key)) {
-                            ConnectDatabaseHelper.handleReceivedDbPassphrase(context, json.getString(key));
-                        }
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    Logger.exception("Parsing return from DB key request", e);
-                }
+    public static void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
+        switch (job.getStatus()) {
+            case ConnectJobRecord.STATUS_LEARNING -> {
+                updateLearningProgress(context, job, listener);
             }
-
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
+            case ConnectJobRecord.STATUS_DELIVERING -> {
+                updateDeliveryProgress(context, job, listener);
             }
-
-            @Override
-            public void processNetworkFailure() {
-                Logger.log("ERROR", "Failed (network)");
+            default -> {
+                listener.connectActivityComplete(true);
             }
-
-            @Override
-            public void processTokenUnavailableError() {
-                Logger.log("ERROR", "Failed (token unavailable)");
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException();
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(context);
-            }
-        });
+        }
     }
 
     public static void updateLearningProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
@@ -497,11 +447,7 @@ public class ConnectManager {
                             JSONArray array = json.getJSONArray(key);
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject obj = (JSONObject) array.get(i);
-                                ConnectJobDeliveryRecord delivery = ConnectJobDeliveryRecord.fromJson(obj, job.getJobId());
-                                if (delivery != null) {
-                                    //Note: Ignoring faulty deliveries (non-fatal exception logged)
-                                    deliveries.add(delivery);
-                                }
+                                deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.getJobId()));
                             }
 
                             //Store retrieved deliveries

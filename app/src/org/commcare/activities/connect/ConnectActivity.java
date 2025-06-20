@@ -26,6 +26,7 @@ import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
@@ -90,7 +91,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             Logger.log("ConnectActivity", "Redirecting to unlock fragment");
             //Entering from a notification, so we may need to initialize
-            ConnectManager.init(this);
+            PersonalIdManager.getInstance().init(this);
 
             //Navigate to the unlock fragment first, then it will navigate on as desired
             NavOptions options = new NavOptions.Builder()

@@ -1,8 +1,5 @@
 package org.commcare.models.connect;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 
 import java.util.Date;
@@ -10,7 +7,7 @@ import java.util.Date;
 /**
  * Model class for storing list item data
  */
-public class ConnectLoginJobListModel implements Parcelable {
+public class ConnectLoginJobListModel {
     private String name;
     private String id;
     private String appId;
@@ -76,37 +73,6 @@ public class ConnectLoginJobListModel implements Parcelable {
         this.name = name;
         this.job = job;
     }
-    protected ConnectLoginJobListModel(Parcel in) {
-        name = in.readString();
-        id = in.readString();
-        description = in.readString();
-        organization = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(id);
-        dest.writeString(description);
-        dest.writeString(organization);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<ConnectLoginJobListModel> CREATOR = new Creator<>() {
-        @Override
-        public ConnectLoginJobListModel createFromParcel(Parcel in) {
-            return new ConnectLoginJobListModel(in);
-        }
-
-        @Override
-        public ConnectLoginJobListModel[] newArray(int size) {
-            return new ConnectLoginJobListModel[size];
-        }
-    };
 
     // Getters and Setters
     public String getName() {
