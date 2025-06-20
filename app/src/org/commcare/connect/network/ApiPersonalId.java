@@ -331,6 +331,14 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
+    public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName,password);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
+        callApi(context, call, callback);
+    }
+
     private static void logNetworkError(Response<?> response) {
         String message = response.message();
         if (response.code() == 400) {
