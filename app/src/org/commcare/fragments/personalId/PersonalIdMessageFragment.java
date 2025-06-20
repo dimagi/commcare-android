@@ -148,6 +148,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE:
                 NavHostFragment.findNavController(this).navigateUp();
                 GeoUtils.goToProperLocationSettingsScreen(activity);
+                personalIdActivity.finish();
                 break;
 
         }

@@ -95,10 +95,17 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if (locationController != null) {
+            locationController.stop();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (locationController != null) {
-            locationController.stop();
             locationController.destroy();
         }
         binding = null;
@@ -229,7 +236,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     public void onLocationResult(@NonNull Location result) {
         location = result;
         updateContinueButtonState();
-        locationController.stop();
     }
 
     @Override
@@ -245,7 +251,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void handleNoLocationServiceProviders() {
         DialogInterface.OnCancelListener onCancelListener = dialog -> {
             location = null;
-            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error);
+            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error,
+                    R.string.personalid_grant_location_service);
         };
 
         DialogInterface.OnClickListener onChangeListener = (dialog, i) -> {
@@ -255,7 +262,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                     break;
                 case DialogInterface.BUTTON_NEGATIVE:
                     location = null;
-                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error);
+                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_service_error,
+                            R.string.personalid_grant_location_service);
                     break;
             }
             dialog.dismiss();
@@ -278,7 +286,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
             } else {
                 if (!isOnPermissionErrorScreen()) {
-                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error);
+                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
+                            R.string.personalid_grant_location_permission);
                 }
             }
         } else {
@@ -303,7 +312,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                         locationController.start();
                     } else {
                         if (!isOnPermissionErrorScreen()) {
-                            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error);
+                            navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
+                                    R.string.personalid_grant_location_permission);
                         }
                     }
                 }
@@ -350,7 +360,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false,
-                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED));
+                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, R.string.ok));
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
@@ -375,19 +385,20 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay(String errorMessage, boolean isCancellable, int phase) {
+    private NavDirections navigateToMessageDisplay(String errorMessage, boolean isCancellable, int phase,
+                                                   int buttonText) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                 getString(R.string.personalid_configuration_process_failed_title),
                 errorMessage,
-                phase, getString(R.string.ok),
+                phase, getString(buttonText),
                 null).setIsCancellable(isCancellable);
     }
 
-    private void navigateToPermissionErrorMessageDisplay(int errorMeesage) {
+    private void navigateToPermissionErrorMessageDisplay(int errorMeesage, int buttonText) {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(
                         requireActivity().getString(errorMeesage), true,
-                        ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE));
+                        ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText));
     }
 
     @Override
