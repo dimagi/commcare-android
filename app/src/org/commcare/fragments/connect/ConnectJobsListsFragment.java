@@ -25,8 +25,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -34,15 +32,12 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
@@ -106,8 +101,7 @@ public class ConnectJobsListsFragment extends Fragment {
             ConnectManager.launchApp(getActivity(), isLearning, appId);
         };
 
-        MenuHost host = (MenuHost)requireActivity();
-        host.addMenuProvider(new MenuProvider() {
+        requireActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 //Activity loads the menu
@@ -143,7 +137,6 @@ public class ConnectJobsListsFragment extends Fragment {
             public void processSuccess(int responseCode, InputStream responseData) {
                 int totalJobs = 0;
                 int newJobs = 0;
-                //TODO: Sounds like we don't want a try-catch here, better to crash. Verify before changing
                 try {
                     String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
                     if (!responseAsString.isEmpty()) {
@@ -155,7 +148,7 @@ public class ConnectJobsListsFragment extends Fragment {
                             try {
                                 obj = (JSONObject)json.get(i);
                                 jobs.add(ConnectJobRecord.fromJson(obj));
-                            }catch (JSONException  e) {
+                            } catch (JSONException  e) {
                                 Logger.exception("Parsing return from Opportunities request", e);
                                 handleCorruptJob(obj);
                             }
