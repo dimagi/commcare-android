@@ -4,12 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -21,6 +19,7 @@ import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.CommCareNavController;
 
@@ -35,30 +34,17 @@ import java.util.Locale;
  * @author dviggiano
  */
 public class ConnectJobIntroFragment extends ConnectJobFragment {
-    private boolean showLaunchButton = true;
+    private FragmentConnectJobIntroBinding binding;
 
     public ConnectJobIntroFragment() {
         // Required empty public constructor
     }
 
-    public static ConnectJobIntroFragment newInstance(boolean showLaunchButton) {
-        ConnectJobIntroFragment fragment = new ConnectJobIntroFragment();
-        fragment.showLaunchButton = showLaunchButton;
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle(getString(R.string.connect_job_intro_title));
-
-        View view = inflater.inflate(R.layout.fragment_connect_job_intro, container, false);
-
+        requireActivity().setTitle(getString(R.string.connect_job_intro_title));
+        binding = FragmentConnectJobIntroBinding.inflate(inflater, container, false);
 
         int totalHours = 0;
         List<String> lines = new ArrayList<>();
@@ -68,119 +54,102 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
             totalHours += modules.get(i).getTimeEstimate();
         }
 
-        String toLearn = modules.size() > 0 ? String.join("\r\n\r\n", lines) : getString(R.string.connect_job_no_learning_required);
+        String toLearn = modules.isEmpty() ? getString(R.string.connect_job_no_learning_required) :
+                String.join("\r\n\r\n", lines);
 
-        TextView textView = view.findViewById(R.id.connect_job_intro_learning);
-        textView.setText(toLearn);
+        binding.connectJobIntroLearning.setText(toLearn);
 
-        textView = view.findViewById(R.id.connect_job_intro_learning_summary);
-        textView.setText(getString(R.string.connect_job_learn_summary, modules.size(), totalHours));
+        binding.connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
+                modules.size(), totalHours));
 
         final boolean appInstalled = ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId());
 
-        Button button = view.findViewById(R.id.connect_job_intro_start_button);
-        button.setVisibility(showLaunchButton ? View.VISIBLE : View.GONE);
-        if (showLaunchButton) {
-            button.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app : R.string.download_app));
-            button.setOnClickListener(v -> {
-                //First, need to tell Connect we're starting learning so it can create a user on HQ
-                ConnectUserRecord user = ConnectManager.getUser(getContext());
-                ApiConnect.startLearnApp(getContext(), user, job.getJobId(), new IApiCallback() {
-                    @Override
-                    public void processSuccess(int responseCode, InputStream responseData) {
-                        reportApiCall(true);
-                        //TODO: Expecting to eventually get HQ username from server here
+        binding.connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
+                : R.string.download_app));
+        binding.connectJobIntroStartButton.setOnClickListener(v -> {
+            //First, need to tell Connect we're starting learning so it can create a user on HQ
+            startLearning(appInstalled);
+        });
 
-                        job.setStatus(ConnectJobRecord.STATUS_LEARNING);
-                        ConnectJobUtils.upsertJob(getContext(), job);
+        jobCardDataHandle(job);
 
-                        if (appInstalled) {
-                            ConnectManager.launchApp(getActivity(), true,
-                                    job.getLearnAppInfo().getAppId());
-                        } else {
-                            String title = getString(R.string.connect_downloading_learn);
-                            CommCareNavController.navigateSafely(Navigation.findNavController(button),
-                                    ConnectJobIntroFragmentDirections.
-                                            actionConnectJobIntroFragmentToConnectDownloadingFragment(
-                                                    title, true));
-                        }
-                    }
-
-                    @Override
-                    public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
-                        Toast.makeText(getContext(), "Connect: error starting learning", Toast.LENGTH_SHORT).show();
-                        reportApiCall(false);
-                    }
-
-                    @Override
-                    public void processNetworkFailure() {
-                        ConnectNetworkHelper.showNetworkError(getContext());
-                        reportApiCall(false);
-                    }
-
-                    @Override
-                    public void processTokenUnavailableError() {
-                        ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
-                        reportApiCall(false);
-                    }
-
-                    @Override
-                    public void processTokenRequestDeniedError() {
-                        ConnectNetworkHelper.handleTokenDeniedException();
-                        reportApiCall(false);
-                    }
-
-                    @Override
-                    public void processOldApiError() {
-                        ConnectNetworkHelper.showOutdatedApiError(getContext());
-                        reportApiCall(false);
-                    }
-                });
-            });
-        }
-
-        jobCardDataHandle(view, job);
-        return view;
+        return binding.getRoot();
     }
 
-    private void jobCardDataHandle(View view, ConnectJobRecord job) {
-        View viewJobCard = view.findViewById(R.id.viewJobCard);
-        TextView viewMore = viewJobCard.findViewById(R.id.tv_view_more);
-        TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
-        TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-        TextView tv_job_time = viewJobCard.findViewById(R.id.tv_job_time);
-        TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
-        TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
-
-        viewMore.setOnClickListener(view1 -> {
-            CommCareNavController.navigateSafely(Navigation.findNavController(viewMore),
+    private void jobCardDataHandle(ConnectJobRecord job) {
+        binding.viewJobCard.tvViewMore.setOnClickListener(view1 -> {
+            CommCareNavController.navigateSafely(Navigation.findNavController(binding.viewJobCard.tvViewMore),
                     ConnectJobIntroFragmentDirections
                             .actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
 
-        tvJobTitle.setText(job.getTitle());
-        tvJobDescription.setText(job.getDescription());
-        connectJobEndDate.setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+        binding.viewJobCard.tvJobTitle.setText(job.getTitle());
+        binding.viewJobCard.tvJobDescription.setText(job.getDescription());
+        binding.viewJobCard.connectJobEndDate.setText(getString(R.string.connect_learn_complete_by,
+                ConnectManager.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();
         boolean showHours = workingHours != null;
-        tv_job_time.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        hoursTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        binding.viewJobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        binding.viewJobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
         if(showHours) {
-            tv_job_time.setText(workingHours);
+            binding.viewJobCard.tvJobTime.setText(workingHours);
         }
     }
 
-    private <T extends View> T findView(View parent, int id) {
-        return parent.findViewById(id);
-    }
+    private void startLearning(boolean appInstalled) {
+        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ApiConnect.startLearnApp(getContext(), user, job.getJobId(), new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                reportApiCall(true);
 
-    private void setText(TextView textView, String text) {
-        textView.setText(text);
-    }
+                job.setStatus(ConnectJobRecord.STATUS_LEARNING);
+                ConnectJobUtils.upsertJob(getContext(), job);
 
-    private void setVisibility(View view, int visibility) {
-        view.setVisibility(visibility);
+                if (appInstalled) {
+                    ConnectManager.launchApp(getActivity(), true,
+                            job.getLearnAppInfo().getAppId());
+                } else {
+                    String title = getString(R.string.connect_downloading_learn);
+                    CommCareNavController.navigateSafely(Navigation.findNavController(
+                            binding.connectJobIntroStartButton), ConnectJobIntroFragmentDirections.
+                                    actionConnectJobIntroFragmentToConnectDownloadingFragment(
+                                            title, true));
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                Toast.makeText(getContext(), getString(R.string.connect_learn_error_starting),
+                        Toast.LENGTH_LONG).show();
+                reportApiCall(false);
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                ConnectNetworkHelper.showNetworkError(getContext());
+                reportApiCall(false);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
+                reportApiCall(false);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenDeniedException();
+                reportApiCall(false);
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(getContext());
+                reportApiCall(false);
+            }
+        });
     }
 
     private void reportApiCall(boolean success) {

@@ -297,6 +297,7 @@
     <string name="connect_learn_need_assessment_title">ስልጠና ኣብ ምፅባይ ዝርከብ</string>
     <string name="connect_learn_failed_title">ስልጠና ፈሺሉ።</string>
     <string name="connect_learn_complete_by">ፕሮጀክት ብ %s ምዝዛም</string>
+    <string name="connect_learn_error_starting">ትምህርቲ ክትጅምሩ ስለዘይከኣልኩም፡ በጃኹም ምስ ኣመሓዳሪ ዕድል ተወከሱ።</string>
     <string name="connect_learn_title">ምዕባለ ትምህርቲ</string>
     <string name="connect_learn_status">%d ናይ %d ትምህርቲ ወዲእካ ኣለኻ።\nምስክር ወረቐትካ ንምርካብ ትምህርቲ ወድእ።</string>
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>

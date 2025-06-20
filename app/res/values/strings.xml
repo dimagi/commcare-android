@@ -406,6 +406,7 @@
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
+    <string name="connect_learn_error_starting">Unable to begin learning, please contact the opportunity administrator.</string>
 
     <string name="connect_learn_title">Learning Progress</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>

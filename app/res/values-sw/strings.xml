@@ -307,6 +307,7 @@
     <string name="connect_learn_need_assessment_title">Mafunzo Yanasubiri</string>
     <string name="connect_learn_failed_title">Mafunzo Yameshindwa</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
+    <string name="connect_learn_error_starting">Imeshindwa kuanza kujifunza, tafadhali wasiliana na msimamizi wa fursa.</string>
     <string name="connect_learn_title">Maendeleo ya Kujifunza</string>
     <string name="connect_learn_status">Umemaliza masomo %d kati ya %d.\nMaliza kujifunza ili ujishindie cheti chako.</string>
     <string name="connect_learn_not_started">Hujamaliza masomo yoyote.\nAnza kujifunza ili kupata cheti chako.</string>

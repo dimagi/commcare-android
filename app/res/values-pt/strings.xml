@@ -313,6 +313,7 @@
     <string name="connect_learn_need_assessment_title">Formação pendente</string>
     <string name="connect_learn_failed_title">Treinamento reprovado</string>
     <string name="connect_learn_complete_by">Concluir projeto por %s</string>
+    <string name="connect_learn_error_starting">Caso não consiga iniciar a aprendizagem, contacte o administrador da oportunidade.</string>
     <string name="connect_learn_title">Progresso de aprendizagem</string>
     <string name="connect_learn_status">Você concluiu %d de %d lições.\nTermine o aprendizado para obter seu certificado.</string>
     <string name="connect_learn_not_started">Você não completou nenhuma lição.\nComece a aprender para ganhar seu certificado.</string>

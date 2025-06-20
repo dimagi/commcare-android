@@ -304,6 +304,7 @@ License.
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
     <string name="connect_learn_failed_title">Échec de la formation</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
+    <string name="connect_learn_error_starting">Impossible de commencer l\'apprentissage, veuillez contacter l\'administrateur de l\'opportunité.</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
     <string name="connect_learn_status">Vous avez terminé %d des %d leçons.\nTerminez l\'apprentissage pour obtenir votre certificat.</string>
     <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
