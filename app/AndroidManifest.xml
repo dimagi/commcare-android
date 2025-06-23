@@ -628,6 +628,8 @@
             </intent-filter>
         </service>
 
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+
     </application>
 
 </manifest>
