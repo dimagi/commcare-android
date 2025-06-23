@@ -598,6 +598,7 @@
         </service>
 
         <receiver android:name="org.commcare.services.PaymentAcknowledgeReceiver" />
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
     </application>
 
 </manifest>
