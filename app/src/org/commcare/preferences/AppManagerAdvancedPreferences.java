@@ -64,8 +64,6 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     @Override
     protected void setupPrefClickListeners() {
         Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
-        clearUserDataButton.setVisible(!"".equals(CommCareApplication.instance().getCurrentUserId()));
-
         clearUserDataButton.setOnPreferenceClickListener(preference -> {
             FirebaseAnalyticsUtil.reportAdvancedActionSelected(
                     AnalyticsParamValue.CLEAR_USER_DATA);
