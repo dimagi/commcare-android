@@ -1,6 +1,8 @@
 package org.commcare.fragments.personalId;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
@@ -12,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
 import com.google.firebase.auth.FirebaseUser;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
@@ -33,6 +34,8 @@ import org.joda.time.DateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -40,12 +43,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-import static android.app.Activity.RESULT_OK;
-import static android.content.Context.RECEIVER_NOT_EXPORTED;
-
 public class PersonalIdPhoneVerificationFragment extends Fragment {
-
-    private static final int REQ_USER_CONSENT = 200;
     private static final String KEY_PHONE = "phone";
 
     private Activity activity;
@@ -57,6 +55,8 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     private OtpManager otpManager;
     private PersonalIdSessionData personalIdSessionData;
     OtpVerificationCallback otpCallback;
+    private ActivityResultLauncher<Intent> smsConsentLauncher;
+
 
 
     private final Runnable resendTimerRunnable = new Runnable() {
@@ -126,7 +126,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
         activity = requireActivity();
         setupInitialState();
-        setupSmsRetriever();
         setupListeners();
 
         activity.setTitle(R.string.connect_verify_phone_title);
@@ -153,11 +152,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         requestOtp();
     }
 
-    private void setupSmsRetriever() {
-        SmsRetrieverClient client = SmsRetriever.getClient(activity);
-        client.startSmsUserConsent(null);
-    }
-
     private void setupListeners() {
         binding.connectResendButton.setOnClickListener(v -> requestOtp());
         binding.connectPhoneVerifyChange.setOnClickListener(v -> navigateToPhoneEntry());
@@ -167,6 +161,17 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             clearOtpError();
             toggleVerifyButton(otp);
         });
+
+        smsConsentLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        String message = result.getData().getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+                        String otp = extractOtp(message);
+                        binding.customOtpView.setOtp(otp); // Autofill OTP
+                    }
+                }
+        );
     }
 
     private void toggleVerifyButton(String otp) {
@@ -189,30 +194,68 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        startSmsUserConsent();
+        registerSmsReceiver();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         startResendTimer();
-        registerSmsBroadcastReceiver();
         KeyboardHelper.showKeyboardOnInput(activity, binding.customOtpView);
+    }
+
+    private void startSmsUserConsent() {
+        SmsRetriever.getClient(requireContext())
+                .startSmsUserConsent(null); // null = any sender
+    }
+
+    private void registerSmsReceiver() {
+        smsBroadcastReceiver = new SMSBroadcastReceiver();
+        SMSBroadcastReceiver.setSmsListener(
+                new SMSBroadcastReceiver.SMSListener() {
+                    @Override
+                    public void onSuccess(Intent consentIntent) {
+                        try {
+                            smsConsentLauncher.launch(consentIntent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(requireContext(), "No app to handle SMS", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode) {
+                        Toast.makeText(requireContext(), "SMS retrieval failed or timed out", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        IntentFilter filter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(smsBroadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireContext().registerReceiver(smsBroadcastReceiver, filter);
+        }
+    }
+
+    private String extractOtp(String message) {
+        Pattern p = Pattern.compile("\\b\\d{4,6}\\b");
+        Matcher m = p.matcher(message);
+        return m.find() ? m.group(0) : "";
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (smsBroadcastReceiver != null) {
+            requireContext().unregisterReceiver(smsBroadcastReceiver);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         stopResendTimer();
-        try {
-            activity.unregisterReceiver(smsBroadcastReceiver);
-        } catch (IllegalArgumentException e) {
-
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     @Override
@@ -226,34 +269,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(KEY_PHONE, primaryPhone);
-    }
-
-    private void registerSmsBroadcastReceiver() {
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
-        smsBroadcastReceiver.setSmsListener(intent -> startActivityForResult(intent, REQ_USER_CONSENT));
-
-        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activity.registerReceiver(smsBroadcastReceiver, intentFilter, RECEIVER_NOT_EXPORTED);
-        } else {
-            activity.registerReceiver(smsBroadcastReceiver, intentFilter);
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQ_USER_CONSENT && resultCode == RESULT_OK && data != null) {
-            extractOtpFromMessage(data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE));
-        }
-    }
-
-    private void extractOtpFromMessage(String message) {
-        Pattern pattern = Pattern.compile("\\b\\d{6}\\b");
-        Matcher matcher = pattern.matcher(message);
-        if (matcher.find()) {
-            binding.customOtpView.setOtp(matcher.group(0));
-        }
     }
 
     private void updateVerificationMessage() {

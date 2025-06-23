@@ -9,40 +9,50 @@ import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.Status;
 
-
 /**
- * BroadcastReceiver to wait for SMS messages. This can be registered either
- * in the AndroidManifest or at runtime.  Should filter Intents on
- * SmsRetriever.SMS_RETRIEVED_ACTION.
+ * BroadcastReceiver to wait for SMS messages using the SMS User Consent API.
+ * Should be registered dynamically, not in the manifest.
  */
 public class SMSBroadcastReceiver extends BroadcastReceiver {
-    private volatile SMSListener smsListener;
 
-    public void setSmsListener(SMSListener listener) {
-        this.smsListener = listener;
+    public interface SMSListener {
+        void onSuccess(Intent consentIntent);
+        void onFailure(int statusCode);
     }
 
+    private static SMSListener smsListener;
+
+    public SMSBroadcastReceiver() {
+    }
+
+    public static void setSmsListener(SMSListener listener) {
+       smsListener = listener;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
-            Bundle extras = intent.getExtras();
-            Status status = null;
-            if (extras != null) {
-                status = (Status)extras.get(SmsRetriever.EXTRA_STATUS);
-            }
+        if (!SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) return;
 
-            if (status != null) {
-                if (status.getStatusCode() == CommonStatusCodes.SUCCESS) {// Get SMS message contents
-                    Intent messageIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
-                    // Extract one-time code from the message and complete verification
-                    // by sending the code back to your server.
-                    if (messageIntent != null && smsListener != null)
-                        smsListener.onSuccess(messageIntent);
+        Bundle extras = intent.getExtras();
+        if (extras == null) return;
+
+        Status status = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
+        if (status == null) return;
+
+        switch (status.getStatusCode()) {
+            case CommonStatusCodes.SUCCESS:
+                Intent consentIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
+                if (consentIntent != null && smsListener != null) {
+                    smsListener.onSuccess(consentIntent);
                 }
-            }
+                break;
+
+            case CommonStatusCodes.TIMEOUT:
+            case CommonStatusCodes.ERROR:
+                if (smsListener != null) {
+                    smsListener.onFailure(status.getStatusCode());
+                }
+                break;
         }
-
     }
-
 }
