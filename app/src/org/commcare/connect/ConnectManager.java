@@ -93,13 +93,17 @@ public class ConnectManager {
     private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.getDefault());
 
     public static String formatDate(Date date) {
-        return dateFormat.format(date);
+        synchronized (dateFormat) {
+            return dateFormat.format(date);
+        }
     }
 
     private static final DateFormat paymentDateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
 
     public static String paymentDateFormat(Date date) {
-        return paymentDateFormat.format(date);
+        synchronized (paymentDateFormat) {
+            return paymentDateFormat.format(date);
+        }
     }
 
     public static String formatDateTime(Date date) {
