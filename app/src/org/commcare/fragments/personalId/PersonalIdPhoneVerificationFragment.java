@@ -212,7 +212,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
     private void registerSmsReceiver() {
         smsBroadcastReceiver = new SMSBroadcastReceiver();
-        SMSBroadcastReceiver.setSmsListener(
+        smsBroadcastReceiver.setSmsListener(
                 new SMSBroadcastReceiver.SMSListener() {
                     @Override
                     public void onSuccess(Intent consentIntent) {
@@ -239,7 +239,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private String extractOtp(String message) {
-        Pattern p = Pattern.compile("\\b\\d{4,6}\\b");
+        Pattern p = Pattern.compile("\\b\\d{6}\\b");
         Matcher m = p.matcher(message);
         return m.find() ? m.group(0) : "";
     }

@@ -20,13 +20,13 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
         void onFailure(int statusCode);
     }
 
-    private static SMSListener smsListener;
+    private SMSListener smsListener;
 
     public SMSBroadcastReceiver() {
     }
 
-    public static void setSmsListener(SMSListener listener) {
-       smsListener = listener;
+    public void setSmsListener(SMSListener listener) {
+       this.smsListener = listener;
     }
 
     @Override
