@@ -432,6 +432,8 @@
     <string name="personalid_otp_missing_activity">Hitilafu fulani imetokea</string>
     <string name="personalid_otp_verification_failed_generic">Uthibitishaji wa OTP haukufaulu:</string>
     <string name="personalid_otp_verification_failed">Uthibitishaji haukufaulu na tafadhali jaribu tena</string>
+    <string name="personalid_messaging_menu_title">Kutuma ujumbe</string>
+    <string name="personalid_sync_menu_title">Sawazisha</string>
     <string name="connect_registration_subtitle">Weka Nambari yako ya Simu</string>
     <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya Kitambulisho cha Kibinafsi</string>
     <string name="connect_backup_code_message">Weka Nambari yako ya Hifadhi Nakala yenye tarakimu 6</string>

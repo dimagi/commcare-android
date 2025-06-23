@@ -426,6 +426,8 @@ License.
     <string name="personalid_otp_missing_activity">Quelque chose s\'est mal passé</string>
     <string name="personalid_otp_verification_failed_generic">Échec de la vérification OTP:</string>
     <string name="personalid_otp_verification_failed">La vérification a échoué, veuillez réessayer.</string>
+    <string name="personalid_messaging_menu_title">Messagerie</string>
+    <string name="personalid_sync_menu_title">Synchroniser</string>
     <string name="connect_registration_subtitle">Entrez votre numéro de téléphone</string>
     <string name="connect_backup_code_message_title">Code de sauvegarde PersonalId</string>
     <string name="connect_backup_code_message">Entrez votre code de sauvegarde à 6 chiffres</string>

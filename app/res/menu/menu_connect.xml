@@ -4,12 +4,12 @@
     <item
         android:id="@+id/action_notification"
         android:icon="@drawable/ic_connect_messaging_base"
-        android:title="Notification"
+        android:title="@string/personalid_messaging_menu_title"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_sync"
         android:icon="@drawable/ic_backup"
         android:iconTint="@color/white"
-        android:title="Menu"
+        android:title="personalid_sync_menu_title"
         app:showAsAction="always" />
 </menu>

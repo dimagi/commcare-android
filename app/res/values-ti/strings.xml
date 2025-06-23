@@ -409,6 +409,8 @@
     <string name="personalid_otp_missing_activity">ገለ ነገር ተጋግዩ።</string>
     <string name="personalid_otp_verification_failed_generic">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
     <string name="personalid_otp_verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
+    <string name="personalid_messaging_menu_title">መልእኽቲ ምልውዋጥ</string>
+    <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
     <string name="connect_recovery_button_phone">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
