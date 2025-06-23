@@ -42,7 +42,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         setTitle();
         initPrefsFile();
         loadPrefs();
-        conditionallyHideSpecificPrefs();
+        updateConditionallyVisibleSpecificPrefs();
     }
 
     @CallSuper
@@ -61,7 +61,7 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         setupLocalizedText();
     }
 
-    protected void conditionallyHideSpecificPrefs() {
+    protected void updateConditionallyVisibleSpecificPrefs() {
         // default implementation does nothing
     }
 
