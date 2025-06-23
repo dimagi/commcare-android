@@ -42,7 +42,6 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         setTitle();
         initPrefsFile();
         loadPrefs();
-        updateConditionallyVisibleSpecificPrefs();
     }
 
     @CallSuper
@@ -113,6 +112,13 @@ public abstract class CommCarePreferenceFragment extends PreferenceFragmentCompa
         } else {
             super.onDisplayPreferenceDialog(preference);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        updateConditionallyVisibleSpecificPrefs();
     }
 
     @Override
