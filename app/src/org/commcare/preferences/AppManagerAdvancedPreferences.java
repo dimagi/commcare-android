@@ -54,6 +54,14 @@ public class AppManagerAdvancedPreferences extends CommCarePreferenceFragment {
     }
 
     @Override
+    public void updateConditionallyVisibleSpecificPrefs(){
+        Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
+        if (clearUserDataButton != null) {
+            clearUserDataButton.setVisible(!"".equals(CommCareApplication.instance().getCurrentUserId()));
+        }
+    }
+
+    @Override
     protected void setupPrefClickListeners() {
         Preference clearUserDataButton = findPreference(CLEAR_USER_DATA);
         clearUserDataButton.setVisible(!"".equals(CommCareApplication.instance().getCurrentUserId()));
