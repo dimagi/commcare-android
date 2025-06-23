@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +29,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
 
-public class ConnectResultsSummaryListFragment extends Fragment {
+public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
     private FragmentConnectResultsSummaryListBinding binding;
     private ResultsAdapter adapter;
 
@@ -62,32 +61,31 @@ public class ConnectResultsSummaryListFragment extends Fragment {
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.resultsList.setLayoutManager(layoutManager);
-        adapter = new ResultsAdapter(true);
+        adapter = new ResultsAdapter(job, true);
         binding.resultsList.setAdapter(adapter);
         binding.resultsList.addItemDecoration(
                 new DividerItemDecoration(getContext(), layoutManager.getOrientation()));
     }
 
     private void updateSummaryView() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
-        if (job != null) {
-            int total = 0;
-            for (ConnectJobPaymentRecord payment : job.getPayments()) {
-                try {
-                    total += Integer.parseInt(payment.getAmount());
-                } catch (Exception ignored) {
-                }
+        int total = 0;
+        for (ConnectJobPaymentRecord payment : job.getPayments()) {
+            try {
+                total += Integer.parseInt(payment.getAmount());
+            } catch (Exception ignored) {
             }
-            binding.paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
-            binding.paymentTransferredAmount.setText(job.getMoneyString(total));
         }
+        binding.paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
+        binding.paymentTransferredAmount.setText(job.getMoneyString(total));
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        private ConnectJobRecord job;
         private final boolean showPayments;
         private Context parentContext;
 
-        public ResultsAdapter(boolean showPayments) {
+        public ResultsAdapter(ConnectJobRecord job, boolean showPayments) {
+            this.job = job;
             this.showPayments = showPayments;
         }
 
@@ -102,7 +100,6 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
             if (holder instanceof VerificationViewHolder vh) {
                 bindVerificationItem(vh, job.getDeliveries().get(position));
             } else if (holder instanceof PaymentViewHolder ph) {
@@ -155,7 +152,6 @@ public class ConnectResultsSummaryListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
             return showPayments ? job.getPayments().size() : job.getDeliveries().size();
         }
 

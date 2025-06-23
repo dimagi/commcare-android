@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -24,11 +23,9 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
 
-import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
-public class ConnectDownloadingFragment extends Fragment implements ResourceEngineListener {
+public class ConnectDownloadingFragment extends ConnectJobFragment implements ResourceEngineListener {
 
     private ProgressBar progressBar;
     private TextView statusText;
@@ -72,7 +69,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     }
 
     private void startAppDownload() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
         ConnectManager.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
     }
@@ -80,7 +76,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
         getActivity().setTitle(job.getTitle());
 
@@ -115,7 +110,6 @@ public class ConnectDownloadingFragment extends Fragment implements ResourceEngi
             Navigation.findNavController(view).popBackStack();
 
             //Launch the learn/deliver app
-            ConnectJobRecord job = ConnectManager.getActiveJob();
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
             ConnectManager.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
         }
