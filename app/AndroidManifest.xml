@@ -189,7 +189,8 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
-            android:name="org.commcare.activities.connect.ConnectActivity" />
+            android:name="org.commcare.activities.connect.ConnectActivity"
+            android:exported="false"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -597,7 +598,9 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="org.commcare.services.PaymentAcknowledgeReceiver" />
+        <receiver
+            android:name="org.commcare.services.PaymentAcknowledgeReceiver"
+            android:exported="false"/>
     </application>
 
 </manifest>
