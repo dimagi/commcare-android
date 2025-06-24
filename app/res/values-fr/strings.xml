@@ -450,7 +450,9 @@ License.
     <string name="personalid_this_is_not_me"><u>Ce n\'est pas moi</u></string>
     <string name="personalid_welcome_back_msg">Bon retour %s</string>
     <string name="personalid_recovery_failed_title">La récupération a échoué</string>
+    <string name="personalid_recovery_lockout_title">Compte Verrouillé</string>
     <string name="personalid_recovery_failed_message">Il semble que vous ayez oublié votre code de sauvegarde, nous créons un nouveau compte pour vous</string>
+    <string name="personalid_recovery_lockout_message">Vous avez saisi le mauvais code de sauvegarde trop de fois et votre compte a été verrouillé.</string>
     <string name="personalid_wrong_backup_message">Vous avez saisi un code de secours erroné. Veuillez réessayer. Vous devrez créer un nouveau compte après %d tentatives incorrectes.</string>
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>

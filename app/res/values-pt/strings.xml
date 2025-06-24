@@ -456,7 +456,9 @@
     <string name="personalid_this_is_not_me"><u>Este não sou eu</u></string>
     <string name="personalid_welcome_back_msg">Bem-vindo de volta %s</string>
     <string name="personalid_recovery_failed_title">Falha na recuperação</string>
+    <string name="personalid_recovery_lockout_title">Conta Bloqueada</string>
     <string name="personalid_recovery_failed_message">Parece que se esqueceu do seu código de backup, estamos a criar uma nova conta para si</string>
+    <string name="personalid_recovery_lockout_message">Introduziu o Código de Backup errado muitas vezes e a sua conta foi bloqueada.</string>
     <string name="personalid_wrong_backup_message">Introduziu o Código de Backup errado. Tente novamente. Terá de criar uma nova conta após %d tentativas incorretas.</string>
     <string name="personalid_camera_permission_title">Permissão para câmara</string>
     <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
