@@ -25,8 +25,8 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.fragments.MicroImageActivity;
@@ -85,14 +85,14 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         clearError();
         disableSaveButton();
         disableTakePhotoButton();
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 onPhotoUploadSuccess(photoAsBase64);
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 onCompleteProfileFailure(failureCode, t);
             }
         }.completeProfile(requireContext(), personalIdSessionData.getUserName(),
@@ -100,7 +100,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
                 personalIdSessionData.getBackupCode(), personalIdSessionData.getToken(), personalIdSessionData);
     }
 
-    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
         if (failureCode.shouldAllowRetry()) {

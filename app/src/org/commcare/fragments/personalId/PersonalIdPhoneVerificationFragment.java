@@ -18,8 +18,8 @@ import com.google.firebase.auth.FirebaseUser;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -135,13 +135,13 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
     private void validateFirebaseIdToken(String firebaseIdToken) {
 
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 navigateToNameEntry();
             }
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 handleFailure(failureCode, t);
             }
         }.validateFirebaseIdToken(requireActivity(),firebaseIdToken,personalIdSessionData);
@@ -323,7 +323,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
     }
 
-    private void handleFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+    private void handleFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
     }
 }

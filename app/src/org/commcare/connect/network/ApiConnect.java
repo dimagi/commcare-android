@@ -6,7 +6,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.network.connectId.ApiEndPoints;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;

@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId;
+package org.commcare.connect.network;
 
 public class ApiEndPoints {
     public static final String connectTokenURL = "/o/token/";
@@ -16,4 +16,5 @@ public class ApiEndPoints {
     public static final String connectClaimJobURL = "https://%s/api/opportunity/%d/claim";
     public static final String connectDeliveriesURL = "https://%s/api/opportunity/%d/delivery_progress";
     public static final String connectPaymentConfirmationURL = "https://%s/api/payment/%s/confirm";
+    public static final String CREDENTIALS = "/users/credentials";
 }
