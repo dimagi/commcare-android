@@ -46,7 +46,7 @@ class IntegrityTokenApiRequestHelper(
         val requestHash = HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256)
 
         if (providerInitialized) {
-            integrityTokenViewModel.requestIntegrityToken(requestHash) { token ->
+            integrityTokenViewModel.requestIntegrityToken(requestHash, false)  { token ->
                 onTokenReady.invoke(token, requestHash)
             }
         } else if (providerFailed) {
@@ -61,7 +61,7 @@ class IntegrityTokenApiRequestHelper(
             val (body, callback) = pendingRequests.removeFirst()
             val jsonBody = JSONObject(body as Map<*, *>).toString()
             val requestHash = HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256)
-            integrityTokenViewModel.requestIntegrityToken(requestHash) { token ->
+            integrityTokenViewModel.requestIntegrityToken(requestHash, false) { token ->
                 callback.invoke(token, requestHash)
             }
         }
