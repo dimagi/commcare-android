@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 
+import org.javarosa.core.services.Logger;
+
 public class FirebaseAuthService implements OtpAuthService {
 
     private final FirebaseAuth firebaseAuth;
@@ -95,6 +97,9 @@ public class FirebaseAuthService implements OtpAuthService {
         } else {
             callback.onFailure(OtpErrorType.GENERIC_ERROR,
                     e != null ? e.getMessage() : "OTP verification failed");
+        }
+        if (e != null) {
+            Logger.exception("Firebase OTP verification error", e);
         }
     }
 }
