@@ -33,6 +33,7 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
@@ -213,13 +214,13 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void launchJobInfo(ConnectJobRecord job) {
-        ConnectManager.setActiveJob(job);
+        ConnectJobHelper.INSTANCE.setActiveJob(job);
         CommCareNavController.navigateSafely(Navigation.findNavController(binding.getRoot()),
                 ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
-        ConnectManager.setActiveJob(job);
+        ConnectJobHelper.INSTANCE.setActiveJob(job);
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 

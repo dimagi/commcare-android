@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
@@ -99,7 +100,7 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
             boolean enabled = holder.updateConfirmedText(context, payment);
             if (enabled) {
                 holder.confirmText.setOnClickListener(
-                        enabled ? v -> ConnectManager.updatePaymentConfirmed(context, payment,
+                        enabled ? v -> ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment,
                                 !payment.getConfirmed(), success -> holder.updateConfirmedText(context, payment))
                                 : null);
             }

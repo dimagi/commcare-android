@@ -24,14 +24,13 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
-import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -73,7 +72,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         updateBackButton();
 
         if (getIntent().getBooleanExtra("info", false)) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
             Objects.requireNonNull(job);
 
             int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?

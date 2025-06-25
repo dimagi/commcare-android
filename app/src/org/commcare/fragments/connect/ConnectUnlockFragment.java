@@ -11,6 +11,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -155,7 +156,7 @@ public class ConnectUnlockFragment extends Fragment {
             int jobId = Integer.parseInt(opportunityId);
             ConnectJobRecord job = ConnectJobUtils.getCompositeJob(requireContext(), jobId);
             if(job != null) {
-                ConnectManager.setActiveJob(job);
+                ConnectJobHelper.INSTANCE.setActiveJob(job);
             }
         }
 

@@ -35,6 +35,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.ConnectManager;
@@ -473,11 +474,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
         if (personalIdManager.isloggedIn()) {
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = ConnectManager.setConnectJobForApp(context, appId);
+            ConnectJobRecord job = ConnectJobHelper.INSTANCE.setConnectJobForApp(context, appId);
 
             if (job != null) {
                 personalIdManager.updateAppAccess(context, appId, username);
-                ConnectManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+                ConnectJobHelper.INSTANCE.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
                 personalIdManager.checkPersonalIdLink(context,

@@ -25,6 +25,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
@@ -142,7 +143,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
             updatePaymentConfirmationTile(true);
             if (paymentToConfirm != null) {
                 FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-                ConnectManager.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {});
+                ConnectJobHelper.INSTANCE.updatePaymentConfirmed(getContext(), paymentToConfirm, true, success -> {});
             }
         });
     }
@@ -181,7 +182,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
     }
 
     public void refreshData() {
-        ConnectManager.updateDeliveryProgress(getContext(), job, success -> {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
                 try {
                     updateLastUpdatedText(new Date());

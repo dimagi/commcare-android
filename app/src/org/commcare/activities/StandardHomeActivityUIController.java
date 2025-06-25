@@ -1,10 +1,8 @@
 package org.commcare.activities;
 
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
-import static org.commcare.connect.ConnectManager.formatDate;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
@@ -14,8 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.google.android.material.button.MaterialButton;
-
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.ConnectProgressJobSummaryAdapter;
@@ -24,8 +20,7 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
@@ -34,13 +29,10 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 
-
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 
 /**
@@ -73,7 +65,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void updateJobTileDetails() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
         boolean show = job != null;
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -106,7 +98,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String warningText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
         if (job != null && record != null) {
             if (job.isFinished()) {
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
@@ -184,7 +176,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     public void updateConnectProgress() {
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
 
         if (job == null || job.getStatus() != STATUS_DELIVERING || job.isFinished()) {
             recyclerView.setVisibility(View.GONE);
@@ -229,7 +221,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectManager.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!ConnectJobHelper.INSTANCE.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;

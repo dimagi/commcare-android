@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
@@ -140,7 +141,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
                     money,
                     ConnectManager.paymentDateFormat(payment.getDate()),
                     isConfirmation,
-                    result -> ConnectManager.updatePaymentConfirmed(parentContext, payment, result,
+                    result -> ConnectJobHelper.INSTANCE.updatePaymentConfirmed(parentContext, payment, result,
                             success -> holder.updateConfirmedText(parentContext, payment))
             );
             if (isConfirmation) {

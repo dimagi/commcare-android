@@ -33,6 +33,7 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -99,7 +100,6 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
-import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -438,7 +438,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             analyticsInstance.setUserProperty("user_cid", user.getUserId());
         }
 
-        ConnectJobRecord activeJob = ConnectManager.getActiveJob();
+        ConnectJobRecord activeJob = ConnectJobHelper.INSTANCE.getActiveJob();
         if (activeJob != null) {
             analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(activeJob.getJobId()));
         }
