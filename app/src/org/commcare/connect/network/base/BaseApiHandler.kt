@@ -1,7 +1,6 @@
 package org.commcare.connect.network.base
 
 import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.PersonalIdOrConnectApiResponseParser
 import org.javarosa.core.services.Logger
 import org.json.JSONException
 import java.io.IOException
@@ -38,7 +37,7 @@ abstract class BaseApiHandler<T> {
 
 
     fun createCallback(
-        parser: PersonalIdOrConnectApiResponseParser<T>
+        parser: BaseApiResponseParser<T>
     ): IApiCallback {
         return object : BaseApiCallback<T>(this) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
