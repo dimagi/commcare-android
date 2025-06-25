@@ -15,6 +15,6 @@
         android:id="@+id/action_sync"
         android:icon="@drawable/ic_backup"
         android:iconTint="@color/white"
-        android:title="personalid_sync_menu_title"
+        android:title="@string/personalid_sync_menu_title"
         app:showAsAction="always" />
 </menu>
