@@ -334,7 +334,7 @@ public class ApiPersonalId {
     public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName,password,false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
-        ApiService apiService = ConnectApiClient.Companion.getClientApi();  //TODO Jay if clarify that credentials are fetched from https://connectid.dimagi.com or from https://connect.dimagi.com?
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
         callApi(context, call, callback);
     }

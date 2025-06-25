@@ -3,7 +3,7 @@ package org.commcare.connect.network.base
 /**
  * Base class for all API handlers
  */
-abstract class BasePersonalIdOrConnectApiHandler<T> {
+abstract class BaseApiHandler<T> {
 
     abstract fun onSuccess(data: T)
 

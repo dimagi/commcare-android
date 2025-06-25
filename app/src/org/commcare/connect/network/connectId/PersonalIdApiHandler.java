@@ -6,8 +6,8 @@ import android.content.Context;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.base.BasePersonalIdOrConnectApiCallback;
-import org.commcare.connect.network.base.BasePersonalIdOrConnectApiHandler;
+import org.commcare.connect.network.base.BaseApiCallback;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
@@ -22,12 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-public abstract class PersonalIdApiHandler<T> extends BasePersonalIdOrConnectApiHandler<T> {
+public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
                                         PersonalIdApiResponseParser parser) {
-        return new BasePersonalIdOrConnectApiCallback<T>(this) {
+        return new BaseApiCallback<T>(this) {
 
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

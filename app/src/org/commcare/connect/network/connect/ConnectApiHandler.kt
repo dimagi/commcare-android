@@ -3,8 +3,8 @@ package org.commcare.connect.network.connect
 import android.content.Context
 import org.commcare.connect.network.ApiPersonalId
 import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.base.BasePersonalIdOrConnectApiCallback
-import org.commcare.connect.network.base.BasePersonalIdOrConnectApiHandler
+import org.commcare.connect.network.base.BaseApiCallback
+import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connect.parser.ConnectApiResponseParser
 import org.commcare.connect.network.connect.parser.RetrieveCredentialsResponseParser
 import org.javarosa.core.services.Logger
@@ -15,13 +15,13 @@ import java.io.InputStream
 /**
  * Base class for all connect api handlers
  */
-open abstract class ConnectApiHandler<T> : BasePersonalIdOrConnectApiHandler<T>() {
+open abstract class ConnectApiHandler<T> : BaseApiHandler<T>() {
 
 
     private fun createCallback(
         parser: ConnectApiResponseParser<T>
     ): IApiCallback {
-        return object : BasePersonalIdOrConnectApiCallback<T>(this) {
+        return object : BaseApiCallback<T>(this) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
                     onSuccess(parser.parse(responseCode,responseData))

@@ -11,7 +11,7 @@ class ConnectApiClient {
 
     companion object {
 
-        val BASE_URL: String = "https://${BuildConfig.CCC_HOST}" // Replace with actual base URL
+        val BASE_URL: String = "https://${BuildConfig.CCC_HOST}"
         private var apiService: ApiService? = null
 
         fun getClientApi(): ApiService {

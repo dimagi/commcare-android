@@ -1,9 +1,7 @@
 package org.commcare.connect.network.base
 
-import android.widget.Toast
-import org.commcare.CommCareApplication
 import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.base.BasePersonalIdOrConnectApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 
 
 import org.javarosa.core.io.StreamsUtil
@@ -17,13 +15,13 @@ import java.io.InputStream
  * This is base class for all API callbacks. It by default handles all error messages, no need
  * to define the error handling in all api handlers
  */
-abstract class BasePersonalIdOrConnectApiCallback<T>(val basePersonalIdOrConnectApiHandler: BasePersonalIdOrConnectApiHandler<T>) :
+abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
     IApiCallback {
 
 
     override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
         if (responseCode == 401) {
-            basePersonalIdOrConnectApiHandler.onFailure(
+            baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
                 null
             )
@@ -31,7 +29,7 @@ abstract class BasePersonalIdOrConnectApiCallback<T>(val basePersonalIdOrConnect
         }
 
         if (responseCode == 403) {
-            basePersonalIdOrConnectApiHandler.onFailure(
+            baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
                 null
             )
@@ -39,7 +37,7 @@ abstract class BasePersonalIdOrConnectApiCallback<T>(val basePersonalIdOrConnect
         }
 
         if (responseCode == 429 || responseCode == 503) {
-            basePersonalIdOrConnectApiHandler.onFailure(
+            baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
                 null
             )
@@ -47,7 +45,7 @@ abstract class BasePersonalIdOrConnectApiCallback<T>(val basePersonalIdOrConnect
         }
 
         if (responseCode == 500) {
-            basePersonalIdOrConnectApiHandler.onFailure(
+            baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                 null
             )
@@ -59,60 +57,62 @@ abstract class BasePersonalIdOrConnectApiCallback<T>(val basePersonalIdOrConnect
             try {
                 errorResponse.use { `in` ->
                     val json =
-                        JSONObject(String(StreamsUtil.inputStreamToByteArray(`in`)))
+                        JSONObject(String(StreamsUtil.inputStreamToByteArray(`in`), Charsets.UTF_8))
                     if (json.has("error")) {
-                        info.append(": ").append(json.optString("error"))
-                        Toast.makeText(
-                            CommCareApplication.instance(), json.optString("error"),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        val errorMessage = json.optString("error")
+                        info.append(": ").append(errorMessage)
+                        baseApiHandler.onFailure(
+                            PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
+                            Exception(errorMessage)
+                        )
+                        return
                     }
                 }
             } catch (e: JSONException) {
                 Logger.exception("Error parsing API error response", e)
-                basePersonalIdOrConnectApiHandler.onFailure(
+                baseApiHandler.onFailure(
                     PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
                     e
                 )
                 return
             } catch (e: IOException) {
                 Logger.exception("Error parsing API error response", e)
-                basePersonalIdOrConnectApiHandler.onFailure(
+                baseApiHandler.onFailure(
                     PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
                     e
                 )
                 return
             }
         }
-        basePersonalIdOrConnectApiHandler.onFailure(
+        baseApiHandler.onFailure(
             PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
             Exception(info.toString())
         )
     }
 
     override fun processNetworkFailure() {
-        basePersonalIdOrConnectApiHandler.onFailure(
+        baseApiHandler.onFailure(
             PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
             null
         )
     }
 
     override fun processTokenUnavailableError() {
-        basePersonalIdOrConnectApiHandler.onFailure(
+        baseApiHandler.onFailure(
             PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR,
             null
         )
     }
 
     override fun processTokenRequestDeniedError() {
-        basePersonalIdOrConnectApiHandler.onFailure(
+        baseApiHandler.onFailure(
             PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR,
             null
         )
     }
 
     override fun processOldApiError() {
-        basePersonalIdOrConnectApiHandler.onFailure(
+        baseApiHandler.onFailure(
             PersonalIdOrConnectApiErrorCodes.OLD_API_ERROR,
             null
         )
