@@ -6,7 +6,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +23,13 @@ import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.play.core.integrity.StandardIntegrityException;
+import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
+import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
@@ -36,7 +38,7 @@ import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -178,20 +180,23 @@ public class PersonalIdPhoneFragment extends Fragment {
         body.put("phone_number", phone);
         body.put("application_id",requireContext().getPackageName());
 
-        integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
-            if (integrityToken != null) {
-                makeStartConfigurationCall(integrityToken, requestHash, body);
-            } else {
-                onConfigurationFailure();
-            }
-            return null;
-        });
+        integrityTokenApiRequestHelper.withIntegrityToken(body,
+                new IntegrityTokenViewModel.IntegrityTokenCallback() {
+                    @Override
+                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash) {
+                        makeStartConfigurationCall(token, requestHash, body);
+                    }
+
+                    @Override
+                    public void onTokenFailure(@NotNull Exception exception) {
+                        onConfigurationFailure(
+                                integrityTokenApiRequestHelper.getErrorForException(requireActivity(), exception));
+                    }
+                });
     }
 
-    private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
+    private void makeStartConfigurationCall(String integrityToken, String requestHash,
             HashMap<String, String> body) {
-        Log.d("Integrity", "Token: " + integrityToken);
-        Log.d("Integrity", "Hash: " + requestHash);
         new PersonalIdApiHandler() {
             @Override
             protected void onSuccess(PersonalIdSessionData sessionData) {
@@ -203,14 +208,14 @@ public class PersonalIdPhoneFragment extends Fragment {
                     // This is called when api returns success but with a a failure code
                     Logger.log(LogTypes.TYPE_USER,
                             personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
-                    onConfigurationFailure();
+                    onConfigurationFailure(getString(R.string.personalid_configuration_process_failed_subtitle));
                 }
             }
 
             @Override
             protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
                 if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
-                    onConfigurationFailure();
+                    onConfigurationFailure(getString(R.string.personalid_configuration_process_failed_subtitle));
                 } else {
                     navigateFailure(failureCode, t);
                 }
@@ -223,8 +228,7 @@ public class PersonalIdPhoneFragment extends Fragment {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-    private void onConfigurationFailure() {
-        String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
+    private void onConfigurationFailure(String failureMessage) {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false));
     }

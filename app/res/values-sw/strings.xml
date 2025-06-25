@@ -448,6 +448,10 @@
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_process_failed_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu kwa sababu ya kutopatikana kwa kipengele cha usalama cha %s. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
+    <string name="personalid_configuration_process_failed_play_services">Tafadhali hakikisha kuwa Play Store inapatikana kwenye kifaa chako na imesasishwa.</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">Hitilafu ya muda katika kuthibitisha ustahiki wa kifaa chako. Tafadhali jaribu tena baada ya siku moja.</string>
+    <string name="personalid_configuration_process_failed_network_error">Hitilafu ya mtandao katika kuthibitisha ustahiki wa kifaa chako. Tafadhali hakikisha una muunganisho mzuri wa mtandao na jaribu tena.</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">Imeshindikana kuthibitisha ustahiki wa kifaa kutokana na hitilafu isiyotarajiwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_photo_capture_title">Karibu %1$s</string>
     <string name="personalid_photo_capture_subtitle">Tafadhali jipige picha ili ukamilishe kusanidi akaunti yako</string>
     <string name="personalid_photo_capture_take_photo_button">Piga Picha</string>

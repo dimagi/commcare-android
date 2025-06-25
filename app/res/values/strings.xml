@@ -599,6 +599,10 @@
     <string name="personalid_name_empty_error">Name field cannot be empty</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_process_failed_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_failed_play_services">Please make sure Play Store is available on your device and is updated.</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">Temporary error in establishing your device eligibility. Please try again after a day.</string>
+    <string name="personalid_configuration_process_failed_network_error">Network error in establishing your device eligibility. Please make sure you have a good network connection and try again.</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">Unable to establish device eligibility due to an unexpected error. Please contact customer support if the problem persists</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
