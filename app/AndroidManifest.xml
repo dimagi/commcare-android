@@ -601,6 +601,7 @@
         <receiver
             android:name="org.commcare.services.PaymentAcknowledgeReceiver"
             android:exported="false"/>
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
     </application>
 
 </manifest>
