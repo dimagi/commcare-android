@@ -18,8 +18,8 @@ import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 
 public class PersonalIdNameFragment extends Fragment {
@@ -77,14 +77,14 @@ public class PersonalIdNameFragment extends Fragment {
     private void verifyOrAddName() {
         clearError();
         enableContinueButton(false);
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 sessionData.setUserName(binding.nameTextValue.getText().toString().trim());
                 Navigation.findNavController(binding.getRoot()).navigate(navigateToBackupCodePage());
             }
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 navigateFailure(failureCode, t);
             }
         }.addOrVerifyNameCall(
@@ -94,7 +94,7 @@ public class PersonalIdNameFragment extends Fragment {
     }
 
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
         if (failureCode.shouldAllowRetry()) {
