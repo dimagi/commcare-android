@@ -25,8 +25,8 @@ import com.google.android.material.tabs.TabLayout;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
@@ -156,7 +156,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
         jobCard.connectJobEndDate
-                .setText(getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+                .setText(getString(R.string.connect_learn_complete_by,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();
         boolean hasHours = workingHours != null;
@@ -257,7 +258,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         binding.connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
         if (showTile) {
-            String date = ConnectManager.formatDate(paymentToConfirm.getDate());
+            String date = ConnectDateUtils.INSTANCE.formatDate(paymentToConfirm.getDate());
             binding.connectPaymentConfirmLabel.setText(getString(
                     R.string.connect_payment_confirm_text,
                     paymentToConfirm.getAmount(),
@@ -269,7 +270,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
 
     private void updateLastUpdatedText(Date lastUpdate) {
         binding.connectDeliveryLastUpdate.setText(
-                getString(R.string.connect_last_update, ConnectManager.formatDateTime(lastUpdate)));
+                getString(R.string.connect_last_update,
+                        ConnectDateUtils.INSTANCE.formatDateTime(lastUpdate)));
     }
 
     private static class ViewStateAdapter extends FragmentStateAdapter {

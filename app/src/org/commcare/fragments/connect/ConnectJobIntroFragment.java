@@ -13,6 +13,7 @@ import androidx.navigation.Navigation;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.ApiConnect;
@@ -86,7 +87,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
         binding.viewJobCard.tvJobTitle.setText(job.getTitle());
         binding.viewJobCard.tvJobDescription.setText(job.getDescription());
         binding.viewJobCard.connectJobEndDate.setText(getString(R.string.connect_learn_complete_by,
-                ConnectManager.formatDate(job.getProjectEndDate())));
+                ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
 
         String workingHours = job.getWorkingHours();
         boolean showHours = workingHours != null;

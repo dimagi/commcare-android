@@ -20,8 +20,8 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -80,7 +80,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
             tvJobDescription.setText(job.getShortDescription());
-            connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+            connectJobEndDate.setText(activity.getString(R.string.connect_learn_complete_by,
+                    ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
 
             String workingHours = job.getWorkingHours();
             boolean showHours = workingHours != null;

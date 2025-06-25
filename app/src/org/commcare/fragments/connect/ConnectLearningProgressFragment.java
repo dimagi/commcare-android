@@ -7,16 +7,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -25,12 +19,12 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
-import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 
 import java.util.Date;
@@ -134,7 +128,8 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
 
             Date latestDate = getLatestCompletionDate(job);
             viewBinding.connectLearnCertDate.setText(
-                    getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
+                    getString(R.string.connect_learn_completed,
+                            ConnectDateUtils.INSTANCE.formatDate(latestDate)));
         }
     }
 
@@ -240,7 +235,8 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
         jobCard.connectJobEndDate.setText(
-                getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+                getString(R.string.connect_learn_complete_by,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;

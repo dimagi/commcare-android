@@ -8,13 +8,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -86,7 +85,7 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
 
         private void bindVerificationItem(VerificationViewHolder holder, ConnectJobDeliveryRecord delivery) {
             holder.nameText.setText(delivery.getEntityName());
-            holder.dateText.setText(ConnectManager.formatDate(delivery.getDate()));
+            holder.dateText.setText(ConnectDateUtils.INSTANCE.formatDate(delivery.getDate()));
             holder.statusText.setText(delivery.getStatus());
             holder.reasonText.setText(delivery.getReason());
         }
@@ -95,7 +94,7 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
                                      ConnectJobPaymentRecord payment) {
             String amount = job.getMoneyString(Integer.parseInt(payment.getAmount()));
             holder.nameText.setText(amount);
-            holder.dateText.setText(ConnectManager.formatDate(payment.getDate()));
+            holder.dateText.setText(ConnectDateUtils.INSTANCE.formatDate(payment.getDate()));
 
             boolean enabled = holder.updateConfirmedText(context, payment);
             if (enabled) {

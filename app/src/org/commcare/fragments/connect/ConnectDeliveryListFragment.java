@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectDateUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 
@@ -164,7 +164,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
 
             public void bind(Context context, ConnectJobDeliveryRecord delivery) {
                 nameText.setText(delivery.getEntityName());
-                dateText.setText(ConnectManager.paymentDateFormat(delivery.getDate()));
+                dateText.setText(ConnectDateUtils.INSTANCE.paymentDateFormat(delivery.getDate()));
                 statusText.setText(delivery.getStatus());
                 reasonText.setText(getDisplayReason(delivery));
                 updateStatusUI(context, delivery.getStatus());
