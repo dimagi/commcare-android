@@ -152,10 +152,10 @@ public class ConnectUnlockFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putBoolean("showLaunch", buttons);
 
-        if(!Strings.isNullOrEmpty(opportunityId)) {
+        if (!Strings.isNullOrEmpty(opportunityId)) {
             int jobId = Integer.parseInt(opportunityId);
             ConnectJobRecord job = ConnectJobUtils.getCompositeJob(requireContext(), jobId);
-            if(job != null) {
+            if (job != null) {
                 ConnectJobHelper.INSTANCE.setActiveJob(job);
             }
         }
@@ -178,13 +178,11 @@ public class ConnectUnlockFragment extends Fragment {
             fragmentId = R.id.connect_jobs_list_fragment;
         }
 
-        requireActivity().runOnUiThread(() -> {
-            NavController navController = Navigation.findNavController(binding.getRoot());
-            navController.popBackStack();
-            NavOptions options = new NavOptions.Builder()
-                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)
-                    .build();
-            navController.navigate(fragmentId, bundle, options);
-        });
+        NavController navController = Navigation.findNavController(binding.getRoot());
+        navController.popBackStack();
+        NavOptions options = new NavOptions.Builder()
+                .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)
+                .build();
+        navController.navigate(fragmentId, bundle, options);
     }
 }
