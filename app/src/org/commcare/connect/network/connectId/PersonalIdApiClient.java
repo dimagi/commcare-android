@@ -8,8 +8,8 @@ import org.commcare.connect.network.base.BaseApiClient;
  * Retrofit client for personalId API
  */
 public class PersonalIdApiClient {
-    public static final String BASE_URL = "https://connectid.dimagi.com";  // Replace with actual base URL
-    private static final String API_VERSION = "1.0";  // Replace with actual version value
+    public static final String BASE_URL = "https://connectid.dimagi.com";
+    private static final String API_VERSION = "1.0";
     private static volatile ApiService apiService;
 
     private PersonalIdApiClient() {

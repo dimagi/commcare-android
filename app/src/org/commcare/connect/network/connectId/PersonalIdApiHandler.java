@@ -8,6 +8,7 @@ import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
+import org.commcare.connect.network.connectId.parser.RetrieveCredentialsResponseParser;
 import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
@@ -83,6 +84,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         ApiPersonalId.setPhotoAndCompleteProfile(context, userName, photoAsBase64, backupCode, token,
                 createCallback(sessionData,
                         new CompleteProfileResponseParser()));
+    }
+
+    public void retrieveCredentials(Context context, String userName, String password) {
+        ApiPersonalId.retrieveCredentials(context, userName, password,
+                createCallback(
+                        new RetrieveCredentialsResponseParser<T>()));
     }
 
 }

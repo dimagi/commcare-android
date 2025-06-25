@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.connect.ConnectApiHandler
+import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 
@@ -25,7 +25,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
 
         val user = ConnectUserDatabaseUtil.getUser(this)
 
-        object : ConnectApiHandler<PersonalIdValidAndCorruptCredential>() {
+        object : PersonalIdApiHandler<PersonalIdValidAndCorruptCredential>() {
             override fun onSuccess(personalIdValidAndCorruptCredential: PersonalIdValidAndCorruptCredential) {
 
             }
