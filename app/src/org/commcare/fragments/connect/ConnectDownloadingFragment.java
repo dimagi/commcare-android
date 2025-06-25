@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -70,7 +70,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
 
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-        ConnectManager.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
+        ConnectAppUtils.INSTANCE.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
 
             //Launch the learn/deliver app
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-            ConnectManager.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
+            ConnectAppUtils.INSTANCE.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
         }
     }
 

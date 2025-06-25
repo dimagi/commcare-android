@@ -10,7 +10,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
 
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;

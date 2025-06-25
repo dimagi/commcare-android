@@ -26,7 +26,6 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;

@@ -50,7 +50,7 @@ object ConnectJobHelper {
     fun updateJobProgress(
         context: Context?,
         job: ConnectJobRecord,
-        listener: ConnectManager.ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener
     ) {
         when (job.status) {
             ConnectJobRecord.STATUS_LEARNING -> {
@@ -70,7 +70,7 @@ object ConnectJobHelper {
     fun updateLearningProgress(
         context: Context?,
         job: ConnectJobRecord,
-        listener: ConnectManager.ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
         ApiConnect.getLearnProgress(context, user, job.jobId, object : IApiCallback {
@@ -155,7 +155,7 @@ object ConnectJobHelper {
     fun updateDeliveryProgress(
         context: Context?,
         job: ConnectJobRecord,
-        listener: ConnectManager.ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
         ApiConnect.getDeliveries(context, user, job.jobId, object : IApiCallback {
@@ -276,7 +276,7 @@ object ConnectJobHelper {
         context: Context?,
         payment: ConnectJobPaymentRecord,
         confirmed: Boolean,
-        listener: ConnectManager.ConnectActivityCompleteListener
+        listener: ConnectActivityCompleteListener
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
         ApiConnect.setPaymentConfirmed(

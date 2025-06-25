@@ -13,9 +13,10 @@ import androidx.navigation.Navigation;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -63,7 +64,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
         binding.connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
                 modules.size(), totalHours));
 
-        final boolean appInstalled = ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId());
+        final boolean appInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId());
 
         binding.connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
                 : R.string.download_app));
@@ -99,7 +100,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
     }
 
     private void startLearning(boolean appInstalled) {
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         ApiConnect.startLearnApp(getContext(), user, job.getJobId(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -109,7 +110,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
                 ConnectJobUtils.upsertJob(getContext(), job);
 
                 if (appInstalled) {
-                    ConnectManager.launchApp(getActivity(), true,
+                    ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true,
                             job.getLearnAppInfo().getAppId());
                 } else {
                     String title = getString(R.string.connect_downloading_learn);

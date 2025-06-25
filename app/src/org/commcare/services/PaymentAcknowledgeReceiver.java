@@ -7,10 +7,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.List;
 

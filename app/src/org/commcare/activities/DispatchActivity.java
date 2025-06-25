@@ -12,7 +12,6 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;

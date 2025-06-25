@@ -19,10 +19,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
@@ -124,7 +125,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
 
         if (complete && passed) {
             viewBinding.connectLearnCertSubject.setText(job.getTitle());
-            viewBinding.connectLearnCertPerson.setText(ConnectManager.getUser(getContext()).getName());
+            viewBinding.connectLearnCertPerson.setText(ConnectUserDatabaseUtil.getUser(getContext()).getName());
 
             Date latestDate = getLatestCompletionDate(job);
             viewBinding.connectLearnCertDate.setText(
@@ -172,13 +173,13 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
             navDirections =
                     ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
                             true);
-        } else if (ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+        } else if (ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId())) {
             buttonText = complete ? getString(R.string.connect_learn_go_to_assessment) : getString(
                     R.string.connect_learn_continue);
             viewBinding.connectLearningButton.setVisibility(View.VISIBLE);
             viewBinding.connectLearningButton.setOnClickListener(v -> {
                 CommCareApplication.instance().closeUserSession();
-                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
+                ConnectAppUtils.INSTANCE.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             });
             return;
         } else {

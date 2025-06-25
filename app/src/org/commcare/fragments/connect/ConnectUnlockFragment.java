@@ -12,9 +12,9 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -81,7 +81,7 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     public void retrieveOpportunities() {
-        ConnectUserRecord user = ConnectManager.getUser(requireContext());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireContext());
         ApiConnect.getConnectOpportunities(requireContext(), user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

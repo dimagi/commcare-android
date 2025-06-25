@@ -34,7 +34,7 @@ import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -433,7 +433,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
         analyticsInstance.setUserId(getUserIdOrNull());
 
-        ConnectUserRecord user = ConnectManager.getUser(this);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(this);
         if (user != null) {
             analyticsInstance.setUserProperty("user_cid", user.getUserId());
         }

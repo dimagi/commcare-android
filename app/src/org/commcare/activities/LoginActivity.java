@@ -34,11 +34,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -148,7 +148,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = ConnectManager.wasAppLaunchedFromConnect(presetAppId);
+        appLaunchedFromConnect = ConnectAppUtils.INSTANCE.wasAppLaunchedFromConnect(presetAppId);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -413,7 +413,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
-            passwordOrPin = ConnectManager.checkAutoLoginAndOverridePassword(this,
+            passwordOrPin = ConnectAppUtils.INSTANCE.checkAutoLoginAndOverridePassword(this,
                     presetAppId, username, passwordOrPin, appLaunchedFromConnect,
                     loginManagedByPersonalId());
 
