@@ -29,8 +29,8 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -194,9 +194,10 @@ public class PersonalIdPhoneFragment extends Fragment {
             HashMap<String, String> body) {
         Log.d("Integrity", "Token: " + integrityToken);
         Log.d("Integrity", "Hash: " + requestHash);
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
+
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
@@ -211,8 +212,8 @@ public class PersonalIdPhoneFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
-                if(failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
+            public void onFailure(@androidx.annotation.Nullable PersonalIdOrConnectApiErrorCodes failureCode, @androidx.annotation.Nullable Throwable t) {
+                if(failureCode == PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR) {
                     onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE);
                 } else {
                     navigateFailure(failureCode, t);
@@ -233,7 +234,7 @@ public class PersonalIdPhoneFragment extends Fragment {
                 navigateToMessageDisplay(failureMessage, false));
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
