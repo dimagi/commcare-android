@@ -1,14 +1,15 @@
-package org.commcare.connect.network;
+package org.commcare.connect.network.connectId;
 
 import android.app.Activity;
 
+import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 
 /**
  * Utility class for handling standardized API error responses across the configuration flow.
  * <p>
  * This class provides a centralized method to interpret and react to various
- * {@link PersonalIdApiHandler.PersonalIdApiErrorCodes} returned by the network layer.
+ * {@link PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes} returned by the network layer.
  * It ensures consistent user feedback (e.g. toasts, dialogs) and error recovery
  * flows (e.g. token management or outdated API messages) across all API interactions.
  * </p>
@@ -25,10 +26,10 @@ public class PersonalIdApiErrorHandler {
      * user-facing action, such as displaying a toast or triggering a token renewal.
      *
      * @param activity   the context (usually the current Activity) used to display UI elements
-     * @param errorCode  the specific {@link PersonalIdApiHandler.PersonalIdApiErrorCodes} to handle
+     * @param errorCode  the specific {@link PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes} to handle
      * @param t          the exception that was thrown, if any; can be null
      */
-    public static String handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode,
+    public static String handle(Activity activity, PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes errorCode,
                               Throwable t) {
         switch (errorCode) {
             case NETWORK_ERROR:
