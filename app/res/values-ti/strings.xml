@@ -434,6 +434,10 @@
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_process_failed_subtitle">መሳርሒኻ ኣብዚ እዋን\'ዚ ን PersonalID ንምምዝጋብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_security_subtitle">መሳርሒኻ ኣብዚ እዋን እዚ ብሰንኪ %s ናይ ጸጥታ ባህሪ ዘይምህላዉ ንPersonalID ክምዝገብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_failed_play_services">እባኮም ኣረጋግጹ ፡ እቲ ፕሌይ ስቶር ኣብ መሳርሒ እትርከቡ እንተሎ እና ትሓዘ እንተኾነ።</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">ሓፋሽ ጸገብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ኣብ ሓደ መዓልቲ ደጊሞ ፈትኑ።</string>
+    <string name="personalid_configuration_process_failed_network_error">ጸገኒ መረብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ዝሓለፈ መርበብ ክርከቡ እንተኾነ ኣረጋግጹ እና ደጊሞ ፈትኑ።</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">ብምኽንያት ዘይተገመተ ጸገብ ብትኽክል መሳርሒ ምርግጋን ኣይተሳነየን። ብቑጽሪ እቲ ጸገብ እንተተዓቐበ እባኮም ምምዕራያ ተሳትፎ ውሳነ ምግባር ድሕሪት ንደገና ተራኺቡ።</string>
     <string name="personalid_photo_capture_title">እንቋዕ ብደሓን መጻእኩም %1$s</string>
     <string name="personalid_photo_capture_subtitle">ምድላው ኣካውንትኩም ንምዝዛም ፎቶኹም ውሰዱ</string>
     <string name="personalid_photo_capture_take_photo_button">ፎቶ ውሰድ</string>
