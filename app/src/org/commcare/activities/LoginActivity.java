@@ -35,6 +35,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.ConnectManager;
 import org.commcare.dalvik.BuildConfig;
@@ -513,7 +514,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         personalIdManager.unlockConnect(this, success -> {
             if(success) {
-                ConnectManager.goToConnectJobsList(this);
+                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
             }

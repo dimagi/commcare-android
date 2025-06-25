@@ -2,13 +2,10 @@ package org.commcare.connect;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.widget.Toast;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.connect.ConnectActivity;
-import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -20,11 +17,9 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -129,23 +124,6 @@ public class ConnectManager {
 
     public static ConnectJobRecord getActiveJob() {
         return activeJob;
-    }
-
-    public static void goToMessaging(Context context) {
-        Intent i = new Intent(context, ConnectMessagingActivity.class);
-        context.startActivity(i);
-    }
-
-    public static void goToConnectJobsList(Context parent) {
-        Intent i = new Intent(parent, ConnectActivity.class);
-        parent.startActivity(i);
-    }
-
-    public static void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
-        Intent i = new Intent(activity, ConnectActivity.class);
-        i.putExtra("info", true);
-        i.putExtra("buttons", allowProgression);
-        activity.startActivity(i);
     }
 
     public static ConnectJobRecord setConnectJobForApp(Context context, String appId) {

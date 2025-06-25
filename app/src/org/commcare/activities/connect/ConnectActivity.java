@@ -25,6 +25,7 @@ import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
@@ -174,7 +175,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_notification) {
-            ConnectManager.goToMessaging(this);
+            ConnectNavHelper.INSTANCE.goToMessaging(this);
             return true;
         }
 
