@@ -23,7 +23,6 @@ import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.utils.CommCareNavController;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -80,7 +79,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
 
     private void jobCardDataHandle(ConnectJobRecord job) {
         binding.viewJobCard.tvViewMore.setOnClickListener(view1 -> {
-            CommCareNavController.navigateSafely(Navigation.findNavController(binding.viewJobCard.tvViewMore),
+            Navigation.findNavController(binding.viewJobCard.tvViewMore).navigate(
                     ConnectJobIntroFragmentDirections
                             .actionConnectJobIntroFragmentToConnectJobDetailBottomSheetDialogFragment());
         });
@@ -114,8 +113,8 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
                             job.getLearnAppInfo().getAppId());
                 } else {
                     String title = getString(R.string.connect_downloading_learn);
-                    CommCareNavController.navigateSafely(Navigation.findNavController(
-                            binding.connectJobIntroStartButton), ConnectJobIntroFragmentDirections.
+                    Navigation.findNavController(binding.connectJobIntroStartButton).navigate(
+                            ConnectJobIntroFragmentDirections.
                                     actionConnectJobIntroFragmentToConnectDownloadingFragment(
                                             title, true));
                 }

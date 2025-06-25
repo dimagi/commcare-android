@@ -45,7 +45,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
-import org.commcare.utils.CommCareNavController;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -215,8 +214,8 @@ public class ConnectJobsListsFragment extends Fragment {
 
     private void launchJobInfo(ConnectJobRecord job) {
         ConnectJobHelper.INSTANCE.setActiveJob(job);
-        CommCareNavController.navigateSafely(Navigation.findNavController(binding.getRoot()),
-                ConnectJobsListsFragmentDirections.actionConnectJobsListFragmentToConnectJobIntroFragment());
+        Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
+                .actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
@@ -228,10 +227,9 @@ public class ConnectJobsListsFragment extends Fragment {
             launcher.launchApp(appId, isLearning);
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
-            String title = getString(textId);
-            CommCareNavController.navigateSafely(Navigation.findNavController(binding.getRoot()),
-                    ConnectJobsListsFragmentDirections
-                            .actionConnectJobsListFragmentToConnectDownloadingFragment(title, isLearning));
+            Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
+                            .actionConnectJobsListFragmentToConnectDownloadingFragment(
+                                    getString(textId), isLearning));
         }
     }
 
