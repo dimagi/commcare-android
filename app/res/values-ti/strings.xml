@@ -446,7 +446,9 @@
     <string name="personalid_this_is_not_me"><u>እዚ ኣነ ኣይኮንኩን።</u></string>
     <string name="personalid_welcome_back_msg">እንቋዕ ብደሓን መጻእኩም %s</string>
     <string name="personalid_recovery_failed_title">ምሕዋይ ኣይተዓወተን</string>
+    <string name="personalid_recovery_lockout_title">ኣካውንት ተዓጽዩ።</string>
     <string name="personalid_recovery_failed_message">Backup Code ናትካ ዝረሳዕካዮ ይመስል፣ ሓድሽ ኣካውንት ንፈጥር ኣለና።</string>
+    <string name="personalid_recovery_lockout_message">ጌጋ Backup Code ብዙሕ ግዜ ኣእቲኻ ኣካውንትካ ተዓጽዩ ኣሎ።</string>
     <string name="personalid_wrong_backup_message">ጌጋ Backup Code ኣእቲኻ፡ በጃኻ ደጊምካ ፈትን። ድሕሪ %d ዝያዳ ዘይቅኑዕ ፈተነታት ሓድሽ ኣካውንት ክትፈጥር ከድልየካ እዩ።</string>
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
