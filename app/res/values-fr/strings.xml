@@ -442,6 +442,10 @@ License.
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_process_failed_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment en raison de l\'indisponibilité de la fonctionnalité de sécurité. Veuillez réessayer sur un autre appareil.</string>
+    <string name="personalid_configuration_process_failed_play_services">Veuillez vous assurer que le Play Store est disponible sur votre appareil et qu\'il est à jour.</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">Erreur temporaire lors de la vérification de l\'éligibilité de votre appareil. Veuillez réessayer après un jour.</string>
+    <string name="personalid_configuration_process_failed_network_error">Erreur réseau lors de la vérification de l\'éligibilité de votre appareil. Veuillez vous assurer que vous disposez d\'une bonne connexion réseau et réessayez.</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">Impossible de vérifier l\'éligibilité de l\'appareil en raison d\'une erreur inattendue. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_photo_capture_title">Bienvenue %1$s</string>
     <string name="personalid_photo_capture_subtitle">Veuillez prendre une photo de vous pour terminer la configuration de votre compte</string>
     <string name="personalid_photo_capture_take_photo_button">Prendre une photo</string>

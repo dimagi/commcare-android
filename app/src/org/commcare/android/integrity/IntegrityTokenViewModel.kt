@@ -63,7 +63,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
                 .build()
         )
         integrityTokenResponse
-            .addOnSuccessListener { response -> callback.onTokenReceived(response.token()) }
+            .addOnSuccessListener { response -> callback.onTokenReceived(response.token(), requestHash) }
             .addOnFailureListener { exception ->
                 handleRequestFailureAndRetry(exception, requestHash, callback, hasRetried)
             }
@@ -88,12 +88,12 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
                     } else if (state is TokenProviderState.Failure) {
                         _providerState.removeObserver(this)
                         Logger.log("Error re-preparing token provider after failure", state.exception.message )
-                        callback.onTokenReceived(null)
+                        callback.onTokenFailure(state.exception)
                     }
                 }
             })
         } else {
-            callback.onTokenReceived(null)
+            callback.onTokenFailure(exception)
         }
         Logger.exception("Error retrieving Google Play Integrity token", exception)
     }
@@ -111,7 +111,8 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
         data class Failure(val exception: Exception) : TokenProviderState()
     }
 
-    fun interface IntegrityTokenCallback {
-        fun onTokenReceived(token: String?)
+    interface IntegrityTokenCallback {
+        fun onTokenReceived(token: String, requestHash: String)
+        fun onTokenFailure(exception: java.lang.Exception)
     }
 }

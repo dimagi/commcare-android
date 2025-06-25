@@ -448,6 +448,10 @@
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_process_failed_subtitle">De momento, o seu dispositivo não está qualificado para se inscrever no PersonalID. Tente novamente noutro dispositivo.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">De momento, o seu dispositivo não está qualificado para se inscrever no PersonalID devido à indisponibilidade da funcionalidade de segurança %s. Tente novamente noutro dispositivo.</string>
+    <string name="personalid_configuration_process_failed_play_services">Certifique-se de que a Play Store está disponível no seu dispositivo e está atualizada.</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">Erro temporário ao verificar a elegibilidade do seu dispositivo. Por favor, tente novamente depois de um dia.</string>
+    <string name="personalid_configuration_process_failed_network_error">Erro de rede ao verificar a elegibilidade do seu dispositivo. Por favor, certifique-se de que tem uma boa conexão de rede e tente novamente.</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">Não foi possível verificar a elegibilidade do dispositivo devido a um erro inesperado. Por favor, entre em contato com o suporte ao cliente se o problema persistir.</string>
     <string name="personalid_photo_capture_title">Bem-vindo %1$s</string>
     <string name="personalid_photo_capture_subtitle">Por favor, tire uma fotografia sua para concluir a configuração da sua conta</string>
     <string name="personalid_photo_capture_take_photo_button">Tirar foto</string>

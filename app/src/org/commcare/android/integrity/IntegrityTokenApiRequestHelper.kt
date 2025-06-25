@@ -1,10 +1,13 @@
 package org.commcare.android.integrity
 
+import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import com.google.android.play.core.integrity.StandardIntegrityException
+import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode.*
 import org.commcare.android.CommCareViewModelProvider
 import org.commcare.utils.HashUtils
-import kotlin.jvm.functions.Function2
+import org.commcare.dalvik.R;
 import org.json.JSONObject
 import java.util.LinkedList
 import java.util.HashMap
@@ -16,10 +19,11 @@ class IntegrityTokenApiRequestHelper(
     lifecycleOwner: LifecycleOwner
 ) {
     private val integrityTokenViewModel : IntegrityTokenViewModel = CommCareViewModelProvider.getIntegrityTokenViewModel()
-    private val pendingRequests = LinkedList<Pair<HashMap<String, String>, Function2<String?, String, Unit>>>()
+    private val pendingRequests = LinkedList<Pair<HashMap<String, String>, IntegrityTokenViewModel.IntegrityTokenCallback>>()
 
     private var providerInitialized = false
     private var providerFailed = false
+    private var providerFailedException = Exception("Integrity Token Provider failed to initialize")
 
     init {
         integrityTokenViewModel.providerState.observe(lifecycleOwner, object : Observer<IntegrityTokenViewModel.TokenProviderState> {
@@ -31,6 +35,7 @@ class IntegrityTokenApiRequestHelper(
                     }
                     is IntegrityTokenViewModel.TokenProviderState.Failure -> {
                         providerFailed = true
+                        providerFailedException = state.exception
                         failPendingRequests()
                     }
                 }
@@ -40,19 +45,17 @@ class IntegrityTokenApiRequestHelper(
 
     fun withIntegrityToken(
         requestBody: HashMap<String, String>,
-        onTokenReady: Function2<String?, String, Unit>
+        callback: IntegrityTokenViewModel.IntegrityTokenCallback
     ) {
         val jsonBody = JSONObject(requestBody as Map<*, *>).toString()
         val requestHash = HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256)
 
         if (providerInitialized) {
-            integrityTokenViewModel.requestIntegrityToken(requestHash, false)  { token ->
-                onTokenReady.invoke(token, requestHash)
-            }
+            integrityTokenViewModel.requestIntegrityToken(requestHash, false, callback)
         } else if (providerFailed) {
-            onTokenReady.invoke(null, requestHash)
+            callback.onTokenFailure(providerFailedException)
         } else {
-            pendingRequests.add(Pair(requestBody, onTokenReady))
+            pendingRequests.add(Pair(requestBody, callback))
         }
     }
 
@@ -61,18 +64,53 @@ class IntegrityTokenApiRequestHelper(
             val (body, callback) = pendingRequests.removeFirst()
             val jsonBody = JSONObject(body as Map<*, *>).toString()
             val requestHash = HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256)
-            integrityTokenViewModel.requestIntegrityToken(requestHash, false) { token ->
-                callback.invoke(token, requestHash)
-            }
+            integrityTokenViewModel.requestIntegrityToken(requestHash, false, callback)
         }
     }
 
     private fun failPendingRequests() {
         while (pendingRequests.isNotEmpty()) {
-            val (body, callback) = pendingRequests.removeFirst()
-            val jsonBody = JSONObject(body as Map<*, *>).toString()
-            val requestHash = HashUtils.computeHash(jsonBody, HashUtils.HashAlgorithm.SHA256)
-            callback.invoke(null, requestHash)
+            val (_, callback) = pendingRequests.removeFirst()
+            callback.onTokenFailure(providerFailedException)
         }
     }
+
+    fun getErrorForException(context: Context, exception: Exception): String {
+        var errorMessage = context.getString(R.string.personalid_configuration_process_failed_subtitle)
+        if (exception is StandardIntegrityException) {
+            val integrityErrorCode = exception.errorCode
+            when (integrityErrorCode) {
+                API_NOT_AVAILABLE,
+                PLAY_STORE_NOT_FOUND,
+                PLAY_SERVICES_NOT_FOUND,
+                PLAY_STORE_VERSION_OUTDATED,
+                PLAY_SERVICES_VERSION_OUTDATED,
+                CANNOT_BIND_TO_SERVICE -> {
+                    errorMessage = context.getString(R.string.personalid_configuration_process_failed_play_services)
+                }
+
+                CLOUD_PROJECT_NUMBER_IS_INVALID,
+                REQUEST_HASH_TOO_LONG,
+                APP_UID_MISMATCH -> {
+                    throw RuntimeException(exception)
+                }
+
+                TOO_MANY_REQUESTS,
+                GOOGLE_SERVER_UNAVAILABLE -> {
+                    errorMessage = context.getString(R.string.personalid_configuration_process_failed_temporary_unavailable)
+                }
+
+                CLIENT_TRANSIENT_ERROR,
+                INTEGRITY_TOKEN_PROVIDER_INVALID -> {
+                    errorMessage = context.getString(R.string.personalid_configuration_process_failed_unexpected_error)
+                }
+
+                NETWORK_ERROR -> {
+                    errorMessage = context.getString(R.string.personalid_configuration_process_failed_network_error)
+                }
+            }
+        }
+        return errorMessage
+    }
+
 }
