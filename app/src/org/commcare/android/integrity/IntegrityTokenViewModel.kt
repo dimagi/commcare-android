@@ -45,7 +45,10 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
         ).addOnSuccessListener { tokenProvider ->
             integrityTokenProvider = tokenProvider
             _providerState.postValue(TokenProviderState.Success(tokenProvider))
-        }.addOnFailureListener { exception -> _providerState.postValue(TokenProviderState.Failure(exception)) }
+        }.addOnFailureListener { exception ->
+            _providerState.postValue(TokenProviderState.Failure(exception))
+            Logger.exception("Error preparing Google Play Integrity token provider", exception)
+        }
     }
 
     /**
