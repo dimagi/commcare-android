@@ -24,9 +24,12 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.JobStoreManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -562,7 +565,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         setLoginInputsVisibility(appState != Connect);
-        if (PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn() && (!ConnectJobUtils.getCompositeJobs(activity,
+                ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty())) {
             connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
             setConnectButtonVisible(true);
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,

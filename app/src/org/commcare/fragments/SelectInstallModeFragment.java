@@ -19,10 +19,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
+import org.commcare.connect.ConnectManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
@@ -139,7 +142,16 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+        fetchConnectOpportunityList();
+
         return view;
+    }
+
+    private void fetchConnectOpportunityList() {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            ConnectManager.init(requireContext());
+            ConnectManager.retrieveOpportunities();
+        }
     }
 
     private void showLocalAppDialog() {
@@ -211,7 +223,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {
-            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn();
+            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn()
+                    && (!ConnectJobUtils.getCompositeJobs(requireContext(),
+                    ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty());
             if (enabled && listener != null) {
                 mConnectButton.setOnClickListener(listener);
             }

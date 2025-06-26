@@ -26,6 +26,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectDatabaseUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.ConnectNetworkHelper;
@@ -620,6 +621,63 @@ public class ConnectManager {
                 ConnectNetworkHelper.showOutdatedApiError(context);
                 reportApiCall(false);
                 listener.connectActivityComplete(false);
+            }
+        });
+    }
+
+    public static void retrieveOpportunities() {
+        ConnectUserRecord user = ConnectManager.getUser(manager.parentActivity);
+        ApiConnect.getConnectOpportunities(manager.parentActivity, user, new IApiCallback() {
+            @Override
+            public void processSuccess(int responseCode, InputStream responseData) {
+                try {
+                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
+                    if (responseAsString.length() > 0) {
+                        //Parse the JSON
+                        JSONArray json = new JSONArray(responseAsString);
+                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
+                        for (int i = 0; i < json.length(); i++) {
+                            try {
+                                JSONObject obj = (JSONObject)json.get(i);
+                                ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
+                                jobs.add(job);
+                            } catch (JSONException e) {
+                                Logger.exception("Parsing return from Opportunities request", e);
+                            }
+                        }
+                        new JobStoreManager(manager.parentActivity).storeJobs(manager.parentActivity, jobs, true);
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                } catch (IOException e) {
+                    Logger.exception("Parsing return from Opportunities request", e);
+                }
+            }
+
+            @Override
+            public void processFailure(int responseCode, @androidx.annotation.Nullable InputStream errorResponse) {
+                Logger.log("ERROR",
+                        String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
+            }
+
+            @Override
+            public void processNetworkFailure() {
+                ConnectNetworkHelper.showNetworkError(manager.parentActivity);
+            }
+
+            @Override
+            public void processTokenUnavailableError() {
+                ConnectNetworkHelper.handleTokenUnavailableException(manager.parentActivity);
+            }
+
+            @Override
+            public void processTokenRequestDeniedError() {
+                ConnectNetworkHelper.handleTokenDeniedException();
+            }
+
+            @Override
+            public void processOldApiError() {
+                ConnectNetworkHelper.showOutdatedApiError(manager.parentActivity);
             }
         });
     }

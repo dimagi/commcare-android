@@ -500,6 +500,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
 
     private void setResultAndFinish(boolean navigateToConnectJobs) {
+        if(personalIdManager.isloggedIn() && !navigateToConnectJobs){
+           ConnectManager.init(this);
+           ConnectManager.retrieveOpportunities();
+        }
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, navigateToConnectJobs);
         i.putExtra(LOGIN_MODE, uiController.getLoginMode());
