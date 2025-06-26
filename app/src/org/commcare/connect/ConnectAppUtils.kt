@@ -15,10 +15,10 @@ import org.commcare.tasks.templates.CommCareTaskConnector
 import java.security.SecureRandom
 
 object ConnectAppUtils {
-    const val APP_DOWNLOAD_TASK_ID: Int = 4
+    private const val APP_DOWNLOAD_TASK_ID: Int = 4
     private var primedAppIdForAutoLogin: String? = null
 
-    fun wasAppLaunchedFromConnect(appId: String): Boolean {
+    fun wasAppLaunchedFromConnect(appId: String?): Boolean {
         val primed = primedAppIdForAutoLogin
         primedAppIdForAutoLogin = null
         return primed == appId
@@ -112,7 +112,7 @@ object ConnectAppUtils {
         return updatedPasswordOrPin
     }
 
-    fun prepareConnectManagedApp(
+    private fun prepareConnectManagedApp(
         context: Context?,
         appId: String?,
         username: String?
