@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
@@ -70,14 +70,14 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
 
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-        ConnectManager.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
+        ConnectAppUtils.INSTANCE.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         ConnectDownloadingFragmentArgs args = ConnectDownloadingFragmentArgs.fromBundle(getArguments());
-        getActivity().setTitle(job.getTitle());
+        requireActivity().setTitle(job.getTitle());
 
         View view = inflater.inflate(R.layout.fragment_connect_downloading, container, false);
 
@@ -100,7 +100,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
 
     private void onSuccessfulInstall() {
         setWaitDialogEnabled(true);
-        ((ConnectActivity)getActivity()).startAppValidation();
+        ((ConnectActivity)requireActivity()).startAppValidation();
     }
 
     public void onSuccessfulVerification() {
@@ -111,21 +111,21 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
 
             //Launch the learn/deliver app
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-            ConnectManager.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
+            ConnectAppUtils.INSTANCE.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
         }
     }
 
     @Override
-    public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusmissing) {
-        showInstallFailError(statusmissing);
+    public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
+        showInstallFailError(statusMissing);
     }
 
-    private void showInstallFailError(AppInstallStatus statusmissing) {
+    private void showInstallFailError(AppInstallStatus statusMissing) {
         setBackButtonAndActionBarState(true);
         setWaitDialogEnabled(true);
         String installError = getString(R.string.connect_app_install_unknown_error);
         try {
-            installError = Localization.get(statusmissing.getLocaleKeyBase() + ".title");
+            installError = Localization.get(statusMissing.getLocaleKeyBase() + ".title");
         } catch (LocaleTextException e) {
             // do nothing
         }
@@ -138,8 +138,8 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     }
 
     @Override
-    public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusmissing) {
-        showInstallFailError(statusmissing);
+    public void failInvalidResource(InvalidResourceException e, AppInstallStatus statusMissing) {
+        showInstallFailError(statusMissing);
     }
 
     @Override
@@ -154,8 +154,8 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     }
 
     @Override
-    public void failUnknown(AppInstallStatus statusfailunknown) {
-        showInstallFailError(statusfailunknown);
+    public void failUnknown(AppInstallStatus statusFailUnknown) {
+        showInstallFailError(statusFailUnknown);
     }
 
     @Override
@@ -174,18 +174,18 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     }
 
     @Override
-    public void failWithNotification(AppInstallStatus statusfailstate) {
-        if (statusfailstate == AppInstallStatus.DuplicateApp) {
+    public void failWithNotification(AppInstallStatus statusFailState) {
+        if (statusFailState == AppInstallStatus.DuplicateApp) {
             onSuccessfulInstall();
         } else {
-            showInstallFailError(statusfailstate);
+            showInstallFailError(statusFailState);
         }
     }
 
     @Override
-    public void failWithNotification(AppInstallStatus statusfailstate,
+    public void failWithNotification(AppInstallStatus statusFailState,
             NotificationActionButtonInfo.ButtonAction buttonAction) {
-        showInstallFailError(statusfailstate);
+        showInstallFailError(statusFailState);
     }
 
     @Override
