@@ -1,13 +1,20 @@
 package org.commcare.connect;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.phone.SmsRetriever;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.Status;
+
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
+
+import androidx.activity.result.ActivityResultLauncher;
 
 /**
  * BroadcastReceiver to wait for SMS messages using the SMS User Consent API.
@@ -15,19 +22,10 @@ import com.google.android.gms.common.api.Status;
  */
 public class SMSBroadcastReceiver extends BroadcastReceiver {
 
-    public interface SMSListener {
-        void onSuccess(Intent consentIntent);
+    private final ActivityResultLauncher<Intent> smsConsentLauncher;
 
-        void onFailure(int statusCode);
-    }
-
-    private SMSListener smsListener;
-
-    public SMSBroadcastReceiver() {
-    }
-
-    public void setSmsListener(SMSListener listener) {
-        this.smsListener = listener;
+    public SMSBroadcastReceiver(ActivityResultLauncher<Intent> smsConsentLauncher) {
+        this.smsConsentLauncher = smsConsentLauncher;
     }
 
     @Override
@@ -46,21 +44,19 @@ public class SMSBroadcastReceiver extends BroadcastReceiver {
             return;
         }
 
-        if (smsListener == null) {
-            return;
-        }
-
         switch (status.getStatusCode()) {
             case CommonStatusCodes.SUCCESS:
                 Intent consentIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
-                if (consentIntent != null) {
-                    smsListener.onSuccess(consentIntent);
+                try {
+                    smsConsentLauncher.launch(consentIntent);
+                } catch (ActivityNotFoundException e) {
+                    Logger.log(LogTypes.TYPE_EXCEPTION, "No app to handle SMS: " + e.getMessage());
                 }
                 break;
 
             case CommonStatusCodes.TIMEOUT:
             case CommonStatusCodes.ERROR:
-                smsListener.onFailure(status.getStatusCode());
+                Logger.log(LogTypes.TYPE_EXCEPTION, "SMS retrieval failed with status: " + status);
                 break;
         }
     }

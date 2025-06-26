@@ -1,13 +1,13 @@
 package org.commcare.fragments.personalId;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +25,12 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
+import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
 import java.util.regex.Matcher;
@@ -211,45 +213,31 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void registerSmsReceiver() {
-        smsBroadcastReceiver = new SMSBroadcastReceiver();
-        smsBroadcastReceiver.setSmsListener(
-                new SMSBroadcastReceiver.SMSListener() {
-                    @Override
-                    public void onSuccess(Intent consentIntent) {
-                        try {
-                            smsConsentLauncher.launch(consentIntent);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(requireContext(), "No app to handle SMS", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode) {
-                        Toast.makeText(requireContext(), "SMS retrieval failed or timed out", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-
         IntentFilter filter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+        smsBroadcastReceiver = new SMSBroadcastReceiver(smsConsentLauncher);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(smsBroadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+            requireActivity().registerReceiver(smsBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
         } else {
-            requireContext().registerReceiver(smsBroadcastReceiver, filter);
+            requireActivity().registerReceiver(smsBroadcastReceiver, filter);
+
         }
     }
 
     private String extractOtp(String message) {
         Pattern p = Pattern.compile("\\b\\d{6}\\b");
         Matcher m = p.matcher(message);
-        return m.find() ? m.group(0) : "";
+        if (m.find()) {
+            return m.group(0);
+        } else {
+            Logger.log(LogTypes.TYPE_EXCEPTION, "OTP pattern dose't match");
+            return "";
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (smsBroadcastReceiver != null) {
-            requireContext().unregisterReceiver(smsBroadcastReceiver);
-        }
+        requireContext().unregisterReceiver(smsBroadcastReceiver);
     }
 
     @Override
