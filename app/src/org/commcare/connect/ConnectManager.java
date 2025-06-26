@@ -625,6 +625,10 @@ public class ConnectManager {
         });
     }
 
+    /**
+     * Retrieves Connect job opportunities for the current user and stores them locally.
+     * Requires ConnectManager to be initialized with a valid context.
+     */
     public static void retrieveOpportunities() {
         ConnectUserRecord user = ConnectManager.getUser(manager.parentActivity);
         ApiConnect.getConnectOpportunities(manager.parentActivity, user, new IApiCallback() {
@@ -680,6 +684,15 @@ public class ConnectManager {
                 ConnectNetworkHelper.showOutdatedApiError(manager.parentActivity);
             }
         });
+    }
+
+    /**
+     * Returns boolean if there is any job available for the user
+     * Requires ConnectManager to be initialized with a valid context.
+     */
+    public static boolean hasConnectJobs() {
+        return !ConnectJobUtils.getCompositeJobs(manager.parentActivity,
+                ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty();
     }
 
 }
