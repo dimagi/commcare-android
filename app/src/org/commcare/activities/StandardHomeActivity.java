@@ -8,10 +8,8 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
 
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -273,9 +271,9 @@ public class StandardHomeActivity
     }
 
     public void updateConnectJobProgress() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectManager.updateDeliveryProgress(this, job, success -> {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
                 if (success) {
                     uiController.updateConnectProgress();
                 }

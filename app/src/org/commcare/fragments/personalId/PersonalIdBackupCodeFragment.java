@@ -21,8 +21,8 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -197,9 +197,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         enableContinueButton(false);
         String backupCode = binding.connectBackupCodeInput.getText().toString();
 
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() == 0) {
@@ -212,7 +212,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
                 if (failureCode.shouldAllowRetry()) {

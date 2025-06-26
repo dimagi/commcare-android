@@ -8,27 +8,6 @@
     android:background="@color/connect_background_color"
     tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
 
-    <ImageView
-        android:id="@+id/connect_jobs_refresh"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:contentDescription="@string/refresh"
-        android:src="@drawable/cloud_backup"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/connect_jobs_last_update"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="@+id/connect_jobs_refresh"
-        app:layout_constraintEnd_toStartOf="@id/connect_jobs_refresh"
-        app:layout_constraintTop_toTopOf="@+id/connect_jobs_refresh" />
-
     <TextView
         android:id="@+id/connect_no_jobs_text"
         android:layout_width="match_parent"
@@ -39,7 +18,7 @@
         android:textColor="@color/blue"
         android:textSize="18sp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update"
+        app:layout_constraintTop_toTopOf="parent"
         android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -48,6 +27,6 @@
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/connect_jobs_last_update"
+        app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/item_login_connect_home_apps" />
 </androidx.constraintlayout.widget.ConstraintLayout>

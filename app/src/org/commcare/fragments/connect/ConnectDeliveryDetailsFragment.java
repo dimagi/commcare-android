@@ -8,7 +8,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -17,8 +16,8 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
@@ -101,7 +100,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
     }
 
     private void claimJob(ConnectJobRecord job, boolean appInstalled) {
-        ConnectUserRecord user = ConnectManager.getUser(getContext());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         ApiConnect.claimJob(getContext(), user, job.getJobId(), new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

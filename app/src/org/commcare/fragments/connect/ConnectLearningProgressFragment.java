@@ -7,16 +7,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -25,11 +19,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectDateUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
-import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 
 import java.util.Date;
@@ -92,7 +88,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
     }
 
     private void refreshLearningData() {
-        ConnectManager.updateLearningProgress(getContext(), job, success -> {
+        ConnectJobHelper.INSTANCE.updateLearningProgress(getContext(), job, success -> {
             if (success && isAdded()) {
                 updateLearningUI();
             }
@@ -129,11 +125,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
 
         if (complete && passed) {
             viewBinding.connectLearnCertSubject.setText(job.getTitle());
-            viewBinding.connectLearnCertPerson.setText(ConnectManager.getUser(getContext()).getName());
+            viewBinding.connectLearnCertPerson.setText(ConnectUserDatabaseUtil.getUser(getContext()).getName());
 
             Date latestDate = getLatestCompletionDate(job);
             viewBinding.connectLearnCertDate.setText(
-                    getString(R.string.connect_learn_completed, ConnectManager.formatDate(latestDate)));
+                    getString(R.string.connect_learn_completed,
+                            ConnectDateUtils.INSTANCE.formatDate(latestDate)));
         }
     }
 
@@ -176,13 +173,13 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
             navDirections =
                     ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
                             true);
-        } else if (ConnectManager.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+        } else if (ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId())) {
             buttonText = complete ? getString(R.string.connect_learn_go_to_assessment) : getString(
                     R.string.connect_learn_continue);
             viewBinding.connectLearningButton.setVisibility(View.VISIBLE);
             viewBinding.connectLearningButton.setOnClickListener(v -> {
                 CommCareApplication.instance().closeUserSession();
-                ConnectManager.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
+                ConnectAppUtils.INSTANCE.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             });
             return;
         } else {
@@ -239,7 +236,8 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         jobCard.tvJobTitle.setText(job.getTitle());
         jobCard.tvJobDescription.setText(job.getDescription());
         jobCard.connectJobEndDate.setText(
-                getString(R.string.connect_learn_complete_by, ConnectManager.formatDate(job.getProjectEndDate())));
+                getString(R.string.connect_learn_complete_by,
+                        ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate())));
 
         String hours = job.getWorkingHours();
         boolean showHours = hours != null;

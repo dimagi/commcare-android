@@ -24,7 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectDateUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
 import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
@@ -109,7 +110,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
 
         private void bindVerificationItem(VerificationViewHolder holder, ConnectJobDeliveryRecord delivery) {
             holder.nameText.setText(delivery.getEntityName());
-            holder.dateText.setText(ConnectManager.formatDate(delivery.getDate()));
+            holder.dateText.setText(ConnectDateUtils.INSTANCE.formatDate(delivery.getDate()));
             holder.statusText.setText(delivery.getStatus());
             holder.reasonText.setText(delivery.getReason());
         }
@@ -118,7 +119,7 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
                                      ConnectJobRecord job) {
             String amount = job.getMoneyString(Integer.parseInt(payment.getAmount()));
             holder.nameText.setText(amount);
-            holder.dateText.setText(ConnectManager.paymentDateFormat(payment.getDate()));
+            holder.dateText.setText(ConnectDateUtils.INSTANCE.paymentDateFormat(payment.getDate()));
             boolean enabled = holder.updateConfirmedText(parentContext, payment);
 
             if (enabled) {
@@ -138,9 +139,9 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
                     ContextCompat.getDrawable(parentContext, iconResId),
                     parentContext.getString(titleResId),
                     money,
-                    ConnectManager.paymentDateFormat(payment.getDate()),
+                    ConnectDateUtils.INSTANCE.paymentDateFormat(payment.getDate()),
                     isConfirmation,
-                    result -> ConnectManager.updatePaymentConfirmed(parentContext, payment, result,
+                    result -> ConnectJobHelper.INSTANCE.updatePaymentConfirmed(parentContext, payment, result,
                             success -> holder.updateConfirmedText(parentContext, payment))
             );
             if (isConfirmation) {
