@@ -146,8 +146,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     }
 
     private void fetchConnectOpportunityList() {
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            ConnectManager.init(requireContext());
+        ConnectManager.init(requireContext());
+        if (PersonalIdManager.getInstance().isloggedIn() && !ConnectManager.hasConnectJobs()) {
             ConnectManager.retrieveOpportunities();
         }
     }
