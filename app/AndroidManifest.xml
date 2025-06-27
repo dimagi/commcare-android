@@ -621,6 +621,9 @@
         </service>
 
         <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+    <activity
+        android:name="org.commcare.activities.connect.SelectedPersonalIdCredentialActivity"
+        android:exported="false"/>
 
     </application>
 

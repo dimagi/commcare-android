@@ -618,6 +618,18 @@
     <string name="personalid_otp_missing_activity">Something went wrong</string>
     <string name="personalid_otp_verification_failed_generic">OTP verification failed:</string>
     <string name="personalid_otp_verification_failed">Verification failed and please try again</string>
-    <string name="my_credentials">My Credentials</string>
+    <string name="my_worker_history">My Work History</string>
+    <string name="my_earned_credential">My Earned Credential</string>
     <string name="credential">Credential</string>
+    <string name="worked_on">Worked On:</string>
+    <string name="earned_on">Earned On:</string>
+    <string name="active_for">Active For:</string>
+    <string name="learn_more_about_credentials">Learn More About Credentials</string>
+    <string name="view_credential">View Credential</string>
+    <string name="share_your_accomplishment_with_friends_and_family">Share your accomplishment with friends and family!</string>
+    <string name="learn_more">Learn more about this credential</string>
+    <string name="no_credentials_currently_available">No credentials are currently available. Please click “Refresh” to update the list or try again later.</string>
+    <string name="earned_credentials">EARNED CREDENTIALS (%d)</string>
+    <string name="credentials_yet_to_be_earned">CREDENTIALS YET TO BE EARNED (%d)</string>
+    <string name="cloud_sync">CloudSync</string>
 </resources>
