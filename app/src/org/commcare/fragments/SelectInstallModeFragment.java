@@ -23,6 +23,7 @@ import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.RectangleButtonWithText;
@@ -148,7 +149,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     private void fetchConnectOpportunityList() {
         if (PersonalIdManager.getInstance().isloggedIn() && !ConnectAppUtils.INSTANCE.hasConnectJobs(
                 requireActivity())) {
-            ConnectAppUtils.INSTANCE.retrieveConnectOpportunities(requireActivity());
+            ConnectJobHelper.INSTANCE.retrieveConnectOpportunities(requireActivity());
         }
     }
 

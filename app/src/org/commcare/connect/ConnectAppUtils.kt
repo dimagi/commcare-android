@@ -172,65 +172,6 @@ object ConnectAppUtils {
     }
 
     /**
-    * Retrieves Connect job opportunities for the current user and stores them locally.
-    * Requires valid activity to fetch details.
-    */
-    fun retrieveConnectOpportunities(activity: Activity) {
-        val user = ConnectUserDatabaseUtil.getUser(activity)
-        ApiConnect.getConnectOpportunities(activity, user, object : IApiCallback {
-            override fun processSuccess(responseCode: Int, responseData: InputStream?) {
-                try {
-                    val responseAsString = responseData?.let { input ->
-                        String(StreamsUtil.inputStreamToByteArray(input))
-                    } ?: return
-
-                    if (responseAsString.isNotEmpty()) {
-                        val json = JSONArray(responseAsString)
-                        val jobs = mutableListOf<ConnectJobRecord>()
-
-                        for (i in 0 until json.length()) {
-                            try {
-                                val obj = json.getJSONObject(i)
-                                val job = ConnectJobRecord.fromJson(obj)
-                                jobs.add(job)
-                            } catch (e: JSONException) {
-                                Logger.exception("Parsing return from Opportunities request", e)
-                            }
-                        }
-
-                        JobStoreManager(activity).storeJobs(activity, jobs, true)
-                    }
-
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                } catch (e: IOException) {
-                    Logger.exception("Parsing return from Opportunities request", e)
-                }
-            }
-
-            override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
-                Logger.log("ERROR", "Opportunities call failed: $responseCode")
-            }
-
-            override fun processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(activity)
-            }
-
-            override fun processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(activity)
-            }
-
-            override fun processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException()
-            }
-
-            override fun processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(activity)
-            }
-        })
-    }
-
-    /**
      * Returns true if there is any job available for the user.
      * Requires activity to fetch job
      */

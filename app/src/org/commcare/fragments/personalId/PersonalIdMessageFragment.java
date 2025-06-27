@@ -14,6 +14,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
@@ -169,7 +170,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private void successFlow(Activity activity) {
         PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
         ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
-        ConnectAppUtils.INSTANCE.retrieveConnectOpportunities(activity);
+        ConnectJobHelper.INSTANCE.retrieveConnectOpportunities(activity);
         activity.setResult(RESULT_OK);
         activity.finish();
     }
