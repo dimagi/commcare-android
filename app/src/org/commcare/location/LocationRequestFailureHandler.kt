@@ -1,5 +1,4 @@
 package org.commcare.location
-import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.common.api.ResolvableApiException
 
 object LocationRequestFailureHandler {
@@ -24,28 +23,5 @@ object LocationRequestFailureHandler {
             }
             else -> callback.onNonResolvableFailure()
         }
-    }
-
-    /**
-     * Optional helper for simple cases where caller just needs to try resolving and fallback
-     */
-    fun handleFailureWithResolution(
-            failure: CommCareLocationListener.Failure,
-            onError: () -> Unit,
-            launchResolution: (ResolvableApiException) -> Unit
-    ) {
-        handleFailure(failure, object : LocationResolutionCallback {
-            override fun onResolvableException(exception: ResolvableApiException) {
-                try {
-                    launchResolution(exception)
-                } catch (e: Exception) {
-                    onError()
-                }
-            }
-
-            override fun onNonResolvableFailure() {
-                onError()
-            }
-        })
     }
 }
