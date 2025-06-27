@@ -22,6 +22,8 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
+import org.commcare.connect.ConnectAppUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.RectangleButtonWithText;
@@ -139,7 +141,16 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
+        fetchConnectOpportunityList();
+
         return view;
+    }
+
+    private void fetchConnectOpportunityList() {
+        if (PersonalIdManager.getInstance().isloggedIn() && !ConnectAppUtils.INSTANCE.hasConnectJobs(
+                requireActivity())) {
+            ConnectJobHelper.INSTANCE.retrieveConnectOpportunities(requireActivity());
+        }
     }
 
     private void showLocalAppDialog() {
@@ -211,7 +222,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {
-            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn();
+            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn()
+                    && ConnectAppUtils.INSTANCE.hasConnectJobs(requireActivity());
             if (enabled && listener != null) {
                 mConnectButton.setOnClickListener(listener);
             }

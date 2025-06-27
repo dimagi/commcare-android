@@ -4,14 +4,27 @@ import android.app.Activity
 import android.content.Context
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
 import org.commcare.connect.database.ConnectAppDatabaseUtil
+import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.database.JobStoreManager
+import org.commcare.connect.network.ApiConnect
+import org.commcare.connect.network.ConnectNetworkHelper
+import org.commcare.connect.network.IApiCallback
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.tasks.ResourceEngineListener
 import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
+import org.javarosa.core.io.StreamsUtil
+import org.javarosa.core.services.Logger
+import org.json.JSONArray
+import org.json.JSONException
+import java.io.IOException
+import java.io.InputStream
 import java.security.SecureRandom
 
 object ConnectAppUtils {
@@ -156,5 +169,17 @@ object ConnectAppUtils {
         CommCareLauncher.launchCommCareForAppId(activity, appId)
 
         activity.finish()
+    }
+
+    /**
+     * Returns true if there is any job available for the user.
+     * Requires activity to fetch job
+     */
+    fun hasConnectJobs(activity: Activity): Boolean {
+        return ConnectJobUtils.getCompositeJobs(
+                activity,
+                ConnectJobRecord.STATUS_ALL_JOBS,
+                null
+        ).isNotEmpty()
     }
 }
