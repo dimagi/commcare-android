@@ -42,6 +42,7 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
+import org.commcare.location.LocationRequestFailureHandler;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.Permissions;
@@ -53,8 +54,7 @@ import java.util.HashMap;
 
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
-public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener,
-        RuntimePermissionRequester {
+public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener {
 
     private ScreenPersonalidPhonenoBinding binding;
     private boolean shouldShowPhoneHintDialog = true;
@@ -91,23 +91,19 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     @Override
     public void onResume() {
         super.onResume();
-        checkLocationPermission();
+        locationController.start();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (locationController != null) {
-            locationController.stop();
-        }
+        locationController.stop();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (locationController != null) {
-            locationController.destroy();
-        }
+        locationController.destroy();
         binding = null;
     }
 
@@ -240,12 +236,17 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     @Override
     public void onLocationRequestFailure(@NonNull Failure failure) {
-        if (failure instanceof CommCareLocationListener.Failure.ApiException) {
-            Exception exception = ((CommCareLocationListener.Failure.ApiException)failure).getException();
-            if (exception instanceof ResolvableApiException) {
-                handleNoLocationServiceProviders();
-            }
-        }
+        LocationRequestFailureHandler.INSTANCE.handleFailure(failure,
+                new LocationRequestFailureHandler.LocationResolutionCallback() {
+                    @Override
+                    public void onResolvableException(ResolvableApiException exception) {
+                        handleNoLocationServiceProviders();
+                    }
+
+                    @Override
+                    public void onNonResolvableFailure() {
+                    }
+                });
     }
 
     private void handleNoLocationServiceProviders() {
@@ -274,25 +275,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     @Override
     public void onLocationRequestStart() {
-    }
-
-    @Override
-    public void requestNeededPermissions(int requestCode) {
-    }
-
-    private void checkLocationPermission() {
-        if (Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)) {
-            if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
-                locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
-            } else {
-                if (!isOnPermissionErrorScreen()) {
-                    navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
-                            R.string.personalid_grant_location_permission);
-                }
-            }
-        } else {
-            locationController.start();
-        }
     }
 
     private boolean isOnPermissionErrorScreen() {
@@ -403,5 +385,10 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     @Override
     public void missingPermissions() {
+        if (Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)) {
+            if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
+                locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
+            }
+        }
     }
 }
