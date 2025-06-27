@@ -30,6 +30,7 @@ import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.fragments.MicroImageActivity;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MediaUtil;
 
 import java.util.Date;
@@ -121,7 +122,7 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         enableTakePhotoButton();
         disableSaveButton();
         createAndSaveConnectUser(photoAsBase64);
-        showAccountComplete();
+        logAndShowAccountComplete();
     }
 
     private void createAndSaveConnectUser(String photoAsBase64) {
@@ -156,7 +157,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         takePhotoLauncher.launch(intent);
     }
 
-    private void showAccountComplete() {
+    private void logAndShowAccountComplete() {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountCreated();
         NavDirections directions =
                 PersonalIdPhotoCaptureFragmentDirections.actionPersonalidPhotoCaptureToPersonalidMessage(
                         getString(R.string.connect_register_success_title),

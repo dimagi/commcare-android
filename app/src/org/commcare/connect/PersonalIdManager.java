@@ -246,7 +246,7 @@ public class PersonalIdManager {
 
     public void forgetUser(String reason) {
         if (ConnectDatabaseHelper.dbExists()) {
-            FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
+            FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
         }
         ConnectUserDatabaseUtil.forgetUser();
         personalIdSatus = PersonalIdStatus.NotIntroduced;

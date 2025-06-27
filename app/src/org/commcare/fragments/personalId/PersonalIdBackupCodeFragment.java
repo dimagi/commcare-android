@@ -261,7 +261,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+        FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {

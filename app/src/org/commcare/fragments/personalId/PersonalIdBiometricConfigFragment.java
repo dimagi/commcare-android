@@ -106,7 +106,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                reportAuthSuccess(result.getAuthenticationType() == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC? AnalyticsParamValue.CCC_SIGN_IN_METHOD_FINGERPRINT : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN);
                 navigateForward(false);
             }
 
@@ -116,10 +115,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
                 Toast.makeText(requireActivity(), "Authentication failed", Toast.LENGTH_SHORT).show();
             }
         };
-    }
-
-    private void reportAuthSuccess(String method) {
-        FirebaseAnalyticsUtil.reportCccSignIn(method);
     }
 
     private void refreshAuthenticationOptions() {
