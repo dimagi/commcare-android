@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -353,15 +354,24 @@ public class EntityView extends LinearLayout {
             return;
         }
         if (onMeasureCalled) {
-            int columnWidthInPixels = layout.getLayoutParams().width;
-            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, columnWidthInPixels, true);
-            if (b == null) {
-                // Means the input stream could not be used to derive the bitmap, so showing
-                // error-indicating image
-                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
-            } else {
-                iv.setImageBitmap(b);
-            }
+            //this is needed since layout width can be 0 if this function is called before parent called has size
+            layout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    //width is ready
+                    int columnWidthInPixels = layout.getLayoutParams().width;
+                    Bitmap b = MediaUtil.inflateDisplayImage(getContext(), source, columnWidthInPixels, columnWidthInPixels, true);
+                    if (b == null) {
+                        // Means the input stream could not be used to derive the bitmap, so showing
+                        // error-indicating image
+                        iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                    } else {
+                        iv.setImageBitmap(b);
+                    }
+                }
+            });
+
         } else {
             // Since case list images are scaled down based on the width of the column they
             // go into, we cannot set up an image layout until onMeasure() has been called
