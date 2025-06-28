@@ -134,8 +134,8 @@ dependencies {
         exclude module: 'volley'
         exclude module: 'storage'
     }
-    implementation 'androidx.work:work-runtime:2.10.0'
-    implementation 'androidx.work:work-runtime-ktx:2.10.0'
+    implementation 'androidx.work:work-runtime:2.10.2'
+    implementation 'androidx.work:work-runtime-ktx:2.10.2'
 
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
