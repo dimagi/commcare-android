@@ -1,4 +1,4 @@
-package org.commcare.connect.network.parser;
+package org.commcare.connect.network.connectId.parser;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.utils.JsonExtensions;
@@ -22,6 +22,9 @@ public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponsePar
         sessionData.setDbKey(JsonExtensions.optStringSafe(json, "db_key", null));
         if (json.has("attempts_left")) {
             sessionData.setAttemptsLeft(json.getInt("attempts_left"));
+        }
+        if (json.has("error_code")) {
+            sessionData.setSessionFailureCode(json.getString("error_code"));
         }
         sessionData.setOauthPassword(JsonExtensions.optStringSafe(json, "password", null));
     }

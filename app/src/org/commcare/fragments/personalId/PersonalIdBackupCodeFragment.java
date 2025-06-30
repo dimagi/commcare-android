@@ -21,8 +21,8 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -197,22 +197,21 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         enableContinueButton(false);
         String backupCode = binding.connectBackupCodeInput.getText().toString();
 
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() == 0) {
-                    navigateWithMessage(getString(R.string.personalid_recovery_failed_title),
-                            getString(R.string.personalid_recovery_failed_message),
-                            ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED);
+                } else if (sessionData.getSessionFailureCode() != null &&
+                                sessionData.getSessionFailureCode().equalsIgnoreCase("LOCKED_ACCOUNT")) {
+                    handleAccountLockout();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
                 if (failureCode.shouldAllowRetry()) {
@@ -253,8 +252,16 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
+    private void handleAccountLockout() {
+        logRecoveryResult(false);
+        clearBackupCodeFields();
+        navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
+                getString(R.string.personalid_recovery_lockout_message),
+                ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED);
+    }
+
     private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+        FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {

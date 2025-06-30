@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
-import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
@@ -121,7 +120,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private void finish() {
         NavDirections directions = null;
         Activity activity = requireActivity();
-        PersonalIdActivity personalIdActivity = (PersonalIdActivity)activity;
         switch (callingClass) {
             case ConnectConstants.PERSONALID_REGISTRATION_SUCCESS, ConnectConstants.PERSONALID_RECOVERY_SUCCESS:
                 successFlow(activity);
@@ -139,7 +137,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
 
                 break;
             case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
-                requireActivity().finish();
+            case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
+                activity.finish();
                 break;
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
                 personalIdSessionData.setAccountExists(false);
@@ -148,13 +147,12 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE:
                 NavHostFragment.findNavController(this).navigateUp();
                 GeoUtils.goToProperLocationSettingsScreen(activity);
-                personalIdActivity.finish();
+                activity.finish();
                 break;
 
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
-
         }
     }
 
@@ -165,11 +163,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private NavDirections navigateToBackupCode() {
         return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidBackupcode();
     }
-
-    private NavDirections navigateToPhoneFragment() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageDisplayToPersonalidPhoneFragment();
-    }
-
 
     private void successFlow(Activity activity) {
         PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);

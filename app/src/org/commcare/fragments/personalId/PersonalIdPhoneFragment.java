@@ -11,7 +11,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,9 +34,10 @@ import com.google.android.gms.common.api.ResolvableApiException;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
+import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
 import org.commcare.location.CommCareLocationController;
@@ -49,7 +49,7 @@ import org.commcare.utils.GeoUtils;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -231,14 +231,19 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
 
-        integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
-            if (integrityToken != null) {
-                makeStartConfigurationCall(integrityToken, requestHash, body);
-            } else {
-                onConfigurationFailure();
-            }
-            return null;
-        });
+        integrityTokenApiRequestHelper.withIntegrityToken(body,
+                new IntegrityTokenViewModel.IntegrityTokenCallback() {
+                    @Override
+                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash) {
+                        makeStartConfigurationCall(token, requestHash, body);
+                    }
+
+                    @Override
+                    public void onTokenFailure(@NotNull Exception exception) {
+                        onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE,
+                                integrityTokenApiRequestHelper.getErrorForException(requireActivity(), exception));
+                    }
+                });
     }
 
     @Override
@@ -344,27 +349,29 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
                                             HashMap<String, String> body) {
-        Log.d("Integrity", "Token: " + integrityToken);
-        Log.d("Integrity", "Hash: " + requestHash);
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
                     onConfigurationSuccess();
                 } else {
+                    String failureCode =
+                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
                     // This is called when api returns success but with a a failure code
-                    Logger.log(LogTypes.TYPE_USER,
-                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
-                    onConfigurationFailure();
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Start Config API failed with " + failureCode);
+                    onConfigurationFailure(failureCode,
+                            getString(R.string.personalid_configuration_process_failed_subtitle));
                 }
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
-                if (failureCode == PersonalIdApiErrorCodes.FORBIDDEN_ERROR) {
-                    onConfigurationFailure();
+            public void onFailure(@androidx.annotation.Nullable PersonalIdOrConnectApiErrorCodes failureCode,
+                    @androidx.annotation.Nullable Throwable t) {
+                if (failureCode == PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR) {
+                    onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                            getString(R.string.personalid_configuration_process_failed_subtitle));
                 } else {
                     navigateFailure(failureCode, t);
                 }
@@ -377,16 +384,16 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-    private void onConfigurationFailure() {
-        String failureMessage = getString(R.string.personalid_configuration_process_failed_subtitle);
+
+    private void onConfigurationFailure(String failureCause, String failureMessage) {
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false,
                         ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, R.string.ok));
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
-
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }

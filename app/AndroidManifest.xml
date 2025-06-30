@@ -140,14 +140,6 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="face" />
-        <receiver
-            android:name="org.commcare.connect.SMSBroadcastReceiver"
-            android:exported="true"
-            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
-            </intent-filter>
-        </receiver>
 
         <activity
             android:label="@string/application_name"
@@ -627,6 +619,8 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
 
     </application>
 

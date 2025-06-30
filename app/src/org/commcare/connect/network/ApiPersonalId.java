@@ -13,8 +13,8 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.ApiClient;
-import org.commcare.connect.network.connectId.ApiService;
+import org.commcare.connect.network.connect.ConnectApiClient;
+import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
@@ -84,7 +84,7 @@ public class ApiPersonalId {
     }
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
@@ -105,7 +105,7 @@ public class ApiPersonalId {
         params.put("username", user.getUserId());
         params.put("password", user.getPassword());
 
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_PERSONAL_ID, new AuthInfo.NoAuth(), params, true, false);
@@ -187,7 +187,7 @@ public class ApiPersonalId {
 
 
     public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
         ConnectNetworkHelper.get(context,
                 url,
                 API_VERSION_PERSONAL_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
@@ -258,14 +258,14 @@ public class ApiPersonalId {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
 
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
         callApi(context, call, callback);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
         callApi(context, call, callback);
     }
@@ -276,7 +276,7 @@ public class ApiPersonalId {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
         callApi(context, call, callback);
     }
@@ -289,7 +289,7 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
 
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
         callApi(context, call, callback);
     }
@@ -308,7 +308,7 @@ public class ApiPersonalId {
         if (displayName != null) {
             params.put("name", displayName);
         }
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
         callApi(context, call, callback);
     }
@@ -326,8 +326,16 @@ public class ApiPersonalId {
         params.put("name", userName);
         params.put("recovery_pin", backupCode);
 
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
+        callApi(context, call, callback);
+    }
+
+    public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName,password,false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
         callApi(context, call, callback);
     }
 

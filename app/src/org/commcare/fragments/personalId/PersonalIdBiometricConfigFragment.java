@@ -25,6 +25,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.EncryptionKeyProvider;
 import org.javarosa.core.services.Logger;
@@ -105,7 +106,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                reportAuthSuccess(result.getAuthenticationType() == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC? AnalyticsParamValue.CCC_SIGN_IN_METHOD_FINGERPRINT : AnalyticsParamValue.CCC_SIGN_IN_METHOD_PIN);
                 navigateForward(false);
             }
 
@@ -117,14 +117,11 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         };
     }
 
-    private void reportAuthSuccess(String method) {
-        FirebaseAnalyticsUtil.reportCccSignIn(method);
-    }
-
     private void refreshAuthenticationOptions() {
         String errorMsgForMinHardwareForSecurity = BiometricsHelper.getMinHardwareErrorForSecurityIfAny(biometricManager, getActivity(), personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock());
         if (errorMsgForMinHardwareForSecurity != null) {
-            Logger.exception("Security configuration failure", new Exception(errorMsgForMinHardwareForSecurity));
+            FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, errorMsgForMinHardwareForSecurity);
             navigateToMessageDisplayForSecurityConfigurationFailure(errorMsgForMinHardwareForSecurity);
         } else {
             updateUiBasedOnMinSecurityRequired();
@@ -234,6 +231,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private void navigateForward(boolean enrollmentFailed) {
         if (enrollmentFailed) {
+            FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.BIOMETRIC_ENROLLMENT_FAILED);
             Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToBiometricEnrollmentFailed());
         } else {
             BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(
