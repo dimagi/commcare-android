@@ -3,6 +3,10 @@ package org.commcare.connect
 import android.app.Activity
 import android.content.Context
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord
@@ -10,22 +14,22 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.database.JobStoreManager
 import org.commcare.connect.network.ApiConnect
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
+import org.commcare.connect.workers.ConnectOpportunitiesWorker
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.model.utils.DateUtils
 import org.javarosa.core.services.Logger
-import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.io.InputStream
 import java.util.Date
 import java.util.Locale
+
 
 object ConnectJobHelper {
     var activeJob: ConnectJobRecord? = null
@@ -347,57 +351,8 @@ object ConnectJobHelper {
      * Requires valid activity to fetch details.
      */
     fun retrieveConnectOpportunities(activity: Activity) {
-        val user = ConnectUserDatabaseUtil.getUser(activity)
-        ApiConnect.getConnectOpportunities(activity, user, object : IApiCallback {
-            override fun processSuccess(responseCode: Int, responseData: InputStream?) {
-                try {
-                    val responseAsString = responseData?.let { input ->
-                        String(StreamsUtil.inputStreamToByteArray(input))
-                    } ?: return
-
-                    if (responseAsString.isNotEmpty()) {
-                        val json = JSONArray(responseAsString)
-                        val jobs = mutableListOf<ConnectJobRecord>()
-
-                        for (i in 0 until json.length()) {
-                            try {
-                                val obj = json.getJSONObject(i)
-                                val job = ConnectJobRecord.fromJson(obj)
-                                jobs.add(job)
-                            } catch (e: JSONException) {
-                                Logger.exception("Parsing return from Opportunities request", e)
-                            }
-                        }
-
-                        JobStoreManager(activity).storeJobs(activity, jobs, true)
-                    }
-
-                } catch (e: JSONException) {
-                    throw RuntimeException(e)
-                } catch (e: IOException) {
-                    Logger.exception("Parsing return from Opportunities request", e)
-                }
-            }
-
-            override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
-                Logger.log("ERROR", "Opportunities call failed: $responseCode")
-            }
-
-            override fun processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(activity)
-            }
-
-            override fun processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(activity)
-            }
-
-            override fun processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException()
-            }
-
-            override fun processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(activity)
-            }
-        })
+        val workRequest: WorkRequest = OneTimeWorkRequest.Builder(ConnectOpportunitiesWorker::class.java)
+                .build()
+        WorkManager.getInstance(activity).enqueue(workRequest)
     }
 }
