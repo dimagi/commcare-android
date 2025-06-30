@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -100,9 +99,9 @@ public class ConnectMessageFragment extends Fragment {
 
     private void makeApiCall() {
         MessageManager.retrieveMessages(requireActivity(), success -> {
-            if(success){
+            if (success) {
                 refreshUi();
-            }else{
+            } else {
                 Toast.makeText(requireContext(), getString(R.string.connect_messaging_retrieve_messages_fail), Toast.LENGTH_SHORT).show();
             }
         });
@@ -129,7 +128,7 @@ public class ConnectMessageFragment extends Fragment {
         });
 
         binding.etMessage.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus) {
+            if (hasFocus) {
 
                 binding.rvChat.postDelayed(() -> {
                     RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
@@ -144,7 +143,7 @@ public class ConnectMessageFragment extends Fragment {
         });
 
         binding.imgSendMessage.setOnClickListener(v -> {
-            ConnectMessagingMessageRecord message =  new ConnectMessagingMessageRecord();
+            ConnectMessagingMessageRecord message = new ConnectMessagingMessageRecord();
             message.setMessageId(UUID.randomUUID().toString());
             message.setMessage(binding.etMessage.getText().toString());
             message.setChannelId(channelId);
@@ -156,16 +155,18 @@ public class ConnectMessageFragment extends Fragment {
             binding.etMessage.setText("");
 
             ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
-            refreshUi();
+            ConnectMessageChatData chat = fromMessage(message);
+            adapter.addMessage(chat);
+            binding.rvChat.scrollToPosition(adapter.getItemCount() - 1);
 
             MessageManager.sendMessage(requireContext(), message, success -> {
-                if(!success){
+                if (!success) {
                     Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
-                    // Update UI to show send failure state
-                    message.setConfirmed(false);
-                    ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
+                } else {
+                    chat.setMessageRead(success);
+                    adapter.updateMessageReadStatus(chat);
+                    binding.rvChat.scrollToPosition(adapter.getItemCount() - 1);
                 }
-                refreshUi();
             });
         });
     }
@@ -181,17 +182,13 @@ public class ConnectMessageFragment extends Fragment {
 
     public void refreshUi() {
         Context context = getContext();
-        if(context != null) {
+        if (context != null) {
             List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesForChannel(context, channelId);
 
             List<ConnectMessageChatData> chats = new ArrayList<>();
             for (ConnectMessagingMessageRecord message : messages) {
-                int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
-                chats.add(new ConnectMessageChatData(viewType,
-                        message.getMessage(),
-                        message.getIsOutgoing() ? "You" : "Them",
-                        message.getTimeStamp(),
-                        message.getConfirmed()));
+
+                chats.add(fromMessage(message));
 
                 if (!message.getUserViewed()) {
                     message.setUserViewed(true);
@@ -200,8 +197,20 @@ public class ConnectMessageFragment extends Fragment {
             }
 
             adapter.updateData(chats);
-            binding.rvChat.scrollToPosition(messages.size() - 1);
+            if (messages.size() > 0) {
+                binding.rvChat.scrollToPosition(messages.size() - 1);
+            }
+
         }
+    }
+
+    private ConnectMessageChatData fromMessage(ConnectMessagingMessageRecord message) {
+        int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
+        return new ConnectMessageChatData(message.getMessageId(), viewType,
+                message.getMessage(),
+                message.getIsOutgoing() ? "You" : "Them",
+                message.getTimeStamp(),
+                message.getConfirmed());
     }
 }
 
