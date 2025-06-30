@@ -153,7 +153,10 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public void setKey(String key) {
         this.key = key;
     }
-    public List<ConnectMessagingMessageRecord> getMessages() { return messages; }
+
+    public List<ConnectMessagingMessageRecord> getMessages() {
+        return messages;
+    }
 
     public void setPreview(SpannableString preview) {
         this.preview = preview;
@@ -162,4 +165,23 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
     public SpannableString getPreview() {
         return preview;
     }
+
+    public Date getLastMessageDate() {
+        return messages.size() > 0 ? messages.get(messages.size() - 1).getTimeStamp() : null;
+    }
+
+    public int getUnreadCount() {
+        int unread = 0;
+        if (messages.size() > 0) {
+            for (int messageIndex = messages.size() - 1; messageIndex >= 0; messageIndex--) {
+                if (!messages.get(messageIndex).getUserViewed()) {
+                    unread++;
+                } else {
+                    break;  // now all messages will be read only
+                }
+            }
+        }
+        return unread;
+    }
+
 }

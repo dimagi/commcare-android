@@ -26,7 +26,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     private List<ConnectMessagingChannelRecord> channels;
     private final OnChannelClickListener clickListener;
 
-    public ChannelAdapter(List<ConnectMessagingChannelRecord> channels,  OnChannelClickListener clickListener) {
+    public ChannelAdapter(List<ConnectMessagingChannelRecord> channels, OnChannelClickListener clickListener) {
         this.channels = channels;
         this.clickListener = clickListener;
     }
@@ -64,25 +64,16 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
         public void bind(ConnectMessagingChannelRecord channel, OnChannelClickListener clickListener) {
             binding.tvChannelName.setText(channel.getChannelName());
 
-            Date lastDate = null;
-            int unread = 0;
-            for(ConnectMessagingMessageRecord message : channel.getMessages()) {
-                if(lastDate == null || lastDate.before(message.getTimeStamp())) {
-                    lastDate = message.getTimeStamp();
-                }
-
-                if(!message.getUserViewed()) {
-                    unread++;
-                }
-            }
+            Date lastDate = channel.getLastMessageDate();
+            int unread = channel.getUnreadCount();
 
             binding.tvChannelDescription.setText(channel.getPreview());
 
             boolean showDate = lastDate != null;
             binding.tvLastChatTime.setVisibility(showDate ? View.VISIBLE : View.GONE);
-            if(showDate) {
+            if (showDate) {
                 String lastText;
-                if(DateUtils.dateDiff(new Date(), lastDate) == 0) {
+                if (DateUtils.dateDiff(new Date(), lastDate) == 0) {
                     lastText = DateUtils.formatTime(lastDate, DateUtils.FORMAT_HUMAN_READABLE_SHORT);
                 } else {
                     SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
@@ -94,14 +85,12 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
             boolean showUnread = unread > 0;
             binding.tvUnreadCount.setVisibility(showUnread ? View.VISIBLE : View.GONE);
-            if(showUnread) {
+            if (showUnread) {
                 binding.tvUnreadCount.setText(String.valueOf(unread));
             }
 
             binding.itemRootLayout.setOnClickListener(view -> {
-                if (clickListener != null) {
-                    clickListener.onChannelClick(channel);
-                }
+                clickListener.onChannelClick(channel);
             });
         }
     }

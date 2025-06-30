@@ -3,10 +3,14 @@ package org.commcare.adapters;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewbinding.ViewBinding;
 
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemChatLeftViewBinding;
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding;
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData;
@@ -30,27 +34,40 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyDataSetChanged();
     }
 
-    public static class LeftViewHolder extends RecyclerView.ViewHolder {
-        ItemChatLeftViewBinding binding;
+    public void addMessage(ConnectMessageChatData message) {
+        messages.add(message);
+        notifyItemInserted(messages.size() - 1);
+    }
 
-        public LeftViewHolder(ItemChatLeftViewBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
-
-        public void bind(ConnectMessageChatData chat) {
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            builder.append(chat.getMessage());
-            MarkupUtil.setMarkdown(binding.tvChatMessage, builder, new SpannableStringBuilder());
-
-            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+    public void updateMessageReadStatus(ConnectMessageChatData modifiedChat) {
+        if (messages.size() > 0) {
+            for (ConnectMessageChatData chat : messages) {
+                if (chat.getMessageId().equals(modifiedChat.getMessageId())) {
+                    chat.setMessageRead(modifiedChat.isMessageRead());
+                    notifyDataSetChanged();
+                    return;
+                }
+            }
         }
     }
 
-    public static class RightViewHolder extends RecyclerView.ViewHolder {
-        ItemChatRightViewBinding binding;
+    public class LeftViewHolder extends BaseMessageViewHolder {
+        public LeftViewHolder(ItemChatLeftViewBinding binding) {
+            super(binding);
+        }
+    }
+
+    public class RightViewHolder extends BaseMessageViewHolder {
 
         public RightViewHolder(ItemChatRightViewBinding binding) {
+            super(binding);
+        }
+    }
+
+    public class BaseMessageViewHolder extends RecyclerView.ViewHolder {
+        ViewBinding binding;
+
+        public BaseMessageViewHolder(ViewBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -58,15 +75,31 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public void bind(ConnectMessageChatData chat) {
             SpannableStringBuilder builder = new SpannableStringBuilder();
             builder.append(chat.getMessage());
-            MarkupUtil.setMarkdown(binding.tvChatMessage, builder, new SpannableStringBuilder());
 
-            binding.tvUserName.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+            TextView tvChatMessage;
+            TextView tvChatDate;
+            ImageView ivReadStatus = null;
+            if (binding instanceof ItemChatLeftViewBinding) {
+                tvChatMessage = ((ItemChatLeftViewBinding)binding).tvChatMessage;
+                tvChatDate = ((ItemChatLeftViewBinding)binding).tvChatDate;
+            } else {
+                tvChatMessage = ((ItemChatRightViewBinding)binding).tvChatMessage;
+                tvChatDate = ((ItemChatRightViewBinding)binding).tvChatDate;
+                ivReadStatus = ((ItemChatRightViewBinding)binding).imgMessageReadStatus;
+            }
+
+            tvChatDate.setText(DateUtils.formatDateTime(chat.getTimestamp(), DateUtils.FORMAT_HUMAN_READABLE_SHORT));
+            MarkupUtil.setMarkdown(tvChatMessage, builder, new SpannableStringBuilder());
+            if (ivReadStatus != null) {
+                int resource = chat.isMessageRead() ? R.drawable.ic_connect_message_read : R.drawable.ic_connect_message_unread;
+                ivReadStatus.setImageResource(resource);
+            }
         }
     }
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BaseMessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == LEFTVIEW) {
             ItemChatLeftViewBinding binding = ItemChatLeftViewBinding.inflate(
                     LayoutInflater.from(parent.getContext()), parent, false);
@@ -82,9 +115,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ConnectMessageChatData chat = messages.get(position);
         if (getItemViewType(position) == LEFTVIEW) {
-            ((LeftViewHolder) holder).bind(chat);
+            ((LeftViewHolder)holder).bind(chat);
         } else {
-            ((RightViewHolder) holder).bind(chat);
+            ((RightViewHolder)holder).bind(chat);
         }
     }
 

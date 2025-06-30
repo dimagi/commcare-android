@@ -3,7 +3,7 @@ package org.commcare.fragments.connectMessaging;
 import java.util.Date;
 
 public class ConnectMessageChatData {
-
+    private String messageId;
     private int type;
     private String message;
     private String userName;
@@ -12,7 +12,8 @@ public class ConnectMessageChatData {
     private boolean isMessageRead;
 
     // Constructor with parameters
-    public ConnectMessageChatData(int type, String message, String userName, Date timestamp, boolean isMessageRead) {
+    public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp, boolean isMessageRead) {
+        this.messageId = messageId;
         this.type = type;
         this.message = message;
         this.userName = userName;
@@ -21,6 +22,10 @@ public class ConnectMessageChatData {
     }
 
     // Getters and setters
+    public String getMessageId() {
+        return messageId;
+    }
+
     public int getType() {
         return type;
     }
@@ -28,7 +33,10 @@ public class ConnectMessageChatData {
     public void setType(int type) {
         this.type = type;
     }
-    public Date getTimestamp() { return timestamp; }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
 
     public String getMessage() {
         return message;

@@ -61,10 +61,6 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
         binding.rvChannel.setAdapter(channelAdapter);
 
-        MessageManager.retrieveMessages(requireActivity(), success -> {
-            refreshUi();
-        });
-
         MessageManager.sendUnsentMessages(requireActivity());
 
 
@@ -75,7 +71,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         String channelId = getArguments() != null ? getArguments().getString(CHANNEL_ID) : null;
-        if(channelId != null) {
+        if (channelId != null) {
             getArguments().remove(CHANNEL_ID);
             ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
             selectChannel(channel);
@@ -94,7 +90,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
             refreshUi();
         });
 
-        if(getActivity()!=null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar()!=null){
+        if (getActivity() != null && getActivity() instanceof CommCareActivity && ((CommCareActivity)getActivity()).getSupportActionBar() != null) {
             ((CommCareActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
@@ -115,15 +111,15 @@ public class ConnectMessageChannelListFragment extends Fragment {
     };
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
-        Navigation.findNavController(requireView()).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel):getChannelConsetBottomSheetDirection(channel));
+        Navigation.findNavController(requireView()).navigate(channel.getConsented() ? getConnectMessageFragmentDirection(channel) : getChannelConsetBottomSheetDirection(channel));
     }
 
-    private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel){
+    private NavDirections getConnectMessageFragmentDirection(ConnectMessagingChannelRecord channel) {
         return ConnectMessageChannelListFragmentDirections
                 .actionChannelListFragmentToConnectMessageFragment(channel.getChannelId());
     }
 
-    private NavDirections getChannelConsetBottomSheetDirection(ConnectMessagingChannelRecord channel){
+    private NavDirections getChannelConsetBottomSheetDirection(ConnectMessagingChannelRecord channel) {
         return ConnectMessageChannelListFragmentDirections
                 .actionChannelListFragmentToChannelConsentBottomSheet(channel.getChannelId(),
                         channel.getChannelName());
@@ -137,7 +133,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
 
     public void refreshUi() {
         Context context = getContext();
-        if(context != null) {
+        if (context != null) {
             List<ConnectMessagingChannelRecord> channels = ConnectMessagingDatabaseHelper.getMessagingChannels(context);
             channelAdapter.setChannels(channels);
         }
