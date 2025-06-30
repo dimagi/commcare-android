@@ -3,7 +3,6 @@ package org.commcare.fragments.personalId;
 import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
@@ -55,7 +54,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
-import static android.app.Activity.RESULT_OK;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener {
@@ -71,7 +69,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
-    private final static int LOCATION_SETTING_REQ = 104;
 
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
@@ -176,14 +173,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
             public void afterTextChanged(Editable s) {
             }
         };
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == LOCATION_SETTING_REQ && resultCode == RESULT_OK && data != null) {
-            locationController.start();
-        }
     }
 
     private void updateContinueButtonState() {
