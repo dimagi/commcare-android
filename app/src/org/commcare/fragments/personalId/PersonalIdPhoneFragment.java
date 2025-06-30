@@ -254,7 +254,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                                     exception.getResolution()).build();
                             resolutionLauncher.launch(request);
                         } catch (Exception e) {
-                            e.printStackTrace();
                             navigateToPermissionErrorMessageDisplay(
                                     R.string.personalid_location_service_error,
                                     R.string.personalid_grant_location_service
