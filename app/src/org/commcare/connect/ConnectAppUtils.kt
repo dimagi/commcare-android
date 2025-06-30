@@ -4,15 +4,20 @@ import android.app.Activity
 import android.content.Context
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
 import org.commcare.connect.database.ConnectAppDatabaseUtil
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.JobStoreManager
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.tasks.ResourceEngineListener
 import org.commcare.tasks.templates.CommCareTask
 import org.commcare.tasks.templates.CommCareTaskConnector
 import java.security.SecureRandom
+
 
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
@@ -156,5 +161,17 @@ object ConnectAppUtils {
         CommCareLauncher.launchCommCareForAppId(activity, appId)
 
         activity.finish()
+    }
+
+    /**
+     * Returns true if there is any job available for the user.
+     * Requires activity to fetch job
+     */
+    fun hasConnectJobs(context: Context?): Boolean {
+        if (!ConnectDatabaseHelper.dbExists()) {
+            return false
+        }
+        val storage = ConnectJobUtils.getConnectJobStorage(context)
+        return storage.numRecords > 0
     }
 }

@@ -169,6 +169,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
+
+        uiController.updateGoToConnectMenuVisiblity();
     }
 
     @Override

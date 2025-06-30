@@ -1,7 +1,12 @@
 package org.commcare.connect
 
+import android.app.Activity
 import android.content.Context
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord
@@ -12,6 +17,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ApiConnect
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
+import org.commcare.connect.workers.ConnectOpportunitiesWorker
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.javarosa.core.io.StreamsUtil
@@ -23,6 +29,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Date
 import java.util.Locale
+
 
 object ConnectJobHelper {
     var activeJob: ConnectJobRecord? = null
@@ -336,5 +343,16 @@ object ConnectJobHelper {
                     listener.connectActivityComplete(false)
                 }
             })
+    }
+
+
+    /**
+     * Retrieves Connect job opportunities for the current user and stores them locally.
+     * Requires valid activity to fetch details.
+     */
+    fun retrieveConnectOpportunities(activity: Activity) {
+        val workRequest: WorkRequest = OneTimeWorkRequest.Builder(ConnectOpportunitiesWorker::class.java)
+                .build()
+        WorkManager.getInstance(activity).enqueue(workRequest)
     }
 }

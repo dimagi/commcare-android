@@ -454,4 +454,11 @@ public class ConnectJobUtils {
         return null;
     }
 
+    public static SqlStorage<ConnectAppRecord> getConnectJobStorage(Context context) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            return ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class);
+        }
+        return null;
+    }
+
 }
