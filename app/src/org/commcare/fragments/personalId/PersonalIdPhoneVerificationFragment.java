@@ -92,7 +92,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             public void onSuccess(FirebaseUser user) {
                 if (otpCallback == null) return;
-                logOtpVerification(true);
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_verified) + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
                 user.getIdToken(false).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -105,7 +104,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             @Override
             public void onFailure(OtpErrorType errorType, @Nullable String errorMessage) {
                 if (otpCallback == null) return;
-                logOtpVerification(false);
                 String userMessage = switch (errorType) {
                     case INVALID_CREDENTIAL -> getString(R.string.personalid_incorrect_otp);
                     case TOO_MANY_REQUESTS -> getString(R.string.personalid_too_many_otp_attempts);
@@ -135,7 +133,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     }
 
     private void validateFirebaseIdToken(String firebaseIdToken) {
-
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
@@ -282,10 +279,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         } else {
             otpManager.submitOtp(otpCode);
         }
-    }
-
-    private void logOtpVerification(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_PRIMARY_OTP);
     }
 
     private void startResendTimer() {
