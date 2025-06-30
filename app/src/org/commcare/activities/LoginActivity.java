@@ -586,8 +586,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerPersonalIdUser();
                 return true;
             case MENU_PERSONAL_ID_FORGET:
-                FirebaseAnalyticsUtil.reportCccForget();
-                personalIdManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
+                personalIdManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
                 uiController.refreshView();
