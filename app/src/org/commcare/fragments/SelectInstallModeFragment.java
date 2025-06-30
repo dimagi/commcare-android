@@ -13,14 +13,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.zxing.BarcodeFormat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
-import org.commcare.activities.connect.PersonalIdCredentialActivity;
-import org.commcare.activities.connect.PersonalIdCredentialDetailActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
@@ -33,11 +36,6 @@ import org.commcare.views.widgets.WidgetUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 /**
  * Fragment for choosing app installation mode (barcode or manual install).
@@ -53,7 +51,6 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
     private Button mConnectButton;
     private TextView mOrText;
-    private Button btnGoToCredential;
 
     @Override
     public void onResume() {
@@ -88,9 +85,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         scanBarcodeButton.setOnClickListener(v -> {
             try {
-                AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
+                AppCompatActivity currentActivity = (AppCompatActivity) getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
-                    ((CommCareSetupActivity)currentActivity).clearErrorMessage();
+                    ((CommCareSetupActivity) currentActivity).clearErrorMessage();
                 }
                 Intent intent = WidgetUtils.createScanIntent(getContext(), BarcodeFormat.QR_CODE.name());
                 currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
@@ -103,11 +100,11 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         SquareButtonWithText enterURLButton = view.findViewById(R.id.enter_app_location);
         enterURLButton.setOnClickListener(v -> {
             SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
-            AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
+            AppCompatActivity currentActivity = (AppCompatActivity) getActivity();
             if (currentActivity instanceof CommCareSetupActivity) {
-                ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
-                ((CommCareSetupActivity)currentActivity).clearErrorMessage();
-                ((CommCareSetupActivity)currentActivity).checkManagedConfiguration();
+                ((CommCareSetupActivity) currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
+                ((CommCareSetupActivity) currentActivity).clearErrorMessage();
+                ((CommCareSetupActivity) currentActivity).checkManagedConfiguration();
             }
             // if we use getChildFragmentManager, we're going to have a crash
             FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -119,7 +116,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         SquareButtonWithText installFromLocal = view.findViewById(R.id.btn_fetch_hub);
         installFromLocal.setOnClickListener(v -> {
-            AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
+            AppCompatActivity currentActivity = (AppCompatActivity) getActivity();
             if (currentActivity instanceof CommCareSetupActivity) {
                 showLocalAppDialog();
             }
@@ -133,16 +130,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         mViewErrorButton.setText(Localization.get("error.button.text"));
 
-        mViewErrorButton.setOnClickListener(view1 -> CommCareNoficationManager.performIntentCalloutToNotificationsView((AppCompatActivity)getActivity()));
+        mViewErrorButton.setOnClickListener(view1 -> CommCareNoficationManager.performIntentCalloutToNotificationsView((AppCompatActivity) getActivity()));
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
 
-        InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        btnGoToCredential = view.findViewById(R.id.btnGoToCredential);
-        btnGoToCredential.setOnClickListener(v -> startActivity(new Intent(requireActivity(), PersonalIdCredentialDetailActivity.class)));
-
         return view;
     }
 
@@ -155,9 +149,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         int count = 0;
         for (final MicroNode.AppManifest app : mLocalApps) {
             DialogChoiceItem item = new DialogChoiceItem(app.getName(), -1, v -> {
-                AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
+                AppCompatActivity currentActivity = (AppCompatActivity) getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
-                    ((CommCareSetupActivity)currentActivity).onURLChosen(app.getLocalUrl());
+                    ((CommCareSetupActivity) currentActivity).onURLChosen(app.getLocalUrl());
                 }
                 chooseApp.dismiss();
             });
@@ -165,7 +159,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             count++;
         }
         chooseApp.setChoiceItems(items);
-        ((CommCareActivity)getActivity()).showAlertDialog(chooseApp);
+        ((CommCareActivity) getActivity()).showAlertDialog(chooseApp);
     }
 
     @Override
@@ -178,20 +172,20 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 appsAvailable = true;
             }
         }
-        AppCompatActivity activity = (AppCompatActivity)getActivity();
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (appsAvailable && activity != null) {
             getActivity().runOnUiThread(() -> mFetchHubContainer.setVisibility(View.VISIBLE));
         }
     }
 
     public void showOrHideErrorMessage() {
-        AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
+        AppCompatActivity currentActivity = (AppCompatActivity) getActivity();
         if (currentActivity instanceof CommCareSetupActivity) {
-            String msg = ((CommCareSetupActivity)currentActivity).getErrorMessageToDisplay();
+            String msg = ((CommCareSetupActivity) currentActivity).getErrorMessageToDisplay();
             if (msg != null && !"".equals(msg)) {
                 mErrorMessageView.setText(msg);
                 mErrorMessageView.setVisibility(View.VISIBLE);
-                if (((CommCareSetupActivity)this.getActivity()).shouldShowNotificationErrorButton()
+                if (((CommCareSetupActivity) this.getActivity()).shouldShowNotificationErrorButton()
                         && CommCareApplication.notificationManager().messagesForCommCareArePending()) {
                     mViewErrorContainer.setVisibility(View.VISIBLE);
                 }
@@ -210,8 +204,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
     /**
      * Updates the visibility and click listener of the Connect button and related UI elements.
+     *
      * @param connectEnabled Whether the connect feature should be enabled
-     * @param listener Click listener to be set when the button is enabled
+     * @param listener       Click listener to be set when the button is enabled
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {

@@ -22,10 +22,4 @@
         android:visibility="visible"
         android:paddingStart="@dimen/standard_spacer"
         android:paddingEnd="@dimen/standard_spacer" />
-
-    <Button
-        android:id="@+id/btnGoToCredential"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go To Credential Activity"/>
 </LinearLayout>
