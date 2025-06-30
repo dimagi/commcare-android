@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:text="@string/connectid_photo_capture_title"
+            android:text="@string/personalid_photo_capture_title"
             android:textColor="@color/connect_blue_color"
             android:textSize="16sp"
             android:textStyle="bold"/>
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:gravity="start"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:text="@string/connectid_photo_capture_subtitle"
+            android:text="@string/personalid_photo_capture_subtitle"
             android:textColor="@color/connect_subtext"
             android:textSize="14sp"
             android:textStyle="bold"/>
@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:text="@string/connectid_photo_capture_take_photo_button" />
+            android:text="@string/personalid_photo_capture_take_photo_button" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_photo_button"
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:enabled="false"
-            android:text="@string/connectid_photo_capture_save_photo_button" />
+            android:text="@string/personalid_photo_capture_save_photo_button" />
 
         <TextView
             android:id="@+id/errorTextView"

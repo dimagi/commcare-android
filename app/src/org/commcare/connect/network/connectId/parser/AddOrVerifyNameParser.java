@@ -1,4 +1,4 @@
-package org.commcare.connect.network.parser;
+package org.commcare.connect.network.connectId.parser;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.utils.JsonExtensions;
@@ -20,6 +20,6 @@ public class AddOrVerifyNameParser implements PersonalIdApiResponseParser {
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
         sessionData.setAccountExists(json.optBoolean("account_exists", false));
-        sessionData.setToken(JsonExtensions.optStringSafe(json, "photo", null));
+        sessionData.setPhotoBase64(JsonExtensions.optStringSafe(json, "photo", null));
     }
 }

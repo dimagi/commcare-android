@@ -14,7 +14,7 @@ public class ConnectUserDatabaseUtil {
         if (context == null) {
             throw new IllegalArgumentException("Context must not be null");
         }
-            if (!ConnectDatabaseHelper.dbExists(context)) {
+            if (!ConnectDatabaseHelper.dbExists()) {
                 return null;
             }
             try {
@@ -38,34 +38,31 @@ public class ConnectUserDatabaseUtil {
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-            try {
-                ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
-            } catch (Exception e) {
-                Logger.exception("Failed to store user", e);
-                throw new RuntimeException("Failed to store user in Connect database", e);
-            }
+        try {
+            ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
+        } catch (Exception e) {
+            Logger.exception("Failed to store user", e);
+            throw new RuntimeException("Failed to store user in Connect database", e);
         }
+    }
 
 
-    public static void forgetUser(Context context) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context must not be null");
+    public static void forgetUser() {
+        try {
+            DatabaseConnectOpenHelper.deleteDb();
+            CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
+            ConnectDatabaseHelper.dbBroken = false;
+            ConnectDatabaseHelper.teardown();
+        } catch (IllegalStateException e) {
+            Logger.exception("Database access error while forgetting user", e);
+            throw new RuntimeException("Failed to access database while cleaning up", e);
+        } catch (SecurityException e) {
+            Logger.exception("Permission denied while deleting database", e);
+            throw new RuntimeException("Failed to delete database due to permissions", e);
+        } catch (Exception e) {
+            Logger.exception("Failed to forget user", e);
+            throw new RuntimeException("Failed to clean up Connect database", e);
         }
-            try {
-                DatabaseConnectOpenHelper.deleteDb(context);
-                CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
-                ConnectDatabaseHelper.dbBroken = false;
-                ConnectDatabaseHelper.teardown();
-            } catch (IllegalStateException e) {
-                Logger.exception("Database access error while forgetting user", e);
-                throw new RuntimeException("Failed to access database while cleaning up", e);
-            } catch (SecurityException e) {
-                Logger.exception("Permission denied while deleting database", e);
-                throw new RuntimeException("Failed to delete database due to permissions", e);
-            } catch (Exception e) {
-                Logger.exception("Failed to forget user", e);
-                throw new RuntimeException("Failed to clean up Connect database", e);
-            }
-        }
+    }
 
 }

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.57">
+          android:versionName="2.58">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -140,14 +140,6 @@
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="face" />
-        <receiver
-            android:name="org.commcare.connect.SMSBroadcastReceiver"
-            android:exported="true"
-            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
-            </intent-filter>
-        </receiver>
 
         <activity
             android:label="@string/application_name"
@@ -580,7 +572,9 @@
         <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
-        <activity android:name="org.commcare.fragments.MicroImageActivity" />
+        <activity
+            android:name="org.commcare.fragments.MicroImageActivity"
+            android:screenOrientation="portrait"/>
         <!-- Start Collect Manifest -->
 
         <meta-data
@@ -625,6 +619,8 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
 
     </application>
 

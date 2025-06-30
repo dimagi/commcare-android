@@ -9,13 +9,15 @@ import android.view.ViewGroup;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
-import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -25,18 +27,18 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private String title;
     private String message;
     private String button2Text;
-    private String userName;
-    private String password;
+    private String buttonText;
     private boolean isCancellable = true;
     private int callingClass;
     private static final String KEY_TITLE = "title";
     private static final String KEY_MESSAGE = "message";
     private static final String KEY_BUTTON2_TEXT = "button2_text";
-    private static final String KEY_USER_NAME = "user_name";
-    private static final String KEY_PASSWORD = "password";
+    private static final String KEY_BUTTON_TEXT = "button_text";
     private static final String KEY_CALLING_CLASS = "calling_class";
     private static final String KEY_IS_CANCELLABLE = "is_cancellable";
     private ScreenPersonalidMessageBinding binding;
+    private PersonalIdSessionData personalIdSessionData;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -44,6 +46,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         binding = ScreenPersonalidMessageBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
         loadSavedState(savedInstanceState);
+        personalIdSessionData = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         binding.connectMessageButton.setOnClickListener(v -> handleContinueButtonPress());
         binding.connectMessageButton2.setOnClickListener(v -> handleContinueButtonPress());
         loadArguments();
@@ -56,6 +60,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         super.onResume();
         binding.connectMessageTitle.setText(title);
         binding.connectMessageMessage.setText(message);
+        binding.connectMessageButton.setText(buttonText);
         setButton2Text(button2Text);
     }
 
@@ -63,9 +68,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         if (savedInstanceState != null) {
             title = savedInstanceState.getString(KEY_TITLE);
             message = savedInstanceState.getString(KEY_MESSAGE);
+            buttonText = savedInstanceState.getString(KEY_BUTTON_TEXT);
             button2Text = savedInstanceState.getString(KEY_BUTTON2_TEXT);
-            userName = savedInstanceState.getString(KEY_USER_NAME);
-            password = savedInstanceState.getString(KEY_PASSWORD);
             callingClass = savedInstanceState.getInt(KEY_CALLING_CLASS);
             isCancellable = savedInstanceState.getBoolean(KEY_IS_CANCELLABLE);
         }
@@ -77,8 +81,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         outState.putString(KEY_TITLE, title);
         outState.putString(KEY_MESSAGE, message);
         outState.putString(KEY_BUTTON2_TEXT, button2Text);
-        outState.putString(KEY_USER_NAME, userName);
-        outState.putString(KEY_PASSWORD, password);
+        outState.putString(KEY_BUTTON_TEXT, buttonText);
         outState.putInt(KEY_CALLING_CLASS, callingClass);
         outState.putBoolean(KEY_IS_CANCELLABLE, isCancellable);
     }
@@ -87,10 +90,10 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         title = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getTitle();
         message = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getMessage();
         callingClass = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getCallingClass();
-        userName = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getPhone();
-        password = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getPassword();
         isCancellable = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getIsCancellable();
-        if (PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text() != null && !PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text().isEmpty()) {
+        buttonText = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButtonText();
+        if (PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text() != null
+                && !PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text().isEmpty()) {
             button2Text = PersonalIdMessageFragmentArgs.fromBundle(getArguments()).getButton2Text();
         }
     }
@@ -116,7 +119,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private void finish() {
         NavDirections directions = null;
         Activity activity = requireActivity();
-        PersonalIdActivity personalIdActivity = (PersonalIdActivity)activity;
         switch (callingClass) {
             case ConnectConstants.PERSONALID_REGISTRATION_SUCCESS, ConnectConstants.PERSONALID_RECOVERY_SUCCESS:
                 successFlow(activity);
@@ -124,9 +126,9 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
             case ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL:
                 SettingsHelper.launchSecuritySettings(activity);
                 break;
-            case ConnectConstants.PERSONALID_RECOVERY_WRONG_PIN:
+            case ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE:
                 if (PersonalIdManager.getInstance().getFailureAttempt() > 2) {
-                    directions = navigateToPhoneVerify(personalIdActivity.primaryPhone);
+                    directions = navigateToPhoneVerify();
                     PersonalIdManager.getInstance().setFailureAttempt(0);
                 } else {
                     directions = navigateToBackupCode();
@@ -134,34 +136,26 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
 
                 break;
             case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
-                directions = navigateToPhoneFragment();
+            case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
+                activity.finish();
                 break;
-
+            case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
+                personalIdSessionData.setAccountExists(false);
+                directions = navigateToBackupCode();
+                break;
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
-
         }
     }
 
-    private NavDirections navigateToMessage(String title, String message, int callingClass, String button2Text,
-                                            String button1Text, String userName, String password) {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageSelf(title, message, callingClass,
-                button2Text, button1Text, userName, password);
-    }
-
-    private NavDirections navigateToPhoneVerify(String primaryPhone) {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPhoneVerify(primaryPhone);
+    private NavDirections navigateToPhoneVerify() {
+        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPhoneVerify();
     }
 
     private NavDirections navigateToBackupCode() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPin("", "");
+        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidBackupcode();
     }
-
-    private NavDirections navigateToPhoneFragment() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageDisplayToPersonalidPhoneFragment();
-    }
-
 
     private void successFlow(Activity activity) {
         PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);

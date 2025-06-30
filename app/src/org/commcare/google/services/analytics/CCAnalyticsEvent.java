@@ -22,6 +22,7 @@ public class CCAnalyticsEvent {
     static final String HOME_BUTTON_CLICK = "home_button_click";
     static final String OPEN_ARCHIVED_FORM = "open_archived_form";
     static final String SELECT_OPTIONS_MENU_ITEM = "select_options_menu_item";
+    static final String OPTIONS_MENU_OPENED = "options_menu_opened";
     static final String SYNC_ATTEMPT = "sync_attempt";
     static final String TIMED_SESSION = "timed_session";
     static final String VIEW_ARCHIVED_FORMS_LIST = "view_archived_forms_list";
@@ -31,10 +32,9 @@ public class CCAnalyticsEvent {
     static final String MENU_SCREEN_ITEM_CLICK = "menu_screen_item_click";
     static final String IN_APP_UPDATE_EVENT = "in_app_update_event";
     static final String LOGIN_CLICK = "login_click";
-    static final String CCC_SIGN_IN = "ccc_sign_in";
-    static final String CCC_FORGET = "ccc_forget";
-    static final String CCC_RECOVERY = "ccc_recovery";
-    static final String CCC_DECONFIGURE = "ccc_deconfigure";
+    static final String PERSONAL_ID_ACCOUNT_CREATED = "personalid_account_created";
+    static final String PERSONAL_ID_ACCOUNT_RECOVERED = "personalid_account_recovered";
+    static final String PERSONAL_ID_ACCOUNT_FORGOTTEN = "personalid_account_forgotten";
     static final String CCC_TAB_CHANGE = "ccc_tab_change";
     static final String CCC_LAUNCH_APP = "ccc_launch_app";
     static final String CCC_AUTO_LOGIN_FAILED = "ccc_auto_login_failed";
@@ -50,5 +50,7 @@ public class CCAnalyticsEvent {
     static final String CCC_PAYMENT_CONFIRMATION_INTERACT = "ccc_payment_confirmation_interact";
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
     static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
+    static final String CCC_BIOMETRIC_INVALIDATED = "ccc_biometric_invalidated";
+    static final String PERSONAL_ID_CONFIGURATION_FAILURE = "personal_id_configuration_failure";
 
 }

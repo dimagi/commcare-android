@@ -340,7 +340,7 @@ public class ConnectNetworkHelper {
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();
                     } else {
-                        handler.processFailure(responseCode);
+                        handler.processFailure(responseCode, null);
                     }
                 }
             }
@@ -353,7 +353,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode);
+                handler.processFailure(responseCode, null);
             }
 
             @Override
@@ -363,7 +363,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode);
+                handler.processFailure(responseCode, null);
             }
 
             @Override
@@ -373,7 +373,7 @@ public class ConnectNetworkHelper {
                     handler.processNetworkFailure();
                 } else {
                     Logger.exception("IO Exception during API call", exception);
-                    handler.processFailure(-1);
+                    handler.processFailure(-1, null);
                 }
             }
 

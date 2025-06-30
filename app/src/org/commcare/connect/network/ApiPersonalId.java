@@ -13,8 +13,8 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.ApiClient;
-import org.commcare.connect.network.connectId.ApiService;
+import org.commcare.connect.network.connect.ConnectApiClient;
+import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
@@ -84,7 +84,7 @@ public class ApiPersonalId {
     }
 
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, Object> params = new HashMap<>();
         String token = FirebaseMessagingUtil.getFCMToken();
         if (token != null) {
@@ -105,7 +105,7 @@ public class ApiPersonalId {
         params.put("username", user.getUserId());
         params.put("password", user.getPassword());
 
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectTokenURL);
 
         ConnectNetworkHelper.PostResult postResult = ConnectNetworkHelper.postSync(context, url,
                 API_VERSION_PERSONAL_ID, new AuthInfo.NoAuth(), params, true, false);
@@ -187,7 +187,7 @@ public class ApiPersonalId {
 
 
     public static void fetchDbPassphrase(Context context, ConnectUserRecord user, IApiCallback callback) {
-        String url = ApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
+        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectFetchDbKeyURL);
         ConnectNetworkHelper.get(context,
                 url,
                 API_VERSION_PERSONAL_ID, new AuthInfo.ProvidedAuth(user.getUserId(), user.getPassword(), false),
@@ -228,35 +228,25 @@ public class ApiPersonalId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code());
+                        callback.processFailure(response.code(), null);
                     }
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
-                    callback.processFailure(response.code());
+                    InputStream stream = response.errorBody() != null ?
+                            response.errorBody().byteStream() : null;
+                    callback.processFailure(response.code(), stream);
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 dismissProgressDialog(context);
                 // Handle network errors, etc.
                 handleNetworkError(t);
                 callback.processNetworkFailure();
             }
         });
-    }
-
-    public static void resetPassword(Context context, String phoneNumber, String recoverySecret,
-                                     String newPassword, IApiCallback callback) {
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phoneNumber);
-        params.put("secret_key", recoverySecret);
-        params.put("password", newPassword);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.resetPassword(params);
-        callApi(context, call, callback);
     }
 
     public static void confirmBackupCode(Context context,
@@ -268,29 +258,26 @@ public class ApiPersonalId {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
 
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        callApi(context, call, callback);
-    }
-
-    public static void setBackupCode(Context context, String username, String password,
-                                     String backupCode, IApiCallback callback) {
-
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", backupCode);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.setBackupCode(token, params);
         callApi(context, call, callback);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
+        callApi(context, call, callback);
+    }
+
+    public static void validateFirebaseIdToken(String token,Context context, String firebaseIdToken, IApiCallback callback) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("token", firebaseIdToken);
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
         callApi(context, call, callback);
     }
 
@@ -302,7 +289,7 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
 
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
         callApi(context, call, callback);
     }
@@ -321,7 +308,7 @@ public class ApiPersonalId {
         if (displayName != null) {
             params.put("name", displayName);
         }
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
         callApi(context, call, callback);
     }
@@ -339,70 +326,16 @@ public class ApiPersonalId {
         params.put("name", userName);
         params.put("recovery_pin", backupCode);
 
-        ApiService apiService = ApiClient.getClientApi();
+        ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
         callApi(context, call, callback);
     }
 
-    public static void requestRegistrationOtpPrimary(Context context, String username, String password,
-                                                     IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String token = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validatePhone(token, params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestRecoveryOtpPrimary(Context context, String phone, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.requestOTPPrimary(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmRegistrationOtpPrimary(Context context, String username, String password,
-                                                     String token, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
-        String basicToken = HttpUtils.getCredential(authInfo);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("token", token);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmOTP(basicToken, params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmRecoveryOtpPrimary(Context context, String phone, String secret,
-                                                 String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.recoverConfirmOTP(params);
-        callApi(context, call, callback);
-    }
-
-    public static void requestInitiateAccountDeactivation(Context context, String phone, String secretKey, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("secret_key", secretKey);
-        params.put("phone_number", phone);
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.accountDeactivation(params);
-        callApi(context, call, callback);
-    }
-
-    public static void confirmUserDeactivation(Context context, String phone, String secret,
-                                               String token, IApiCallback callback) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("phone_number", phone);
-        params.put("secret_key", secret);
-        params.put("token", token);
-
-        ApiService apiService = ApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmDeactivation(params);
+    public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName,password,false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
         callApi(context, call, callback);
     }
 

@@ -1,10 +1,11 @@
 package org.commcare.fragments.personalId;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,22 +23,26 @@ import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.play.core.integrity.StandardIntegrityException;
+import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
+import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.PhoneNumberHelper;
 import org.javarosa.core.services.Logger;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import androidx.navigation.fragment.NavHostFragment;
 
 public class PersonalIdPhoneFragment extends Fragment {
 
@@ -56,7 +61,8 @@ public class PersonalIdPhoneFragment extends Fragment {
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
         activity.setTitle(R.string.connect_registration_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(PersonalIdSessionDataViewModel.class);
+        personalIdSessionDataViewModel = new ViewModelProvider(requireActivity()).get(
+                PersonalIdSessionDataViewModel.class);
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
         return binding.getRoot();
@@ -70,6 +76,7 @@ public class PersonalIdPhoneFragment extends Fragment {
 
     private void initializeUi() {
         binding.countryCode.setText(phoneNumberHelper.setDefaultCountryCode(getContext()));
+        binding.checkText.setMovementMethod(LinkMovementMethod.getInstance());
         setupListeners();
         updateContinueButtonState();
     }
@@ -106,6 +113,9 @@ public class PersonalIdPhoneFragment extends Fragment {
                         } catch (ApiException e) {
                             Toast.makeText(getContext(), R.string.error_occured, Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        binding.connectPrimaryPhoneInput.post(
+                                () -> binding.connectPrimaryPhoneInput.requestFocus());
                     }
                 }
         );
@@ -140,28 +150,18 @@ public class PersonalIdPhoneFragment extends Fragment {
         enableContinueButton(isValidPhone && isConsentChecked);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String phone = PhoneNumberHelper.handlePhoneNumberPickerResult(requestCode, resultCode, data,
-                getActivity());
-        displayPhoneNumber(phone);
-    }
+    private void displayPhoneNumber(String fullPhoneNumber) {
 
-    private void displayPhoneNumber(String fullNumber) {
-        int defaultCode = phoneNumberHelper.getCountryCodeFromLocale(activity);
-        String formattedCode = PhoneNumberHelper.getInstance(activity).formatCountryCode(defaultCode);
+        if (TextUtils.isEmpty(fullPhoneNumber)) return;
 
-        if (fullNumber != null && fullNumber.startsWith(formattedCode)) {
-            fullNumber = fullNumber.substring(formattedCode.length());
+        int countryCodeFromFullPhoneNumber = phoneNumberHelper.getCountryCode(fullPhoneNumber);
+        long nationPhoneNumberFromFullPhoneNumber = phoneNumberHelper.getNationalNumber(fullPhoneNumber);
+
+        if (countryCodeFromFullPhoneNumber != -1 && nationPhoneNumberFromFullPhoneNumber != -1) {
+            binding.connectPrimaryPhoneInput.setText(String.valueOf(nationPhoneNumberFromFullPhoneNumber));
+            binding.countryCode.setText(phoneNumberHelper.formatCountryCode(countryCodeFromFullPhoneNumber));
         }
 
-        int countryCode = phoneNumberHelper.getCountryCode(
-                fullNumber != null && !fullNumber.isEmpty() ? fullNumber : "");
-        String countryCodeText = phoneNumberHelper.formatCountryCode(countryCode);
-
-        binding.connectPrimaryPhoneInput.setText(fullNumber);
-        binding.countryCode.setText(countryCodeText);
     }
 
     private void onContinueClicked() {
@@ -174,6 +174,7 @@ public class PersonalIdPhoneFragment extends Fragment {
     }
 
     private void startConfigurationRequest() {
+        clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
                 binding.connectPrimaryPhoneInput.getText().toString()
@@ -181,69 +182,93 @@ public class PersonalIdPhoneFragment extends Fragment {
 
         HashMap<String, String> body = new HashMap<>();
         body.put("phone_number", phone);
-        body.put("application_id",requireContext().getPackageName());
+        body.put("application_id", requireContext().getPackageName());
 
-        integrityTokenApiRequestHelper.withIntegrityToken(body, (integrityToken, requestHash) -> {
-            if (integrityToken != null) {
-                makeStartConfigurationCall(integrityToken, requestHash, body);
-            } else {
-                onConfigurationFailure();
-            }
-            return null;
-        });
+        integrityTokenApiRequestHelper.withIntegrityToken(body,
+                new IntegrityTokenViewModel.IntegrityTokenCallback() {
+                    @Override
+                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash) {
+                        makeStartConfigurationCall(token, requestHash, body);
+                    }
+
+                    @Override
+                    public void onTokenFailure(@NotNull Exception exception) {
+                        onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE,
+                                integrityTokenApiRequestHelper.getErrorForException(requireActivity(), exception));
+                    }
+                });
     }
 
-    private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
+    private void makeStartConfigurationCall(String integrityToken, String requestHash,
             HashMap<String, String> body) {
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 personalIdSessionDataViewModel.setPersonalIdSessionData(sessionData);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
                 if (personalIdSessionDataViewModel.getPersonalIdSessionData().getToken() != null) {
-                    onConfigurationSucesss();
+                    onConfigurationSuccess();
                 } else {
+                    String failureCode =
+                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode();
                     // This is called when api returns success but with a a failure code
-                    Logger.log(LogTypes.TYPE_USER,
-                            personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureCode());
-                    onConfigurationFailure();
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Start Config API failed with " + failureCode);
+                    onConfigurationFailure(failureCode,
+                            getString(R.string.personalid_configuration_process_failed_subtitle));
                 }
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                navigateFailure(failureCode);
+            public void onFailure(@androidx.annotation.Nullable PersonalIdOrConnectApiErrorCodes failureCode,
+                    @androidx.annotation.Nullable Throwable t) {
+                if (failureCode == PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR) {
+                    onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                            getString(R.string.personalid_configuration_process_failed_subtitle));
+                } else {
+                    navigateFailure(failureCode, t);
+                }
             }
-        }.makeStartConfigurationCall(requireActivity(), body, integrityToken,requestHash);
+        }.makeStartConfigurationCall(requireActivity(), body, integrityToken, requestHash);
     }
 
 
-    private void onConfigurationSucesss() {
+    private void onConfigurationSuccess() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-    private void onConfigurationFailure() {
-        String failureMessage = getString(R.string.configuration_process_failed_subtitle);
+
+    private void onConfigurationFailure(String failureCause, String failureMessage) {
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false));
     }
 
-    private void navigateFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
+    private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
         }
-        PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+    }
+
+    private void clearError() {
+        binding.personalidPhoneError.setVisibility(View.GONE);
+        binding.personalidPhoneError.setText("");
+    }
+
+    private void showError(String error) {
+        binding.personalidPhoneError.setVisibility(View.VISIBLE);
+        binding.personalidPhoneError.setText(error);
     }
 
     private NavDirections navigateToBiometricSetup() {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay(String errorMessage,boolean isCancellable) {
+    private NavDirections navigateToMessageDisplay(String errorMessage, boolean isCancellable) {
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
-                getString(R.string.configuration_process_failed_title),
+                getString(R.string.personalid_configuration_process_failed_title),
                 errorMessage,
-                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok), null, "",
-                "").setIsCancellable(isCancellable);
+                ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
+                null).setIsCancellable(isCancellable);
     }
 }

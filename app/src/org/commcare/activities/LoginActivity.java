@@ -34,7 +34,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
@@ -58,7 +57,6 @@ import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.CrashUtil;
-import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.UserfacingErrorHandling;
@@ -75,6 +73,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author ctsims
@@ -86,13 +85,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String EXTRA_APP_ID = "extra_app_id";
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    public static final int MENU_DEMO = Menu.FIRST;
-    private static final int MENU_ABOUT = Menu.FIRST + 1;
-    private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
-    private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
+    public static final int MENU_PRACTICE_MODE = Menu.FIRST;
+    private static final int MENU_ABOUT_COMMCARE = Menu.FIRST + 1;
+    private static final int MENU_ACQUIRE_PERMISSIONS = Menu.FIRST + 2;
+    private static final int MENU_FORGOT_PIN = Menu.FIRST + 3;
     private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
-    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 5;
-    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 6;
+    private static final int MENU_PERSONAL_ID_SIGN_IN = Menu.FIRST + 5;
+    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 6;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String KEY_LAST_APP = "id-last-seated-app";
     public static final String KEY_ENTERED_USER = "entered-username";
@@ -122,6 +121,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private PersonalIdManager personalIdManager;
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
 
     @Override
@@ -528,7 +528,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(record.getApplicationId());
                 }
                 case PersonalId -> {
-                    uiController.setErrorMessageUI(getString(R.string.failed_to_login_with_connectid), false);
+                    uiController.setErrorMessageUI(getString(R.string.personalid_failed_to_login_with_connectid), false);
                 }
             }
         }
@@ -537,40 +537,44 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
-        menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
+        menu.add(0, MENU_PRACTICE_MODE, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ABOUT_COMMCARE, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
+        menu.add(0, MENU_ACQUIRE_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
+        menu.add(0, MENU_FORGOT_PIN, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
-        menu.add(0, MENU_CONNECT_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
-        menu.add(0, MENU_CONNECT_FORGET, 1, getString(R.string.login_menu_connect_forget));
+        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.login_menu_connect_forget));
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
-        menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
-        menu.findItem(MENU_CONNECT_SIGN_IN).setVisible(!personalIdManager.isloggedIn());
-        menu.findItem(MENU_CONNECT_FORGET).setVisible(personalIdManager.isloggedIn());
+        menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
+        menu.findItem(MENU_FORGOT_PIN).setVisible(uiController.getLoginMode() == LoginMode.PIN);
+        menu.findItem(MENU_PERSONAL_ID_SIGN_IN).setVisible(
+                !personalIdManager.isloggedIn() && personalIdManager.checkDeviceCompability());
+        menu.findItem(MENU_PERSONAL_ID_FORGET).setVisible(personalIdManager.isloggedIn());
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
+                menuIdToAnalyticsParam.get(item.getItemId()));
         boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
-            case MENU_DEMO:
+            case MENU_PRACTICE_MODE:
                 loginDemoUser();
                 return true;
-            case MENU_ABOUT:
+            case MENU_ABOUT_COMMCARE:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
                 return true;
-            case MENU_PERMISSIONS:
+            case MENU_ACQUIRE_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
                 return true;
-            case MENU_PASSWORD_MODE:
+            case MENU_FORGOT_PIN:
                 uiController.manualSwitchToPasswordMode();
                 return true;
             case MENU_APP_MANAGER:
@@ -578,12 +582,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
                 return true;
-            case MENU_CONNECT_SIGN_IN:
+            case MENU_PERSONAL_ID_SIGN_IN:
                 registerPersonalIdUser();
                 return true;
-            case MENU_CONNECT_FORGET:
-                FirebaseAnalyticsUtil.reportCccForget();
-                personalIdManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
+            case MENU_PERSONAL_ID_FORGET:
+                personalIdManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
                 uiController.refreshView();
@@ -591,6 +594,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
+    }
+
+    private Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
+        return Map.of(
+                MENU_PRACTICE_MODE, AnalyticsParamValue.LOGIN_MENU_PRACTICE_MODE,
+                MENU_ABOUT_COMMCARE, AnalyticsParamValue.LOGIN_MENU_ABOUT_COMMCARE,
+                MENU_ACQUIRE_PERMISSIONS, AnalyticsParamValue.LOGIN_MENU_ACQUIRE_PERMISSIONS,
+                MENU_FORGOT_PIN, AnalyticsParamValue.LOGIN_MENU_FORGOT_PIN,
+                MENU_APP_MANAGER, AnalyticsParamValue.LOGIN_MENU_APP_MANAGER,
+                MENU_PERSONAL_ID_SIGN_IN, AnalyticsParamValue.LOGIN_MENU_PERSONAL_ID_SIGN_IN,
+                MENU_PERSONAL_ID_FORGET, AnalyticsParamValue.LOGIN_MENU_PERSONAL_ID_FORGET
+        );
     }
 
     private void loginDemoUser() {
