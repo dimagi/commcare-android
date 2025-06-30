@@ -20,14 +20,18 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
     private lateinit var personalIdCredentialViewModel: PersonalIdCredentialViewModel
     private lateinit var earnedCredentialAdapter: PersonalIdCredentialAdapter
     private lateinit var yetToBeEarnedCredentialsAdapter: PersonalIdCredentialAdapter
+    private var earnedCredentialCount = 2
+    private var yetToBeEarnedCredentialCount = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        personalIdCredentialViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )[PersonalIdCredentialViewModel::class.java]
         setUpUi()
         setupRecyclerViews()
-        personalIdCredentialViewModel =
-            ViewModelProvider(this)[PersonalIdCredentialViewModel::class.java]
         observeCredentialApiCall()
 //        callCredentialApi()
     }
@@ -39,9 +43,17 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
         binding.tvEarnedCredentials.text =
-            getString(R.string.earned_credentials, 2)
+            resources.getQuantityString(
+                R.plurals.earned_credentials,
+                earnedCredentialCount,
+                earnedCredentialCount
+            )
         binding.tvCredentialsYetToBeEarned.text =
-            getString(R.string.credentials_yet_to_be_earned, 0)
+            resources.getQuantityString(
+                R.plurals.credentials_yet_to_be_earned,
+                yetToBeEarnedCredentialCount,
+                yetToBeEarnedCredentialCount
+            )
     }
 
     private fun setupRecyclerViews() {
@@ -51,7 +63,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
                 startActivity(
                     Intent(
                         this@PersonalIdCredentialActivity,
-                        SelectedPersonalIdCredentialActivity::class.java
+                        PersonalIdCredentialDetailActivity::class.java
                     )
                 )
             }
@@ -64,7 +76,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
                 startActivity(
                     Intent(
                         this@PersonalIdCredentialActivity,
-                        SelectedPersonalIdCredentialActivity::class.java
+                        PersonalIdCredentialDetailActivity::class.java
                     )
                 )
             }
@@ -74,6 +86,8 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
 
     private fun observeCredentialApiCall() {
         personalIdCredentialViewModel.credentialsLiveData.observe(this) { result ->
+            yetToBeEarnedCredentialCount = 1
+            earnedCredentialCount = 2
             updateCredentialLists(result.validCredentials)
         }
 
@@ -92,7 +106,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
     }
 
     private fun callCredentialApi() {
-        personalIdCredentialViewModel.retrieveCredentials(this)
+        personalIdCredentialViewModel.retrieveCredentials()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -104,7 +118,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
         return when (item.itemId) {
             android.R.id.home -> {
                 if (!isFinishing) {
-                    this.onBackPressed()
+                    finish()
                 }
                 true
             }

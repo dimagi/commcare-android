@@ -19,10 +19,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.connect.PersonalIdCredentialActivity;
+import org.commcare.activities.connect.PersonalIdCredentialDetailActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.views.RectangleButtonWithText;
 import org.commcare.views.SquareButtonWithText;
@@ -52,6 +53,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
     private Button mConnectButton;
     private TextView mOrText;
+    private Button btnGoToCredential;
 
     @Override
     public void onResume() {
@@ -138,6 +140,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        btnGoToCredential = view.findViewById(R.id.btnGoToCredential);
+        btnGoToCredential.setOnClickListener(v -> startActivity(new Intent(requireActivity(), PersonalIdCredentialDetailActivity.class)));
 
         return view;
     }

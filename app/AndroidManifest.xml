@@ -621,9 +621,18 @@
         </service>
 
         <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
-    <activity
-        android:name="org.commcare.activities.connect.SelectedPersonalIdCredentialActivity"
-        android:exported="false"/>
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialDetailActivity" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.external.files.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
 
     </application>
 

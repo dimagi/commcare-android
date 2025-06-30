@@ -635,7 +635,16 @@
     <string name="share_your_accomplishment_with_friends_and_family">Share your accomplishment with friends and family!</string>
     <string name="learn_more">Learn more about this credential</string>
     <string name="no_credentials_currently_available">No credentials are currently available. Please click “Refresh” to update the list or try again later.</string>
-    <string name="earned_credentials">EARNED CREDENTIALS (%d)</string>
-    <string name="credentials_yet_to_be_earned">CREDENTIALS YET TO BE EARNED (%d)</string>
+    <plurals name="earned_credentials">
+        <item quantity="one">EARNED CREDENTIAL (1)</item>
+        <item quantity="other">EARNED CREDENTIALS (%d)</item>
+    </plurals>
+    <plurals name="credentials_yet_to_be_earned">
+        <item quantity="one">CREDENTIAL YET TO BE EARNED (1)</item>
+        <item quantity="other">CREDENTIALS YET TO BE EARNED (%d)</item>
+    </plurals>
     <string name="cloud_sync">CloudSync</string>
+    <string name="share_active_for">ACTIVE FOR\n%1$s</string>
+    <string name="share_earned_on">EARNED ON\n%1$s</string>
+    <string name="share_worked_on">WORKED ON: %1$s</string>
 </resources>
