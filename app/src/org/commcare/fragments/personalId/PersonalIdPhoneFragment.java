@@ -3,6 +3,8 @@ package org.commcare.fragments.personalId;
 import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
@@ -38,7 +40,6 @@ import org.commcare.connect.network.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
-import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.location.CommCareLocationController;
 import org.commcare.location.CommCareLocationControllerFactory;
 import org.commcare.location.CommCareLocationListener;
@@ -52,6 +53,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
+import static android.app.Activity.RESULT_OK;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener {
@@ -66,6 +68,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private Location location;
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
+    private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
+    private final static int LOCATION_SETTING_REQ = 104;
+
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
@@ -84,7 +89,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         locationController = CommCareLocationControllerFactory.getLocationController(requireActivity(), this);
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
-        registerLocationPermissionLauncher();
+        registerLauncher();
         return binding.getRoot();
     }
 
@@ -171,6 +176,14 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         };
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == LOCATION_SETTING_REQ && resultCode == RESULT_OK && data != null) {
+            locationController.start();
+        }
+    }
+
     private void updateContinueButtonState() {
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
@@ -240,11 +253,22 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 new LocationRequestFailureHandler.LocationResolutionCallback() {
                     @Override
                     public void onResolvableException(ResolvableApiException exception) {
-                        handleNoLocationServiceProviders();
+                        try {
+                            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                                    exception.getResolution()).build();
+                            resolutionLauncher.launch(request);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            navigateToPermissionErrorMessageDisplay(
+                                    R.string.personalid_location_service_error,
+                                    R.string.personalid_grant_location_service
+                            );
+                        }
                     }
 
                     @Override
                     public void onNonResolvableFailure() {
+                        handleNoLocationServiceProviders();
                     }
                 });
     }
@@ -283,7 +307,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 .getId() == R.id.personalid_message_display;
     }
 
-    private void registerLocationPermissionLauncher() {
+    private void registerLauncher() {
         locationPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestMultiplePermissions(),
                 result -> {
@@ -297,6 +321,21 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                             navigateToPermissionErrorMessageDisplay(R.string.personalid_location_permission_error,
                                     R.string.personalid_grant_location_permission);
                         }
+                    }
+                }
+        );
+
+        resolutionLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // User enabled location settings
+                    } else {
+                        // User cancelled or failed
+                        navigateToPermissionErrorMessageDisplay(
+                                R.string.personalid_location_service_error,
+                                R.string.personalid_grant_location_service
+                        );
                     }
                 }
         );
@@ -385,10 +424,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     @Override
     public void missingPermissions() {
-        if (Permissions.missingAppPermission(requireActivity(), REQUIRED_PERMISSIONS)) {
-            if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
-                locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
-            }
+        if (!shouldShowPermissionRationale(requireActivity(), REQUIRED_PERMISSIONS)) {
+            locationPermissionLauncher.launch(REQUIRED_PERMISSIONS);
         }
     }
 }
