@@ -29,6 +29,11 @@ public class FirebaseAuthService implements OtpAuthService {
     public FirebaseAuthService(@NonNull Activity activity, @NonNull OtpVerificationCallback callback) {
         this.callback = callback;
         this.firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.initializeRecaptchaConfig().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Logger.exception("Firebase Recaptcha initialization failed", task.getException());
+            }
+        });
 
         PhoneAuthProvider.OnVerificationStateChangedCallbacks verificationCallbacks =
                 new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {

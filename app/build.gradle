@@ -173,6 +173,7 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:$cameraX_version"
     implementation 'com.google.android.gms:play-services-mlkit-face-detection:17.1.0'
     implementation "com.google.firebase:firebase-auth:22.3.0"
+    implementation 'com.google.android.recaptcha:recaptcha:18.7.1'
 }
 
 ext {
