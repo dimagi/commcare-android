@@ -15,6 +15,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
+import org.commcare.utils.GeoUtils;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
@@ -143,6 +144,12 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 personalIdSessionData.setAccountExists(false);
                 directions = navigateToBackupCode();
                 break;
+            case ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE:
+                NavHostFragment.findNavController(this).navigateUp();
+                GeoUtils.goToProperLocationSettingsScreen(activity);
+                activity.finish();
+                break;
+
         }
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
