@@ -1,25 +1,10 @@
-package org.commcare.android.database.connect.models;
-
-import java.util.List;
+package org.commcare.android.database.connect.models
 
 /**
  * Wraps the result of parsing Personal ID Credential response.
  * Contains valid and corrupt items separately.
  */
-public class PersonalIdValidAndCorruptCredential  {
-    private final List<PersonalIdCredential> validCredentials;
-    private final List<PersonalIdCredential> corruptCredentials;
-
-    public PersonalIdValidAndCorruptCredential(List<PersonalIdCredential> valid, List<PersonalIdCredential> corrupt) {
-        this.validCredentials = valid;
-        this.corruptCredentials = corrupt;
-    }
-
-    public List<PersonalIdCredential> getValidCredentials() {
-        return validCredentials;
-    }
-
-    public List<PersonalIdCredential> getCorruptCredentials() {
-        return corruptCredentials;
-    }
-}
+data class PersonalIdValidAndCorruptCredential(
+    val validCredentials: List<PersonalIdCredential>,
+    val corruptCredentials: List<PersonalIdCredential>
+)

@@ -2,8 +2,11 @@ package org.commcare.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import org.commcare.android.database.connect.models.CredentialType
 import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ItemPersonalIdCredentialBinding
 
 class PersonalIdCredentialAdapter(
@@ -27,10 +30,47 @@ class PersonalIdCredentialAdapter(
     override fun onBindViewHolder(holder: CredentialViewHolder, position: Int) {
         val item = credentialList[position]
         with(holder.binding) {
-            tvCredentialTitle.text = item.title
-            tvAppName.text = item.appName
+            tvCredentialTitle.text = item.appId
+            tvAppName.text = item.appId
             tvIssuedDate.text = item.issuedDate
-            tvUserActivity.text = item.credential
+            tvUserActivity.text = item.level
+            when (item.getCredentialType()) {
+                CredentialType.LEARN -> {
+                    view.setBackgroundColor(
+                        ContextCompat.getColor(
+                            root.context,
+                            R.color.cc_dark_warm_accent_color
+                        )
+                    )
+                }
+
+                CredentialType.DELIVER -> {
+                    view.setBackgroundColor(
+                        ContextCompat.getColor(
+                            root.context,
+                            R.color.personal_id_delivery_app
+                        )
+                    )
+                }
+
+                CredentialType.APP_ACTIVITY -> {
+                    view.setBackgroundColor(
+                        ContextCompat.getColor(
+                            root.context,
+                            R.color.connect_message_large_icon_color
+                        )
+                    )
+                }
+
+                else -> {
+                    view.setBackgroundColor(
+                        ContextCompat.getColor(
+                            root.context,
+                            R.color.connect_message_large_icon_color
+                        )
+                    )
+                }
+            }
 
             tvViewCredential.setOnClickListener {
                 listener.onViewCredentialClick(item)
