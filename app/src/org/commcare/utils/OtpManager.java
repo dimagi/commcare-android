@@ -12,19 +12,20 @@ public class OtpManager {
 
     /**
      * Constructs an OtpManager by instantiating a default FirebaseAuthService internally.
-     *
-     * @param activity The calling activity, required by FirebaseAuth
-     * @param callback Callback to handle OTP verification events
      */
-    public OtpManager(Activity activity, OtpVerificationCallback callback) {
-        this.authService = new FirebaseAuthService(activity, callback);
+    public OtpManager(OtpAuthService authService) {
+        this.authService = authService;
     }
 
     public void requestOtp(String phoneNumber) {
         authService.requestOtp(phoneNumber);
     }
 
-    public void submitOtp(String code) {
+    public void verifyOtp(String code) {
         authService.verifyOtp(code);
+    }
+
+    public void submitOtp(String code) {
+        authService.submitOtp(code);
     }
 }

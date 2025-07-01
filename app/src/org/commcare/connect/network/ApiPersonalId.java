@@ -330,6 +330,29 @@ public class ApiPersonalId {
         callApi(context, call, callback);
     }
 
+    public static void sendOtp(Context context, String token, IApiCallback callback) {;
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.sendSessionOtp(tokenAuth);
+        callApi(context, call, callback);
+    }
+
+    public static void validateOtp(Context context, String token, String otp, IApiCallback callback) {;
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("otp", otp);
+
+        ApiService apiService = ApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
+        callApi(context, call, callback);
+    }
+
     private static void logNetworkError(Response<?> response) {
         String message = response.message();
         if (response.code() == 400) {

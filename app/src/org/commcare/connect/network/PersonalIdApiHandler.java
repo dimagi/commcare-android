@@ -137,7 +137,7 @@ public abstract class PersonalIdApiHandler {
                         new StartConfigurationResponseParser()));
     }
     public void validateFirebaseIdToken(Activity activity, String firebaseIdToken,PersonalIdSessionData sessionData) {
-        ApiPersonalId.validateFirebaseIdToken(sessionData.getToken(),activity,firebaseIdToken,
+        ApiPersonalId.validateFirebaseIdToken(sessionData.getToken(), activity, firebaseIdToken,
                 createCallback(sessionData,
                         null));
     }
@@ -159,6 +159,16 @@ public abstract class PersonalIdApiHandler {
         ApiPersonalId.setPhotoAndCompleteProfile(context, userName, photoAsBase64, backupCode, token,
                 createCallback(sessionData,
                         new CompleteProfileResponseParser()));
+    }
+
+    public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {
+        ApiPersonalId.sendOtp(activity, sessionData.getToken(),
+                createCallback(sessionData, null));
+    }
+
+    public void validateOtp(Activity activity, String otp, PersonalIdSessionData sessionData) {
+        ApiPersonalId.validateOtp(activity, sessionData.getToken(), otp,
+                createCallback(sessionData, null));
     }
 
 
