@@ -4,20 +4,18 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
-
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
-import org.commcare.connect.ConnectManager;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
+
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
@@ -60,7 +58,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     private void handleRedirectIfAny() {
         String action = getIntent().getStringExtra("action");
         if (CCC_MESSAGE.equals(action)) {
-            ConnectManager.init(this);
+            PersonalIdManager.getInstance().init(this);
             PersonalIdManager.getInstance().unlockConnect(this, success -> {
                 if (success) {
                     String channelId = getIntent().getStringExtra(

@@ -304,6 +304,7 @@ License.
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
     <string name="connect_learn_failed_title">Échec de la formation</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
+    <string name="connect_learn_error_starting">Impossible de commencer l\'apprentissage, veuillez contacter l\'administrateur de l\'opportunité.</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
     <string name="connect_learn_status">Vous avez terminé %d des %d leçons.\nTerminez l\'apprentissage pour obtenir votre certificat.</string>
     <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
@@ -358,7 +359,6 @@ License.
     <string name="app_with_id_not_found">L\'application CommCare requise n\'est pas installée sur l\'appareil</string>
     <string name="audio_recording_notification">Notification d\'enregistrement audio</string>
     <string name="user_suspended">L\'utilisateur est suspendu. Veuillez contacter l\'administrateur.</string>
-    <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
     <string name="enter_otp">Entrez le code SMS</string>
@@ -426,6 +426,8 @@ License.
     <string name="personalid_otp_missing_activity">Quelque chose s\'est mal passé</string>
     <string name="personalid_otp_verification_failed_generic">Échec de la vérification OTP:</string>
     <string name="personalid_otp_verification_failed">La vérification a échoué, veuillez réessayer.</string>
+    <string name="personalid_messaging_menu_title">Messagerie</string>
+    <string name="personalid_sync_menu_title">Synchroniser</string>
     <string name="connect_registration_subtitle">Entrez votre numéro de téléphone</string>
     <string name="connect_backup_code_message_title">Code de sauvegarde PersonalId</string>
     <string name="connect_backup_code_message">Entrez votre code de sauvegarde à 6 chiffres</string>

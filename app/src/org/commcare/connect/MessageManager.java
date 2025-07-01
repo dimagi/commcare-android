@@ -8,6 +8,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
@@ -34,7 +35,7 @@ public class MessageManager {
         return channel;
     }
 
-    public static void retrieveMessages(Context context, ConnectManager.ConnectActivityCompleteListener listener) {
+    public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData)  {
@@ -112,12 +113,12 @@ public class MessageManager {
             }
         };
 
-        ConnectUserRecord user = ConnectManager.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
         ApiPersonalId.retrieveMessages(context, user.getUserId(), user.getPassword(), callback);
     }
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
-                                            ConnectManager.ConnectActivityCompleteListener listener) {
+                                            ConnectActivityCompleteListener listener) {
         IApiCallback callback = new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData)  {
@@ -167,7 +168,7 @@ public class MessageManager {
             }
         };
 
-        ConnectUserRecord user = ConnectManager.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
         boolean isBusy = !ApiPersonalId.updateChannelConsent(context, user.getUserId(), user.getPassword(),
                 channel.getChannelId(), channel.getConsented(), callback);
 
@@ -177,8 +178,8 @@ public class MessageManager {
     }
 
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
-                                               ConnectManager.ConnectActivityCompleteListener listener) {
-        ConnectUserRecord user = ConnectManager.getUser(context);
+                                               ConnectActivityCompleteListener listener) {
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
         ApiPersonalId.retrieveChannelEncryptionKey(context, user, channel.getChannelId(), channel.getKeyUrl(),
                 new IApiCallback() {
                     @Override
@@ -230,7 +231,7 @@ public class MessageManager {
                 });
     }
 
-    public static void updateReceivedMessages(Context context, ConnectManager.ConnectActivityCompleteListener listener) {
+    public static void updateReceivedMessages(Context context, ConnectActivityCompleteListener listener) {
         List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll(context);
         List<ConnectMessagingMessageRecord> unsent = new ArrayList<>();
         List<String> unsentIds = new ArrayList<>();
@@ -242,7 +243,7 @@ public class MessageManager {
         }
 
         if(unsentIds.size() > 0) {
-            ConnectUserRecord user = ConnectManager.getUser(context);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
             ApiPersonalId.confirmReceivedMessages(context, user.getUserId(), user.getPassword(), unsentIds, new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {
@@ -294,11 +295,11 @@ public class MessageManager {
     }
 
     public static void sendMessage(Context context, ConnectMessagingMessageRecord message,
-                                   ConnectManager.ConnectActivityCompleteListener listener) {
+                                   ConnectActivityCompleteListener listener) {
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, message.getChannelId());
 
         if(channel.getKey().length() > 0) {
-            ConnectUserRecord user = ConnectManager.getUser(context);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
             ApiPersonalId.sendMessagingMessage(context, user.getUserId(), user.getPassword(), message, channel.getKey(), new IApiCallback() {
                 @Override
                 public void processSuccess(int responseCode, InputStream responseData) {

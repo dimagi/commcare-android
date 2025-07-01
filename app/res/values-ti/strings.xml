@@ -297,6 +297,7 @@
     <string name="connect_learn_need_assessment_title">ስልጠና ኣብ ምፅባይ ዝርከብ</string>
     <string name="connect_learn_failed_title">ስልጠና ፈሺሉ።</string>
     <string name="connect_learn_complete_by">ፕሮጀክት ብ %s ምዝዛም</string>
+    <string name="connect_learn_error_starting">ትምህርቲ ክትጅምሩ ስለዘይከኣልኩም፡ በጃኹም ምስ ኣመሓዳሪ ዕድል ተወከሱ።</string>
     <string name="connect_learn_title">ምዕባለ ትምህርቲ</string>
     <string name="connect_learn_status">%d ናይ %d ትምህርቲ ወዲእካ ኣለኻ።\nምስክር ወረቐትካ ንምርካብ ትምህርቲ ወድእ።</string>
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>
@@ -359,7 +360,6 @@
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
     <string name="audio_recording_notification">ድምጺ ምቕራጽ (ምቅዳሕ) መፍለጢ</string>
     <string name="user_suspended">ተገልጋላይ ተኣጊዱ ኣሎ። ንመመሓዳሪኦም/ኣድሚን ይርከቡ</string>
-    <string name="connect_job_list_api_failure">ምስቲ ሰርቨር ኣብ እትራኸበሉ እዋን ጌጋ ኣጋጢሙ</string>
     <string name="connect_payment_acknowledge_notification_yes">እወ</string>
     <string name="connect_payment_acknowledge_notification_no">ኣይፋል</string>
     <string name="enter_otp">ናይ ኤስኤምኤስ ኮድ ኣእትዉ</string>
@@ -409,6 +409,8 @@
     <string name="personalid_otp_missing_activity">ገለ ነገር ተጋግዩ።</string>
     <string name="personalid_otp_verification_failed_generic">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
     <string name="personalid_otp_verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
+    <string name="personalid_messaging_menu_title">መልእኽቲ ምልውዋጥ</string>
+    <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
     <string name="connect_recovery_button_phone">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
