@@ -14,6 +14,7 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.connect.ConnectApiClient;
+import org.commcare.connect.network.connectId.ApiClient;
 import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -332,10 +333,33 @@ public class ApiPersonalId {
     }
 
     public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName,password,false);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName, password, false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
+        callApi(context, call, callback);
+    }
+
+    public static void sendOtp(Context context, String token, IApiCallback callback) {;
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.sendSessionOtp(tokenAuth);
+        callApi(context, call, callback);
+    }
+
+    public static void validateOtp(Context context, String token, String otp, IApiCallback callback) {;
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("otp", otp);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
         callApi(context, call, callback);
     }
 
