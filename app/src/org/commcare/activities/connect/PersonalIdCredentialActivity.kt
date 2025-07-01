@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
@@ -96,6 +97,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
                 "CREDENTIALS_API_ERROR",
                 "Code: $code, Throwable: ${throwable?.localizedMessage ?: "null"}"
             )
+            Toast.makeText(this, throwable?.localizedMessage ?: "Something went wrong", Toast.LENGTH_SHORT).show()
         }
     }
 
