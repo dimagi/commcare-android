@@ -12,11 +12,6 @@
         android:title="@string/credential"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_credential"
-        android:icon="@drawable/ic_credential"
-        android:title="@string/credential"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_sync"
         android:icon="@drawable/ic_backup"
         android:iconTint="@color/white"
