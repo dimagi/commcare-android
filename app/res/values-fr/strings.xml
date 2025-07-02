@@ -440,6 +440,7 @@ License.
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_name_empty_error">Le champ Nom ne peut pas être vide</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
+    <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
     <string name="personalid_configuration_process_failed_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment en raison de l\'indisponibilité de la fonctionnalité de sécurité. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_failed_play_services">Veuillez vous assurer que le Play Store est disponible sur votre appareil et qu\'il est à jour.</string>

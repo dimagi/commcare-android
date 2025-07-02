@@ -29,10 +29,26 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
         }
 
         if (responseCode == 403) {
-            baseApiHandler.onFailure(
-                PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
-                null
-            )
+            if (errorResponse != null){
+                try {
+                    errorResponse.use {
+                        val json = JSONObject(String(StreamsUtil.inputStreamToByteArray(it), Charsets.UTF_8))
+                        if (json.has("error_code")){
+                            val errorCode = json.optString("error_code")
+                            if (errorCode.equals("LOCKED_ACCOUNT", ignoreCase = true)) {
+                                baseApiHandler.onFailure(
+                                    PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
+                                    null
+                                )
+                                return
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Logger.exception("Error parsing LOCKED ACCOUNT", e)
+                }
+            }
+            baseApiHandler.onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null)
             return
         }
 
