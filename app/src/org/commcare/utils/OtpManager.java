@@ -1,8 +1,5 @@
 package org.commcare.utils;
 
-import android.app.Activity;
-
-
 /**
  * Manager class that wraps authentication service operations for OTP (One-Time Password) functionality.
  */
