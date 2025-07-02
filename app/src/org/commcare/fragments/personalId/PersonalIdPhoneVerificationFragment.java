@@ -47,7 +47,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
     private static final int REQ_USER_CONSENT = 200;
     private static final String KEY_PHONE = "phone";
-    private static final String SMS_METHOD_PERSONAL_ID = "personal_id";
 
     private Activity activity;
     private String primaryPhone;
@@ -86,14 +85,12 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             public void onCodeSent(String verificationId) {
                 if (otpCallback == null) return;
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_sent), Toast.LENGTH_SHORT).show();
-                otpManager.verifyOtp(verificationId);
             }
 
             @Override
             public void onCodeVerified(String code) {
                 if (otpCallback == null) return;
                 Toast.makeText(requireContext(), getString(R.string.connect_otp_verified), Toast.LENGTH_SHORT).show();
-                otpManager.submitOtp(code);
             }
 
             @Override
@@ -116,14 +113,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-
-        OtpAuthService otpAuthService;
-        if (SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())) {
-            otpAuthService = new PersonalIdAuthService(activity, personalIdSessionData, otpCallback);
-        } else {
-            otpAuthService = new FirebaseAuthService(activity, personalIdSessionData, otpCallback);
-        }
-        otpManager = new OtpManager(otpAuthService);
+        otpManager = new OtpManager(activity, personalIdSessionData, otpCallback);
     }
 
     @Override
