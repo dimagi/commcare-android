@@ -1089,6 +1089,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     public EvaluationContext evalContext() {
-        return asw.getEvaluationContext();
+        EvaluationContext ec = asw.getEvaluationContext();
+        ec.addFunctionHandler(hereFunctionHandler);
+        return ec;
     }
 }
