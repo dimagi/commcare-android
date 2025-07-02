@@ -3,18 +3,18 @@ package org.commcare.connect.network;
 import android.content.Context;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.collect.ArrayListMultimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connect.ConnectApiClient;
-import org.commcare.connect.network.connectId.ApiClient;
 import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import androidx.annotation.NonNull;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
