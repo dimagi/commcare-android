@@ -14,22 +14,25 @@ data class PersonalIdSessionData(
         var sessionFailureSubcode: String? = null, // Sub Reason code to tell why user is not allowed to move forward with the flow
         var accountExists: Boolean? = null, // Tells weather its new user or old
         var photoBase64: String? = null, // photo of the user
-        var username: String? = null, // name os the user
+        var personalId: String? = null, // username given by server
         var dbKey: String? = null, // DB Key
         var oauthPassword: String? = null, // password to verify usser
-        var accountOrphaned: Boolean? = null // Nobody owns this account
+        var attemptsLeft: Int? = null, // number of attempts left before the account lock
+        var userName: String? = null, // name of the user
+        var phoneNumber: String? = null, //phone number of the user
+        var backupCode: String? = null, //recovery code of the user
 ) {
 
     /**
      * Annotation to restrict accepted authentication types used by the device.
-     * Only DEVICE_TYPE or BIOMETRIC_TYPE are allowed.
+     * Only PIN or BIOMETRIC_TYPE are allowed.
      */
-    @StringDef(DEVICE_TYPE, BIOMETRIC_TYPE)
+    @StringDef(PIN, BIOMETRIC_TYPE)
     @Retention(AnnotationRetention.SOURCE)
     annotation class DeviceAuthType
 
     companion object {
-        const val DEVICE_TYPE = "device"
+        const val PIN = "pin"
         const val BIOMETRIC_TYPE = "biometric"
     }
 }

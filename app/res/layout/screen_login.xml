@@ -75,6 +75,17 @@
 
                             <TextView
                                 android:textStyle="bold"
+                                android:id="@+id/error_msg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="@dimen/content_min_margin"
+                                android:textColor="@color/red_500"
+                                android:visibility="gone"
+                                android:textSize="@dimen/text_medium" />
+
+                            <TextView
+                                android:textStyle="bold"
                                 android:id="@+id/welcome_msg"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -122,7 +133,7 @@
                                 android:layout_gravity="center"
                                 android:layout_margin="@dimen/content_min_margin"
                                 android:textStyle="bold"
-                                android:text="@string/login_via_connect"
+                                android:text="@string/personalid_login_via_connect"
                                 android:textColor="@color/cc_neutral_color"
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone"/>

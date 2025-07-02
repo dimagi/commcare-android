@@ -8,8 +8,6 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -39,6 +37,7 @@ public class StandardHomeActivity
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -49,7 +48,6 @@ public class StandardHomeActivity
     @Override
     public void onResumeSessionSafe() {
         super.onResumeSessionSafe();
-        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -127,7 +125,7 @@ public class StandardHomeActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_app_home, menu);
-
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.findItem(R.id.action_update).setTitle(Localization.get("home.menu.update"));
         menu.findItem(R.id.action_saved_forms).setTitle(Localization.get("home.menu.saved.forms"));
         menu.findItem(R.id.action_change_language).setTitle(Localization.get("home.menu.locale.change"));
@@ -143,7 +141,6 @@ public class StandardHomeActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
         menu.findItem(R.id.action_update).setVisible(enableMenus);
@@ -177,8 +174,6 @@ public class StandardHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
@@ -267,9 +262,5 @@ public class StandardHomeActivity
     @Override
     void refreshCCUpdateOption() {
         invalidateOptionsMenu();
-    }
-
-    public void performSecondaryPhoneVerification() {
-        PersonalIdManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
     }
 }

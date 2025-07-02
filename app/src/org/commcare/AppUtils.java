@@ -1,7 +1,5 @@
 package org.commcare;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -27,7 +25,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -173,7 +170,7 @@ public class AppUtils {
         String buildNumber = BuildConfig.BUILD_NUMBER;
 
         return Localization.get(application.getString(R.string.app_version_string), new String[]{
-                ccv, String.valueOf(BuildConfig.VERSION_CODE), buildNumber, buildDate, profileVersion});
+                ccv, String.valueOf(BuildConfig.VERSION_CODE), ccv, buildNumber, buildDate, profileVersion});
     }
 
     public static String getCurrentAppId() {

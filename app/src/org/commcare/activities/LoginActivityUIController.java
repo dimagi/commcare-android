@@ -34,6 +34,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -93,6 +94,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
+
+    @UiElement(R.id.error_msg)
+    private TextView errorMessage;
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
@@ -402,6 +406,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
+    protected void checkForGlobalErrors() {
+        String errors = GlobalErrorUtil.handleGlobalErrors();
+        if(errors.length() > 0) {
+            errorMessage.setVisibility(View.VISIBLE);
+            errorMessage.setText(errors);
+        }
+    }
+
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
@@ -552,7 +564,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setLoginInputsVisibility(appState != Connect);
         if (PersonalIdManager.getInstance().isloggedIn()) {
             connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-            setConnectButtonVisible(true);
+            ///TODO: connect set to true after phase 4 merge
+            setConnectButtonVisible(false);
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectUserDatabaseUtil.getUser(activity).getName());
             welcomeMessage.setText(welcomeText);
