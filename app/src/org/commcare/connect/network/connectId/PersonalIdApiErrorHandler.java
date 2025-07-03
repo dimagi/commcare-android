@@ -2,6 +2,8 @@ package org.commcare.connect.network.connectId;
 
 import android.app.Activity;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
 
@@ -25,12 +27,12 @@ public class PersonalIdApiErrorHandler {
      * Handles an API error by interpreting the error code and taking an appropriate
      * user-facing action, such as displaying a toast or triggering a token renewal.
      *
-     * @param activity   the context (usually the current Activity) used to display UI elements
-     * @param errorCode  the specific {@link PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes} to handle
-     * @param t          the exception that was thrown, if any; can be null
+     * @param activity  the context (usually the current Activity) used to display UI elements
+     * @param errorCode the specific {@link PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes} to handle
+     * @param t         the exception that was thrown, if any; can be null
      */
     public static String handle(Activity activity, PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes errorCode,
-                              Throwable t) {
+            @Nullable Throwable t) {
         switch (errorCode) {
             case NETWORK_ERROR:
                 return activity.getString(R.string.recovery_network_unavailable);

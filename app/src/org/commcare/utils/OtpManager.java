@@ -5,7 +5,6 @@ import android.app.Activity;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Manager class that wraps authentication service operations for OTP (One-Time Password) functionality.
@@ -39,7 +38,4 @@ public class OtpManager {
         }
     }
 
-    public void submitOtp(String code) {
-        authService.submitOtp(code);
-    }
 }
