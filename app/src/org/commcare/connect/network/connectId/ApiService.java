@@ -31,4 +31,11 @@ public interface ApiService {
     @POST(ApiEndPoints.confirmBackupCode)
     Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
                                          @Body Map<String, String> confirmBackupCodeRequest);
+
+    @POST(ApiEndPoints.sendSessionOtp)
+    Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.validateSessionOtp)
+    Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
+            @Body Map<String, String> body);
 }
