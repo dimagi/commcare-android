@@ -2,6 +2,8 @@ package org.commcare.connect.network;
 
 import android.app.Activity;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.dalvik.R;
 
 /**
@@ -29,7 +31,7 @@ public class PersonalIdApiErrorHandler {
      * @param t          the exception that was thrown, if any; can be null
      */
     public static String handle(Activity activity, PersonalIdApiHandler.PersonalIdApiErrorCodes errorCode,
-                              Throwable t) {
+                              @Nullable Throwable t) {
         switch (errorCode) {
             case NETWORK_ERROR:
                 return activity.getString(R.string.recovery_network_unavailable);
