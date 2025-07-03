@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="your_comment">आपकी टिप्पणी</string>
+    <string name="support_email_address_default">commcarehq-support@dimagi.com</string> <!-- NO TRANSLATION - Email address -->
+    <string name="manager_activity_name">ऐप मैनेजर</string>
+    <string name="install_app">ऐप इंस्टॉल करें</string>
+    <string name="uninstall_app">अनइंस्टॉल करें</string>
+    <string name="archive_app">संग्रहित करें</string>
+    <string name="unarchive_app">संग्रह से हटाएँ</string>
+    <string name="update_app">अपडेट करें</string>
+    <string name="update_canceled">आपका अपडेट रोक दिया गया था</string>
+    <string name="verify_resources">मल्टीमीडिया सत्यापित करें</string>
+    <string name="skip_button_text">अभी के लिए छोड़ें</string>
+    <string name="retry_button_text">पुनः प्रयास करें</string>
+    <string name="skipped_verification_warning">आपने अभी इंस्टॉल किए गए ऐप के लिए मल्टीमीडिया संसाधनों को सत्यापित नहीं किया! जब तक मल्टीमीडिया सत्यापित नहीं हो जाता, यह ऐप लॉग-इन स्क्रीन पर उपयोगकर्ताओं को दिखाई नहीं देगा।</string>
+    <string name="skipped_verification_warning_2">आपने इस ऐप के लिए मल्टीमीडिया संसाधनों को सत्यापित नहीं किया! जब तक मल्टीमीडिया सत्यापित नहीं हो जाता, यह ऐप लॉग-इन स्क्रीन पर उपयोगकर्ताओं को दिखाई नहीं देगा।</string>
+    <string name="manager_instructions">इसके प्रबंधन विकल्पों को देखने के लिए एक ऐप चुनें, या एक नया ऐप इंस्टॉल करें।</string>
+    <string name="pre_multiple_apps_warning">चेतावनी: आपने जो ऐप इंस्टॉल किया है वह पुराने बिल्ड का है। एकाधिक एप्लिकेशन सीटिंग की पूर्ण कार्यक्षमता के लिए, कृपया अपने ऐप का एक नया बिल्ड बनाएं।</string>
+    <string name="uninstall_reboot_warning">CommCare आपके ऐप को अनइंस्टॉल करेगा और फिर बदलावों को सहेजने के लिए रीबूट करेगा।</string>
+    <string name="logout_warning">इस क्रिया को पूरा करने के लिए, CommCare को वर्तमान में लॉग-इन ऐप से लॉग आउट करना होगा। क्या आप आगे बढ़ना चाहते हैं?</string>
+    <string name="logging_out">आपका ऐप लॉग आउट हो रहा है</string>
+    <string name="uninstalling">आपका ऐप अनइंस्टॉल हो रहा है</string>
+    <string name="media_not_verified">मीडिया सत्यापित नहीं है</string>
+    <string name="media_verified">मीडिया सत्यापित!</string>
+    <string name="no_installation">कोई ऐप इंस्टॉल नहीं किया गया था!</string>
+    <string name="migration_definite_failure">CommCare एक अपग्रेड के लिए आपके ऐप डेटा को माइग्रेट करने में असमर्थ था। इस समस्या को हल करने के लिए, कृपया अपने डिवाइस से CommCare को अनइंस्टॉल करें और फिर इसे फिर से लॉन्च करें।</string>
+    <string name="migration_possible_failure">CommCare एक एप्लिकेशन अपग्रेड के दौरान आपके सभी डेटा को माइग्रेट करने में असमर्थ था। इसे ठीक करने का प्रयास करने के लिए कृपया CommCare को पुनरारंभ करें। यदि यह संदेश बना रहता है, तो आपको अपने डिवाइस के सेटिंग मेनू में CommCare के लिए \'डेटा साफ़ करें\' की आवश्यकता हो सकती है।</string>    <string name="multiple_apps_limit_message">आप इंस्टॉल किए गए ऐप्स की अपनी सीमा तक पहुँच चुके हैं; आप एक बार में अधिकतम %s ऐप्स इंस्टॉल कर सकते हैं।\n\nयदि आप एक नया ऐप इंस्टॉल करना चाहते हैं, तो आप पहले एक मौजूदा ऐप को अनइंस्टॉल कर सकते हैं, जो ऐप मैनेजर से किया जा सकता है।</string>
+    <string name="back_to_manager">ऐप मैनेजर पर वापस जाएं</string>
+    <string name="go_to_manager">ऐप मैनेजर पर जाएं</string>
+    <string name="claim_privilege_button_text">विशेषाधिकारों का दावा करें</string>
+    <string name="privilege_enabled_text">आपके डिवाइस पर निम्नलिखित विशेषाधिकार सक्षम हैं:\n\n %s</string>
+    <string name="privilege_not_enabled_text">आपके डिवाइस पर विशेष विशेषाधिकार सक्षम नहीं हैं।</string>
+    <string name="privilege_claim_failed">विशेषाधिकारों का दावा नहीं किया जा सका</string>
+    <string name="privilege_claim_bad_version">विशेषाधिकार सक्रियण कोड को पहचाना नहीं गया। कृपया CommCare अपडेट करें</string>
+    <string name="privilege_instructions">यदि आपके पास HQ पर एक सुपरयूज़र खाता है, तो आप अपने \'मेरा खाता सेटिंग\' पृष्ठ के \'मोबाइल पर विशेषाधिकार सक्षम करें\' टैब पर जाकर, और फिर वहां दिखाई देने वाले बारकोड को स्कैन करके अपने डिवाइस पर कुछ विशेषाधिकार सक्षम कर सकते हैं।</string>
+    <string name="see_available_apps">उपलब्ध ऐप्स देखें</string>
+    <!-- endregion -->
+
+    <string name="install_from_list_prompt">आप जिन ऐप्स को इंस्टॉल कर सकते हैं उनकी सूची देखने के लिए मोबाइल या वेब उपयोगकर्ता के रूप में लॉग इन करें</string>
+    <string name="legacy_failure">CommCare आपके द्वारा उपयोग किए जा रहे पिछले CommCare संस्करण से अपग्रेड करने का समर्थन नहीं करता है। इस समस्या को हल करने के लिए, कृपया अपने डिवाइस से CommCare को अनइंस्टॉल करें और फिर इसे पुनः इंस्टॉल करें।</string>
+    <string name="legacy_failure_title">असंगत CommCare अपग्रेड</string>
+    <string name="app_version_string">version.id.long</string>
+    <string name="notificationtitle">Commcare में लॉग इन किया गया</string>
+    <string name="expirenotification">CommCare लॉगिन समाप्त हो गया</string>
+
+    <string name="submission_notification_title">डेटा सबमिट किया जा रहा है</string>
+    <string name="submission_logs_title">CommCare लॉग सबमिट किए जा रहे हैं</string>
+    <string name="remote_form_payload_url" /> <!-- Empty string, no translation needed -->
+
+    <string name="about_dialog" formatted="false">%s\n\n_कॉपीराइट 2016, Dimagi inc, सर्वाधिकार सुरक्षित_ \n\n---------------- \n\n__आभार:__ \n\n%sCommCare में कुछ छवियां thenounproject.com संग्रह से क्रिएटिव कॉमन्स लाइसेंसिंग के तहत उदारतापूर्वक उपयोग की जाती हैं:\n\n* तक इमोटो द्वारा "दरवाजा" प्रतीक \n* क्रेओलॉजिका द्वारा "पेंसिल" प्रतीक \n* कार्लो द्वारा "नोटबुक" प्रतीक \n* डिमा द्वारा "एंटीना" प्रतीक \n* पी.जे. ओनोरी द्वारा "मानचित्र मार्कर" प्रतीक \n* लैंडन लॉयड द्वारा "सूची" \n* द नाउन प्रोजेक्ट से सैम मार्टिन द्वारा टूटी हुई स्क्रीन \n\n
+
+</string>
+
+    <string name="notification_message_title">CommCare सूचना</string>
+    <string name="hello_world">कृपया नीचे अपनी समस्याएं दर्ज करें</string>
+    <string name="menu_settings">सेटिंग्स</string>
+    <string name="permission_content_provider_label">सुरक्षित CommCare डेटा पढ़ें</string>
+    <string name="permission_content_provider_description">जब कोई उपयोगकर्ता लॉग इन होता है तो इस ऐप को CommCare से डेटा पढ़ने की अनुमति देता है</string>
+    <string name="permission_external_action_label">CommCare कार्रवाइयों की अनुमति दें</string>
+    <string name="permission_external_action_description">इस ऐप को CommCare में लॉगिन, लॉगआउट और सिंक जैसी कार्रवाइयों को ट्रिगर करने की अनुमति देता है</string>
+    <string name="permission_commcare_logout_label">स्वतः CommCare लॉगआउट की अनुमति दें</string>
+    <string name="permission_commcare_logout_description">इस ऐप को CommCare ऐप से उपयोगकर्ता को लॉगआउट करने की अनुमति देता है</string>
+    <string name="permission_protect_falsely_exposed_components_label">आंतरिक घटकों की रक्षा करें</string>
+    <string name="permission_protect_falsely_exposed_components_description">बाहरी ऐप्स को आंतरिक घटकों तक पहुंचने से रोकता है</string>
+
+    <string name="permission_group_internal_action_label">CommCare आंतरिक कार्रवाइयों के लिए अनुमति समूह</string>
+
+    <string name="title_activity_report_problem">ReportProblemActivity</string>
+    <string name="panes">एक</string>
+
+    <string name="restore_session_prompt">लॉगिन पर सहेजे गए सत्र को पुनर्स्थापित करें</string>
+
+    <string name="managed_configuration_username">मोबाइल कार्यकर्ता उपयोगकर्ता नाम</string>
+    <string name="managed_configuration_password">मोबाइल कार्यकर्ता पासवर्ड</string>
+
+    <string name="managed_configuration_profile_url">CommCare ऐप लिंक</string>
+    <string name="managed_configuration_username_description">डिवाइस पर लॉगिन और पुनर्स्थापित करने के लिए CommCare मोबाइल कार्यकर्ता का उपयोगकर्ता नाम</string>
+    <string name="managed_configuration_password_description">मोबाइल उपयोगकर्ता का पासवर्ड</string>
+    <string name="managed_configuration_profile_url_description">CommCareHQ प्रकाशन पृष्ठ से आपके CommCare एप्लिकेशन का URL</string>
+    <string name="about_cc">CommCare के बारे में</string>
+    <string name="accept_location">स्थान रिकॉर्ड करें</string>
+
+    <string name="accuracy">सटीकता</string>
+    <string name="activity_not_found">हैंडल करने के लिए कोई गतिविधि नहीं मिली: %s</string>
+    <string name="altitude">ऊंचाई</string>
+
+    <string name="attachment_oversized">चेतावनी: %s mb आकार की बड़ी फ़ाइल संलग्न है। यह आपकी नेटवर्क स्थितियों के आधार पर सर्वर पर सबमिट करने में समस्याएँ पैदा कर सकता है।</string>
+    <string name="attachment_above_size_limit" formatted="false">मीडिया अटैचमेंट बहुत बड़ा है (%1$s mb)। अधिकतम अनुमत आकार %2$s mb है।</string>
+
+    <string name="audio_file_invalid">फ़ाइल: %s एक मान्य ऑडियो फ़ाइल नहीं है।</string>
+
+    <!-- Start Collect Strings -->
+
+    <string name="cancel">रद्द करें</string>
+    <string name="cancel_location">रद्द करें</string>
+    <string name="capture_audio">ध्वनि रिकॉर्ड करें</string>
+    <string name="capture_image">तस्वीर लें</string>
+    <string name="capture_video">वीडियो रिकॉर्ड करें</string>
+    <string name="change_language">भाषा बदलें</string>
+    <string name="clearanswer_confirm">"%s" का प्रतिसाद हटाएं?</string>
+    <string name="clear_answer">प्रतिसाद हटाएं</string>
+    <string name="clear_answer_ask">यह प्रतिसाद हटाएं?</string>
+    <string name="clear_answer_no">रद्द करें</string>
+    <string name="discard_answer">प्रतिसाद हटाएं</string>
+    <string name="discard_image">छवि हटाएं</string>
+    <string name="do_not_exit">फ़ॉर्म में रहें</string>
+    <string name="do_not_save">बिना सहेजे बाहर निकलें</string>
+    <string name="error_occured">त्रुटि हुई</string>
+    <string name="file_invalid">फ़ाइल: %s अमान्य है।</string>
+    <string name="file_missing">फ़ाइल: %s गायब है।</string>
+    <string name="get_location">स्थान रिकॉर्ड करें</string>
+    <string name="invalid_answer_error">क्षमा करें, यह प्रतिसाद अमान्य है!</string>
+    <string name="jump_to_beginning">शुरुआत पर जाएं</string>
+    <string name="jump_to_end">अंत पर जाएं</string>
+    <string name="jump_to_previous">ऊपर जाएं</string>
+    <string name="latitude">अक्षांश</string>
+    <string name="loading_form">फ़ॉर्म लोड हो रहा है</string>
+    <string name="location_provider_accuracy">स्थान सटीकता: %1$s मीटर।</string>
+    <string name="longitude">देशांतर</string>
+    <string name="no_items_display">प्रदर्शित करने के लिए कुछ भी उपलब्ध नहीं है।</string>
+    <string name="ok">ठीक है</string>
+    <string name="parse_error">क्षमा करें, फ़ॉर्म पार्स करने में असमर्थ।</string>
+    <string name="play_audio">ध्वनि चलाएं</string>
+    <string name="play_video">वीडियो चलाएं</string>
+    <string name="please_wait">कृपया कुछ क्षण प्रतीक्षा करें।</string>
+    <string name="please_wait_long">कृपया प्रतीक्षा करें। इसमें कुछ मिनट लग सकते हैं।</string>
+    <string name="quit_application">%s से बाहर निकलें</string>
+    <string name="quit_form_title">फ़ॉर्म से बाहर निकलें?</string>
+    <string name="refresh">रिफ्रेश करें</string>
+    <string name="replace_location">स्थान बदलें</string>
+    <string name="required_answer_error">क्षमा करें, यह प्रतिसाद आवश्यक है!</string>
+    <string name="review">जारी रखें</string>
+    <string name="save_all_answers">फ़ॉर्म सहेजें</string>
+    <string name="saving_form">फ़ॉर्म सहेजा जा रहा है</string>
+    <string name="trigger">ठीक है। कृपया जारी रखें।</string>
+    <string name="view_hierarchy">संकेत पर जाएं</string>
+    <string name="form_entry_settings">सेटिंग्स बदलें</string>
+    <string name="show_location">स्थान दिखाएं</string>
+    <string name="keep_changes">अधूरा सहेजें</string>
+    <string name="go_to_location">स्थान पर जाएं</string>
+    <string name="font_size">टेक्स्ट फ़ॉन्ट आकार</string>
+    <string name="change_font_size">टेक्स्ट फ़ॉन्ट आकार</string>
+    <string name="success">सफलता</string>
+    <string name="choose_sound">ध्वनि चुनें</string>
+    <string name="choose_video">वीडियो चुनें</string>
+    <string name="choose_image">छवि चुनें</string>
+    <string name="choose_document">दस्तावेज़ चुनें</string>
+    <string name="selected">चयनित: </string>
+    <string name="select_answer">उत्तर चुनें</string>
+    <string name="edit_prompt">संकेत संपादित करें</string>
+    <string name="no_gps_title">स्थान डेटा अक्षम</string>
+    <string name="no_gps_message">इस डिवाइस पर स्थान प्रदाता वर्तमान में अक्षम हैं। क्या आप उन सेटिंग्स को बदलना चाहते हैं?</string>
+    <string name="change_settings">सेटिंग्स बदलें</string>
+    <string name="finding_location">स्थान ढूंढा जा रहा है...</string>
+    <string name="found_location">स्थान मिल गया!</string>
+    <string name="preference_help_mode_tray">समृद्ध सहायता इनलाइन प्रदर्शित करें</string>
+    <string name="reset_image">रीसेट करें</string>
+    <string name="save_and_close">सहेजें और बंद करें</string>
+    <string name="sign_button">हस्ताक्षर एकत्र करें</string>
+    <string name="markup_image">छवि मार्कअप करें</string>
+    <string name="draw_image">छवि स्केच करें</string>
+    <string name="share">साझा करें</string>
+    <string name="title_data_change_logs_activity">डेटा परिवर्तन लॉग</string>
+    <string name="commcare_logs">CommCare डेटा परिवर्तन लॉग</string>
+    <string name="clear_user_data_delete_form">फ़ॉर्म हटाएं</string>
+    <string name="target_mismatch_lts_required">ऐप को CommCare LTS की आवश्यकता है</string>
+    <string name="target_mismatch_lts_required_install">CommCare LTS इंस्टॉल करें</string>
+    <string name="target_mismatch_lts_open">CommCare LTS खोलें</string>
+    <string name="target_mismatch_lts_required_info">Play Store से CommCare LTS इंस्टॉल करने के लिए नीचे दिए गए लिंक का पालन करें, और फिर अपने ऐप को फिर से इंस्टॉल करने का प्रयास करें।</string>
+    <string name="target_mismatch_lts_available_info">इस ऐप को CommCare LTS की आवश्यकता है। CommCare LTS खोलने के लिए नीचे दिए गए बटन पर क्लिक करें, और फिर अपने ऐप को फिर से इंस्टॉल करने का प्रयास करें।</string>
+    <string name="target_mismatch_commcare_required">ऐप को CommCare (गैर LTS) की आवश्यकता है</string>
+    <string name="target_mismatch_commcare_required_install">CommCare इंस्टॉल करें</string>
+    <string name="target_mismatch_commcare_open">CommCare खोलें</string>
+
+    <string name="target_mismatch_commcare_required_info">Play Store से CommCare (गैर LTS) इंस्टॉल करने के लिए नीचे दिए गए लिंक का पालन करें, और फिर अपने ऐप को फिर से इंस्टॉल करने का प्रयास करें।</string>
+    <string name="target_mismatch_commcare_available_info">इस ऐप को CommCare (गैर LTS) की आवश्यकता है। CommCare खोलने के लिए नीचे दिए गए बटन पर क्लिक करें, और फिर अपने ऐप को फिर से इंस्टॉल करने का प्रयास करें।</string>
+    <string name="incorrect_time_dialog_title">गलत समय</string>
+
+    <!--Clear User Data-->
+    <string name="incorrect_time_dialog_message">आपके डिवाइस का समय गलत तरीके से सेट है। कृपया अपनी समय सेटिंग बदलने के लिए नीचे दिए गए सही समय बटन पर क्लिक करें।</string>
+
+    <!--Incorrect Target Screen-->
+    <string name="incorrect_time_dialog_correct_time">सही समय</string>
+    <string name="incorrect_time_dialog_cancel">रद्द करें</string>
+    <string name="recovery_mode_title">CommCare रिकवरी मोड</string>
+    <string name="recovery_mode_detail">आपके ऐप में समस्या के कारण CommCare रिकवरी मोड में प्रवेश कर गया है। हम आपके ऐप को पुनर्प्राप्त करने का प्रयास कर रहे हैं। कृपया प्रतीक्षा करें...</string>
+    <string name="recovery_resource_progress">%2$s में से %1$s संसाधन पुनर्प्राप्त किए गए</string>
+    <string name="recovery_error_unknown">अज्ञात कारण से पुनर्प्राप्ति विफल रही। कृपया पुनः प्रयास करें या ऐप मैनेजर पर जाकर अपना ऐप पुनः इंस्टॉल करें</string>
+    <string name="recovery_success">ऐप पुनर्प्राप्ति सफल रही है। अपना काम फिर से शुरू करने के लिए कृपया वापस दबाएं</string>
+    <string name="recovery_forms_send_progress">सर्वर पर फ़ॉर्म सबमिट किए जा रहे हैं...</string>
+    <string name="recovery_forms_send_session_expired">भेजने के दौरान लॉग-इन समाप्त हो गया</string>
+
+    <!--Incorrect Time Dialog-->
+    <string name="recovery_forms_send_successful">भेजना सफल रहा। सभी %s फ़ॉर्म सबमिट किए गए</string>
+    <string name="recovery_forms_send_failure">फ़ॉर्म सबमिट करने में त्रुटियां थीं।</string>
+    <string name="recovery_forms_send_parital_success">फ़ॉर्म सबमिट करने में त्रुटियां थीं। केवल %s सबमिट किए गए थे। कृपया बाद में पुनः प्रयास करें</string>
+    <string name="recovery_forms_send_network_error">खराब नेटवर्क के कारण फ़ॉर्म सबमिशन विफल रहा</string>
+
+    <!--Recovery Activity-->
+    <string name="recovery_forms_send_error">फ़ॉर्म भेजते समय त्रुटि</string>
+    <string name="recovery_forms_state_unavailable">फ़ॉर्म उपलब्ध नहीं हैं। सुनिश्चित करें कि आपका फ़ोन संग्रहण उपलब्ध है</string>
+    <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें।</string>
+    <string name="recovery_network_outdated">ऐप पुराना हो गया है और अब सर्वर के साथ संचार नहीं कर सकता है। कृपया Google Play Store पर ऐप अपडेट करें।</string>
+    <string name="recovery_network_token_unavailable">एक नेटवर्क समस्या थी, कृपया पुनः प्रयास करें।</string>
+    <string name="recovery_network_token_request_rejected">सर्वर के साथ PersonalID कॉन्फ़िगरेशन खो गया, कृपया अपना PersonalID खाता पुनर्प्राप्त करें और पुनः प्रयास करें</string>
+    <string name="recovery_network_unauthorized">आप यह अनुरोध करने के लिए अधिकृत नहीं हैं।</string>
+    <string name="recovery_network_server_error">आपके अनुरोध को संसाधित करने में एक त्रुटि हुई थी।</string>
+    <string name="recovery_network_cooldown">बहुत अधिक अनुरोध प्रयास, एक घंटे के बाद पुनः प्रयास करें।</string>
+    <string name="recovery_network_unknown">कुछ गलत हो गया, कृपया पुनः प्रयास करें।</string>
+    <string name="recovery_app_manager">ऐप मैनेजर पर जाएं</string>
+    <string name="recovery_retry">पुनर्प्राप्ति का पुनः प्रयास करें</string>
+    <string name="notification_channel_errors_title">त्रुटियाँ</string>
+    <string name="notification_channel_errors_description">CommCare ऐप इंस्टॉल करते समय या सर्वर के साथ फ़ॉर्म सिंक करते समय कुछ टूटने पर त्रुटि संदेशों के लिए सूचनाएं</string>
+    <string name="notification_channel_user_session_title">उपयोगकर्ता सत्र</string>
+    <string name="notification_channel_user_session_description">वर्तमान उपयोगकर्ता सत्र के बारे में जानकारी वाली सूचना, जैसे वर्तमान सत्र कब समाप्त होने वाला है</string>
+    <string name="notification_channel_server_communication_title">सर्वर संचार</string>
+    <string name="notification_channel_server_communication_description">इस समय हो रहे किसी भी पृष्ठभूमि सर्वर संचार की स्थिति के लिए सूचनाएं जैसे CommCare ऐप अपडेट, लॉग सबमिशन आदि।</string>
+    <string name="notification_channel_push_notfications_title">सर्वर से प्राथमिकता सूचनाएं</string>
+    <string name="notification_channel_push_notfications_description">उपयोगकर्ता को प्राथमिकता वाले कार्यों की सूचना देने के लिए सीधे सर्वर से भेजी गई सूचनाएं</string>
+    <string name="notification_channel_messaging_title">CommCare से संदेश</string>
+    <string name="notification_channel_messaging_description">उपयोगकर्ता को आने वाले संदेशों और नए चैनलों की सूचना देने के लिए सीधे सर्वर से भेजी गई सूचनाएं</string>
+    <string name="recovery_measure_reinstall_method">पुनः इंस्टॉल करने की विधि चुनें</string>
+    <string name="recovery_measure_reinstall_detail">समस्या के कारण आपके ऐप को पुनः इंस्टॉल करने की आवश्यकता है, कृपया पुनः इंस्टॉल करने के लिए एक विधि चुनें।</string>
+    <string name="recovery_measure_reinstall_online_method">ऑनलाइन पुनः इंस्टॉल करें</string>
+    <string name="recovery_measure_reinstall_offline_method">CCZ का उपयोग करके पुनः इंस्टॉल करें</string>
+
+    <string name="recovery_measure_detail">आपके CommCare ऐप में समस्या के कारण इसके लिए पुनर्प्राप्ति प्रक्रियाएं शुरू की गई हैं। कृपया प्रतीक्षा करें...</string>
+    <string name="recovery_measure_faiure">जब CommCare ने पुनर्प्राप्ति उपाय निष्पादित करने का प्रयास किया तो एक त्रुटि हुई। हम बाद में पुनः प्रयास करेंगे। यदि समस्या बनी रहती है तो कृपया हेल्पडेस्क से संपर्क करें</string>
+    <string name="recovery_measure_retry">पुनर्प्राप्ति का पुनः प्रयास करें</string>
+    <string name="recovery_measure_app_reinstall_progress">%2$s में से %1$s संसाधन पुनः इंस्टॉल किए जा रहे हैं</string>
+    <string name="recovery_measure_app_update_progress">%2$s में से %1$s संसाधन अपडेट किए जा रहे हैं</string>
+    <string name="recovery_measure_known_error">पुनर्प्राप्ति के दौरान एक त्रुटि हुई। त्रुटि विवरण - \n %1$s</string>
+
+    <!--Recovery Measures-->
+    <string name="recovery_measure_reinstall">पुनः इंस्टॉल करें</string>
+    <string name="recovery_measure_select_ccz">CCZ चुनें</string>
+    <string name="recovery_measure_select_ccz_no_file_browser">इस डिवाइस पर फ़ाइलों तक पहुंचने के लिए आपको एक फ़ाइल मैनेजर की आवश्यकता है। आपने फ़ाइल मैनेजर इंस्टॉल नहीं किया है, कृपया Google Play Store पर जाएं और एक फ़ाइल मैनेजर डाउनलोड करें, फिर इस स्क्रीन पर वापस आएं।</string>
+    <string name="recovery_measure_invalid_ccz_path">आपके द्वारा चुनी गई CCZ फ़ाइल को संसाधित करने में असमर्थ। कृपया पुनः प्रयास करें</string>
+    <string name="recovery_measure_unzip_error">CCZ फ़ाइल से ऐप इंस्टॉल करते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें या नीचे "CCZ चुनें" बटन पर क्लिक करके CCZ फ़ाइल को मैन्युअल रूप से खोजें।</string>
+    <string name="recovery_measure_update_cancelled">अपडेट रद्द कर दिया गया</string>
+    <string name="recovery_measure_offline_install_cancelled">ऑफ़लाइन इंस्टॉल रद्द कर दिया गया</string>
+    <string name="recovery_measure_unzip_progress">CCZ फ़ाइल संसाधित हो रही है.. %1$s</string>
+    <string name="reinstall_prompt_title">%1$s का पुनः इंस्टॉल करना आवश्यक है</string>
+    <string name="install_error_file_not_found">संसाधन %1$s के लिए कोई फ़ाइल नहीं मिली</string>
+    <string name="update_blocked_on_sync_message">इस अपडेट को इंस्टॉल करने के लिए सिंक आवश्यक है। स्वतः सिंक शुरू हो रहा है...</string>
+    <string name="media_download_failed">अनुरोधित मीडिया डाउनलोड करते समय एक त्रुटि हुई। कृपया पुनः प्रयास करें</string>
+    <string name="media_download_in_progress">डाउनलोड प्रगति पर है, कृपया प्रतीक्षा करें...</string>
+    <string name="media_download_started">डाउनलोड शुरू हो गया</string>
+    <string name="media_download_completed">डाउनलोड पूरा हुआ</string>
+    <string name="video_download_prompt">इस प्रश्न के लिए वीडियो फ़ाइल गायब है, डाउनलोड करने के लिए ऊपर दिए गए डाउनलोड बटन पर क्लिक करें</string>
+    <string name="image_download_prompt">इस प्रश्न के लिए छवि फ़ाइल गायब है, डाउनलोड करने के लिए ऊपर दिए गए डाउनलोड बटन पर क्लिक करें</string>
+    <string name="audio_download_prompt">इस प्रश्न के लिए ऑडियो फ़ाइल गायब है, डाउनलोड करने के लिए ऊपर दिए गए डाउनलोड बटन पर क्लिक करें</string>
+    <string name="media_not_found_error">एप्लिकेशन में मीडिया नहीं मिला</string>
+    <string name="area_format">%1s वर्ग मीटर</string>
+    <string name="parse_coordinates_failure">इनपुट निर्देशांक पार्स नहीं किए जा सके</string>
+
+    <string name="location_provider_disabled">स्थान अपडेट प्राप्त करने के लिए अपना स्थान चालू करें</string>
+    <string name="wait_for_location_fix">CommCare अभी भी आपका स्थान प्राप्त करने का प्रयास कर रहा है। कृपया प्रतीक्षा करें या रद्द करने के लिए रद्द करें पर क्लिक करें।</string>
+    <string name="invalid_case_property_length">अमान्य %1s, मान 255 वर्ण या उससे कम होना चाहिए</string>
+    <string name="invalid_case_graph_error">यह फ़ॉर्म एक अमान्य केस संबंध प्रस्तुत करता है</string>
+    <string name="root_detected_title">रूटेड डिवाइस का पता चला</string>
+    <string name="root_detected_message">आपको रूटेड डिवाइस पर CommCare चलाने की अनुमति नहीं है। कृपया गैर-रूटेड डिवाइस का उपयोग करें</string>
+    <string name="session_endpoint_unavailable">आईडी %1$s के साथ कोई एंडपॉइंट मौजूद नहीं है। मान्य एंडपॉइंट %2$s हैं</string>
+    <string name="session_endpoint_invalid_arguments">एंडपॉइंट %1$s के लिए गलत तर्क दिए गए। दिए गए तर्क: %2$s। अपेक्षित तर्क: %3$s।</string>
+    <string name="selected_location">चयनित स्थान</string>
+    <string name="confirm_location">स्थान की पुष्टि करें</string>
+
+    <string name="playback_start_time">00:00</string>
+    <string name="dependency_missing_dialog_title">आवश्यक ऐप प्राप्त करें</string>
+    <string name="dependency_missing_dialog_title_plural">आवश्यक ऐप्स प्राप्त करें</string>
+    <string name="dependency_missing_dialog_message">जारी रखने से पहले CommCare को आपके डिवाइस पर %s एप्लिकेशन इंस्टॉल करने की आवश्यकता है</string>
+    <string name="dependency_missing_dialog_message_plural">जारी रखने से पहले CommCare को आपके डिवाइस पर नीचे दिए गए एप्लिकेशन इंस्टॉल करने की आवश्यकता है-</string>
+    <string name="dependency_missing_dialog_go_to_store">स्टोर से इंस्टॉल करें</string>
+    <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
+    <string name="fcm_notification">FCM सूचना</string>
+    <string name="fcm_default_notification_channel">notification-channel-push-notifications</string> <!-- Internal channel ID, typically not translated -->
+    <string name="login_password_by_connect">PersonalID के माध्यम से (या यहां दबाएं)</string>
+    <string name="login_welcome_connect_signed_in">आपका स्वागत है %s!</string>
+    <string name="login_connect_secondary_phone_message">PersonalID का उपयोग जारी रखने के लिए कृपया %s द्वारा अपने द्वितीयक फ़ोन की पुष्टि करें।</string>
+    <string name="choice_or">___________    या    ___________</string>
+    <string name="busy_message">हम अभी भी आपके पिछले अनुरोध को संसाधित करने में व्यस्त हैं। कृपया कुछ समय बाद पुनः प्रयास करें।</string>
+
+    <string name="connect_button_logged_in">Connect मेनू पर जाएं</string>
+
+    <!-- PersonalID strings -->
+    <string name="connect_registration_title">PersonalID के साथ आरंभ करें</string>
+    <string name="connect_registration_subtitle">अपना फ़ोन नंबर दर्ज करें</string>
+
+    <string name="connect_consent_message_1">मैंने Dimagi की <a href="https://www.dimagi.com/terms/latest/privacy/">गोपनीयता नीति</a>, <a href="https://www.dimagi.com/terms/latest/tos/">सेवा की शर्तें</a>, <a href="https://www.dimagi.com/terms/latest/ba/">व्यापार समझौता</a> और <a href="https://www.dimagi.com/terms/latest/aup/">स्वीकार्य उपयोग नीति</a> को पढ़ लिया है और उनसे सहमत हूं।</string> <!-- URLs should remain as is -->
+
+    <string name="connect_phone_country_code_default">+91</string>
+
+    <string name="connect_otp_sent">OTP भेजा गया</string>
+    <string name="connect_otp_verified">OTP सत्यापित</string>
+    <string name="connect_enter_otp">OTP दर्ज करें</string>
+
+    <string name="connect_backup_code_title_set">बैकअप कोड</string>
+    <string name="connect_backup_code_title_confirm">बैकअप कोड की पुष्टि करें</string>
+    <string name="connect_backup_code_message_title">PersonalId बैकअप कोड</string>
+    <string name="connect_backup_code_message">अपना 6-अंकीय बैकअप कोड दर्ज करें</string>
+    <string name="connect_backup_code_length">बैकअप कोड %d अंकों का होना चाहिए</string>
+    <string name="connect_backup_code_mismatch">बैकअप कोड मेल खाने चाहिए</string>
+
+    <string name="connect_backup_fail_title">गलत बैकअप कोड</string>
+
+    <string name="connect_recovery_button_phone">जारी रखें</string>
+
+    <string name="connect_recovery_success_title">खाता पुनर्प्राप्त हुआ</string>
+    <string name="connect_recovery_success_message">आपने सफलतापूर्वक अपना खाता पुनर्प्राप्त कर लिया है और अब आप अपने PersonalId का उपयोग फिर से शुरू कर सकते हैं।</string>
+    <string name="connect_unlock_title">PersonalID अनलॉक करें</string>
+    <string name="connect_unlock_message">जारी रखने के लिए कृपया अनलॉक करें</string>
+    <string name="connect_unlock_unavailable">कृपया एक स्क्रीन अनलॉक तंत्र कॉन्फ़िगर करें</string>
+
+    <string name="connect_biometric_enroll_fail_title">बायोमेट्रिक समस्या</string>
+    <string name="connect_biometric_enroll_fail_message">आपको इस बायोमेट्रिक को Android सेटिंग में मैन्युअल रूप से कॉन्फ़िगर करना होगा।</string>
+
+    <string name="connect_biometric_enroll_fail_button">सेटिंग्स पर जाएं</string>
+    <string name="connect_register_name">नाम</string>
+    <string name="connect_register_success_title">खाता बन गया</string>
+
+    <string name="connect_register_success_message">आपका PersonalID खाता सफलतापूर्वक बन गया है और अब आपके उपयोग के लिए तैयार है!</string>
+    <string name="connect_register_success_button">ठीक है</string>
+    <string name="connect_verify_title">अनलॉक विकल्प</string>
+    <string name="connect_verify_message">कृपया अपने डिवाइस और PersonalId खाते दोनों को अनलॉक करने के लिए नीचे एक विधि कॉन्फ़िगर करें</string>
+    <string name="connect_verify_use_fingerprint_long">Connect करने के लिए फ़िंगरप्रिंट का उपयोग करें</string>
+    <string name="connect_verify_fingerprint_configured">आपका फ़िंगरप्रिंट पहले ही कॉन्फ़िगर किया जा चुका है और PersonalID को अनलॉक करने के लिए इसका उपयोग किया जाएगा।</string>
+    <string name="connect_verify_configure_fingerprint">फ़िंगरप्रिंट कॉन्फ़िगर करें</string>
+    <string name="connect_verify_use_pin_long">Connect करने के लिए पिन का उपयोग करें</string>
+    <string name="connect_verify_pin_configured">आपका पिन पहले ही कॉन्फ़िगर किया जा चुका है और PersonalID को अनलॉक करने के लिए इसका उपयोग किया जाएगा।</string>
+    <string name="connect_verify_configuration_failed">कॉन्फ़िगरेशन विफल, कृपया पुनः प्रयास करें। %s</string>
+
+    <string name="connect_verify_configure_pin">पिन कॉन्फ़िगर करें</string>
+    <string name="connect_verify_agree">सहमत हों और जारी रखें</string>
+
+    <string name="connect_verify_phone_title">सत्यापन कोड</string>
+    <string name="connect_verify_phone_label">हमने आपको %s पर समाप्त होने वाले नंबर पर एक SMS भेजने का प्रयास किया।</string>
+    <string name="connect_verify_phone_resend">अपना कोड प्राप्त नहीं हुआ? पुनः भेजें</string>
+    <string name="connect_verify_phone_resend_code">कोड पुनः भेजें</string>
+    <string name="connect_verify_skip_phone_number">मुझे लगता है कि आप एक डेमो उपयोगकर्ता हैं, इसलिए हम OTP छोड़ देंगे</string>
+
+    <string name="connect_verify_phone_resend_wait">अपना कोड प्राप्त नहीं हुआ? %d सेकंड में पुनः भेजें</string>
+    <string name="connect_verify_phone_change">बदलें</string>
+
+    <string name="connect_verify_phone_verify">कोड सत्यापित करें</string>
+
+    <string name="connect_messaging_title">मैसेजिंग</string>
+    <string name="connect_messaging_channel_list_title">चैनल</string>
+    <string name="connect_messaging_channel_list_unconsented">असहमति वाला चैनल</string>
+    <string name="connect_messaging_channel_consent_title">चैनल के लिए सहमति</string>
+    <string name="connect_messaging_channel_consent_description">क्या आप इस चैनल पर मैसेजिंग थ्रेड खोलने के लिए सहमत हैं?</string>
+    <string name="connect_messaging_channel_consent_failure_msg">चैनल को सहमति देने में विफल</string>
+    <string name="connect_messaging_channel_consent_accept">स्वीकार करें</string>
+    <string name="connect_messaging_channel_consent_decline">अस्वीकार करें</string>
+
+    <string name="connect_messaging_message_notification_title">🔔 नया संदेश 🔔</string>
+    <string name="connect_messaging_message_notification_message">आपको %s से एक नया संदेश मिला, देखने के लिए यहां दबाएं।</string>
+    <string name="connect_messaging_channel_notification_title">🔔 नया चैनल 🔔</string>
+    <string name="connect_messaging_channel_notification_message">%s से एक नया मैसेजिंग चैनल उपलब्ध है, देखने के लिए यहां दबाएं</string>
+    <string name="connect_messaging_send_message_fail_msg">संदेश भेजने में विफल</string>
+    <string name="connect_messaging_retrieve_messages_fail">संदेश पुनः प्राप्त करने में विफल</string>
+    <string name="connect_send_message_hint">संदेश लिखें</string>
+    <string name="connect_send_message_btn_desc">संदेश भेजने के लिए यहां दबाएं</string>
+
+    <string name="connect_last_update">अपडेट किया गया: %s</string>
+    <string name="connect_title">Connect</string>
+    <string name="connect_no_jobs">आपको किसी भी सक्रिय अवसर के लिए आमंत्रित नहीं किया गया है। कृपया बाद में वापस आएं।</string>
+    <string name="connect_corrupt_job_text">इस अवसर को लोड करने में विफल</string>
+
+    <string name="connect_job_intro_title">अवसर</string>
+
+    <string name="connect_job_learn_details">विवरण जानें</string>
+    <string name="connect_job_you_will_learn">निम्नलिखित शिक्षण मॉड्यूल पूरे करें और एक प्रमाण पत्र अर्जित करें</string>
+    <string name="connect_job_no_learning_required">कोई शिक्षण आवश्यक नहीं</string>
+    <string name="connect_job_go_to_learn_app">Learn ऐप पर जाएं</string>
+
+    <string name="connect_job_learn_summary">%d मॉड्यूल, %d घंटे</string>
+    <string name="connect_learn_progress_title">सीखने की प्रगति</string>
+    <string name="connect_learn_complete_title">प्रशिक्षण पूरा!</string>
+    <string name="connect_learn_need_assessment_title">प्रशिक्षण लंबित</string>
+    <string name="connect_learn_failed_title">प्रशिक्षण विफल</string>
+    <string name="connect_learn_complete_by">%s तक प्रोजेक्ट पूरा करें</string>
+
+    <string name="connect_learn_title">सीखने की प्रगति</string>
+    <string name="connect_learn_status">आपने %2$d में से %1$d पाठ पूरे कर लिए हैं।\nअपना प्रमाण पत्र अर्जित करने के लिए सीखना समाप्त करें।</string>
+    <string name="connect_learn_not_started">आपने कोई पाठ पूरा नहीं किया है।\nअपना प्रमाण पत्र अर्जित करने के लिए सीखना शुरू करें।</string>
+    <string name="connect_learn_finished">आपने इस नौकरी के लिए एक प्रमाण पत्र अर्जित किया है और नौकरी का दावा करने और देखभाल प्रदान करना शुरू करने के योग्य हैं।\nआपका स्कोर: %d\nउत्तीर्ण अंक: %d</string>
+    <string name="your_score">स्कोर: %d</string>
+
+    <string name="connect_learn_need_assessment">प्रशिक्षण समाप्त करने के लिए मूल्यांकन पूरा करें।</string>
+    <string name="connect_learn_failed">क्षमा करें, आपने अपने मूल्यांकन पर उत्तीर्ण अंक अर्जित नहीं किए। कृपया पुनः प्रयास करें।\nआपका स्कोर: %d\nउत्तीर्ण अंक: %d</string>
+    <string name="connect_learn_complete">पूरा</string>
+    <string name="connect_learn_certificate">प्रमाण पत्र</string>
+
+    <string name="connect_learn_completed">इस पर पूरा हुआ: %s</string>
+    <string name="connect_learn_warning_ended">नौकरी समाप्त हो गई है। अतिरिक्त काम के लिए आपको कोई प्रगति नहीं मिलेगी।</string>
+    <string name="connect_learn_review">सीखने की समीक्षा करें</string>
+    <string name="connect_learn_view_details">नौकरी का विवरण देखें</string>
+    <string name="connect_learn_go_to_assessment">मूल्यांकन पर जाएं</string>
+    <string name="connect_learn_try_again">पुनः प्रयास करें</string>
+    <string name="connect_learn_start">सीखना शुरू करें</string>
+    <string name="connect_learn_continue">सीखना जारी रखें</string>
+    <string name="connect_delivery_earn_multi">प्रति विज़िट भुगतान:</string>
+
+    <string name="connect_delivery_go">ऐप पर जाएं</string>
+    <string name="connect_progress_delivery">वितरण</string>
+    <string name="connect_progress_title">वितरण प्रगति</string>
+    <string name="connect_progress_status">आपने %2$d में से %1$d विज़िट पूरी कर ली हैं।</string>
+
+    <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। अतिरिक्त काम के लिए आपको कोई प्रगति नहीं मिलेगी।</string>
+    <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। काम के लिए आपको कोई प्रगति नहीं मिलेगी।</string>
+    <string name="connect_progress_ready_for_transition_to_delivery">आपने मूल्यांकन पास कर लिया है और वितरित करने के लिए तैयार हैं। आगे बढ़ने के लिए नौकरी की स्थिति देखें।</string>
+    <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। अतिरिक्त काम के लिए आपको कोई प्रगति नहीं मिलेगी।</string>
+    <string name="connect_progress_warning_daily_max_reached_single">आप आज के लिए अधिकतम विज़िट तक पहुँच चुके हैं। अतिरिक्त काम के लिए आपको कोई प्रगति नहीं मिलेगी।</string>
+    <string name="connect_progress_warning_max_reached_multi">आप %s के लिए अधिकतम विज़िट तक पहुँच चुके हैं।</string>
+    <string name="connect_progress_warning_daily_max_reached_multi">आप %s के लिए अपनी दैनिक सीमा तक पहुँच चुके हैं।</string>
+    <string name="connect_downloading_learn">Learn ऐप डाउनलोड हो रहा है</string>
+    <string name="connect_downloading_delivery">Delivery ऐप डाउनलोड हो रहा है</string>
+    <string name="connect_results_summary_all">सभी</string>
+    <string name="connect_results_summary_pending">लंबित</string>
+    <string name="connect_results_summary_rejected">अस्वीकृत</string>
+    <string name="connect_results_summary_approved">अनुमोदित</string>
+    <string name="connect_results_summary_earned">अर्जित</string>
+    <string name="connect_results_summary_remaining">शेष</string>
+    <string name="connect_results_summary_remaining_days">%d दिनों में %d</string>
+    <string name="connect_results_summary_remaining_tomorrow">कल तक %d</string>
+    <string name="connect_results_summary_remaining_today">आज तक %d</string>
+    <string name="connect_results_summary_visits_done">सभी विज़िट पूरी हुईं</string>
+    <string name="connect_results_summary_days_over">दिन समाप्त</string>
+
+    <string name="connect_results_summary_transferred">स्थानांतरित</string>
+
+    <string name="connect_results_payment_confirm">पुष्टि करें</string>
+    <string name="connect_results_payment_confirm_undo">पुष्टि पूर्ववत करें</string>
+    <string name="connect_results_payment_confirmed">पुष्टि की गई</string>
+    <string name="connect_results_payment_not_confirmed">पुष्टि नहीं की गई</string>
+    <string name="connect_payment_confirm_text">आपको भुगतान मिल गया!\n%s %s ने %s का भुगतान किया।\nक्या आपको भुगतान प्राप्त हुआ है?</string>
+    <string name="connect_payment_confirm_yes">हाँ!</string>
+    <string name="connect_payment_confirm_no">बाद में पूछें</string>
+    <string name="connect_payment_confirm_failed">पुष्टि भेजने में विफल, हम बाद में फिर से पूछेंगे।</string>
+    <string name="login_button_connectid">PersonalId से लॉगिन करें</string>
+    <string name="login_link_connectid_title">PersonalId से लिंक करें?</string>
+    <string name="login_link_connectid_message">क्या आप इस लॉगिन को अपने PersonalId खाते से लिंक करना चाहते हैं? आपको भविष्य में अपना पासवर्ड टाइप करने की आवश्यकता नहीं होगी।</string>
+    <string name="login_unlink_connectid_title">PersonalId अनलिंक करें?</string>
+    <string name="login_unlink_connectid_message">मैं देख रहा हूं कि आपने अपने पासवर्ड से लॉग इन किया है, हालांकि PersonalId ऑटो-लॉगिन के लिए कॉन्फ़िगर किया गया था। क्या आप इस लॉगिन को PersonalId से अलग करना चाहेंगे?</string>
+    <string name="login_link_connectid_yes">हाँ</string>
+    <string name="login_link_connectid_no">नहीं</string>
+    <string name="login_menu_connect_sign_in">PersonalID के लिए साइन अप करें</string>
+
+    <string name="login_menu_connect_forget">PersonalID उपयोगकर्ता को भूल जाएं</string>
+
+    <string name="connect_app_install_unknown_error">एक अज्ञात त्रुटि के कारण ऐप इंस्टॉल विफल रहा</string>
+    <string name="connect_app_installed">ऐप इंस्टॉल हो गया</string>
+
+    <string name="app_with_id_not_found">आवश्यक CommCare ऐप डिवाइस पर इंस्टॉल नहीं है</string>
+    <string name="audio_recording_notification">ऑडियो रिकॉर्डिंग सूचना</string>
+    <string name="user_suspended">उपयोगकर्ता निलंबित है। कृपया व्यवस्थापक से संपर्क करें।</string>
+
+    <string name="connect_job_list_api_failure">सर्वर से कनेक्ट करते समय एक त्रुटि हुई।</string>
+    <string name="connect_payment_acknowledge_notification_yes">हाँ</string>
+    <string name="connect_payment_acknowledge_notification_no">नहीं</string>
+
+    <string name="enter_otp">वन टाइम पासवर्ड दर्ज करें</string>
+    <string name="create_a_new_recovery_code">एक नया बैकअप कोड बनाएं</string>
+    <string name="confirm_code">कोड की पुष्टि करें</string>
+    <string name="code">कोड</string>
+    <string name="choose_a_6_digit_recovery_code">एक 6 अंकीय बैकअप कोड चुनें</string>
+    <string name="download_app">डाउनलोड करें</string>
+    <string name="sync">सिंक करें</string>
+    <string name="back">वापस</string>
+
+    <string-array name="frequency_vals">
+        <item>freq-never</item>
+        <item>freq-daily</item>
+        <item>freq-weekly</item>
+    </string-array>
+    <string-array name="frequency_vals_labels">
+        <item>कभी नहीँ</item>
+        <item>रोजाना</item>
+        <item>साप्ताहिक</item>
+    </string-array>
+    <string-array name="pref_enabled_vals">
+        <item>yes</item>
+        <item>no</item>
+    </string-array>
+    <string-array name="pref_enabled_labels">
+        <item>सक्षम</item>
+        <item>अक्षम</item>
+    </string-array>
+    <string-array name="pref_password_show_options_labels">
+        <item>हमेशा छिपा हुआ</item>
+        <item>डिफ़ॉल्ट रूप से दिखाएँ</item>
+        <item>डिफ़ॉल्ट रूप से छिपाएँ</item>
+    </string-array>
+    <string-array name="pref_load_form_payload_as_vals">
+        <item>incomplete</item>
+        <item>unsent</item>
+        <item>saved</item>
+    </string-array>
+    <string-array name="pref_load_form_payload_as_labels">
+        <item>अधूरा</item>
+        <item>नहीं भेजा गया</item>
+        <item>सहेजा गया</item>
+    </string-array>
+    <string-array name="pref_password_show_options">
+        <item>always_hidden</item>
+        <item>default_show</item>
+        <item>default_hide</item>
+    </string-array>
+    <string-array name="update_target_labels">
+        <item>नवीनतम तारांकित संस्करण</item>
+        <item>नवीनतम संस्करण</item>
+        <item>नवीनतम सहेजी गई स्थिति</item>
+    </string-array>
+    <string-array name="update_target_vals">
+        <item>release</item>
+        <item>build</item>
+        <item>save</item>
+    </string-array>
+
+    <string name="micro_image_activity_title">चेहरे की तस्वीर कैप्चर करें</string>
+
+    <string name="connect_job_info_title">अवसर विवरण</string>
+    <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
+    <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
+    <string name="connect_job_info_visit">%d अधिकतम विज़िट</string>
+    <string name="connect_job_info_days">पूरा करने के लिए %d दिन</string>
+    <string name="connect_job_info_max_visit">प्रति दिन अधिकतम विज़िट %d</string>
+    <string name="connect_job_info_visit_charge">विज़िट के लिए %s तक कमाएँ</string>
+    <string name="connect_job_info_delivery_hours">वितरण घंटे</string>
+    <string name="connect_job_info_view_more">और देखें</string>
+    <string name="connect_job_info_start_visit">विज़िट शुरू करें</string>
+    <string name="connect_job_info_download_delivery">Delivery डाउनलोड करें </string>
+    <string name="connect_job_info_download">डाउनलोड करें</string>
+
+    <string name="connect_progress">प्रगति</string>
+    <string name="connect_payment">भुगतान</string>
+    <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र अर्जित करने के लिए सीखना शुरू करें।</string>
+    <string name="connect_click_to_sync_progress">प्रगति सिंक करने के लिए क्लिक करें</string>
+    <string name="connect_visit_type_title">%s विज़िट</string>
+
+    <string name="connect_payment_received">प्राप्त हुआ</string>
+    <string name="connect_payment_transferred">स्थानांतरित</string>
+    <string name="connect_payment_confirm_transferred">स्थानांतरित भुगतान की पुष्टि करें</string>
+    <string name="connect_payment_revoke_transferred">भुगतान पुष्टि रद्द करें</string>
+    <string name="connect_payment_dialog_no">नहीं</string>
+    <string name="connect_payment_dialog_yes">हाँ</string>
+    <string name="connect_payment_revert">वापस करें</string>
+
+    <string name="connect_deactivate_account">खाता निष्क्रिय करें</string>
+
+    <string name="connect_new_opportunity">नया अवसर</string>
+    <string name="connect_learn">सीखें</string>
+    <string name="connect_delivery">वितरण</string>
+    <string name="connect_expired">समाप्त</string>
+    <string name="connect_job_tile_daily_limit_description">दैनिक सीमा पूरी हो गई। फ़ॉर्म जमा करने के लिए कोई भुगतान नहीं</string>
+    <string name="connect_job_tile_daily_visits">दैनिक विज़िट</string>
+    <string name="connect_appbar_title_app_lock">ऐप लॉक</string>
+
+    <!--    Entity List Progresss Indicators-->
+
+    <string name="entity_list_initializing">सूची प्रारंभ हो रही है…</string>
+    <string name="entity_list_loading">सूची लोड हो रही है: %s</string>
+    <string name="entity_list_finishing">सूची गणनाएँ समाप्त हो रही हैं…</string>
+
+    <string name="personalid_generic_error">एक समस्या हुई, कृपया मेनू से Personal ID के लिए साइन अप करें चुनकर अपना PersonalID खाता फिर से कॉन्फ़िगर करें।</string>
+    <string name="ConnectMessageRetrieveMessagesURL" translatable="false">https://connectid.dimagi.com/messaging/retrieve_messages/</string> <!-- NO TRANSLATION - As per original -->
+    <string name="ConnectMessageChannelConsentURL" translatable="false">https://connectid.dimagi.com/messaging/update_consent/</string> <!-- NO TRANSLATION - As per original -->
+    <string name="ConnectMessageSendURL" translatable="false">https://connectid.dimagi.com/messaging/send_message/</string> <!-- NO TRANSLATION - As per original -->
+    <string name="ConnectMessageConfirmURL" translatable="false">https://connectid.dimagi.com/messaging/update_received/</string> <!-- NO TRANSLATION - As per original -->
+
+    <string name="personalid_login_via_connect">लॉगिन के लिए तैयार!\n</string>
+    <string name="personalid_failed_to_login_with_connectid">आपके Personal ID का उपयोग करके लॉगिन करने का प्रयास करते समय हमें एक अपूरणीय त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉगिन करें या अपना Personal ID लॉगिन पुनर्स्थापित करें</string>
+    <string name="personalid_name_fragment_subtitle">कृपया अपना नाम वैसे ही दर्ज करें जैसा वह आपकी सरकार द्वारा जारी पहचान पत्र पर दिखाई देता है</string>
+    <string name="personalid_name_empty_error">नाम फ़ील्ड खाली नहीं हो सकता</string>
+    <string name="personalid_configuration_process_failed_title">प्रक्रिया विफल</string>
+    <string name="personalid_configuration_process_failed_subtitle">आपका डिवाइस इस समय PersonalID के लिए साइन अप करने के योग्य नहीं है। कृपया किसी भिन्न डिवाइस पर पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_failed_play_services">कृपया सुनिश्चित करें कि Play Store आपके डिवाइस पर उपलब्ध है और अपडेट किया गया है।</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">आपके डिवाइस की पात्रता स्थापित करने में अस्थायी त्रुटि। कृपया एक दिन बाद पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_failed_network_error">आपके डिवाइस की पात्रता स्थापित करने में नेटवर्क त्रुटि। कृपया सुनिश्चित करें कि आपके पास एक अच्छा नेटवर्क कनेक्शन है और पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">एक अप्रत्याशित त्रुटि के कारण डिवाइस पात्रता स्थापित करने में असमर्थ। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें</string>
+    <string name="personalid_configuration_process_failed_security_subtitle">%s सुरक्षा सुविधा की अनुपलब्धता के कारण आपका डिवाइस इस समय PersonalID के लिए साइन अप करने के योग्य नहीं है। कृपया किसी भिन्न डिवाइस पर पुनः प्रयास करें।</string>
+    <string name="personalid_photo_capture_title">स्वागत है %1$s</string>
+    <string name="personalid_photo_capture_subtitle">अपना खाता सेटअप पूरा करने के लिए कृपया अपनी एक तस्वीर लें</string>
+    <string name="personalid_photo_capture_take_photo_button">तस्वीर लें</string>
+    <string name="personalid_photo_capture_save_photo_button">तस्वीर सहेजें</string>
+    <string name="personalid_photo_upload_failure">"तस्वीर सहेजने में विफल। कृपया अपना इंटरनेट जांचें और पुनः प्रयास करें। "</string>
+    <string name="personalid_this_is_not_me"><u>यह मैं नहीं हूँ</u></string>
+    <string name="personalid_welcome_back_msg">वापस स्वागत है %s</string>
+    <string name="personalid_recovery_failed_title">पुनर्प्राप्ति विफल</string>
+    <string name="personalid_recovery_lockout_title">खाता लॉक</string>
+    <string name="personalid_recovery_failed_message">ऐसा लगता है कि आप अपना बैकअप कोड भूल गए हैं, हम आपके लिए एक नया खाता बना रहे हैं</string>
+    <string name="personalid_recovery_lockout_message">आपने कई बार गलत बैकअप कोड दर्ज किया है और आपका खाता लॉक कर दिया गया है।</string>
+    <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड दर्ज किया, कृपया पुनः प्रयास करें। %d और गलत प्रयासों के बाद आपको एक नया खाता बनाना होगा।</string>
+    <string name="personalid_camera_permission_title">कैमरे के लिए अनुमति</string>
+    <string name="personalid_camera_permission_msg">एक तस्वीर लेने के लिए, CommCare को आपके डिवाइस कैमरे का उपयोग करने की अनुमति चाहिए।</string>
+    <string name="personalid_capture_photo">तस्वीर कैप्चर करें</string>
+    <string name="personalid_incorrect_otp">दर्ज किया गया OTP गलत है। कृपया पुनः प्रयास करें।</string>
+    <string name="personalid_too_many_otp_attempts">बहुत अधिक प्रयास। कृपया बाद में पुनः प्रयास करें।</string>
+    <string name="personalid_otp_missing_activity">कुछ गलत हो गया</string>
+    <string name="personalid_otp_verification_failed_generic">OTP सत्यापन विफल:</string>
+    <string name="personalid_otp_verification_failed">सत्यापन विफल और कृपया पुनः प्रयास करें</string>
+    <string name="personalid_location_permission_error">स्थान अनुमति अस्वीकृत</string>
+    <string name="personalid_location_service_error">स्थान सेवा उपलब्ध नहीं है। कृपया इसे सक्षम करें</string>
+    <string name="personalid_grant_location_permission">स्थान अनुमति दें</string>
+    <string name="personalid_grant_location_service">स्थान सेवा सक्षम करें</string>
+    <string name="my_credentials">मेरे क्रेडेंशियल</string>
+    <string name="credential">क्रेडेंशियल</string>
+</resources>
