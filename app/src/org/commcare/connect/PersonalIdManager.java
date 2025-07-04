@@ -531,7 +531,7 @@ public class PersonalIdManager {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse,String endPoint) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
             }
 

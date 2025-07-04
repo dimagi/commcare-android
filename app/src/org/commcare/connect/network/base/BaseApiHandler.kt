@@ -27,7 +27,8 @@ abstract class BaseApiHandler<T> {
         JSON_PARSING_ERROR,
         FAILED_AUTH_ERROR,
         SERVER_ERROR,
-        RATE_LIMIT_EXCEEDED_ERROR;
+        RATE_LIMIT_EXCEEDED_ERROR,
+        ACCOUNT_LOCKED_ERROR;
 
         fun shouldAllowRetry(): Boolean {
             return this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR

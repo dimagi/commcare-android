@@ -446,6 +446,7 @@
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_name_empty_error">Sehemu ya jina haiwezi kuwa tupu</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
+    <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
     <string name="personalid_configuration_process_failed_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu kwa sababu ya kutopatikana kwa kipengele cha usalama cha %s. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_play_services">Tafadhali hakikisha kuwa Play Store inapatikana kwenye kifaa chako na imesasishwa.</string>

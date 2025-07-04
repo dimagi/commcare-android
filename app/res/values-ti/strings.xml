@@ -432,6 +432,7 @@
     <string name="personalid_name_fragment_subtitle">በጃኹም ኣብቲ ብመንግስቲ ዝተዋህበኩም መለለዪ መንነትኩም ከም ዝረአ ስምኩም ኣእትዉ</string>
     <string name="personalid_name_empty_error">ናይ ስም ዓውዲ ባዶ ክኸውን ኣይክእልን እዩ።</string>
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
+    <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
     <string name="personalid_configuration_process_failed_subtitle">መሳርሒኻ ኣብዚ እዋን\'ዚ ን PersonalID ንምምዝጋብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_security_subtitle">መሳርሒኻ ኣብዚ እዋን እዚ ብሰንኪ %s ናይ ጸጥታ ባህሪ ዘይምህላዉ ንPersonalID ክምዝገብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_play_services">እባኮም ኣረጋግጹ ፡ እቲ ፕሌይ ስቶር ኣብ መሳርሒ እትርከቡ እንተሎ እና ትሓዘ እንተኾነ።</string>
