@@ -89,7 +89,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     public void retrieveCredentials(Context context, String userName, String password) {
         ApiPersonalId.retrieveCredentials(context, userName, password,
                 createCallback(
-                        new RetrieveCredentialsResponseParser<T>()));
+                        new RetrieveCredentialsResponseParser<T>(context)));
     }
 
 }
