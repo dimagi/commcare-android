@@ -15,7 +15,7 @@ import java.io.InputStream
 abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
     IApiCallback {
 
-    override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
+    override fun processFailure(responseCode: Int, errorResponse: InputStream?, url: String?) {
         // Common error_code handler used before checking error response code
         if (handleErrorCodeIfPresent(errorResponse)) return
 
@@ -30,20 +30,21 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
                 null
             )
 
-            429, 503 -> baseApiHandler.onFailure(
+            429 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
                 null
             )
 
-            500 -> baseApiHandler.onFailure(
+            in 500..509 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                 null
             )
 
-            else -> baseApiHandler.onFailure(
-                PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
-                Exception("Response $responseCode")
-            )
+            else -> {
+                val exception = Exception("Encountered response code $responseCode for url ${url ?: "url not found"}")
+                Logger.exception("Unknown http response code", exception)
+                baseApiHandler.onFailure(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, exception)
+            }
         }
     }
 
