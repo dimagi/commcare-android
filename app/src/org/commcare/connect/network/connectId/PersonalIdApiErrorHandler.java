@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
 
 /**
  * Utility class for handling standardized API error responses across the configuration flow.
@@ -47,10 +48,15 @@ public class PersonalIdApiErrorHandler {
                 return "";
             case OLD_API_ERROR:
                 return activity.getString(R.string.recovery_network_outdated);
+            case ACCOUNT_LOCKED_ERROR:
+                return activity.getString(R.string.personalid_configuration_locked_account);
+            case FORBIDDEN_ERROR:
+                return activity.getString(R.string.personalid_configuration_process_failed_subtitle);
             case UNKNOWN_ERROR:
                 return activity.getString(R.string.recovery_network_unknown);
             default:
-                throw new RuntimeException(t);
+                Logger.exception("Unhandled API error code: " + errorCode, t);
+                return activity.getString(R.string.recovery_network_unknown);
         }
     }
 }
