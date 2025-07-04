@@ -37,7 +37,7 @@ License.
     <string name="migration_definite_failure">CommCare n\'a pas pu migrer les données de votre application pour une mise à niveau. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le relancer.</string>
     <string name="migration_possible_failure">CommCare n\'a pas pu migrer toutes vos données lors d\'une mise à niveau de l\'application. Veuillez redémarrer CommCare pour tenter de résoudre ce problème. Si ce message persiste, vous devrez peut-être «Effacer les données» de CommCare dans les paramètres de votre appareil.</string>
     <string name="migration_failure_title">Erreur de migration</string>
-    <string name="multiple_apps_limit_message">Vous avez atteint votre limite d\'applications installées; vous ne pouvez avoir que %s applications installées à la fois.\n\nSi vous souhaitez installer une nouvelle application, vous pouvez d\'abord désinstaller une application existante, ce qui peut être fait à partir du gestionnaire d\'applications.</string>
+    <string name="multiple_apps_limit_message">Vous avez atteint votre limite d\'applications installées; vous ne pouvez avoir que %1$d applications installées à la fois.\n\nSi vous souhaitez installer une nouvelle application, vous pouvez d\'abord désinstaller une application existante, ce qui peut être fait à partir du gestionnaire d\'applications.</string>
     <string name="back_to_manager">Retour au gestionnaire d\'applications</string>
     <string name="go_to_manager">Accéder au gestionnaire d\'applications</string>
     <string name="claim_privilege_button_text">RÉCLAMER DES PRIVILÈGES</string>
@@ -174,9 +174,9 @@ License.
     <string name="recovery_success">La récupération de l\'application a réussi. Veuillez appuyer sur «Retour» pour reprendre votre travail.</string>
     <string name="recovery_forms_send_progress">Soumission du ou des formulaires au serveur...</string>
     <string name="recovery_forms_send_session_expired">La connexion a expiré lors de l\'envoi</string>
-    <string name="recovery_forms_send_successful">Envoi réussi. Tous les formulaires %s ont été soumis.</string>
+    <string name="recovery_forms_send_successful">Envoi réussi. Tous les formulaires %1$d ont été soumis.</string>
     <string name="recovery_forms_send_failure">Des erreurs se sont produites lors de la soumission des formulaires.</string>
-    <string name="recovery_forms_send_parital_success">Des erreurs se sont produites lors de l\'envoi des formulaires. Seuls %s ont été envoyés. Veuillez réessayer ultérieurement.</string>
+    <string name="recovery_forms_send_parital_success">Des erreurs se sont produites lors de l\'envoi des formulaires. Seuls %1$d ont été envoyés. Veuillez réessayer ultérieurement.</string>
     <string name="recovery_forms_send_network_error">L\'envoi des formulaires a échoué en raison d\'un réseau médiocre</string>
     <string name="recovery_forms_send_error">Erreur lors de l\'envoi des formulaires</string>
     <string name="recovery_forms_state_unavailable">Les formulaires ne sont pas disponibles. Vérifiez que l\'espace de stockage de votre téléphone est disponible.</string>
@@ -221,7 +221,7 @@ License.
     <string name="image_download_prompt">Le fichier image est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="audio_download_prompt">Le fichier audio est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="media_not_found_error">Média non trouvé dans l\'application</string>
-    <string name="area_format">%1s m²</string>
+    <string name="area_format">%1$.2f m²</string>
     <string name="parse_coordinates_failure">Impossible d\'analyser les coordonnées d\'entrée</string>
     <string name="location_provider_disabled">Activez votre localisation pour recevoir des mises à jour de localisation</string>
     <string name="wait_for_location_fix">CommCare tente toujours de récupérer votre position. Veuillez patienter ou cliquer sur Annuler pour annuler.</string>
