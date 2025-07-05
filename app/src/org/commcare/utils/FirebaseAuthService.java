@@ -18,8 +18,9 @@ import java.util.concurrent.TimeUnit;
 import androidx.annotation.NonNull;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.base.BaseApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.javarosa.core.services.Logger;
 
 public class FirebaseAuthService implements OtpAuthService {
@@ -83,22 +84,22 @@ public class FirebaseAuthService implements OtpAuthService {
 
     @Override
     public void submitOtp(@NonNull String code) {
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
 
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 callback.onSuccess();
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode, Throwable t) {
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 handlePersonalIdApiError(failureCode, t);
             }
 
         }.validateFirebaseIdToken(activity, code, personalIdSessionData);
     }
 
-    private void handlePersonalIdApiError(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode, Throwable t) {
+    private void handlePersonalIdApiError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
         callback.onFailure(OtpErrorType.GENERIC_ERROR, error);
     }

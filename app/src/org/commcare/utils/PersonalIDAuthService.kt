@@ -2,8 +2,10 @@ package org.commcare.utils
 
 import android.app.Activity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.network.PersonalIdApiErrorHandler
-import org.commcare.connect.network.PersonalIdApiHandler
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
+import org.commcare.connect.network.connectId.PersonalIdApiHandler
+
 
 class PersonalIdAuthService(
     private val activity: Activity,
@@ -12,12 +14,12 @@ class PersonalIdAuthService(
 ) : OtpAuthService {
 
     override fun requestOtp(phoneNumber: String) {
-        object : PersonalIdApiHandler() {
+        object : PersonalIdApiHandler<PersonalIdSessionData>() {
             override fun onSuccess(sessionData: PersonalIdSessionData) {
                 callback.onCodeSent(null)
             }
 
-            override fun onFailure(failureCode: PersonalIdApiErrorCodes, t: Throwable?) {
+            override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
                 handlePersonalIdApiError(failureCode, t)
             }
         }.sendOtp(activity, personalIdSessionData)
@@ -29,21 +31,21 @@ class PersonalIdAuthService(
     }
 
     override fun submitOtp(code: String) {
-        object : PersonalIdApiHandler() {
+        object : PersonalIdApiHandler<PersonalIdSessionData>() {
             override fun onSuccess(sessionData: PersonalIdSessionData) {
                 callback.onSuccess()
             }
 
-            override fun onFailure(failureCode: PersonalIdApiErrorCodes, t: Throwable?) {
+            override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
                 handlePersonalIdApiError(failureCode, t)
             }
         }.validateOtp(activity, code, personalIdSessionData)
     }
 
-    private fun handlePersonalIdApiError(failureCode: PersonalIdApiHandler.PersonalIdApiErrorCodes, t: Throwable?) {
+    private fun handlePersonalIdApiError(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
         var errorType = OtpErrorType.GENERIC_ERROR;
         val error = PersonalIdApiErrorHandler.handle(activity, failureCode, t)
-        if(failureCode == PersonalIdApiHandler.PersonalIdApiErrorCodes.FAILED_AUTH_ERROR) {
+        if(failureCode == PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
             errorType = OtpErrorType.INVALID_CREDENTIAL
         }
         callback.onFailure(errorType, error)
