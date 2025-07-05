@@ -1,7 +1,5 @@
 package org.commcare.utils;
 
-import com.google.firebase.auth.FirebaseUser;
-
 import androidx.annotation.Nullable;
 
 /**
@@ -20,11 +18,18 @@ public interface OtpVerificationCallback {
     void onCodeSent(String verificationId);
 
     /**
-     * Called when OTP verification completes successfully.
+     * Only called when there is an additional verification step locally after receiving the code
+     * Specific to FirebaseAuth at the moment.
      *
-     * @param user The authenticated {@link FirebaseUser}
      */
-    void onSuccess(FirebaseUser user);
+    void onCodeVerified(String code);
+
+
+    /**
+     * Called when the OTP code is successfully verified with our servers and user is authenticated.
+     * This is called when the OTP verification process completes successfully.
+     */
+    void onSuccess();
 
     /**
      * Called when an error occurs during the OTP process.
@@ -32,5 +37,4 @@ public interface OtpVerificationCallback {
      * @param message A description of the error that occurred
      */
     void onFailure(OtpErrorType errorType, @Nullable String message);
-
 }

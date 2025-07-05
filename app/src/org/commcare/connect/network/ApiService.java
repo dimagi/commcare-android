@@ -34,4 +34,11 @@ public interface ApiService {
 
     @POST(ApiEndPoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.sendSessionOtp)
+    Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.validateSessionOtp)
+    Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
+            @Body Map<String, String> body);
 }
