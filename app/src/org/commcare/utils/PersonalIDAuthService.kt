@@ -26,8 +26,8 @@ class PersonalIdAuthService(
     }
 
     override fun verifyOtp(code: String) {
-        // no verification step just succeed directly
-        callback.onCodeVerified(code)
+        // no verification step just call submit directly
+        submitOtp(code);
     }
 
     override fun submitOtp(code: String) {

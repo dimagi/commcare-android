@@ -31,11 +31,7 @@ public class OtpManager {
     }
 
     public void verifyOtp(String code) {
-        if (authService instanceof FirebaseAuthService) {
-            authService.verifyOtp(code);
-        } else {
-            authService.submitOtp(code);
-        }
+        authService.verifyOtp(code);
     }
 
 }
