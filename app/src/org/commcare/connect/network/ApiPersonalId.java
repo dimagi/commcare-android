@@ -3,22 +3,23 @@ package org.commcare.connect.network;
 import android.content.Context;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connect.ConnectApiClient;
 import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -43,7 +44,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -215,7 +215,7 @@ public class ApiPersonalId {
         }
     }
 
-    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback) {
+    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback, String url) {
         showProgressDialog(context);
         call.enqueue(new Callback<>() {
             @Override
@@ -227,14 +227,14 @@ public class ApiPersonalId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code(), null);
+                        callback.processFailure(response.code(), null, url);
                     }
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
                     InputStream stream = response.errorBody() != null ?
                             response.errorBody().byteStream() : null;
-                    callback.processFailure(response.code(), stream);
+                    callback.processFailure(response.code(), stream, url);
                 }
             }
 
@@ -259,14 +259,14 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.confirmBackupCode);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.startConfiguration);
     }
 
     public static void validateFirebaseIdToken(String token,Context context, String firebaseIdToken, IApiCallback callback) {
@@ -277,7 +277,7 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.validateFirebaseIdToken);
     }
 
     public static void addOrVerifyName(Context context, String name, String token, IApiCallback callback) {
@@ -290,7 +290,7 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.checkName);
     }
 
     public static void updateUserProfile(Context context, String username,
@@ -309,7 +309,7 @@ public class ApiPersonalId {
         }
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.updateProfile);
     }
 
     public static void setPhotoAndCompleteProfile(Context context, String userName,
@@ -327,7 +327,7 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.completeProfile);
     }
 
     public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
@@ -335,7 +335,7 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
-        callApi(context, call, callback);
+        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.CREDENTIALS);
     }
 
     private static void logNetworkError(Response<?> response) {

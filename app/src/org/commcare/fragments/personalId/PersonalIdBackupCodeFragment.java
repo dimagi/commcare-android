@@ -202,10 +202,9 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() == 0) {
-                    navigateWithMessage(getString(R.string.personalid_recovery_failed_title),
-                            getString(R.string.personalid_recovery_failed_message),
-                            ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED);
+                } else if (sessionData.getSessionFailureCode() != null &&
+                                sessionData.getSessionFailureCode().equalsIgnoreCase("LOCKED_ACCOUNT")) {
+                    handleAccountLockout();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
@@ -253,8 +252,16 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
+    private void handleAccountLockout() {
+        logRecoveryResult(false);
+        clearBackupCodeFields();
+        navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
+                getString(R.string.personalid_recovery_lockout_message),
+                ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED);
+    }
+
     private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+        FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {
