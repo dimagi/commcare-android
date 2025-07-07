@@ -25,7 +25,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-
+import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -225,8 +225,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {
                     @Override
-                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash) {
-                        makeStartConfigurationCall(token, requestHash, body);
+                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash,
+                                                @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokeResponse) {
+                        makeStartConfigurationCall(token, requestHash, body, integrityTokeResponse);
                     }
 
                     @Override
@@ -338,7 +339,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
 
     private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
-                                            HashMap<String, String> body) {
+                                            HashMap<String, String> body,
+                                            StandardIntegrityManager.@NotNull StandardIntegrityToken integrityTokenResponse) {
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
@@ -378,13 +380,26 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                                 getString(R.string.personalid_configuration_process_failed_subtitle)
                         );
                         break;
-
+                    case INTEGRITY_ERROR:
+                        handleIntegritySubError(integrityTokenResponse, t.getMessage());
                     default:
                         navigateFailure(failureCode, t);
                         break;
                 }
             }
         }.makeStartConfigurationCall(requireActivity(), body, integrityToken, requestHash);
+    }
+
+    private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse, String subError) {
+        int codeType = switch (subError) {
+            case "UNLICENSED_APP_ERROR" -> 1;
+            case "APP_INTEGRITY_ERROR" -> 2;
+            case "DEVICE_INTEGRITY_ERROR" -> 3;
+            default -> 0;
+        };
+        if (codeType > 0) {
+            tokenResponse.showDialog(requireActivity(), codeType);
+        }
     }
 
 

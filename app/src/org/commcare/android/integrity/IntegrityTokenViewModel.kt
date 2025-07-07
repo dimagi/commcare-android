@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityException
+import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIntegrityTokenRequest
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
@@ -66,7 +67,8 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
                 .build()
         )
         integrityTokenResponse
-            .addOnSuccessListener { response -> callback.onTokenReceived(response.token(), requestHash) }
+            .addOnSuccessListener { response ->
+                callback.onTokenReceived(response.token(), requestHash,response) }
             .addOnFailureListener { exception ->
                 handleRequestFailureAndRetry(exception, requestHash, callback, hasRetried)
             }
@@ -115,7 +117,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
     }
 
     interface IntegrityTokenCallback {
-        fun onTokenReceived(token: String, requestHash: String)
+        fun onTokenReceived(token: String, requestHash: String, integrityTokeResponse: StandardIntegrityManager.StandardIntegrityToken)
         fun onTokenFailure(exception: java.lang.Exception)
     }
 }

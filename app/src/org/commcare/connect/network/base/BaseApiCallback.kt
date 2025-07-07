@@ -67,6 +67,14 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
                         null
                     )
                     true
+                } else if (errorCode == "INTEGRITY_ERROR") {
+                    if (json.has("sub_code")) {
+                        baseApiHandler.onFailure(
+                                PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR,
+                                Exception(json.optString("sub_code"))
+                        )
+                    }
+                    true
                 } else {
                     false
                 }
