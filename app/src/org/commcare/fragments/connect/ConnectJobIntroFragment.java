@@ -20,6 +20,8 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -100,10 +102,17 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
 
     private void startLearning(boolean appInstalled) {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        ApiConnect.startLearnApp(getContext(), user, job.getJobId(), new IApiCallback() {
+        new ConnectApiHandler<Boolean>(){
+
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                reportApiCall(true);
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                reportApiCall(false);
+            }
+
+            @Override
+            public void onSuccess(Boolean success) {
+                reportApiCall(success);
 
                 job.setStatus(ConnectJobRecord.STATUS_LEARNING);
                 ConnectJobUtils.upsertJob(getContext(), job);
@@ -118,39 +127,10 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
                                     actionConnectJobIntroFragmentToConnectDownloadingFragment(
                                             title, true));
                 }
+
             }
 
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
-                Toast.makeText(getContext(), getString(R.string.connect_learn_error_starting),
-                        Toast.LENGTH_LONG).show();
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getContext());
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException();
-                reportApiCall(false);
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
-                reportApiCall(false);
-            }
-        });
+        }.connectStartLearning(requireContext(),user,job.getJobId());
     }
 
     private void reportApiCall(boolean success) {

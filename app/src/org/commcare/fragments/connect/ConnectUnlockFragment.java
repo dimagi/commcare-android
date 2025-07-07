@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.common.base.Strings;
 
@@ -19,6 +20,9 @@ import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
 import org.javarosa.core.io.StreamsUtil;
@@ -81,65 +85,22 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     public void retrieveOpportunities() {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireContext());
-        ApiConnect.getConnectOpportunities(requireContext(), user, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        //Parse the JSON
-                        JSONArray json = new JSONArray(responseAsString);
-                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-                        for (int i = 0; i < json.length(); i++) {
-                            try {
-                                JSONObject obj = (JSONObject) json.get(i);
-                                ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
-                                jobs.add(job);
-                            } catch (JSONException e) {
-                                Logger.exception("Parsing return from Opportunities request", e);
-                            }
-                        }
-                        new JobStoreManager(requireContext()).storeJobs(requireContext(), jobs, true);
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    Logger.exception("Parsing return from Opportunities request", e);
-                }
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
+        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @androidx.annotation.Nullable Throwable t) {
+                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 setFragmentRedirection();
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                new JobStoreManager(requireContext()).storeJobs(requireContext(), data.getValidJobs(), true);
                 setFragmentRedirection();
-            }
 
-            @Override
-            public void processNetworkFailure() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.showNetworkError(requireContext());
             }
-
-            @Override
-            public void processTokenUnavailableError() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenDeniedException();
-            }
-
-            @Override
-            public void processOldApiError() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.showOutdatedApiError(requireContext());
-            }
-        });
+        }.getConnectOpportunities(requireContext(), user);
     }
 
     /**

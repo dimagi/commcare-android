@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -21,6 +22,8 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDetailsBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -101,43 +104,21 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
     private void claimJob(ConnectJobRecord job, boolean appInstalled) {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        ApiConnect.claimJob(getContext(), user, job.getJobId(), new IApiCallback() {
+
+        new ConnectApiHandler<Boolean>() {
+
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
+            }
+
+            @Override
+            public void onSuccess(Boolean data) {
                 proceedAfterJobClaimed(binding.connectDeliveryButton, job, appInstalled);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(true);
             }
-
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
-                Toast.makeText(getContext(), R.string.connect_claim_job_error, Toast.LENGTH_SHORT).show();
-                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                ConnectNetworkHelper.showNetworkError(getContext());
-                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
-                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                ConnectNetworkHelper.handleTokenDeniedException();
-                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
-            }
-
-            @Override
-            public void processOldApiError() {
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
-                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
-            }
-        });
+        }.claimJob(requireContext(), user, job.getJobId());
     }
 
     private void proceedAfterJobClaimed(Button button, ConnectJobRecord job, boolean installed) {

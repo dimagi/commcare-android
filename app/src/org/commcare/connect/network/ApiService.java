@@ -2,6 +2,7 @@ package org.commcare.connect.network;
 
 import java.util.Map;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -10,8 +11,9 @@ public interface ApiService {
 
     @POST(ApiEndPoints.startConfiguration)
     Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
-            @Header("CC-Request-Hash") String requestHash,
-            @Body Map<String, String> registrationRequest);
+                                          @Header("CC-Request-Hash") String requestHash,
+                                          @Body Map<String, String> registrationRequest);
+
     @POST(ApiEndPoints.validateFirebaseIdToken)
     Call<ResponseBody> validateFirebaseIdToken(@Header("Authorization") String token,
                                                @Body Map<String, String> firebaseIdToken);
@@ -34,4 +36,37 @@ public interface ApiService {
 
     @POST(ApiEndPoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
+
+    @GET(ApiEndPoints.connectOpportunitiesURL)
+    Call<ResponseBody> getConnectOpportunities(@Header("Authorization") String token, @HeaderMap Map<String, String> headers);
+
+
+    @POST(ApiEndPoints.connectStartLearningURL)
+    Call<ResponseBody> connectStartLearningApp(@Header("Authorization") String token,
+                                               @HeaderMap Map<String, String> headers,
+                                               @Body RequestBody connectStartLearningRequest);
+
+    @GET(ApiEndPoints.connectLearnProgressURL)
+    Call<ResponseBody> getConnectLearningAppProgress(@Header("Authorization") String token,
+                                                     @Path("id") int id,
+                                                     @HeaderMap Map<String, String> headers);
+
+
+    @POST(ApiEndPoints.connectClaimJobURL)
+    Call<ResponseBody> connectClaimJob(@Header("Authorization") String token,
+                                       @Path("id") int id,
+                                       @HeaderMap Map<String, String> headers,
+                                       @Body RequestBody connectClaimJobRequest);
+
+    @GET(ApiEndPoints.connectDeliveriesURL)
+    Call<ResponseBody> getConnectDeliveries(@Header("Authorization") String token,
+                                                     @Path("id") int id,
+                                                     @HeaderMap Map<String, String> headers);
+
+    @POST(ApiEndPoints.connectPaymentConfirmationURL)
+    Call<ResponseBody> connectPaymentConfirmation(@Header("Authorization") String token,
+                                       @Path("id") String id,
+                                       @HeaderMap Map<String, String> headers,
+                                       @Body RequestBody connectPaymentConfirmationRequest);
+
 }

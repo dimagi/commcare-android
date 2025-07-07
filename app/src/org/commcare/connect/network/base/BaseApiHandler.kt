@@ -37,12 +37,13 @@ abstract class BaseApiHandler<T> {
 
 
     fun createCallback(
-        parser: BaseApiResponseParser<T>
+        parser: BaseApiResponseParser<T>,
+        anyInputObject:Any?=null
     ): IApiCallback {
         return object : BaseApiCallback<T>(this) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
-                    onSuccess(parser.parse(responseCode,responseData))
+                    onSuccess(parser.parse(responseCode,responseData,anyInputObject))
                 } catch (e: JSONException) {
                     Logger.exception("JSON error parsing API response", e)
                     onFailure(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e)
