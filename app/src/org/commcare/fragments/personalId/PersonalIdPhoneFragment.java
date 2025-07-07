@@ -358,12 +358,30 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
             @Override
             public void onFailure(@androidx.annotation.Nullable PersonalIdOrConnectApiErrorCodes failureCode,
-                    @androidx.annotation.Nullable Throwable t) {
-                if (failureCode == PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR) {
-                    onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                            getString(R.string.personalid_configuration_process_failed_subtitle));
-                } else {
-                    navigateFailure(failureCode, t);
+                                  @androidx.annotation.Nullable Throwable t) {
+                if (failureCode == null) {
+                    navigateFailure(null, t);
+                    return;
+                }
+
+                switch (failureCode) {
+                    case ACCOUNT_LOCKED_ERROR:
+                        onConfigurationFailure(
+                                AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE,
+                                getString(R.string.personalid_configuration_locked_account)
+                        );
+                        break;
+
+                    case FORBIDDEN_ERROR:
+                        onConfigurationFailure(
+                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                                getString(R.string.personalid_configuration_process_failed_subtitle)
+                        );
+                        break;
+
+                    default:
+                        navigateFailure(failureCode, t);
+                        break;
                 }
             }
         }.makeStartConfigurationCall(requireActivity(), body, integrityToken, requestHash);

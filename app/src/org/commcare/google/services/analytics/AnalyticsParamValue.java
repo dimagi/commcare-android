@@ -177,6 +177,7 @@ public class AnalyticsParamValue {
     // Param values for personal ID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE = "start_configuration_integrity_device_failure";
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE = "start_configuration_integrity_check_failure";
+    public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE = "start_configuration_locked_account_failure";
     public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
     public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
 }
