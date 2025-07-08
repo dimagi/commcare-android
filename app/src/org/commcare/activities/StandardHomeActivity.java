@@ -13,10 +13,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
+
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -24,11 +24,11 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.preferences.DeveloperPreferences;
-import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -49,6 +49,7 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
     private MenuItem messagingMenuItem;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -59,7 +60,6 @@ public class StandardHomeActivity
     @Override
     public void onResumeSessionSafe() {
         super.onResumeSessionSafe();
-        uiController.updateSecondaryPhoneConfirmationTile();
     }
 
     void enterRootModule() {
@@ -148,7 +148,7 @@ public class StandardHomeActivity
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
-                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
     }
 
     @Override
@@ -165,13 +165,13 @@ public class StandardHomeActivity
     };
 
     private boolean shouldShowMessaging() {
-        return getIntent().getBooleanExtra(LoginActivity.CONNECTID_MANAGED_LOGIN , false);
+        return getIntent().getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN , false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_app_home, menu);
-
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.findItem(R.id.action_update).setTitle(Localization.get("home.menu.update"));
         menu.findItem(R.id.action_saved_forms).setTitle(Localization.get("home.menu.saved.forms"));
         menu.findItem(R.id.action_change_language).setTitle(Localization.get("home.menu.locale.change"));
@@ -191,7 +191,6 @@ public class StandardHomeActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
         //In Holo theme this gets called on startup
         boolean enableMenus = !isDemoUser();
         menu.findItem(R.id.action_update).setVisible(enableMenus);
@@ -226,8 +225,6 @@ public class StandardHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
@@ -257,7 +254,7 @@ public class StandardHomeActivity
             startCommCareUpdate();
             return true;
         } else if(itemId == R.id.action_messaging) {
-            ConnectManager.goToMessaging(this);
+            ConnectNavHelper.INSTANCE.goToMessaging(this);
             return true;
         }
 
@@ -322,14 +319,10 @@ public class StandardHomeActivity
         invalidateOptionsMenu();
     }
 
-    public void performSecondaryPhoneVerification() {
-        ConnectIDManager.getInstance().beginSecondaryPhoneVerification(this, ConnectConstants.STANDARD_HOME_CONNECT_LAUNCH_REQUEST_CODE);
-    }
-
     public void updateConnectJobProgress() {
-        ConnectJobRecord job = ConnectManager.getActiveJob();
+        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectManager.updateDeliveryProgress(this, job, success -> {
+            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
                 if (success) {
                     uiController.updateConnectProgress();
                 }

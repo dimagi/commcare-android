@@ -360,8 +360,6 @@ public class FormStorageTest {
             // Added in 2.55
             , "org.javarosa.core.model.FormIndex"
             , "org.commcare.models.database.InterruptedFormState"
-            , "org.javarosa.xpath.expr.XPathClosestPolygonPointFunc"
-            , "org.javarosa.xpath.expr.XPathPointInsidePolygon"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8"
             , "org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9"
@@ -384,8 +382,22 @@ public class FormStorageTest {
             , "org.commcare.android.database.global.models.ConnectKeyRecord"
             , "org.commcare.android.database.global.models.ConnectKeyRecordV6"
             , "org.commcare.android.database.connect.models.ConnectPaymentUnitRecord"
+
+            //Added in 2.56
             , "org.commcare.android.database.connect.models.ConnectMessagingChannelRecord"
             , "org.commcare.android.database.connect.models.ConnectMessagingMessageRecord"
+            , "org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord"
+
+            //Added in 2.57
+            , "org.javarosa.xpath.expr.XPathClosestPointOnPolygonFunc"
+            , "org.javarosa.xpath.expr.XPathIsPointInsidePolygonFunc"
+            , "org.commcare.android.database.connect.models.ConnectUserRecordV13"
+            , "org.commcare.android.database.global.models.GlobalErrorRecord"
+
+            ,"org.commcare.android.database.connect.models.ConnectUserRecordV14"
+
+            //Added in 2.58
+            ,"org.commcare.android.database.connect.models.PersonalIdCredential"
     );
 
 

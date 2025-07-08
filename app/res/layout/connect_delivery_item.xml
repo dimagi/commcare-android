@@ -20,11 +20,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@null"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_connect_delivery_pending" />
 
     </LinearLayout>
 
-    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+    <TextView
         android:id="@+id/delivery_item_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -33,10 +34,11 @@
         app:layout_constraintBottom_toTopOf="@+id/delivery_item_reason"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/llDeliveryStatus"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="bold"/>
 
 
-    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+    <TextView
         android:id="@+id/delivery_item_reason"
         android:layout_width="0dp"
         android:layout_marginEnd="8dp"
@@ -47,10 +49,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/delivery_item_date"
         app:layout_constraintStart_toStartOf="@+id/delivery_item_name"
-        app:layout_constraintTop_toBottomOf="@+id/delivery_item_name" />
+        app:layout_constraintTop_toBottomOf="@+id/delivery_item_name"
+        android:textStyle="bold"/>
 
 
-    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+    <TextView
         android:id="@+id/delivery_item_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -58,12 +61,13 @@
         app:layout_constraintBottom_toBottomOf="@+id/delivery_item_reason"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+    <TextView
         android:id="@+id/delivery_item_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:visibility="gone"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

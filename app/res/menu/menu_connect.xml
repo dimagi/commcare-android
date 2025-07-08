@@ -4,12 +4,17 @@
     <item
         android:id="@+id/action_messaging"
         android:icon="@drawable/ic_connect_messaging_base"
-        android:title="@string/connect_messaging_title"
+        android:title="@string/personalid_messaging_menu_title"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_credential"
+        android:icon="@drawable/ic_credential"
+        android:title="@string/credential"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_sync"
-        android:icon="@drawable/backup"
+        android:icon="@drawable/ic_backup"
         android:iconTint="@color/white"
-        android:title="@string/sync"
+        android:title="@string/personalid_sync_menu_title"
         app:showAsAction="always" />
 </menu>

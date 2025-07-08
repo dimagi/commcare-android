@@ -27,11 +27,20 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewbinding.ViewBinding;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.fragments.BreadcrumbBarFragment;
-import org.commcare.fragments.ContainerFragment;
-import org.commcare.fragments.TaskConnectorFragment;
+import org.commcare.fragments.BreadcrumbBarHelper;
+import org.commcare.fragments.ContainerViewModel;
+import org.commcare.fragments.TaskConnectorViewModel;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.preferences.LocalePreferences;
@@ -63,12 +72,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewbinding.ViewBinding;
-
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -87,9 +90,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
     private static final int UNDEFINED_TASK_ID = -1;
+    private static final String MANAGED_UI_STATE_KEY = "managed-ui-state-key";
 
     private int invalidTaskIdMessageThrown = -2;
-    private TaskConnectorFragment<R> stateHolder;
+    private TaskConnectorViewModel<R> stateHolder;
 
     CompositeDisposable disposableEventHost = new CompositeDisposable();
 
@@ -127,10 +131,11 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
      * on activity pause/resume.
      */
     private int dialogId = -1;
-    private ContainerFragment<Bundle> managedUiState;
+    private ContainerViewModel<Bundle> containerViewModel;
     private boolean isMainScreenBlocked;
 
     private DataSyncCompleteBroadcastReceiver dataSyncCompleteBroadcastReceiver;
+    private BreadcrumbBarHelper mBreadcrumbBarHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,16 +146,11 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
 
         FragmentManager fm = this.getSupportFragmentManager();
+        stateHolder = new ViewModelProvider(this).get(TaskConnectorViewModel.class);
+        stateHolder.attach(this);
 
-        stateHolder = (TaskConnectorFragment<R>)fm.findFragmentByTag("state");
-
-        // stateHolder and its previous state aren't null if the activity is
-        // being created due to an orientation change.
-        if (stateHolder == null) {
-            stateHolder = new TaskConnectorFragment<>();
-            fm.beginTransaction().add(stateHolder, "state").commit();
-            // entering new activity, not just rotating one, so release old
-            // media
+        if (savedInstanceState == null) {
+            // entering new activity, not just rotating one, so release old media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
@@ -160,7 +160,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         }
 
         if (!isFinishing()) {
-            persistManagedUiState(fm);
+            persistManagedUiState();
 
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setLogo(org.commcare.dalvik.R.drawable.commcare_actionbar_logo_spacing);
@@ -170,17 +170,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().setDisplayShowCustomEnabled(true);
                 }
-
-                // Add breadcrumb bar
-                BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
-
-                // If the state holder is null, create a new one for this activity
-                if (bar == null) {
-                    bar = new BreadcrumbBarFragment();
-                    fm.beginTransaction().add(bar, "breadcrumbs").commit();
-                }
+                mBreadcrumbBarHelper = new BreadcrumbBarHelper();
             }
-
             mGestureDetector = new GestureDetector(this, this);
         }
     }
@@ -189,23 +180,17 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return null;
     }
 
-    private void persistManagedUiState(FragmentManager fm) {
+    private void persistManagedUiState() {
         if (isManagedUiActivity()) {
-            managedUiState = (ContainerFragment)fm.findFragmentByTag("ui-state");
-
-            if (managedUiState == null) {
-                managedUiState = new ContainerFragment<>();
-                fm.beginTransaction().add(managedUiState, "ui-state").commit();
-                loadUiElementState(null);
-            } else {
-                loadUiElementState(managedUiState.getData());
+            if (containerViewModel == null) {
+                containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
             }
+            loadUiElementState(containerViewModel.getData(MANAGED_UI_STATE_KEY));
         }
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
         ManagedUiFramework.setContentView(this);
-
         if (savedInstanceState != null) {
             ManagedUiFramework.restoreUiElements(this, savedInstanceState);
         } else {
@@ -266,6 +251,12 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(getClass().getSimpleName());
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -289,8 +280,16 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         String[] messageAndTitle = CommCareApplication.instance().getPendingUserMessage();
         if (messageAndTitle != null) {
             showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
-                    this, messageAndTitle[1], messageAndTitle[0], null));
+                    messageAndTitle[1], messageAndTitle[0], null));
             CommCareApplication.instance().clearPendingUserMessage();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mBreadcrumbBarHelper != null) {
+            mBreadcrumbBarHelper.attachBreadcrumbBar(this);
         }
     }
 
@@ -335,7 +334,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         super.onPause();
 
         if (isManagedUiActivity()) {
-            managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
+            containerViewModel.setData(MANAGED_UI_STATE_KEY, ManagedUiFramework.saveUiStateToBundle(this));
         }
 
         areFragmentsPaused = true;
@@ -349,6 +348,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        stateHolder.detach();
         disposableEventHost.dispose();
     }
 
@@ -461,7 +461,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
                     break;
             }
         };
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(title,
                 message, android.R.drawable.ic_dialog_info, listener));
     }
 
@@ -757,7 +757,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
         MenuItem searchMenuItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
         SearchView searchView = (SearchView)searchMenuItem.getActionView();
-        MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.highlight_action_bar);
+        MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
         if (searchView != null) {
             if (instantiator != null) {
                 instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
@@ -832,10 +832,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        FragmentManager fm = this.getSupportFragmentManager();
-        BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
-        if (bar != null) {
-            if (bar.collapseTileIfExpanded(this)) {
+        if (mBreadcrumbBarHelper != null) {
+            if (mBreadcrumbBarHelper.collapseTileIfExpanded(this)) {
                 return;
             }
         }
@@ -914,9 +912,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     public void refreshActionBar() {
         if (shouldShowBreadcrumbBar()) {
-            FragmentManager fm = this.getSupportFragmentManager();
-            BreadcrumbBarFragment bar = (BreadcrumbBarFragment)fm.findFragmentByTag("breadcrumbs");
-            bar.refresh(this);
+            mBreadcrumbBarHelper.attachBreadcrumbBar(this);
         }
     }
 
@@ -948,7 +944,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return ManagedUiFramework.isManagedUi(getUIManager().getClass());
     }
 
-    public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
+    public void setStateHolder(TaskConnectorViewModel<R> stateHolder) {
         this.stateHolder = stateHolder;
     }
 

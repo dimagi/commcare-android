@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -20,6 +21,7 @@ import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -338,7 +340,7 @@ public class ConnectNetworkHelper {
                         ConnectSsoHelper.discardTokens(context, null);
                         handler.processTokenUnavailableError();
                     } else {
-                        handler.processFailure(responseCode);
+                        handler.processFailure(responseCode, null, url);
                     }
                 }
             }
@@ -351,7 +353,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode);
+                handler.processFailure(responseCode, null, url);
             }
 
             @Override
@@ -361,7 +363,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode);
+                handler.processFailure(responseCode, null, url);
             }
 
             @Override
@@ -371,7 +373,7 @@ public class ConnectNetworkHelper {
                     handler.processNetworkFailure();
                 } else {
                     Logger.exception("IO Exception during API call", exception);
-                    handler.processFailure(-1);
+                    handler.processFailure(-1, null, url);
                 }
             }
 
@@ -432,9 +434,8 @@ public class ConnectNetworkHelper {
                 Toast.LENGTH_LONG).show();
     }
 
-    public static void handleTokenRequestDeniedException(Context context) {
-        Toast.makeText(context, context.getString(R.string.recovery_network_token_request_rejected),
-                Toast.LENGTH_LONG).show();
+    public static void handleTokenDeniedException() {
+        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

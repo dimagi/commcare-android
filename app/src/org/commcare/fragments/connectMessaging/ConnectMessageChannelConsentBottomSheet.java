@@ -13,11 +13,13 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentChannelConsentBottomSheetBinding;
 
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
+import java.util.Objects;
 
 public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFragment {
     @Override
@@ -32,6 +34,8 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(),
                 args.getChannelId());
 
+        Objects.requireNonNull(channel, "Channel not found for channel Id: "+args.getChannelId());
+
         binding.channelName.setText(channel.getChannelName());
 
         binding.acceptButton.setOnClickListener(v -> {
@@ -45,7 +49,7 @@ public class ConnectMessageChannelConsentBottomSheet extends BottomSheetDialogFr
                 } else {
                     Context context = getContext();
                     if(context != null) {
-                        Toast.makeText(context, "Failed to grant consent to channel", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getString(R.string.connect_messaging_channel_consent_failure_msg), Toast.LENGTH_SHORT).show();
                     }
 
                     NavHostFragment.findNavController(this).popBackStack();

@@ -71,7 +71,7 @@ class LoginTest: BaseTest() {
 
         verifyAllHomeButtonsPresent(demoHomeButtons)
 
-        onView(withId(R.id.home_gridview_buttons))
+        onView(withId(R.id.nsv_home_screen))
                 .perform(swipeUp())
         onView(withText(demoHomeButtons[2]))
                 .perform(click())

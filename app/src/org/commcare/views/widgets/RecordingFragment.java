@@ -1,21 +1,21 @@
 package org.commcare.views.widgets;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.AudioRecordingConfiguration;
-import android.media.MediaCodecInfo;
-import android.media.MediaCodecList;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,10 +44,11 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static org.commcare.views.widgets.AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY;
 
 /**
  * A popup dialog fragment that handles recording_fragment and saving of audio
@@ -65,10 +66,7 @@ public class RecordingFragment extends DialogFragment {
     private static final String CLEAR_TEXT_KEY = "recording.clear";
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
-
-    private static final int HEAAC_SAMPLE_RATE = 44100;
-    private static final int AMRNB_SAMPLE_RATE = 8000;
-    private final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
+    public static final int RECORDING_NOTIFICATION_ID = R.string.audio_recording_notification;
 
     private String fileName;
     private static final String FILE_EXT = ".mp3";
@@ -82,13 +80,15 @@ public class RecordingFragment extends DialogFragment {
 
     private Chronometer recordingDuration;
 
-    private MediaRecorder recorder;
     private RecordingCompletionListener listener;
     private MediaPlayer player;
     private long mLastStopTime;
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
     private AudioManager.AudioRecordingCallback audioRecordingCallback;
+    private boolean audioRecordingServiceBounded = false;
+    private AudioRecordingService audioRecordingService;
+    private ServiceConnection audioRecordingServiceConnection;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -158,11 +158,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void resetRecordingView() {
-        if (recorder != null) {
-            recorder.release();
-            recorder = null;
-        }
-
         if (player != null) {
             resetAudioPlayer();
         }
@@ -181,7 +176,8 @@ public class RecordingFragment extends DialogFragment {
     private void startRecording() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             if (MediaUtil.isRecordingActive(getContext())) {
-                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT)
+                        .show();
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording cancelled due to an ongoing recording");
                 return;
             }
@@ -189,15 +185,45 @@ public class RecordingFragment extends DialogFragment {
 
         disableScreenRotation((AppCompatActivity) getContext());
         setCancelable(false);
-        setupRecorder();
-        recorder.start();
-        recordingDuration.setBase(SystemClock.elapsedRealtime());
-        recordingInProgress();
-        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
 
-        // Extend the user extension if about to expire, this is to prevent the session from expiring in the
-        // middle of a recording
-        CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
+        Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
+        serviceIntent.putExtra(RECORDING_FILENAME_EXTRA_KEY, fileName);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireActivity().startForegroundService(serviceIntent);
+        } else {
+            requireActivity().startService(serviceIntent);
+        }
+        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(),
+                Context.BIND_AUTO_CREATE);
+    }
+
+    private ServiceConnection getAudioRecordingServiceConnection() {
+        return audioRecordingServiceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                audioRecordingService = ((AudioRecordingService.AudioRecorderBinder) service).getService();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    registerAudioRecordingConfigurationChangeCallback();
+                }
+
+                recordingDuration.setBase(SystemClock.elapsedRealtime());
+                recordingInProgress();
+                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
+
+                // Extend the user extension if about to expire, this is to prevent the session from expiring
+                // in the middle of a recording
+                CommCareApplication.instance().getSession().extendUserSessionIfNeeded();
+
+                audioRecordingServiceBounded = true;
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                audioRecordingService = null;
+                audioRecordingServiceBounded = false;
+            }
+        };
     }
 
     private void recordingInProgress() {
@@ -216,72 +242,6 @@ public class RecordingFragment extends DialogFragment {
         discardRecording.setVisibility(View.INVISIBLE);
     }
 
-    private void setupRecorder() {
-        if (recorder == null) {
-            recorder = new MediaRecorder();
-        }
-
-        boolean isHeAacSupported = isHeAacEncoderSupported();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-        } else {
-            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            recorder.setPrivacySensitive(true);
-        }
-        recorder.setAudioSamplingRate(isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        if (isHeAacSupported) {
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-        } else {
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        }
-        recorder.setOutputFile(fileName);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerAudioRecordingConfigurationChangeCallback();
-        }
-        try {
-            recorder.prepare();
-            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Preparing recording: " + fileName
-                    + " | " + (isHeAacSupported ? HEAAC_SAMPLE_RATE : AMRNB_SAMPLE_RATE)
-                    + " | " + (isHeAacSupported ? MediaRecorder.AudioEncoder.HE_AAC : MediaRecorder.AudioEncoder.AMR_NB));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Checks whether the device supports High Efficiency AAC (HE-AAC) audio codec
-    private boolean isHeAacEncoderSupported() {
-        int numCodecs = MediaCodecList.getCodecCount();
-
-        for (int i = 0; i < numCodecs; i++) {
-            MediaCodecInfo codecInfo = MediaCodecList.getCodecInfoAt(i);
-
-            if (!codecInfo.isEncoder()) {
-                continue;
-            }
-
-            for (String supportedType : codecInfo.getSupportedTypes()) {
-                if (supportedType.equalsIgnoreCase(MIMETYPE_AUDIO_AAC)) {
-                    MediaCodecInfo.CodecCapabilities cap = codecInfo.getCapabilitiesForType(MIMETYPE_AUDIO_AAC);
-                    MediaCodecInfo.CodecProfileLevel[] profileLevels = cap.profileLevels;
-                    for (MediaCodecInfo.CodecProfileLevel profileLevel : profileLevels) {
-                        int profile = profileLevel.profile;
-                        if (profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE
-                                || profile == MediaCodecInfo.CodecProfileLevel.AACObjectHE_PS) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
     @SuppressLint("NewApi")
     private void stopRecording() {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording stopping");
@@ -290,10 +250,10 @@ public class RecordingFragment extends DialogFragment {
 
         // resume first just in case we were paused
         if (inPausedState) {
-            recorder.resume();
+            audioRecordingService.resumeRecording();
         }
 
-        recorder.stop();
+        audioRecordingService.stopRecording();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(v -> playAudio());
         instruction.setText(Localization.get("after.recording"));
@@ -307,7 +267,8 @@ public class RecordingFragment extends DialogFragment {
         inPausedState = true;
         recordingDuration.stop();
         chronoPause();
-        recorder.pause();
+
+        audioRecordingService.pauseRecording();
         recordingProgress.setVisibility(View.INVISIBLE);
         enableSave();
         toggleRecording.setBackgroundResource(R.drawable.record_add);
@@ -329,7 +290,8 @@ public class RecordingFragment extends DialogFragment {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resuming");
         inPausedState = false;
         chronoResume();
-        recorder.resume();
+
+        audioRecordingService.resumeRecording();
         recordingInProgress();
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resumed");
     }
@@ -345,9 +307,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void saveRecording() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            unregisterAudioRecordingConfigurationChangeCallback();
-        }
         if (inPausedState) {
             stopRecording();
         }
@@ -357,6 +316,9 @@ public class RecordingFragment extends DialogFragment {
         dismiss();
     }
 
+    /**
+     * A listener interface for handling post-recording events
+     */
     public interface RecordingCompletionListener {
         void onRecordingCompletion(String audioFile);
     }
@@ -369,10 +331,6 @@ public class RecordingFragment extends DialogFragment {
     public void onDismiss(DialogInterface dialog) {
         super.onDismiss(dialog);
         enableScreenRotation((AppCompatActivity) getContext());
-        if (recorder != null) {
-            recorder.release();
-            this.recorder = null;
-        }
 
         if (player != null) {
             try {
@@ -450,7 +408,7 @@ public class RecordingFragment extends DialogFragment {
             @Override
             public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
                 super.onRecordingConfigChanged(configs);
-                if (recorder == null) {
+                if (audioRecordingService == null || !audioRecordingService.isRecorderActive()) {
                     return;
                 }
 
@@ -488,25 +446,40 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private boolean hasRecordingGoneSilent(List<AudioRecordingConfiguration> configs) {
-        if (recorder == null) {
+        if (audioRecordingService == null || !audioRecordingService.isRecorderActive()) {
             return false;
         }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            if (recorder.getActiveRecordingConfiguration() == null) {
+            if (audioRecordingService.getActiveRecordingConfiguration() == null) {
                 return false;
             }
 
             Optional<AudioRecordingConfiguration> currentAudioConfig = configs.stream().filter(config ->
-                            config.getClientAudioSessionId() == recorder.getActiveRecordingConfiguration()
-                                    .getClientAudioSessionId())
+                    config.getClientAudioSessionId() == audioRecordingService.getActiveRecordingConfiguration()
+                            .getClientAudioSessionId())
                     .findAny();
             return currentAudioConfig.isPresent() ? currentAudioConfig.get().isClientSilenced() : false;
         } else {
-            if (recorder.getMaxAmplitude() == 0) {
-                return true;
-            }
+            // TODO: Add logic to check if the recording has gone silent for Android 9 and prior
             return false;
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbindAudioRecordingService();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            unregisterAudioRecordingConfigurationChangeCallback();
+        }
+    }
+
+    private void unbindAudioRecordingService() {
+        if (audioRecordingServiceBounded) {
+            requireActivity().unbindService(audioRecordingServiceConnection);
+            requireActivity()
+                    .stopService(new Intent(requireActivity(), AudioRecordingService.class));
         }
     }
 }

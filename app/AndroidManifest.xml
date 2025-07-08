@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.57">
+          android:versionName="2.58">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -36,6 +36,7 @@
         android:usesPermissionFlags="neverForLocation"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -136,17 +137,11 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/fcm_default_notification_channel" />
-        <receiver
-            android:name="org.commcare.connect.SMSBroadcastReceiver"
-            android:exported="true"
-            android:permission="com.google.android.gms.auth.api.phone.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.gms.auth.api.phone.SMS_RETRIEVED"/>
-            </intent-filter>
-        </receiver>
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="face" />
         <activity
-            android:name="org.commcare.activities.connect.ConnectMessagingActivity"
-            android:exported="true" >
+            android:name="org.commcare.activities.connect.ConnectMessagingActivity">
         </activity>
         <activity
             android:label="@string/application_name"
@@ -173,7 +168,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.commcare.activities.connect.ConnectIdActivity"
+            android:name="org.commcare.activities.connect.PersonalIdActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name="org.commcare.activities.LoginActivity"
@@ -186,8 +181,8 @@
         <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
-            android:name="org.commcare.activities.connect.ConnectActivity" />
-        <activity android:name="org.commcare.activities.AppSelectActivity" />
+            android:name="org.commcare.activities.connect.ConnectActivity"
+            android:exported="false"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -335,6 +330,13 @@
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Service that maintains an encryption key in memory to securely submit data to the server" />
+        </service>
+        <service
+            android:enabled="true"
+            android:exported="false"
+            android:stopWithTask="true"
+            android:foregroundServiceType="microphone"
+            android:name="org.commcare.views.widgets.AudioRecordingService">
         </service>
         <activity
             android:name="org.commcare.activities.FormEntryActivity"
@@ -540,9 +542,14 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name="org.commcare.activities.TargetMismatchErrorActivity" />
-        <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity" />
-        <activity android:name="org.commcare.activities.PromptCCReinstallActivity" /> <!-- Start Collect Manifest -->
+        <activity android:name="org.commcare.activities.TargetMismatchErrorActivity"/>
+        <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
+        <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
+        <activity
+            android:name="org.commcare.fragments.MicroImageActivity"
+            android:screenOrientation="portrait"/>
+        <!-- Start Collect Manifest -->
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${googlePlayMapsApiKey}" />
@@ -583,7 +590,10 @@
             </intent-filter>
         </service>
 
-        <receiver android:name="org.commcare.services.PaymentAcknowledgeReceiver" />
+        <receiver
+            android:name="org.commcare.services.PaymentAcknowledgeReceiver"
+            android:exported="false"/>
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
     </application>
 
 </manifest>

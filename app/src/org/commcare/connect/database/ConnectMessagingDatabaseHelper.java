@@ -12,7 +12,9 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.DimensionUtils;
 import androidx.core.content.ContextCompat;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
@@ -22,13 +24,13 @@ public class ConnectMessagingDatabaseHelper {
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper.getConnectStorage(context, ConnectMessagingChannelRecord.class)
                 .getRecordsForValues(new String[]{}, new Object[]{});
 
-        for(ConnectMessagingMessageRecord message : getMessagingMessagesAll(context)) {
-            for(ConnectMessagingChannelRecord searchChannel : channels) {
-                if(message.getChannelId().equals(searchChannel.getChannelId())) {
-                    searchChannel.getMessages().add(message);
-                    break;
-                }
-            }
+        Map<String, ConnectMessagingChannelRecord> channelMap = new HashMap<>();
+        for (ConnectMessagingChannelRecord c : channels) {
+            channelMap.put(c.getChannelId(), c);
+        }
+        for (ConnectMessagingMessageRecord connectMessagingMessageRecord : getMessagingMessagesAll(context)) {
+            ConnectMessagingChannelRecord connectMessagingChannelRecord = channelMap.get(connectMessagingMessageRecord.getChannelId());
+            connectMessagingChannelRecord.getMessages().add(connectMessagingMessageRecord);
         }
 
         for(ConnectMessagingChannelRecord channel : channels) {

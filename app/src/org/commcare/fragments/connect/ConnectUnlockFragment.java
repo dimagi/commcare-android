@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.common.base.Strings;
 
@@ -12,15 +11,16 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.ConnectManager;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
 import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -29,22 +29,21 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import javax.annotation.Nullable;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 public class ConnectUnlockFragment extends Fragment {
-    View view;
-    String redirectionAction = "";
-    String opportunityId = "";
+    private FragmentConnectUnlockBinding binding;
+    private String redirectionAction = "";
+    private String opportunityId = "";
+    private boolean buttons = false;
 
     public ConnectUnlockFragment() {
         // Required empty public constructor
@@ -56,17 +55,20 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle(R.string.connect_title);
+        requireActivity().setTitle(R.string.connect_title);
 
-        redirectionAction = getArguments().getString("action");
-        opportunityId = getArguments().getString("opportunity_id");
+        if(getArguments() != null) {
+            redirectionAction = getArguments().getString("action");
+            opportunityId = getArguments().getString("opportunity_id");
+            buttons = getArguments().getBoolean("buttons", true);
+        }
 
-        view = inflater.inflate(R.layout.blank_activity, container, false);
-        view.setBackgroundColor(getResources().getColor(R.color.white));
+        binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
+        binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
 
-        ConnectIDManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
+        PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
             if (success) {
                 retrieveOpportunities();
             } else {
@@ -74,11 +76,11 @@ public class ConnectUnlockFragment extends Fragment {
             }
         });
 
-        return view;
+        return binding.getRoot();
     }
 
     public void retrieveOpportunities() {
-        ConnectUserRecord user = ConnectManager.getUser(requireContext());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireContext());
         ApiConnect.getConnectOpportunities(requireContext(), user, new IApiCallback() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -93,26 +95,24 @@ public class ConnectUnlockFragment extends Fragment {
                                 JSONObject obj = (JSONObject) json.get(i);
                                 ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
                                 jobs.add(job);
-                            }catch (JSONException  e) {
+                            } catch (JSONException e) {
                                 Logger.exception("Parsing return from Opportunities request", e);
                             }
                         }
                         new JobStoreManager(requireContext()).storeJobs(requireContext(), jobs, true);
                     }
-                } catch (IOException | JSONException e) {
-                    Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
-                    Logger.exception("Parsing return from Opportunities request", e);
+                } catch (JSONException e) {
                     throw new RuntimeException(e);
+                } catch (IOException e) {
+                    Logger.exception("Parsing return from Opportunities request", e);
                 }
 
                 setFragmentRedirection();
             }
 
             @Override
-            public void processFailure(int responseCode) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url){
                 setFragmentRedirection();
-                Toast.makeText(requireContext(), R.string.connect_job_list_api_failure, Toast.LENGTH_SHORT).show();
-                Logger.log("ERROR", String.format(Locale.getDefault(), "Opportunities call failed: %d", responseCode));
             }
 
             @Override
@@ -130,7 +130,7 @@ public class ConnectUnlockFragment extends Fragment {
             @Override
             public void processTokenRequestDeniedError() {
                 setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenRequestDeniedException(requireContext());
+                ConnectNetworkHelper.handleTokenDeniedException();
             }
 
             @Override
@@ -143,21 +143,19 @@ public class ConnectUnlockFragment extends Fragment {
 
     /**
      * Sets the fragment redirection based on the redirection action.
-     * <p>
      * This method determines the fragment to be displayed using the getFragmentId() method,
      * prepares a bundle with additional data, and navigates to the appropriate fragment.
      */
     private void setFragmentRedirection() {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
-        boolean buttons = getArguments().getBoolean("buttons", true);
         Bundle bundle = new Bundle();
         bundle.putBoolean("showLaunch", buttons);
 
-        if(!Strings.isNullOrEmpty(opportunityId)) {
+        if (!Strings.isNullOrEmpty(opportunityId)) {
             int jobId = Integer.parseInt(opportunityId);
             ConnectJobRecord job = ConnectJobUtils.getCompositeJob(requireContext(), jobId);
-            if(job != null) {
-                ConnectManager.setActiveJob(job);
+            if (job != null) {
+                ConnectJobHelper.INSTANCE.setActiveJob(job);
             }
         }
 
@@ -179,7 +177,7 @@ public class ConnectUnlockFragment extends Fragment {
             fragmentId = R.id.connect_jobs_list_fragment;
         }
 
-        NavController navController = Navigation.findNavController(view);
+        NavController navController = Navigation.findNavController(binding.getRoot());
         navController.popBackStack();
         NavOptions options = new NavOptions.Builder()
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)

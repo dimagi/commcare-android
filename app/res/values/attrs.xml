@@ -14,20 +14,15 @@
     <attr name="menu_tile_title_text_color" format="reference" />
     <attr name="entity_select_title_text_color" format="reference" />
 
-    <attr name="backgroundColor" format="reference|color" />
-    <attr name="subtitle" format="string" />
-    <attr name="img" format="reference" />
-    <attr name="textColor" format="reference|color" />
-
     <declare-styleable name="ShrinkingLinearLayout">
         <attr name="shrinkable_view" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="CustomButtonWithText">
-        <attr name="backgroundColor" />
-        <attr name="subtitle" />
-        <attr name="img" />
-        <attr name="textColor" />
+        <attr name="backgroundColor" format="color"  />
+        <attr name="subtitle" format="string" />
+        <attr name="img" format="reference"  />
+        <attr name="textColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="ResizingTextView">
@@ -133,5 +128,12 @@
         <attr name="roundButtonBorderWidth" format="dimension" />
         <attr name="roundButtonTextSize" format="dimension" />
         <attr name="roundButtonIconPadding" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="FaceCaptureView">
+        <attr name="background_color" format="color" />
+        <attr name="face_capture_area_delimiter_color" format="color" />
+        <attr name="face_marker_color" format="color" />
+        <attr name="countdown_text_size" format="dimension" />
     </declare-styleable>
 </resources>

@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:background="@color/white"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="16dp">
 
         <ImageView
@@ -17,10 +17,12 @@
             android:layout_width="33dp"
             android:layout_height="33dp"
             android:src="@drawable/ic_connect_payment_status_transferred"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/tv_payment_confirmation_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,9 +32,10 @@
             app:layout_constraintBottom_toBottomOf="@+id/img_payment_status"
             app:layout_constraintStart_toEndOf="@+id/img_payment_status"
             app:layout_constraintTop_toTopOf="@+id/img_payment_status"
-            tools:text="@string/connect_payment_confirm_transferred" />
+            tools:text="@string/connect_payment_confirm_transferred"
+            android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/tv_payment_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,9 +43,10 @@
             android:textColor="@color/black"
             android:textSize="26sp"
             app:layout_constraintStart_toStartOf="@+id/tv_payment_confirmation_title"
-            app:layout_constraintTop_toBottomOf="@+id/tv_payment_confirmation_title" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_payment_confirmation_title"
+            android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/tv_payment_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

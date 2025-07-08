@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -23,8 +24,10 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
-import org.commcare.services.CommCareFirebaseMessagingService;
+
+import org.commcare.utils.FirebaseMessagingUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,7 +74,7 @@ public class ConnectMessageFragment extends Fragment {
         activeChannel = channelId;
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
-                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
 
         // Start periodic API calls
         handler.post(apiCallRunnable);
@@ -97,7 +100,11 @@ public class ConnectMessageFragment extends Fragment {
 
     private void makeApiCall() {
         MessageManager.retrieveMessages(requireActivity(), success -> {
-            refreshUi();
+            if(success){
+                refreshUi();
+            }else{
+                Toast.makeText(requireContext(), getString(R.string.connect_messaging_retrieve_messages_fail), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -152,6 +159,12 @@ public class ConnectMessageFragment extends Fragment {
             refreshUi();
 
             MessageManager.sendMessage(requireContext(), message, success -> {
+                if(!success){
+                    Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
+                    // Update UI to show send failure state
+                    message.setConfirmed(false);
+                    ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
+                }
                 refreshUi();
             });
         });

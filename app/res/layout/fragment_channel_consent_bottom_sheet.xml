@@ -24,16 +24,17 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="@null"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/ic_primary_portrait" />
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:fontFamily="@font/roboto_medium"
                     android:text="@string/connect_messaging_channel_consent_title"
                     android:textColor="@color/connect_warning_color"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
             <TextView
@@ -41,16 +42,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:fontFamily="@font/roboto_regular"
                 android:text="(channel name)"
                 android:textColor="@color/connect_subtext"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="24dp"
-                android:fontFamily="@font/roboto_regular"
                 android:text="@string/connect_messaging_channel_consent_description"
                 android:textColor="@color/connect_subtext_80"
                 android:textSize="16sp" />
@@ -60,25 +60,23 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-                <org.commcare.views.connect.RoundedButton
+                <com.google.android.material.button.MaterialButton
+                    style="@style/NegativeButtonStyle"
                     android:id="@+id/decline_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
                     android:gravity="start|center"
-                    android:text="@string/connect_messaging_channel_consent_decline"
-                    app:roundButtonBorderColor="@color/border_grey"
-                    app:roundButtonBorderVisible="true"
-                    app:roundButtonTextColor="@color/connect_blue_color" />
+                    android:text="@string/connect_messaging_channel_consent_decline" />
 
-                <org.commcare.views.connect.RoundedButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/accept_button"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
@@ -86,11 +84,8 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="start|center"
                     android:text="@string/connect_messaging_channel_consent_accept"
-                    app:roundButtonBackgroundColor="@color/connect_blue_color"
-                    app:roundButtonBorderRadius="@dimen/dp48"
-                    app:roundButtonIcon="@drawable/connect_right_arrow"
-                    app:roundButtonIconLeftAlign="false"
-                    app:roundButtonTextColor="@color/white" />
+                    android:drawableEnd="@drawable/connect_right_arrow"
+                    />
             </RelativeLayout>
         </LinearLayout>
     </FrameLayout>

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/connect_background_color">
@@ -29,12 +29,15 @@
             android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llFilterAll"
+                android:id="@+id/cvFilterAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/transparent"
+                android:clickable="true"
+                android:focusable="true"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
+                android:contentDescription="@null"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/llFilterApproved"
                 app:layout_constraintHorizontal_bias="0.5"
@@ -45,16 +48,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/connect_blue_color_10"
-                    android:paddingHorizontal="16sp"
+                    android:paddingHorizontal="16dp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:id="@+id/tvFilterAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/connect_results_summary_all"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -70,7 +74,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/llFilterRejected"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/llFilterAll"
+                app:layout_constraintStart_toEndOf="@+id/cvFilterAll"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RelativeLayout
@@ -80,13 +84,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterApproved"
                         android:text="@string/connect_results_summary_approved"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -112,13 +117,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterRejected"
                         android:text="@string/connect_results_summary_rejected"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -144,13 +150,14 @@
                     android:paddingHorizontal="16sp"
                     android:paddingVertical="9dp">
 
-                    <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/tvFilterPending"
                         android:text="@string/connect_results_summary_pending"
                         android:textColor="@color/connect_blue_color"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
 
                 </RelativeLayout>
 
@@ -158,3 +165,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

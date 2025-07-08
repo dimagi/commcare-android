@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+    <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,6 +17,7 @@
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:textStyle="bold"
          />
 
     <ImageView
@@ -47,12 +48,12 @@
             android:layout_height="15dp"
             android:layout_marginEnd="10dp"
             android:contentDescription="@null"
-            android:src="@drawable/ic_connect_payment_recevied_check"
+            android:src="@drawable/ic_connect_payment_received_check"
             app:layout_constraintBottom_toBottomOf="@+id/name"
             app:layout_constraintStart_toEndOf="@+id/name"
             app:layout_constraintTop_toTopOf="@+id/name" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/tv_payment_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +73,7 @@
             app:layout_constraintStart_toEndOf="@+id/name"
             app:layout_constraintTop_toTopOf="@+id/name" />
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -101,7 +102,7 @@
             android:background="@color/connect_blue_color_10"
             android:padding="6dp">
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
                 android:id="@+id/payment_earned_amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -114,7 +115,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/connect_payment_received" />
+                tools:text="@string/connect_payment_received"
+                android:textStyle="bold"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
@@ -142,7 +144,7 @@
             app:layout_constraintStart_toEndOf="@+id/name"
             app:layout_constraintTop_toTopOf="@+id/name" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/connect_payment_revert"
@@ -151,6 +153,8 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/name"
-            tools:text="@string/connect_payment_revert" />
+            tools:text="@string/connect_payment_revert"
+            />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -28,7 +28,6 @@ public class ConnectEditText extends AppCompatEditText {
     private static final int DEFAULT_TINT_COLOR = R.color.connect_light_grey;
     private static final float DEFAULT_HINT_SIZE = 7f;
     private static final float DEFAULT_TEXT_SIZE = 7f;
-    private static final int DEFAULT_FONT_RES_ID = R.font.roboto_regular;
     private boolean drawableStartVisible = false, drawableEndVisible = false;
     private OnDrawableStartClickListener onDrawableStartClickListener;
     private OnDrawableEndClickListener onDrawableEndClickListener;
@@ -77,7 +76,6 @@ public class ConnectEditText extends AppCompatEditText {
                 int paddingBottom = a.getDimensionPixelSize(R.styleable.CustomEditText_editTextPaddingBottom, dpToPx(20));
                 int paddingStart = a.getDimensionPixelSize(R.styleable.CustomEditText_editTextPaddingStart, dpToPx(10));
                 int paddingEnd = a.getDimensionPixelSize(R.styleable.CustomEditText_editTextPaddingEnd, dpToPx(0));
-                int fontFamily = a.getResourceId(R.styleable.CustomEditText_editTextFontFamily, DEFAULT_FONT_RES_ID);
 
                 // New attributes for text, textSize, hint, and hintSize
                 String text = a.getString(R.styleable.CustomEditText_editTextText);
@@ -94,10 +92,9 @@ public class ConnectEditText extends AppCompatEditText {
                 }
 
                 float hintSizeNew = a.getDimension(R.styleable.CustomEditText_editTextHintSize, hintSize);
-                setHintTextSize(hintSizeNew);
+                setHintAttributes(hintColor, hintSizeNew);
 
                 setBorder(borderWidth, cornerRadius, borderColor);
-                setHintAttributes(hintColor, hintSize);
                 setEditable(isEditable);
 
                 setDrawables(
@@ -115,13 +112,13 @@ public class ConnectEditText extends AppCompatEditText {
 
                 setPadding(paddingStart, paddingTop, paddingEnd, paddingBottom);
 
-                setFontFamily(fontFamily);
             } finally {
                 a.recycle();
             }
         } else {
             setBorder(dpToPx(DEFAULT_BORDER_WIDTH), dpToPx(DEFAULT_CORNER_RADIUS), DEFAULT_BORDER_COLOR);
             setHintAttributes(DEFAULT_HINT_COLOR, spToPx(DEFAULT_HINT_SIZE));
+            setTextSize(DEFAULT_TEXT_SIZE);
             setEditable(true);
         }
 
@@ -135,7 +132,8 @@ public class ConnectEditText extends AppCompatEditText {
 
     // New method to set hint size directly
     public void setHintTextSize(float size) {
-        setTextSize(size);
+        setHint(getHint()); // forces rebuild
+        getPaint().setTextSize(size);
     }
 
     private void setBorder(int borderWidth, int cornerRadius, int borderColor) {
@@ -147,7 +145,7 @@ public class ConnectEditText extends AppCompatEditText {
 
     private void setHintAttributes(int color, float size) {
         setHintTextColor(color);
-        setTextSize(size);
+        setHintTextSize(size);
     }
 
     public void setEditable(boolean isEditable) {
@@ -188,7 +186,8 @@ public class ConnectEditText extends AppCompatEditText {
     private void setupDrawableClickListeners() {
         setOnTouchListener((v, event) -> {
             if (drawableStartVisible && event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getX() <= getCompoundDrawables()[0].getBounds().width()) {
+                Drawable start = getCompoundDrawablesRelative()[0];
+                if (start != null && event.getX() <= start.getBounds().width()) {
                     if (onDrawableStartClickListener != null) {
                         onDrawableStartClickListener.onDrawableStartClick();
                     }

@@ -181,6 +181,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean fullFormProfilingEnabled = false;
     private EvaluationTraceReporter traceReporter;
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     private PendingSyncAlertBroadcastReceiver pendingSyncAlertBroadcastReceiver =
             new PendingSyncAlertBroadcastReceiver();
@@ -201,7 +202,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         @Override
         public void voiceDataMissing(String language) {
             StandardAlertDialog dialog = new StandardAlertDialog(
-                    FormEntryActivity.this,
                     Localization.get("tts.data.missing.title"),
                     Localization.get("tts.data.missing.message", language));
             dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
@@ -377,7 +377,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     ImageCaptureProcessing.processImageChooserResponse(this,
                             FormEntryInstanceState.getInstanceFolder(), intent);
                     break;
-                case FormEntryConstants.AUDIO_VIDEO_FETCH:
+                case FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH:
                     processChooserResponse(intent);
                     break;
                 case FormEntryConstants.LOCATION_CAPTURE:
@@ -425,7 +425,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         String title = Localization.get("file.oversize.error.title");
         String msg = Localization.get("file.oversize.error.message");
         CommCareAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
-                this, title, msg, (dialog1, which) -> dismissAlertDialog());
+                title, msg, (dialog1, which) -> dialog1.dismiss());
         showAlertDialog(dialog);
     }
 
@@ -435,7 +435,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         Uri media = intent.getData();
         if (media == null) {
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
-                    "AUDIO_VIDEO_FETCH intent data returns null " + intent.toString());
+                    "AUDIO_VIDEO_DOCUMENT_FETCH intent data returns null " + intent.toString());
             Logger.log(LogTypes.TYPE_ERROR_ASSERTION,
                     "Extras: " + (intent.getExtras() != null ? intent.getExtras().toString() : "null"));
             uiController.questionsView.clearAnswer();
@@ -538,7 +538,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         super.onCreateOptionsMenu(menu);
-
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.add(0, FormEntryConstants.MENU_SAVE, 0, StringUtils.getStringRobust(this, R.string.save_all_answers))
                 .setIcon(android.R.drawable.ic_menu_save);
         menu.add(0, FormEntryConstants.MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy))
@@ -558,7 +558,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return super.onPrepareOptionsMenu(menu);
         }
         super.onPrepareOptionsMenu(menu);
-
         menu.findItem(FormEntryConstants.MENU_SAVE).setVisible(mIncompleteEnabled && !instanceIsReadOnly);
 
         boolean hasMultipleLanguages = (!(mFormController == null ||
@@ -570,8 +569,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
 
@@ -877,7 +874,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void setFormLanguage(String[] languages, int index) {
         TextToSpeechConverter.INSTANCE.changeLocale(languages[index]);
         mFormController.setLanguage(languages[index]);
-        dismissAlertDialog();
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(false);
         }
@@ -1641,7 +1637,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             HiddenPreferences.setPendingSyncRequest(fcmMessageData);
 
             if (!HiddenPreferences.isPendingSyncDialogDisabled()) {
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(this,
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithDisablingCheckbox(
                         Localization.get("background.sync.pending.form.entry.title"),
                         Localization.get("background.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
                             HiddenPreferences.setPendingSyncDialogDisabled(isChecked);

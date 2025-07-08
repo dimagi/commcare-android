@@ -59,7 +59,7 @@
     <fragment
         android:id="@+id/connect_job_learning_progress_fragment"
         android:name="org.commcare.fragments.connect.ConnectLearningProgressFragment"
-        android:label="fragment_connect_learning_progess"
+        android:label="fragment_connect_learning_progress"
         tools:layout="@layout/fragment_connect_learning_progress">
         <action
             android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"

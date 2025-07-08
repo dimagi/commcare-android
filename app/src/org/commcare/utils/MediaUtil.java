@@ -5,9 +5,11 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.media.AudioManager;
 import androidx.exifinterface.media.ExifInterface;
 import android.os.Build;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -22,6 +24,7 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -41,6 +44,7 @@ public class MediaUtil {
     public static final String FORM_VIDEO = "video";
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
+    private static final int IMAGE_QUALIY_REDUCTION_FACTOR = 10;
 
 
     /**
@@ -571,5 +575,68 @@ public class MediaUtil {
     public static boolean isRecordingActive(Context context) {
         return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
                 .getActiveRecordingConfigurations().size() > 0;
+    }
+
+    /**
+     * Crops an image according to a given area
+     *
+     * @return
+     */
+    public static Bitmap cropImage(Bitmap bitmap, Rect cropArea) {
+        if (!validateCropArea(bitmap, cropArea)) {
+            throw new RuntimeException("Cropping failed due to invalid area!");
+        }
+        return Bitmap.createBitmap(bitmap, cropArea.left, cropArea.top,
+                cropArea.right - cropArea.left, cropArea.bottom - cropArea.top);
+    }
+
+    private static boolean validateCropArea(Bitmap bitmap, Rect cropArea) {
+        return cropArea.left >= 0 &&
+                cropArea.top >= 0 &&
+                cropArea.right <= bitmap.getWidth() &&
+                cropArea.bottom <= bitmap.getHeight() &&
+                cropArea.left < cropArea.right &&
+                cropArea.top < cropArea.bottom;
+    }
+
+    public static byte[] compressBitmapToTargetSize(Bitmap bitmap, int targetSize)
+            throws IOException, ImageSizeTooLargeException {
+        if (bitmap == null) {
+            return null;
+        }
+
+        byte[] byteArray = null;
+        int quality = 100;
+        int numCompressionCycles = 0;
+        while (quality != 0) {
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                bitmap.compress(Bitmap.CompressFormat.WEBP, quality, baos);
+                byteArray = baos.toByteArray();
+                if (byteArray.length <= targetSize) {
+                    break;
+                }
+                quality -= IMAGE_QUALIY_REDUCTION_FACTOR;
+            }
+            numCompressionCycles++;
+        }
+        if (byteArray.length > targetSize) {
+            throw new ImageSizeTooLargeException("Could not compress image to target size");
+        }
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Micro image compressed successfully. Number of cycles: " + numCompressionCycles);
+        return byteArray;
+    }
+
+    public static Bitmap decodeBase64EncodedBitmap(String base64Image) {
+        // Remove the metadata prefix if it exists
+        if (base64Image.startsWith("data:image")) {
+            int commaIndex = base64Image.indexOf(',');
+            if (commaIndex != -1) {
+                base64Image = base64Image.substring(commaIndex + 1);
+            } else {
+                throw (new IllegalArgumentException("Not a valid base64 string"));
+            }
+        }
+        byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
 }

@@ -10,41 +10,42 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.common.base.Strings;
-
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.CommCareVerificationActivity;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectManager;
-import org.commcare.connect.MessageManager;
-import org.commcare.dalvik.R;
-import org.commcare.fragments.connect.ConnectDownloadingFragment;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.services.CommCareFirebaseMessagingService;
-import org.commcare.tasks.ResourceEngineListener;
-import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
-
-import javax.annotation.Nullable;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
-public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
+import com.google.common.base.Strings;
+
+import org.commcare.activities.CommCareVerificationActivity;
+import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.MessageManager;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.dalvik.R;
+import org.commcare.fragments.connect.ConnectDownloadingFragment;
+import org.commcare.tasks.ResourceEngineListener;
+import org.commcare.utils.FirebaseMessagingUtil;
+import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
+
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
+public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngineListener> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     String redirectionAction = "";
     String opportunityId = "";
-    NavController navController;
     MenuItem messagingMenuItem = null;
-
-    NavController.OnDestinationChangedListener destinationListener = null;
 
     final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -60,7 +61,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.screen_connect);
         setTitle(getString(R.string.connect_title));
 
         redirectionAction = getIntent().getStringExtra("action");
@@ -71,14 +71,10 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
         updateBackButton();
 
-        destinationListener = FirebaseAnalyticsUtil.getDestinationChangeListener();
-
-        NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        navController = host.getNavController();
-        navController.addOnDestinationChangedListener(destinationListener);
-
         if (getIntent().getBooleanExtra("info", false)) {
-            ConnectJobRecord job = ConnectManager.getActiveJob();
+            ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+            Objects.requireNonNull(job);
+
             int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
                     R.id.connect_job_delivery_progress_fragment :
                     R.id.connect_job_learning_progress_fragment;
@@ -95,7 +91,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             Logger.log("ConnectActivity", "Redirecting to unlock fragment");
             //Entering from a notification, so we may need to initialize
-            ConnectManager.init(this);
+            PersonalIdManager.getInstance().init(this);
 
             //Navigate to the unlock fragment first, then it will navigate on as desired
             NavOptions options = new NavOptions.Builder()
@@ -107,6 +103,8 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
             bundle.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
             navController.navigate(R.id.connect_unlock_fragment, bundle, options);
         }
+
+        prepareConnectMessagingScreen();
     }
 
     @Override
@@ -115,7 +113,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         MessageManager.updateMessagingIcon(this, messagingMenuItem);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
-                new IntentFilter(CommCareFirebaseMessagingService.MESSAGING_UPDATE_BROADCAST));
+                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
     }
 
     @Override
@@ -138,12 +136,6 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ConnectManager.handleFinishedActivity(this, requestCode, resultCode, data);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_connect, menu);
 
@@ -163,10 +155,26 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
         return super.onPrepareOptionsMenu(menu);
     }
 
+    private void prepareConnectMessagingScreen(){
+        MessageManager.retrieveMessages(this, success -> {
+            updateMessagingIcon();
+        });
+    }
+
+    public void updateMessagingIcon() {
+        if(messagingMenuItem != null) {
+            int icon = R.drawable.ic_connect_messaging_base;
+            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
+                icon = R.drawable.ic_connect_messaging_unread;
+            }
+            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_messaging) {
-            ConnectManager.goToMessaging(this);
+            ConnectNavHelper.INSTANCE.goToMessaging(this);
             return true;
         }
 
@@ -183,18 +191,14 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
     }
 
     @Override
-    protected void onDestroy() {
-        if (destinationListener != null) {
-            NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.nav_host_fragment_connect);
-            if (navHostFragment != null) {
-                NavController navController = navHostFragment.getNavController();
-                navController.removeOnDestinationChangedListener(destinationListener);
-            }
-            destinationListener = null;
-        }
+    protected int getLayoutResource() {
+        return R.layout.screen_connect;
+    }
 
-        super.onDestroy();
+    @Override
+    protected NavHostFragment getHostFragment() {
+        return (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment_connect);
     }
 
     @Override
@@ -247,7 +251,7 @@ public class ConnectActivity extends CommCareActivity<ResourceEngineListener> {
 
     public void startAppValidation() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
+        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_CONNECT, true);
         verificationLauncher.launch(i);
     }
 }

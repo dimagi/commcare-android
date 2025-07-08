@@ -79,9 +79,7 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
         super.onCreate(savedInstanceState);
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -321,7 +319,7 @@ public class DrawActivity extends AppCompatActivity implements DrawView.Callback
 
         dialog.addButton(getString(R.string.cancel), v -> dialog.dismiss());
 
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(this);
     }
 
     @Override

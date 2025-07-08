@@ -26,7 +26,7 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
-            <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -61,7 +61,7 @@
                 android:background="@color/connect_dark_blue_color"
                 android:padding="16dp">
 
-                <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                <TextView
                     android:id="@+id/connect_delivery_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_review"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_review" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_total_visits_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_visits_icon" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_days_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -137,7 +137,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_days_icon" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_max_daily_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_max_daily_icon" />
 
-                <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                <TextView
                     android:id="@+id/connect_delivery_budget_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

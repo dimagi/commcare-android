@@ -11,10 +11,6 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    android:shadowColor="@color/connect_light_grey_transparent"
-    android:shadowDx="30"
-    android:shadowDy="30"
-    android:shadowRadius="50"
     app:cardBackgroundColor="@color/connect_red"
     app:cardCornerRadius="12dp"
     app:cardElevation="5dp">
@@ -24,7 +20,7 @@
         android:layout_height="wrap_content"
         android:padding="18dp">
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,10 +28,11 @@
             android:minLines="1"
             android:textColor="@color/black"
             android:textSize="14sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,6 +42,7 @@
             android:text="@string/connect_corrupt_job_text"
             android:textColor="@color/black"
             android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
 

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ScrollView
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
@@ -52,7 +52,7 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:tint="@color/connect_light_grey" />
 
-                        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                        <TextView
                             android:id="@+id/payment_earned_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
                             app:layout_constraintStart_toEndOf="@+id/imageView"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                        <TextView
                             android:id="@+id/payment_earned_amount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -74,14 +74,15 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/imageView"
                             app:layout_constraintTop_toBottomOf="@+id/payment_earned_label"
-                            tools:text="$800" />
+                            tools:text="$800"
+                            android:textStyle="bold"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
@@ -105,7 +106,7 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:tint="@color/connect_light_grey" />
 
-                        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+                        <TextView
                             android:id="@+id/payment_transferred_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -117,7 +118,7 @@
                             app:layout_constraintStart_toEndOf="@+id/imgTransffed"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+                        <TextView
                             android:id="@+id/payment_transferred_amount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -127,7 +128,8 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/imgTransffed"
                             app:layout_constraintTop_toBottomOf="@+id/payment_transferred_label"
-                            tools:text="$800" />
+                            tools:text="$800"
+                            android:textStyle="bold"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -147,3 +149,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </RelativeLayout>
 </ScrollView>
+</layout>

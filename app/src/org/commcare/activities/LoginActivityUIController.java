@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.ConnectIDManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -26,13 +26,15 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -92,6 +94,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
+
+    @UiElement(R.id.error_msg)
+    private TextView errorMessage;
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
@@ -158,7 +163,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setTextChangeListeners();
         setBannerLayoutLogic();
 
-        loginButton.setOnClickListener(arg0 -> activity.initiateLoginAttempt(isRestoreSessionChecked()));
+        loginButton.setOnClickListener(arg0 -> {
+            FirebaseAnalyticsUtil.reportLoginClicks();
+            activity.initiateLoginAttempt(isRestoreSessionChecked());
+        });
 
         passwordOrPin.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -202,9 +210,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
                 () -> {
                     int hideAll = getResources().getInteger(
-                            R.integer.login_screen_hide_all_cuttoff);
+                            R.integer.login_screen_hide_all_cutoff);
                     int hideBanner = getResources().getInteger(
-                            R.integer.login_screen_hide_banner_cuttoff);
+                            R.integer.login_screen_hide_banner_cutoff);
                     int height = activityRootView.getHeight();
 
                     if (height < hideAll) {
@@ -398,6 +406,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return loginMode;
     }
 
+    protected void checkForGlobalErrors() {
+        String errors = GlobalErrorUtil.handleGlobalErrors();
+        if(errors.length() > 0) {
+            errorMessage.setVisibility(View.VISIBLE);
+            errorMessage.setText(errors);
+        }
+    }
+
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
         setLoginBoxesColorError();
 
@@ -533,7 +549,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void refreshConnectView() {
-        ConnectIDManager.ConnectAppMangement appState = activity.getConnectAppState();
+        PersonalIdManager.ConnectAppMangement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
@@ -546,7 +562,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         setLoginInputsVisibility(appState != Connect);
-        if (ConnectIDManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
             connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
             setConnectButtonVisible(true);
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,

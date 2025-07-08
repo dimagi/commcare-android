@@ -13,6 +13,7 @@ public class CCAnalyticsParam {
     static final String SERVER = "server";
     static final String FREE_DISK = "free_disk";
     static final String CCC_ENABLED = "ccc_enabled";
+    static final String DEVICE_ID = "device_id";
 
     static final String ACTION_TYPE = "action_type";
     static final String DIRECTION = "direction";
@@ -26,7 +27,6 @@ public class CCAnalyticsParam {
 
     static final String USER_RETURNED = "user_returned";
     static final String NOTIFICATION_TYPE = "notification_type";
-    static final String PARAM_CCC_SIGN_IN_METHOD = "ccc_sign_in_method";
     static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
     static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";
     static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";

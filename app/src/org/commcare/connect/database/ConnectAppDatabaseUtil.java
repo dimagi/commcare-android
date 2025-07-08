@@ -3,14 +3,14 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
     public static ConnectLinkedAppRecord getConnectLinkedAppRecord(Context context, String appId, String username) {
-        if (ConnectIDManager.getInstance().isloggedIn()) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
             Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class)
                     .getRecordsForValues(
                             new String[]{ConnectLinkedAppRecord.META_APP_ID, ConnectLinkedAppRecord.META_USER_ID},
@@ -47,7 +47,7 @@ public class ConnectAppDatabaseUtil {
             record.setPassword(passwordOrPin);
         }
 
-        record.setConnectIdLinked(connectIdLinked);
+        record.setPersonalIdLinked(connectIdLinked);
         record.setIsUsingLocalPassphrase(localPassphrase);
 
         if (workerLinked) {

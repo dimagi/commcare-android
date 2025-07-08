@@ -587,7 +587,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         // event. This can be fixed, but the dialog click listeners closures
         // capture refences to the old activity, so we need to redo our
         // infrastructure to forward new activities.
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(activity);
     }
 
     protected void next() {
@@ -756,7 +756,7 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
                 continue;
             }
 
-            if (oldWidgets.get(i) instanceof ImageWidget) {
+            if ((i == indexOfLastChangedWidget) && oldWidgets.get(i) instanceof ImageWidget) {
                 // If there was change(in particular image-remove) in an image widget,
                 // only then update the form to disk.
                 activity.onExternalAttachmentUpdated();

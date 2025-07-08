@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Base64;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -41,7 +40,6 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
-import org.commcare.connect.ConnectIDManager;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -181,6 +179,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private String selectedEntityPostSync = null;
 
     private FirebaseMessagingDataSyncer dataSyncer;
+    private boolean isVisible;
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
@@ -477,16 +476,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.yes"), -1, v -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             launchPinCreateScreen(loginMode);
         });
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.not.now"), -1, v -> dismissAlertDialog());
+                Localization.get("pin.dialog.not.now"), -1, v -> dialog.dismiss());
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.never"), -1, v -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             CommCareApplication.instance().getCurrentApp().getAppPreferences()
                     .edit()
                     .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
@@ -502,9 +501,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void showPinFutureAccessDialog() {
-        StandardAlertDialog.getBasicAlertDialog(this,
+        StandardAlertDialog.getBasicAlertDialog(
                 Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
+                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog(this);
     }
 
     protected void launchPinAuthentication() {
@@ -536,7 +535,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 uiController.setupUI();
             }
             rebuildOptionsMenu();
-            dismissAlertDialog();
+            dialog.dismiss();
         };
 
         dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
@@ -581,7 +580,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void userPressedOpportunityStatus() {
         Intent i = new Intent();
         i.putExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, true);
-        setResult(RESULT_OK);
+        setResult(RESULT_OK, i);
         finish();
     }
 
@@ -1008,22 +1007,22 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     private void showSessionRefreshWarning() {
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                 Localization.get("session.refresh.error.title"),
                 Localization.get("session.refresh.error.message"), null));
     }
 
     private void showDemoModeWarning() {
-        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(this,
+        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(
                 Localization.get("demo.mode.warning.title"),
                 Localization.get("demo.mode.warning.main"),
                 android.R.drawable.ic_dialog_info, null);
-        d.addEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"));
+        d.setEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"));
         showAlertDialog(d);
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(
                 Localization.get("app.handled.error.title"), errorMsg,
                 android.R.drawable.ic_dialog_info, errorListener));
     }
@@ -1091,7 +1090,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         EvaluationContext ec = asw.getEvaluationContext();
         Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
         createErrorDialog(text.evaluate(ec), (dialog, i) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             asw.getSession().stepBack(asw.getEvaluationContext());
             HomeScreenBaseActivity.this.sessionNavigator.startNextSessionStep();
         });
@@ -1313,8 +1312,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     SimpleDateFormat.getDateTimeInstance().format(lastUploadSyncAttempt);
             Logger.log(LogTypes.TYPE_USER, "autosync triggered. Last Sync|" + footer);
         }
-
-        refreshUI();
+        if (isVisible) {
+            refreshUI();
+        }
         sendFormsOrSync(false);
     }
 
@@ -1335,6 +1335,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         redirectedInOnCreate = false;
         sessionNavigationProceedingAfterOnResume = false;
         shouldTriggerBackgroundSync = true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isVisible = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isVisible = false;
     }
 
     private void attemptDispatchHomeScreen() {
@@ -1412,7 +1424,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 CommCareApplication.instance().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
-        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(title, msg);
         DialogInterface.OnClickListener listener = (dialog, i) -> {
             switch (i) {
                 case DialogInterface.BUTTON_POSITIVE:
@@ -1431,7 +1443,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                     formEntry(platform.getFormDefId(state.getSession().getForm()),
                             state.getFormRecord());
             }
-            dismissAlertDialog();
+            dialog.dismiss();
         };
         d.setPositiveButton(Localization.get("option.yes"), listener);
         d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"),
@@ -1562,18 +1574,18 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             case DOWNLOADED:
                 CommCareApplication.notificationManager().clearNotifications(
                         APP_UPDATE_NOTIFICATION);
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
+                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
                         Localization.get("in.app.update.installed.title"),
                         Localization.get("in.app.update.installed.detail"),
                         null);
                 dialog.setPositiveButton(Localization.get("in.app.update.dialog.restart"),
                         (dialog1, which) -> {
                             appUpdateController.completeUpdate();
-                            dismissAlertDialog();
+                            dialog1.dismiss();
                         });
                 dialog.setNegativeButton(Localization.get("in.app.update.dialog.cancel"),
                         (dialog1, which) -> {
-                            dismissAlertDialog();
+                            dialog1.dismiss();
                         });
                 showAlertDialog(dialog);
                 FirebaseAnalyticsUtil.reportInAppUpdateResult(true,

@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/tv_job_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -22,9 +22,10 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tv_job_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,21 +34,23 @@
             android:textColor="@color/connect_grey"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_title" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_title"
+            android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectMediumTextView
+        <TextView
             android:id="@+id/tv_view_more"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/connect_job_info_view_more"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_job_description" />
+            app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
+            android:textStyle="bold"/>
 
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/tvDailyVisitTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,29 +60,35 @@
             android:visibility="visible"
             app:layout_constraintTop_toBottomOf="@+id/tv_job_description"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:textStyle="bold"/>
 
-        <org.commcare.views.connect.connecttextview.ConnectBoldTextView
+        <TextView
             android:id="@+id/tv_job_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="8:00 AM - 5:00 PM"
             android:textColor="@color/connect_dark_blue_color"
             android:textSize="16sp"
+            android:layout_marginStart="5dp"
+            android:gravity="right"
+            app:layout_constraintStart_toEndOf="@+id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/tvDailyVisitTitle"
+            android:textStyle="bold"/>
 
 
-        <org.commcare.views.connect.connecttextview.ConnectRegularTextView
+        <TextView
             android:id="@+id/connect_job_end_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginTop="8dp"
-            android:gravity="end"
+            android:gravity="right"
             android:text="Complete Project by 01/31/2024"
             android:textColor="@color/connect_subtext_color"
             android:textSize="12sp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@+id/tv_view_more"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_job_time" />
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -5,7 +6,7 @@
     android:viewportHeight="24">
   <path
       android:pathData="M12,12m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0"
-      android:fillColor="#E6F5E5"/>
+      android:fillColor="@color/connect_light_green"/>
   <group>
     <clip-path
         android:pathData="M3.636,2.909h17.455v17.455h-17.455z"/>

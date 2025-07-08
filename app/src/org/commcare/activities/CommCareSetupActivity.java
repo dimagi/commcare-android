@@ -12,17 +12,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectIDManager;
+import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
-import org.commcare.fragments.ContainerFragment;
+import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.InstallConfirmFragment;
 import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
@@ -42,6 +53,7 @@ import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConsumerAppsUtil;
+import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -58,15 +70,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.IOException;
 import java.security.SignatureException;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import java.util.Map;
 
 /**
  * Responsible for identifying the state of the application (uninstalled,
@@ -98,6 +102,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String FORCE_VALIDATE_KEY = "validate";
     private static final String KEY_SHOW_NOTIFICATIONS_BUTTON = "show-notifications-button";
     public static final int MAX_ALLOWED_APPS = 4;
+    private static final String COMMCARE_APP_DATA_KEY = "commcare-app-data-key";
+    private Map<Integer, String> menuIdToAnalyticsParam;
 
     /**
      * UI configuration states.
@@ -115,11 +121,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private String errorMessageToDisplay;
     private boolean showNotificationsButton = false;
 
-    public static final int MENU_ARCHIVE = Menu.FIRST;
+    public static final int MENU_OFFLINE_INSTALL = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
-    private static final int MENU_FROM_LIST = Menu.FIRST + 3;
-    private static final int MENU_CONNECT_SIGN_IN = Menu.FIRST + 4;
-    private static final int MENU_CONNECT_FORGET = Menu.FIRST + 5;
+    private static final int MENU_INSTALL_FROM_LIST = Menu.FIRST + 3;
+    private static final int MENU_PERSONAL_ID_SIGN_IN = Menu.FIRST + 4;
+    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -162,7 +168,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
     private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private final InstallPermissionsFragment permFragment = new InstallPermissionsFragment();
-    private ContainerFragment<CommCareApp> containerFragment;
+    private ContainerViewModel<CommCareApp> containerViewModel;
+    private String globalError = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,7 +179,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return;
         }
         if (!fromManager) {
-            ConnectIDManager.getInstance().init(this);
+            String errors = GlobalErrorUtil.handleGlobalErrors();
+            globalError = errors.length() > 0 ? errors : null;
+
+            PersonalIdManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
@@ -241,15 +251,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void persistCommCareAppState() {
-        FragmentManager fm = this.getSupportFragmentManager();
-
-        containerFragment = (ContainerFragment<CommCareApp>)fm.findFragmentByTag("cc-app");
-
-        if (containerFragment == null) {
-            containerFragment = new ContainerFragment<>();
-            fm.beginTransaction().add(containerFragment, "cc-app").commit();
-        } else {
-            ccApp = containerFragment.getData();
+        containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
+        if (containerViewModel.getData(COMMCARE_APP_DATA_KEY) != null) {
+            ccApp = containerViewModel.getData(COMMCARE_APP_DATA_KEY);
         }
     }
 
@@ -360,6 +364,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             ft.commit();
             fm.executePendingTransactions();
         }
+
+        if(globalError != null) {
+            installFragment.showConnectErrorMessage(globalError);
+        }
+
         updateConnectButton();
     }
 
@@ -427,7 +436,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 finish();
                 return;
             case ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE:
-                ConnectIDManager.getInstance().handleFinishedActivity(this, resultCode);
+                PersonalIdManager.getInstance().handleFinishedActivity(this, resultCode);
                 return;
             default:
                 return;
@@ -478,7 +487,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             boolean shouldSleep = (lastDialog != null) && lastDialog.isChecked();
 
             ccApp = ResourceInstallUtils.startAppInstallAsync(shouldSleep, DIALOG_INSTALL_PROGRESS, this, incomingRef);
-            containerFragment.setData(ccApp);
+            containerViewModel.setData(COMMCARE_APP_DATA_KEY, ccApp);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
@@ -487,29 +496,29 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_FROM_LIST, 2, Localization.get("menu.app.list.install"));
-        menu.add(0, MENU_CONNECT_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
-        menu.add(0, MENU_CONNECT_FORGET, 3, getString(R.string.login_menu_connect_forget));
+        menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
+        menu.add(0, MENU_OFFLINE_INSTALL, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_INSTALL_FROM_LIST, 2, Localization.get("menu.app.list.install"));
+        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.login_menu_connect_forget));
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
-        MenuItem item = menu.findItem(MENU_CONNECT_SIGN_IN);
+        MenuItem item = menu.findItem(MENU_PERSONAL_ID_SIGN_IN);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !ConnectIDManager.getInstance().isloggedIn());
+            item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn()
+                    && PersonalIdManager.getInstance().checkDeviceCompability());
         }
 
-        item = menu.findItem(MENU_CONNECT_FORGET);
+        item = menu.findItem(MENU_PERSONAL_ID_FORGET);
         if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn());
+            item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
         return true;
     }
-
 
     /**
      * UPDATE: 16/Jan/2019: This code path is no longer in use, since we have turned off sms install
@@ -534,7 +543,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                         SMS_PERMISSIONS_REQUEST,
                         Localization.get("permission.sms.install.title"),
-                        Localization.get("permission.sms.install.message")).showNonPersistentDialog();
+                        Localization.get("permission.sms.install.message")).showNonPersistentDialog(this);
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
@@ -614,8 +623,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
+                menuIdToAnalyticsParam.get(item.getItemId()));
         switch (item.getItemId()) {
-            case MENU_ARCHIVE:
+            case MENU_OFFLINE_INSTALL:
                 clearErrorMessage();
                 Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
                 startActivityForResult(i, OFFLINE_INSTALL);
@@ -624,27 +635,36 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 clearErrorMessage();
                 performSMSInstall(true);
                 break;
-            case MENU_FROM_LIST:
+            case MENU_INSTALL_FROM_LIST:
                 clearErrorMessage();
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
-            case MENU_CONNECT_SIGN_IN:
+            case MENU_PERSONAL_ID_SIGN_IN:
                 //Setup ConnectID and proceed to jobs page if successful
-                ConnectIDManager.getInstance().launchConnectId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
+                PersonalIdManager.getInstance().launchPersonalId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
                 break;
-            case MENU_CONNECT_FORGET:
-                ConnectIDManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
+            case MENU_PERSONAL_ID_FORGET:
+                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
         }
         return true;
     }
 
+    private Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
+        return Map.of(
+                MENU_OFFLINE_INSTALL, AnalyticsParamValue.CC_SETUP_MENU_OFFLINE_INSTALL,
+                MENU_INSTALL_FROM_LIST, AnalyticsParamValue.CC_SETUP_MENU_INSTALL_FROM_LIST,
+                MENU_PERSONAL_ID_SIGN_IN, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_SIGN_IN,
+                MENU_PERSONAL_ID_FORGET, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_FORGET
+        );
+    }
+
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && ConnectIDManager.getInstance().isloggedIn(), v -> {
-            ConnectIDManager.getInstance().unlockConnect(this, success -> {
-                ConnectIDManager.getInstance().goToConnectJobsList(this);
+        installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
+            PersonalIdManager.getInstance().unlockConnect(this, success -> {
+                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
             });
         });
     }
