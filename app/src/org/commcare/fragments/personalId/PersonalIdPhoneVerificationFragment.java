@@ -7,34 +7,10 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import com.google.android.gms.auth.api.phone.SmsRetriever;
-import com.google.firebase.auth.FirebaseUser;
-
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
-import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.SMSBroadcastReceiver;
-import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.util.LogTypes;
-import org.commcare.utils.KeyboardHelper;
-import org.commcare.utils.OtpErrorType;
-import org.commcare.utils.OtpManager;
-import org.commcare.utils.OtpVerificationCallback;
-import org.javarosa.core.services.Logger;
-import org.joda.time.DateTime;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -44,6 +20,29 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+
+import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.SMSBroadcastReceiver;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.FirebaseAuthService;
+import org.commcare.utils.KeyboardHelper;
+import org.commcare.utils.OtpAuthService;
+import org.commcare.utils.OtpErrorType;
+import org.commcare.utils.OtpManager;
+import org.commcare.utils.OtpVerificationCallback;
+import org.commcare.utils.PersonalIdAuthService;
+import org.javarosa.core.services.Logger;
+import org.joda.time.DateTime;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PersonalIdPhoneVerificationFragment extends Fragment {
     private static final String KEY_PHONE = "phone";
@@ -72,6 +71,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity = requireActivity();
         personalIdSessionData = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         primaryPhone = personalIdSessionData.getPhoneNumber();
@@ -90,15 +90,14 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
             }
 
             @Override
-            public void onSuccess(FirebaseUser user) {
+            public void onCodeVerified(String code) {
                 if (otpCallback == null) return;
-                Toast.makeText(requireContext(), getString(R.string.connect_otp_verified) + user.getPhoneNumber(), Toast.LENGTH_SHORT).show();
-                user.getIdToken(false).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        String idToken = task.getResult().getToken();
-                        validateFirebaseIdToken(idToken);
-                    }
-                });
+                Toast.makeText(requireContext(), getString(R.string.connect_otp_verified), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSuccess() {
+                navigateToNameEntry();
             }
 
             @Override
@@ -116,15 +115,12 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
-
-        // Pass the Activity and callback to the OtpManager (no need to manually build PhoneAuthOptions)
-        otpManager = new OtpManager(requireActivity(), otpCallback);
+        otpManager = new OtpManager(activity, personalIdSessionData, otpCallback);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = ScreenPersonalidPhoneVerifyBinding.inflate(inflater, container, false);
-        activity = requireActivity();
         setupInitialState();
         setupListeners();
 
@@ -132,18 +128,6 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private void validateFirebaseIdToken(String firebaseIdToken) {
-        new PersonalIdApiHandler<PersonalIdSessionData>() {
-            @Override
-            public void onSuccess(PersonalIdSessionData sessionData) {
-                navigateToNameEntry();
-            }
-            @Override
-            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-                handleFailure(failureCode, t);
-            }
-        }.validateFirebaseIdToken(requireActivity(),firebaseIdToken,personalIdSessionData);
-    }
 
     private void setupInitialState() {
         binding.connectPhoneVerifyButton.setEnabled(false);
@@ -277,7 +261,7 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         if (otpCode.isEmpty()) {
             Toast.makeText(requireContext(), getString(R.string.connect_enter_otp), Toast.LENGTH_SHORT).show();
         } else {
-            otpManager.submitOtp(otpCode);
+            otpManager.verifyOtp(otpCode);
         }
     }
 
