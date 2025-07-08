@@ -110,7 +110,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     @Override
     protected void onResume() {
         super.onResume();
-        MessageManager.updateMessagingIcon(this, messagingMenuItem);
+        updateMessagingIcon(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
                 new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
@@ -125,7 +125,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            MessageManager.updateMessagingIcon(context, messagingMenuItem);
+            updateMessagingIcon(context);
+            if(messagingMenuItem != null) {
+                messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
+            }
         }
     };
 
@@ -143,7 +146,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
         messagingMenuItem = menu.findItem(R.id.action_messaging);
-        MessageManager.updateMessagingIcon(this, messagingMenuItem);
+        updateMessagingIcon(this);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -157,17 +160,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
     private void prepareConnectMessagingScreen(){
         MessageManager.retrieveMessages(this, success -> {
-            updateMessagingIcon();
+            updateMessagingIcon(this);
         });
     }
 
-    public void updateMessagingIcon() {
+    public void updateMessagingIcon(Context context) {
         if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_messaging_unread;
-            }
-            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
+            messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
         }
     }
 

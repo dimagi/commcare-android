@@ -1,6 +1,7 @@
 package org.commcare.connect;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -38,14 +39,12 @@ public class MessageManager {
         return channel;
     }
 
-    public static void updateMessagingIcon(Context context, MenuItem messagingMenuItem) {
-        if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(context).size() > 0) {
-                icon = R.drawable.ic_connect_messaging_unread;
-            }
-            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(context.getResources(), icon, null));
+    public static Drawable getMessagingIcon(Context context) {
+        int icon = R.drawable.ic_connect_messaging_base;
+        if(ConnectMessagingDatabaseHelper.getUnviewedMessages(context).size() > 0) {
+            icon = R.drawable.ic_connect_messaging_unread;
         }
+        return ResourcesCompat.getDrawable(context.getResources(), icon, null);
     }
 
     public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {

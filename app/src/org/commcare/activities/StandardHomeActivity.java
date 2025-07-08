@@ -141,9 +141,9 @@ public class StandardHomeActivity
         super.onResume();
 
         if(shouldShowMessaging()) {
-            MessageManager.updateMessagingIcon(this, messagingMenuItem);
+            updateMessagingIcon(this);
             MessageManager.retrieveMessages(this, success -> {
-                MessageManager.updateMessagingIcon(this, messagingMenuItem);
+                updateMessagingIcon(this);
             });
         }
 
@@ -160,7 +160,7 @@ public class StandardHomeActivity
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            MessageManager.updateMessagingIcon(context, messagingMenuItem);
+            updateMessagingIcon(context);
         }
     };
 
@@ -183,7 +183,7 @@ public class StandardHomeActivity
 
         messagingMenuItem = menu.findItem(R.id.action_messaging);
         messagingMenuItem.setVisible(shouldShowMessaging());
-        MessageManager.updateMessagingIcon(this, messagingMenuItem);
+        updateMessagingIcon(this);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -203,6 +203,12 @@ public class StandardHomeActivity
 
         preparePinMenu(menu, enableMenus);
         return true;
+    }
+
+    public void updateMessagingIcon(Context context) {
+        if(messagingMenuItem != null) {
+            messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
+        }
     }
 
     private static void preparePinMenu(Menu menu, boolean enableMenus) {
