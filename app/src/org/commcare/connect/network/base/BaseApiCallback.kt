@@ -3,6 +3,7 @@ package org.commcare.connect.network.base
 
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.util.LogTypes
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import org.json.JSONObject
@@ -67,8 +68,9 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
                         null
                     )
                     true
-                } else if (errorCode == "INTEGRITY_ERROR") {
+                } else if (errorCode.equals("INTEGRITY_ERROR", ignoreCase = true)) {
                     if (json.has("sub_code")) {
+                        Logger.log(LogTypes.TYPE_EXCEPTION, json.optString("sub_code"))
                         baseApiHandler.onFailure(
                                 PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR,
                                 Exception(json.optString("sub_code"))
