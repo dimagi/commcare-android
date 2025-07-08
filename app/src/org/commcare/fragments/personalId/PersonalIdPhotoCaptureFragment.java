@@ -25,11 +25,12 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.fragments.MicroImageActivity;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.MediaUtil;
 
 import java.util.Date;
@@ -75,44 +76,35 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void setUpUi() {
-        requireActivity().setTitle(getString(R.string.capture_photo));
-        viewBinding.title.setText(getString(R.string.connectid_photo_capture_title, personalIdSessionData.getUserName()));
+        requireActivity().setTitle(getString(R.string.personalid_capture_photo));
+        viewBinding.title.setText(getString(R.string.personalid_photo_capture_title, personalIdSessionData.getUserName()));
         viewBinding.takePhotoButton.setOnClickListener(v -> executeTakePhoto());
         viewBinding.savePhotoButton.setOnClickListener(v -> uploadImageAndCompleteProfile());
     }
 
     private void uploadImageAndCompleteProfile() {
+        clearError();
         disableSaveButton();
         disableTakePhotoButton();
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 onPhotoUploadSuccess(photoAsBase64);
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                onCompleteProfileFailure(failureCode);
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                onCompleteProfileFailure(failureCode, t);
             }
         }.completeProfile(requireContext(), personalIdSessionData.getUserName(),
                 photoAsBase64,
                 personalIdSessionData.getBackupCode(), personalIdSessionData.getToken(), personalIdSessionData);
     }
 
-    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdApiErrorCodes failureCode) {
-        if (failureCode == PersonalIdApiHandler.PersonalIdApiErrorCodes.INVALID_RESPONSE_ERROR) {
-            onPhotoUploadFailure(requireContext().getString(R.string.connectid_photo_upload_failure), true);
-        } else {
-            PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
-        }
-        if (failureCode.shouldAllowRetry()) {
-            enableSaveButton();
-        }
-    }
+    private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+        showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
-    private void onPhotoUploadFailure(String error, boolean allowRetry) {
-        showError(error);
-        if (allowRetry) {
+        if (failureCode.shouldAllowRetry()) {
             enableTakePhotoButton();
             enableSaveButton();
         }
@@ -127,11 +119,10 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
     }
 
     private void onPhotoUploadSuccess(String photoAsBase64) {
-        clearError();
         enableTakePhotoButton();
         disableSaveButton();
         createAndSaveConnectUser(photoAsBase64);
-        showAccountComplete();
+        logAndShowAccountComplete();
     }
 
     private void createAndSaveConnectUser(String photoAsBase64) {
@@ -166,7 +157,8 @@ public class PersonalIdPhotoCaptureFragment extends Fragment {
         takePhotoLauncher.launch(intent);
     }
 
-    private void showAccountComplete() {
+    private void logAndShowAccountComplete() {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountCreated();
         NavDirections directions =
                 PersonalIdPhotoCaptureFragmentDirections.actionPersonalidPhotoCaptureToPersonalidMessage(
                         getString(R.string.connect_register_success_title),

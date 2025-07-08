@@ -2,34 +2,36 @@ package org.commcare.utils;
 
 import android.app.Activity;
 
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.util.LogTypes;
+import org.javarosa.core.services.Logger;
+
 /**
  * Manager class that wraps authentication service operations for OTP (One-Time Password) functionality.
  */
 public class OtpManager {
 
+    private static final String SMS_METHOD_PERSONAL_ID = "personal_id";
+
     private final OtpAuthService authService;
 
-    /**
-     * Constructs an OtpManager by instantiating a default FirebaseAuthService internally.
-     *
-     * @param activity   The calling activity, required by FirebaseAuth
-     * @param callback   Callback to handle OTP verification events
-     */
-    public OtpManager(Activity activity, OtpVerificationCallback callback) {
-        this.authService = new FirebaseAuthService(activity, callback);
+    public OtpManager(Activity activity, PersonalIdSessionData personalIdSessionData,
+            OtpVerificationCallback otpCallback) {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Initializing OtpManager with SMS method: "
+                + personalIdSessionData.getSmsMethod());
+        if (SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())) {
+            authService = new PersonalIdAuthService(activity, personalIdSessionData, otpCallback);
+        } else {
+            authService = new FirebaseAuthService(activity, personalIdSessionData, otpCallback);
+        }
     }
 
     public void requestOtp(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            throw new IllegalArgumentException("Phone number cannot be null or empty");
-        }
         authService.requestOtp(phoneNumber);
     }
 
-    public void submitOtp(String code) {
-        if (code == null || code.trim().isEmpty()) {
-            throw new IllegalArgumentException("OTP code cannot be null or empty");
-        }
+    public void verifyOtp(String code) {
         authService.verifyOtp(code);
     }
+
 }

@@ -9,6 +9,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,8 +21,8 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.PersonalIdApiHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -52,10 +53,10 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         activity = requireActivity();
         personalIdSessionData = new ViewModelProvider(requireActivity()).get(
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
-        isRecovery = personalIdSessionData.getAccountExists();
         configureUiByMode();
         setupInputFilters();
         setupListeners();
+        setupDoneKeys();
         clearBackupCodeFields();
         activity.setTitle(getString(titleId));
         return binding.getRoot();
@@ -68,6 +69,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void configureUiByMode() {
+        isRecovery = personalIdSessionData.getAccountExists();
         if (isRecovery) {
             titleId = R.string.connect_backup_code_title_confirm;
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title);
@@ -86,7 +88,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void setUserNameAndPhoto() {
-        binding.welcomeBack.setText(getString(R.string.welcome_back_msg, personalIdSessionData.getUserName()));
+        binding.welcomeBack.setText(getString(R.string.personalid_welcome_back_msg, personalIdSessionData.getUserName()));
         if (!TextUtils.isEmpty(personalIdSessionData.getPhotoBase64())) {
             binding.userPhoto.setImageBitmap(
                     MediaUtil.decodeBase64EncodedBitmap(personalIdSessionData.getPhotoBase64()));
@@ -97,6 +99,28 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         InputFilter[] filters = new InputFilter[]{new InputFilter.LengthFilter(BACKUP_CODE_LENGTH)};
         binding.connectBackupCodeInput.setFilters(filters);
         binding.connectBackupCodeRepeatInput.setFilters(filters);
+    }
+
+    private void setupDoneKeys() {
+        binding.connectBackupCodeInput.setOnEditorActionListener((v, actionId, event) -> {
+            if ((actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE)
+                    && isRecovery && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+                return true;
+            }
+
+            return false;
+        });
+
+        binding.connectBackupCodeRepeatInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE
+                    && binding.connectBackupCodeButton.isEnabled()) {
+                handleBackupCodeSubmission();
+                return true;
+            }
+
+            return false;
+        });
     }
 
     private void setupListeners() {
@@ -143,6 +167,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             }
         }
 
+        binding.connectBackupCodeErrorMessage.setVisibility(TextUtils.isEmpty(errorText) ? View.GONE : View.VISIBLE);
         binding.connectBackupCodeErrorMessage.setText(errorText);
         enableContinueButton(isValid);
     }
@@ -168,26 +193,26 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void confirmBackupCode() {
+        clearError();
         enableContinueButton(false);
         String backupCode = binding.connectBackupCodeInput.getText().toString();
 
-        new PersonalIdApiHandler() {
+        new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
-            protected void onSuccess(PersonalIdSessionData sessionData) {
+            public void onSuccess(PersonalIdSessionData sessionData) {
                 if (sessionData.getDbKey() != null) {
                     handleSuccessfulRecovery();
-                } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() == 0) {
-                    navigateWithMessage(getString(R.string.recovery_failed_title),
-                            getString(R.string.recovery_failed_message),
-                            ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED);
+                } else if (sessionData.getSessionFailureCode() != null &&
+                                sessionData.getSessionFailureCode().equalsIgnoreCase("LOCKED_ACCOUNT")) {
+                    handleAccountLockout();
                 } else if (sessionData.getAttemptsLeft() != null && sessionData.getAttemptsLeft() > 0) {
                     handleFailedBackupCodeAttempt();
                 }
             }
 
             @Override
-            protected void onFailure(PersonalIdApiErrorCodes failureCode) {
-                PersonalIdApiErrorHandler.handle(requireActivity(), failureCode);
+            public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
@@ -209,6 +234,16 @@ public class PersonalIdBackupCodeFragment extends Fragment {
         navigateToSuccess();
     }
 
+    private void clearError() {
+        binding.connectBackupCodeErrorMessage.setVisibility(View.GONE);
+        binding.connectBackupCodeErrorMessage.setText("");
+    }
+
+    private void showError(String message) {
+        binding.connectBackupCodeErrorMessage.setVisibility(View.VISIBLE);
+        binding.connectBackupCodeErrorMessage.setText(message);
+    }
+
     private void handleFailedBackupCodeAttempt() {
         logRecoveryResult(false);
         clearBackupCodeFields();
@@ -217,8 +252,16 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE);
     }
 
+    private void handleAccountLockout() {
+        logRecoveryResult(false);
+        clearBackupCodeFields();
+        navigateWithMessage(getString(R.string.personalid_recovery_lockout_title),
+                getString(R.string.personalid_recovery_lockout_message),
+                ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED);
+    }
+
     private void logRecoveryResult(boolean success) {
-        FirebaseAnalyticsUtil.reportCccRecovery(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
+        FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(success, AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE);
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {

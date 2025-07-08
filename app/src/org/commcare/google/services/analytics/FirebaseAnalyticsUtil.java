@@ -138,6 +138,11 @@ public class FirebaseAnalyticsUtil {
                 location.getSimpleName() + "_" + itemLabel);
     }
 
+    public static void reportOptionsMenuOpened(String screenName) {
+        reportEvent(CCAnalyticsEvent.OPTIONS_MENU_OPENED,
+                FirebaseAnalytics.Param.ITEM_NAME, screenName);
+    }
+
     /**
      * Report a user event of changing the value of a SharedPreference
      */
@@ -394,23 +399,15 @@ public class FirebaseAnalyticsUtil {
                 new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
-    public static void reportCccSignIn(String method) {
-        reportEvent(CCAnalyticsEvent.CCC_SIGN_IN,
-                new String[]{CCAnalyticsParam.PARAM_CCC_SIGN_IN_METHOD},
-                new String[]{method});
+    public static void reportPersonalIdAccountCreated() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_CREATED);
     }
 
-    public static void reportCccRecovery(boolean success, String method) {
+    public static void reportPersonalIdAccountRecovered(boolean success, String method) {
         Bundle b = new Bundle();
-        b.putLong(CCAnalyticsParam.PARAM_CCC_RECOVERY_SUCCESS, success ? 1 : 0);
-        b.putString(CCAnalyticsParam.PARAM_CCC_RECOVERY_METHOD, method);
-        reportEvent(CCAnalyticsEvent.CCC_RECOVERY, b);
-    }
-
-    public static void reportCccDeconfigure(String reason) {
-        Bundle b = new Bundle();
-        b.putString(CCAnalyticsParam.REASON, reason);
-        reportEvent(CCAnalyticsEvent.CCC_DECONFIGURE, b);
+        b.putLong(FirebaseAnalytics.Param.VALUE, success ? 1 : 0);
+        b.putString(FirebaseAnalytics.Param.METHOD, method);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_RECOVERED, b);
     }
 
     public static void reportCccAppLaunch(String type, String appId) {
@@ -488,8 +485,10 @@ public class FirebaseAnalyticsUtil {
     }
 
 
-    public static void reportCccForget() {
-        reportEvent(CCAnalyticsEvent.CCC_FORGET);
+    public static void reportPersonalIdAccountForgotten(String reason) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REASON, reason);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_FORGOTTEN, b);
     }
 
     public static void reportLoginClicks() {
@@ -525,5 +524,18 @@ public class FirebaseAnalyticsUtil {
 
     public static void reportRekeyedDatabase() {
         reportEvent(CCAnalyticsEvent.CCC_REKEYED_DB);
+    }
+
+    public static void reportBiometricInvalidated() {
+        reportEvent(CCAnalyticsEvent.CCC_BIOMETRIC_INVALIDATED);
+    }
+
+    public static void reportPersonalIdConfigurationFailure(String failureCause) {
+        if (failureCause == null) {
+            failureCause = "UNKNOWN_ERROR";
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONFIGURATION_FAILURE,
+                new String[]{CCAnalyticsParam.REASON},
+                new String[]{failureCause});
     }
 }

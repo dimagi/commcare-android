@@ -35,7 +35,7 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(4)
     private String primaryPhone;
-
+    @Deprecated
     @Persisting(5)
     private String alternatePhone;
 
@@ -53,12 +53,20 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
+    @Deprecated
     @Persisting(11)
     @MetaField(META_SECONDARY_PHONE_VERIFIED)
+    /**
+     * @Deprecated should no longer be used, just here to avoid a db migration for the moment
+     */
     private boolean secondaryPhoneVerified;
 
     @Persisting(12)
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
+    @Deprecated
+    /**
+     * @Deprecated should no longer be used, just here to avoid a db migration for the moment
+     */
     private Date verifySecondaryPhoneByDate;
 
     @Persisting(value = 13, nullable = true)
@@ -106,14 +114,6 @@ public class ConnectUserRecord extends Persisted {
         this.primaryPhone = primaryPhone;
     }
 
-    public String getAlternatePhone() {
-        return alternatePhone;
-    }
-
-    public void setAlternatePhone(String alternatePhone) {
-        this.alternatePhone = alternatePhone;
-    }
-
     public void setPin(String pin) {
         this.pin = pin;
     }
@@ -154,28 +154,9 @@ public class ConnectUserRecord extends Persisted {
         lastPasswordDate = date;
     }
 
-    public boolean getSecondaryPhoneVerified() {
-        return secondaryPhoneVerified;
-    }
-
-    public void setSecondaryPhoneVerified(boolean verified) {
-        secondaryPhoneVerified = verified;
-    }
-
-    public Date getSecondaryPhoneVerifyByDate() {
-        return  verifySecondaryPhoneByDate;
-    }
-
-    public void setSecondaryPhoneVerifyByDate(Date date) {
-        verifySecondaryPhoneByDate = date;
-    }
 
     public boolean shouldForcePin() {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
-    }
-
-    public boolean shouldForcePassword() {
-        return shouldForceRecoveryLogin() && !shouldForcePin();
     }
 
     private boolean shouldForceRecoveryLogin() {
@@ -189,14 +170,6 @@ public class ConnectUserRecord extends Persisted {
         }
 
         return forcePin;
-    }
-
-    public boolean shouldRequireSecondaryPhoneVerification() {
-        if (secondaryPhoneVerified) {
-            return false;
-        }
-
-        return (new Date()).after(verifySecondaryPhoneByDate);
     }
 
     public void updateConnectToken(String token, Date expirationDate) {
@@ -223,7 +196,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
-        newRecord.alternatePhone = oldRecord.getAlternatePhone();
+        newRecord.alternatePhone = "";
         newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
         newRecord.connectToken = oldRecord.getConnectToken();
