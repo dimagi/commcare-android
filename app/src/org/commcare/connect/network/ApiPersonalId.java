@@ -58,6 +58,7 @@ public class ApiPersonalId {
     private static final String HQ_CLIENT_ID = "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV";
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
+
     public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
         String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
         HashMap<String, Object> params = new HashMap<>();
@@ -65,14 +66,15 @@ public class ApiPersonalId {
         if (token != null) {
             params.put("fcm_token", token);
             boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_PERSONAL_ID, auth, params, useFormEncoding, true);
+            return ConnectNetworkHelper.postSync(context, url, API_VERSION_PERSONAL_ID, auth, params,
+                    useFormEncoding, true);
         }
 
         return new ConnectNetworkHelper.PostResult(-1, null, null);
     }
 
-    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user) throws
-            TokenDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
+            throws TokenDeniedException, TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
         params.put("scope", "openid");
@@ -137,7 +139,8 @@ public class ApiPersonalId {
         }
     }
 
-    public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken) throws TokenUnavailableException {
+    public static AuthInfo.TokenAuth retrieveHqTokenSync(Context context, String hqUsername, String connectToken)
+            throws TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("client_id", "4eHlQad1oasGZF0lPiycZIjyL0SY1zx7ZblA6SCV");
         params.put("scope", "mobile_access sync");
@@ -215,7 +218,7 @@ public class ApiPersonalId {
         }
     }
 
-    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback, String url) {
+    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback, String endpoint) {
         showProgressDialog(context);
         call.enqueue(new Callback<>() {
             @Override
@@ -227,14 +230,14 @@ public class ApiPersonalId {
                         callback.processSuccess(response.code(), responseStream);
                     } catch (IOException e) {
                         // Handle error when reading the stream
-                        callback.processFailure(response.code(), null, url);
+                        callback.processFailure(response.code(), null, endpoint);
                     }
                 } else {
                     // Handle validation errors
                     logNetworkError(response);
                     InputStream stream = response.errorBody() != null ?
                             response.errorBody().byteStream() : null;
-                    callback.processFailure(response.code(), stream, url);
+                    callback.processFailure(response.code(), stream, endpoint);
                 }
             }
 
@@ -249,7 +252,7 @@ public class ApiPersonalId {
     }
 
     public static void confirmBackupCode(Context context,
-                                String backupCode,String token ,IApiCallback callback) {
+            String backupCode, String token, IApiCallback callback) {
 
         HashMap<String, String> params = new HashMap<>();
         params.put("recovery_pin", backupCode);
@@ -259,25 +262,26 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.confirmBackupCode);
+        callApi(context, call, callback, ApiEndPoints.confirmBackupCode);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.startConfiguration);
+        callApi(context, call, callback, ApiEndPoints.startConfiguration);
     }
 
-    public static void validateFirebaseIdToken(String token,Context context, String firebaseIdToken, IApiCallback callback) {
+    public static void validateFirebaseIdToken(String token, Context context, String firebaseIdToken,
+            IApiCallback callback) {
         HashMap<String, String> params = new HashMap<>();
         params.put("token", firebaseIdToken);
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
         ApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.validateFirebaseIdToken);
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth, params);
+        callApi(context, call, callback, ApiEndPoints.validateFirebaseIdToken);
     }
 
     public static void addOrVerifyName(Context context, String name, String token, IApiCallback callback) {
@@ -290,12 +294,12 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.checkName);
+        callApi(context, call, callback, ApiEndPoints.checkName);
     }
 
     public static void updateUserProfile(Context context, String username,
-                                         String password, String displayName,
-                                         String secondaryPhone, IApiCallback callback) {
+            String password, String displayName,
+            String secondaryPhone, IApiCallback callback) {
         //Update the phone number with the server
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
@@ -309,11 +313,11 @@ public class ApiPersonalId {
         }
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.updateProfile);
+        callApi(context, call, callback, ApiEndPoints.updateProfile);
     }
 
     public static void setPhotoAndCompleteProfile(Context context, String userName,
-                                                  String photoAsBase64, String backupCode, String token, IApiCallback callback) {
+            String photoAsBase64, String backupCode, String token, IApiCallback callback) {
         Objects.requireNonNull(photoAsBase64);
         Objects.requireNonNull(userName);
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
@@ -327,15 +331,39 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.completeProfile);
+        callApi(context, call, callback, ApiEndPoints.completeProfile);
     }
 
-    public static void retrieveCredentials(Context context, String userName, String password, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName,password,false);
+    public static void retrieveCredentials(Context context, String userName, String password,
+            IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName, password, false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
-        callApi(context, call, callback,PersonalIdApiClient.BASE_URL+ApiEndPoints.CREDENTIALS);
+        callApi(context, call, callback, ApiEndPoints.CREDENTIALS);
+    }
+
+    public static void sendOtp(Context context, String token, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.sendSessionOtp(tokenAuth);
+        callApi(context, call, callback, ApiEndPoints.sendSessionOtp);
+    }
+
+    public static void validateOtp(Context context, String token, String otp, IApiCallback callback) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        Objects.requireNonNull(tokenAuth);
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("otp", otp);
+
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
+        callApi(context, call, callback, ApiEndPoints.validateSessionOtp);
     }
 
     private static void logNetworkError(Response<?> response) {
