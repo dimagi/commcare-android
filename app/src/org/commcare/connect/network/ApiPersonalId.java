@@ -348,7 +348,6 @@ public class ApiPersonalId {
     }
 
     public static void sendOtp(Context context, String token, IApiCallback callback) {
-        ;
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
@@ -359,7 +358,6 @@ public class ApiPersonalId {
     }
 
     public static void validateOtp(Context context, String token, String otp, IApiCallback callback) {
-        ;
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
