@@ -3,7 +3,6 @@ package org.commcare.connect;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.core.content.res.ResourcesCompat;
