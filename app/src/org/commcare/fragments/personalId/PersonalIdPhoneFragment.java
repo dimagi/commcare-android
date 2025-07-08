@@ -344,7 +344,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
                                             HashMap<String, String> body,
                                             StandardIntegrityManager.@NotNull StandardIntegrityToken integrityTokenResponse) {
-        handleIntegritySubError(integrityTokenResponse,"UNLICENSED_APP_ERROR");
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
@@ -379,10 +378,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                         break;
 
                     case FORBIDDEN_ERROR:
-                        onConfigurationFailure(
-                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                                getString(R.string.personalid_configuration_process_failed_subtitle)
-                        );
+                        callOnConfigurationFailure();
                         break;
                     case INTEGRITY_ERROR:
                         handleIntegritySubError(integrityTokenResponse, t.getMessage());
@@ -396,27 +392,30 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
                                          String subError) {
-        int codeType = switch (subError) {
-            case "UNLICENSED_APP_ERROR" -> 1;
-            case "APP_INTEGRITY_ERROR" -> 2;
-            case "DEVICE_INTEGRITY_ERROR" -> 3;
-            default -> 0;
-        };
-        if (codeType > 0) {
-            Task<Integer> integrityDialogResponseCode = tokenResponse.showDialog(requireActivity(), codeType);
+        if (subError.equals("DEVICE_INTEGRITY_ERROR")) {
+            callOnConfigurationFailure();
+        } else {
+            Task<Integer> integrityDialogResponseCode = tokenResponse.showDialog(requireActivity(), 1);
             integrityDialogResponseCode.addOnSuccessListener(result -> {
                 if (result == DIALOG_SUCCESSFUL) {
                     // Retry the integrity token check
                     enableContinueButton(true);
                 } else {
                     // User canceled or some issue occurred
-                    showToastError(R.string.personalid_configuration_process_failed_unexpected_error);
+                    callOnConfigurationFailure();
                 }
             }).addOnFailureListener(e -> {
                 // Dialog failed to launch or some error occurred
-                showToastError(R.string.personalid_configuration_process_failed_unexpected_error);
+                callOnConfigurationFailure();
             });
         }
+    }
+
+    private void callOnConfigurationFailure() {
+        onConfigurationFailure(
+                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                getString(R.string.personalid_configuration_process_failed_subtitle)
+        );
     }
 
     private void onConfigurationSuccess() {
@@ -446,11 +445,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void showError(String error) {
         binding.personalidPhoneError.setVisibility(View.VISIBLE);
         binding.personalidPhoneError.setText(error);
-    }
-
-    private void showToastError(int error) {
-        Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
-        enableContinueButton(false);
     }
 
     private NavDirections navigateToBiometricSetup() {
