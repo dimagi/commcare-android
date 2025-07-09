@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
@@ -41,6 +42,18 @@ public class FirebaseAnalyticsUtil {
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
     private static final int MAX_USER_PROPERTY_VALUE_LENGTH = 36;
 
+    public static String getFirebaseUserId() {
+        try {
+            Task<String> task = CommCareApplication.instance().getAnalyticsInstance().getAppInstanceId();
+            synchronized(task)
+            {
+                task.wait();
+            }
+            return task.getResult();
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
     private static void reportEvent(String eventName) {
         reportEvent(eventName, new Bundle());

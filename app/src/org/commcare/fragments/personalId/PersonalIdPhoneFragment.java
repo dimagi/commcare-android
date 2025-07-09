@@ -221,6 +221,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         body.put("phone_number", phone);
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
+        body.put("firebase_user_id", FirebaseAnalyticsUtil.getFirebaseUserId());
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {
