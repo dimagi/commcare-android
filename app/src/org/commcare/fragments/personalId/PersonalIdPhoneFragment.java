@@ -228,9 +228,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {
                     @Override
-                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash,
+                    public void onTokenReceived(@NotNull String requestHash,
                                                 @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokeResponse) {
-                        makeStartConfigurationCall(token, requestHash, body, integrityTokeResponse);
+                        makeStartConfigurationCall(requestHash, body, integrityTokeResponse);
                     }
 
                     @Override
@@ -341,7 +341,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     }
 
 
-    private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
+    private void makeStartConfigurationCall(String requestHash,
                                             HashMap<String, String> body,
                                             StandardIntegrityManager.@NotNull StandardIntegrityToken integrityTokenResponse) {
         new PersonalIdApiHandler<PersonalIdSessionData>() {
@@ -387,7 +387,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                         break;
                 }
             }
-        }.makeStartConfigurationCall(requireActivity(), body, integrityToken, requestHash);
+        }.makeStartConfigurationCall(requireActivity(), body, integrityTokenResponse.token(), requestHash);
     }
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,

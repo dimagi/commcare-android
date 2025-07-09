@@ -68,7 +68,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
         )
         integrityTokenResponse
             .addOnSuccessListener { response ->
-                callback.onTokenReceived(response.token(), requestHash,response) }
+                callback.onTokenReceived(requestHash,response) }
             .addOnFailureListener { exception ->
                 handleRequestFailureAndRetry(exception, requestHash, callback, hasRetried)
             }
@@ -117,7 +117,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
     }
 
     interface IntegrityTokenCallback {
-        fun onTokenReceived(token: String, requestHash: String, integrityTokeResponse: StandardIntegrityManager.StandardIntegrityToken)
+        fun onTokenReceived(requestHash: String, integrityTokeResponse: StandardIntegrityManager.StandardIntegrityToken)
         fun onTokenFailure(exception: java.lang.Exception)
     }
 }
