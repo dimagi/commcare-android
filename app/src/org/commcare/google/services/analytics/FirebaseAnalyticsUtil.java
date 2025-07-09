@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.installations.FirebaseInstallations;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
@@ -44,7 +45,7 @@ public class FirebaseAnalyticsUtil {
 
     public static String getFirebaseUserId() {
         try {
-            Task<String> task = CommCareApplication.instance().getAnalyticsInstance().getAppInstanceId();
+            Task<String> task = FirebaseInstallations.getInstance().getId();
             synchronized(task)
             {
                 task.wait();
