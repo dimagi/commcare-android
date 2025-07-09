@@ -28,7 +28,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
                                         PersonalIdApiResponseParser parser) {
-        return new BaseApiCallback<T>(this) {
+        return new BaseApiCallback<T>(this, sessionData) {
 
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {

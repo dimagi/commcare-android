@@ -15,6 +15,14 @@ abstract class BaseApiHandler<T> {
 
     abstract fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?)
 
+    enum class PersonalIdApiSubErrorCodes {
+        INTEGRITY_HEADERS,
+        PHONE_NUMBER_REQUIRED,
+        UNLICENSED_APP_ERROR,
+        DEVICE_INTEGRITY_ERROR,
+        APP_INTEGRITY_ERROR,
+        INTEGRITY_REQUEST_ERROR;
+    }
 
     enum class PersonalIdOrConnectApiErrorCodes {
         UNKNOWN_ERROR,
@@ -41,7 +49,7 @@ abstract class BaseApiHandler<T> {
     fun createCallback(
         parser: BaseApiResponseParser<T>
     ): IApiCallback {
-        return object : BaseApiCallback<T>(this) {
+        return object : BaseApiCallback<T>(this, null) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
                     onSuccess(parser.parse(responseCode,responseData))

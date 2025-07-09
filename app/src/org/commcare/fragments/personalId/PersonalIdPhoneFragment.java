@@ -37,6 +37,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -55,6 +56,7 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
@@ -378,10 +380,14 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                         break;
 
                     case FORBIDDEN_ERROR:
-                        callOnConfigurationFailure();
+                        onConfigurationFailure(
+                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                                getString(R.string.personalid_configuration_process_failed_subtitle)
+                        );
                         break;
                     case INTEGRITY_ERROR:
-                        handleIntegritySubError(integrityTokenResponse, t.getMessage());
+                        handleIntegritySubError(integrityTokenResponse, Objects.requireNonNull(
+                                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode()));
                     default:
                         navigateFailure(failureCode, t);
                         break;
@@ -392,8 +398,11 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
                                          String subError) {
-        if (subError.equals("DEVICE_INTEGRITY_ERROR")) {
-            callOnConfigurationFailure();
+        if (subError.equals(BaseApiHandler.PersonalIdApiSubErrorCodes.DEVICE_INTEGRITY_ERROR.name())) {
+            onConfigurationFailure(
+                    subError,
+                    getString(R.string.personalid_configuration_process_failed_subtitle)
+            );
         } else {
             Task<Integer> integrityDialogResponseCode = tokenResponse.showDialog(requireActivity(), 1);
             integrityDialogResponseCode.addOnSuccessListener(result -> {
@@ -402,20 +411,23 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                     enableContinueButton(true);
                 } else {
                     // User canceled or some issue occurred
-                    callOnConfigurationFailure();
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "User has cancelled the integrity dialog " + result);
+                    enableContinueButton(false);
+                    onConfigurationFailure(
+                            subError,
+                            getString(R.string.personalid_configuration_process_failed_subtitle)
+                    );
                 }
             }).addOnFailureListener(e -> {
                 // Dialog failed to launch or some error occurred
-                callOnConfigurationFailure();
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity Dialog Fialed to launch " + e.getMessage());
+                enableContinueButton(false);
+                onConfigurationFailure(
+                        subError,
+                        getString(R.string.personalid_configuration_process_failed_subtitle)
+                );
             });
         }
-    }
-
-    private void callOnConfigurationFailure() {
-        onConfigurationFailure(
-                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                getString(R.string.personalid_configuration_process_failed_subtitle)
-        );
     }
 
     private void onConfigurationSuccess() {
