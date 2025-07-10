@@ -427,7 +427,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   DataPullMode pullModeToUse) {
         try {
             passwordOrPin = ConnectAppUtils.INSTANCE.checkAutoLoginAndOverridePassword(this,
-                    presetAppId, username, passwordOrPin, appLaunchedFromConnect,
+                    username, passwordOrPin, appLaunchedFromConnect,
                     loginManagedByPersonalId());
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
