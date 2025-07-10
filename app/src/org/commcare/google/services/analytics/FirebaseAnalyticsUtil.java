@@ -3,11 +3,8 @@ package org.commcare.google.services.analytics;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.installations.FirebaseInstallations;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
@@ -43,24 +40,6 @@ public class FirebaseAnalyticsUtil {
     // constant to approximate time taken by an user to go to the video playing app after clicking on the video
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
     private static final int MAX_USER_PROPERTY_VALUE_LENGTH = 36;
-
-    public static String getFirebaseUserId() {
-        try {
-            FirebaseInstallations.getInstance().getId()
-                    .addOnCompleteListener((result) -> {
-                        Logger.log("TEST", "Success");
-                    })
-                    .addOnCanceledListener(() -> {
-                        Logger.log("TEST", "Canceled");
-                    })
-                    .addOnFailureListener((e) -> {
-                        Logger.log("TEST", "Failed");
-                    });
-            return "";
-        } catch (Exception e) {
-            return "";
-        }
-    }
 
     private static void reportEvent(String eventName) {
         reportEvent(eventName, new Bundle());
