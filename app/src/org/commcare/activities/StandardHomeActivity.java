@@ -207,7 +207,9 @@ public class StandardHomeActivity
     }
 
     private void updateMessagingIcon(Context context) {
-        messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
+        if (messagingMenuItem != null) {
+            messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
+        }
     }
 
     private static void preparePinMenu(Menu menu, boolean enableMenus) {
