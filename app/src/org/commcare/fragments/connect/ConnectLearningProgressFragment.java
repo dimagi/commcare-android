@@ -52,6 +52,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         setupToolbar();
         setupRefreshButton();
         populateJobCard(job);
+        updateLearningUI();
         refreshLearningData();
         return viewBinding.getRoot();
     }
