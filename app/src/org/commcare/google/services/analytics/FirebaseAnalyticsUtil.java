@@ -41,7 +41,7 @@ public class FirebaseAnalyticsUtil {
     private static final long VIDEO_USAGE_ERROR_APPROXIMATION = 3;
     private static final int MAX_USER_PROPERTY_VALUE_LENGTH = 36;
 
-    
+
     private static void reportEvent(String eventName) {
         reportEvent(eventName, new Bundle());
     }
