@@ -3,6 +3,7 @@ package org.commcare.google.services.analytics;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -45,12 +46,17 @@ public class FirebaseAnalyticsUtil {
 
     public static String getFirebaseUserId() {
         try {
-            Task<String> task = FirebaseInstallations.getInstance().getId();
-            synchronized(task)
-            {
-                task.wait();
-            }
-            return task.getResult();
+            FirebaseInstallations.getInstance().getId()
+                    .addOnCompleteListener((result) -> {
+                        Logger.log("TEST", "Success");
+                    })
+                    .addOnCanceledListener(() -> {
+                        Logger.log("TEST", "Canceled");
+                    })
+                    .addOnFailureListener((e) -> {
+                        Logger.log("TEST", "Failed");
+                    });
+            return "";
         } catch (Exception e) {
             return "";
         }
