@@ -182,8 +182,6 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_update_commcare).setTitle(Localization.get("home.menu.update.commcare"));
 
         messagingMenuItem = menu.findItem(R.id.action_messaging);
-        messagingMenuItem.setVisible(shouldShowMessaging());
-        updateMessagingIcon(this);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -201,14 +199,15 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_about).setVisible(enableMenus);
         menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
 
+        messagingMenuItem.setVisible(shouldShowMessaging());
+        updateMessagingIcon(this);
+
         preparePinMenu(menu, enableMenus);
         return true;
     }
 
-    public void updateMessagingIcon(Context context) {
-        if(messagingMenuItem != null) {
-            messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
-        }
+    private void updateMessagingIcon(Context context) {
+        messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
     }
 
     private static void preparePinMenu(Menu menu, boolean enableMenus) {
