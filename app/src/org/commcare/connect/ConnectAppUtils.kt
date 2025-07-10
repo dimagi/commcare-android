@@ -79,7 +79,7 @@ object ConnectAppUtils {
 
     fun checkAutoLoginAndOverridePassword(
         context: Context?, appId: String?, username: String?,
-        passwordOrPin: String?, appLaunchedFromConnect: Boolean, uiInAutoLogin: Boolean
+        passwordOrPin: String?, appLaunchedFromConnect: Boolean, personalIdManagedLogin: Boolean
     ): String? {
         var updatedPasswordOrPin = passwordOrPin
         if (PersonalIdManager.getInstance().isloggedIn()) {
@@ -90,11 +90,11 @@ object ConnectAppUtils {
                     appId, username
                 )
                 if (record == null) {
-                    record = prepareConnectManagedApp(context, appId, username)
+                    record = storeNewConnectLinkedAppRecord(context, appId, username)
                 }
 
                 updatedPasswordOrPin = record.password
-            } else if (uiInAutoLogin) {
+            } else if (personalIdManagedLogin) {
                 val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
                 val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                     context, seatedAppId,
@@ -112,21 +112,17 @@ object ConnectAppUtils {
         return updatedPasswordOrPin
     }
 
-    private fun prepareConnectManagedApp(
+    private fun storeNewConnectLinkedAppRecord(
         context: Context?,
         appId: String?,
         username: String?
     ): ConnectLinkedAppRecord {
-        //Create app password
-        val password = generatePassword()
-
-        //Store ConnectLinkedAppRecord (note worker already linked)
         return ConnectAppDatabaseUtil.storeApp(
             context,
             appId,
             username,
             true,
-            password,
+            generatePassword(),
             true,
             false
         )
