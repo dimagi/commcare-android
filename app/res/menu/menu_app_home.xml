@@ -5,8 +5,8 @@
         android:id="@+id/action_messaging"
         android:icon="@drawable/ic_connect_messaging_base"
         android:title="@string/connect_messaging_title"
-        app:showAsAction="always" />
-
+        app:showAsAction="always"
+        android:visible="false"/>
     <item
         android:id="@+id/action_update"
         android:icon="@android:drawable/ic_menu_upload"
