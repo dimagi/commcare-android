@@ -65,7 +65,7 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
-    private boolean connectIdManagedLogin;
+    private boolean personalIdManagedLogin;
     private boolean connectManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
@@ -322,7 +322,7 @@ public class DispatchActivity extends AppCompatActivity {
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
-        i.putExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, connectIdManagedLogin);
+        i.putExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         startFromLogin = false;
         clearSessionEndpointAppId();
         startActivityForResult(i, HOME_SCREEN);
@@ -470,7 +470,7 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    connectIdManagedLogin = intent.getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false);
+                    personalIdManagedLogin = intent.getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN, false);
                     connectManagedLogin = intent.getBooleanExtra(LoginActivity.CONNECT_MANAGED_LOGIN, false);
                     startFromLogin = true;
                 }

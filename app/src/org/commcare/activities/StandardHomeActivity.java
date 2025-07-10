@@ -140,15 +140,15 @@ public class StandardHomeActivity
     protected void onResume() {
         super.onResume();
 
-        if(shouldShowMessaging()) {
+        if(isPersonalIdManagedLogin()) {
             updateMessagingIcon(this);
             MessageManager.retrieveMessages(this, success -> {
                 updateMessagingIcon(this);
             });
-        }
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
-                new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
+            LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
+                    new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
+        }
     }
 
     @Override
@@ -164,7 +164,7 @@ public class StandardHomeActivity
         }
     };
 
-    private boolean shouldShowMessaging() {
+    private boolean isPersonalIdManagedLogin() {
         return getIntent().getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN , false);
     }
 
@@ -199,7 +199,7 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_about).setVisible(enableMenus);
         menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
 
-        messagingMenuItem.setVisible(shouldShowMessaging());
+        messagingMenuItem.setVisible(isPersonalIdManagedLogin());
         updateMessagingIcon(this);
 
         preparePinMenu(menu, enableMenus);
