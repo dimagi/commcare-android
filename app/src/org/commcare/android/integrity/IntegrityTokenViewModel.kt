@@ -117,7 +117,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
     }
 
     interface IntegrityTokenCallback {
-        fun onTokenReceived(requestHash: String, integrityTokeResponse: StandardIntegrityManager.StandardIntegrityToken)
+        fun onTokenReceived(requestHash: String, integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken)
         fun onTokenFailure(exception: java.lang.Exception)
     }
 }

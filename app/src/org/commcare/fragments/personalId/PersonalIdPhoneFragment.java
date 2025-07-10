@@ -231,8 +231,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {
                     @Override
                     public void onTokenReceived(@NotNull String requestHash,
-                                                @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokeResponse) {
-                        makeStartConfigurationCall(requestHash, body, integrityTokeResponse);
+                                                @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse) {
+                        makeStartConfigurationCall(requestHash, body, integrityTokenResponse);
                     }
 
                     @Override
@@ -420,7 +420,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 }
             }).addOnFailureListener(e -> {
                 // Dialog failed to launch or some error occurred
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity Dialog Fialed to launch " + e.getMessage());
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity dialog failed to launch " + e.getMessage());
                 enableContinueButton(false);
                 onConfigurationFailure(
                         subError,
