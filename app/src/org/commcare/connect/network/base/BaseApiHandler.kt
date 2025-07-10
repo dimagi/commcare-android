@@ -49,7 +49,7 @@ abstract class BaseApiHandler<T> {
     fun createCallback(
         parser: BaseApiResponseParser<T>
     ): IApiCallback {
-        return object : BaseApiCallback<T>(this, null) {
+        return object : BaseApiCallback<T>(this) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
                     onSuccess(parser.parse(responseCode,responseData))

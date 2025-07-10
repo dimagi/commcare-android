@@ -386,8 +386,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                         );
                         break;
                     case INTEGRITY_ERROR:
-                        handleIntegritySubError(integrityTokenResponse, Objects.requireNonNull(
-                                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode()));
+                        handleIntegritySubError(integrityTokenResponse,
+                                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode());
                     default:
                         navigateFailure(failureCode, t);
                         break;
@@ -397,7 +397,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     }
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
-                                         String subError) {
+                                         @NonNull String subError) {
         if (subError.equals(BaseApiHandler.PersonalIdApiSubErrorCodes.DEVICE_INTEGRITY_ERROR.name())) {
             onConfigurationFailure(
                     subError,

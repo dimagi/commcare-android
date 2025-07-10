@@ -14,11 +14,13 @@ import org.commcare.connect.network.connectId.parser.CompleteProfileResponsePars
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -28,7 +30,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     private IApiCallback createCallback(PersonalIdSessionData sessionData,
                                         PersonalIdApiResponseParser parser) {
-        return new BaseApiCallback<T>(this, sessionData) {
+        return new BaseApiCallback<T>(this) {
 
             @Override
             public void processSuccess(int responseCode, InputStream responseData) {
@@ -47,9 +49,48 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onSuccess((T)sessionData);
             }
 
-
+            @Override
+            public void processFailure(int responseCode, InputStream errorResponse, String url) {
+                try {
+                    if (errorResponse != null) {
+                        handleErrorCodeIfPresent(errorResponse, sessionData);
+                    } else {
+                        super.processFailure(responseCode, null, url);
+                    }
+                } catch (Exception e) {
+                    Logger.exception("JSON error parsing API response", e);
+                    onFailure(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e);
+                }
+            }
         };
     }
+
+    private void handleErrorCodeIfPresent(InputStream errorResponse, PersonalIdSessionData sessionData) {
+        try {
+            byte[] errorBytes = StreamsUtil.inputStreamToByteArray(errorResponse);
+            String jsonStr = new String(errorBytes, java.nio.charset.StandardCharsets.UTF_8);
+            JSONObject json = new JSONObject(jsonStr);
+
+            String errorCode = json.optString("error_code", "");
+            sessionData.setSessionFailureCode(errorCode);
+            if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
+                onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null
+                );
+            } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
+                if (json.has("sub_code")) {
+                    String subErrorCode = json.optString("sub_code");
+                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + subErrorCode);
+                    sessionData.setSessionFailureSubcode(subErrorCode);
+                    onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                }
+            }
+
+        } catch (Exception e) {
+            Logger.exception("Error parsing error_code", e);
+        }
+    }
+
+
 
     public void makeStartConfigurationCall(Activity activity,
                                            Map<String, String> body,

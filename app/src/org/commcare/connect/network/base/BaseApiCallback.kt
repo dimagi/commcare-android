@@ -14,13 +14,11 @@ import java.io.InputStream
  * This is base class for all API callbacks. It by default handles all error messages, no need
  * to define the error handling in all api handlers
  */
-abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>, val sessionData: PersonalIdSessionData?) :
+abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
 
     IApiCallback {
     override fun processFailure(responseCode: Int, errorResponse: InputStream?, url: String?) {
         // Common error_code handler used before checking error response code
-        if (handleErrorCodeIfPresent(errorResponse, sessionData)) return
-
         when (responseCode) {
             401 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
@@ -47,43 +45,6 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>, val ses
                 Logger.exception("Unknown http response code", exception)
                 baseApiHandler.onFailure(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, exception)
             }
-        }
-    }
-
-    /**
-     * Checks for "error_code" in the API error response and handles known cases.
-     * Returns true if the error was handled, otherwise false.
-     */
-    private fun handleErrorCodeIfPresent(errorResponse: InputStream?, sessionData: PersonalIdSessionData?): Boolean {
-        if (errorResponse == null) return false
-
-        return try {
-            errorResponse.use {
-                val json =
-                    JSONObject(String(StreamsUtil.inputStreamToByteArray(it), Charsets.UTF_8))
-                val errorCode = json.optString("error_code", "")
-                if (errorCode.equals("LOCKED_ACCOUNT", ignoreCase = true)) {
-                    baseApiHandler.onFailure(
-                        PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
-                        null
-                    )
-                    true
-                } else if (errorCode.equals("INTEGRITY_ERROR", ignoreCase = true)) {
-                    if (json.has("sub_code")) {
-                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + json.optString("sub_code"))
-                        sessionData?.sessionFailureSubcode = json.optString("sub_code")
-                        baseApiHandler.onFailure(
-                                PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR,
-                                null)
-                    }
-                    true
-                } else {
-                    false
-                }
-            }
-        } catch (e: Exception) {
-            Logger.exception("Error parsing error_code", e)
-            false
         }
     }
 
