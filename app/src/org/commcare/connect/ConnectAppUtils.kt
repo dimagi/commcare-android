@@ -3,7 +3,6 @@ package org.commcare.connect
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import org.commcare.AppUtils
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
@@ -19,17 +18,17 @@ object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
     private const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
 
+    @Volatile
+    private var isAppDownloading = false
+
     fun wasAppLaunchedFromConnect(intent: Intent): Boolean {
        return intent.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false)
     }
 
-    private var downloading = false
-    private var downloadListener: ResourceEngineListener? = null
-
-    fun downloadAppOrResumeUpdates(installUrl: String?, listener: ResourceEngineListener?) {
-        downloadListener = listener
-        if (!downloading) {
-            downloading = true
+    fun downloadApp(installUrl: String?, listener: ResourceEngineListener?) {
+        val downloadListener: ResourceEngineListener? = listener
+        if (!isAppDownloading) {
+            isAppDownloading = true
             //Start a new download
             ResourceInstallUtils.startAppInstallAsync(
                 false,
@@ -43,10 +42,11 @@ object ConnectAppUtils {
                     }
 
                     override fun stopBlockingForTask(id: Int) {
-                        downloading = false
+                        isAppDownloading = false
                     }
 
                     override fun taskCancelled() {
+                        isAppDownloading = false
                     }
 
                     override fun getReceiver(): ResourceEngineListener? {
