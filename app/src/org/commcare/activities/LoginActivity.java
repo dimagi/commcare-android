@@ -117,7 +117,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
-    private boolean appLaunchedFromConnect;
+    private boolean appLaunchedFromConnect = false;
     private String presetAppId;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
