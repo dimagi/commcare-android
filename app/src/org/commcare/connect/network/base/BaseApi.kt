@@ -17,7 +17,7 @@ import java.io.IOException
 class BaseApi {
 
     companion object {
-        fun callApi(context: Context, call: Call<ResponseBody>, callback: IApiCallback) {
+        fun callApi(context: Context, call: Call<ResponseBody>, callback: IApiCallback, endPoint:String) {
             showProgressDialog(context)
             call.enqueue(object : Callback<ResponseBody?> {
                 override fun onResponse(
@@ -33,14 +33,14 @@ class BaseApi {
                             }
                         } catch (e: IOException) {
                             // Handle error when reading the stream
-                            callback.processFailure(response.code(), null)
+                            callback.processFailure(response.code(), null,endPoint)
                         }
                     } else {
                         // Handle validation errors
                         logNetworkError(response)
                         val stream = if (response.errorBody() != null) response.errorBody()!!
                             .byteStream() else null
-                        callback.processFailure(response.code(), stream)
+                        callback.processFailure(response.code(), stream,endPoint)
                     }
                 }
 

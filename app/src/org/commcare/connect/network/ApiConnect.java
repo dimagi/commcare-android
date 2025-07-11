@@ -37,7 +37,7 @@ public class ApiConnect {
                 HashMap<String, String> headers = new HashMap<>();
                 ConnectNetworkHelper.addVersionHeader(headers, API_VERSION_CONNECT);
                 Call<ResponseBody> call = apiService.getConnectOpportunities(tokenAuth,headers);
-                BaseApi.Companion.callApi(context, call, callback);
+                BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectOpportunitiesURL);
             }
 
             @Override
@@ -67,7 +67,7 @@ public class ApiConnect {
                 String tokenAuth = HttpUtils.getCredential(token);
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
                 Call<ResponseBody> call = apiService.connectStartLearningApp(tokenAuth,headers,requestBody);
-                BaseApi.Companion.callApi(context, call, callback);
+                BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectStartLearningURL);
             }
 
             @Override
@@ -94,7 +94,7 @@ public class ApiConnect {
                 HashMap<String, String> headers = new HashMap<>();
                 ConnectNetworkHelper.addVersionHeader(headers, API_VERSION_CONNECT);
                 Call<ResponseBody> call = apiService.getConnectLearningAppProgress(tokenAuth,jobId,headers);
-                BaseApi.Companion.callApi(context, call, callback);
+                BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectLearnProgressURL);
             }
 
             @Override
@@ -122,7 +122,7 @@ public class ApiConnect {
                 String tokenAuth = HttpUtils.getCredential(token);
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
                 Call<ResponseBody> call = apiService.connectClaimJob(tokenAuth,jobId,headers,requestBody);
-                BaseApi.Companion.callApi(context, call, callback);
+                BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectClaimJobURL);
 
             }
 
@@ -149,7 +149,7 @@ public class ApiConnect {
                 HashMap<String, String> headers = new HashMap<>();
                 ConnectNetworkHelper.addVersionHeader(headers, API_VERSION_CONNECT);
                 Call<ResponseBody> call = apiService.getConnectDeliveries(tokenAuth,jobId,headers);
-                BaseApi.Companion.callApi(context, call, callback);
+                BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectDeliveriesURL);
             }
 
             @Override
@@ -179,7 +179,7 @@ public class ApiConnect {
                 String tokenAuth = HttpUtils.getCredential(token);
                 ApiService apiService = ConnectApiClient.Companion.getClientApi();
                 Call<ResponseBody> call = apiService.connectPaymentConfirmation(tokenAuth,paymentId,headers,requestBody);
-                BaseApi.Companion.callApi(context, call, callback);
+                BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectPaymentConfirmationURL);
             }
 
             @Override
