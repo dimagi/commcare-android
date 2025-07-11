@@ -2,6 +2,7 @@ package org.commcare.connect
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
@@ -16,12 +17,10 @@ import java.security.SecureRandom
 
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
-    private var primedAppIdForAutoLogin: String? = null
+    private const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
 
-    fun wasAppLaunchedFromConnect(appId: String?): Boolean {
-        val primed = primedAppIdForAutoLogin
-        primedAppIdForAutoLogin = null
-        return primed != null && primed == appId
+    fun wasAppLaunchedFromConnect(intent: Intent): Boolean {
+       return intent.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false)
     }
 
     fun isAppInstalled(appId: String): Boolean {
@@ -144,14 +143,11 @@ object ConnectAppUtils {
 
     fun launchApp(activity: Activity, isLearning: Boolean, appId: String) {
         CommCareApplication.instance().closeUserSession()
-
         val appType = if (isLearning) "Learn" else "Deliver"
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId)
-
-        primedAppIdForAutoLogin = appId
-
-        CommCareLauncher.launchCommCareForAppId(activity, appId)
-
+        HashMap<String, Any>().apply {
+            put(IS_LAUNCH_FROM_CONNECT, true)
+        }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
         activity.finish()
     }
 }
