@@ -8,7 +8,7 @@ public class ReportIntegrityResponseParser implements PersonalIdApiResponseParse
     @Override
     public void parse(JSONObject json, PersonalIdSessionData sessionData) throws JSONException {
         if (json.has("result_code")) {
-            sessionData.setResultCode(json.optInt("result_code", -1));
+            sessionData.setResultCode(json.optString("result_code", "NoCodeFromServer"));
         }
     }
 } 

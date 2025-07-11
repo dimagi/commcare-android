@@ -9,13 +9,15 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper.Companion.fetchIntegrityToken
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import androidx.core.content.edit
 
 class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     companion object {
@@ -64,9 +66,9 @@ class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : C
         val success = makeReportIntegrityCall(context, integrityToken, hash, body, requestId)
         if (success) {
             //Store requestID so we don't process it again
-            val editor = preferences.edit()
-            editor.putString(HiddenPreferences.INTEGRITY_REQUEST_ID, requestId)
-            editor.apply()
+            preferences.edit {
+                putString(HiddenPreferences.INTEGRITY_REQUEST_ID, requestId)
+            }
         }
 
         return if (success) Result.success() else Result.failure()
@@ -78,15 +80,15 @@ class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : C
         requestHash: String,
         body: Map<String, String>,
         requestId: String
-    ): Boolean = suspendCancellableCoroutine { cont ->
+    ): Boolean = suspendCoroutine { cont ->
         val handler = object : PersonalIdApiHandler<PersonalIdSessionData?>() {
             override fun onSuccess(data: PersonalIdSessionData?) {
-                val resultCode = data?.resultCode ?: -1
+                val resultCode = data?.resultCode ?: "NullCode"
                 FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, resultCode)
                 cont.resume(true)
             }
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, -1)
+                FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, "SendError")
                 cont.resume(false)
             }
         }

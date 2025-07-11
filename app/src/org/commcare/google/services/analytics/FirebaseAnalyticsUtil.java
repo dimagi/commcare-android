@@ -399,10 +399,10 @@ public class FirebaseAnalyticsUtil {
                 new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
-    public static void reportPersonalIdIntegritySubmission(String requestId, int responseCode) {
+    public static void reportPersonalIdIntegritySubmission(String requestId, String responseCode) {
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
-        b.putInt(CCAnalyticsParam.RESULT_CODE, responseCode);
+        b.putString(CCAnalyticsParam.RESULT_CODE, responseCode);
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_INTEGRITY_REPORTED, b);
     }
 
