@@ -120,6 +120,8 @@ public class HiddenPreferences {
     public static final String USER_DOMAIN_SERVER_URL_SUFFIX = ".commcarehq.org";
     private static final String INTERRUPTED_FORM_INDEX = "interrupted-form-index";
 
+    public final static String INTEGRITY_REQUEST_ID = "integrity-request-id";
+
     /**
      * @return How many seconds should a user session remain open before expiring?
      */

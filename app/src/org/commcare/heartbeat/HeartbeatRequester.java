@@ -116,6 +116,13 @@ public class HeartbeatRequester extends GetAndParseActor {
         }
     }
 
+    private void checkForIntegrityRequest(JSONObject responseAsJson) {
+        String requestGuid = responseAsJson.optString("report_integrity", null);
+        if(requestGuid != null) {
+
+        }
+    }
+
     private static void attemptApkUpdateParse(JSONObject responseAsJson) {
         try {
             if (responseAsJson.has("latest_apk_version")) {
