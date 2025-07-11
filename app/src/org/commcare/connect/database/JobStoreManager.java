@@ -36,7 +36,7 @@ public class JobStoreManager {
             int newJob = processAndStoreJobs(existingList, jobs);
             ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
             return newJob;
-        } catch (Exception e) {
+        } catch(Exception e) {
             Logger.exception("Error storing jobs", e);
             throw e;
         } finally {
@@ -96,35 +96,29 @@ public class JobStoreManager {
     }
 
     private boolean storeOrUpdateJob(List<ConnectJobRecord> existingJobs, ConnectJobRecord job) {
-        try {
-            // Check if the job already exists
-            boolean isExisting = false;
-            for (ConnectJobRecord existingJob : existingJobs) {
-                if (existingJob.getJobId() == job.getJobId()) {
-                    job.setID(existingJob.getID());  // Set ID for updating
-                    isExisting = true;
-                    break;
-                }
+        // Check if the job already exists
+        boolean isExisting = false;
+        for (ConnectJobRecord existingJob : existingJobs) {
+            if (existingJob.getJobId() == job.getJobId()) {
+                job.setID(existingJob.getID());  // Set ID for updating
+                isExisting = true;
+                break;
             }
-
-            // If not existing, create a new record
-            if (!isExisting) {
-                if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
-                    job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
-                }
-            }
-            job.setLastUpdate(new Date());
-            jobStorage.write(job);
-            // Store or update related entities
-            storeAppInfo(job);
-            storeModules(job);
-            storePaymentUnits(job);
-            return isExisting;
-
-        } catch (Exception e) {
-            Logger.exception("Error storing or updating job: " + job.getTitle(), e);
-            throw e;
         }
+
+        // If not existing, create a new record
+        if (!isExisting) {
+            if (job.getStatus() == ConnectJobRecord.STATUS_AVAILABLE) {
+                job.setStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW);
+            }
+        }
+        job.setLastUpdate(new Date());
+        jobStorage.write(job);
+        // Store or update related entities
+        storeAppInfo(job);
+        storeModules(job);
+        storePaymentUnits(job);
+        return isExisting;
     }
 
     private void storeAppInfo(ConnectJobRecord job) {

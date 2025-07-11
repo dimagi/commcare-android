@@ -346,7 +346,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
-    protected Response<ResponseBody> doHttpRequest() throws IOException {
+    protected Response<ResponseBody> doHttpRequest() throws IOException, TokenDeniedException, TokenUnavailableException {
         CommcareRequestGenerator requestor = new CommcareRequestGenerator(username, password);
         return requestor.makeKeyFetchRequest(keyServerUrl, null);
     }
