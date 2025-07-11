@@ -35,7 +35,6 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -66,7 +65,6 @@ import java.util.List;
  */
 public class ConnectJobsListsFragment extends Fragment {
     private FragmentConnectJobsListBinding binding;
-    private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
 
@@ -80,10 +78,6 @@ public class ConnectJobsListsFragment extends Fragment {
         requireActivity().setTitle(R.string.connect_title);
 
         binding = FragmentConnectJobsListBinding.inflate(inflater, container, false);
-
-        launcher = (appId, isLearning) -> {
-            ConnectAppUtils.INSTANCE.launchApp(getActivity(), isLearning, appId);
-        };
 
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
@@ -225,7 +219,7 @@ public class ConnectJobsListsFragment extends Fragment {
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
         if (AppUtils.isAppInstalled(appId)) {
-            launcher.launchApp(appId, isLearning);
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
