@@ -23,15 +23,6 @@ object ConnectAppUtils {
        return intent.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false)
     }
 
-    fun isAppInstalled(appId: String): Boolean {
-        for (app in AppUtils.getInstalledAppRecords()) {
-            if (appId == app.uniqueId) {
-                return true
-            }
-        }
-        return false
-    }
-
     private var downloading = false
     private var downloadListener: ResourceEngineListener? = null
 
