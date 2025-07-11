@@ -398,36 +398,44 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
                                          @NonNull String subError) {
-        if (subError.equals(BaseApiHandler.PersonalIdApiSubErrorCodes.DEVICE_INTEGRITY_ERROR.name())) {
-            onConfigurationFailure(
-                    subError,
-                    getString(R.string.personalid_configuration_process_failed_subtitle)
-            );
-        } else {
-            Task<Integer> integrityDialogResponseCode = tokenResponse.showDialog(requireActivity(), 1);
-            integrityDialogResponseCode.addOnSuccessListener(result -> {
-                if (result == DIALOG_SUCCESSFUL) {
-                    // Retry the integrity token check
-                    enableContinueButton(true);
-                } else {
-                    // User canceled or some issue occurred
-                    Logger.log(LogTypes.TYPE_MAINTENANCE, "User has cancelled the integrity dialog " + result);
-                    enableContinueButton(false);
-                    onConfigurationFailure(
-                            subError,
-                            getString(R.string.personalid_configuration_process_failed_subtitle)
-                    );
-                }
-            }).addOnFailureListener(e -> {
-                // Dialog failed to launch or some error occurred
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity dialog failed to launch " + e.getMessage());
+        switch (BaseApiHandler.PersonalIdApiSubErrorCodes.valueOf(subError)) {
+            case DEVICE_INTEGRITY_ERROR:
+                onConfigurationFailure(
+                        subError,
+                        getString(R.string.personalid_configuration_process_failed_subtitle)
+                );
+                break;
+            case UNLICENSED_APP_ERROR:
+                showIntegrityCheckDialog(tokenResponse, 1, subError);
+                break;
+        }
+    }
+
+    private void showIntegrityCheckDialog(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
+                                          int codeType, String subError) {
+        Task<Integer> integrityDialogResponseCode = tokenResponse.showDialog(requireActivity(), codeType);
+        integrityDialogResponseCode.addOnSuccessListener(result -> {
+            if (result == DIALOG_SUCCESSFUL) {
+                // Retry the integrity token check
+                enableContinueButton(true);
+            } else {
+                // User canceled or some issue occurred
+                Logger.log(LogTypes.TYPE_MAINTENANCE, "User has cancelled the integrity dialog " + result);
                 enableContinueButton(false);
                 onConfigurationFailure(
                         subError,
                         getString(R.string.personalid_configuration_process_failed_subtitle)
                 );
-            });
-        }
+            }
+        }).addOnFailureListener(e -> {
+            // Dialog failed to launch or some error occurred
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity dialog failed to launch " + e.getMessage());
+            enableContinueButton(false);
+            onConfigurationFailure(
+                    subError,
+                    getString(R.string.personalid_configuration_process_failed_subtitle)
+            );
+        });
     }
 
     private void onConfigurationSuccess() {
