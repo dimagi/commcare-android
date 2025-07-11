@@ -462,4 +462,28 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="my_worker_history">Mon Historique de Travail</string>
+    <string name="my_earned_credential">Mes Titres de Compétences Acquis</string>
+    <string name="credential">Titre de Compétences</string>
+    <string name="worked_on">Travaillé Sur :</string>
+    <string name="earned_on">Gagné Le :</string>
+    <string name="active_for">Actif Pendant :</string>
+    <string name="learn_more_about_credentials">En Savoir Plus Sur les Titres de Compétences</string>
+    <string name="view_credential">Voir le Titre de Compétences</string>
+    <string name="share_your_accomplishment_with_friends_and_family">Partagez votre réussite avec vos amis et votre famille !</string>
+    <string name="learn_more">En savoir plus sur ce titre de compétences</string>
+    <string name="no_credentials_currently_available">Aucun titre de compétences n\'est actuellement disponible. Veuillez cliquer sur « Actualiser » pour mettre à jour la liste ou réessayer plus tard.</string>
+    <plurals name="earned_credentials">
+        <item quantity="one">TITRE DE COMPÉTENCES ACQUIS (%d)</item>
+        <item quantity="other">TITRES DE COMPÉTENCES ACQUIS (%d)</item>
+    </plurals>
+    <plurals name="credentials_yet_to_be_earned">
+        <item quantity="one">TITRE DE COMPÉTENCES À ACQUÉRIR (%d)</item>
+        <item quantity="other">TITRES DE COMPÉTENCES À ACQUÉRIR (%d)</item>
+    </plurals>
+    <string name="cloud_sync">Synchronisation Cloud</string>
+    <string name="share_active_for">ACTIF PENDANT\n%1$s</string>
+    <string name="share_earned_on">GAGNÉ LE\n%1$s</string>
+    <string name="share_worked_on">TRAVAILLÉ SUR : %1$s</string>
+
 </resources>
