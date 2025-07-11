@@ -113,23 +113,19 @@ object ConnectAppUtils {
             appId,
             username,
             true,
-            generatePassword(),
+            generateAppPassword(),
             true,
             false
         )
     }
 
-    private fun generatePassword(): String {
+    private fun generateAppPassword(): String {
         val passwordLength = 20
-
         val charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?"
         val secureRandom = SecureRandom()
-        val password = StringBuilder(passwordLength)
-        for (i in 0..<passwordLength) {
-            password.append(charSet[secureRandom.nextInt(charSet.length)])
-        }
-
-        return password.toString()
+        return (1..passwordLength)
+            .map { charSet[secureRandom.nextInt(charSet.length)] }
+            .joinToString("")
     }
 
     fun launchApp(activity: Activity, isLearning: Boolean, appId: String) {
