@@ -462,4 +462,28 @@
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="my_worker_history">Mi Historial Laboral</string>
+    <string name="my_earned_credential">Mi Credencial Obtenida</string>
+    <string name="credential">Credencial</string>
+    <string name="worked_on">Trabajado en:</string>
+    <string name="earned_on">Obtenido el:</string>
+    <string name="active_for">Activo durante:</string>
+    <string name="learn_more_about_credentials">Más Información Sobre las Credenciales</string>
+    <string name="view_credential">Ver Credencial</string>
+    <string name="share_your_accomplishment_with_friends_and_family">¡Comparte tu logro con amigos y familiares!</string>
+    <string name="learn_more">Más información sobre esta credencial</string>
+    <string name="no_credentials_currently_available">No hay credenciales disponibles actualmente. Haz clic en "Actualizar" para actualizar la lista o inténtalo de nuevo más tarde.</string>
+    <plurals name="earned_credentials">
+        <item quantity="one">CREDENCIAL OBTENIDA (1)</item>
+        <item quantity="other">CREDENCIALES OBTENIDAS (%d)</item>
+    </plurals>
+    <plurals name="credentials_yet_to_be_earned">
+        <item quantity="one">CREDENCIAL POR OBTENER (1)</item>
+        <item quantity="other">CREDENCIALES POR OBTENER (%d)</item>
+    </plurals>
+    <string name="cloud_sync">Sincronización en la Nube</string>
+    <string name="share_active_for">ACTIVO DURANTE\n%1$s</string>
+    <string name="share_earned_on">OBTENIDO EL\n%1$s</string>
+    <string name="share_worked_on">TRABAJADO EN: %1$s</string>
+
 </resources>

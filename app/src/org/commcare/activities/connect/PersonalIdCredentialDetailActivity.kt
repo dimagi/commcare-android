@@ -1,11 +1,13 @@
 package org.commcare.activities.connect
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -19,8 +21,10 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialDetailsBinding
 import org.commcare.dalvik.databinding.CredentialShareViewBinding
 import org.commcare.utils.CredentialShareData
+import org.commcare.utils.FileUtil
+import org.commcare.utils.ImageType
 import java.io.File
-import java.io.FileOutputStream
+import java.io.IOException
 
 class PersonalIdCredentialDetailActivity : AppCompatActivity() {
     private val binding: ActivityPersonalIdCredentialDetailsBinding by lazy {
@@ -30,51 +34,49 @@ class PersonalIdCredentialDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        val credentialData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("CREDENTIAL_CLICKED_DATA", CredentialShareData::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("CREDENTIAL_CLICKED_DATA")
+        }
         setUiData()
         binding.tvShare.setOnClickListener {
-            //As of now using dummy data
-            val data = CredentialShareData(
-                name = "William Fernandes Johnson Shane",
-                userActivity = "Moderate",
-                credentialTitle = "LEARN APP CREDENTIAL",
-                issueDate = "28 Jun 2025",
-                appName = "CommCareApp",
-                imageUrl = "https://thumbs.dreamstime.com/z/vector-illustration-avatar-dummy-logo-collection-image-icon-stock-isolated-object-set-symbol-web-137160339.jpg?ct=jpeg"
-            )
-
-            createShareableView(this, data) { shareView ->
-                val bitmap = getBitmapFromView(shareView)
-                val file = saveBitmapToFile(this, bitmap)
-                shareImageToWhatsApp(this, file)
+            if (credentialData != null) {
+                createShareableView(credentialData) { shareView ->
+                    val bitmap = getBitmapFromView(shareView)
+                    val file = saveBitmapToFile(bitmap)
+                    shareImage(file)
+                }
             }
         }
-
     }
 
-    private fun saveBitmapToFile(context: Context, bitmap: Bitmap): File {
-        val file = File(context.cacheDir, "share_credential.png")
-        val outputStream = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        outputStream.flush()
-        outputStream.close()
+    private fun saveBitmapToFile(bitmap: Bitmap): File {
+        val file = File(cacheDir, "share_credential.png")
+
+        try {
+            FileUtil.writeBitmapToDiskAndCleanupHandles(bitmap, ImageType.PNG, file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
         return file
     }
 
-    private fun shareImageToWhatsApp(context: Context, file: File) {
+    private fun shareImage(file: File) {
         val uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.external.files.provider",
+            this,
+            "${this.packageName}.external.files.provider",
             file
         )
 
-        val intent = Intent(Intent.ACTION_SEND).apply {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "image/*"
             putExtra(Intent.EXTRA_STREAM, uri)
-            `package` = "com.whatsapp"
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        context.startActivity(Intent.createChooser(intent, "Share Credential"))
+        startActivity(Intent.createChooser(shareIntent, "Share Credential via"))
     }
 
 
@@ -101,30 +103,41 @@ class PersonalIdCredentialDetailActivity : AppCompatActivity() {
 
 
     private fun createShareableView(
-        context: Context,
         data: CredentialShareData,
         onReady: (View) -> Unit
     ) {
-        val binding = CredentialShareViewBinding.inflate(LayoutInflater.from(context))
+        val binding = CredentialShareViewBinding.inflate(LayoutInflater.from(this))
 
-        binding.tvNameButton.text = data.name
-        binding.tvActionFor.text = context.getString(R.string.share_active_for, data.userActivity)
-        binding.tvCredTitle.text = data.credentialTitle
-        binding.tvEarnedOn.text = context.getString(R.string.share_earned_on, data.issueDate)
-        binding.tvWorkedOn.text = context.getString(R.string.share_worked_on, data.appName)
+        binding.tvUserName.text = data.name
+        binding.tvActionFor.text = getString(R.string.share_active_for, data.level)
+        binding.tvCredTitle.text = data.title
+        binding.tvEarnedOn.text = getString(R.string.share_earned_on, data.issuedDate)
+        binding.tvWorkedOn.text = getString(R.string.share_worked_on, data.appName)
+        binding.tvCredTitle.text = getString(R.string.share_worked_on, data.title)
 
-        Glide.with(context)
+        val imageBytes = Base64.decode(data.imageUrl!!.substringAfter("base64,"), Base64.DEFAULT)
+        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+
+        Glide.with(this)
             .asBitmap()
-            .load(data.imageUrl)
+            .load(bitmap)
             .circleCrop()
+            .placeholder(R.drawable.baseline_person_24)
+            .error(R.drawable.baseline_person_24)
             .into(object : CustomTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     binding.ivCredentialItem.setImageBitmap(resource)
                     onReady(binding.root)
                 }
 
-                override fun onLoadCleared(placeholder: Drawable?) {
+                override fun onLoadFailed(errorDrawable: Drawable?) {
+                    super.onLoadFailed(errorDrawable)
+                    binding.ivCredentialItem.setImageResource(R.drawable.baseline_person_24)
+                    onReady(binding.root)
+                }
 
+                override fun onLoadCleared(placeholder: Drawable?) {
+                    binding.ivCredentialItem.setImageDrawable(null)
                 }
             })
     }

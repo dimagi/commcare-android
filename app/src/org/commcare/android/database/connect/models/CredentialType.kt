@@ -8,19 +8,19 @@ package org.commcare.android.database.connect.models
 enum class CredentialType(val typeName: String) {
     LEARN("LEARN"),
     DELIVER("DELIVER"),
-    APP_ACTIVITY("APP_ACTIVITY"),
-    UNKNOWN("UNKNOWN");
+    APP_ACTIVITY("APP_ACTIVITY");
 
     companion object {
         /**
          * Maps a string value to the corresponding CredentialType.
-         * If the input doesn't match any known type, returns UNKNOWN.
+         * If the input doesn't match any known type, returns throws error.
          *
          * @param type The raw string value to map.
          * @return Corresponding CredentialType or UNKNOWN.
          */
         fun from(type: String?): CredentialType {
-            return entries.find { it.typeName.equals(type, ignoreCase = true) } ?: UNKNOWN
+            return entries.find { it.typeName.equals(type, ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unknown credential type: $type")
         }
     }
 }

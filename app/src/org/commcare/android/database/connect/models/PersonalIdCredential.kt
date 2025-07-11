@@ -76,6 +76,8 @@ class PersonalIdCredential : Persisted(), Serializable {
                         issuer = obj.getString(META_ISSUER)
                         level = obj.getString(META_LEVEL)
                         type = obj.getString(META_TYPE)
+
+                        CredentialType.from(type)
                     }
                     valid.add(credential)
                 } catch (e: JSONException) {
@@ -103,6 +105,6 @@ class PersonalIdCredential : Persisted(), Serializable {
     }
 
     fun getCredentialType(): CredentialType {
-        return CredentialType.from(META_TYPE)
+        return CredentialType.from(type)
     }
 }

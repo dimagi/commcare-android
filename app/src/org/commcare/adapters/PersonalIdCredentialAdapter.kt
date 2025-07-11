@@ -8,6 +8,7 @@ import org.commcare.android.database.connect.models.CredentialType
 import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ItemPersonalIdCredentialBinding
+import org.commcare.utils.convertIsoDate
 
 class PersonalIdCredentialAdapter(
     private val listener: OnCredentialClickListener
@@ -29,10 +30,12 @@ class PersonalIdCredentialAdapter(
 
     override fun onBindViewHolder(holder: CredentialViewHolder, position: Int) {
         val item = credentialList[position]
+        val formattedIssuedDate: String =
+            convertIsoDate(item.issuedDate, "dd/MM/yyyy")
+
         with(holder.binding) {
-            tvCredentialTitle.text = item.appId
-            tvAppName.text = item.appId
-            tvIssuedDate.text = item.issuedDate
+            tvAppName.text = item.title
+            tvIssuedDate.text = formattedIssuedDate
             tvUserActivity.text = item.level
             when (item.getCredentialType()) {
                 CredentialType.LEARN -> {
@@ -42,6 +45,8 @@ class PersonalIdCredentialAdapter(
                             R.color.cc_dark_warm_accent_color
                         )
                     )
+                    tvCredentialTitle.text =
+                        root.context.getString(R.string.connect_certified_learner)
                 }
 
                 CredentialType.DELIVER -> {
@@ -51,6 +56,8 @@ class PersonalIdCredentialAdapter(
                             R.color.personal_id_delivery_app
                         )
                     )
+                    tvCredentialTitle.text =
+                        root.context.getString(R.string.connect_delivery_worker)
                 }
 
                 CredentialType.APP_ACTIVITY -> {
@@ -60,15 +67,7 @@ class PersonalIdCredentialAdapter(
                             R.color.connect_message_large_icon_color
                         )
                     )
-                }
-
-                else -> {
-                    view.setBackgroundColor(
-                        ContextCompat.getColor(
-                            root.context,
-                            R.color.connect_message_large_icon_color
-                        )
-                    )
+                    tvCredentialTitle.text = root.context.getString(R.string.commcarehq_worker)
                 }
             }
 

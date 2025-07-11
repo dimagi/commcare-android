@@ -652,4 +652,7 @@
     <string name="share_active_for">ACTIVE FOR\n%1$s</string>
     <string name="share_earned_on">EARNED ON\n%1$s</string>
     <string name="share_worked_on">WORKED ON: %1$s</string>
+    <string name="connect_certified_learner">Connect Certified Learner</string>
+    <string name="connect_delivery_worker">Connect Delivery Worker</string>
+    <string name="commcarehq_worker">CommCareHQ Worker</string>
 </resources>
