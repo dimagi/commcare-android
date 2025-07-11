@@ -9,11 +9,13 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper.Companion.fetchIntegrityToken
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.preferences.HiddenPreferences
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     companion object {
@@ -55,11 +57,11 @@ class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : C
         val requestHash = org.commcare.utils.HashUtils.computeHash(jsonBody, org.commcare.utils.HashUtils.HashAlgorithm.SHA256)
         val tokenResult = fetchIntegrityToken(requestHash)
         val (integrityToken, hash) = tokenResult.getOrElse {
-            makeReportIntegrityCall(context, it.message, "ERROR", body)
+            makeReportIntegrityCall(context, it.message, "ERROR", body, requestId)
             return Result.failure()
         }
 
-        val success = makeReportIntegrityCall(context, integrityToken, hash, body)
+        val success = makeReportIntegrityCall(context, integrityToken, hash, body, requestId)
         if (success) {
             //Store requestID so we don't process it again
             val editor = preferences.edit()
@@ -70,25 +72,24 @@ class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : C
         return if (success) Result.success() else Result.failure()
     }
 
-    private fun makeReportIntegrityCall(
+    private suspend fun makeReportIntegrityCall(
         context: Context,
         integrityToken: String?,
         requestHash: String,
-        body: Map<String, String>
-    ): Boolean {
-        var result = false
-        val latch = java.util.concurrent.CountDownLatch(1)
-        object : PersonalIdApiHandler<PersonalIdSessionData?>() {
+        body: Map<String, String>,
+        requestId: String
+    ): Boolean = suspendCancellableCoroutine { cont ->
+        val handler = object : PersonalIdApiHandler<PersonalIdSessionData?>() {
             override fun onSuccess(data: PersonalIdSessionData?) {
-                result = true
-                latch.countDown()
+                val resultCode = data?.resultCode ?: -1
+                FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, resultCode)
+                cont.resume(true)
             }
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                result = false
-                latch.countDown()
+                FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, -1)
+                cont.resume(false)
             }
-        }.makeIntegrityReportCall(context, body, integrityToken, requestHash)
-        latch.await()
-        return result
+        }
+        handler.makeIntegrityReportCall(context, body, integrityToken, requestHash)
     }
 }

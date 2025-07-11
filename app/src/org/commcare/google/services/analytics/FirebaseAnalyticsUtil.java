@@ -399,6 +399,13 @@ public class FirebaseAnalyticsUtil {
                 new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
+    public static void reportPersonalIdIntegritySubmission(String requestId, int responseCode) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
+        b.putInt(CCAnalyticsParam.RESULT_CODE, responseCode);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_INTEGRITY_REPORTED, b);
+    }
+
     public static void reportPersonalIdAccountCreated() {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_CREATED);
     }

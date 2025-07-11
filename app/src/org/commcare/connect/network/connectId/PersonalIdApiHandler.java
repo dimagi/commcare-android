@@ -14,6 +14,7 @@ import org.commcare.connect.network.connectId.parser.CompleteProfileResponsePars
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
+import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -55,8 +56,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                                         Map<String, String> body,
                                         String integrityToken,
                                         String requestHash) {
+        PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
-                createCallback(new RetrieveCredentialsResponseParser<T>()));
+                createCallback(sessionData, new ReportIntegrityResponseParser()));
     }
 
     public void makeStartConfigurationCall(Activity activity,

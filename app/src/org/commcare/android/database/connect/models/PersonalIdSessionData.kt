@@ -21,7 +21,8 @@ data class PersonalIdSessionData(
         var userName: String? = null, // name of the user
         var phoneNumber: String? = null, //phone number of the user
         var backupCode: String? = null, //recovery code of the user
-        var smsMethod: String? = null
+        var smsMethod: String? = null,
+        var resultCode: Int? = null // result_code from integrity report response
 ) {
 
     /**
