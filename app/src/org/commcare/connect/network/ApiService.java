@@ -37,6 +37,7 @@ public interface ApiService {
     @POST(ApiEndPoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
 
+
     @GET(ApiEndPoints.connectOpportunitiesURL)
     Call<ResponseBody> getConnectOpportunities(@Header("Authorization") String token, @HeaderMap Map<String, String> headers);
 
@@ -68,5 +69,13 @@ public interface ApiService {
                                        @Path("id") String id,
                                        @HeaderMap Map<String, String> headers,
                                        @Body RequestBody connectPaymentConfirmationRequest);
+
+
+    @POST(ApiEndPoints.sendSessionOtp)
+    Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.validateSessionOtp)
+    Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
+            @Body Map<String, String> body);
 
 }

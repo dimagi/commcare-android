@@ -170,13 +170,14 @@ public class AnalyticsParamValue {
     public static final String USER_TRIGGERED = "user_triggered";
     public static final String SYSTEM_TRIGGERED = "system_triggered";
 
-    public static final String CCC_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
-    public static final String CCC_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
-    public static final String CCC_DB_ERROR = "global_connect_error";
+    public static final String PERSONAL_ID_FORGOT_USER_LOGIN_PAGE = "user_initiated_from_login_page";
+    public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE = "user_initiated_from_setup_page";
+    public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
 
     // Param values for personal ID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE = "start_configuration_integrity_device_failure";
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE = "start_configuration_integrity_check_failure";
+    public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE = "start_configuration_locked_account_failure";
     public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
     public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
 }

@@ -247,6 +247,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void doLogin(LoginMode loginMode, boolean restoreSession, String passwordOrPin) {
+        if (!isUsernameValid(getUniformUsername())) {
+            raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
+            return;
+        }
+
         if ("".equals(passwordOrPin) && loginMode != LoginMode.PRIMED) {
             if (loginMode == LoginMode.PASSWORD) {
                 raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
@@ -270,6 +275,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             localLoginOrPullAndLogin(restoreSession);
         }
+    }
+
+    private boolean isUsernameValid(String username) {
+        if ((username !=null && !username.isEmpty()) &&
+                (!username.contains("@") || username.endsWith("@" + HiddenPreferences.getUserDomain()))) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -590,8 +603,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 registerPersonalIdUser();
                 return true;
             case MENU_PERSONAL_ID_FORGET:
-                FirebaseAnalyticsUtil.reportCccForget();
-                personalIdManager.forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_LOGIN_PAGE);
+                personalIdManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
                 uiController.refreshView();
