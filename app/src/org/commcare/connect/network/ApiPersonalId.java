@@ -269,6 +269,13 @@ public class ApiPersonalId {
         callApi(context, call, callback, ApiEndPoints.confirmBackupCode);
     }
 
+    public static void reportIntegrity(Context context, Map<String, String> body, String integrityToken,
+                                          String requestHash, IApiCallback callback) {
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.reportIntegrity(integrityToken, requestHash, body);
+        callApi(context, call, callback, ApiEndPoints.reportIntegrity);
+    }
+
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
