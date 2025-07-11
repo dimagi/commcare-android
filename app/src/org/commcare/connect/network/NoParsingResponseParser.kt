@@ -7,7 +7,7 @@ import java.io.InputStream
  */
 class NoParsingResponseParser<T>() : BaseApiResponseParser<T> {
 
-    override fun parse(responseCode: Int, responseData: InputStream): T {
+    override fun parse(responseCode: Int, responseData: InputStream,anyInputObject:Any?): T {
         val success = responseCode in 200..299
         return success as T
     }

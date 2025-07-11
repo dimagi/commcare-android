@@ -98,7 +98,7 @@ public class ConnectNetworkHelper {
         return getInstance().getInternal(context, url, version, authInfo, params, background, handler);
     }
 
-    private static void addVersionHeader(HashMap<String, String> headers, String version) {
+    public static void addVersionHeader(HashMap<String, String> headers, String version) {
         if (version != null) {
             headers.put("Accept", "application/json;version=" + version);
         }
@@ -187,7 +187,7 @@ public class ConnectNetworkHelper {
         return true;
     }
 
-    private static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
+    public static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
         RequestBody requestBody;
 
         if (useFormEncoding) {
