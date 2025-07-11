@@ -1,60 +1,94 @@
 package org.commcare.android.integrity
 
-import android.app.Activity
+import android.content.Context
 import androidx.preference.PreferenceManager
-import org.commcare.CommCareApplication
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.android.integrity.IntegrityTokenViewModel.IntegrityTokenCallback
+import org.commcare.android.integrity.IntegrityTokenApiRequestHelper.Companion.fetchIntegrityToken
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.preferences.HiddenPreferences
 
-class IntegrityReporter {
-    fun handleReceivedIntegrityRequest(activity: Activity, requestId: String) {
-        val preferences =
-            PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance())
-        val storedId = preferences.getString(HiddenPreferences.INTEGRITY_REQUEST_ID, null)
-        if (storedId == null || storedId != requestId) {
-            val integrityTokenApiRequestHelper =
-                IntegrityTokenApiRequestHelper(activity)
-            val body = HashMap<String, String>()
-            body["request_id"] = requestId
-            body["cc_device_id"] = ReportingUtils.getDeviceId()
+class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+    companion object {
+        const val KEY_REQUEST_ID = "request_id"
 
-            integrityTokenApiRequestHelper.withIntegrityToken(
-                body,
-                object : IntegrityTokenCallback {
-                    override fun onTokenReceived(token: String, requestHash: String) {
-                        makeReportIntegrityCall(activity, token, requestHash, body)
-                    }
-
-                    override fun onTokenFailure(exception: Exception) {
-                        makeReportIntegrityCall(activity, exception.message, "ERROR", body)
-                    }
-                })
-        }
-        if (preferences.getBoolean(HiddenPreferences.INTEGRITY_REQUEST_ID, true)) {
-            val editor = preferences.edit()
-            editor.putBoolean(HiddenPreferences.INTEGRITY_REQUEST_ID, false)
-            editor.apply()
+        @JvmStatic
+        fun launch(context: Context, requestId: String) {
+            val constraints: Constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build()
+            val inputData = Data.Builder()
+                .putString(KEY_REQUEST_ID, requestId)
+                .build()
+            val workRequest = OneTimeWorkRequest.Builder(IntegrityReporter::class.java)
+                .setConstraints(constraints)
+                .setInputData(inputData)
+                .build()
+            WorkManager.getInstance(context).enqueue(workRequest)
         }
     }
 
+    override suspend fun doWork(): Result {
+        val context = applicationContext
+        val requestId = inputData.getString(KEY_REQUEST_ID) ?: return Result.failure()
+
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val storedId = preferences.getString(HiddenPreferences.INTEGRITY_REQUEST_ID, null)
+        if (storedId == requestId) {
+            // Already processed this request
+            return Result.success()
+        }
+
+        val body = HashMap<String, String>()
+        body["request_id"] = requestId
+        body["cc_device_id"] = ReportingUtils.getDeviceId()
+
+        val jsonBody = org.json.JSONObject(body as Map<*, *>).toString()
+        val requestHash = org.commcare.utils.HashUtils.computeHash(jsonBody, org.commcare.utils.HashUtils.HashAlgorithm.SHA256)
+        val tokenResult = fetchIntegrityToken(requestHash)
+        val (integrityToken, hash) = tokenResult.getOrElse {
+            makeReportIntegrityCall(context, it.message, "ERROR", body)
+            return Result.failure()
+        }
+
+        val success = makeReportIntegrityCall(context, integrityToken, hash, body)
+        if (success) {
+            //Store requestID so we don't process it again
+            val editor = preferences.edit()
+            editor.putString(HiddenPreferences.INTEGRITY_REQUEST_ID, requestId)
+            editor.apply()
+        }
+
+        return if (success) Result.success() else Result.failure()
+    }
+
     private fun makeReportIntegrityCall(
-        activity: Activity,
+        context: Context,
         integrityToken: String?,
         requestHash: String,
         body: Map<String, String>
-    ) {
+    ): Boolean {
+        var result = false
+        val latch = java.util.concurrent.CountDownLatch(1)
         object : PersonalIdApiHandler<PersonalIdSessionData?>() {
             override fun onSuccess(data: PersonalIdSessionData?) {
+                result = true
+                latch.countDown()
             }
-
-            override fun onFailure(
-                errorCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?
-            ) {
+            override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
+                result = false
+                latch.countDown()
             }
-        }.makeIntegrityReportCall(activity, body, integrityToken, requestHash)
+        }.makeIntegrityReportCall(context, body, integrityToken, requestHash)
+        latch.await()
+        return result
     }
 }

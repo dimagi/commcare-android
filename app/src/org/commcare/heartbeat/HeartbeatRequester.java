@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.work.WorkManager;
+import org.commcare.android.integrity.IntegrityReporter;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -96,6 +97,7 @@ public class HeartbeatRequester extends GetAndParseActor {
             attemptCczUpdateParse(responseAsJson);
             checkForForceLogs(responseAsJson);
             checkForDisableBackgroundWork(responseAsJson);
+            checkForIntegrityRequest(responseAsJson);
         }
         DriftHelper.clearMaxDriftSinceLastHeartbeat();
     }
@@ -117,9 +119,9 @@ public class HeartbeatRequester extends GetAndParseActor {
     }
 
     private void checkForIntegrityRequest(JSONObject responseAsJson) {
-        String requestGuid = responseAsJson.optString("report_integrity", null);
-        if(requestGuid != null) {
-
+        final String searchKey = "report_integrity";
+        if(responseAsJson.has(searchKey)) {
+            IntegrityReporter.launch(CommCareApplication.instance(), responseAsJson.optString(searchKey, ""));
         }
     }
 

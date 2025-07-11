@@ -51,11 +51,11 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         };
     }
 
-    public void makeIntegrityReportCall(Activity activity,
+    public void makeIntegrityReportCall(Context context,
                                         Map<String, String> body,
                                         String integrityToken,
                                         String requestHash) {
-        ApiPersonalId.reportIntegrity(activity, body, integrityToken, requestHash,
+        ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
                 createCallback(new RetrieveCredentialsResponseParser<T>()));
     }
 
