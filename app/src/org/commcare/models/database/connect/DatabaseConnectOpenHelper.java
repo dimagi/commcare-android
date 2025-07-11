@@ -1,10 +1,10 @@
 package org.commcare.models.database.connect;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteOpenHelper;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
@@ -23,7 +23,9 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.util.Base64;
@@ -61,10 +63,12 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
     private final Context mContext;
+    private final String key;
 
-    public DatabaseConnectOpenHelper(Context context) {
-        super(context, CONNECT_DB_LOCATOR, null, CONNECT_DB_VERSION);
+    public DatabaseConnectOpenHelper(Context context, String key) {
+        super(context, CONNECT_DB_LOCATOR, key, null, CONNECT_DB_VERSION, 0, null, null, false);
         this.mContext = context;
+        this.key = key;
     }
 
     private static File getDbFile() {
@@ -79,7 +83,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         getDbFile().delete();
     }
 
-    public static void rekeyDB(SQLiteDatabase db, String newPassphrase) throws Base64DecoderException {
+    public static void rekeyDB(IDatabase db, String newPassphrase) throws Base64DecoderException {
         if(db != null) {
             byte[] newBytes = Base64.decode(newPassphrase);
             String newKeyEncoded = UserSandboxUtils.getSqlCipherEncodedKey(newBytes);
@@ -90,7 +94,8 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onCreate(SQLiteDatabase database) {
+    public void onCreate(SQLiteDatabase db) {
+        IDatabase database = new EncryptedDatabaseAdapter(db);
         database.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(ConnectUserRecord.class);
@@ -146,13 +151,13 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase(String key) {
+    public SQLiteDatabase getWritableDatabase() {
         try {
-            return super.getWritableDatabase(key);
+            return super.getWritableDatabase();
         } catch (SQLiteException sqle) {
             DbUtil.trySqlCipherDbUpdate(key, mContext, CONNECT_DB_LOCATOR);
             try {
-                return super.getWritableDatabase(key);
+                return super.getWritableDatabase();
             } catch (SQLiteException e) {
                 // Handle the exception, log the error, or inform the user
                 CrashUtil.log(e.getMessage());
@@ -164,7 +169,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         DataChangeLogger.log(new DataChangeLog.DbUpgradeStart("Connect", oldVersion, newVersion));
-        new ConnectDatabaseUpgrader(mContext).upgrade(db, oldVersion, newVersion);
+        new ConnectDatabaseUpgrader(mContext).upgrade(new EncryptedDatabaseAdapter(db), oldVersion, newVersion);
         DataChangeLogger.log(new DataChangeLog.DbUpgradeComplete("Connect", oldVersion, newVersion));
     }
 }

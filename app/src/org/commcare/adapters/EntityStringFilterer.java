@@ -2,22 +2,17 @@ package org.commcare.adapters;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.NodeEntityFactory;
-import org.commcare.cases.util.StringUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.modern.util.Pair;
-import org.commcare.util.EntityProvider;
 import org.commcare.util.EntitySortUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,7 +61,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
         }
     }
 
-    private Entity<TreeReference> getEntityAtIndex(SQLiteDatabase db, int index) {
+    private Entity<TreeReference> getEntityAtIndex(IDatabase db, int index) {
         if (index % 500 == 0) {
             db.yieldIfContendedSafely();
         }
@@ -81,7 +76,7 @@ public class EntityStringFilterer extends EntityFiltererBase {
         Locale currentLocale = Locale.getDefault();
         //It's a bit sketchy here, because this DB lock will prevent
         //anything else from processing
-        SQLiteDatabase db;
+        IDatabase db;
         try {
             db = CommCareApplication.instance().getUserDbHandle();
         } catch (SessionUnavailableException e) {

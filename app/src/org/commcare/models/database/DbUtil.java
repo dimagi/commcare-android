@@ -5,15 +5,14 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteDatabaseHook;
+import net.zetetic.database.sqlcipher.SQLiteConnection;
+import net.zetetic.database.sqlcipher.SQLiteDatabase;
+import net.zetetic.database.sqlcipher.SQLiteDatabaseHook;
 
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.TableBuilder;
 
 import java.io.File;
-
-import androidx.annotation.NonNull;
 
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
@@ -36,25 +35,26 @@ public class DbUtil {
         SQLiteDatabaseHook updateHook = new SQLiteDatabaseHook() {
 
             @Override
-            public void preKey(SQLiteDatabase database) {
+            public void preKey(SQLiteConnection connection) {
+
             }
 
             @Override
-            public void postKey(SQLiteDatabase database) {
-                database.rawExecSQL("PRAGMA cipher_migrate;");
+            public void postKey(SQLiteConnection connection) {
+                connection.executeRaw("PRAGMA cipher_migrate;", null, null);
             }
         };
 
         //go find the db path because the helper hides this (thanks android)
         File dbPath = context.getDatabasePath(dbName);
 
-        SQLiteDatabase oldDb = SQLiteDatabase.openOrCreateDatabase(dbPath, key, null, updateHook);
+        SQLiteDatabase oldDb = SQLiteDatabase.openOrCreateDatabase(dbPath, key, null, null, updateHook);
 
         //if we didn't get here, we didn't crash (what a great way to be testing our db version, right?)
         oldDb.close();
     }
 
-    public static void createNumbersTable(SQLiteDatabase db) {
+    public static void createNumbersTable(IDatabase db) {
         //Virtual Table
         String dropStatement = "DROP TABLE IF EXISTS integers;";
         db.execSQL(dropStatement);
@@ -66,7 +66,7 @@ public class DbUtil {
         }
     }
 
-    public static void explainSql(SQLiteDatabase handle, String sql, String[] args) {
+    public static void explainSql(IDatabase handle, String sql, String[] args) {
         Cursor explain = handle.rawQuery("EXPLAIN QUERY PLAN " + sql, args);
         Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor(explain);
@@ -77,7 +77,7 @@ public class DbUtil {
      * Table of files scheduled for deletion. Entries added when file-based
      * database transactions fail or when file-backed entries are removed.
      */
-    public static void createOrphanedFileTable(SQLiteDatabase db) {
+    public static void createOrphanedFileTable(IDatabase db) {
         String createStatement =
                 "CREATE TABLE IF NOT EXISTS "
                         + orphanFileTableName

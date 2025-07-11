@@ -4,25 +4,16 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
-import org.commcare.preferences.HiddenPreferences;
+import org.commcare.models.database.app.AppDatabaseSchemaManager;
+import org.commcare.models.database.user.UserDatabaseSchemaManager;
 import org.commcare.provider.ProviderUtils;
-import org.commcare.resources.model.InstallCancelledException;
-import org.commcare.resources.model.ResourceTable;
-import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.util.CommCarePlatform;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
-import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.io.File;
-
-import androidx.work.WorkManager;
 
 /**
  * Created by amstone326 on 5/10/18.
@@ -62,7 +53,7 @@ public class AppLifecycleUtils {
         // 4) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
-            File f = ccInstance.getDatabasePath(DatabaseUserOpenHelper.getDbName(user.getUuid()));
+            File f = ccInstance.getDatabasePath(UserDatabaseSchemaManager.getDbName(user.getUuid()));
             if (!FileUtil.deleteFileOrDir(f)) {
                 Logger.log(LogTypes.TYPE_RESOURCES, "A user database was unable to be " +
                         "deleted during app uninstall. Aborting uninstall process for now.");
@@ -94,7 +85,7 @@ public class AppLifecycleUtils {
         }
 
         // 7) Delete the app database
-        File f = ccInstance.getDatabasePath(DatabaseAppOpenHelper.getDbName(app.getAppRecord().getApplicationId()));
+        File f = ccInstance.getDatabasePath(AppDatabaseSchemaManager.getDbName(app.getAppRecord().getApplicationId()));
         if (!FileUtil.deleteFileOrDir(f)) {
             Logger.log(LogTypes.TYPE_RESOURCES, "The app database was unable to be deleted" +
                     "during app uninstall. Aborting uninstall process for now.");
