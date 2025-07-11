@@ -1,8 +1,11 @@
 package org.commcare.connect;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -33,6 +36,14 @@ public class MessageManager {
         ConnectMessagingDatabaseHelper.storeMessagingChannel(context, channel);
 
         return channel;
+    }
+
+    public static Drawable getMessagingIcon(Context context) {
+        int icon = R.drawable.ic_connect_messaging_base;
+        if(ConnectMessagingDatabaseHelper.getUnviewedMessages(context).size() > 0) {
+            icon = R.drawable.ic_connect_messaging_unread;
+        }
+        return ResourcesCompat.getDrawable(context.getResources(), icon, null);
     }
 
     public static void retrieveMessages(Context context, ConnectActivityCompleteListener listener) {

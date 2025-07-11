@@ -123,7 +123,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private PersonalIdManager personalIdManager;
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
-    private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
 
@@ -149,7 +148,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = ConnectAppUtils.INSTANCE.wasAppLaunchedFromConnect(presetAppId);
-        connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
             uiController.restoreLastUser();

@@ -1,16 +1,23 @@
 package org.commcare.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 
+import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.MessageManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -21,6 +28,7 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -40,6 +48,7 @@ public class StandardHomeActivity
     private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
+    private MenuItem messagingMenuItem;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
     @Override
@@ -128,6 +137,38 @@ public class StandardHomeActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(isPersonalIdManagedLogin()) {
+            updateMessagingIcon(this);
+            MessageManager.retrieveMessages(this, success -> {
+                updateMessagingIcon(this);
+            });
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
+                    new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+    }
+
+    private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateMessagingIcon(context);
+        }
+    };
+
+    private boolean isPersonalIdManagedLogin() {
+        return getIntent().getBooleanExtra(LoginActivity.PERSONALID_MANAGED_LOGIN , false);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_app_home, menu);
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
@@ -139,6 +180,8 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_preferences).setTitle(Localization.get("home.menu.settings"));
         menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.set"));
         menu.findItem(R.id.action_update_commcare).setTitle(Localization.get("home.menu.update.commcare"));
+
+        messagingMenuItem = menu.findItem(R.id.action_messaging);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -155,8 +198,18 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_advanced).setVisible(enableMenus);
         menu.findItem(R.id.action_about).setVisible(enableMenus);
         menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
+
+        messagingMenuItem.setVisible(isPersonalIdManagedLogin());
+        updateMessagingIcon(this);
+
         preparePinMenu(menu, enableMenus);
         return true;
+    }
+
+    private void updateMessagingIcon(Context context) {
+        if (messagingMenuItem != null) {
+            messagingMenuItem.setIcon(MessageManager.getMessagingIcon(context));
+        }
     }
 
     private static void preparePinMenu(Menu menu, boolean enableMenus) {
@@ -206,6 +259,9 @@ public class StandardHomeActivity
             return true;
         } else if (itemId == R.id.action_update_commcare) {
             startCommCareUpdate();
+            return true;
+        } else if(itemId == R.id.action_messaging) {
+            ConnectNavHelper.INSTANCE.goToMessaging(this);
             return true;
         }
 
