@@ -141,32 +141,22 @@ class IntegrityTokenApiRequestHelper(
                 }
             }
 
-            when (val state = viewModel.providerState.value) {
-                is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                    requestToken()
-                }
-                is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                    cont.resume(Result.failure(state.exception))
-                }
-                else -> {
-                    val observer = object : Observer<IntegrityTokenViewModel.TokenProviderState> {
-                        override fun onChanged(value: IntegrityTokenViewModel.TokenProviderState) {
-                            when (value) {
-                                is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                                    viewModel.providerState.removeObserver(this)
-                                    requestToken()
-                                }
-                                is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                                    viewModel.providerState.removeObserver(this)
-                                    cont.resume(Result.failure(value.exception))
-                                }
-                            }
+            val observer = object : Observer<IntegrityTokenViewModel.TokenProviderState> {
+                override fun onChanged(value: IntegrityTokenViewModel.TokenProviderState) {
+                    when (value) {
+                        is IntegrityTokenViewModel.TokenProviderState.Success -> {
+                            viewModel.providerState.removeObserver(this)
+                            requestToken()
+                        }
+                        is IntegrityTokenViewModel.TokenProviderState.Failure -> {
+                            viewModel.providerState.removeObserver(this)
+                            cont.resume(Result.failure(value.exception))
                         }
                     }
-                    viewModel.providerState.observeForever(observer)
-                    cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
                 }
             }
+            viewModel.providerState.observeForever(observer)
+            cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
         }
     }
 }
