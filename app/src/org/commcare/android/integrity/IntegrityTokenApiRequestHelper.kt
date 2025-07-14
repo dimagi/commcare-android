@@ -19,7 +19,7 @@ import kotlin.Result
  * Helper class to get the integrity token for an API request and is meant to abstract common boilerplate when dealing with [IntegrityTokenViewModel]
  */
 class IntegrityTokenApiRequestHelper(
-    lifecycleOwner: LifecycleOwner?
+    lifecycleOwner: LifecycleOwner
 ) {
     private val integrityTokenViewModel : IntegrityTokenViewModel = CommCareViewModelProvider.getIntegrityTokenViewModel()
     private val pendingRequests = LinkedList<Pair<HashMap<String, String>, IntegrityTokenViewModel.IntegrityTokenCallback>>()
@@ -29,20 +29,18 @@ class IntegrityTokenApiRequestHelper(
     private var providerFailedException = Exception("Integrity Token Provider failed to initialize")
 
     init {
-        if (lifecycleOwner != null) {
-            integrityTokenViewModel.providerState.observe(lifecycleOwner
-            ) { value ->
-                when (value) {
-                    is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                        providerInitialized = true
-                        processPendingRequests()
-                    }
+        integrityTokenViewModel.providerState.observe(lifecycleOwner
+        ) { value ->
+            when (value) {
+                is IntegrityTokenViewModel.TokenProviderState.Success -> {
+                    providerInitialized = true
+                    processPendingRequests()
+                }
 
-                    is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                        providerFailed = true
-                        providerFailedException = value.exception
-                        failPendingRequests()
-                    }
+                is IntegrityTokenViewModel.TokenProviderState.Failure -> {
+                    providerFailed = true
+                    providerFailedException = value.exception
+                    failPendingRequests()
                 }
             }
         }
@@ -141,32 +139,22 @@ class IntegrityTokenApiRequestHelper(
                 }
             }
 
-            when (val state = viewModel.providerState.value) {
-                is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                    requestToken()
-                }
-                is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                    cont.resume(Result.failure(state.exception))
-                }
-                else -> {
-                    val observer = object : Observer<IntegrityTokenViewModel.TokenProviderState> {
-                        override fun onChanged(value: IntegrityTokenViewModel.TokenProviderState) {
-                            when (value) {
-                                is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                                    viewModel.providerState.removeObserver(this)
-                                    requestToken()
-                                }
-                                is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                                    viewModel.providerState.removeObserver(this)
-                                    cont.resume(Result.failure(value.exception))
-                                }
-                            }
+            val observer = object : Observer<IntegrityTokenViewModel.TokenProviderState> {
+                override fun onChanged(value: IntegrityTokenViewModel.TokenProviderState) {
+                    when (value) {
+                        is IntegrityTokenViewModel.TokenProviderState.Success -> {
+                            viewModel.providerState.removeObserver(this)
+                            requestToken()
+                        }
+                        is IntegrityTokenViewModel.TokenProviderState.Failure -> {
+                            viewModel.providerState.removeObserver(this)
+                            cont.resume(Result.failure(value.exception))
                         }
                     }
-                    viewModel.providerState.observeForever(observer)
-                    cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
                 }
             }
+            viewModel.providerState.observeForever(observer)
+            cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
         }
     }
 }
