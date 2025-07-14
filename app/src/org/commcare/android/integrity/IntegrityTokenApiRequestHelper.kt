@@ -19,7 +19,7 @@ import kotlin.Result
  * Helper class to get the integrity token for an API request and is meant to abstract common boilerplate when dealing with [IntegrityTokenViewModel]
  */
 class IntegrityTokenApiRequestHelper(
-    lifecycleOwner: LifecycleOwner?
+    lifecycleOwner: LifecycleOwner
 ) {
     private val integrityTokenViewModel : IntegrityTokenViewModel = CommCareViewModelProvider.getIntegrityTokenViewModel()
     private val pendingRequests = LinkedList<Pair<HashMap<String, String>, IntegrityTokenViewModel.IntegrityTokenCallback>>()
@@ -29,20 +29,18 @@ class IntegrityTokenApiRequestHelper(
     private var providerFailedException = Exception("Integrity Token Provider failed to initialize")
 
     init {
-        if (lifecycleOwner != null) {
-            integrityTokenViewModel.providerState.observe(lifecycleOwner
-            ) { value ->
-                when (value) {
-                    is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                        providerInitialized = true
-                        processPendingRequests()
-                    }
+        integrityTokenViewModel.providerState.observe(lifecycleOwner
+        ) { value ->
+            when (value) {
+                is IntegrityTokenViewModel.TokenProviderState.Success -> {
+                    providerInitialized = true
+                    processPendingRequests()
+                }
 
-                    is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                        providerFailed = true
-                        providerFailedException = value.exception
-                        failPendingRequests()
-                    }
+                is IntegrityTokenViewModel.TokenProviderState.Failure -> {
+                    providerFailed = true
+                    providerFailedException = value.exception
+                    failPendingRequests()
                 }
             }
         }
