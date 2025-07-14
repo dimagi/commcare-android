@@ -400,14 +400,12 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
                                          @NonNull String subError) {
         switch (BaseApiHandler.PersonalIdApiSubErrorCodes.valueOf(subError)) {
-            case DEVICE_INTEGRITY_ERROR:
-                onConfigurationFailure(
-                        subError,
-                        getString(R.string.personalid_configuration_process_failed_subtitle)
-                );
-                break;
             case UNLICENSED_APP_ERROR:
                 showIntegrityCheckDialog(tokenResponse, IntegrityDialogTypeCode.GET_LICENSED, subError);
+                break;
+            default:
+                onConfigurationFailure(subError,
+                        getString(R.string.personalid_configuration_process_failed_subtitle));
                 break;
         }
     }
