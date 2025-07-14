@@ -15,6 +15,7 @@ import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponsePa
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
 import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
+import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
@@ -48,9 +49,44 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onSuccess((T)sessionData);
             }
 
-
+            @Override
+            public void processFailure(int responseCode, InputStream errorResponse, String url) {
+                if (!handleErrorCodeIfPresent(errorResponse, sessionData)) {
+                    super.processFailure(responseCode, null, url);
+                }
+            }
         };
     }
+
+    private boolean handleErrorCodeIfPresent(InputStream errorResponse, PersonalIdSessionData sessionData) {
+        try {
+            if (errorResponse != null) {
+                byte[] errorBytes = StreamsUtil.inputStreamToByteArray(errorResponse);
+                String jsonStr = new String(errorBytes, java.nio.charset.StandardCharsets.UTF_8);
+                JSONObject json = new JSONObject(jsonStr);
+
+                String errorCode = json.optString("error_code", "");
+                sessionData.setSessionFailureCode(errorCode);
+                if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
+                    onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
+                    return true;
+                } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
+                    if (json.has("sub_code")) {
+                        String subErrorCode = json.optString("sub_code");
+                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + subErrorCode);
+                        sessionData.setSessionFailureSubcode(subErrorCode);
+                        onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                    }
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Logger.exception("Error parsing error_code", e);
+        }
+        return false;
+    }
+
+
 
     public void makeIntegrityReportCall(Context context,
                                         String requestId,

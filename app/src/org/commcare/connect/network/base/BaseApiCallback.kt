@@ -1,8 +1,10 @@
 package org.commcare.connect.network.base
 
 
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.util.LogTypes
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import org.json.JSONObject
@@ -13,12 +15,10 @@ import java.io.InputStream
  * to define the error handling in all api handlers
  */
 abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
-    IApiCallback {
 
+    IApiCallback {
     override fun processFailure(responseCode: Int, errorResponse: InputStream?, url: String?) {
         // Common error_code handler used before checking error response code
-        if (handleErrorCodeIfPresent(errorResponse)) return
-
         when (responseCode) {
             401 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
@@ -45,35 +45,6 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
                 Logger.exception("Unknown http response code", exception)
                 baseApiHandler.onFailure(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, exception)
             }
-        }
-    }
-
-    /**
-     * Checks for "error_code" in the API error response and handles known cases.
-     * Returns true if the error was handled, otherwise false.
-     */
-    private fun handleErrorCodeIfPresent(errorResponse: InputStream?): Boolean {
-        if (errorResponse == null) return false
-
-        return try {
-            errorResponse.use {
-                val json =
-                    JSONObject(String(StreamsUtil.inputStreamToByteArray(it), Charsets.UTF_8))
-                val errorCode = json.optString("error_code", "")
-
-                if (errorCode.equals("LOCKED_ACCOUNT", ignoreCase = true)) {
-                    baseApiHandler.onFailure(
-                        PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR,
-                        null
-                    )
-                    true
-                } else {
-                    false
-                }
-            }
-        } catch (e: Exception) {
-            Logger.exception("Error parsing error_code", e)
-            false
         }
     }
 
