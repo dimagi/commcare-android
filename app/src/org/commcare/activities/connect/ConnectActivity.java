@@ -28,12 +28,14 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
 
@@ -92,7 +94,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
             startArgs.putBoolean("showLaunch", buttons);
 
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
-            startDestinationId = R.id.connect_unlock_fragment;
+            Logger.log("ConnectActivity", "Redirecting to unlock fragment");
+            //Entering from a notification, so we may need to initialize
+            PersonalIdManager.getInstance().init(this);            startDestinationId = R.id.connect_unlock_fragment;
             startArgs = new Bundle();
             startArgs.putString("action", redirectionAction);
             startArgs.putString("opportunity_id", opportunityId);
