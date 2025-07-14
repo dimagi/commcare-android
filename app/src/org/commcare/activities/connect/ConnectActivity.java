@@ -77,7 +77,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         NavInflater inflater = navController.getNavInflater();
         NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
 
-        // Choose dynamic start destination
         int startDestinationId = R.id.connect_jobs_list_fragment;
         Bundle startArgs = null;
 
