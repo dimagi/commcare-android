@@ -18,6 +18,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.content.edit
+import com.google.android.play.core.integrity.StandardIntegrityException
 import com.google.common.base.Strings
 
 class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
@@ -63,9 +64,17 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         val requestHash = org.commcare.utils.HashUtils.computeHash(jsonBody, org.commcare.utils.HashUtils.HashAlgorithm.SHA256)
         val tokenResult = fetchIntegrityToken(requestHash)
         val (integrityToken, hash) = tokenResult.getOrElse {
-            body["device_error"] = it.message ?: "Unknown error"
-            FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, it.message)
+            val errorCode: String = if(it is StandardIntegrityException) {
+                it.errorCode.toString();
+            } else {
+                it.message ?: "Unknown error"
+            }
+
+            FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, errorCode)
+
+            body["device_error"] = errorCode
             makeReportIntegrityCall(context, null, null, body, requestId)
+
             return Result.failure()
         }
 
