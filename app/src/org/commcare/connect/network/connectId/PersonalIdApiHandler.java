@@ -51,43 +51,41 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
             @Override
             public void processFailure(int responseCode, InputStream errorResponse, String url) {
-                try {
-                    if (errorResponse != null) {
-                        handleErrorCodeIfPresent(errorResponse, sessionData);
-                    } else {
-                        super.processFailure(responseCode, null, url);
-                    }
-                } catch (Exception e) {
-                    Logger.exception("JSON error parsing API response", e);
-                    onFailure(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e);
+                if (!handleErrorCodeIfPresent(errorResponse, sessionData)) {
+                    super.processFailure(responseCode, null, url);
                 }
             }
         };
     }
 
-    private void handleErrorCodeIfPresent(InputStream errorResponse, PersonalIdSessionData sessionData) {
+    private boolean handleErrorCodeIfPresent(InputStream errorResponse, PersonalIdSessionData sessionData) {
         try {
-            byte[] errorBytes = StreamsUtil.inputStreamToByteArray(errorResponse);
-            String jsonStr = new String(errorBytes, java.nio.charset.StandardCharsets.UTF_8);
-            JSONObject json = new JSONObject(jsonStr);
+            if (errorResponse != null) {
+                byte[] errorBytes = StreamsUtil.inputStreamToByteArray(errorResponse);
+                String jsonStr = new String(errorBytes, java.nio.charset.StandardCharsets.UTF_8);
+                JSONObject json = new JSONObject(jsonStr);
 
-            String errorCode = json.optString("error_code", "");
-            sessionData.setSessionFailureCode(errorCode);
-            if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
-                onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null
-                );
-            } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
-                if (json.has("sub_code")) {
-                    String subErrorCode = json.optString("sub_code");
-                    Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + subErrorCode);
-                    sessionData.setSessionFailureSubcode(subErrorCode);
-                    onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                String errorCode = json.optString("error_code", "");
+                sessionData.setSessionFailureCode(errorCode);
+                if ("LOCKED_ACCOUNT".equalsIgnoreCase(errorCode)) {
+                    onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
+                    return true;
+                } else if ("INTEGRITY_ERROR".equalsIgnoreCase(errorCode)) {
+                    if (json.has("sub_code")) {
+                        String subErrorCode = json.optString("sub_code");
+                        Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity error with subcode " + subErrorCode);
+                        sessionData.setSessionFailureSubcode(subErrorCode);
+                        onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
+                    }
+                    return true;
                 }
+            } else {
+                return false;
             }
-
         } catch (Exception e) {
             Logger.exception("Error parsing error_code", e);
         }
+        return false;
     }
 
 

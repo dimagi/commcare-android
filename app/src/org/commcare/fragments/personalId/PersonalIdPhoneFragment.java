@@ -31,6 +31,7 @@ import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -406,7 +407,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 );
                 break;
             case UNLICENSED_APP_ERROR:
-                showIntegrityCheckDialog(tokenResponse, 1, subError);
+                showIntegrityCheckDialog(tokenResponse, IntegrityDialogTypeCode.GET_LICENSED, subError);
                 break;
         }
     }
@@ -420,22 +421,21 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 enableContinueButton(true);
             } else {
                 // User canceled or some issue occurred
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "User has cancelled the integrity dialog " + result);
-                enableContinueButton(false);
-                onConfigurationFailure(
-                        subError,
-                        getString(R.string.personalid_configuration_process_failed_subtitle)
-                );
+                handleIntegrityFailure(subError, "User has cancelled the integrity dialog " + result);
             }
         }).addOnFailureListener(e -> {
             // Dialog failed to launch or some error occurred
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Integrity dialog failed to launch " + e.getMessage());
-            enableContinueButton(false);
-            onConfigurationFailure(
-                    subError,
-                    getString(R.string.personalid_configuration_process_failed_subtitle)
-            );
+            handleIntegrityFailure(subError, "Integrity dialog failed to launch " + e.getMessage());
         });
+    }
+
+    private void handleIntegrityFailure(String subError, String logMessage) {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, logMessage);
+        enableContinueButton(false);
+        onConfigurationFailure(
+                subError,
+                getString(R.string.personalid_configuration_process_failed_subtitle)
+        );
     }
 
     private void onConfigurationSuccess() {
