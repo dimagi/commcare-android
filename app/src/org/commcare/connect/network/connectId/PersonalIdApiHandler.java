@@ -53,12 +53,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
     public void makeIntegrityReportCall(Context context,
+                                        String requestId,
                                         Map<String, String> body,
                                         String integrityToken,
                                         String requestHash) {
-        PersonalIdSessionData sessionData = new PersonalIdSessionData();
         ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
-                createCallback(sessionData, new ReportIntegrityResponseParser()));
+                createCallback(null, new ReportIntegrityResponseParser(requestId)));
     }
 
     public void makeStartConfigurationCall(Activity activity,

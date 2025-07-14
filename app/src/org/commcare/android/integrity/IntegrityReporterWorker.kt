@@ -89,8 +89,6 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
     ): Boolean = suspendCoroutine { cont ->
         val handler = object : PersonalIdApiHandler<PersonalIdSessionData?>() {
             override fun onSuccess(data: PersonalIdSessionData?) {
-                val resultCode = data?.resultCode ?: "NullCode"
-                FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, resultCode)
                 cont.resume(true)
             }
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
@@ -98,7 +96,7 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
                 cont.resume(false)
             }
         }
-        handler.makeIntegrityReportCall(context, body, integrityToken, requestHash)
+        handler.makeIntegrityReportCall(context, requestId, body, integrityToken, requestHash)
     }
 
     private fun getIntegrityRequestIdKey(requestId: String): String {
