@@ -49,7 +49,7 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         }
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val storedId = preferences.getString(HiddenPreferences.INTEGRITY_REQUEST_ID, null)
+        val storedId = preferences.getString(getIntegrityRequestIdKey(requestId), null)
         if (storedId == requestId) {
             // Already processed this request
             return Result.success()
@@ -73,7 +73,7 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         if (success) {
             //Store requestID so we don't process it again
             preferences.edit {
-                putString(HiddenPreferences.INTEGRITY_REQUEST_ID, requestId)
+                putString(getIntegrityRequestIdKey(requestId), requestId)
             }
         }
 
@@ -99,5 +99,9 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
             }
         }
         handler.makeIntegrityReportCall(context, body, integrityToken, requestHash)
+    }
+
+    private fun getIntegrityRequestIdKey(requestId: String): String {
+        return HiddenPreferences.INTEGRITY_REQUEST_ID + "_" + requestId
     }
 }
