@@ -63,7 +63,9 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         val requestHash = org.commcare.utils.HashUtils.computeHash(jsonBody, org.commcare.utils.HashUtils.HashAlgorithm.SHA256)
         val tokenResult = fetchIntegrityToken(requestHash)
         val (integrityToken, hash) = tokenResult.getOrElse {
-            makeReportIntegrityCall(context, it.message, "ERROR", body, requestId)
+            body["device_error"] = it.message ?: "Unknown error"
+            FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, it.message)
+            makeReportIntegrityCall(context, null, null, body, requestId)
             return Result.failure()
         }
 
@@ -81,7 +83,7 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
     private suspend fun makeReportIntegrityCall(
         context: Context,
         integrityToken: String?,
-        requestHash: String,
+        requestHash: String?,
         body: Map<String, String>,
         requestId: String
     ): Boolean = suspendCoroutine { cont ->
