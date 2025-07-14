@@ -37,6 +37,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
@@ -227,6 +228,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         body.put("phone_number", phone);
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
+        body.put("cc_device_id", ReportingUtils.getDeviceId());
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {

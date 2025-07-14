@@ -29,6 +29,7 @@ public class ConnectUserRecordV14 extends Persisted {
     @Persisting(4)
     private String primaryPhone;
 
+    @Deprecated
     @Persisting(5)
     private String alternatePhone;
 
@@ -46,10 +47,12 @@ public class ConnectUserRecordV14 extends Persisted {
     @Persisting(value = 10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
+
+    @Deprecated
     @Persisting(11)
     @MetaField(META_SECONDARY_PHONE_VERIFIED)
     private boolean secondaryPhoneVerified;
-
+    @Deprecated
     @Persisting(12)
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
     private Date verifySecondaryPhoneByDate;
@@ -99,10 +102,6 @@ public class ConnectUserRecordV14 extends Persisted {
 
     public String getPrimaryPhone() {
         return primaryPhone;
-    }
-
-    public String getAlternatePhone() {
-        return alternatePhone;
     }
 
     public int getRegistrationPhase() {
