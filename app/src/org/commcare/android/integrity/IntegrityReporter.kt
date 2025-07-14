@@ -18,6 +18,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.content.edit
+import com.google.common.base.Strings
 
 class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     companion object {
@@ -43,6 +44,9 @@ class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : C
     override suspend fun doWork(): Result {
         val context = applicationContext
         val requestId = inputData.getString(KEY_REQUEST_ID) ?: return Result.failure()
+        if(Strings.isNullOrEmpty(requestId)) {
+            return Result.failure()
+        }
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val storedId = preferences.getString(HiddenPreferences.INTEGRITY_REQUEST_ID, null)

@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import androidx.work.WorkManager;
 import org.commcare.android.integrity.IntegrityReporter;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -120,7 +121,8 @@ public class HeartbeatRequester extends GetAndParseActor {
     }
 
     private void checkForIntegrityRequest(JSONObject responseAsJson) {
-        if(responseAsJson.has(REPORT_INTEGRITY_KEY)) {
+        String integrityRequest = responseAsJson.optString(REPORT_INTEGRITY_KEY, "");
+        if(!Strings.isNullOrEmpty(integrityRequest)) {
             IntegrityReporter.launch(CommCareApplication.instance(), responseAsJson.optString(REPORT_INTEGRITY_KEY, ""));
         }
     }
