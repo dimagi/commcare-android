@@ -16,7 +16,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.navigation.NavOptions;
+import androidx.navigation.NavGraph;
+import androidx.navigation.NavInflater;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
@@ -27,14 +28,12 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
 
@@ -65,44 +64,43 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
         redirectionAction = getIntent().getStringExtra("action");
         opportunityId = getIntent().getStringExtra("opportunity_id");
-        if(opportunityId == null) {
+        if (opportunityId == null) {
             opportunityId = "";
         }
 
         updateBackButton();
 
+        // Wait for fragment to attach
+        getSupportFragmentManager().executePendingTransactions();
+        NavInflater inflater = navController.getNavInflater();
+        NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
+
+        // Choose dynamic start destination
+        int startDestinationId = R.id.connect_jobs_list_fragment;
+        Bundle startArgs = null;
+
         if (getIntent().getBooleanExtra("info", false)) {
             ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
             Objects.requireNonNull(job);
 
-            int fragmentId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING ?
-                    R.id.connect_job_delivery_progress_fragment :
-                    R.id.connect_job_learning_progress_fragment;
+            startDestinationId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
+                    ? R.id.connect_job_delivery_progress_fragment
+                    : R.id.connect_job_learning_progress_fragment;
 
             boolean buttons = getIntent().getBooleanExtra("buttons", true);
+            startArgs = new Bundle();
+            startArgs.putBoolean("showLaunch", buttons);
 
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("showLaunch", buttons);
-
-            NavOptions options = new NavOptions.Builder()
-                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
-                    .build();
-            navController.navigate(fragmentId, bundle, options);
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
-            Logger.log("ConnectActivity", "Redirecting to unlock fragment");
-            //Entering from a notification, so we may need to initialize
-            PersonalIdManager.getInstance().init(this);
-
-            //Navigate to the unlock fragment first, then it will navigate on as desired
-            NavOptions options = new NavOptions.Builder()
-                    .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
-                    .build();
-            Bundle bundle = new Bundle();
-            bundle.putString("action", redirectionAction);
-            bundle.putString("opportunity_id", opportunityId);
-            bundle.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
-            navController.navigate(R.id.connect_unlock_fragment, bundle, options);
+            startDestinationId = R.id.connect_unlock_fragment;
+            startArgs = new Bundle();
+            startArgs.putString("action", redirectionAction);
+            startArgs.putString("opportunity_id", opportunityId);
+            startArgs.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
         }
+
+        graph.setStartDestination(startDestinationId);
+        navController.setGraph(graph, startArgs);
 
         prepareConnectMessagingScreen();
     }
