@@ -20,7 +20,7 @@ import kotlin.coroutines.suspendCoroutine
 import androidx.core.content.edit
 import com.google.common.base.Strings
 
-class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
+class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val KEY_REQUEST_ID = "request_id"
 
@@ -33,7 +33,7 @@ class IntegrityReporter(appContext: Context, workerParams: WorkerParameters) : C
             val inputData = Data.Builder()
                 .putString(KEY_REQUEST_ID, requestId)
                 .build()
-            val workRequest = OneTimeWorkRequest.Builder(IntegrityReporter::class.java)
+            val workRequest = OneTimeWorkRequest.Builder(IntegrityReporterWorker::class.java)
                 .setConstraints(constraints)
                 .setInputData(inputData)
                 .build()
