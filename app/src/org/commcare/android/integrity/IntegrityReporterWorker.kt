@@ -82,7 +82,7 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         if (success) {
             //Store requestID so we don't process it again
             preferences.edit {
-                putString(getIntegrityRequestIdKey(requestId), requestId)
+                putBoolean(getIntegrityRequestIdKey(requestId), true)
             }
         }
 
