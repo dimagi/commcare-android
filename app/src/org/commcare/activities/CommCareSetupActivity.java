@@ -645,7 +645,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 PersonalIdManager.getInstance().launchPersonalId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
                 break;
             case MENU_PERSONAL_ID_FORGET:
-                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.CCC_FORGOT_USER_SETUP_PAGE);
+                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
         }

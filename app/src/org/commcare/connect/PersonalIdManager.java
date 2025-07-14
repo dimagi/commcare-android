@@ -229,7 +229,7 @@ public class PersonalIdManager {
 
     public void forgetUser(String reason) {
         if (ConnectDatabaseHelper.dbExists()) {
-            FirebaseAnalyticsUtil.reportCccDeconfigure(reason);
+            FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
         }
         ConnectUserDatabaseUtil.forgetUser();
         personalIdSatus = PersonalIdStatus.NotIntroduced;
@@ -472,7 +472,7 @@ public class PersonalIdManager {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse,String endPoint) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode));
             }
 

@@ -32,9 +32,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
@@ -112,7 +111,7 @@ public class ConnectUnlockFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url){
                 setFragmentRedirection();
             }
 

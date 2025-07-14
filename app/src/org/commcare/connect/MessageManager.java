@@ -88,7 +88,7 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                 listener.connectActivityComplete(false);
             }
 
@@ -141,7 +141,7 @@ public class MessageManager {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                 Log.e("DEBUG_TESTING", "processFailure: " + responseCode);
                 //listener.connectActivityComplete(false);
                 getChannelEncryptionKey(context, channel, listener);
@@ -195,7 +195,7 @@ public class MessageManager {
                     }
 
                     @Override
-                    public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                    public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                         if (listener != null) {
                             listener.connectActivityComplete(false);
                         }
@@ -255,7 +255,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                     listener.connectActivityComplete(false);
                 }
 
@@ -309,7 +309,7 @@ public class MessageManager {
                 }
 
                 @Override
-                public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+                public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                     listener.connectActivityComplete(false);
                 }
 

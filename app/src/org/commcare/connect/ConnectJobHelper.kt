@@ -120,7 +120,11 @@ object ConnectJobHelper {
                 listener.connectActivityComplete(true)
             }
 
-            override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
+            override fun processFailure(
+                responseCode: Int,
+                errorResponse: InputStream?,
+                url: String?
+            ) {
                 Logger.log("ERROR", String.format(Locale.getDefault(), "Failed: %d", responseCode))
                 reportApiCall(false)
                 listener.connectActivityComplete(false)
@@ -242,7 +246,11 @@ object ConnectJobHelper {
                 listener.connectActivityComplete(success)
             }
 
-            override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
+            override fun processFailure(
+                responseCode: Int,
+                errorResponse: InputStream?,
+                url: String?
+            ) {
                 reportApiCall(false)
                 listener.connectActivityComplete(false)
             }
@@ -298,7 +306,11 @@ object ConnectJobHelper {
                     listener.connectActivityComplete(true)
                 }
 
-                override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
+                override fun processFailure(
+                    responseCode: Int,
+                    errorResponse: InputStream?,
+                    url: String?
+                ) {
                     Toast.makeText(
                         context,
                         R.string.connect_payment_confirm_failed,

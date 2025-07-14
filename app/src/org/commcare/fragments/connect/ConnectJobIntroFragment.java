@@ -121,7 +121,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                 Toast.makeText(getContext(), getString(R.string.connect_learn_error_starting),
                         Toast.LENGTH_LONG).show();
                 reportApiCall(false);
