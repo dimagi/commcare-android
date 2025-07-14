@@ -96,7 +96,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             Logger.log("ConnectActivity", "Redirecting to unlock fragment");
             //Entering from a notification, so we may need to initialize
-            PersonalIdManager.getInstance().init(this);            startDestinationId = R.id.connect_unlock_fragment;
+            PersonalIdManager.getInstance().init(this);
+            startDestinationId = R.id.connect_unlock_fragment;
             startArgs = new Bundle();
             startArgs.putString("action", redirectionAction);
             startArgs.putString("opportunity_id", opportunityId);
