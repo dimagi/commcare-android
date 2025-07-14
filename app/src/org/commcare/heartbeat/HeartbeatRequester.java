@@ -53,6 +53,7 @@ public class HeartbeatRequester extends GetAndParseActor {
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
+    private static final String REPORT_INTEGRITY_KEY = "report_integrity";
 
     public HeartbeatRequester() {
         super(NAME, TAG, ServerUrls.PREFS_HEARTBEAT_URL_KEY);
@@ -119,9 +120,8 @@ public class HeartbeatRequester extends GetAndParseActor {
     }
 
     private void checkForIntegrityRequest(JSONObject responseAsJson) {
-        final String searchKey = "report_integrity";
-        if(responseAsJson.has(searchKey)) {
-            IntegrityReporter.launch(CommCareApplication.instance(), responseAsJson.optString(searchKey, ""));
+        if(responseAsJson.has(REPORT_INTEGRITY_KEY)) {
+            IntegrityReporter.launch(CommCareApplication.instance(), responseAsJson.optString(REPORT_INTEGRITY_KEY, ""));
         }
     }
 
