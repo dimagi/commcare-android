@@ -79,8 +79,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     }
                     return true;
                 }
-            } else {
-                return false;
             }
         } catch (Exception e) {
             Logger.exception("Error parsing error_code", e);
