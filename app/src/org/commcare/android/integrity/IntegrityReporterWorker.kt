@@ -1,6 +1,7 @@
 package org.commcare.android.integrity
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
@@ -9,21 +10,20 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.google.android.play.core.integrity.StandardIntegrityException
+import com.google.common.base.Strings
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper.Companion.fetchIntegrityToken
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.preferences.HiddenPreferences
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import androidx.core.content.edit
-import com.google.android.play.core.integrity.StandardIntegrityException
-import com.google.common.base.Strings
 
 class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameters) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val KEY_REQUEST_ID = "request_id"
+        const val INTEGRITY_REQUEST_ID: String = "integrity-request-id"
 
         @JvmStatic
         fun launch(context: Context, requestId: String) {
@@ -108,6 +108,6 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
     }
 
     private fun getIntegrityRequestIdKey(requestId: String): String {
-        return HiddenPreferences.INTEGRITY_REQUEST_ID + "_" + requestId
+        return INTEGRITY_REQUEST_ID + "_" + requestId
     }
 }
