@@ -209,7 +209,7 @@ public class ConnectMessageFragment extends Fragment {
         int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
         return new ConnectMessageChatData(message.getMessageId(), viewType,
                 message.getMessage(),
-                message.getIsOutgoing() ? getString(R.string.you) : getString(R.string.them),
+                message.getIsOutgoing() ? getString(R.string.connect_message_you) : getString(R.string.connect_message_them),
                 message.getTimeStamp(),
                 message.getConfirmed());
     }

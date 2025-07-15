@@ -439,8 +439,8 @@
     <string name="connect_messaging_retrieve_messages_fail">Falha ao recuperar mensagens</string>
     <string name="connect_send_message_hint">Digite mensagem</string>
     <string name="connect_send_message_btn_desc">Clique aqui para enviar mensagem</string>
-    <string name="you">Você</string>
-    <string name="them">Eles</string>
+    <string name="connect_message_you">Você</string>
+    <string name="connect_message_them">Eles</string>
     <string name="connect_corrupt_job_text">Falha ao carregar esta oportunidade</string>
     <string name="connect_results_summary_pending">Pendente</string>
     <string name="connect_results_summary_rejected">Rejeitado</string>
