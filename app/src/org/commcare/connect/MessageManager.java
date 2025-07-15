@@ -186,7 +186,7 @@ public class MessageManager {
                                 listener.connectActivityComplete(true);
                             }
                         } catch (IOException e) {
-                            Logger.exception(LogTypes.TYPE_EXCEPTION, new Throwable("Exception occurred while handling received encryption key"));
+                            Logger.exception("Exception occurred while handling received encryption key", e );
                         }
                     }
 

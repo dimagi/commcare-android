@@ -143,15 +143,7 @@ public class ConnectMessageFragment extends Fragment {
     }
 
     private void scrollToLatestMessageWithDelay() {
-        binding.rvChat.postDelayed(() -> {
-            RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
-            if (adapter != null) {
-                int numItems = adapter.getItemCount();
-                if (numItems > 0) {
-                    scrollToLatestMessage();
-                }
-            }
-        }, 250);
+        binding.rvChat.postDelayed(this::scrollToLatestMessage, 250);
     }
 
     private void sendMessage() {

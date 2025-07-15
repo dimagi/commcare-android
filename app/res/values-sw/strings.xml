@@ -442,6 +442,8 @@
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
     <string name="connect_send_message_hint">Andika ujumbe</string>
     <string name="connect_send_message_btn_desc">Bonyeza hapa kutuma ujumbe</string>
+    <string name="you">Wewe</string>
+    <string name="them">Wao</string>
     <string name="connect_corrupt_job_text">Imeshindwa kupakia fursa hii</string>
     <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>
