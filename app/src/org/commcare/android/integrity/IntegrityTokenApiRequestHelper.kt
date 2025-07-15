@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import com.google.android.play.core.integrity.StandardIntegrityException
+import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode.*
 import org.commcare.android.CommCareViewModelProvider
 import org.commcare.utils.HashUtils
@@ -127,8 +128,11 @@ class IntegrityTokenApiRequestHelper(
             fun requestToken() {
                 try {
                     viewModel.requestIntegrityToken(requestHash, false, object : IntegrityTokenViewModel.IntegrityTokenCallback {
-                        override fun onTokenReceived(token: String, requestHash: String) {
-                            cont.resume(Result.success(Pair(token, requestHash)))
+                        override fun onTokenReceived(
+                            requestHash: String,
+                            integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken
+                        ) {
+                            cont.resume(Result.success(Pair(integrityTokenResponse.token(), requestHash)))
                         }
                         override fun onTokenFailure(exception: Exception) {
                             cont.resume(Result.failure(exception))
