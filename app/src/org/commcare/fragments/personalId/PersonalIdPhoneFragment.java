@@ -26,15 +26,20 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -53,7 +58,9 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Objects;
 
+import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener {
@@ -221,12 +228,14 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         body.put("phone_number", phone);
         body.put("application_id", requireContext().getPackageName());
         body.put("gps_location", GeoUtils.locationToString(location));
+        body.put("cc_device_id", ReportingUtils.getDeviceId());
 
         integrityTokenApiRequestHelper.withIntegrityToken(body,
                 new IntegrityTokenViewModel.IntegrityTokenCallback() {
                     @Override
-                    public void onTokenReceived(@NotNull String token, @NotNull String requestHash) {
-                        makeStartConfigurationCall(token, requestHash, body);
+                    public void onTokenReceived(@NotNull String requestHash,
+                                                @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse) {
+                        makeStartConfigurationCall(requestHash, body, integrityTokenResponse);
                     }
 
                     @Override
@@ -337,8 +346,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     }
 
 
-    private void makeStartConfigurationCall(@Nullable String integrityToken, String requestHash,
-                                            HashMap<String, String> body) {
+    private void makeStartConfigurationCall(String requestHash,
+                                            HashMap<String, String> body,
+                                            StandardIntegrityManager.@NotNull StandardIntegrityToken integrityTokenResponse) {
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
@@ -378,15 +388,55 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                                 getString(R.string.personalid_configuration_process_failed_subtitle)
                         );
                         break;
-
+                    case INTEGRITY_ERROR:
+                        handleIntegritySubError(integrityTokenResponse,
+                                personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode());
                     default:
                         navigateFailure(failureCode, t);
                         break;
                 }
             }
-        }.makeStartConfigurationCall(requireActivity(), body, integrityToken, requestHash);
+        }.makeStartConfigurationCall(requireActivity(), body, integrityTokenResponse.token(), requestHash);
     }
 
+    private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
+                                         @NonNull String subError) {
+        switch (BaseApiHandler.PersonalIdApiSubErrorCodes.valueOf(subError)) {
+            case UNLICENSED_APP_ERROR:
+                showIntegrityCheckDialog(tokenResponse, IntegrityDialogTypeCode.GET_LICENSED, subError);
+                break;
+            default:
+                onConfigurationFailure(subError,
+                        getString(R.string.personalid_configuration_process_failed_subtitle));
+                break;
+        }
+    }
+
+    private void showIntegrityCheckDialog(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
+                                          int codeType, String subError) {
+        Task<Integer> integrityDialogResponseCode = tokenResponse.showDialog(requireActivity(), codeType);
+        integrityDialogResponseCode.addOnSuccessListener(result -> {
+            if (result == DIALOG_SUCCESSFUL) {
+                // Retry the integrity token check
+                enableContinueButton(true);
+            } else {
+                // User canceled or some issue occurred
+                handleIntegrityFailure(subError, "User has cancelled the integrity dialog " + result);
+            }
+        }).addOnFailureListener(e -> {
+            // Dialog failed to launch or some error occurred
+            handleIntegrityFailure(subError, "Integrity dialog failed to launch " + e.getMessage());
+        });
+    }
+
+    private void handleIntegrityFailure(String subError, String logMessage) {
+        Logger.log(LogTypes.TYPE_MAINTENANCE, logMessage);
+        enableContinueButton(false);
+        onConfigurationFailure(
+                subError,
+                getString(R.string.personalid_configuration_process_failed_subtitle)
+        );
+    }
 
     private void onConfigurationSuccess() {
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
