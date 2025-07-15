@@ -15,6 +15,14 @@ abstract class BaseApiHandler<T> {
 
     abstract fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?)
 
+    enum class PersonalIdApiSubErrorCodes {
+        INTEGRITY_HEADERS,
+        PHONE_NUMBER_REQUIRED,
+        UNLICENSED_APP_ERROR,
+        DEVICE_INTEGRITY_ERROR,
+        APP_INTEGRITY_ERROR,
+        INTEGRITY_REQUEST_ERROR;
+    }
 
     enum class PersonalIdOrConnectApiErrorCodes {
         UNKNOWN_ERROR,
@@ -27,11 +35,13 @@ abstract class BaseApiHandler<T> {
         JSON_PARSING_ERROR,
         FAILED_AUTH_ERROR,
         SERVER_ERROR,
-        RATE_LIMIT_EXCEEDED_ERROR;
+        RATE_LIMIT_EXCEEDED_ERROR,
+        ACCOUNT_LOCKED_ERROR,
+        INTEGRITY_ERROR;
 
         fun shouldAllowRetry(): Boolean {
             return this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR
-                    ) || (this == UNKNOWN_ERROR)
+                    ) || (this == UNKNOWN_ERROR) || (this == INTEGRITY_ERROR)
         }
     }
 

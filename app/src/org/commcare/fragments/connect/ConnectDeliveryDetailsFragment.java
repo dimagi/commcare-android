@@ -109,7 +109,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                 Toast.makeText(getContext(), R.string.connect_claim_job_error, Toast.LENGTH_SHORT).show();
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }

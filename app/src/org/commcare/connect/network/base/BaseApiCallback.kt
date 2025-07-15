@@ -1,14 +1,13 @@
 package org.commcare.connect.network.base
 
+
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-
-
+import org.commcare.util.LogTypes
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
-import org.json.JSONException
 import org.json.JSONObject
-import java.io.IOException
 import java.io.InputStream
 
 /**
@@ -16,78 +15,37 @@ import java.io.InputStream
  * to define the error handling in all api handlers
  */
 abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
+
     IApiCallback {
-
-
-    override fun processFailure(responseCode: Int, errorResponse: InputStream?) {
-        if (responseCode == 401) {
-            baseApiHandler.onFailure(
+    override fun processFailure(responseCode: Int, errorResponse: InputStream?, url: String?) {
+        // Common error_code handler used before checking error response code
+        when (responseCode) {
+            401 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
                 null
             )
-            return
-        }
 
-        if (responseCode == 403) {
-            baseApiHandler.onFailure(
+            403 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
                 null
             )
-            return
-        }
 
-        if (responseCode == 429 || responseCode == 503) {
-            baseApiHandler.onFailure(
+            429 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
                 null
             )
-            return
-        }
 
-        if (responseCode == 500) {
-            baseApiHandler.onFailure(
+            in 500..509 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                 null
             )
-            return
-        }
 
-        val info = StringBuilder("Response $responseCode")
-        if (errorResponse != null) {
-            try {
-                errorResponse.use { `in` ->
-                    val json =
-                        JSONObject(String(StreamsUtil.inputStreamToByteArray(`in`), Charsets.UTF_8))
-                    if (json.has("error")) {
-                        val errorMessage = json.optString("error")
-                        info.append(": ").append(errorMessage)
-                        baseApiHandler.onFailure(
-                            PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
-                            Exception(errorMessage)
-                        )
-                        return
-                    }
-                }
-            } catch (e: JSONException) {
-                Logger.exception("Error parsing API error response", e)
-                baseApiHandler.onFailure(
-                    PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
-                    e
-                )
-                return
-            } catch (e: IOException) {
-                Logger.exception("Error parsing API error response", e)
-                baseApiHandler.onFailure(
-                    PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
-                    e
-                )
-                return
+            else -> {
+                val exception = Exception("Encountered response code $responseCode for url ${url ?: "url not found"}")
+                Logger.exception("Unknown http response code", exception)
+                baseApiHandler.onFailure(PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR, exception)
             }
         }
-        baseApiHandler.onFailure(
-            PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
-            Exception(info.toString())
-        )
     }
 
     override fun processNetworkFailure() {
@@ -117,6 +75,4 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
             null
         )
     }
-
-
 }

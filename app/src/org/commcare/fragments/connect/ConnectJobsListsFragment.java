@@ -146,7 +146,7 @@ public class ConnectJobsListsFragment extends Fragment {
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse) {
+            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
                 navigateFailure();
             }
 

@@ -37,7 +37,7 @@
     <string name="migration_definite_failure">CommCare haikuweza kuhamisha data ya programu yako kwa ajili ya kuboresha. Ili kusuluhisha suala hili, tafadhali sanidua CommCare kutoka kwa kifaa chako kisha ukizindua upya.</string>
     <string name="migration_possible_failure">CommCare haikuweza kuhamisha data yako yote wakati wa kusasisha programu. Tafadhali anzisha upya CommCare ili kujaribu kurekebisha hili. Ujumbe huu ukiendelea, huenda ukahitaji \'Kufuta data\' kwa CommCare katika menyu ya Mipangilio ya kifaa chako.</string>
     <string name="migration_failure_title">Hitilafu ya Uhamiaji</string>
-    <string name="multiple_apps_limit_message">Umefikia kikomo chako cha programu zilizosakinishwa; unaweza tu kuwa na hadi programu %s zilizosakinishwa mara moja.\n\nIkiwa ungependa kusakinisha programu mpya, unaweza kusanidua programu iliyopo kwanza, ambayo inaweza kufanywa kutoka kwa kidhibiti programu.</string>
+    <string name="multiple_apps_limit_message">Umefikia kikomo chako cha programu zilizosakinishwa; unaweza tu kuwa na hadi programu %1$d zilizosakinishwa mara moja.\n\nIkiwa ungependa kusakinisha programu mpya, unaweza kusanidua programu iliyopo kwanza, ambayo inaweza kufanywa kutoka kwa kidhibiti programu.</string>
     <string name="back_to_manager">Rudi kwa Kidhibiti Programu</string>
     <string name="go_to_manager">Nenda kwa Kidhibiti Programu</string>
     <string name="claim_privilege_button_text">DAI MApendeleo</string>
@@ -175,9 +175,9 @@
     <string name="recovery_success">Urejeshaji wa programu umefaulu. Tafadhali bonyeza nyuma ili kuendelea na kazi yako</string>
     <string name="recovery_forms_send_progress">Inawasilisha fomu kwa seva...</string>
     <string name="recovery_forms_send_session_expired">Muda wa kuingia umeisha wakati wa kutuma</string>
-    <string name="recovery_forms_send_successful">Imetuma. Fomu zote %s ziliwasilishwa</string>
+    <string name="recovery_forms_send_successful">Imetuma. Fomu zote %1$d ziliwasilishwa</string>
     <string name="recovery_forms_send_failure">Kulikuwa na makosa katika kuwasilisha fomu.</string>
-    <string name="recovery_forms_send_parital_success">Kulikuwa na makosa katika kuwasilisha fomu. %s pekee ndizo zilizowasilishwa. Tafadhali jaribu tena baadaye</string>
+    <string name="recovery_forms_send_parital_success">Kulikuwa na makosa katika kuwasilisha fomu. %1$d pekee ndizo zilizowasilishwa. Tafadhali jaribu tena baadaye</string>
     <string name="recovery_forms_send_network_error">Uwasilishaji wa fomu haukufaulu kwa sababu ya mtandao duni</string>
     <string name="recovery_forms_send_error">Hitilafu wakati wa kutuma fomu</string>
     <string name="recovery_forms_state_unavailable">Fomu hazipatikani. Hakikisha hifadhi ya simu yako inapatikana</string>
@@ -222,7 +222,7 @@
     <string name="image_download_prompt">Faili ya picha haipo kwa swali hili, Bofya kitufe cha kupakua hapo juu ili kupakua</string>
     <string name="audio_download_prompt">Faili ya sauti haipo kwa swali hili, bofya kitufe cha kupakua hapo juu ili kupakua</string>
     <string name="media_not_found_error">Midia haipatikani kwenye programu</string>
-    <string name="area_format">%1s sq m</string>
+    <string name="area_format">%1$.2f sq m</string>
     <string name="parse_coordinates_failure">Haikuweza kuchanganua viwianishi vya ingizo</string>
     <string name="location_provider_disabled">Washa eneo lako ili kupokea masasisho ya eneo</string>
     <string name="wait_for_location_fix">CommCare bado inajaribu kupata eneo lako. Tafadhali subiri au ubofye Ghairi ili kughairi.</string>
@@ -251,7 +251,7 @@
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya Kitambulisho cha Kibinafsi tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
-    <string name="connect_consent_message_1">Nimesoma na kukubaliana na Sera ya Faragha ya Dimagi, Sheria na Masharti, Makubaliano ya Biashara na Sera ya Matumizi Yanayokubalika.</string>
+    <string name="connect_consent_message_1">Nimesoma na kukubaliana na <a href="https://www.dimagi.com/terms/latest/privacy/">Sera ya Faragha</a> ya Dimagi, <a href="https://www.dimagi.com/terms/latest/tos/">Sheria na Masharti</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Makubaliano ya Biashara</a> na <a href="https://www.dimagi.com/terms/latest/aup/">Sera ya Matumizi Yanayokubalika</a>.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">OTP Imetumwa</string>
@@ -450,8 +450,13 @@
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_name_empty_error">Sehemu ya jina haiwezi kuwa tupu</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
+    <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
     <string name="personalid_configuration_process_failed_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_security_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu kwa sababu ya kutopatikana kwa kipengele cha usalama cha %s. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
+    <string name="personalid_configuration_process_failed_play_services">Tafadhali hakikisha kuwa Play Store inapatikana kwenye kifaa chako na imesasishwa.</string>
+    <string name="personalid_configuration_process_failed_temporary_unavailable">Hitilafu ya muda katika kuthibitisha ustahiki wa kifaa chako. Tafadhali jaribu tena baada ya siku moja.</string>
+    <string name="personalid_configuration_process_failed_network_error">Hitilafu ya mtandao katika kuthibitisha ustahiki wa kifaa chako. Tafadhali hakikisha una muunganisho mzuri wa mtandao na jaribu tena.</string>
+    <string name="personalid_configuration_process_failed_unexpected_error">Imeshindikana kuthibitisha ustahiki wa kifaa kutokana na hitilafu isiyotarajiwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_photo_capture_title">Karibu %1$s</string>
     <string name="personalid_photo_capture_subtitle">Tafadhali jipige picha ili ukamilishe kusanidi akaunti yako</string>
     <string name="personalid_photo_capture_take_photo_button">Piga Picha</string>
@@ -460,8 +465,10 @@
     <string name="personalid_this_is_not_me"><u>Huyu si mimi</u></string>
     <string name="personalid_welcome_back_msg">Karibu tena %s</string>
     <string name="personalid_recovery_failed_title">Urejeshaji haukufaulu</string>
+    <string name="personalid_recovery_lockout_title">Akaunti Imefungwa</string>
     <string name="personalid_recovery_failed_message">Inaonekana umesahau Nambari yako ya Hifadhi Nambari, tunakuundia akaunti mpya</string>
     <string name="personalid_wrong_backup_message">Umeweka Nambari ya Hifadhi Nambari isiyo sahihi, tafadhali jaribu tena. Utahitaji kuunda akaunti mpya baada ya majaribio %d zaidi yasiyo sahihi.</string>
+    <string name="personalid_recovery_lockout_message">Umeweka Nambari ya Hifadhi Nambari isiyo sahihi mara nyingi sana na akaunti yako imefungwa.</string>
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
