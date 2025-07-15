@@ -50,9 +50,8 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         }
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val storedId = preferences.getString(getIntegrityRequestIdKey(requestId), null)
-        if (storedId == requestId) {
-            // Already processed this request
+        val alreadyProcessed = preferences.getBoolean(getIntegrityRequestIdKey(requestId), false)
+        if (alreadyProcessed) {
             return Result.success()
         }
 
