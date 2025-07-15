@@ -59,7 +59,7 @@ public class ConnectMessageFragment extends Fragment {
         apiCallRunnable = new Runnable() {
             @Override
             public void run() {
-                makeApiCall(); // Perform the API call
+                fetchMessagesFromNetwork(); // Perform the API call
                 handler.postDelayed(this, INTERVAL); // Schedule the next call
             }
         };
@@ -97,7 +97,7 @@ public class ConnectMessageFragment extends Fragment {
         }
     };
 
-    private void makeApiCall() {
+    private void fetchMessagesFromNetwork() {
         MessageManager.retrieveMessages(requireActivity(), success -> {
             if (success) {
                 refreshUi();
@@ -108,7 +108,20 @@ public class ConnectMessageFragment extends Fragment {
     }
 
     private void handleSendButtonListener() {
-        binding.etMessage.addTextChangedListener(new TextWatcher() {
+        binding.etMessage.addTextChangedListener(createTextWatcher());
+
+        binding.etMessage.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                scrollToLatestMessageWithDelay();
+            }
+        });
+
+        binding.imgSendMessage.setOnClickListener(v -> sendMessage());
+    }
+
+    private TextWatcher createTextWatcher() {
+
+        return new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -125,49 +138,47 @@ public class ConnectMessageFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
             }
-        });
+        };
 
-        binding.etMessage.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
+    }
 
-                binding.rvChat.postDelayed(() -> {
-                    RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
-                    if (adapter != null) {
-                        int numItems = adapter.getItemCount();
-                        if (numItems > 0) {
-                            binding.rvChat.scrollToPosition(numItems - 1);
-                        }
-                    }
-                }, 250);
-            }
-        });
-
-        binding.imgSendMessage.setOnClickListener(v -> {
-            ConnectMessagingMessageRecord message = new ConnectMessagingMessageRecord();
-            message.setMessageId(UUID.randomUUID().toString());
-            message.setMessage(binding.etMessage.getText().toString());
-            message.setChannelId(channelId);
-            message.setTimeStamp(new Date());
-            message.setIsOutgoing(true);
-            message.setConfirmed(false);
-            message.setUserViewed(true);
-
-            binding.etMessage.setText("");
-
-            ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
-            ConnectMessageChatData chat = fromMessage(message);
-            adapter.addMessage(chat);
-            binding.rvChat.scrollToPosition(adapter.getItemCount() - 1);
-
-            MessageManager.sendMessage(requireContext(), message, success -> {
-                if (!success) {
-                    Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
-                } else {
-                    chat.setMessageRead(success);
-                    adapter.updateMessageReadStatus(chat);
-                    binding.rvChat.scrollToPosition(adapter.getItemCount() - 1);
+    private void scrollToLatestMessageWithDelay() {
+        binding.rvChat.postDelayed(() -> {
+            RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
+            if (adapter != null) {
+                int numItems = adapter.getItemCount();
+                if (numItems > 0) {
+                    scrollToLatestMessage();
                 }
-            });
+            }
+        }, 250);
+    }
+
+    private void sendMessage() {
+        ConnectMessagingMessageRecord message = new ConnectMessagingMessageRecord();
+        message.setMessageId(UUID.randomUUID().toString());
+        message.setMessage(binding.etMessage.getText().toString());
+        message.setChannelId(channelId);
+        message.setTimeStamp(new Date());
+        message.setIsOutgoing(true);
+        message.setConfirmed(false);
+        message.setUserViewed(true);
+
+        binding.etMessage.setText("");
+
+        ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
+        ConnectMessageChatData chat = fromMessage(message);
+        adapter.addMessage(chat);
+        scrollToLatestMessage();
+
+        MessageManager.sendMessage(requireContext(), message, success -> {
+            if (!success) {
+                Toast.makeText(requireContext(), getString(R.string.connect_messaging_send_message_fail_msg), Toast.LENGTH_SHORT).show();
+            } else {
+                chat.setMessageRead(success);
+                adapter.updateMessageReadStatus(chat);
+                scrollToLatestMessage();
+            }
         });
     }
 
@@ -197,9 +208,7 @@ public class ConnectMessageFragment extends Fragment {
             }
 
             adapter.updateData(chats);
-            if (messages.size() > 0) {
-                binding.rvChat.scrollToPosition(messages.size() - 1);
-            }
+            scrollToLatestMessage();
 
         }
     }
@@ -208,9 +217,16 @@ public class ConnectMessageFragment extends Fragment {
         int viewType = message.getIsOutgoing() ? ConnectMessageAdapter.RIGHTVIEW : ConnectMessageAdapter.LEFTVIEW;
         return new ConnectMessageChatData(message.getMessageId(), viewType,
                 message.getMessage(),
-                message.getIsOutgoing() ? "You" : "Them",
+                message.getIsOutgoing() ? getString(R.string.you) : getString(R.string.them),
                 message.getTimeStamp(),
                 message.getConfirmed());
+    }
+
+    private void scrollToLatestMessage() {
+        RecyclerView.Adapter<?> adapter = binding.rvChat.getAdapter();
+        if (adapter != null && adapter.getItemCount() > 0) {
+            binding.rvChat.scrollToPosition(adapter.getItemCount() - 1);
+        }
     }
 }
 

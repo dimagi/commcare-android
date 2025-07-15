@@ -172,15 +172,15 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
     public int getUnreadCount() {
         int unread = 0;
-        if (messages.size() > 0) {
-            for (int messageIndex = messages.size() - 1; messageIndex >= 0; messageIndex--) {
-                if (!messages.get(messageIndex).getUserViewed()) {
-                    unread++;
-                } else {
-                    break;  // now all messages will be read only
-                }
+
+        for (int messageIndex = messages.size() - 1; messageIndex >= 0; messageIndex--) {
+            if (!messages.get(messageIndex).getUserViewed()) {
+                unread++;
+            } else {
+                break;  // now all messages will be read only
             }
         }
+
         return unread;
     }
 

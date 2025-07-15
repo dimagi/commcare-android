@@ -40,15 +40,16 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     }
 
     public void updateMessageReadStatus(ConnectMessageChatData modifiedChat) {
-        if (messages.size() > 0) {
-            for (ConnectMessageChatData chat : messages) {
-                if (chat.getMessageId().equals(modifiedChat.getMessageId())) {
-                    chat.setMessageRead(modifiedChat.isMessageRead());
-                    notifyDataSetChanged();
-                    return;
-                }
+
+        for (int messageIndex = messages.size() - 1; messageIndex >= 0; messageIndex--) {
+
+            if (messages.get(messageIndex).getMessageId().equals(modifiedChat.getMessageId())) {
+                messages.get(messageIndex).setMessageRead(modifiedChat.isMessageRead());
+                notifyItemChanged(messageIndex);
+                return;
             }
         }
+
     }
 
     public class LeftViewHolder extends BaseMessageViewHolder {
