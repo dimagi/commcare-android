@@ -21,7 +21,7 @@ object ConnectAppUtils {
     fun wasAppLaunchedFromConnect(appId: String?): Boolean {
         val primed = primedAppIdForAutoLogin
         primedAppIdForAutoLogin = null
-        return primed == appId
+        return primed != null && primed == appId
     }
 
     fun isAppInstalled(appId: String): Boolean {
