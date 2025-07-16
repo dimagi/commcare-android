@@ -128,17 +128,17 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         super.onResume();
         updateMessagingIcon();
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
+        LocalBroadcastManager.getInstance(this).registerReceiver(messagingUpdateReceiver,
                 new IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST));
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver);
     }
 
-    private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver messagingUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateMessagingIcon();
