@@ -1,5 +1,9 @@
 package org.commcare.activities.connect;
 
+import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +29,7 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
@@ -44,9 +49,9 @@ import javax.annotation.Nullable;
 public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngineListener> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
-    String redirectionAction = "";
-    String opportunityId = "";
-    MenuItem messagingMenuItem = null;
+    private String redirectionAction = "";
+    private String opportunityId = "";
+    private MenuItem messagingMenuItem = null;
 
     final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -74,7 +79,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
         int startDestinationId = R.id.connect_jobs_list_fragment;
         Bundle startArgs = new Bundle();
-        if (getIntent().getBooleanExtra("info", false)) {
+        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
             startDestinationId = handleInfoRedirect(startArgs);
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
@@ -87,8 +92,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     }
 
     private void getIntentExtras() {
-        redirectionAction = getIntent().getStringExtra("action");
-        opportunityId = getIntent().getStringExtra("opportunity_id");
+        redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
+        opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
         if (opportunityId == null) {
             opportunityId = "";
         }
@@ -98,7 +103,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
         Objects.requireNonNull(job);
 
-        startArgs.putBoolean("showLaunch", getIntent().getBooleanExtra("buttons", true));
+        startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
                 ? R.id.connect_job_delivery_progress_fragment
@@ -111,9 +116,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         //Entering from a notification, so we may need to initialize
         PersonalIdManager.getInstance().init(this);
 
-        startArgs.putString("action", redirectionAction);
-        startArgs.putString("opportunity_id", opportunityId);
-        startArgs.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
+        startArgs.putString(REDIRECT_ACTION, redirectionAction);
+        startArgs.putString(ConnectConstants.OPPORTUNITY_ID, opportunityId);
+        startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return R.id.connect_unlock_fragment;
     }

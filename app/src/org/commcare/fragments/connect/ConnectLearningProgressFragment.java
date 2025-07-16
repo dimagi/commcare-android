@@ -1,5 +1,7 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,7 +49,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (getArguments() != null) {
-            showAppLaunch = getArguments().getBoolean("showLaunch", true);
+            showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
         }
         viewBinding = FragmentConnectLearningProgressBinding.inflate(inflater, container, false);
         setupToolbar();
