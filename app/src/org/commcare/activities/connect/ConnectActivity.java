@@ -64,12 +64,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         super.onCreate(savedInstanceState);
         setTitle(getString(R.string.connect_title));
 
-        redirectionAction = getIntent().getStringExtra("action");
-        opportunityId = getIntent().getStringExtra("opportunity_id");
-        if (opportunityId == null) {
-            opportunityId = "";
-        }
-
+        getIntentExtras();
         updateBackButton();
 
         // Wait for fragment to attach
@@ -78,35 +73,49 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
 
         int startDestinationId = R.id.connect_jobs_list_fragment;
-        Bundle startArgs = null;
-
+        Bundle startArgs = new Bundle();
         if (getIntent().getBooleanExtra("info", false)) {
-            ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
-            Objects.requireNonNull(job);
-
-            startDestinationId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                    ? R.id.connect_job_delivery_progress_fragment
-                    : R.id.connect_job_learning_progress_fragment;
-
-            boolean buttons = getIntent().getBooleanExtra("buttons", true);
-            startArgs = new Bundle();
-            startArgs.putBoolean("showLaunch", buttons);
-
+            startDestinationId = handleInfoRedirect(startArgs);
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
-            Logger.log("ConnectActivity", "Redirecting to unlock fragment");
-            //Entering from a notification, so we may need to initialize
-            PersonalIdManager.getInstance().init(this);
-            startDestinationId = R.id.connect_unlock_fragment;
-            startArgs = new Bundle();
-            startArgs.putString("action", redirectionAction);
-            startArgs.putString("opportunity_id", opportunityId);
-            startArgs.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
+            startDestinationId = handleSecureRedirect(startArgs);
         }
 
         graph.setStartDestination(startDestinationId);
         navController.setGraph(graph, startArgs);
 
         retrieveMessages();
+    }
+
+    private void getIntentExtras() {
+        redirectionAction = getIntent().getStringExtra("action");
+        opportunityId = getIntent().getStringExtra("opportunity_id");
+        if (opportunityId == null) {
+            opportunityId = "";
+        }
+    }
+
+    private int handleInfoRedirect(Bundle startArgs) {
+        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        Objects.requireNonNull(job);
+
+        startArgs.putBoolean("showLaunch", getIntent().getBooleanExtra("buttons", true));
+
+        return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
+                ? R.id.connect_job_delivery_progress_fragment
+                : R.id.connect_job_learning_progress_fragment;
+    }
+
+    private int handleSecureRedirect(Bundle startArgs) {
+        Logger.log("ConnectActivity", "Redirecting to unlock fragment");
+
+        //Entering from a notification, so we may need to initialize
+        PersonalIdManager.getInstance().init(this);
+
+        startArgs.putString("action", redirectionAction);
+        startArgs.putString("opportunity_id", opportunityId);
+        startArgs.putBoolean("buttons", getIntent().getBooleanExtra("buttons", true));
+
+        return R.id.connect_unlock_fragment;
     }
 
     @Override
