@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/connect_background_color">
@@ -160,16 +160,16 @@
                         android:background="@color/connect_darker_blue_color"
                         android:padding="16dp">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <LinearLayout
                             android:id="@+id/linearLayout"
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             android:layout_marginEnd="2dp"
-                            app:layout_constraintEnd_toStartOf="@+id/connect_delivery_button"
-                            app:layout_constraintTop_toTopOf="parent">
+                            android:background="@color/connect_darker_blue_color">
 
                             <TextView
                                 android:id="@+id/connect_delivery_action_title"
@@ -192,24 +192,24 @@
                                 android:textColor="@color/grey"
                                 android:textSize="14sp" />
 
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/connect_delivery_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/connect_job_info_download"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:backgroundTint= "@color/white"
-                            android:drawableEnd= "@drawable/ic_connect_arrow_forward_20px"
-                            android:textColor= "@color/cc_brand_color"
-                            app:iconTint="@color/cc_brand_color"
-                            />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/connect_delivery_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/connect_job_info_download"
+                                app:layout_constraintTop_toBottomOf="@id/connect_delivery_action_details"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                android:layout_gravity="end"
+                                android:backgroundTint= "@color/white"
+                                android:drawableEnd= "@drawable/ic_connect_arrow_forward_20px"
+                                android:textColor= "@color/cc_brand_color"
+                                app:iconTint="@color/cc_brand_color"
+                                />
+                        </LinearLayout>
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 </ScrollView>
+</layout>
