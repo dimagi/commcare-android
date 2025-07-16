@@ -240,7 +240,7 @@
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">PersonalId ምዝገባ</string>
-    <string name="connect_consent_message_1">ኣነ ፖሊሲ ውልቃዊ ሓበሬታ፡ ውዕል ኣገልግሎት፡ ስምምዕ ንግዲን ፖሊሲ ቅቡል ኣጠቓቕማን Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
+    <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
     <string name="connect_phone_country_code_default">1</string>
     <string name="connect_phone_number_hint">0</string>
     <string name="connect_otp_sent">ኦቲፒ ተላኢኹ</string>
@@ -425,6 +425,8 @@
     <string name="connect_messaging_retrieve_messages_fail">መልእኽትታት ምምላስ ኣይከኣለን</string>
     <string name="connect_send_message_hint">መልእኽቲ ጽሓፍ</string>
     <string name="connect_send_message_btn_desc">መልእኽቲ ንምልኣኽ ኣብዚ ጠውቑ</string>
+    <string name="connect_message_you">ንስኻ</string>
+    <string name="connect_message_them">ንሶም</string>
     <string name="connect_corrupt_job_text">ነዚ ዕድል ክጽዕን ኣይከኣለን</string>
     <string name="connect_results_summary_pending">ኣብ ከይዲ</string>
     <string name="connect_results_summary_rejected">ተነጺጉ</string>
