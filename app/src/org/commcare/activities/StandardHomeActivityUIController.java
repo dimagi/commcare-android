@@ -177,10 +177,13 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateConnectProgress() {
-        RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        if (job == null) {
+            return;
+        }
 
-        if (job == null || job.getStatus() != STATUS_DELIVERING || job.isFinished()) {
+        RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
+        if (job.getStatus() != STATUS_DELIVERING || job.isFinished()) {
             recyclerView.setVisibility(View.GONE);
         }
 
@@ -188,16 +191,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         deliveryPaymentInfoList.clear();
 
-        if (job != null) {
-            //Note: Only showing a single daily progress bar for now
-            //Adding more entries to the list would show multiple progress bars
-            //(i.e. one for each payment type)
-            deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
-                    activity.getString(R.string.connect_job_tile_daily_visits),
-                    job.numberOfDeliveriesToday(),
-                    job.getMaxDailyVisits()
-            ));
-        }
+        //Note: Only showing a single daily progress bar for now
+        //Adding more entries to the list would show multiple progress bars
+        //(i.e. one for each payment type)
+        deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
+                activity.getString(R.string.connect_job_tile_daily_visits),
+                job.numberOfDeliveriesToday(),
+                job.getMaxDailyVisits()
+        ));
+
         ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(connectProgressJobSummaryAdapter);
