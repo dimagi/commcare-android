@@ -104,56 +104,14 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
             } else if (job.getProjectStartDate().after(new Date())) {
                 warningText = activity.getString(R.string.connect_progress_warning_not_started);
-            } else if(job.readyToTransitionToDelivery()) {
+            } else if (job.readyToTransitionToDelivery()) {
                 warningText = activity.getString(R.string.connect_progress_ready_for_transition_to_delivery);
             } else if (job.isMultiPayment()) {
-                Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
-                Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
-                List<String> dailyMaxes = new ArrayList<>();
-                List<String> totalMaxes = new ArrayList<>();
-                for (int i = 0; i < job.getPaymentUnits().size(); i++) {
-                    ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
-                    String stringKey = Integer.toString(unit.getUnitId());
-
-                    int totalCount = 0;
-                    if (totalPaymentCounts.containsKey(stringKey)) {
-                        totalCount = totalPaymentCounts.get(stringKey);
-                    }
-
-                    if (totalCount >= unit.getMaxTotal()) {
-                        //Reached max total for this type
-                        totalMaxes.add(unit.getName());
-                    } else {
-                        int todayCount = 0;
-                        if (todayPaymentCounts.containsKey(stringKey)) {
-                            todayCount = todayPaymentCounts.get(stringKey);
-                        }
-
-                        if (todayCount >= unit.getMaxDaily()) {
-                            //Reached daily max for this type
-                            dailyMaxes.add(unit.getName());
-                        }
-                    }
-                }
-
-                if (totalMaxes.size() > 0 || dailyMaxes.size() > 0) {
-                    warningText = "";
-                    if (totalMaxes.size() > 0) {
-                        String maxes = String.join(", ", totalMaxes);
-                        warningText = activity.getString(R.string.connect_progress_warning_max_reached_multi, maxes);
-                    }
-
-                    if (dailyMaxes.size() > 0) {
-                        String maxes = String.join(", ", dailyMaxes);
-                        warningText += activity.getString(R.string.connect_progress_warning_daily_max_reached_multi, maxes);
-                    }
-                }
-            } else {
-                if (job.getDeliveries().size() >= job.getMaxVisits()) {
-                    warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
-                } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
-                    warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
-                }
+                warningText = getMultiVisitWarnings(job);
+            } else if (job.getDeliveries().size() >= job.getMaxVisits()) {
+                warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
+            } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
+                warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
             }
         }
 
@@ -162,6 +120,50 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
             tv.setText(warningText);
         }
+    }
+
+    private String getMultiVisitWarnings(ConnectJobRecord job) {
+        Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+        Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
+        List<String> dailyMaxes = new ArrayList<>();
+        List<String> totalMaxes = new ArrayList<>();
+        for (int i = 0; i < job.getPaymentUnits().size(); i++) {
+            ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
+            String stringKey = Integer.toString(unit.getUnitId());
+
+            int totalCount = 0;
+            if (totalPaymentCounts.containsKey(stringKey)) {
+                totalCount = totalPaymentCounts.get(stringKey);
+            }
+
+            if (totalCount >= unit.getMaxTotal()) {
+                //Reached max total for this type
+                totalMaxes.add(unit.getName());
+            } else {
+                int todayCount = 0;
+                if (todayPaymentCounts.containsKey(stringKey)) {
+                    todayCount = todayPaymentCounts.get(stringKey);
+                }
+
+                if (todayCount >= unit.getMaxDaily()) {
+                    //Reached daily max for this type
+                    dailyMaxes.add(unit.getName());
+                }
+            }
+        }
+
+        List<String> lines = new ArrayList<>();
+        if (totalMaxes.size() > 0) {
+            lines.add(activity.getString(R.string.connect_progress_warning_max_reached_multi,
+                    String.join(", ", totalMaxes)));
+        }
+
+        if (dailyMaxes.size() > 0) {
+            lines.add(activity.getString(R.string.connect_progress_warning_daily_max_reached_multi,
+                    String.join(", ", dailyMaxes)));
+        }
+
+        return lines.size() > 0 ? String.join("\n", lines) : null;
     }
 
     @Override
