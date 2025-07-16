@@ -21,12 +21,11 @@ object ConnectAppUtils {
     @Volatile
     private var isAppDownloading = false
 
-    fun wasAppLaunchedFromConnect(intent: Intent): Boolean {
-       return intent.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false)
+    fun wasAppLaunchedFromConnect(intent: Intent?): Boolean {
+        return intent?.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) ?: false
     }
 
     fun downloadApp(installUrl: String?, listener: ResourceEngineListener?) {
-        val downloadListener: ResourceEngineListener? = listener
         if (!isAppDownloading) {
             isAppDownloading = true
             //Start a new download
@@ -39,6 +38,7 @@ object ConnectAppUtils {
                     }
 
                     override fun startBlockingForTask(id: Int) {
+                        isAppDownloading = true
                     }
 
                     override fun stopBlockingForTask(id: Int) {
@@ -50,7 +50,7 @@ object ConnectAppUtils {
                     }
 
                     override fun getReceiver(): ResourceEngineListener? {
-                        return downloadListener
+                        return listener
                     }
 
                     override fun startTaskTransition() {
