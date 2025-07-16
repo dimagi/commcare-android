@@ -211,7 +211,7 @@
                     android:layout_marginTop="16dp"
                     android:text="@string/connect_learn_certificate"
                     android:textAlignment="center"
-                    android:textColor="@color/connect_aquva" />
+                    android:textColor="@color/connect_aqua" />
 
                 <TextView
                     android:id="@+id/connect_learn_cert_subject"

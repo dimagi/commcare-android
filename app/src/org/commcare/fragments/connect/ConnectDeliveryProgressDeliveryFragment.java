@@ -56,10 +56,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         int percent = total > 0 ? (100 * completed / total) : 100;
 
         CircleProgressBar progress = binding.connectProgressProgressBar;
-        progress.setStrokeWidth(15);
-        progress.setBackgroundColor(
-                ContextCompat.getColor(requireContext(), R.color.connect_blackist_dark_blue_color));
-        progress.setProgressColor(ContextCompat.getColor(requireContext(), R.color.connect_aquva));
         progress.setProgress(percent);
         binding.connectProgressProgressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
