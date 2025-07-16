@@ -131,10 +131,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         if (jobType.equals(JOB_LEARNING) && !item.getJob().passedAssessment()) {
             progress = item.getLearningProgress();
-            progressColor = context.getResources().getColor(R.color.connect_blue_color);
+            progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
         } else if (jobType.equals(JOB_DELIVERY) && !item.getJob().isFinished()) {
             progress = item.getDeliveryProgress();
-            progressColor = context.getResources().getColor(R.color.connect_green);
+            progressColor = ContextCompat.getColor(context, R.color.connect_green);
         }
 
         if (progress > 0) {
@@ -150,7 +150,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ItemLoginConnectHomeAppsBinding binding) {
         if (item.isNew()) {
             setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
-                    context.getResources().getString(R.string.connect_new_opportunity),
+                    ContextCompat.getString(context, R.string.connect_new_opportunity),
                     R.drawable.ic_connect_new_opportunity,
                     255, R.color.connect_yellowish_orange_color, binding);
         } else if (item.isLearningApp()) {
@@ -159,7 +159,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             int textColorId = passedAssessment ? R.color.connect_blue_color_50 : R.color.connect_blue_color;
             int iconAlpha = passedAssessment ? 128 : 255;
             setJobType(context, R.drawable.connect_rounded_corner_tealish_blue,
-                    context.getResources().getString(textId), R.drawable.ic_connect_learning, iconAlpha,
+                    ContextCompat.getString(context, textId), R.drawable.ic_connect_learning, iconAlpha,
                     textColorId, binding);
         } else if (item.isDeliveryApp()) {
             boolean finished = item.getJob().isFinished();
@@ -170,7 +170,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
 
             setJobType(context, drawableId,
-                    context.getResources().getString(textId), iconId, 255,
+                    ContextCompat.getString(context, textId), iconId, 255,
                     textColorId, binding);
         }
     }
