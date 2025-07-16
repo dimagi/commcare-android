@@ -89,7 +89,7 @@ object ConnectJobHelper {
                         val modules = json.getJSONArray(key)
                         val learningRecords: MutableList<ConnectJobLearningRecord> =
                             ArrayList(modules.length())
-                        for (i in 0..<modules.length()) {
+                        for (i in 0 until modules.length()) {
                             val obj = modules[i] as JSONObject
                             val record = ConnectJobLearningRecord.fromJson(obj, job.jobId)
                             learningRecords.add(record)
@@ -101,7 +101,7 @@ object ConnectJobHelper {
                         val assessments = json.getJSONArray(key)
                         val assessmentRecords: MutableList<ConnectJobAssessmentRecord> =
                             ArrayList(assessments.length())
-                        for (i in 0..<assessments.length()) {
+                        for (i in 0 until assessments.length()) {
                             val obj = assessments[i] as JSONObject
                             val record = ConnectJobAssessmentRecord.fromJson(obj, job.jobId)
                             assessmentRecords.add(record)
@@ -210,7 +210,7 @@ object ConnectJobHelper {
                         key = "deliveries"
                         if (json.has(key)) {
                             val array = json.getJSONArray(key)
-                            for (i in 0..<array.length()) {
+                            for (i in 0 until array.length()) {
                                 val obj = array[i] as JSONObject
                                 deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.jobId))
                             }
@@ -225,7 +225,7 @@ object ConnectJobHelper {
                         key = "payments"
                         if (json.has(key)) {
                             val array = json.getJSONArray(key)
-                            for (i in 0..<array.length()) {
+                            for (i in 0 until array.length()) {
                                 val obj = array[i] as JSONObject
                                 payments.add(ConnectJobPaymentRecord.fromJson(obj, job.jobId))
                             }
