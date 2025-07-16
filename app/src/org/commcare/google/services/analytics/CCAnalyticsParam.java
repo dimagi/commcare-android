@@ -24,6 +24,8 @@ public class CCAnalyticsParam {
     static final String UI_STATE = "uite_state";
     static final String USERNAME = "username";
     static final String FORM_ID = "form_id";
+    static final String REQUEST_ID = "request_id";
+    static final String RESULT_CODE = "result_code";
 
     static final String USER_RETURNED = "user_returned";
     static final String NOTIFICATION_TYPE = "notification_type";
