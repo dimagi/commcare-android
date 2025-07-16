@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,8 +31,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private final ArrayList<ConnectLoginJobListModel> jobList;
     private final OnJobSelectionClick launcher;
     private final ArrayList<ConnectLoginJobListModel> corruptJobs;
-    private static final int NON_CORRUPT_JOB_VIEW = 4983;
-    private static final int CORRUPT_JOB_VIEW = 9533;
+    public static final int NON_CORRUPT_JOB_VIEW = 1;
+    public static final int CORRUPT_JOB_VIEW = 2;
 
     public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,
             ArrayList<ConnectLoginJobListModel> corruptJobs, OnJobSelectionClick launcher) {
