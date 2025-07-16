@@ -10,14 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.commcare.activities.LoginActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeCorruptAppsBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,8 +30,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private final ArrayList<ConnectLoginJobListModel> jobList;
     private final OnJobSelectionClick launcher;
     private final ArrayList<ConnectLoginJobListModel> corruptJobs;
-    private static int NON_CORRUPT_JOB_VIEW = 4983;
-    private static int CORRUPT_JOB_VIEW = 9533;
+    private static final int NON_CORRUPT_JOB_VIEW = 4983;
+    private static final int CORRUPT_JOB_VIEW = 9533;
 
     public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,
             ArrayList<ConnectLoginJobListModel> corruptJobs, OnJobSelectionClick launcher) {
@@ -61,10 +59,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof NonCorruptJobViewHolder) {
-            bind(mContext, ((NonCorruptJobViewHolder)holder).binding, jobList.get(position), launcher);
-        } else if (holder instanceof CorruptJobViewHolder) {
-            bind(mContext, ((CorruptJobViewHolder)holder).binding, corruptJobs.get(position - jobList.size()));
+        if (holder instanceof NonCorruptJobViewHolder valid) {
+            bind(mContext, valid.binding, jobList.get(position), launcher);
+        } else if (holder instanceof CorruptJobViewHolder corrupt) {
+            bind(corrupt.binding, corruptJobs.get(position - jobList.size()));
         }
     }
 
@@ -96,18 +94,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
     }
 
-    private static String formatDate(String dateStr) {
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-            Date date = inputFormat.parse(dateStr);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            return null;
-        }
+    private static String formatDate(Date date) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+        return outputFormat.format(date);
     }
 
-    public void bind(Context mContext, ItemLoginConnectHomeCorruptAppsBinding binding,
+    public void bind(ItemLoginConnectHomeCorruptAppsBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
     }
@@ -115,7 +107,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     public void bind(Context mContext, ItemLoginConnectHomeAppsBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate().toString()));
+        binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate()));
         binding.imgDownload.setVisibility(connectLoginJobListModel.isAppInstalled() ? View.GONE : View.VISIBLE);
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
