@@ -45,9 +45,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
     private View viewJobCard;
     private CardView connectMessageCard;
+    private ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter;
 
     private HomeScreenAdapter adapter;
-    List<ConnectDeliveryPaymentSummaryInfo> deliveryPaymentInfoList = new ArrayList<>();
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
         this.activity = activity;
@@ -61,6 +61,11 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         updateJobTileDetails();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
+
+        connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
+        RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        recyclerView.setAdapter(connectProgressJobSummaryAdapter);
     }
 
     private void updateJobTileDetails() {
@@ -189,22 +194,18 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
         updateOpportunityMessage();
 
-        deliveryPaymentInfoList.clear();
-
         //Note: Only showing a single daily progress bar for now
         //Adding more entries to the list would show multiple progress bars
         //(i.e. one for each payment type)
-        deliveryPaymentInfoList.add(new ConnectDeliveryPaymentSummaryInfo(
+        List<ConnectDeliveryPaymentSummaryInfo> list = new ArrayList<>();
+        list.add(new ConnectDeliveryPaymentSummaryInfo(
                 activity.getString(R.string.connect_job_tile_daily_visits),
                 job.numberOfDeliveriesToday(),
                 job.getMaxDailyVisits()
         ));
 
-        ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(deliveryPaymentInfoList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-        recyclerView.setAdapter(connectProgressJobSummaryAdapter);
+        connectProgressJobSummaryAdapter.setDeliverySummaries(list);
     }
-
 
     private Vector<String> getHiddenButtons() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
