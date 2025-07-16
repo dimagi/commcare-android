@@ -594,6 +594,9 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
+        <meta-data
+            android:name="firebase_performance_collection_enabled"
+            android:value="false" />
 
         <!-- Somehow this receiver is getting triggered in Android 8+ devices and causing
             IllegalStateException while trying to start map downloader service from background.
