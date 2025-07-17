@@ -624,6 +624,7 @@
         </service>
 
         <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialDetailActivity" />
 
     </application>
 
