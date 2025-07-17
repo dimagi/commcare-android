@@ -8,6 +8,7 @@ import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRec
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.services.Logger;
+
 import java.util.*;
 
 public class JobStoreManager {

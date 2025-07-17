@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.google.zxing.BarcodeFormat;
 
 import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.GlobalConstants;
@@ -55,10 +57,10 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshUI();
+        refreshUi();
     }
 
-    private void refreshUI() {
+    private void refreshUi() {
         TextView enabledTextView = findViewById(R.id.enabled_textview);
         TextView notEnabledTextView = findViewById(R.id.not_enabled_textview);
         Button claimButton = findViewById(R.id.claim_button);
@@ -108,7 +110,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
                                 GlobalPrivilegesManager.enablePrivilege(p, activatedPrivileges.first);
                             }
                         }
-                        refreshUI();
+                        refreshUi();
 
                     } catch (PrivilegesUtility.UnrecognizedPayloadVersionException e) {
                         e.printStackTrace();
@@ -144,6 +146,12 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onMenuOpened(int featureId, Menu menu) {
+        FirebaseAnalyticsUtil.reportOptionsMenuOpened(getClass().getSimpleName());
+        return super.onMenuOpened(featureId, menu);
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(DISABLE).setVisible(GlobalPrivilegesManager.getEnabledPrivileges().size() > 0);
@@ -158,7 +166,7 @@ public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
                 for (String privilege : GlobalPrivilegesManager.getEnabledPrivileges()) {
                     GlobalPrivilegesManager.disablePrivilege(privilege);
                 }
-                refreshUI();
+                refreshUi();
                 return true;
             // Respond to the action bar's Up/Home button
             case android.R.id.home:

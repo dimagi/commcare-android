@@ -63,7 +63,8 @@ public class FormUploadUtil {
     private static final String[] SUPPORTED_FILE_EXTS =
             {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3",
                     ".wav", ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4",
-                    ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg"};
+                    ".m4v", ".mpg", ".mpeg", ".qcp", ".ogg", ".pdf", 
+                    ".html", ".rtf", ".txt", ".docx", ".xlsx", ".msg"};
 
     public static Cipher getDecryptCipher(SecretKeySpec key) {
         Cipher cipher;

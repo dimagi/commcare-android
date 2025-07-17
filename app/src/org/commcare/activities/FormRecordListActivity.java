@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.text.Editable;
@@ -374,7 +373,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, "Form Missing",
+            showAlertDialog(StandardAlertDialog.getBasicAlertDialog("Form Missing",
                     Localization.get("form.record.gone.message"), null));
         }
     }
@@ -456,14 +455,14 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
 
-        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialogWithIcon(title,
                 result.second, resId, null);
 
         if (FormRecordFilter.Pending.containsStatus(record.getStatus())) {
             if (AdvancedActionsPreferences.isManualFormQuarantineAllowed()) {
                 dialog.setNegativeButton(Localization.get("app.workflow.forms.quarantine"), (dialog1, which) -> {
                     manuallyQuarantineRecord(record);
-                    dismissAlertDialog();
+                    dialog1.dismiss();
                     AdvancedActionsPreferences.setManualFormQuarantine(false);
                 });
             }
@@ -481,7 +480,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private void createQuarantineReasonDialog(FormRecord record) {
         String title = Localization.get("reason.for.quarantine.title");
         String message = QuarantineUtil.getQuarantineReasonDisplayString(record, true);
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, null));
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(title, message, null));
     }
 
     /**
@@ -546,7 +545,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-
         if (adapter != null) {
             MenuItem quarantine = menu.findItem(MENU_SUBMIT_QUARANTINE_REPORT);
             if (quarantine != null) {

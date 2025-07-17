@@ -46,7 +46,7 @@ public class ConnectLinkedAppRecord extends Persisted {
     private Date hqTokenExpiration;
     @Persisting(7)
     @MetaField(META_CONNECTID_LINKED)
-    private boolean connectIdLinked;
+    private boolean personalIdLinked;
     @Persisting(8)
     @MetaField(META_OFFERED_1)
     private boolean linkOffered1;
@@ -75,12 +75,12 @@ public class ConnectLinkedAppRecord extends Persisted {
         lastAccessed = new Date();
     }
 
-    public ConnectLinkedAppRecord(String appId, String userId, boolean connectIdLinked, String password) {
+    public ConnectLinkedAppRecord(String appId, String userId, boolean personalIdLinked, String password) {
         this();
 
         this.appId = appId;
         this.userId = userId;
-        this.connectIdLinked = connectIdLinked;
+        this.personalIdLinked = personalIdLinked;
         this.password = password;
     }
 
@@ -117,21 +117,26 @@ public class ConnectLinkedAppRecord extends Persisted {
         hqTokenExpiration = token.getExpiration();
     }
 
-    public boolean getConnectIdLinked() {
-        return connectIdLinked;
+    public boolean getPersonalIdLinked() {
+        return personalIdLinked;
     }
 
-    public void setConnectIdLinked(boolean linked) {
-        connectIdLinked = linked;
+    public void clearHqToken() {
+        hqToken = null;
+        hqTokenExpiration = new Date();
     }
 
-    public void linkToConnectId(String password) {
-        connectIdLinked = true;
+    public void setPersonalIdLinked(boolean linked) {
+        personalIdLinked = linked;
+    }
+
+    public void linkToPersonalId(String password) {
+        personalIdLinked = true;
         this.password = password;
     }
 
-    public void severConnectIdLink() {
-        connectIdLinked = false;
+    public void severPersonalIdLink() {
+        personalIdLinked = false;
         password = "";
         linkOffered1 = false;
         linkOffered2 = false;
@@ -180,7 +185,7 @@ public class ConnectLinkedAppRecord extends Persisted {
         newRecord.workerLinked = oldRecord.getWorkerLinked();
         newRecord.hqToken = oldRecord.getHqToken();
         newRecord.hqTokenExpiration = oldRecord.getHqTokenExpiration();
-        newRecord.connectIdLinked = oldRecord.getConnectIdLinked();
+        newRecord.personalIdLinked = oldRecord.getConnectIdLinked();
         newRecord.linkOffered1 = oldRecord.getLinkOfferDate1() != null;
         newRecord.linkOfferDate1 = newRecord.linkOffered1 ? oldRecord.getLinkOfferDate1() : new Date();
         newRecord.linkOffered2 = oldRecord.getLinkOfferDate2() != null;

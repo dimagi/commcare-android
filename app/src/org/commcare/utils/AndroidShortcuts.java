@@ -1,8 +1,7 @@
 package org.commcare.utils;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -56,7 +55,7 @@ public class AndroidShortcuts extends AppCompatActivity {
             sc.setResult(RESULT_CANCELED);
             sc.finish();
         });
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(this);
     }
 
     private DialogChoiceItem[] getChoiceItemList(final PaneledChoiceDialog dialog) {

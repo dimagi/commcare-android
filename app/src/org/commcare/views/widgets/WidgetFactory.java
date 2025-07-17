@@ -68,6 +68,9 @@ public class WidgetFactory {
             case Constants.CONTROL_VIDEO_CAPTURE:
                 questionWidget = new VideoWidget(context, fep, pendingCalloutInterface);
                 break;
+            case Constants.CONTROL_DOCUMENT_UPLOAD:
+                questionWidget = new DocumentWidget(context, fep, pendingCalloutInterface);
+                break;
             case Constants.CONTROL_SELECT_ONE:
                 questionWidget = buildSelectOne(appearance, fep, context);
                 break;

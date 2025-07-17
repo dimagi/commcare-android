@@ -1,11 +1,7 @@
 package org.commcare.android.database.connect.models;
 
-import android.content.Intent;
-
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.SsoToken;
-import org.commcare.core.network.AuthInfo;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -39,7 +35,7 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(4)
     private String primaryPhone;
-
+    @Deprecated
     @Persisting(5)
     private String alternatePhone;
 
@@ -57,49 +53,53 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
+    @Deprecated
     @Persisting(11)
     @MetaField(META_SECONDARY_PHONE_VERIFIED)
+    /**
+     * @Deprecated should no longer be used, just here to avoid a db migration for the moment
+     */
     private boolean secondaryPhoneVerified;
 
     @Persisting(12)
     @MetaField(META_VERIFY_SECONDARY_PHONE_DATE)
+    @Deprecated
+    /**
+     * @Deprecated should no longer be used, just here to avoid a db migration for the moment
+     */
     private Date verifySecondaryPhoneByDate;
 
+    @Persisting(value = 13, nullable = true)
+    private String photo;
+
+    @Persisting(value = 14)
+    private boolean isDemo;
+
+    @Persisting(value = 15)
+    private String requiredLock = PersonalIdSessionData.PIN;
+
     public ConnectUserRecord() {
-        registrationPhase = ConnectConstants.CONNECT_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;
         verifySecondaryPhoneByDate = new Date();
+        alternatePhone = "";
     }
 
-    public ConnectUserRecord(String primaryPhone, String userId, String password, String name,
-                             String alternatePhone) {
+    public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
+                             Date lastPinVerifyDate, String photo, boolean isDemo,String requiredLock) {
         this();
         this.primaryPhone = primaryPhone;
-        this.alternatePhone = alternatePhone;
         this.userId = userId;
         this.password = password;
         this.name = name;
-
+        this.pin = pin;
+        this.lastPasswordDate = lastPinVerifyDate;
+        this.photo = photo;
+        this.isDemo = isDemo;
         connectTokenExpiration = new Date();
-    }
-
-    public static ConnectUserRecord getUserFromIntent(Intent intent) {
-        return new ConnectUserRecord(
-                intent.getStringExtra(ConnectConstants.PHONE),
-                intent.getStringExtra(ConnectConstants.USERNAME),
-                intent.getStringExtra(ConnectConstants.PASSWORD),
-                intent.getStringExtra(ConnectConstants.NAME),
-                intent.getStringExtra(ConnectConstants.ALT_PHONE));
-    }
-
-    public void putUserInIntent(Intent intent) {
-        intent.putExtra(ConnectConstants.PHONE, primaryPhone);
-        intent.putExtra(ConnectConstants.USERNAME, userId);
-        intent.putExtra(ConnectConstants.PASSWORD, password);
-        intent.putExtra(ConnectConstants.NAME, name);
-        intent.putExtra(ConnectConstants.ALT_PHONE, alternatePhone);
+        this.requiredLock = requiredLock;
     }
 
     public String getUserId() {
@@ -112,14 +112,6 @@ public class ConnectUserRecord extends Persisted {
 
     public void setPrimaryPhone(String primaryPhone) {
         this.primaryPhone = primaryPhone;
-    }
-
-    public String getAlternatePhone() {
-        return alternatePhone;
-    }
-
-    public void setAlternatePhone(String alternatePhone) {
-        this.alternatePhone = alternatePhone;
     }
 
     public void setPin(String pin) {
@@ -162,28 +154,9 @@ public class ConnectUserRecord extends Persisted {
         lastPasswordDate = date;
     }
 
-    public boolean getSecondaryPhoneVerified() {
-        return secondaryPhoneVerified;
-    }
-
-    public void setSecondaryPhoneVerified(boolean verified) {
-        secondaryPhoneVerified = verified;
-    }
-
-    public Date getSecondaryPhoneVerifyByDate() {
-        return secondaryPhoneVerified ? verifySecondaryPhoneByDate : null;
-    }
-
-    public void setSecondaryPhoneVerifyByDate(Date date) {
-        verifySecondaryPhoneByDate = date;
-    }
 
     public boolean shouldForcePin() {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
-    }
-
-    public boolean shouldForcePassword() {
-        return shouldForceRecoveryLogin() && !shouldForcePin();
     }
 
     private boolean shouldForceRecoveryLogin() {
@@ -199,41 +172,46 @@ public class ConnectUserRecord extends Persisted {
         return forcePin;
     }
 
-    public boolean shouldRequireSecondaryPhoneVerification() {
-        if (secondaryPhoneVerified) {
-            return false;
-        }
-
-        return (new Date()).after(verifySecondaryPhoneByDate);
+    public void updateConnectToken(String token, Date expirationDate) {
+        connectToken = token;
+        connectTokenExpiration = expirationDate;
     }
 
-    public void updateConnectToken(SsoToken token) {
-        connectToken = token.getToken();
-        connectTokenExpiration = token.getExpiration();
+    public void clearConnectToken() {
+        connectToken = null;
+        connectTokenExpiration = new Date();
     }
 
-    public AuthInfo.TokenAuth getConnectToken() {
-        if ((new Date()).compareTo(connectTokenExpiration) < 0) {
-            return new AuthInfo.TokenAuth(connectToken);
-        }
-
-        return null;
+    public String getConnectToken() {
+        return connectToken;
     }
 
-    public static ConnectUserRecord fromV5(ConnectUserRecordV5 oldRecord) {
+    public Date getConnectTokenExpiration() {
+        return connectTokenExpiration;
+    }
+
+    public static ConnectUserRecord fromV14(ConnectUserRecordV14 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
-
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
-        newRecord.alternatePhone = oldRecord.getAlternatePhone();
+        newRecord.alternatePhone = "";
         newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
         newRecord.connectToken = oldRecord.getConnectToken();
         newRecord.connectTokenExpiration = oldRecord.getConnectTokenExpiration();
         newRecord.secondaryPhoneVerified = true;
-
+        newRecord.photo = oldRecord.getPhoto();
+        newRecord.isDemo = oldRecord.isDemo();
         return newRecord;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getRequiredLock() {
+        return requiredLock;
     }
 }

@@ -236,7 +236,7 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (tile == null) {
             tile = EntityViewTile.createTileForEntitySelectDisplay(commCareActivity, detail, entity,
-                        currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
+                    currentSearchTerms, mImageLoader, mFuzzySearchEnabled, selectActivityInAwesomeMode);
         } else {
             tile.setSearchTerms(currentSearchTerms);
             tile.addFieldViews(commCareActivity, detail, entity);

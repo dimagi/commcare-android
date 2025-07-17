@@ -114,7 +114,7 @@ public class CallOutActivity extends AppCompatActivity
             setResult(RESULT_CANCELED, i);
             finish();
         });
-        dialog.showNonPersistentDialog();
+        dialog.showNonPersistentDialog(this);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class CallOutActivity extends AppCompatActivity
                                 CALL_OR_SMS_PERMISSION_REQUEST,
                                 Localization.get("permission.case.callout.title"),
                                 Localization.get("permission.case.callout.message"));
-                dialog.showNonPersistentDialog();
+                dialog.showNonPersistentDialog(this);
             } else {
                 requestNeededPermissions(CALL_OR_SMS_PERMISSION_REQUEST);
             }

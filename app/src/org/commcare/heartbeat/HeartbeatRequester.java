@@ -25,12 +25,10 @@ import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
 import androidx.work.WorkManager;
+import org.commcare.android.integrity.IntegrityReporterWorker;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -56,6 +54,7 @@ public class HeartbeatRequester extends GetAndParseActor {
     private static final String QUARANTINED_FORMS_PARAM = "num_quarantined_forms";
     private static final String UNSENT_FORMS_PARAM = "num_unsent_forms";
     private static final String LAST_SYNC_TIME_PARAM = "last_sync_time";
+    private static final String REPORT_INTEGRITY_KEY = "report_integrity";
 
     public HeartbeatRequester() {
         super(NAME, TAG, ServerUrls.PREFS_HEARTBEAT_URL_KEY);
@@ -100,6 +99,7 @@ public class HeartbeatRequester extends GetAndParseActor {
             attemptCczUpdateParse(responseAsJson);
             checkForForceLogs(responseAsJson);
             checkForDisableBackgroundWork(responseAsJson);
+            checkForIntegrityRequest(responseAsJson);
         }
         DriftHelper.clearMaxDriftSinceLastHeartbeat();
     }
@@ -117,6 +117,13 @@ public class HeartbeatRequester extends GetAndParseActor {
         HiddenPreferences.setForceLogs(userId, responseAsJson.optBoolean("force_logs", false));
         if (HiddenPreferences.shouldForceLogs(userId)) {
             CommCareUtil.triggerLogSubmission(CommCareApplication.instance(), true);
+        }
+    }
+
+    private void checkForIntegrityRequest(JSONObject responseAsJson) {
+        String integrityRequest = responseAsJson.optString(REPORT_INTEGRITY_KEY, "");
+        if(!Strings.isNullOrEmpty(integrityRequest)) {
+            IntegrityReporterWorker.launch(CommCareApplication.instance(), responseAsJson.optString(REPORT_INTEGRITY_KEY, ""));
         }
     }
 

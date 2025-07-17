@@ -59,7 +59,7 @@ public class AudioWidget extends MediaWidget {
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.setType("audio/*");
             try {
-                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+                ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH);
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getContext(),
@@ -87,7 +87,7 @@ public class AudioWidget extends MediaWidget {
         i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                 Audio.Media.EXTERNAL_CONTENT_URI.toString());
         try {
-            ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_FETCH);
+            ((AppCompatActivity)getContext()).startActivityForResult(i, FormEntryConstants.AUDIO_VIDEO_DOCUMENT_FETCH);
             pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),

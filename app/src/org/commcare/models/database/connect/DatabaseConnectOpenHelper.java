@@ -6,16 +6,21 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.database.DbUtil;
@@ -45,8 +50,13 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.8 - Added is_user_suspended to ConnectJobRecord
      * V.9 - Added using_local_passphrase to ConnectLinkedAppRecord
      * V.10 - Added last_accessed column to ConnectLinkedAppRecord
+     * V.11 - Added daily start and finish times to ConnectJobRecord
+     * V.12 - Added ConnectMessagingChannelRecord table and ConnectMessagingMessageRecord table
+     * V.13 - Added ConnectJobDeliveryFlagRecord table
+     * V.14 - Added a photo and isDemo field to ConnectUserRecord
+     * V.16 - Added  personal_id_credential table
      */
-    private static final int CONNECT_DB_VERSION = 10;
+    private static final int CONNECT_DB_VERSION = 16;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -57,16 +67,16 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
         this.mContext = context;
     }
 
-    private static File getDbFile(Context context) {
-        return context.getDatabasePath(CONNECT_DB_LOCATOR);
+    private static File getDbFile() {
+        return CommCareApplication.instance().getDatabasePath(CONNECT_DB_LOCATOR);
     }
 
-    public static boolean dbExists(Context context) {
-        return getDbFile(context).exists();
+    public static boolean dbExists() {
+        return getDbFile().exists();
     }
 
-    public static void deleteDb(Context context) {
-        getDbFile(context).delete();
+    public static void deleteDb() {
+        getDbFile().delete();
     }
 
     public static void rekeyDB(SQLiteDatabase db, String newPassphrase) throws Base64DecoderException {
@@ -111,6 +121,18 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(ConnectPaymentUnitRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectMessagingChannelRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectMessagingMessageRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(ConnectJobDeliveryFlagRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new TableBuilder(PersonalIdCredential.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

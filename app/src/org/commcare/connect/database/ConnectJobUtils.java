@@ -5,12 +5,14 @@ import android.os.Build;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.ArrayList;
@@ -208,7 +210,25 @@ public class ConnectJobUtils {
 
             //Now insert/update the delivery
             storage.write(incomingRecord);
+
+            storeDeliveryFlags(context, incomingRecord.getFlags(), incomingRecord.getDeliveryId());
         }
+    }
+
+    public static void storeDeliveryFlags(Context context, List<ConnectJobDeliveryFlagRecord> flags,
+                                          int deliveryId) {
+        SqlStorage<ConnectJobDeliveryFlagRecord> storage = ConnectDatabaseHelper.getConnectStorage(context,
+                ConnectJobDeliveryFlagRecord.class);
+        ConnectDatabaseHelper.connectDatabase.beginTransaction();
+
+        storage.removeAll(storage.getIDsForValues(new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
+                new Object[]{deliveryId}));
+
+        for (ConnectJobDeliveryFlagRecord incomingRecord : flags) {
+            storage.write(incomingRecord);
+        }
+
+        ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
     }
 
     public static void storePayment(Context context, ConnectJobPaymentRecord payment) {
@@ -260,6 +280,18 @@ public class ConnectJobUtils {
                 new Object[]{jobId});
 
         return new ArrayList<>(deliveries);
+    }
+
+    public static List<ConnectJobDeliveryFlagRecord> getDeliveryFlags(Context context, int deliveryId, SqlStorage<ConnectJobDeliveryFlagRecord> flagStorage) {
+        if (flagStorage == null) {
+            flagStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobDeliveryFlagRecord.class);
+        }
+
+        Vector<ConnectJobDeliveryFlagRecord> flags = flagStorage.getRecordsForValues(
+                new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
+                new Object[]{deliveryId});
+
+        return new ArrayList<>(flags);
     }
 
     public static List<ConnectJobPaymentRecord> getPayments(Context context, int jobId, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
@@ -407,10 +439,13 @@ public class ConnectJobUtils {
     }
 
     public static ConnectAppRecord getAppRecord(Context context, String appId) {
-        Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
-                new String[]{ConnectAppRecord.META_APP_ID},
-                new Object[]{appId});
-        return records.isEmpty() ? null : records.firstElement();
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+            Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class).getRecordsForValues(
+                    new String[]{ConnectAppRecord.META_APP_ID},
+                    new Object[]{appId});
+            return records.isEmpty() ? null : records.firstElement();
+        }
+        return null;
     }
 
 }

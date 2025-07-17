@@ -19,6 +19,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.Vector;
 
+
 /**
  * Build objects that contain all info needed to draw home screen buttons
  *
@@ -27,7 +28,7 @@ import java.util.Vector;
 public class HomeButtons {
 
     private final static String[] buttonNames =
-            new String[]{"start", "training", "saved", "incomplete", "sync", "report", "logout"};
+            new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -67,6 +68,9 @@ public class HomeButtons {
                         getIncompleteButtonListener(activity),
                         null,
                         getIncompleteButtonTextSetter(activity)),
+                HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.connect"), R.color.white,
+                        R.drawable.quick_reference, R.color.orange_500,
+                        getConnectButtonListener(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
@@ -125,6 +129,13 @@ public class HomeButtons {
         return v -> {
             reportButtonClick(AnalyticsParamValue.SYNC_SUBTEXT);
             activity.syncSubTextPressed();
+        };
+    }
+
+    private static View.OnClickListener getConnectButtonListener(final StandardHomeActivity activity) {
+        return v -> {
+            reportButtonClick(AnalyticsParamValue.CONNECT_BUTTON);
+            activity.userPressedOpportunityStatus();
         };
     }
 

@@ -9,7 +9,7 @@ public class FormEntryConstants {
 
     // Request codes for returning data from specified intent.
     public static final int IMAGE_CAPTURE = 1;
-    public static final int AUDIO_VIDEO_FETCH = 3;
+    public static final int AUDIO_VIDEO_DOCUMENT_FETCH = 3;
     public static final int LOCATION_CAPTURE = 5;
     public static final int HIERARCHY_ACTIVITY = 6;
     public static final int IMAGE_CHOOSER = 7;

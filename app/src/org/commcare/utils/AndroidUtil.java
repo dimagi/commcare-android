@@ -9,6 +9,9 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,5 +64,9 @@ public class AndroidUtil {
             result.put(key, bundle.getString(key));
         }
         return result;
+    }
+
+    public static boolean isGooglePlayServicesAvailable(Context ctx) {
+        return GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == ConnectionResult.SUCCESS;
     }
 }

@@ -104,11 +104,11 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
         }
 
         DialogInterface.OnClickListener listener = (dialog, which) -> {
-            dismissAlertDialog();
+            dialog.dismiss();
             finish();
         };
 
-        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, listener));
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(title, message, listener));
     }
 
     private String getCurrentUserPassword() {

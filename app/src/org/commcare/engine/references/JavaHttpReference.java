@@ -73,6 +73,7 @@ public class JavaHttpReference implements Reference, ReleasedOnTimeSupportedRefe
             }
             throw e;
         }
+
         if (response.isSuccessful()) {
             responseHeaders = response.headers();
             return response.body().byteStream();

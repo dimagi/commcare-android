@@ -1,7 +1,6 @@
 package org.commcare.views.dialogs;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.Spannable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +33,7 @@ public class DialogCreationHelpers {
         TextView aboutText = view.findViewById(R.id.dialog_text);
         aboutText.setText(markdownText);
 
-        CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
+        CustomViewAlertDialog dialog = new CustomViewAlertDialog(view);
         dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> dialog1.dismiss());
 
         return dialog;
@@ -66,7 +65,7 @@ public class DialogCreationHelpers {
         TextView titleText = view.findViewById(R.id.dialog_title_text);
         titleText.setText(title);
 
-        CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
+        CustomViewAlertDialog dialog = new CustomViewAlertDialog(view);
         dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
             permRequester.requestNeededPermissions(requestCode);
             dialog1.dismiss();

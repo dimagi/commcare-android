@@ -16,7 +16,6 @@ public class HorizontalPaneledChoiceDialog extends PaneledChoiceDialog {
 
     public HorizontalPaneledChoiceDialog(Context context, String title) {
         super(context, title);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
     @Override
@@ -25,11 +24,18 @@ public class HorizontalPaneledChoiceDialog extends PaneledChoiceDialog {
     }
 
     @Override
-    public void setChoiceItems(DialogChoiceItem[] choiceItems) {
-        setupThreePanelView(choiceItems);
+    protected void initView(Context context) {
+        super.initView(context);
+        setupThreePanelView(context);
     }
 
-    private void setupThreePanelView(DialogChoiceItem[] choiceItems) {
+    @Override
+    protected void finalizeView(Context context) {
+        super.finalizeView(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    }
+
+    private void setupThreePanelView(Context context) {
         Button panel1 = view.findViewById(R.id.choice_dialog_panel_1);
         Button panel2 = view.findViewById(R.id.choice_dialog_panel_2);
         Button panel3 = view.findViewById(R.id.choice_dialog_panel_3);

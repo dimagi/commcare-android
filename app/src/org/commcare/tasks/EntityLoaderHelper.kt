@@ -35,7 +35,8 @@ class EntityLoaderHelper(
         evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
         if (factory == null) {
             if (detail.shouldOptimize()) {
-                val entityStorageCache: EntityStorageCache = CommCareEntityStorageCache("case")
+                val entityStorageCache: EntityStorageCache? =
+                    if (detail.isCacheEnabled) CommCareEntityStorageCache("case") else null
                 factory =
                     AndroidAsyncNodeEntityFactory(detail, sessionDatum, evalCtx, entityStorageCache, inBackground)
             } else if (detail.useAsyncStrategy()) {
@@ -104,14 +105,14 @@ class EntityLoaderHelper(
         focusTargetIndex = -1
         var indexInFullList = 0
         for ((index, ref) in references.withIndex()) {
+            if (stopLoading) {
+                return entities
+            }
             progressListener?.publishEntityLoadingProgress(
                 EntityLoadingProgressListener.EntityLoadingProgressPhase.PHASE_PROCESSING,
                 index,
                 references.size
             )
-            if (stopLoading) {
-                return null
-            }
             val e = factory!!.getEntity(ref)
             if (e != null) {
                 entities.add(e)

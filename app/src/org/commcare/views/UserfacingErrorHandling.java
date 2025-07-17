@@ -1,17 +1,14 @@
 package org.commcare.views;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.FormHierarchyActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.AlertDialogController;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.xpath.XPathException;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Dialog logic for showing errors to user.
@@ -49,8 +46,7 @@ public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogCo
 
     public StandardAlertDialog getErrorDialog(final T activity, String errorMsg,
                                                      String dialogTitle, final boolean shouldExit) {
-        StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
+        StandardAlertDialog factory = new StandardAlertDialog(dialogTitle, errorMsg, null, android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnCancelListener cancelListener =
                 dialog -> {
@@ -58,7 +54,7 @@ public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogCo
                         activity.setResult(AppCompatActivity.RESULT_CANCELED);
                         activity.finish();
                     }
-                    activity.dismissAlertDialog();
+                    dialog.dismiss();
                 };
         factory.setOnCancelListener(cancelListener);
 
@@ -70,7 +66,7 @@ public class UserfacingErrorHandling<T extends AppCompatActivity & AlertDialogCo
                         activity.setResult(AppCompatActivity.RESULT_CANCELED);
                         activity.finish();
                     }
-                    activity.dismissAlertDialog();
+                    dialog.dismiss();
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
         return factory;
