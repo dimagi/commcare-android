@@ -26,10 +26,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.connect.ConnectDateUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ConnectDeliveryListFragment extends ConnectJobFragment {
@@ -111,12 +113,20 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.action_sync) {
-                    adapter.updateDeliveries(getFilteredDeliveries());
+                    refreshData();
                     return true;
                 }
                 return false;
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    private void refreshData() {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
+            if (success) {
+                adapter.updateDeliveries(getFilteredDeliveries());
+            }
+        });
     }
 
     private void setFilterHighlight(CardView card, TextView label, boolean selected) {
