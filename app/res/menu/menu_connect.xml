@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_notification"
+        android:id="@+id/action_messaging"
         android:icon="@drawable/ic_connect_messaging_base"
         android:title="@string/personalid_messaging_menu_title"
         app:showAsAction="always" />
