@@ -1,10 +1,12 @@
 package org.commcare.fragments.connect;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +17,7 @@ import org.commcare.android.database.connect.models.ConnectDeliveryDetails;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectProgressDeliveryBinding;
 import org.commcare.views.connect.CircleProgressBar;
@@ -28,11 +31,13 @@ import java.util.Locale;
 public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment {
     private FragmentConnectProgressDeliveryBinding binding;
     private RecyclerView recyclerView;
+    private ConnectDeliveryProgressReportAdapter adapter;
 
     public static ConnectDeliveryProgressDeliveryFragment newInstance() {
         return new ConnectDeliveryProgressDeliveryFragment();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentConnectProgressDeliveryBinding.inflate(inflater, container, false);
@@ -79,6 +84,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         binding.connectProgressStatusText.setText(completedText.toString());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void populateDeliveryProgress() {
         if (job.getDeliveries().isEmpty()) {
             return;
@@ -91,7 +97,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
             String unitIdKey = String.valueOf(unit.getUnitId());
             HashMap<String, Integer> statusCounts = statusMap.containsKey(unitIdKey) ? statusMap.get(unitIdKey)
                     : new HashMap<>();
-            int approved = statusCounts.containsKey("approved") ? statusCounts.get("approved") : 0;
+            int approved = statusCounts.getOrDefault("approved", 0);
             int remaining = unit.getMaxTotal() - approved;
             String amount = job.getMoneyString(approved * unit.getAmount());
             long daysLeft = job.getDaysRemaining();
@@ -104,12 +110,16 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
 
         recyclerView = binding.rvDeliveryProgressReport;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        ConnectDeliveryProgressReportAdapter adapter = new ConnectDeliveryProgressReportAdapter(
-                getContext(), deliveryProgressList, unitName -> Navigation.findNavController(recyclerView)
-                .navigate(ConnectDeliveryProgressFragmentDirections
-                        .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName))
-        );
-        recyclerView.setAdapter(adapter);
+        if (adapter == null) {
+            adapter = new ConnectDeliveryProgressReportAdapter(
+                    getContext(), deliveryProgressList, unitName -> Navigation.findNavController(recyclerView)
+                    .navigate(ConnectDeliveryProgressFragmentDirections
+                            .actionConnectJobDeliveryProgressFragmentToConnectDeliveryFragment(unitName))
+            );
+            recyclerView.setAdapter(adapter);
+        } else {
+            adapter.updateData(deliveryProgressList);
+        }
     }
 
     private HashMap<String, HashMap<String, Integer>> getStatusMap(ConnectJobRecord job) {
