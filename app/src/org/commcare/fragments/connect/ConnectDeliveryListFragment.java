@@ -63,11 +63,11 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
 
     private void setupFilterControls() {
         CardView[] filterCards = {
-                binding.cvFilterAll, binding.llFilterApproved, binding.llFilterRejected, binding.llFilterPending
+                binding.allFilterButton, binding.approvedFilterButton, binding.rejectedFilterButton, binding.pendingFilterButton
         };
 
         TextView[] filterLabels = {
-                binding.tvFilterAll, binding.tvFilterApproved, binding.tvFilterRejected, binding.tvFilterPending
+                binding.allTextView, binding.approvedTextView, binding.rejectedTextView, binding.pendingTextView
         };
 
         for (int i = 0; i < filterCards.length; i++) {
@@ -88,10 +88,10 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
 
     private int getFilterCardId(String filter) {
         return switch (filter) {
-            case APPROVED_IDENTIFIER -> R.id.llFilterApproved;
-            case REJECTED_IDENTIFIER -> R.id.llFilterRejected;
-            case PENDING_IDENTIFIER -> R.id.llFilterPending;
-            default -> R.id.cvFilterAll;
+            case APPROVED_IDENTIFIER -> R.id.approvedFilterButton;
+            case REJECTED_IDENTIFIER -> R.id.rejectedFilterButton;
+            case PENDING_IDENTIFIER -> R.id.pendingFilterButton;
+            default -> R.id.allFilterButton;
         };
     }
 
@@ -158,7 +158,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
                 dateText = itemView.findViewById(R.id.delivery_item_date);
                 statusText = itemView.findViewById(R.id.delivery_item_status);
                 reasonText = itemView.findViewById(R.id.delivery_item_reason);
-                statusLayout = itemView.findViewById(R.id.llDeliveryStatus);
+                statusLayout = itemView.findViewById(R.id.deliveryStatus);
                 statusIcon = itemView.findViewById(R.id.imgDeliveryStatus);
             }
 
