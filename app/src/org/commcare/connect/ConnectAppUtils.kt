@@ -22,7 +22,9 @@ object ConnectAppUtils {
     private var isAppDownloading = false
 
     fun wasAppLaunchedFromConnect(intent: Intent?): Boolean {
-        return intent?.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) ?: false
+        val isConnectLaunch = intent?.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) == true
+        intent?.removeExtra(IS_LAUNCH_FROM_CONNECT)
+        return isConnectLaunch
     }
 
     fun downloadApp(installUrl: String?, listener: ResourceEngineListener?) {
