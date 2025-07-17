@@ -250,7 +250,7 @@
     <string name="busy_message">Bado tunashughulika kuchakata ombi lako la awali. Tafadhali jaribu tena baada ya muda fulani.</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya Kitambulisho cha Kibinafsi tena.</string>
-    <string name="connect_registration_title">Usajili wa PersonalId</string>
+    <string name="connect_registration_title">Anza na PersonalID</string>
     <string name="connect_consent_message_1">Nimesoma na kukubaliana na <a href="https://www.dimagi.com/terms/latest/privacy/">Sera ya Faragha</a> ya Dimagi, <a href="https://www.dimagi.com/terms/latest/tos/">Sheria na Masharti</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Makubaliano ya Biashara</a> na <a href="https://www.dimagi.com/terms/latest/aup/">Sera ya Matumizi Yanayokubalika</a>.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
