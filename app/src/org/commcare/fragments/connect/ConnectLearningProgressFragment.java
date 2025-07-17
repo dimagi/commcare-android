@@ -112,6 +112,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         viewBinding.connectLearningProgressBar.setVisibility(visibility);
         viewBinding.connectLearningProgressText.setVisibility(visibility);
         viewBinding.connectLearnProgressBarTextContainer.setVisibility(visibility);
+        viewBinding.learningCard.setVisibility(visibility);
 
         if (!hideProgress) {
             viewBinding.connectLearningProgressBar.setProgress(percent);
@@ -181,7 +182,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
                 CommCareApplication.instance().closeUserSession();
                 ConnectAppUtils.INSTANCE.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             });
-            return;
         } else {
             buttonText = getString(R.string.connect_downloading_learn);
             navDirections =
@@ -243,6 +243,9 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         boolean showHours = hours != null;
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
+                .navigate(
+                        ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment()));
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);
