@@ -65,7 +65,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
             startLearning(appInstalled);
         });
 
-        jobCardDataHandle(job);
+        setupJobCard(job);
 
         return binding.getRoot();
     }
@@ -91,7 +91,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
                 String.join("\r\n\r\n", lines);
     }
 
-    private void jobCardDataHandle(ConnectJobRecord job) {
+    private void setupJobCard(ConnectJobRecord job) {
         binding.viewJobCard.tvViewMore.setOnClickListener(view1 -> {
             Navigation.findNavController(binding.viewJobCard.tvViewMore).navigate(
                     ConnectJobIntroFragmentDirections
