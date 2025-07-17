@@ -260,16 +260,20 @@ public class ConnectJobsListsFragment extends Fragment
             }
         }
 
-        Collections.sort(learnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        Collections.sort(deliverApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        Collections.sort(reviewLearnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        Collections.sort(finishedItems, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+        sortJobListByLastAccessed(learnApps);
+        sortJobListByLastAccessed(deliverApps);
+        sortJobListByLastAccessed(reviewLearnApps);
+        sortJobListByLastAccessed(finishedItems);
         jobList.addAll(availableNewJobs);
         jobList.addAll(learnApps);
         jobList.addAll(deliverApps);
         jobList.addAll(reviewLearnApps);
         jobList.addAll(finishedItems);
         initRecyclerView();
+    }
+
+    private void sortJobListByLastAccessed(List<ConnectLoginJobListModel> list) {
+        Collections.sort(list, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
     }
 
     private ConnectLoginJobListModel createJobModel(
