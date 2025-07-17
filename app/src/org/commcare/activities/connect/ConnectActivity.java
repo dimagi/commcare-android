@@ -36,6 +36,7 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
+import org.commcare.fragments.RefreshableFragment;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.FirebaseMessagingUtil;
@@ -193,6 +194,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
             ConnectNavHelper.INSTANCE.goToMessaging(this);
             return true;
         }
+
+        if(item.getItemId() == R.id.action_sync) {
+            RefreshableFragment refreshable = getRefreshableFragment();
+            if(refreshable != null) {
+                refreshable.refresh();
+                return true;
+            }
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -258,6 +268,18 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
                 navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
         if (currentFragment instanceof ConnectDownloadingFragment) {
             return (ConnectDownloadingFragment) currentFragment;
+        }
+        return null;
+    }
+
+    @Nullable
+    private RefreshableFragment getRefreshableFragment() {
+        NavHostFragment navHostFragment =
+                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
+        Fragment currentFragment =
+                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
+        if (currentFragment instanceof RefreshableFragment refreshable) {
+            return refreshable;
         }
         return null;
     }

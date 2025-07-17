@@ -4,16 +4,10 @@ import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
-import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
@@ -30,12 +24,14 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
+import org.commcare.fragments.RefreshableFragment;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectLearningProgressFragment extends ConnectJobFragment {
+public class ConnectLearningProgressFragment extends ConnectJobFragment
+        implements RefreshableFragment {
 
     private boolean showAppLaunch = true;
     private @NonNull FragmentConnectLearningProgressBinding viewBinding;
@@ -51,11 +47,13 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         if (getArguments() != null) {
             showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
         }
+
         viewBinding = FragmentConnectLearningProgressBinding.inflate(inflater, container, false);
-        setupToolbar();
+        requireActivity().setTitle(getString(R.string.connect_learn_title));
         setupRefreshButton();
         populateJobCard(job);
         refreshLearningData();
+
         return viewBinding.getRoot();
     }
 
@@ -67,23 +65,9 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         }
     }
 
-    private void setupToolbar() {
-        requireActivity().setTitle(getString(R.string.connect_learn_title));
-        MenuHost menuHost = requireActivity();
-        menuHost.addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-            }
-
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId() == R.id.action_sync) {
-                    refreshLearningData();
-                    return true;
-                }
-                return false;
-            }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    @Override
+    public void refresh() {
+        refreshLearningData();
     }
 
     private void setupRefreshButton() {

@@ -13,17 +13,12 @@ import static org.commcare.connect.ConnectConstants.NEW_APP;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -43,6 +38,7 @@ import org.commcare.connect.network.ConnectNetworkHelper;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
+import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.javarosa.core.io.StreamsUtil;
@@ -63,7 +59,8 @@ import java.util.List;
  *
  * @author dviggiano
  */
-public class ConnectJobsListsFragment extends Fragment {
+public class ConnectJobsListsFragment extends Fragment
+        implements RefreshableFragment {
     private FragmentConnectJobsListBinding binding;
     ArrayList<ConnectLoginJobListModel> jobList;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
@@ -79,26 +76,14 @@ public class ConnectJobsListsFragment extends Fragment {
 
         binding = FragmentConnectJobsListBinding.inflate(inflater, container, false);
 
-        requireActivity().addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                //Activity loads the menu
-            }
-
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                if (menuItem.getItemId() == R.id.action_sync) {
-                    refreshData();
-                    return true;
-                }
-
-                return false;
-            }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-
         refreshData();
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void refresh() {
+        refreshData();
     }
 
     public void refreshData() {
