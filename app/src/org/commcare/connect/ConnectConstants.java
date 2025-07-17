@@ -30,9 +30,6 @@ public class ConnectConstants {
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_STATUS = "payment_status";
     public static final String CONNECT_KEY_DB_KEY = "db_key";
-    public static final String JOB_NEW_OPPORTUNITY = "job-new-opportunity";
-    public static final String JOB_LEARNING = "job-learning";
-    public static final String JOB_DELIVERY = "job-delivery";
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";

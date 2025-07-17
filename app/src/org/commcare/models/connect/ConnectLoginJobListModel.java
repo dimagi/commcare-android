@@ -8,6 +8,11 @@ import java.util.Date;
  * Model class for storing list item data
  */
 public class ConnectLoginJobListModel {
+    public enum JobListEntryType {
+        LEARNING,
+        DELIVERY,
+        NEW_OPPORTUNITY
+    }
     private String name;
     private String id;
     private String appId;
@@ -21,7 +26,7 @@ public class ConnectLoginJobListModel {
     private Date lastAccessed;
     private int learningProgress;
     private int deliveryProgress;
-    private String jobType;
+    private JobListEntryType jobType;
     private String appType;
     ConnectJobRecord job;
 
@@ -40,7 +45,7 @@ public class ConnectLoginJobListModel {
             Date lastAccessed,
             int learningProgress,
             int deliveryProgress,
-            String jobType,
+            JobListEntryType jobType,
             String appType,
             ConnectJobRecord job
     ) {
@@ -179,11 +184,11 @@ public class ConnectLoginJobListModel {
         this.deliveryProgress = deliveryProgress;
     }
 
-    public String getJobType() {
+    public JobListEntryType getJobType() {
         return jobType;
     }
 
-    public void setJobType(String jobType) {
+    public void setJobType(JobListEntryType jobType) {
         this.jobType = jobType;
     }
 

@@ -5,9 +5,6 @@ import static org.commcare.android.database.connect.models.ConnectJobRecord.STAT
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING;
 import static org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING;
 import static org.commcare.connect.ConnectConstants.DELIVERY_APP;
-import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
-import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
-import static org.commcare.connect.ConnectConstants.JOB_NEW_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.LEARN_APP;
 import static org.commcare.connect.ConnectConstants.NEW_APP;
 
@@ -180,7 +177,7 @@ public class ConnectJobsListsFragment extends Fragment
 
         JobListConnectHomeAppsAdapter adapter = new JobListConnectHomeAppsAdapter(getContext(), jobList,
                 corruptJobs, (job, isLearning, appId, jobType) -> {
-            if (jobType.equals(JOB_NEW_OPPORTUNITY)) {
+            if (jobType == ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY) {
                 launchJobInfo(job);
             } else {
                 launchAppForJob(job, isLearning);
@@ -230,13 +227,15 @@ public class ConnectJobsListsFragment extends Fragment
             switch (jobStatus) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
                     if (!finished) {
-                        availableNewJobs.add(createJobModel(job, JOB_NEW_OPPORTUNITY, NEW_APP,
+                        availableNewJobs.add(createJobModel(job,
+                                ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY, NEW_APP,
                                 true, true, false, false));
                     }
                     break;
 
                 case STATUS_LEARNING:
-                    ConnectLoginJobListModel model = createJobModel(job, JOB_LEARNING, LEARN_APP,
+                    ConnectLoginJobListModel model = createJobModel(job,
+                            ConnectLoginJobListModel.JobListEntryType.LEARNING, LEARN_APP,
                             isLearnAppInstalled, false, true, false);
 
                     ArrayList<ConnectLoginJobListModel> learnList = finished ? finishedItems : learnApps;
@@ -245,10 +244,12 @@ public class ConnectJobsListsFragment extends Fragment
                     break;
 
                 case STATUS_DELIVERING:
-                    ConnectLoginJobListModel learnModel = createJobModel(job, JOB_LEARNING, LEARN_APP,
+                    ConnectLoginJobListModel learnModel = createJobModel(job,
+                            ConnectLoginJobListModel.JobListEntryType.LEARNING, LEARN_APP,
                             isLearnAppInstalled, false, true, false);
 
-                    ConnectLoginJobListModel deliverModel = createJobModel(job, JOB_DELIVERY, DELIVERY_APP,
+                    ConnectLoginJobListModel deliverModel = createJobModel(job,
+                            ConnectLoginJobListModel.JobListEntryType.DELIVERY, DELIVERY_APP,
                             isDeliverAppInstalled, false, false, true);
 
                     reviewLearnApps.add(learnModel);
@@ -278,7 +279,7 @@ public class ConnectJobsListsFragment extends Fragment
 
     private ConnectLoginJobListModel createJobModel(
             ConnectJobRecord job,
-            String jobType,
+            ConnectLoginJobListModel.JobListEntryType jobType,
             String appType,
             boolean isAppInstalled,
             boolean isNew,
@@ -309,25 +310,25 @@ public class ConnectJobsListsFragment extends Fragment
         return new ConnectLoginJobListModel(job.getTitle(), job);
     }
 
-    private ConnectAppRecord getAppRecord(ConnectJobRecord job, String jobType) {
-        return jobType.equalsIgnoreCase(JOB_LEARNING) ?
+    private ConnectAppRecord getAppRecord(ConnectJobRecord job, ConnectLoginJobListModel.JobListEntryType jobType) {
+        return jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING ?
                 job.getLearnAppInfo() :
                 job.getDeliveryAppInfo();
     }
 
-    private String getAppIdForType(ConnectJobRecord job, String jobType) {
+    private String getAppIdForType(ConnectJobRecord job, ConnectLoginJobListModel.JobListEntryType jobType) {
         return getAppRecord(job, jobType).getAppId();
     }
 
-    private String getDescriptionForType(ConnectJobRecord job, String jobType) {
+    private String getDescriptionForType(ConnectJobRecord job, ConnectLoginJobListModel.JobListEntryType jobType) {
         return getAppRecord(job, jobType).getDescription();
     }
 
-    private String getOrganizationForType(ConnectJobRecord job, String jobType) {
+    private String getOrganizationForType(ConnectJobRecord job, ConnectLoginJobListModel.JobListEntryType jobType) {
         return getAppRecord(job, jobType).getOrganization();
     }
 
-    public Date processJobRecords(ConnectJobRecord job, String jobType) {
+    public Date processJobRecords(ConnectJobRecord job, ConnectLoginJobListModel.JobListEntryType jobType) {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireActivity());
 
         String appId = getAppRecord(job, jobType).getAppId();

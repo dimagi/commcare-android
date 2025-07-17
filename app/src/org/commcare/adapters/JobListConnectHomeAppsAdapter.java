@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,9 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
-import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
-import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -128,12 +124,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ItemLoginConnectHomeAppsBinding binding) {
         int progress = 0;
         int progressColor = 0;
-        String jobType = item.getJobType();
+        ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
 
-        if (jobType.equals(JOB_LEARNING) && !item.getJob().passedAssessment()) {
+        if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !item.getJob().passedAssessment()) {
             progress = item.getLearningProgress();
             progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-        } else if (jobType.equals(JOB_DELIVERY) && !item.getJob().isFinished()) {
+        } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !item.getJob().isFinished()) {
             progress = item.getDeliveryProgress();
             progressColor = ContextCompat.getColor(context, R.color.connect_green);
         }
