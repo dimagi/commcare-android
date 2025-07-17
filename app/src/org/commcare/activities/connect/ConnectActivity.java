@@ -47,7 +47,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     String redirectionAction = "";
     String opportunityId = "";
     MenuItem messagingMenuItem = null;
-
     final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -177,6 +176,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_notification) {
             ConnectNavHelper.INSTANCE.goToMessaging(this);
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_credential) {
+            startActivity(new Intent(this, PersonalIdCredentialActivity.class));
             return true;
         }
 
