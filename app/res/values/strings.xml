@@ -46,7 +46,7 @@
     <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.</string>
     <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
-    <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to %1$d apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
+    <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to %s apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
     <string name="back_to_manager">Back to App Manager</string>
     <string name="go_to_manager">Go to App Manager</string>
     <string name="claim_privilege_button_text">CLAIM PRIVILEGES</string>
@@ -214,9 +214,9 @@
     <string name="recovery_forms_send_session_expired">Log-in expired during send</string>
 
     <!--Incorrect Time Dialog-->
-    <string name="recovery_forms_send_successful">Send successful. All %1$d forms were submitted</string>
+    <string name="recovery_forms_send_successful">Send successful. All %s forms were submitted</string>
     <string name="recovery_forms_send_failure">There were errors submitting the forms.</string>
-    <string name="recovery_forms_send_parital_success">There were errors submitting the forms. Only %1$d were submitted. Please try again later</string>
+    <string name="recovery_forms_send_parital_success">There were errors submitting the forms. Only %s were submitted. Please try again later</string>
     <string name="recovery_forms_send_network_error">Forms submissing failed due to poor network</string>
 
     <!--Recovery Activity-->
@@ -274,7 +274,7 @@
     <string name="image_download_prompt">Image file is missing for this question, Click the download button above to download</string>
     <string name="audio_download_prompt">Audio file is missing for this question, click the download button above to download</string>
     <string name="media_not_found_error">Media not found in the application</string>
-    <string name="area_format">%1$.2f sq m</string>
+    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">Could not parse input coordinates</string>
 
     <string name="location_provider_disabled">Turn on your location to receive location updates</string>

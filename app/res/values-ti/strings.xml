@@ -25,7 +25,7 @@
     <string name="migration_definite_failure">CommCare ንዕቤት ዝኸውን ናይ ኣፕ ዳታኻ ክሰግሮ ኣይከኣለን። ነዚ ጸገም ንምፍታሕ፡ በጃኹም CommCare ካብ መሳርሒኹም ኣውጽእዎ እሞ ዳግማይ ይክፈትዎ።</string>
     <string name="migration_possible_failure">CommCare ኣብ እዋን ምዕባይ መተግበሪ ንኹሉ ዳታኻ ክሰግሮ ኣይከኣለን። ነዚ ንምእራም ክትፍትን በጃኻ CommCare ዳግማይ ጀምር። እዚ መልእኽቲ እዚ እንተቐጺሉ፡ ኣብ ዝርዝር ቅጥዕታት መሳርሒኹም ንCommCare \'Clear data\' ክትገብር ከድልየካ ይኽእል እዩ።</string>
     <string name="migration_failure_title">ናይ ምስግጋር ስሕተት</string>
-    <string name="multiple_apps_limit_message">ንናይ ኣፕሊኪሽን ናይ ምፅዓን ዝተወሃቦም ደረት በፂሖም ኣለዉ፤ ብሓንሳብ ክሳብ %1$d ዝበፅሑ መተግበሪታት ጥራይ ክፅዕኑ ይኽእሉ።\n\nሓድሽ መተግበሪ ክትተክል እንተደሊዮም፡ መጀመርታ ዝፀንሐ መተግበሪ ከጥፍእዎ ይኽእሉ እዮም፡ እዚ ድማ ካብ ኣካያዲ መተግበሪ ከሳልጡ ይኽእሉ።</string>
+    <string name="multiple_apps_limit_message">ንናይ ኣፕሊኪሽን ናይ ምፅዓን ዝተወሃቦም ደረት በፂሖም ኣለዉ፤ ብሓንሳብ ክሳብ %s ዝበፅሑ መተግበሪታት ጥራይ ክፅዕኑ ይኽእሉ።\n\nሓድሽ መተግበሪ ክትተክል እንተደሊዮም፡ መጀመርታ ዝፀንሐ መተግበሪ ከጥፍእዎ ይኽእሉ እዮም፡ እዚ ድማ ካብ ኣካያዲ መተግበሪ ከሳልጡ ይኽእሉ።</string>
     <string name="back_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንመለስ</string>
     <string name="go_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንኺድ""</string>
     <string name="claim_privilege_button_text">ጥቕምታቶም ትሕተቱ/ይዉሰዱ</string>
@@ -162,9 +162,9 @@
     <string name="recovery_success">App recovery ዕዉት ኮይኑ ኣሎ። በይዝኦም ስራሕኩም ንምጅማር ንናይድሕሪት መምለሲ ምልክት ይፅቐጡ</string>
     <string name="recovery_forms_send_progress">ቅጥዕታት ናብ ሰርቨር ምልኣክ</string>
     <string name="recovery_forms_send_session_expired">ናይ መእተዊ ግዜ ሓሊፉ</string>
-    <string name="recovery_forms_send_successful">ዕዉት ስደድ። ኩሎም %1$d ቅጥዕታት ቀሪቦም</string>
+    <string name="recovery_forms_send_successful">ዕዉት ስደድ። ኩሎም %s ቅጥዕታት ቀሪቦም</string>
     <string name="recovery_forms_send_failure">ቅጥዕታት ኣብ ምልኣክ ጌጋታት ነይሩ</string>
-    <string name="recovery_forms_send_parital_success">ቅጥዕታት ኣብ ምቕራብ ጌጋታት ነይሩ። %1$d ጥራይ እዩ ቀሪቡ። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ</string>
+    <string name="recovery_forms_send_parital_success">ቅጥዕታት ኣብ ምቕራብ ጌጋታት ነይሩ። %s ጥራይ እዩ ቀሪቡ። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ</string>
     <string name="recovery_forms_send_network_error">ብሰንኪ ድኩም ኔትዎርክ ምልኣክ ቅጥዕታት ኣይተዓወተን</string>
     <string name="recovery_forms_send_error">ቅጥዕታት ኣብ ምልኣክ ስሕተት ኣሎ</string>
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
@@ -211,7 +211,7 @@
     <string name="image_download_prompt">ንዚ ሕቶ ፋይል ምስሊ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="audio_download_prompt">ንዚ ሕቶ ፋይል ድምፂ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="media_not_found_error">ኣብዚ መተግበሪ ሚድያ (መራክቢ) ኣይተረክበን</string>
-    <string name="area_format">%1$.2f sq m</string>
+    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">ናይ ምእታው ኮርዲኔት ክትንትን ኣይከኣለን</string>
     <string name="location_provider_disabled">ሓድሽ ሓበሬታ ኣቀማምጣኻ ንምርካብ ቦታ (location) ወልዕ</string>
     <string name="wait_for_location_fix">CommCare ሕጂ ውን ቦታኻ ንምርካብ ይጽዕር ኣሎ። በይዛኻ ተፀበ ወይ ንምቁራጽ Cancel ጠውቅ።</string>
