@@ -101,7 +101,9 @@ public class ConnectJobsListsFragment extends Fragment {
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 
-        refreshData();
+        if (!requireActivity().isFinishing()) {
+            refreshData();
+        }
 
         return binding.getRoot();
     }
@@ -234,62 +236,69 @@ public class ConnectJobsListsFragment extends Fragment {
     }
 
     private void setJobListData(List<ConnectJobRecord> jobs) {
-        jobList = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> availableNewJobs = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> learnApps = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> deliverApps = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> reviewLearnApps = new ArrayList<>();
-        ArrayList<ConnectLoginJobListModel> finishedItems = new ArrayList<>();
+        if(isAdded()) {
+            jobList = new ArrayList<>();
+            ArrayList<ConnectLoginJobListModel> availableNewJobs = new ArrayList<>();
+            ArrayList<ConnectLoginJobListModel> learnApps = new ArrayList<>();
+            ArrayList<ConnectLoginJobListModel> deliverApps = new ArrayList<>();
+            ArrayList<ConnectLoginJobListModel> reviewLearnApps = new ArrayList<>();
+            ArrayList<ConnectLoginJobListModel> finishedItems = new ArrayList<>();
 
-        for (ConnectJobRecord job : jobs) {
-            int jobStatus = job.getStatus();
-            boolean finished = job.isFinished();
-            boolean isLearnAppInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId());
-            boolean isDeliverAppInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+            for (ConnectJobRecord job : jobs) {
+                int jobStatus = job.getStatus();
+                boolean finished = job.isFinished();
+                boolean isLearnAppInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(
+                        job.getLearnAppInfo().getAppId());
+                boolean isDeliverAppInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(
+                        job.getDeliveryAppInfo().getAppId());
 
-            switch (jobStatus) {
-                case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
-                    if (!finished) {
-                        availableNewJobs.add(createJobModel(job, JOB_NEW_OPPORTUNITY, NEW_APP,
-                                true, true, false, false));
-                    }
-                    break;
+                switch (jobStatus) {
+                    case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:
+                        if (!finished) {
+                            availableNewJobs.add(createJobModel(job, JOB_NEW_OPPORTUNITY, NEW_APP,
+                                    true, true, false, false));
+                        }
+                        break;
 
-                case STATUS_LEARNING:
-                    ConnectLoginJobListModel model = createJobModel(job, JOB_LEARNING, LEARN_APP,
-                            isLearnAppInstalled, false, true, false);
+                    case STATUS_LEARNING:
+                        ConnectLoginJobListModel model = createJobModel(job, JOB_LEARNING, LEARN_APP,
+                                isLearnAppInstalled, false, true, false);
 
-                    ArrayList<ConnectLoginJobListModel> learnList = finished ? finishedItems : learnApps;
-                    learnList.add(model);
+                        ArrayList<ConnectLoginJobListModel> learnList = finished ? finishedItems : learnApps;
+                        learnList.add(model);
 
-                    break;
+                        break;
 
-                case STATUS_DELIVERING:
-                    ConnectLoginJobListModel learnModel = createJobModel(job, JOB_LEARNING, LEARN_APP,
-                            isLearnAppInstalled, false, true, false);
+                    case STATUS_DELIVERING:
+                        ConnectLoginJobListModel learnModel = createJobModel(job, JOB_LEARNING, LEARN_APP,
+                                isLearnAppInstalled, false, true, false);
 
-                    ConnectLoginJobListModel deliverModel = createJobModel(job, JOB_DELIVERY, DELIVERY_APP,
-                            isDeliverAppInstalled, false, false, true);
+                        ConnectLoginJobListModel deliverModel = createJobModel(job, JOB_DELIVERY, DELIVERY_APP,
+                                isDeliverAppInstalled, false, false, true);
 
-                    reviewLearnApps.add(learnModel);
+                        reviewLearnApps.add(learnModel);
 
-                    ArrayList<ConnectLoginJobListModel> deliverList = finished ? finishedItems : deliverApps;
-                    deliverList.add(deliverModel);
+                        ArrayList<ConnectLoginJobListModel> deliverList = finished ? finishedItems : deliverApps;
+                        deliverList.add(deliverModel);
 
-                    break;
+                        break;
+                }
             }
-        }
 
-        Collections.sort(learnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        Collections.sort(deliverApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        Collections.sort(reviewLearnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        Collections.sort(finishedItems, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
-        jobList.addAll(availableNewJobs);
-        jobList.addAll(learnApps);
-        jobList.addAll(deliverApps);
-        jobList.addAll(reviewLearnApps);
-        jobList.addAll(finishedItems);
-        initRecyclerView();
+            Collections.sort(learnApps, (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+            Collections.sort(deliverApps,
+                    (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+            Collections.sort(reviewLearnApps,
+                    (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+            Collections.sort(finishedItems,
+                    (job1, job2) -> job1.getLastAccessed().compareTo(job2.getLastAccessed()));
+            jobList.addAll(availableNewJobs);
+            jobList.addAll(learnApps);
+            jobList.addAll(deliverApps);
+            jobList.addAll(reviewLearnApps);
+            jobList.addAll(finishedItems);
+            initRecyclerView();
+        }
     }
 
     private ConnectLoginJobListModel createJobModel(

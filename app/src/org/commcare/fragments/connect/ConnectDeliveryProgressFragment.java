@@ -94,7 +94,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
             public void onPageSelected(int position) {
                 if (!isProgrammaticTabChange) {
                     tabLayout.selectTab(tabLayout.getTabAt(position));
-                    FirebaseAnalyticsUtil.reportConnectTabChange(tabLayout.getTabAt(position).getText().toString());
+                    View view = viewPagerAdapter.createFragment(position).getView();
+                    if (view != null) {
+                        binding.connectDeliveryProgressViewPager.getLayoutParams().height =
+                                view.getMeasuredHeight();
+                        binding.connectDeliveryProgressViewPager.requestLayout();
+                    }
+                    FirebaseAnalyticsUtil.reportConnectTabChange(tabLayout.getTabAt(
+                            position).getText().toString());
                 } else {
                     isProgrammaticTabChange = false;
                 }
