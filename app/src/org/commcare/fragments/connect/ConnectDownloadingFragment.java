@@ -107,7 +107,6 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
         setBackButtonAndActionBarState(true);
         View view = getView();
         if (view != null) {
-            Navigation.findNavController(view).popBackStack();
 
             //Launch the learn/deliver app
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
