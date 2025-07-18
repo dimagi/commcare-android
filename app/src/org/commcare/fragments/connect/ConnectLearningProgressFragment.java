@@ -89,7 +89,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
     }
 
     private void refreshLearningData() {
-        ConnectJobHelper.INSTANCE.updateLearningProgress(getContext(), job, success -> {
+        ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, success -> {
             if (success && isAdded()) {
                 updateLearningUI();
             }
@@ -126,7 +126,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
 
         if (complete && passed) {
             viewBinding.connectLearnCertSubject.setText(job.getTitle());
-            viewBinding.connectLearnCertPerson.setText(ConnectUserDatabaseUtil.getUser(getContext()).getName());
+            viewBinding.connectLearnCertPerson.setText(ConnectUserDatabaseUtil.getUser(requireContext()).getName());
 
             Date latestDate = getLatestCompletionDate(job);
             viewBinding.connectLearnCertDate.setText(
