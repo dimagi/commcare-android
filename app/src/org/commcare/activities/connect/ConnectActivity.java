@@ -106,7 +106,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         graph.setStartDestination(startDestinationId);
         navController.setGraph(graph, startArgs);
 
-        prepareConnectMessagingScreen();
+        retrieveMessages();
     }
 
     @Override
@@ -144,7 +144,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         MenuItem notification = menu.findItem(R.id.action_sync);
         notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
 
-        messagingMenuItem = menu.findItem(R.id.action_notification);
+        messagingMenuItem = menu.findItem(R.id.action_messaging);
         updateMessagingIcon();
 
         return super.onCreateOptionsMenu(menu);
@@ -153,11 +153,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
-        menu.findItem(R.id.action_notification).setVisible(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_messaging).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private void prepareConnectMessagingScreen(){
+    private void retrieveMessages(){
         MessageManager.retrieveMessages(this, success -> {
             updateMessagingIcon();
         });
@@ -175,13 +175,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_notification) {
+        if (item.getItemId() == R.id.action_messaging) {
             ConnectNavHelper.INSTANCE.goToMessaging(this);
             return true;
         }
-
-        //NOTE: Fragments will handle the sync button individually (via MenuProviders)
-
         return super.onOptionsItemSelected(item);
     }
 

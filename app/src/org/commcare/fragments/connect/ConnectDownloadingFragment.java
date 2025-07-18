@@ -70,7 +70,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
 
     private void startAppDownload() {
         ConnectAppRecord record = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-        ConnectAppUtils.INSTANCE.downloadAppOrResumeUpdates(record.getInstallUrl(), this);
+        ConnectAppUtils.INSTANCE.downloadApp(record.getInstallUrl(), this);
     }
 
     @Override
