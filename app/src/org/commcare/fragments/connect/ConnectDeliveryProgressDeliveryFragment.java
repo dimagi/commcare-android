@@ -136,4 +136,10 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         return statusMap;
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        binding.getRoot().requestLayout();
+    }
 }
