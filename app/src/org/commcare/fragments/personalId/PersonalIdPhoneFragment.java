@@ -2,6 +2,7 @@ package org.commcare.fragments.personalId;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
@@ -26,6 +27,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -60,6 +63,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Objects;
 
+import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
@@ -76,6 +80,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
+    private String playServicesError;
+    private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
+
 
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
@@ -96,6 +103,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
         registerLauncher();
+        checkGooglePlayServices();
         return binding.getRoot();
     }
 
@@ -116,6 +124,26 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         super.onDestroyView();
         locationController.destroy();
         binding = null;
+    }
+
+    private void checkGooglePlayServices() {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(requireActivity());
+        if (status != ConnectionResult.SUCCESS) {
+            playServicesError = "play_services_"+ status;
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Google Play Services issue:" + playServicesError);
+            if (googleApiAvailability.isUserResolvableError(status)) {
+                GoogleApiAvailability.getInstance().showErrorDialogFragment(
+                        requireActivity(),
+                        status,
+                        playServicesResolutionLauncher,
+                        dialog -> onConfigurationFailure(playServicesError,
+                                getString(R.string.play_service_update_error)));
+            } else {
+                onConfigurationFailure(playServicesError,
+                        getString(R.string.play_service_update_error));
+            }
+        }
     }
 
     private void initializeUi() {
@@ -340,6 +368,15 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                                 R.string.personalid_location_service_error,
                                 R.string.personalid_grant_location_service
                         );
+                    }
+                }
+        );
+
+        playServicesResolutionLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() != Activity.RESULT_OK) {
+                        onConfigurationFailure(playServicesError, getString(R.string.play_service_update_error));
                     }
                 }
         );
