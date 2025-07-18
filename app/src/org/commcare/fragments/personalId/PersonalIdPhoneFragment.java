@@ -80,7 +80,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
-    private int lastPlayServicesErrorCode = -2;
+    private String playServicesError;
     private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
 
 
@@ -129,19 +129,18 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void checkGooglePlayServices() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(requireActivity());
-        String playServiceError = "play_servives_"+ status;
         if (status != ConnectionResult.SUCCESS) {
-            lastPlayServicesErrorCode = status;
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Google Play Services issue:" + playServiceError);
+            playServicesError = "play_services_"+ status;
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Google Play Services issue:" + playServicesError);
             if (googleApiAvailability.isUserResolvableError(status)) {
                 GoogleApiAvailability.getInstance().showErrorDialogFragment(
                         requireActivity(),
                         status,
                         playServicesResolutionLauncher,
-                        dialog -> onConfigurationFailure(playServiceError,
+                        dialog -> onConfigurationFailure(playServicesError,
                                 getString(R.string.play_service_update_error)));
             } else {
-                onConfigurationFailure(playServiceError,
+                onConfigurationFailure(playServicesError,
                         getString(R.string.play_service_error));
             }
         }
@@ -377,8 +376,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() != Activity.RESULT_OK) {
-                        onConfigurationFailure("play_services_"+lastPlayServicesErrorCode,
-                                getString(R.string.play_service_error));
+                        onConfigurationFailure(playServicesError, getString(R.string.play_service_error));
                     }
                 }
         );
