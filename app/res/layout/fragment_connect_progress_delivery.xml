@@ -90,7 +90,7 @@
                             android:layout_marginBottom="20dp"
                             android:indeterminateOnly="false"
                             android:progressDrawable="@drawable/progress_ring"
-                            app:strokeWidth="15"
+                            app:strokeWidth="15dp"
                             app:progressColor="@color/connect_aqua"
                             app:progressBackgroundColor="@color/connect_blackist_dark_blue_color"
                             app:layout_constraintBottom_toBottomOf="parent"

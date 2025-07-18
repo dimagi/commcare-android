@@ -140,6 +140,6 @@
     <declare-styleable name="CircleProgressBar">
         <attr name="progressColor" format="color" />
         <attr name="progressBackgroundColor" format="color" />
-        <attr name="strokeWidth" format="float" />
+        <attr name="strokeWidth" format="dimension" />
     </declare-styleable>
 </resources>
