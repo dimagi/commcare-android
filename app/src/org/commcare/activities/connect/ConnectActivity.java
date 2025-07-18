@@ -4,7 +4,6 @@ import static org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +13,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -26,7 +23,6 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
-import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
@@ -37,8 +33,6 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
-import org.commcare.fragments.connect.ConnectDownloadingFragment;
-import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
@@ -47,23 +41,13 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngineListener> {
+public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private String opportunityId = "";
     private MenuItem messagingMenuItem = null;
 
-    final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    ConnectDownloadingFragment connectDownloadFragment = getConnectDownloadFragment();
-                    if (connectDownloadFragment != null) {
-                        connectDownloadFragment.onSuccessfulVerification();
-                    }
-                }
-            });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -255,23 +239,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
         return false;
     }
 
-    @Override
-    public ResourceEngineListener getReceiver() {
-        return getConnectDownloadFragment();
-    }
-
-    @Nullable
-    private ConnectDownloadingFragment getConnectDownloadFragment() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        Fragment currentFragment =
-                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof ConnectDownloadingFragment) {
-            return (ConnectDownloadingFragment) currentFragment;
-        }
-        return null;
-    }
-
     @Nullable
     private RefreshableFragment getRefreshableFragment() {
         NavHostFragment navHostFragment =
@@ -282,11 +249,5 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
             return refreshable;
         }
         return null;
-    }
-
-    public void startAppValidation() {
-        Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_CONNECT, true);
-        verificationLauncher.launch(i);
     }
 }
