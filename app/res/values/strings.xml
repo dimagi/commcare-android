@@ -640,6 +640,5 @@
 
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
-    <string name="play_service_update_error">Google Play Services are required. Please update/install them.</string>
-    <string name="play_service_error">Google Play Services are not supported on this device.</string>
+    <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
 </resources>
