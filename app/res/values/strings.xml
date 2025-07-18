@@ -631,4 +631,6 @@
     <string name="personalid_grant_location_service">Enable Location Service</string>
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
+    <string name="play_service_update_error">Google Play Services are required. Please update/install them.</string>
+    <string name="play_service_error">Google Play Services are not supported on this device.</string>
 </resources>
