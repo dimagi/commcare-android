@@ -141,7 +141,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                                 getString(R.string.play_service_update_error)));
             } else {
                 onConfigurationFailure(playServicesError,
-                        getString(R.string.play_service_error));
+                        getString(R.string.play_service_update_error));
             }
         }
     }
@@ -376,7 +376,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() != Activity.RESULT_OK) {
-                        onConfigurationFailure(playServicesError, getString(R.string.play_service_error));
+                        onConfigurationFailure(playServicesError, getString(R.string.play_service_update_error));
                     }
                 }
         );
