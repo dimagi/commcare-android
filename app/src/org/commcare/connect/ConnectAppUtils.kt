@@ -16,7 +16,7 @@ import java.security.SecureRandom
 
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
-    private const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
+    const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
 
     @Volatile
     private var isAppDownloading = false

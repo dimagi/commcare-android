@@ -2,17 +2,12 @@ package org.commcare.fragments.connect;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -31,6 +26,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
+import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
 
@@ -39,7 +35,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
+public class ConnectDeliveryProgressFragment extends ConnectJobFragment
+        implements RefreshableFragment {
 
     private FragmentConnectDeliveryProgressBinding binding;
     private ViewStateAdapter viewPagerAdapter;
@@ -61,7 +58,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         }
 
         setupTabViewPager();
-        setupMenuProvider();
         setupJobCard(job);
         setupRefreshAndConfirmationActions();
 
@@ -114,21 +110,9 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         });
     }
 
-    private void setupMenuProvider() {
-        MenuHost host = requireActivity();
-        host.addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {}
-
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId() == R.id.action_sync) {
-                    refreshData();
-                    return true;
-                }
-                return false;
-            }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    @Override
+    public void refresh() {
+        refreshData();
     }
 
     private void setupRefreshAndConfirmationActions() {

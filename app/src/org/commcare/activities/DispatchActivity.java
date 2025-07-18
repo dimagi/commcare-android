@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -290,10 +291,13 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+            i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
+
             String sesssionEndpointAppID = getSessionEndpointAppId();
             if (sesssionEndpointAppID != null) {
                 i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
             }
+
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -307,6 +311,10 @@ public class DispatchActivity extends AppCompatActivity {
     @Nullable
     private String getSessionEndpointAppId() {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
+    }
+
+    private boolean getLaunchedFromConnect() {
+        return getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
     }
 
     private void launchHomeScreen() {

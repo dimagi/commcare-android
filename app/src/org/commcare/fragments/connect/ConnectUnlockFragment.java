@@ -1,5 +1,8 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,9 +63,9 @@ public class ConnectUnlockFragment extends Fragment {
         requireActivity().setTitle(R.string.connect_title);
 
         if(getArguments() != null) {
-            redirectionAction = getArguments().getString("action");
-            opportunityId = getArguments().getString("opportunity_id");
-            buttons = getArguments().getBoolean("buttons", true);
+            redirectionAction = getArguments().getString(REDIRECT_ACTION);
+            opportunityId = getArguments().getString(ConnectConstants.OPPORTUNITY_ID);
+            buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
@@ -149,7 +152,7 @@ public class ConnectUnlockFragment extends Fragment {
     private void setFragmentRedirection() {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         Bundle bundle = new Bundle();
-        bundle.putBoolean("showLaunch", buttons);
+        bundle.putBoolean(SHOW_LAUNCH_BUTTON, buttons);
 
         if (!Strings.isNullOrEmpty(opportunityId)) {
             int jobId = Integer.parseInt(opportunityId);
