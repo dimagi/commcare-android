@@ -26,6 +26,12 @@ repositories {
     }
     maven { url 'https://jitpack.io' }
     maven {url 'https://repository.liferay.com/nexus/content/repositories/public/'}
+    maven {url 'https://maven.pkg.github.com/onaio/kujaku'
+        credentials {
+            username = project.properties['GITHUB_USERNAME'] ?: System.getenv("GITHUB_USERNAME")
+            password = project.properties['GITHUB_TOKEN'] ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 configurations {
