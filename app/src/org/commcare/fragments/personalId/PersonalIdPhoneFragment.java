@@ -2,6 +2,7 @@ package org.commcare.fragments.personalId;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
@@ -26,6 +27,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -60,6 +63,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Objects;
 
+import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
@@ -76,6 +80,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
+    private int PLAY_SERVICES_RESOLUTION_REQUEST= 1056;
 
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
@@ -96,6 +101,7 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
         registerLauncher();
+        checkGooglePlayServices();
         return binding.getRoot();
     }
 
@@ -116,6 +122,27 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         super.onDestroyView();
         locationController.destroy();
         binding = null;
+    }
+
+    private void checkGooglePlayServices() {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(requireActivity());
+        if (status != ConnectionResult.SUCCESS) {
+            String playServiceError = googleApiAvailability.getErrorString(status);
+            Logger.log(LogTypes.TYPE_MAINTENANCE,"Google Play Services issue:" + playServiceError);
+            Dialog dialog = googleApiAvailability.getErrorDialog(this, status, PLAY_SERVICES_RESOLUTION_REQUEST,
+                    dialog1 -> {
+                        onConfigurationFailure(playServiceError,
+                                "Google Play Services are required. Please update/install them.");
+                    });
+
+            if (dialog != null) {
+                dialog.show();
+            } else {
+                onConfigurationFailure(googleApiAvailability.getErrorString(status),
+                        "Google Play Services are not supported on this device.");
+            }
+        }
     }
 
     private void initializeUi() {
