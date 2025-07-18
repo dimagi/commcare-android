@@ -80,7 +80,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
-    private int PLAY_SERVICES_RESOLUTION_REQUEST= 1056;
+    private int lastPlayServicesErrorCode = -2;
+    private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
+
 
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
@@ -127,19 +129,19 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private void checkGooglePlayServices() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(requireActivity());
+        String playServiceError = "play_servives_"+ status;
         if (status != ConnectionResult.SUCCESS) {
-            String playServiceError = googleApiAvailability.getErrorString(status);
-            Logger.log(LogTypes.TYPE_MAINTENANCE,"Google Play Services issue:" + playServiceError);
-            Dialog dialog = googleApiAvailability.getErrorDialog(this, status, PLAY_SERVICES_RESOLUTION_REQUEST,
-                    dialog1 -> {
-                        onConfigurationFailure(playServiceError,
-                                getString(R.string.play_service_update_error));
-                    });
-
-            if (dialog != null) {
-                dialog.show();
+            lastPlayServicesErrorCode = status;
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Google Play Services issue:" + playServiceError);
+            if (googleApiAvailability.isUserResolvableError(status)) {
+                GoogleApiAvailability.getInstance().showErrorDialogFragment(
+                        requireActivity(),
+                        status,
+                        playServicesResolutionLauncher,
+                        dialog -> onConfigurationFailure(playServiceError,
+                                getString(R.string.play_service_update_error)));
             } else {
-                onConfigurationFailure(googleApiAvailability.getErrorString(status),
+                onConfigurationFailure(playServiceError,
                         getString(R.string.play_service_error));
             }
         }
@@ -367,6 +369,16 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                                 R.string.personalid_location_service_error,
                                 R.string.personalid_grant_location_service
                         );
+                    }
+                }
+        );
+
+        playServicesResolutionLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() != Activity.RESULT_OK) {
+                        onConfigurationFailure("play_services_"+lastPlayServicesErrorCode,
+                                getString(R.string.play_service_error));
                     }
                 }
         );
