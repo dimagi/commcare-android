@@ -243,12 +243,15 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         boolean showHours = hours != null;
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
-        jobCard.tvViewMore.setOnClickListener(v -> Navigation.findNavController(v)
-                .navigate(
-                        ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment()));
+        jobCard.tvViewMore.setOnClickListener(this::navigateToJobDetailBottomSheet);
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);
         }
+    }
+
+    private void navigateToJobDetailBottomSheet(View view) {
+        Navigation.findNavController(view).navigate(
+                ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
     }
 }
