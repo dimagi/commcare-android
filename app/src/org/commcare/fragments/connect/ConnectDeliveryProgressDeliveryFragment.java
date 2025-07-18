@@ -137,6 +137,12 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
     }
 
 
+    /**
+     * This was added to re-calculate the correct height of a fragment in ViewPager2. This is required as ViewPager2
+     * has bug currently due to which it's not calculating the height of it's different fragment correctly.
+     * When found some other solution for this ViewPager2 bug, we can remove this but make sure to QA
+     * by pressing sync button while in different fragments.
+     */
     @Override
     public void onResume() {
         super.onResume();
