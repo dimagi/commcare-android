@@ -58,14 +58,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         activity.setContentView(R.layout.home_screen);
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
-        updateJobTileDetails();
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
-        setupGridView();
 
         connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(connectProgressJobSummaryAdapter);
+
+        updateJobTileDetails();
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
+        setupGridView();
     }
 
     private void updateJobTileDetails() {
