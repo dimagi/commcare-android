@@ -133,14 +133,14 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
             Dialog dialog = googleApiAvailability.getErrorDialog(this, status, PLAY_SERVICES_RESOLUTION_REQUEST,
                     dialog1 -> {
                         onConfigurationFailure(playServiceError,
-                                "Google Play Services are required. Please update/install them.");
+                                getString(R.string.play_service_update_error));
                     });
 
             if (dialog != null) {
                 dialog.show();
             } else {
                 onConfigurationFailure(googleApiAvailability.getErrorString(status),
-                        "Google Play Services are not supported on this device.");
+                        getString(R.string.play_service_error));
             }
         }
     }
