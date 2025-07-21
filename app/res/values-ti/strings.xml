@@ -455,26 +455,14 @@
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="my_worker_history">ታሪኽ ስራሐይ</string>
-    <string name="my_earned_credential">ዝረኸብክዎ ምስክር ወረቐት</string>
     <string name="credential">ምስክር ወረቐት</string>
     <string name="worked_on">ዝሰርሓሉ:</string>
     <string name="earned_on">ዝተረኽበሉ:</string>
     <string name="active_for">ንጡፍ ዝኾነሉ:</string>
     <string name="learn_more_about_credentials">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
     <string name="view_credential">ምስክር ወረቐት ርአ</string>
-    <string name="share_your_accomplishment_with_friends_and_family">ዓወትካ ምስ ኣዕሩኽትኻን ቤተሰብካን ተኻፈሎ!</string>
-    <string name="learn_more">ብዛዕባዚ ምስክር ወረቐት ዝበለጸ ፍለጥ</string>
-    <string name="no_credentials_currently_available">ሕጂ ዘሎ ምስክር ወረቐት የለን። በጃኻ ነቲ ዝርዝር ንምዕራፍ "ኣሐድስ" ጠውቕ ወይ ድሕሪ ግዜ እንደገና ፈትን።</string>
-    <plurals name="earned_credentials">
-        <item quantity="one">ዝተረኽበ ምስክር ወረቐት (%d)</item>
-        <item quantity="other">ዝተረኽቡ ምስክር ወረቐታት (%d)</item>
-    </plurals>
-    <plurals name="credentials_yet_to_be_earned">
-        <item quantity="one">ገና ዘይተረኽበ ምስክር ወረቐት (%d)</item>
-        <item quantity="other">ገና ዘይተረኽቡ ምስክር ወረቐታት (%d)</item>
-    </plurals>
+    <string name="no_credentials_currently_available">ኣብዚ እዋን እዚ ዝኾነ መረጋገጺ የለን። Refresh ዝብል ጠውቕ ወይ ድሒሩ ተመለስ</string>
+    <string name="earned">ዝተረኽበ</string>
+    <string name="pending">ኣብ ከይዲ ዘሎ</string>
     <string name="cloud_sync">ክላውድ ሲንክ</string>
-    <string name="share_active_for">ንጡፍ ዝኾነሉ\n%1$s</string>
-    <string name="share_earned_on">ዝተረኽበሉ\n%1$s</string>
-    <string name="share_worked_on">ዝሰርሓሉ: %1$s</string>
 </resources>

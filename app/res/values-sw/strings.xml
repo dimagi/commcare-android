@@ -469,26 +469,14 @@
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
     <string name="my_worker_history">Historia Yangu ya Kazi</string>
-    <string name="my_earned_credential">Kitambulisho Changu Kilichopatikana</string>
     <string name="credential">Kitambulisho</string>
     <string name="worked_on">Ilifanywa Kazi Kwenye:</string>
     <string name="earned_on">Ilipatikana Kwenye:</string>
     <string name="active_for">Inatumika Kwa:</string>
     <string name="learn_more_about_credentials">Jifunze Zaidi Kuhusu Vitambulisho</string>
     <string name="view_credential">Tazama Kitambulisho</string>
-    <string name="share_your_accomplishment_with_friends_and_family">Shiriki mafanikio yako na marafiki na familia!</string>
-    <string name="learn_more">Jifunze zaidi kuhusu kitambulisho hiki</string>
-    <string name="no_credentials_currently_available">Hakuna vitambulisho vinavyopatikana kwa sasa. Tafadhali bofya "Onyesha Upya" ili kusasisha orodha au jaribu tena baadaye.</string>
-    <plurals name="earned_credentials">
-        <item quantity="one">KITAMBULISHO KILICHOPATIKANA (1)</item>
-        <item quantity="other">VITAMBULISHO VILIVYOPATIKANA (%d)</item>
-    </plurals>
-    <plurals name="credentials_yet_to_be_earned">
-        <item quantity="one">KITAMBULISHO AMBACHO BADO HAKIJAPATIKANA (1)</item>
-        <item quantity="other">VITAMBULISHO AMBAVYO BADO HAVIJAPATIKANA (%d)</item>
-    </plurals>
+    <string name="no_credentials_currently_available">Hakuna vitambulisho vinavyopatikana kwa sasa. Bofya Onyesha upya au uangalie tena baadaye</string>
+    <string name="earned">Imelipwa</string>
+    <string name="pending">Inasubiri</string>
     <string name="cloud_sync">Usawazishaji wa Wingu</string>
-    <string name="share_active_for">INATUMIKA KWA\n%1$s</string>
-    <string name="share_earned_on">ILIPATIKANA KWENYE\n%1$s</string>
-    <string name="share_worked_on">ILIFANYWA KAZI KWENYE: %1$s</string>
 </resources>

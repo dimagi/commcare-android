@@ -1,15 +1,15 @@
 package org.commcare.activities.connect.viewmodel
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.utils.parseIsoDateForSorting
 
 class PersonalIdCredentialViewModel(application: Application): AndroidViewModel(application) {
 
@@ -18,6 +18,18 @@ class PersonalIdCredentialViewModel(application: Application): AndroidViewModel(
 
     private val _apiError = MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
     val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> = _apiError
+
+    private val _earnedCredentials = MutableLiveData<List<PersonalIdCredential>>()
+    val earnedCredentials: LiveData<List<PersonalIdCredential>> = _earnedCredentials
+
+    private val _pendingCredentials = MutableLiveData<List<PersonalIdCredential>>()
+    val pendingCredentials: LiveData<List<PersonalIdCredential>> = _pendingCredentials
+
+    private val _username = MutableLiveData<String>()
+    val username: LiveData<String> = _username
+
+    private val _profilePic = MutableLiveData<String>()
+    val profilePic: LiveData<String> = _profilePic
 
     fun retrieveCredentials() {
         val user = ConnectUserDatabaseUtil.getUser(getApplication())
@@ -35,4 +47,21 @@ class PersonalIdCredentialViewModel(application: Application): AndroidViewModel(
             }
         }.retrieveCredentials(getApplication(), user.name, user.password)
     }
+
+    fun setFilteredCredentialLists(
+        earned: List<PersonalIdCredential>,
+        pending: List<PersonalIdCredential>
+    ) {
+        val sortedEarned = earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+        val sortedPending = pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+
+        _earnedCredentials.value = sortedEarned
+        _pendingCredentials.value = sortedPending
+    }
+
+    fun setUserInfo(username: String, profilePic: String) {
+        _username.value = username
+        _profilePic.value = profilePic
+    }
+
 }

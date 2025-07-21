@@ -463,27 +463,15 @@ License.
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
     <string name="my_worker_history">मेरा कार्य इतिहास</string>
-    <string name="my_earned_credential">मेरी अर्जित क्रेडेंशियल</string>
     <string name="credential">क्रेडेंशियल</string>
     <string name="worked_on">इस पर काम किया:</string>
     <string name="earned_on">इस पर अर्जित किया:</string>
     <string name="active_for">इसके लिए सक्रिय:</string>
     <string name="learn_more_about_credentials">क्रेडेंशियल्स के बारे में और जानें</string>
     <string name="view_credential">क्रेडेंशियल देखें</string>
-    <string name="share_your_accomplishment_with_friends_and_family">अपनी उपलब्धि मित्रों और परिवार के साथ साझा करें!</string>
-    <string name="learn_more">इस क्रेडेंशियल के बारे में और जानें</string>
-    <string name="no_credentials_currently_available">वर्तमान में कोई क्रेडेंशियल उपलब्ध नहीं है। सूची अपडेट करने के लिए कृपया "रिफ्रेश" पर क्लिक करें या बाद में पुनः प्रयास करें।</string>
-    <plurals name="earned_credentials">
-        <item quantity="one">अर्जित क्रेडेंशियल (%d)</item>
-        <item quantity="other">अर्जित क्रेडेंशियल (%d)</item>
-    </plurals>
-    <plurals name="credentials_yet_to_be_earned">
-        <item quantity="one">क्रेडेंशियल अभी अर्जित की जानी है (%d)</item>
-        <item quantity="other">क्रेडेंशियल अभी अर्जित की जानी हैं (%d)</item>
-    </plurals>
+    <string name="no_credentials_currently_available">वर्तमान में कोई क्रेडेंशियल उपलब्ध नहीं है। रीफ़्रेश करें पर क्लिक करें या बाद में फिर से देखें</string>
+    <string name="earned">अर्जित</string>
+    <string name="pending">लंबित</string>
     <string name="cloud_sync">क्लाउड सिंक</string>
-    <string name="share_active_for">इसके लिए सक्रिय\n%1$s</string>
-    <string name="share_earned_on">इस पर अर्जित किया\n%1$s</string>
-    <string name="share_worked_on">इस पर काम किया: %1$s</string>
 
 </resources>
