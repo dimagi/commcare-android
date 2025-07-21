@@ -41,7 +41,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        mContext = parent.getContext();
         // Inflate the layout for each item using View Binding
         if (viewType == NON_CORRUPT_JOB_VIEW) {
             ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(
