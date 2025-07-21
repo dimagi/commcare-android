@@ -4,6 +4,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,9 +39,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                     ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
                     layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                     bottomSheet.setLayoutParams(layoutParams);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        bottomSheet.setBackground(new ColorDrawable(getResources().getColor(R.color.transparent, null)));
-                    }
+                    bottomSheet.setBackground(new ColorDrawable(ContextCompat.getColor(requireContext(), R.color.transparent)));
                 }
             }
         });
