@@ -468,4 +468,16 @@
     <string name="personalid_camera_permission_title">Permissão para câmara</string>
     <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
     <string name="personalid_capture_photo">Capturar foto</string>
+    <string name="my_worker_history">Meu Histórico de Trabalho</string>
+    <string name="credential">Credencial</string>
+    <string name="worked_on">Trabalhou Em:</string>
+    <string name="earned_on">Obtido Em:</string>
+    <string name="active_for">Ativo Por:</string>
+    <string name="learn_more_about_credentials">Saiba Mais Sobre Credenciais</string>
+    <string name="view_credential">Ver Credencial</string>
+    <string name="no_credentials_currently_available">Nenhuma credencial disponível no momento. Clique em Atualizar ou volte mais tarde</string>
+    <string name="earned">Ganhos</string>
+    <string name="pending">Pendente</string>
+    <string name="cloud_sync">Sincronização na Nuvem</string>
+
 </resources>

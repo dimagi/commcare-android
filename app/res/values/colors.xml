@@ -214,6 +214,18 @@
     <color name="connect_yellow_dot">#EABA13</color>
     <color name="connect_message_read">#3A42C7</color>
     <color name="connect_delivery_approved">#16A085</color>
+    <color name="personal_id_item_bg">#F8F9FA</color>
+    <color name="personal_id_item_grey">#6C757D</color>
+    <color name="personal_id_no_credentials">#FCEFCC</color>
+    <color name="personal_id_no_credentials_txt">#343A40</color>
+    <color name="personal_id_earned_credentials_txt">#E9ECEF</color>
+    <color name="personal_id_delivery_app">#FC5F36</color>
+    <color name="bg_share_cred_card">#BEC6ED</color>
+    <color name="color_activity">#90A1B9</color>
+    <color name="white_30">#4DFFFFFF</color>
+    <color name="grey_pending">#F3F4F6</color>
+    <color name="yellow_pending">#C67E13</color>
+    <color name="yellow_pending_bg">#FFF4CD</color>
 
 
     <color name="ic_backup">#14006C</color>

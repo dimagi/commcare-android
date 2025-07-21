@@ -468,4 +468,15 @@
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
+    <string name="my_worker_history">Historia Yangu ya Kazi</string>
+    <string name="credential">Kitambulisho</string>
+    <string name="worked_on">Ilifanywa Kazi Kwenye:</string>
+    <string name="earned_on">Ilipatikana Kwenye:</string>
+    <string name="active_for">Inatumika Kwa:</string>
+    <string name="learn_more_about_credentials">Jifunze Zaidi Kuhusu Vitambulisho</string>
+    <string name="view_credential">Tazama Kitambulisho</string>
+    <string name="no_credentials_currently_available">Hakuna vitambulisho vinavyopatikana kwa sasa. Bofya Onyesha upya au uangalie tena baadaye</string>
+    <string name="earned">Imelipwa</string>
+    <string name="pending">Inasubiri</string>
+    <string name="cloud_sync">Usawazishaji wa Wingu</string>
 </resources>

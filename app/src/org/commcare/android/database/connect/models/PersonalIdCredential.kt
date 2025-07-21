@@ -1,165 +1,104 @@
-package org.commcare.android.database.connect.models;
+package org.commcare.android.database.connect.models
 
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.models.framework.Persisting;
-import org.commcare.modern.database.Table;
-import org.commcare.modern.models.MetaField;
-import org.javarosa.core.services.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.commcare.android.storage.framework.Persisted
+import org.commcare.models.framework.Persisting
+import org.commcare.modern.database.Table
+import org.commcare.modern.models.MetaField
+import org.javarosa.core.services.Logger
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.Serializable
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * DB model for personal_id_credential table
- */
 @Table(PersonalIdCredential.STORAGE_KEY)
-public class PersonalIdCredential extends Persisted implements Serializable {
-
-    public static final String STORAGE_KEY = "credential";
-
-    public static final String META_APP_NAME = "app_name";
-    public static final String META_APP_ID = "app_id";
-    public static final String META_TYPE = "type";
-    public static final String META_ISSUED_DATE = "issued_date";
-    public static final String META_TITLE = "title";
-    public static final String META_CREDENTIAL = "credential";
+class PersonalIdCredential : Persisted(), Serializable {
 
     @Persisting(1)
-    @MetaField(META_APP_NAME)
-    private String appName;
+    @MetaField(META_UUID)
+    var uuid: String = ""
 
     @Persisting(2)
     @MetaField(META_APP_ID)
-    private String appId;
+    var appId: String = ""
 
     @Persisting(3)
-    @MetaField(META_TYPE)
-    private String type;
+    @MetaField(META_OPP_ID)
+    var oppId: String = ""
 
     @Persisting(4)
     @MetaField(META_ISSUED_DATE)
-    private String issuedDate;
+    var issuedDate: String = ""
 
     @Persisting(5)
     @MetaField(META_TITLE)
-    private String title;
+    var title: String = ""
 
     @Persisting(6)
-    @MetaField(META_CREDENTIAL)
-    private String credential;
+    @MetaField(META_ISSUER)
+    var issuer: String = ""
 
-    // Constructors
-    public PersonalIdCredential() {
-    }
+    @Persisting(7)
+    @MetaField(META_LEVEL)
+    var level: String = ""
 
-    public PersonalIdCredential(String appName, String appId, String type,
-                                String issuedDate, String title, String credential) {
-        this.appName = appName;
-        this.appId = appId;
-        this.type = type;
-        this.issuedDate = issuedDate;
-        this.title = title;
-        this.credential = credential;
-    }
+    @Persisting(8)
+    @MetaField(META_TYPE)
+    var type: String = ""
 
-    // Getters
-    public String getAppName() {
-        return appName;
-    }
+    companion object {
+        const val STORAGE_KEY = "credential"
 
-    public String getAppId() {
-        return appId;
-    }
+        const val META_UUID = "uuid"
+        const val META_APP_ID = "app_id"
+        const val META_OPP_ID = "opp_id"
+        const val META_ISSUED_DATE = "date"
+        const val META_TITLE = "title"
+        const val META_ISSUER = "issuer"
+        const val META_LEVEL = "level"
+        const val META_TYPE = "type"
 
-    public String getType() {
-        return type;
-    }
+        @JvmStatic
+        fun fromJsonArray(jsonArray: JSONArray): PersonalIdValidAndCorruptCredential {
+            val valid = mutableListOf<PersonalIdCredential>()
+            val corrupt = mutableListOf<PersonalIdCredential>()
 
-    public String getIssuedDate() {
-        return issuedDate;
-    }
+            for (i in 0 until jsonArray.length()) {
+                var obj: JSONObject? = null
+                try {
+                    obj = jsonArray.getJSONObject(i)
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getCredential() {
-        return credential;
-    }
-
-    // Setters
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
-
-    public void setAppId(String setAppId) {
-        this.appId = setAppId;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setIssuedDate(String issuedDate) {
-        this.issuedDate = issuedDate;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setCredential(String credential) {
-        this.credential = credential;
-    }
-
-    /**
-     * Parses full response string and returns valid & corrupt credentials separately.
-     */
-    public static PersonalIdValidAndCorruptCredential fromJsonArray(JSONArray jsonArray) {
-        List<PersonalIdCredential> valid = new ArrayList<>();
-        List<PersonalIdCredential> corrupt = new ArrayList<>();
-
-        for (int i = 0; i < jsonArray.length(); i++) {
-            JSONObject obj = null;
-            try {
-                obj = jsonArray.getJSONObject(i);
-
-                PersonalIdCredential credential = new PersonalIdCredential();
-                credential.setAppName(obj.getString(META_APP_NAME));
-                credential.setAppId(obj.getString(META_APP_ID));
-                credential.setType(obj.getString(META_TYPE));
-                credential.setIssuedDate(obj.getString(META_ISSUED_DATE));
-                credential.setTitle(obj.getString(META_TITLE));
-                credential.setCredential(obj.getString(META_CREDENTIAL));
-                valid.add(credential);
-
-            } catch (JSONException e) {
-                Logger.exception("Corrupt PersonalIdCredential at index " + i, e);
-                if (obj != null) {
-                    corrupt.add(corruptCredentialFromJson(obj));
+                    val credential = PersonalIdCredential().apply {
+                        uuid = obj.getString(META_UUID)
+                        appId = obj.getString(META_APP_ID)
+                        oppId = obj.getString(META_OPP_ID)
+                        issuedDate = obj.getString(META_ISSUED_DATE)
+                        title = obj.getString(META_TITLE)
+                        issuer = obj.getString(META_ISSUER)
+                        level = obj.getString(META_LEVEL)
+                        type = obj.getString(META_TYPE)
+                    }
+                    valid.add(credential)
+                } catch (e: JSONException) {
+                    Logger.exception("Corrupt credential at index $i", e)
+                    obj?.let { corrupt.add(corruptCredentialFromJson(it)) }
                 }
             }
+
+            return PersonalIdValidAndCorruptCredential(valid, corrupt)
         }
 
-        return new PersonalIdValidAndCorruptCredential(valid, corrupt);
-    }
-
-
-    /**
-     * Creates a PersonalIdCredential with optStrings to recover partial corrupt data.
-     */
-    public static PersonalIdCredential corruptCredentialFromJson(JSONObject json) {
-        PersonalIdCredential credItem = new PersonalIdCredential();
-        credItem.appName = json.optString(META_APP_NAME,"");
-        credItem.appId = json.optString(META_APP_ID,"");
-        credItem.type = json.optString(META_TYPE,"");
-        credItem.issuedDate = json.optString(META_ISSUED_DATE,"");
-        credItem.title = json.optString(META_TITLE,"");
-        credItem.credential = json.optString(META_CREDENTIAL,"");
-        return credItem;
+        @JvmStatic
+        fun corruptCredentialFromJson(json: JSONObject): PersonalIdCredential {
+            return PersonalIdCredential().apply {
+                uuid = json.optString(META_UUID, "")
+                appId = json.optString(META_APP_ID, "")
+                oppId = json.optString(META_OPP_ID, "")
+                issuedDate = json.optString(META_ISSUED_DATE, "")
+                title = json.optString(META_TITLE, "")
+                issuer = json.optString(META_ISSUER, "")
+                level = json.optString(META_LEVEL, "")
+                type = json.optString(META_TYPE, "")
+            }
+        }
     }
 }

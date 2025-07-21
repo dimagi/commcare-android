@@ -462,4 +462,16 @@ License.
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="my_worker_history">मेरा कार्य इतिहास</string>
+    <string name="credential">क्रेडेंशियल</string>
+    <string name="worked_on">इस पर काम किया:</string>
+    <string name="earned_on">इस पर अर्जित किया:</string>
+    <string name="active_for">इसके लिए सक्रिय:</string>
+    <string name="learn_more_about_credentials">क्रेडेंशियल्स के बारे में और जानें</string>
+    <string name="view_credential">क्रेडेंशियल देखें</string>
+    <string name="no_credentials_currently_available">वर्तमान में कोई क्रेडेंशियल उपलब्ध नहीं है। रीफ़्रेश करें पर क्लिक करें या बाद में फिर से देखें</string>
+    <string name="earned">अर्जित</string>
+    <string name="pending">लंबित</string>
+    <string name="cloud_sync">क्लाउड सिंक</string>
+
 </resources>
