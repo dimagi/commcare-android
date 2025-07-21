@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
@@ -148,7 +149,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = ConnectAppUtils.INSTANCE.wasAppLaunchedFromConnect(getIntent());
+        appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -169,6 +170,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
+    }
+
+    private boolean shouldDoConnectLogin() {
+        return appLaunchedFromConnect && !connectLaunchPerformed;
     }
 
     @Override
@@ -315,6 +320,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
+
+        if(shouldDoConnectLogin() && !seatAppIfNeeded(presetAppId)) {
+            connectLaunchPerformed = true;
+            initiateLoginAttempt(uiController.isRestoreSessionChecked());
+        }
     }
 
     protected boolean checkForSeatedAppChange() {
@@ -426,9 +436,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
-            passwordOrPin = ConnectAppUtils.INSTANCE.checkAutoLoginAndOverridePassword(this,
-                    username, passwordOrPin, appLaunchedFromConnect,
-                    loginManagedByPersonalId());
+            if(ConnectAppUtils.INSTANCE.shouldOverridePassword(loginManagedByPersonalId())) {
+                passwordOrPin = ConnectAppUtils.INSTANCE.getPasswordOverride(
+                        this, username, appLaunchedFromConnect);
+            }
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -966,9 +977,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             if (appLaunchedFromConnect && presetAppId != null) {
                 appState = Connect;
-                if (!seatAppIfNeeded(presetAppId)) {
-                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
-                }
             }
 
             if (appState == PersonalId) {

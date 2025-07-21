@@ -314,7 +314,9 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private boolean getLaunchedFromConnect() {
-        return getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
+        boolean connect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
+        getIntent().removeExtra(IS_LAUNCH_FROM_CONNECT);
+        return connect;
     }
 
     private void launchHomeScreen() {
