@@ -84,6 +84,12 @@ public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<C
         }
     }
 
+    public void updateData(List<ConnectDeliveryDetails> newData) {
+        this.deliveryProgressList.clear();
+        this.deliveryProgressList.addAll(newData);
+        notifyDataSetChanged();
+    }
+
    public interface DeliveryItemOnClickListener {
         void onClick(String initName);
     }

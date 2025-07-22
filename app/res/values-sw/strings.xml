@@ -251,7 +251,7 @@
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya Kitambulisho cha Kibinafsi tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
-    <string name="connect_consent_message_1">Nimesoma na kukubaliana na Sera ya Faragha ya Dimagi, Sheria na Masharti, Makubaliano ya Biashara na Sera ya Matumizi Yanayokubalika.</string>
+    <string name="connect_consent_message_1">Nimesoma na kukubaliana na <a href="https://www.dimagi.com/terms/latest/privacy/">Sera ya Faragha</a> ya Dimagi, <a href="https://www.dimagi.com/terms/latest/tos/">Sheria na Masharti</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Makubaliano ya Biashara</a> na <a href="https://www.dimagi.com/terms/latest/aup/">Sera ya Matumizi Yanayokubalika</a>.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">OTP Imetumwa</string>
@@ -442,6 +442,8 @@
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
     <string name="connect_send_message_hint">Andika ujumbe</string>
     <string name="connect_send_message_btn_desc">Bonyeza hapa kutuma ujumbe</string>
+    <string name="connect_message_you">Wewe</string>
+    <string name="connect_message_them">Wao</string>
     <string name="connect_corrupt_job_text">Imeshindwa kupakia fursa hii</string>
     <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>

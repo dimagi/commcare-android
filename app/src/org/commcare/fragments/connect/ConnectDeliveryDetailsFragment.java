@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
@@ -91,12 +92,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
     }
 
     private boolean isDeliveryAppInstalled(ConnectJobRecord job) {
-        for (ApplicationRecord app : MultipleAppsUtil.appRecordArray()) {
-            if (job.getDeliveryAppInfo().getAppId().equals(app.getUniqueId())) {
-                return true;
-            }
-        }
-        return false;
+        return AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
     }
 
     private void claimJob(ConnectJobRecord job, boolean appInstalled) {

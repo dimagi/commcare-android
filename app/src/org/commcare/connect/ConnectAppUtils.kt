@@ -2,7 +2,7 @@ package org.commcare.connect
 
 import android.app.Activity
 import android.content.Context
-import org.commcare.AppUtils
+import android.content.Intent
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
@@ -16,30 +16,20 @@ import java.security.SecureRandom
 
 object ConnectAppUtils {
     private const val APP_DOWNLOAD_TASK_ID: Int = 4
-    private var primedAppIdForAutoLogin: String? = null
+    private const val IS_LAUNCH_FROM_CONNECT = "is_launch_from_connect"
 
-    fun wasAppLaunchedFromConnect(appId: String?): Boolean {
-        val primed = primedAppIdForAutoLogin
-        primedAppIdForAutoLogin = null
-        return primed != null && primed == appId
+    @Volatile
+    private var isAppDownloading = false
+
+    fun wasAppLaunchedFromConnect(intent: Intent?): Boolean {
+        val isConnectLaunch = intent?.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) == true
+        intent?.removeExtra(IS_LAUNCH_FROM_CONNECT)
+        return isConnectLaunch
     }
 
-    fun isAppInstalled(appId: String): Boolean {
-        for (app in AppUtils.getInstalledAppRecords()) {
-            if (appId == app.uniqueId) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private var downloading = false
-    private var downloadListener: ResourceEngineListener? = null
-
-    fun downloadAppOrResumeUpdates(installUrl: String?, listener: ResourceEngineListener?) {
-        downloadListener = listener
-        if (!downloading) {
-            downloading = true
+    fun downloadApp(installUrl: String?, listener: ResourceEngineListener?) {
+        if (!isAppDownloading) {
+            isAppDownloading = true
             //Start a new download
             ResourceInstallUtils.startAppInstallAsync(
                 false,
@@ -50,17 +40,19 @@ object ConnectAppUtils {
                     }
 
                     override fun startBlockingForTask(id: Int) {
+                        isAppDownloading = true
                     }
 
                     override fun stopBlockingForTask(id: Int) {
-                        downloading = false
+                        isAppDownloading = false
                     }
 
                     override fun taskCancelled() {
+                        isAppDownloading = false
                     }
 
                     override fun getReceiver(): ResourceEngineListener? {
-                        return downloadListener
+                        return listener
                     }
 
                     override fun startTaskTransition() {
@@ -78,24 +70,25 @@ object ConnectAppUtils {
     }
 
     fun checkAutoLoginAndOverridePassword(
-        context: Context?, appId: String?, username: String?,
-        passwordOrPin: String?, appLaunchedFromConnect: Boolean, uiInAutoLogin: Boolean
+        context: Context?, username: String?,
+        passwordOrPin: String?, appLaunchedFromConnect: Boolean, personalIdManagedLogin: Boolean
     ): String? {
+        val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
         var updatedPasswordOrPin = passwordOrPin
         if (PersonalIdManager.getInstance().isloggedIn()) {
             if (appLaunchedFromConnect) {
                 //Configure some things if we haven't already
                 var record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                     context,
-                    appId, username
+                    seatedAppId, username
                 )
                 if (record == null) {
-                    record = prepareConnectManagedApp(context, appId, username)
+                    record = storeNewConnectLinkedAppRecord(context, seatedAppId, username)
                 }
 
                 updatedPasswordOrPin = record.password
-            } else if (uiInAutoLogin) {
-                val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
+            } else if (personalIdManagedLogin) {
+
                 val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                     context, seatedAppId,
                     username
@@ -112,49 +105,38 @@ object ConnectAppUtils {
         return updatedPasswordOrPin
     }
 
-    private fun prepareConnectManagedApp(
+    private fun storeNewConnectLinkedAppRecord(
         context: Context?,
         appId: String?,
         username: String?
     ): ConnectLinkedAppRecord {
-        //Create app password
-        val password = generatePassword()
-
-        //Store ConnectLinkedAppRecord (note worker already linked)
         return ConnectAppDatabaseUtil.storeApp(
             context,
             appId,
             username,
             true,
-            password,
+            generateAppPassword(),
             true,
             false
         )
     }
 
-    private fun generatePassword(): String {
+    private fun generateAppPassword(): String {
         val passwordLength = 20
-
         val charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?"
         val secureRandom = SecureRandom()
-        val password = StringBuilder(passwordLength)
-        for (i in 0..<passwordLength) {
-            password.append(charSet[secureRandom.nextInt(charSet.length)])
-        }
-
-        return password.toString()
+        return (1..passwordLength)
+            .map { charSet[secureRandom.nextInt(charSet.length)] }
+            .joinToString("")
     }
 
     fun launchApp(activity: Activity, isLearning: Boolean, appId: String) {
         CommCareApplication.instance().closeUserSession()
-
         val appType = if (isLearning) "Learn" else "Deliver"
         FirebaseAnalyticsUtil.reportCccAppLaunch(appType, appId)
-
-        primedAppIdForAutoLogin = appId
-
-        CommCareLauncher.launchCommCareForAppId(activity, appId)
-
+        HashMap<String, Any>().apply {
+            put(IS_LAUNCH_FROM_CONNECT, true)
+        }.also { CommCareLauncher.launchCommCareForAppId(activity, appId, it) }
         activity.finish()
     }
 }
