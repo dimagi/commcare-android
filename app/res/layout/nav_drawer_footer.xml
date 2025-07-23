@@ -52,7 +52,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/baseline_help_outline_24"/>
+            android:src="@drawable/nav_drawer_help_icon"/>
 
         <TextView
             android:id="@+id/nav_help"

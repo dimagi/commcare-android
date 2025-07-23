@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@drawable/logged_out_avatar"/>
+                android:src="@drawable/nav_drawer_logged_out_avatar"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

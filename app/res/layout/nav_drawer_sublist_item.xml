@@ -15,7 +15,7 @@
     <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/baseline_grid_view_24"/>
+        android:src="@drawable/nav_drawer_app_icon"/>
 
     <TextView
         android:id="@+id/sublist_title"
