@@ -44,7 +44,7 @@ dependencies {
     testImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
-    testImplementation 'org.json:json:20250107'
+    testImplementation 'org.json:json:20250517'
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
