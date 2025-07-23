@@ -631,4 +631,12 @@
     <string name="personalid_grant_location_service">Enable Location Service</string>
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
+    <string name="signin_register"><u>Signin / Register</u></string>
+    <string name="help">Help</string>
+    <string name="not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
+    <string name="opportunities">Opportunities</string>
+    <string name="commcare_apps">Commcare Apps</string>
+    <string name="work_history">Work History</string>
+    <string name="payments">Payments</string>
+    <string name="manage_profile">Manage Profile</string>
 </resources>
