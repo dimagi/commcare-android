@@ -19,9 +19,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
 import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
@@ -108,15 +105,15 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
         new ConnectApiHandler<Boolean>() {
 
             @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
-                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
-            }
-
-            @Override
             public void onSuccess(Boolean data) {
                 proceedAfterJobClaimed(binding.connectDeliveryButton, job, appInstalled);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(true);
+            }
+
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t), Toast.LENGTH_LONG).show();
+                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());
     }

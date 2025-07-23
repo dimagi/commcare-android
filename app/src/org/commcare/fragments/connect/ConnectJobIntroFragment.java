@@ -130,7 +130,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
 
             }
 
-        }.connectStartLearning(requireContext(),user,job.getJobId());
+        }.connectStartLearning(requireContext(), user, job.getJobId());
     }
 
     private void reportApiCall(boolean success) {

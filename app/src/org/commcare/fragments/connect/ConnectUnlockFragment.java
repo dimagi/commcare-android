@@ -89,13 +89,12 @@ public class ConnectUnlockFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @androidx.annotation.Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
                 setFragmentRedirection();
             }
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                new JobStoreManager(requireContext()).storeJobs(requireContext(), data.getValidJobs(), true);
+                ConnectJobUtils.storeJobs(requireContext(),data.getValidJobs(),true);
                 setFragmentRedirection();
 
             }

@@ -2,20 +2,14 @@ package org.commcare.connect.network;
 
 import android.content.Context;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.network.base.BaseApi;
 import org.commcare.connect.network.connect.ConnectApiClient;
-import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
-import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.R;
 import org.commcare.network.HttpUtils;
 
 import java.util.HashMap;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 

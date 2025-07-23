@@ -17,7 +17,12 @@ import java.io.IOException
 class BaseApi {
 
     companion object {
-        fun callApi(context: Context, call: Call<ResponseBody>, callback: IApiCallback, endPoint:String) {
+        fun callApi(
+            context: Context,
+            call: Call<ResponseBody>,
+            callback: IApiCallback,
+            endPoint: String
+        ) {
             showProgressDialog(context)
             call.enqueue(object : Callback<ResponseBody?> {
                 override fun onResponse(
@@ -33,21 +38,21 @@ class BaseApi {
                             }
                         } catch (e: IOException) {
                             // Handle error when reading the stream
-                            callback.processFailure(response.code(), null,endPoint)
+                            callback.processFailure(response.code(), null, endPoint)
                         }
                     } else {
                         // Handle validation errors
-                        logNetworkError(response)
+                        logFailedResponse(response)
                         val stream = if (response.errorBody() != null) response.errorBody()!!
                             .byteStream() else null
-                        callback.processFailure(response.code(), stream,endPoint)
+                        callback.processFailure(response.code(), stream, endPoint)
                     }
                 }
 
                 override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
                     dismissProgressDialog(context)
                     // Handle network errors, etc.
-                    handleNetworkError(t)
+                    logNetworkError(t)
                     callback.processNetworkFailure()
                 }
             })
@@ -77,61 +82,39 @@ class BaseApi {
         }
 
 
-        fun logNetworkError(response: Response<*>) {
+        fun logFailedResponse(response: Response<*>) {
             val message = response.message()
-            if (response.code() == 400) {
-                // Bad request (e.g., validation failed)
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Bad Request: $message"
-                )
-            } else if (response.code() == 401) {
-                // Unauthorized (e.g., invalid credentials)
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Unauthorized: $message"
-                )
-            } else if (response.code() == 404) {
-                // Not found
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Not Found: $message"
-                )
-            } else if (response.code() >= 500) {
-                // Server error
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Server Error: $message"
-                )
-            } else {
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "API Error: $message"
-                )
+            val errorMessage = when (response.code()) {
+                400 -> "Bad Request: $message"
+                401 -> "Unauthorized: $message"
+                404 -> "Not Found: $message"
+                500 -> "Server Error: $message"
+                else -> "API Error: $message"
+
             }
+
+            Logger.log(
+                LogTypes.TYPE_ERROR_SERVER_COMMS,
+                errorMessage
+            )
+            Logger.exception(LogTypes.TYPE_ERROR_SERVER_COMMS, Throwable(errorMessage))
         }
 
 
-        fun handleNetworkError(t: Throwable) {
+        fun logNetworkError(t: Throwable) {
             val message = t.message
-            if (t is IOException) {
-                // IOException is usually a network error (no internet, timeout, etc.)
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Network Error: $message"
-                )
-            } else if (t is HttpException) {
-                // Handle HTTP exceptions separately if needed
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "HTTP Error: $message"
-                )
-            } else {
-                Logger.log(
-                    LogTypes.TYPE_ERROR_SERVER_COMMS,
-                    "Unexpected Error: $message"
-                )
+
+            val errorMessage = when (t) {
+                is IOException -> "Network Error: $message"
+                is HttpException -> "HTTP Error: $message"
+                else -> "Unexpected Error: $message"
             }
+
+            Logger.log(
+                LogTypes.TYPE_ERROR_SERVER_COMMS,
+                errorMessage
+            )
+            Logger.exception(errorMessage, t)
         }
 
     }

@@ -14,7 +14,7 @@ import org.commcare.connect.network.connect.parser.LearningAppProgressResponsePa
 /**
  * Class for all connect api handlers
  */
-open abstract class ConnectApiHandler<T> : BaseApiHandler<T>() {
+abstract class ConnectApiHandler<T> : BaseApiHandler<T>() {
 
     fun getConnectOpportunities(context: Context, user: ConnectUserRecord) {
         ApiConnect.getConnectOpportunities(

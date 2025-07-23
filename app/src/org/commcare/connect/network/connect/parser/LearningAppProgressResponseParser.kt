@@ -13,10 +13,9 @@ import java.io.InputStream
 
 class LearningAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
 
-    var connectJobLearningRecords: ArrayList<ConnectJobLearningRecord> = ArrayList()
-    val connectJobAssessmentRecords: ArrayList<ConnectJobAssessmentRecord> = ArrayList()
-
     override fun parse(responseCode: Int, responseData: InputStream, anyInputObject:Any?): T {
+        var connectJobLearningRecords: ArrayList<ConnectJobLearningRecord> = ArrayList()
+        val connectJobAssessmentRecords: ArrayList<ConnectJobAssessmentRecord> = ArrayList()
         val jobId:Int = anyInputObject as Int
         try {
             responseData.use { `in` ->
