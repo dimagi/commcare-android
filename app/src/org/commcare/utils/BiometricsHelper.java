@@ -217,41 +217,27 @@ public class BiometricsHelper {
 
     //// start: min security requirements
 
-    public static String getMinHardwareErrorForSecurityIfAny(BiometricManager biometricManager, Activity activity, String requiredLock) {
-
+    public static void checkForValidSecurityType(String requiredLock) {
         if (TextUtils.isEmpty(requiredLock)) {
-            crashWithInvalidSecurityTypeException(activity, requiredLock);
+            crashWithInvalidSecurityTypeException(requiredLock);
         }
 
-        BiometricsHelper.ConfigurationStatus fingerprintStatus = BiometricsHelper.checkFingerprintStatus(
-                activity, biometricManager);
-        BiometricsHelper.ConfigurationStatus pinStatus = BiometricsHelper.checkPinStatus(activity,
-                biometricManager);
-
-        return switch (requiredLock) {
-            case PIN ->
-                    getMinPinHardwareErrorForSecurityIfAny(activity, fingerprintStatus, pinStatus);
-            case BIOMETRIC_TYPE ->
-                    getMinBioMetricHardwareErrorForSecurityIfAny(activity, fingerprintStatus);
-            default -> {
-                crashWithInvalidSecurityTypeException(activity, requiredLock);
-                yield null;
-            }
-        };
+        if (!requiredLock.equals(PIN) && !requiredLock.equals(BIOMETRIC_TYPE)) {
+            crashWithInvalidSecurityTypeException(requiredLock);
+        }
     }
 
-    private static void crashWithInvalidSecurityTypeException(Activity activity, String requiredLock) {
+    private static void crashWithInvalidSecurityTypeException(String requiredLock) {
         throw new IllegalStateException("Invalid device security requirements from server: " + requiredLock);
     }
 
-    private static String getMinPinHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus, BiometricsHelper.ConfigurationStatus pinStatus) {
-        return (fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ||
-                pinStatus != BiometricsHelper.ConfigurationStatus.NotAvailable) ? null : activity.getString(R.string.personalid_configuration_process_failed_security_subtitle, PIN);
+    public static String getPinHardwareUnavailableError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_pin_unavailable_message);
     }
 
-    private static String getMinBioMetricHardwareErrorForSecurityIfAny(Activity activity, BiometricsHelper.ConfigurationStatus fingerprintStatus) {
-        return fingerprintStatus != BiometricsHelper.ConfigurationStatus.NotAvailable ? null : activity.getString(R.string.personalid_configuration_process_failed_security_subtitle, BIOMETRIC_TYPE);
+    public static String getBiometricHardwareUnavailableError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_biometric_unavailable_message);
     }
 
-    //// end: min secruity requirements
+    //// end: min security requirements
 }

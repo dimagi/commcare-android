@@ -136,7 +136,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 }
 
                 break;
-            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
                 activity.finish();
                 break;
