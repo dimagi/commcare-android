@@ -70,7 +70,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private void updateJobTileDetails() {
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        ConnectJobRecord job = activity.getActiveJob();
         boolean show = job != null;
 
         viewJobCard.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -104,7 +104,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         String warningText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        ConnectJobRecord job = activity.getActiveJob();
         if (job != null && record != null) {
             if (job.isFinished()) {
                 warningText = activity.getString(R.string.connect_progress_warning_ended);
@@ -183,7 +183,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateConnectProgress() {
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        ConnectJobRecord job = activity.getActiveJob();
         if (job == null) {
             return;
         }

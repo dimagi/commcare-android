@@ -26,10 +26,10 @@ import com.google.common.base.Strings;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
@@ -45,7 +45,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
-    private String opportunityId = "";
+    private ConnectJobRecord job;
     private MenuItem messagingMenuItem = null;
 
 
@@ -78,14 +78,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void getIntentExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-        if (opportunityId == null) {
-            opportunityId = "";
+        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
+        if (opportunityId > 0) {
+            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
         }
     }
 
     private int handleInfoRedirect(Bundle startArgs) {
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
         Objects.requireNonNull(job);
 
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
@@ -102,7 +101,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         PersonalIdManager.getInstance().init(this);
 
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
-        startArgs.putString(ConnectConstants.OPPORTUNITY_ID, opportunityId);
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return R.id.connect_unlock_fragment;
@@ -154,6 +152,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
         menu.findItem(R.id.action_messaging).setVisible(backButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    public ConnectJobRecord getActiveJob() {
+        return job;
+    }
+    public void setActiveJob(ConnectJobRecord job) {
+        this.job = job;
     }
 
     private void retrieveMessages(){

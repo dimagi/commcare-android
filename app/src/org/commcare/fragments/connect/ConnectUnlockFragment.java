@@ -8,15 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.base.Strings;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
@@ -45,7 +41,6 @@ import androidx.navigation.Navigation;
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
-    private String opportunityId = "";
     private boolean buttons = false;
 
     public ConnectUnlockFragment() {
@@ -64,7 +59,6 @@ public class ConnectUnlockFragment extends Fragment {
 
         if(getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
-            opportunityId = getArguments().getString(ConnectConstants.OPPORTUNITY_ID);
             buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
         }
 
@@ -153,14 +147,6 @@ public class ConnectUnlockFragment extends Fragment {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         Bundle bundle = new Bundle();
         bundle.putBoolean(SHOW_LAUNCH_BUTTON, buttons);
-
-        if (!Strings.isNullOrEmpty(opportunityId)) {
-            int jobId = Integer.parseInt(opportunityId);
-            ConnectJobRecord job = ConnectJobUtils.getCompositeJob(requireContext(), jobId);
-            if (job != null) {
-                ConnectJobHelper.INSTANCE.setActiveJob(job);
-            }
-        }
 
         int fragmentId;
         if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)) {

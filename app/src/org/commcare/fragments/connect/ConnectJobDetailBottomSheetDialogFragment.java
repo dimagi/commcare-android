@@ -14,9 +14,10 @@ import android.widget.FrameLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobDetailBottomSheetDialogBinding;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +52,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding = FragmentConnectJobDetailBottomSheetDialogBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundResource(R.drawable.rounded_top_corners);
 
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        ConnectJobRecord job = ((ConnectActivity)requireActivity()).getActiveJob();
         Objects.requireNonNull(job);
 
         binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,

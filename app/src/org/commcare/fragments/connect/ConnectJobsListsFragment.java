@@ -20,13 +20,14 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.commcare.AppUtils;
+import org.commcare.CommCareApplication;
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -190,13 +191,13 @@ public class ConnectJobsListsFragment extends Fragment
     }
 
     private void launchJobInfo(ConnectJobRecord job) {
-        ConnectJobHelper.INSTANCE.setActiveJob(job);
+        setActiveJob(job);
         Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
                 .actionConnectJobsListFragmentToConnectJobIntroFragment());
     }
 
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
-        ConnectJobHelper.INSTANCE.setActiveJob(job);
+        setActiveJob(job);
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
@@ -208,6 +209,11 @@ public class ConnectJobsListsFragment extends Fragment
                             .actionConnectJobsListFragmentToConnectDownloadingFragment(
                                     getString(textId), isLearning));
         }
+    }
+
+    private void setActiveJob(ConnectJobRecord job) {
+        CommCareApplication.instance().setConnectJobIdForAnalytics(job);
+        ((ConnectActivity)requireActivity()).setActiveJob(job);
     }
 
     private void setJobListData(List<ConnectJobRecord> jobs) {
