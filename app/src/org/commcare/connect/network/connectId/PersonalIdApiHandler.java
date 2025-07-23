@@ -142,7 +142,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
     public void connectToken(Context context, ConnectUserRecord user) {
-        ApiPersonalId.retrieveConnectIdToken(context,user,
+        ApiPersonalId.retrievePersonalIdToken(context,user,
                 createCallback(new ConnectTokenResponseParser<T>(),user));
     }
 

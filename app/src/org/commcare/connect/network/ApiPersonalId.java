@@ -62,8 +62,6 @@ public class ApiPersonalId {
 
 
     public static void makeHeartbeatRequest(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
-
-
         ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
             @Override
             public void tokenRetrieved(AuthInfo.TokenAuth token) {
@@ -96,10 +94,10 @@ public class ApiPersonalId {
 
     }
 
-    public static void retrieveConnectIdToken(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
+    public static void retrievePersonalIdToken(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
 
         HashMap<String, Object> params = new HashMap<>();
-        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("client_id", CONNECT_CLIENT_ID);
         params.put("scope", "openid");
         params.put("grant_type", "password");
         params.put("username", user.getUserId());
@@ -114,7 +112,7 @@ public class ApiPersonalId {
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
             throws TokenDeniedException, TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("client_id", CONNECT_CLIENT_ID);
         params.put("scope", "openid");
         params.put("grant_type", "password");
         params.put("username", user.getUserId());

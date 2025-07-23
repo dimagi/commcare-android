@@ -19,7 +19,6 @@ class ConnectHeartbeatWorker(val context: Context, workerParams: WorkerParameter
                 continuation.resume(Result.failure())
             }
 
-            //First, need to tell Connect we're starting learning so it can create a user on HQ
             val user = PersonalIdManager.getInstance().getUser(context)
 
             object : PersonalIdApiHandler<Boolean>() {
