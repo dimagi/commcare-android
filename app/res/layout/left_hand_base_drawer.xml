@@ -18,14 +18,14 @@
             android:layout_height="0dp"
             android:background="@color/cc_brand_color"
             android:orientation="vertical"
-            android:visibility="gone"
+            android:visibility="visible"
             android:paddingTop="92dp"
             android:layout_weight="1">
             <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@drawable/avatar_person"/>
+                android:src="@drawable/logged_out_avatar"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:layout_gravity="center"
                 android:paddingTop="16dp"
@@ -46,6 +46,7 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
+            android:visibility="gone"
             android:id="@+id/signin_view"
             android:layout_weight="1"
             android:layout_width="match_parent"
