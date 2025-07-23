@@ -28,8 +28,8 @@
 
     <ImageView
         android:id="@+id/arroe_icon"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:paddingStart="16dp"
         android:src="@drawable/ic_blue_forward"
         app:tint="@android:color/white" />

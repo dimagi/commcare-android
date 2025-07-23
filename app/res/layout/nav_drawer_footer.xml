@@ -12,9 +12,11 @@
         android:background="@color/darker_grey"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/about_view"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:paddingStart="16dp"
+        android:clickable="true"
         android:paddingEnd="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
@@ -38,9 +40,11 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/help_view"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:paddingStart="16dp"
+        android:clickable="true"
         android:paddingEnd="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
