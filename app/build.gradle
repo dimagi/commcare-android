@@ -189,8 +189,8 @@ ext {
                     'HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo' +
                     'ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0' +
                     'HaAJkjpnc165Os+aYwIDAQAB'
-    GOOGLE_SERVICES_API_KEY = project.properties['GOOGLE_SERVICES_API_KEY'] ?: ''
-    GOOGLE_CLOUD_PROJECT_NUMBER = project.properties['GOOGLE_CLOUD_PROJECT_NUMBER'] ?: -1L
+    //GOOGLE_SERVICES_API_KEY = project.properties['GOOGLE_SERVICES_API_KEY'] ?: ''
+    GOOGLE_CLOUD_PROJECT_NUMBER = '768065119425L'
     QA_BETA_APP_ID = ''
     STANDALONE_APP_ID = ''
     LTS_APP_ID = ''
@@ -198,7 +198,10 @@ ext {
     HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ''
     HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ''
     TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: 'debug'
-    FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
+    //FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
+    GOOGLE_SERVICES_API_KEY='AIzaSyBV76f3obt9IgMDfvphWX8ZM91z8d7rK2w'
+    FIREBASE_DATABASE_URL='https://commcare-a57e4.firebaseio.com'
+
 }
 
 afterEvaluate {
