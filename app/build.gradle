@@ -32,6 +32,9 @@ repositories {
             password = project.properties['GITHUB_TOKEN'] ?: System.getenv("GITHUB_TOKEN")
         }
     }
+    maven {
+        url 'https://api.mapbox.com/downloads/v2/releases/maven'
+    }
 }
 
 configurations {
