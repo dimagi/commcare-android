@@ -17,11 +17,15 @@ import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
-import org.commcare.logging.DataChangeLogger;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.models.database.UnencryptedDatabaseAdapter;
+import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
+import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
@@ -44,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
@@ -321,5 +324,21 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     public void setSkipWorkManager() {
         skipWorkManager = true;
+    }
+
+    public IDatabase createOrOpenGlobalDatabase() {
+        return new UnencryptedDatabaseAdapter(new DatabaseGlobalOpenHelperMock(this));
+    }
+
+    public IDatabase createOrOpenUserDatabase(String userKeyRecordId, String key) {
+        return new UnencryptedDatabaseAdapter(new DatabaseUserOpenHelperMock(this, userKeyRecordId));
+    }
+
+    public IDatabase openUserDatabase(String path, String password) {
+        return new UnencryptedDatabaseAdapter(path);
+    }
+
+    public IDatabase createOrOpenAppDatabase(String appId) {
+        return new UnencryptedDatabaseAdapter(new DatabaseAppOpenHelperMock(this, appId));
     }
 }

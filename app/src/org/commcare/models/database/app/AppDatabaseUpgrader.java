@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.database.app.models.FormDefRecordV12;
@@ -19,6 +17,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.AndroidPrototypeFactoryV8;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
 import org.commcare.modern.database.TableBuilder;
@@ -39,6 +38,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import static org.commcare.engine.resource.AndroidResourceManager.TEMP_UPGRADE_TABLE_KEY;
+import static org.commcare.models.database.app.AppDatabaseSchemaManager.indexOnTableWithPGUIDCommand;
 import static org.commcare.utils.AndroidCommCarePlatform.GLOBAL_RESOURCE_TABLE_NAME;
 import static org.commcare.utils.AndroidCommCarePlatform.RECOVERY_RESOURCE_TABLE_NAME;
 import static org.commcare.utils.AndroidCommCarePlatform.UPGRADE_RESOURCE_TABLE_NAME;
@@ -54,7 +54,7 @@ class AppDatabaseUpgrader {
         this.context = context;
     }
 
-    public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(IDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
             if (upgradeOneTwo(db)) {
                 oldVersion = 2;
@@ -138,7 +138,7 @@ class AppDatabaseUpgrader {
     }
 
 
-    private boolean upgradeOneTwo(SQLiteDatabase db) {
+    private boolean upgradeOneTwo(IDatabase db) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
@@ -151,7 +151,7 @@ class AppDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTwoThree(SQLiteDatabase db) {
+    private boolean upgradeTwoThree(IDatabase db) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder("RECOVERY_RESOURCE_TABLE");
@@ -164,12 +164,12 @@ class AppDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db) {
+    private boolean upgradeThreeFour(IDatabase db) {
         db.beginTransaction();
         try {
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
-            db.execSQL(DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
+            db.execSQL(indexOnTableWithPGUIDCommand("global_index_id", "GLOBAL_RESOURCE_TABLE"));
+            db.execSQL(indexOnTableWithPGUIDCommand("upgrade_index_id", "UPGRADE_RESOURCE_TABLE"));
+            db.execSQL(indexOnTableWithPGUIDCommand("recovery_index_id", "RECOVERY_RESOURCE_TABLE"));
             db.setTransactionSuccessful();
             return true;
         } finally {
@@ -177,7 +177,7 @@ class AppDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFourFive(SQLiteDatabase db) {
+    private boolean upgradeFourFive(IDatabase db) {
         db.beginTransaction();
         try {
             DbUtil.createNumbersTable(db);
@@ -192,14 +192,14 @@ class AppDatabaseUpgrader {
      * Create temporary upgrade table. Used to check for new updates without
      * wiping progress from the main upgrade table
      */
-    private boolean upgradeFiveSix(SQLiteDatabase db) {
+    private boolean upgradeFiveSix(IDatabase db) {
         db.beginTransaction();
         try {
             TableBuilder builder = new TableBuilder(TEMP_UPGRADE_TABLE_KEY);
             builder.addData(new ResourceV13());
             db.execSQL(builder.getTableCreateString());
             String tableCmd =
-                    DatabaseAppOpenHelper.indexOnTableWithPGUIDCommand("temp_upgrade_index_id",
+                    AppDatabaseSchemaManager.indexOnTableWithPGUIDCommand("temp_upgrade_index_id",
                             TEMP_UPGRADE_TABLE_KEY);
             db.execSQL(tableCmd);
 
@@ -215,7 +215,7 @@ class AppDatabaseUpgrader {
      * scheme, and re-serialize them using the new scheme that preserves
      * attributes.
      */
-    private boolean upgradeSixSeven(SQLiteDatabase db) {
+    private boolean upgradeSixSeven(IDatabase db) {
         Log.d("AppDatabaseUpgrader", "starting app fixture migration");
 
         FixtureSerializationMigration.stageFixtureTables(db);
@@ -230,7 +230,7 @@ class AppDatabaseUpgrader {
     /**
      * Add fields to UserKeyRecord to support PIN auth
      */
-    private boolean upgradeSevenEight(SQLiteDatabase db) {
+    private boolean upgradeSevenEight(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<Persisted> storage = new SqlStorage<>(
@@ -260,7 +260,7 @@ class AppDatabaseUpgrader {
     }
 
     // Migrate records form FormProvider and InstanceProvider to new FormDefRecord and FormRecord respectively
-    private boolean upgradeEightTen(SQLiteDatabase db) {
+    private boolean upgradeEightTen(IDatabase db) {
         boolean success;
         db.beginTransaction();
         try {
@@ -294,7 +294,7 @@ class AppDatabaseUpgrader {
     }
 
     // I only exist since there was a time when there were no Upgrade and Recovery table in v8-v9 migration
-    private boolean upgradeNineTen(SQLiteDatabase db) {
+    private boolean upgradeNineTen(IDatabase db) {
         db.beginTransaction();
         try {
             upgradeXFormAndroidInstallerV9(UPGRADE_RESOURCE_TABLE_NAME, db);
@@ -308,7 +308,7 @@ class AppDatabaseUpgrader {
 
     // Corrects 'update' file references for FormDef Records that didn't
     // change to 'install' path because of an earlier bug
-    private boolean upgradeTenEleven(SQLiteDatabase db) {
+    private boolean upgradeTenEleven(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<FormDefRecordV12> formDefRecordStorage = new SqlStorage<>(
@@ -336,7 +336,7 @@ class AppDatabaseUpgrader {
         return true;
     }
 
-    private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+    private boolean upgradeElevenTwelve(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(new TableBuilder(RecoveryMeasure.class).getTableCreateString());
@@ -348,7 +348,7 @@ class AppDatabaseUpgrader {
     }
 
 
-    private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
+    private boolean upgradeTwelveThirteen(IDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
@@ -378,7 +378,7 @@ class AppDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
+    private boolean upgradeThirteenFourteen(IDatabase db) {
         db.beginTransaction();
         try {
             upgradeResourcesV13(db, GLOBAL_RESOURCE_TABLE_NAME);
@@ -393,7 +393,7 @@ class AppDatabaseUpgrader {
         }
     }
 
-    private void upgradeResourcesV13(SQLiteDatabase db, String tableName) {
+    private void upgradeResourcesV13(IDatabase db, String tableName) {
         db.beginTransaction();
         try {
 
@@ -434,7 +434,7 @@ class AppDatabaseUpgrader {
     }
 
     // migrate formProvider entries to db
-    private void migrateFormProvider(SQLiteDatabase db) {
+    private void migrateFormProvider(IDatabase db) {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, null, null, null, null);
@@ -471,7 +471,7 @@ class AppDatabaseUpgrader {
      * @param tableName Resource table that need to be upgraded
      * @param db        App DB
      */
-    private void upgradeXFormAndroidInstallerV9(String tableName, SQLiteDatabase db) {
+    private void upgradeXFormAndroidInstallerV9(String tableName, IDatabase db) {
         // Safe checking against calling this method by mistake for Global table
         if (tableName.contentEquals(GLOBAL_RESOURCE_TABLE_NAME)) {
             return;
@@ -497,7 +497,7 @@ class AppDatabaseUpgrader {
     }
 
 
-    private void upgradeXFormAndroidInstallerV8(String tableName, SQLiteDatabase db) {
+    private void upgradeXFormAndroidInstallerV8(String tableName, IDatabase db) {
         db.beginTransaction();
         try {
             // Get Global Resource Storage using AndroidPrototypeFactoryV8
