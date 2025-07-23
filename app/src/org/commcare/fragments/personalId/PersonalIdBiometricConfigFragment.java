@@ -201,7 +201,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private void showBiometricNotAvailableError() {
         String message = BiometricsHelper.getBiometricHardwareUnavailableError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
-        Logger.log(LogTypes.TYPE_MAINTENANCE, message);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric not available during biometric configuration");
         navigateToMessageDisplayForSecurityConfigurationFailure(message);
     }
 
@@ -232,7 +232,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private void showPinNotAvailableError() {
         String message = BiometricsHelper.getPinHardwareUnavailableError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
-        Logger.log(LogTypes.TYPE_MAINTENANCE, message);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN not available during biometric configuration");
         navigateToMessageDisplayForSecurityConfigurationFailure(message);
     }
 
