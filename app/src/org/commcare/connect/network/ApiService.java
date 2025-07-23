@@ -78,4 +78,12 @@ public interface ApiService {
     Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
             @Body Map<String, String> body);
 
+    @POST(ApiEndPoints.connectTokenURL)
+    Call<ResponseBody> connectToken(@HeaderMap Map<String, String> headers, @Body RequestBody connectTokenRequest);
+
+    @POST(ApiEndPoints.connectHeartbeatURL)
+    Call<ResponseBody> connectHeartbeat(@Header("Authorization") String token,
+                                        @HeaderMap Map<String, String> headers,
+                                        @Body RequestBody connectTokenRequest);
+
 }
