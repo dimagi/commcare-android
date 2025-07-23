@@ -454,4 +454,13 @@
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
+    <string name="left_navigation_menu_signin_register"><u>እቶም ኣእትዉ / ይመዝገቡ</u></string>
+    <string name="left_navigation_menu_help">እርዳታ</string>
+    <string name="left_navigation_menu_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
+    <string name="left_navigation_menu_opportunities">ኣገዳሲ ኣገባብ</string>
+    <string name="left_navigation_menu_commcare_apps">መተግበሪ ኮምኬር</string>
+    <string name="left_navigation_menu_work_history">ታሪኽ ስራሕ</string>
+    <string name="left_navigation_menu_payments">ክፍሊታት</string>
+    <string name="left_navigation_menu_manage_profile">ፕሮፋይል ኣስተዳደር</string>
+
 </resources>

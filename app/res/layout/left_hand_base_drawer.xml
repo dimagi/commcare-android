@@ -33,7 +33,7 @@
                 android:layout_gravity="center"
                 android:paddingTop="16dp"
                 android:textColor="@color/white"
-                android:text="@string/not_signed_in_to_personal_id"/>
+                android:text="@string/left_navigation_menu_not_signed_in_to_personal_id"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
                 android:layout_gravity="center"
                 android:paddingTop="16dp"
                 android:textColor="@color/white"
-                android:text="@string/signin_register"/>
+                android:text="@string/left_navigation_menu_signin_register"/>
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

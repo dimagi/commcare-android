@@ -58,7 +58,7 @@
             android:id="@+id/nav_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/help"
+            android:text="@string/left_navigation_menu_help"
             android:textColor="@android:color/white"
             android:textFontWeight="400"
             android:textSize="14sp"

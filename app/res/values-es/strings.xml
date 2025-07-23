@@ -462,4 +462,13 @@
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="left_navigation_menu_signin_register"><u>Iniciar sesión / Registrarse</u></string>
+    <string name="left_navigation_menu_help">Ayuda</string>
+    <string name="left_navigation_menu_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>
+    <string name="left_navigation_menu_opportunities">Oportunidades</string>
+    <string name="left_navigation_menu_commcare_apps">Aplicaciones de CommCare</string>
+    <string name="left_navigation_menu_work_history">Historial de trabajo</string>
+    <string name="left_navigation_menu_payments">Pagos</string>
+    <string name="left_navigation_menu_manage_profile">Administrar perfil</string>
+
 </resources>

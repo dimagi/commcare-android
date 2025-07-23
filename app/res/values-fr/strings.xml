@@ -462,4 +462,13 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="left_navigation_menu_signin_register"><u>Se connecter / S’inscrire</u></string>
+    <string name="left_navigation_menu_help">Aide</string>
+    <string name="left_navigation_menu_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>
+    <string name="left_navigation_menu_opportunities">Opportunités</string>
+    <string name="left_navigation_menu_commcare_apps">Applications CommCare</string>
+    <string name="left_navigation_menu_work_history">Historique de travail</string>
+    <string name="left_navigation_menu_payments">Paiements</string>
+    <string name="left_navigation_menu_manage_profile">Gérer le profil</string>
+
 </resources>
