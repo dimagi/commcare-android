@@ -12,6 +12,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecordV6;
+import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -62,6 +63,12 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 6) {
             if (upgradeSixSeven(db)) {
                 oldVersion = 7;
+            }
+        }
+
+        if (oldVersion == 7) {
+            if (upgradeSevenEight(db)) {
+                oldVersion = 8;
             }
         }
     }
@@ -168,6 +175,10 @@ class GlobalDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private boolean upgradeSevenEight(SQLiteDatabase db) {
+        return addTableForNewModel(db, GlobalErrorRecord.STORAGE_KEY, new GlobalErrorRecord());
     }
 
     private static boolean addTableForNewModel(SQLiteDatabase db, String storageKey,

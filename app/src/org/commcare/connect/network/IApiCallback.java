@@ -1,6 +1,7 @@
 package org.commcare.connect.network;
 
-import java.io.IOException;
+import androidx.annotation.Nullable;
+
 import java.io.InputStream;
 
 /**
@@ -8,10 +9,9 @@ import java.io.InputStream;
  */
 public interface IApiCallback {
     void processSuccess(int responseCode, InputStream responseData);
-
-    void processFailure(int responseCode, IOException e);
-
+    void processFailure(int responseCode, @Nullable InputStream errorResponse, String url);
     void processNetworkFailure();
-
     void processOldApiError();
+    void processTokenUnavailableError();
+    void processTokenRequestDeniedError();
 }

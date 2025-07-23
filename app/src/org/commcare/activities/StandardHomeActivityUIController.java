@@ -1,18 +1,27 @@
 package org.commcare.activities;
 
+import static org.apache.http.client.utils.DateUtils.formatDate;
+
 import android.annotation.SuppressLint;
-import android.os.Build;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-import android.view.ViewTreeObserver;
+
+import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 
 import java.util.Vector;
@@ -27,6 +36,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private final StandardHomeActivity activity;
 
     private HomeScreenAdapter adapter;
+
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
         this.activity = activity;
@@ -47,7 +57,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
     }
 
-    private static Vector<String> getHiddenButtons() {
+    private Vector<String> getHiddenButtons() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
 
@@ -66,7 +76,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-
+        if (!PersonalIdManager.getInstance().shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+            hiddenButtons.add("connect");
+        }
         return hiddenButtons;
     }
 

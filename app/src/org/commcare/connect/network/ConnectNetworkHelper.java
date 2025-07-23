@@ -1,11 +1,6 @@
 package org.commcare.connect.network;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.widget.Toast;
 
@@ -16,6 +11,7 @@ import com.google.gson.Gson;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
@@ -25,6 +21,7 @@ import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.ModernHttpTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
@@ -90,7 +87,7 @@ public class ConnectNetworkHelper {
     }
 
     public static boolean post(Context context, String url, String version, AuthInfo authInfo,
-                               HashMap<String, String> params, boolean useFormEncoding,
+                               HashMap<String, Object> params, boolean useFormEncoding,
                                boolean background, IApiCallback handler) {
         return getInstance().postInternal(context, url, version, authInfo, params, useFormEncoding,
                 background, handler);
@@ -108,7 +105,7 @@ public class ConnectNetworkHelper {
     }
 
     public static PostResult postSync(Context context, String url, String version, AuthInfo authInfo,
-                                      HashMap<String, String> params, boolean useFormEncoding,
+                                      HashMap<String, Object> params, boolean useFormEncoding,
                                       boolean background) {
         ConnectNetworkHelper instance = getInstance();
 
@@ -162,7 +159,7 @@ public class ConnectNetworkHelper {
     }
 
     private boolean postInternal(Context context, String url, String version, AuthInfo authInfo,
-                                 HashMap<String, String> params, boolean useFormEncoding,
+                                 HashMap<String, Object> params, boolean useFormEncoding,
                                  boolean background, IApiCallback handler) {
         if (!background) {
             if (isBusy()) {
@@ -183,20 +180,20 @@ public class ConnectNetworkHelper {
                         requestBody,
                         HTTPMethod.POST,
                         authInfo);
-        postTask.connect(getResponseProcessor(context, url, background, handler));
-
+        postTask.connect(getResponseProcessor(context, url, authInfo instanceof AuthInfo.TokenAuth,
+                background, handler));
         postTask.executeParallel();
 
         return true;
     }
 
-    private static RequestBody buildPostFormHeaders(HashMap<String, String> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
+    private static RequestBody buildPostFormHeaders(HashMap<String, Object> params, boolean useFormEncoding, String version, HashMap<String, String> outputHeaders) {
         RequestBody requestBody;
 
         if (useFormEncoding) {
             Multimap<String, String> multimap = ArrayListMultimap.create();
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                multimap.put(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                multimap.put(entry.getKey(), entry.getValue().toString());
             }
 
             requestBody = ModernHttpRequester.getPostBody(multimap);
@@ -309,14 +306,16 @@ public class ConnectNetworkHelper {
                         ArrayListMultimap.create(),
                         headers,
                         authInfo);
-        getTask.connect(getResponseProcessor(context, url, background, handler));
+        getTask.connect(getResponseProcessor(context, url, authInfo instanceof AuthInfo.TokenAuth,
+                background, handler));
         getTask.executeParallel();
 
         return true;
     }
 
+    //Handles async network response from ModernHttpTask
     private ConnectorWithHttpResponseProcessor<HttpResponseProcessor> getResponseProcessor(
-            Context context, String url, boolean background, IApiCallback handler) {
+            Context context, String url, boolean usingTokenAuth, boolean background, IApiCallback handler) {
         return new ConnectorWithHttpResponseProcessor<>() {
             @Override
             public void processSuccess(int responseCode, InputStream responseData, String apiVersion) {
@@ -336,7 +335,13 @@ public class ConnectNetworkHelper {
                     handler.processOldApiError();
                 } else {
                     //400 error
-                    handler.processFailure(responseCode, null);
+                    if (responseCode == 401 && usingTokenAuth) {
+                        Logger.exception("Invalid token", new Exception("Invalid token during API call"));
+                        ConnectSsoHelper.discardTokens(context, null);
+                        handler.processTokenUnavailableError();
+                    } else {
+                        handler.processFailure(responseCode, null, url);
+                    }
                 }
             }
 
@@ -348,7 +353,7 @@ public class ConnectNetworkHelper {
                 CrashUtil.reportException(new Exception(message));
 
                 //500 error for internal server error
-                handler.processFailure(responseCode, null);
+                handler.processFailure(responseCode, null, url);
             }
 
             @Override
@@ -358,7 +363,7 @@ public class ConnectNetworkHelper {
                 String message = String.format(Locale.getDefault(), "Call:%s\nResponse code:%d", url, responseCode);
                 CrashUtil.reportException(new Exception(message));
 
-                handler.processFailure(responseCode, null);
+                handler.processFailure(responseCode, null, url);
             }
 
             @Override
@@ -367,7 +372,8 @@ public class ConnectNetworkHelper {
                 if (exception instanceof UnknownHostException) {
                     handler.processNetworkFailure();
                 } else {
-                    handler.processFailure(-1, exception);
+                    Logger.exception("IO Exception during API call", exception);
+                    handler.processFailure(-1, null, url);
                 }
             }
 
@@ -421,6 +427,15 @@ public class ConnectNetworkHelper {
     public static void showOutdatedApiError(Context context) {
         Toast.makeText(context, context.getString(R.string.recovery_network_outdated),
                 Toast.LENGTH_LONG).show();
+    }
+
+    public static void handleTokenUnavailableException(Context context) {
+        Toast.makeText(context, context.getString(R.string.recovery_network_token_unavailable),
+                Toast.LENGTH_LONG).show();
+    }
+
+    public static void handleTokenDeniedException() {
+        ConnectDatabaseHelper.crashDb(GlobalErrors.PERSONALID_LOST_CONFIGURATION_ERROR);
     }
 
     private static final int NETWORK_ACTIVITY_ID = 7000;

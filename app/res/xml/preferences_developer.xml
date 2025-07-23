@@ -100,7 +100,7 @@
         android:title="Local Form Payload File"
         app:file_type="xml"/>
     <EditTextPreference
-        android:defaultValue="@string/remote_form_payload_url"
+        android:defaultValue=""
         android:enabled="true"
         android:key="remote-form-payload-url"
         android:title="Form Payload Server"/>

@@ -36,6 +36,7 @@ import androidx.work.WorkManager;
 
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.perf.FirebasePerformance;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
@@ -206,7 +207,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     private boolean invalidateCacheOnRestore;
     private CommCareNoficationManager noficationManager;
-    private EncryptionKeyProvider encryptionKeyProvider;
 
     private boolean backgroundSyncSafe;
 
@@ -219,6 +219,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         CommCareApplication.app = this;
         CrashUtil.init();
         DataChangeLogger.init(this);
+        if (!BuildConfig.DEBUG) {
+            FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+        }
 
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
@@ -261,9 +264,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         GraphUtil.setLabelCharacterLimit(getResources().getInteger(R.integer.graph_label_char_limit));
 
         FirebaseMessagingUtil.verifyToken();
-
-        //Create standard provider
-        setEncryptionKeyProvider(new EncryptionKeyProvider());
 
         customiseOkHttp();
 
@@ -366,7 +366,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             // CommCareSessionService, close it and open a new one
             SessionRegistrationHelper.unregisterSessionExpiration();
             if (this.sessionServiceIsBound) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session to start a new one");
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symmetricKey, record, restoreSession);
@@ -379,7 +378,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      */
     public void closeUserSession() {
         synchronized (serviceLock) {
-            Logger.log(LogTypes.TYPE_MAINTENANCE, "Closing user session");
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
@@ -1166,14 +1164,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     public void setInvalidateCacheFlag(boolean b) {
         invalidateCacheOnRestore = b;
-    }
-
-    public void setEncryptionKeyProvider(EncryptionKeyProvider provider) {
-        encryptionKeyProvider = provider;
-    }
-
-    public EncryptionKeyProvider getEncryptionKeyProvider() {
-        return encryptionKeyProvider;
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {

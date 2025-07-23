@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
@@ -50,7 +51,7 @@ public class Permissions {
                                 permRequestCode,
                                 Localization.get("permission.all.title"),
                                 Localization.get("permission.all.message"));
-                dialog.showNonPersistentDialog();
+                dialog.showNonPersistentDialog(activity);
             } else {
                 permRequester.requestNeededPermissions(permRequestCode);
             }
@@ -60,7 +61,7 @@ public class Permissions {
         }
     }
 
-    public static boolean missingAppPermission(AppCompatActivity activity,
+    public static boolean missingAppPermission(Activity activity,
                                                String[] permissions) {
         for (String perm : permissions) {
             if (missingAppPermission(activity, perm)) {
@@ -71,12 +72,12 @@ public class Permissions {
     }
 
 
-    public static boolean missingAppPermission(AppCompatActivity activity,
+    public static boolean missingAppPermission(Activity activity,
                                                String permission) {
         return ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_DENIED;
     }
 
-    public static boolean shouldShowPermissionRationale(AppCompatActivity activity,
+    public static boolean shouldShowPermissionRationale(Activity activity,
                                                         String[] permissions) {
         for (String perm : permissions) {
             if (shouldShowPermissionRationale(activity, perm)) {
@@ -86,7 +87,7 @@ public class Permissions {
         return false;
     }
 
-    public static boolean shouldShowPermissionRationale(AppCompatActivity activity,
+    public static boolean shouldShowPermissionRationale(Activity activity,
                                                         String permission) {
         return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
     }

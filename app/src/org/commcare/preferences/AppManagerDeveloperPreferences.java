@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.GlobalPrivilegeClaimingActivity;
@@ -20,10 +21,9 @@ import androidx.preference.Preference;
 
 public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
 
-    private final static String ENABLE_PRIVILEGE = "enable-mobile-privilege";
+    private static final String ENABLE_PRIVILEGE = "enable-mobile-privilege";
     private static final String DEVELOPER_PREFERENCES_ENABLED = "developer-preferences-enabled";
-
-    private final static Map<String, String> keyToTitleMap = new HashMap<>();
+    private static final Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
         keyToTitleMap.put(ENABLE_PRIVILEGE, "menu.enable.privileges");
