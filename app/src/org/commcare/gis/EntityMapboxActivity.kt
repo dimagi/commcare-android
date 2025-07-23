@@ -222,6 +222,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
         symbolManager.addClickListener { symbol ->
             showEntityInfo(loadedStyle, symbol)
+            return@addClickListener true
         }
 
         for (mapEntity in mapEntities) {

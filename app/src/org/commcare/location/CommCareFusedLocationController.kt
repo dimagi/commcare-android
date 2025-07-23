@@ -18,7 +18,7 @@ class CommCareFusedLocationController(private var mContext: Context?,
     }
     private var mCurrentLocation: Location? = null
     private val mLocationCallback = object: LocationCallback() {
-        override fun onLocationResult(result: LocationResult?) {
+        override fun onLocationResult(result: LocationResult) {
             result ?: return
             mCurrentLocation = result.lastLocation
             mListener?.onLocationResult(mCurrentLocation!!)
