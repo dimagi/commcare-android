@@ -582,6 +582,9 @@
             android:exported="true"
             tools:node="merge" />
 
+        <activity
+            android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
             android:exported="false">
