@@ -36,7 +36,9 @@ public class BiometricsHelper {
     public enum ConfigurationStatus {
         NotAvailable,  // Biometrics not available on the device
         NotConfigured, // Biometrics available but not set up
-        Configured     // Biometrics set up and ready for authentication
+        Configured,     // Biometrics set up and ready for authentication
+        NoHardware, // No biometric hardware available
+        NeedsUpdate
     }
 
     private static final int PinBiometric = BiometricManager.Authenticators.DEVICE_CREDENTIAL;
@@ -167,6 +169,14 @@ public class BiometricsHelper {
             case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 return ConfigurationStatus.NotConfigured;
             }
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                return ConfigurationStatus.NoHardware;
+            }
+            case BiometricManager.BIOMETRIC_STATUS_UNKNOWN,
+                 BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
+                 BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED-> {
+                return ConfigurationStatus.NeedsUpdate;
+            }
             default -> {
                 Logger.exception("Unhandled biometric status", new Exception(
                         String.format(Locale.getDefault(), "Mode %d encountered unexpected status %d",
@@ -218,11 +228,8 @@ public class BiometricsHelper {
     //// start: min security requirements
 
     public static void checkForValidSecurityType(String requiredLock) {
-        if (TextUtils.isEmpty(requiredLock)) {
-            crashWithInvalidSecurityTypeException(requiredLock);
-        }
-
-        if (!requiredLock.equals(PIN) && !requiredLock.equals(BIOMETRIC_TYPE)) {
+        if (TextUtils.isEmpty(requiredLock) ||
+                (!requiredLock.equals(PIN) && !requiredLock.equals(BIOMETRIC_TYPE))) {
             crashWithInvalidSecurityTypeException(requiredLock);
         }
     }
@@ -235,8 +242,20 @@ public class BiometricsHelper {
         return activity.getString(R.string.personalid_configuration_process_pin_unavailable_message);
     }
 
+    public static String getPinNeedsUpdateError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_pin_needs_update_message);
+    }
+
+    public static String getNoBiometricHardwareError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_biometric_no_hardware_message);
+    }
+
     public static String getBiometricHardwareUnavailableError(Activity activity) {
         return activity.getString(R.string.personalid_configuration_process_biometric_unavailable_message);
+    }
+
+    public static String getBiometricNeedsUpdateError(Activity activity) {
+        return activity.getString(R.string.personalid_configuration_process_biometric_needs_update_message);
     }
 
     //// end: min security requirements

@@ -441,8 +441,11 @@
     <string name="personalid_name_empty_error">El campo Nombre no puede estar vacío</string>
     <string name="personalid_configuration_process_failed_title">Proceso fallido</string>
     <string name="personalid_configuration_process_failed_subtitle">Tu dispositivo no es compatible con PersonalID en este momento. Por favor, inténtalo de nuevo en otro dispositivo.</string>
-    <string name="personalid_configuration_process_pin_unavailable_message">El mecanismo de seguridad del PIN no está disponible; solucione este problema o inténtelo nuevamente con un dispositivo diferente.</string>
-    <string name="personalid_configuration_process_biometric_unavailable_message">El mecanismo de seguridad biométrica no está disponible, solucione este problema o inténtelo nuevamente con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">El mecanismo de seguridad del PIN no está disponible, inténtelo nuevamente más tarde.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">El mecanismo de seguridad biométrica no está disponible, inténtelo nuevamente más tarde.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">El mecanismo de seguridad del PIN requiere una actualización de software; aplique cualquier actualización de sistema disponible o intente nuevamente con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">El mecanismo de seguridad biométrica requiere una actualización de software; aplique cualquier actualización de sistema disponible o intente nuevamente con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requiere que su dispositivo tenga un sensor biométrico. Inténtelo de nuevo con otro dispositivo.</string>
     <string name="personalid_configuration_process_failed_play_services">Asegúrate de que Play Store esté disponible en tu dispositivo y que esté actualizado.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Error temporal al verificar la elegibilidad de tu dispositivo. Por favor, inténtalo de nuevo después de un día.</string>
     <string name="personalid_configuration_process_failed_network_error">Error de red al verificar la elegibilidad de tu dispositivo. Asegúrate de tener una buena conexión de red e inténtalo de nuevo.</string>

@@ -125,6 +125,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         BiometricsHelper.ConfigurationStatus pinStatus = BiometricsHelper.checkPinStatus(requireContext(),
                 biometricManager);
 
+        boolean hasFingerprintHardware = fingerprintStatus != BiometricsHelper.ConfigurationStatus.NoHardware;
+
         String title;
         String message;
         String fingerprintButton;
@@ -144,14 +146,20 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             fingerprintButton = getString(R.string.connect_verify_agree);
         } else if (BIOMETRIC_TYPE.equals(personalIdSessionDataViewModel.getPersonalIdSessionData().getRequiredLock())) {   //Fingerprint not configured but required for BIOMETRIC_TYPE
             // Need at least Fingerprint configuration for BIOMETRIC_TYPE
-            title = getString(R.string.connect_verify_title);
-            message = getString(R.string.connect_verify_message);
-            fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
+            if(hasFingerprintHardware) {
+                title = getString(R.string.connect_verify_title);
+                message = getString(R.string.connect_verify_message);
+                fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);
+            } else {
+                showNoBiometricHardwareError();
+                return;
+            }
         } else {   // Only PIN is configure
             title = getString(R.string.connect_verify_use_pin_long);
             message = getString(R.string.connect_verify_pin_configured);
             pinButton = getString(R.string.connect_verify_agree);
-            fingerprintButton = getString(R.string.connect_verify_configure_fingerprint);   // User can configure fingerprint
+            fingerprintButton = hasFingerprintHardware ?
+                    getString(R.string.connect_verify_configure_fingerprint) : null;
         }
 
         binding.connectVerifyTitle.setText(title);
@@ -187,6 +195,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             case NotAvailable:
                 showBiometricNotAvailableError();
                 break;
+            case NeedsUpdate:
+                showBiometricNeedsUpdateError();
             case Configured:
                 initiateBiometricAuthentication();
                 return;
@@ -198,10 +208,24 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         }
     }
 
+    private void showNoBiometricHardwareError() {
+        String message = BiometricsHelper.getNoBiometricHardwareError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "No biometric hardware during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+    }
+
     private void showBiometricNotAvailableError() {
         String message = BiometricsHelper.getBiometricHardwareUnavailableError(requireActivity());
-        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_UNAVAILABLE);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric not available during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+    }
+
+    private void showBiometricNeedsUpdateError() {
+        String message = BiometricsHelper.getBiometricNeedsUpdateError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_NEEDS_UPDATE);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric requires update during biometric configuration");
         navigateToMessageDisplayForSecurityConfigurationFailure(message);
     }
 
@@ -218,6 +242,8 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
             case NotAvailable:
                 showPinNotAvailableError();
                 break;
+            case NeedsUpdate:
+                showPinNeedsUpdateError();
             case Configured:
                 initiatePinAuthentication();
                 return;
@@ -233,6 +259,13 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         String message = BiometricsHelper.getPinHardwareUnavailableError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN not available during biometric configuration");
+        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+    }
+
+    private void showPinNeedsUpdateError() {
+        String message = BiometricsHelper.getPinNeedsUpdateError(requireActivity());
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_PIN_NEEDS_UPDATE);
+        Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN requires update during biometric configuration");
         navigateToMessageDisplayForSecurityConfigurationFailure(message);
     }
 
