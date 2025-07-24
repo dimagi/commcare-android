@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.phone.SmsRetriever;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
@@ -109,6 +110,17 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                             getString(R.string.personalid_otp_verification_failed_generic) + (errorMessage != null ? errorMessage : "Unknown error");
                 };
                 displayOtpError(userMessage);
+                binding.connectPhoneVerifyButton.setEnabled(false);
+            }
+
+            @Override
+            public void onPersonalIdApiFailure(
+                    @NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
+                if(failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
+                    error = getString(R.string.personalid_incorrect_otp);
+                }
+                displayOtpError(error);
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
