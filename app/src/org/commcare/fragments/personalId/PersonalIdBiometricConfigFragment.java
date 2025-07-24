@@ -274,12 +274,6 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     }
 
     public void handleFinishedPinActivity(int requestCode, int resultCode) {
-        if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN) {
-            PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
-            ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
-            requireActivity().setResult(resultCode);
-            requireActivity().finish();
-        }
         if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             navigateForward(resultCode != RESULT_OK);
         }

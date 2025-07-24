@@ -24,9 +24,7 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ConnectConstants.PERSONALID_UNLOCK_PIN
-                || requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
-            //PIN unlock should only be requested while BiometricConfig fragment is active, else this will crash
+        if (requestCode == ConnectConstants.CONFIGURE_BIOMETRIC_REQUEST_CODE) {
             getCurrentFragment().handleFinishedPinActivity(requestCode, resultCode);
         }
     }
