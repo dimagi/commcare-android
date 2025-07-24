@@ -184,7 +184,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
             return true;
         }
 
-        //NOTE: Fragments will handle the sync button individually (via MenuProviders)
 
         return super.onOptionsItemSelected(item);
     }
