@@ -103,6 +103,10 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
     }
 
     private void onCompleteProfileFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+        if (handleCommonSignupFailures(failureCode)) {
+            return;
+        }
+
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
 
         if (failureCode.shouldAllowRetry()) {

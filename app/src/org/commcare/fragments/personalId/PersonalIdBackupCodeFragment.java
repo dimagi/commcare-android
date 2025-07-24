@@ -214,6 +214,9 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
 
             @Override
             public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                if (handleCommonSignupFailures(failureCode)) {
+                    return;
+                }
                 showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);

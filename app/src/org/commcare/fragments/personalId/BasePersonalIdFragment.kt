@@ -20,12 +20,10 @@ abstract class BasePersonalIdFragment : Fragment() {
                 )
                 true
             }
-
             else -> {
                 false
             }
         }
-
     }
 
     protected fun onConfigurationFailure(failureCause: String, errorMessage: String) {
@@ -46,5 +44,4 @@ abstract class BasePersonalIdFragment : Fragment() {
         phase: Int,
         buttonText: Int
     )
-
 }
