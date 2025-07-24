@@ -19,9 +19,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -58,12 +56,11 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
-public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener {
+public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
 
     private ScreenPersonalidPhonenoBinding binding;
     private boolean shouldShowPhoneHintDialog = true;
@@ -367,21 +364,13 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
             }
 
             @Override
-            public void onFailure(@androidx.annotation.Nullable PersonalIdOrConnectApiErrorCodes failureCode,
+            public void onFailure(@androidx.annotation.NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                                   @androidx.annotation.Nullable Throwable t) {
-                if (failureCode == null) {
-                    navigateFailure(null, t);
+                if(handleCommonSignupFailures(failureCode)) {
                     return;
                 }
 
                 switch (failureCode) {
-                    case ACCOUNT_LOCKED_ERROR:
-                        onConfigurationFailure(
-                                AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE,
-                                getString(R.string.personalid_configuration_locked_account)
-                        );
-                        break;
-
                     case FORBIDDEN_ERROR:
                         onConfigurationFailure(
                                 AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
@@ -443,7 +432,8 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     }
 
 
-    private void onConfigurationFailure(String failureCause, String failureMessage) {
+    @Override
+    protected void onConfigurationFailure(String failureCause, String failureMessage) {
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
                 navigateToMessageDisplay(failureMessage, false,
