@@ -457,10 +457,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             int buttonText) {
         NavDirections navDirections =
                 PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
-                        getString(R.string.personalid_configuration_process_failed_title),
-                        title,
-                        phase, getString(buttonText),
-                        null).setIsCancellable(isCancellable);
+                        title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navDirections);
     }
 
