@@ -441,7 +441,11 @@ License.
     <string name="personalid_name_empty_error">नाम फ़ील्ड खाली नहीं हो सकता</string>
     <string name="personalid_configuration_process_failed_title">प्रक्रिया विफल</string>
     <string name="personalid_configuration_process_failed_subtitle">आपका डिवाइस अभी PersonalID के साथ संगत नहीं है। कृपया किसी अन्य डिवाइस पर पुनः प्रयास करें।</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">सुरक्षा सुविधा की अनुपलब्धता के कारण आपका डिवाइस अभी PersonalID के साथ संगत नहीं है। कृपया किसी अन्य डिवाइस पर पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">पिन सुरक्षा तंत्र उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">बायोमेट्रिक सुरक्षा तंत्र उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">पिन सुरक्षा तंत्र को सॉफ़्टवेयर अद्यतन की आवश्यकता है, कृपया उपलब्ध सिस्टम अद्यतन लागू करें या किसी अन्य डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">बायोमेट्रिक सुरक्षा तंत्र को सॉफ़्टवेयर अपडेट की आवश्यकता है, कृपया उपलब्ध सिस्टम अपडेट लागू करें या किसी अन्य डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">पर्सनल आईडी के लिए ज़रूरी है कि आपके डिवाइस में बायोमेट्रिक सेंसर हो। कृपया किसी दूसरे डिवाइस से दोबारा कोशिश करें।</string>
     <string name="personalid_configuration_process_failed_play_services">कृपया सुनिश्चित करें कि Play Store आपके डिवाइस पर उपलब्ध है और यह अद्यतित है।</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">आपके डिवाइस की पात्रता की जांच करते समय अस्थायी त्रुटि। कृपया एक दिन बाद पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_network_error">आपके डिवाइस की पात्रता की जांच करते समय नेटवर्क त्रुटि। कृपया सुनिश्चित करें कि आपके पास एक अच्छा नेटवर्क कनेक्शन है और पुनः प्रयास करें।</string>

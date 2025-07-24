@@ -604,7 +604,11 @@
     <string name="personalid_configuration_process_failed_temporary_unavailable">Temporary error in establishing your device eligibility. Please try again after a day.</string>
     <string name="personalid_configuration_process_failed_network_error">Network error in establishing your device eligibility. Please make sure you have a good network connection and try again.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">Unable to establish device eligibility due to an unexpected error. Please contact customer support if the problem persists</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">Your device isn\'t eligible to sign up for PersonalID at this time due to non availability of %s security feature. Please try again on a different device.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">The PIN security mechanism is unavailable, please try again later.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">The biometric security mechanism is unavailable, please try again later.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">The PIN security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">The biometric security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires that your device have a biometric sensor. Please try again with a different device.</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
