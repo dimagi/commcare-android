@@ -27,7 +27,6 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.util.LogTypes;
@@ -313,10 +312,6 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private void navigateToNameEntry() {
         NavDirections directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidName();
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
-    }
-
-    private void handleFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-        displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
     }
 
     @Override
