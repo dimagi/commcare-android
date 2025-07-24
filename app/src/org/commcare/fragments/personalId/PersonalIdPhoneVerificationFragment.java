@@ -116,6 +116,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
             @Override
             public void onPersonalIdApiFailure(
                     @NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                if (handleCommonSignupFailures(failureCode)) {
+                    return;
+                }
                 String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
                 if(failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
                     error = getString(R.string.personalid_incorrect_otp);
