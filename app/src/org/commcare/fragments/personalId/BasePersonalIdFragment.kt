@@ -1,9 +1,11 @@
 package org.commcare.fragments.personalId
 
 import androidx.fragment.app.Fragment
+import org.commcare.connect.ConnectConstants
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
-import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 abstract class BasePersonalIdFragment : Fragment() {
 
@@ -26,6 +28,23 @@ abstract class BasePersonalIdFragment : Fragment() {
 
     }
 
-    protected abstract fun onConfigurationFailure(failureCode: String, errorMessage: String)
+    protected fun onConfigurationFailure(failureCause: String, errorMessage: String) {
+        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause)
+        navigateToMessageDisplay(
+            errorMessage,
+            null,
+            false,
+            ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED,
+            R.string.ok
+        )
+    }
+
+    protected abstract fun navigateToMessageDisplay(
+        title: String,
+        message: String?,
+        isCancellable: Boolean,
+        phase: Int,
+        buttonText: Int
+    )
 
 }

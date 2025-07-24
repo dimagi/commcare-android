@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
@@ -29,10 +29,12 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.commcare.utils.MediaUtil;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
-public class PersonalIdBackupCodeFragment extends Fragment {
+public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private static final int BACKUP_CODE_LENGTH = 6;
     private FragmentRecoveryCodeBinding binding;
     private Activity activity;
@@ -213,7 +215,6 @@ public class PersonalIdBackupCodeFragment extends Fragment {
             @Override
             public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
                 showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
-
                 if (failureCode.shouldAllowRetry()) {
                     enableContinueButton(true);
                 }
@@ -265,11 +266,7 @@ public class PersonalIdBackupCodeFragment extends Fragment {
     }
 
     private void navigateWithMessage(String titleRes, String msgRes, int phase) {
-        Navigation.findNavController(binding.getRoot())
-                .navigate(PersonalIdBackupCodeFragmentDirections
-                        .actionPersonalidBackupcodeToPersonalidMessage(titleRes, msgRes, phase,
-                                getString(R.string.ok), null)
-                        .setIsCancellable(false));
+        navigateToMessageDisplay(titleRes, msgRes, false, phase, R.string.ok);
     }
 
     private void navigateToPhoto() {
@@ -283,5 +280,15 @@ public class PersonalIdBackupCodeFragment extends Fragment {
                 getString(R.string.connect_recovery_success_title),
                 getString(R.string.connect_recovery_success_message),
                 ConnectConstants.PERSONALID_RECOVERY_SUCCESS);
+    }
+
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title, @Nullable String message, boolean isCancellable,
+            int phase, int buttonText) {
+        NavDirections navDirections = PersonalIdBackupCodeFragmentDirections
+                .actionPersonalidBackupcodeToPersonalidMessage(title, message, phase,
+                        getString(buttonText), null)
+                .setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(navDirections);
     }
 }

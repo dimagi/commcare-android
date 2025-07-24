@@ -366,7 +366,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             @Override
             public void onFailure(@androidx.annotation.NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                                   @androidx.annotation.Nullable Throwable t) {
-                if(handleCommonSignupFailures(failureCode)) {
+                if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
 
@@ -431,15 +431,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-
-    @Override
-    protected void onConfigurationFailure(String failureCause, String failureMessage) {
-        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause);
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                navigateToMessageDisplay(failureMessage, false,
-                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, R.string.ok));
-    }
-
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
         if (failureCode.shouldAllowRetry()) {
@@ -461,20 +452,22 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay(String errorMessage, boolean isCancellable, int phase,
-                                                   int buttonText) {
-        return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
-                getString(R.string.personalid_configuration_process_failed_title),
-                errorMessage,
-                phase, getString(buttonText),
-                null).setIsCancellable(isCancellable);
+    @Override
+    protected void navigateToMessageDisplay(String title, String message,  boolean isCancellable, int phase,
+            int buttonText) {
+        NavDirections navDirections =
+                PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
+                        getString(R.string.personalid_configuration_process_failed_title),
+                        title,
+                        phase, getString(buttonText),
+                        null).setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navDirections);
     }
 
     private void navigateToPermissionErrorMessageDisplay(int errorMeesage, int buttonText) {
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                navigateToMessageDisplay(
-                        requireActivity().getString(errorMeesage), true,
-                        ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText));
+        navigateToMessageDisplay(
+                requireActivity().getString(errorMeesage),  null,true,
+                ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText);
     }
 
     @Override

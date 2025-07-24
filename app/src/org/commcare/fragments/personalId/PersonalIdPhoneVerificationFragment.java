@@ -39,12 +39,13 @@ import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
 import org.commcare.utils.PersonalIdAuthService;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PersonalIdPhoneVerificationFragment extends Fragment {
+public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment {
     private static final String KEY_PHONE = "phone";
 
     private Activity activity;
@@ -305,5 +306,14 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
 
     private void handleFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+    }
+
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title,
+            @org.jetbrains.annotations.Nullable String message, boolean isCancellable, int phase, int buttonText) {
+        NavDirections directions = PersonalIdPhoneVerificationFragmentDirections
+                .actionPersonalidOtpPageToPersonalidMessage(title, message, phase, getString(buttonText),
+                        null).setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(directions);
     }
 }
