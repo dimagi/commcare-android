@@ -465,7 +465,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void navigateToPermissionErrorMessageDisplay(int errorMeesage, int buttonText) {
-        if(!isOnPermissionErrorScreen()) {
+        if (!isOnPermissionErrorScreen()) {
             navigateToMessageDisplay(
                     getString(R.string.personalid_grant_location_service), requireActivity().getString(errorMeesage), true,
                     ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText);
