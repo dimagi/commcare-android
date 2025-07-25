@@ -70,7 +70,6 @@ public class LinearProgressBar extends View {
         // Draw the progress with rounded corners at the end
         float progressWidth = (progress / 100f) * width;
         RectF progressRect = new RectF(0, 0, progressWidth, height);
-
         if (isGradient && gradientColors != null && gradientColors.length > 1) {
             LinearGradient shader = new LinearGradient(
                     0, 0, progressWidth, 0,

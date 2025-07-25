@@ -34,7 +34,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -114,7 +117,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
-    private boolean appLaunchedFromConnect;
+    private boolean appLaunchedFromConnect = false;
     private String presetAppId;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
@@ -145,8 +148,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        ///TODO: connect uncomment with connect merge
-//        appLaunchedFromConnect = PersonalIDManager.wasAppLaunchedFromConnect(presetAppId);
+        appLaunchedFromConnect = ConnectAppUtils.INSTANCE.wasAppLaunchedFromConnect(getIntent());
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -424,6 +426,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            passwordOrPin = ConnectAppUtils.INSTANCE.checkAutoLoginAndOverridePassword(this,
+                    username, passwordOrPin, appLaunchedFromConnect,
+                    loginManagedByPersonalId());
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -481,13 +486,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
         if (personalIdManager.isloggedIn()) {
-            personalIdManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = personalIdManager.setConnectJobForApp(context, appId);
+            ConnectJobRecord job = ConnectJobHelper.INSTANCE.setConnectJobForApp(context, appId);
 
             if (job != null) {
                 personalIdManager.updateAppAccess(context, appId, username);
-                personalIdManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+                ConnectJobHelper.INSTANCE.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
                 personalIdManager.checkPersonalIdLink(context,
@@ -524,7 +528,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         personalIdManager.unlockConnect(this, success -> {
             if(success) {
-                personalIdManager.goToConnectJobsList(this);
+                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
             }

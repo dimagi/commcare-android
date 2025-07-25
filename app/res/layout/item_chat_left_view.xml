@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="start">
 
     <RelativeLayout
@@ -31,21 +32,21 @@
             android:orientation="vertical"
             android:padding="10dp">
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvChatMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Some dummy text message from user A"
+                tools:text="Some dummy text message from user A"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/tvUserName"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvChatDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginTop="3dp"
-                android:text="11:00 AM"
+                tools:text="11:00 AM"
                 android:textColor="@color/white"
                 android:textSize="11sp" />
 

@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +13,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
@@ -202,10 +203,10 @@ public class DispatchActivity extends AppCompatActivity {
                 } else if(redirectToConnectHome) {
                     redirectToConnectHome = false;
                     CommCareApplication.instance().closeUserSession();
-                    PersonalIdManager.getInstance().goToConnectJobsList(this);
+                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 } else if(redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    PersonalIdManager.getInstance().goToActiveInfoForJob(this, true);
+                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, true);
                 } else {
                     launchHomeScreen();
                 }
@@ -290,10 +291,13 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+            i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
+
             String sesssionEndpointAppID = getSessionEndpointAppId();
             if (sesssionEndpointAppID != null) {
                 i.putExtra(LoginActivity.EXTRA_APP_ID, sesssionEndpointAppID);
             }
+
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
@@ -307,6 +311,10 @@ public class DispatchActivity extends AppCompatActivity {
     @Nullable
     private String getSessionEndpointAppId() {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
+    }
+
+    private boolean getLaunchedFromConnect() {
+        return getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
     }
 
     private void launchHomeScreen() {
