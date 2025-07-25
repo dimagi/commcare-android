@@ -29,8 +29,8 @@ abstract class BasePersonalIdFragment : Fragment() {
     protected fun onConfigurationFailure(failureCause: String, errorMessage: String) {
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause)
         navigateToMessageDisplay(
+            getString(R.string.personalid_configuration_process_failed_title),
             errorMessage,
-            null,
             false,
             ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED,
             R.string.ok
