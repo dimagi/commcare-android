@@ -464,10 +464,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navDirections);
     }
 
-    private void navigateToPermissionErrorMessageDisplay(int errorMeesage, int buttonText) {
+    private void navigateToPermissionErrorMessageDisplay(int errorMessage, int buttonText) {
         if (!isOnPermissionErrorScreen()) {
             navigateToMessageDisplay(
-                    getString(R.string.personalid_grant_location_service), requireActivity().getString(errorMeesage), true,
+                    getString(R.string.personalid_grant_location_service), requireActivity().getString(errorMessage), true,
                     ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText);
         }
     }
