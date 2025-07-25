@@ -1,5 +1,11 @@
 package org.commcare.utils;
 
+import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG;
+import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
+
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
+import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -8,19 +14,16 @@ import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
 
-import org.commcare.connect.ConnectConstants;
-import org.commcare.dalvik.R;
-import org.javarosa.core.services.Logger;
-
-import java.util.Locale;
-
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
-import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.dalvik.R;
+import org.javarosa.core.services.Logger;
+
+import java.util.Locale;
 
 /**
  * Helper class for biometric configuration and verification
@@ -38,9 +41,6 @@ public class BiometricsHelper {
         Configured     // Biometrics set up and ready for authentication
     }
 
-    private static final int PinBiometric = BiometricManager.Authenticators.DEVICE_CREDENTIAL;
-    private static final int StrongBiometric = BiometricManager.Authenticators.BIOMETRIC_STRONG;
-
     /**
      * Checks the fingerprint authentication status.
      *
@@ -49,7 +49,7 @@ public class BiometricsHelper {
      * @return The fingerprint configuration status.
      */
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, StrongBiometric);
+        return checkStatus(context, biometricManager, BIOMETRIC_STRONG);
     }
 
     /**
@@ -70,7 +70,7 @@ public class BiometricsHelper {
      * @return True if the configuration process starts successfully, false otherwise.
      */
     public static boolean configureFingerprint(Activity activity) {
-        return configureBiometric(activity, StrongBiometric);
+        return configureBiometric(activity, BIOMETRIC_STRONG);
     }
 
 
@@ -88,7 +88,7 @@ public class BiometricsHelper {
      * @return The PIN configuration status.
      */
     public static ConfigurationStatus checkPinStatus(Context context, BiometricManager biometricManager) {
-        return checkStatus(context, biometricManager, PinBiometric);
+        return checkStatus(context, biometricManager, DEVICE_CREDENTIAL);
     }
 
     /**
@@ -109,7 +109,7 @@ public class BiometricsHelper {
      * @return True if the configuration process starts successfully, false otherwise.
      */
     public static boolean configurePin(Activity activity) {
-        return configureBiometric(activity, PinBiometric);
+        return configureBiometric(activity, DEVICE_CREDENTIAL);
     }
 
     /**
@@ -137,10 +137,10 @@ public class BiometricsHelper {
                     .setSubtitle(activity.getString(R.string.connect_unlock_message));
 
             if (allowOtherOptions) {
-                builder.setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL |
-                        BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+                builder.setAllowedAuthenticators(DEVICE_CREDENTIAL |
+                        BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
             } else {
-                builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+                builder.setAllowedAuthenticators(BIOMETRIC_STRONG | BiometricManager.Authenticators.BIOMETRIC_WEAK);
                 builder.setNegativeButtonText(activity.getString(R.string.cancel));
             }
 
@@ -178,7 +178,7 @@ public class BiometricsHelper {
     }
 
     private static int canAuthenticate(Context context, BiometricManager biometricManager, int authenticator) {
-        if (authenticator == PinBiometric && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+        if (authenticator == DEVICE_CREDENTIAL && Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
             KeyguardManager manager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
 
             boolean isSecure = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ?
@@ -199,7 +199,7 @@ public class BiometricsHelper {
             enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
             enrollIntent.putExtra(Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
                     authenticator);
-        } else if (authenticator == StrongBiometric && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        } else if (authenticator == BIOMETRIC_STRONG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             //An alternative for fingerprint enroll that might be available
             enrollIntent = new Intent(Settings.ACTION_FINGERPRINT_ENROLL);
         } else {

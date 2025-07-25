@@ -249,8 +249,8 @@ License.
     <string name="busy_message">हम अभी भी आपके पिछले अनुरोध को संसाधित कर रहे हैं। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="connect_button_logged_in">कनेक्ट मेनू पर जाएं</string>
     <string name="personalid_generic_error">डेटाबेस के साथ कोई समस्या हुई है, कृपया अपना खाता पुनर्प्राप्त करें।</string>
-    <string name="connect_registration_title">PersonalId पंजीकरण</string>
-    <string name="connect_consent_message_1">मैंने डिमागी की गोपनीयता नीति, सेवा की शर्तें, व्यावसायिक समझौता और स्वीकार्य उपयोग नीति पढ़ ली है और मैं उनसे सहमत हूं।</string>
+    <string name="connect_registration_title">पर्सनलआईडी के साथ शुरुआत करें</string>
+    <string name="connect_consent_message_1">मैंने डिमागी की <a href="https://www.dimagi.com/terms/latest/privacy/">गोपनीयता नीति</a>, <a href="https://www.dimagi.com/terms/latest/tos/">सेवा की शर्तें</a>, <a href="https://www.dimagi.com/terms/latest/ba/">व्यावसायिक समझौता</a> और <a href="https://www.dimagi.com/terms/latest/aup/">स्वीकार्य उपयोग नीति</a> पढ़ ली है और मैं उनसे सहमत हूं।</string>
     <string name="connect_phone_country_code_default">+91</string>
     <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">OTP भेजा गया</string>

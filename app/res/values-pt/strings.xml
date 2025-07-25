@@ -37,7 +37,7 @@
     <string name="migration_definite_failure">A CommCare não conseguiu migrar os dados do seu aplicativo para uma atualização. Para resolver esse problema, desinstale o CommCare do seu dispositivo e reinicie-o.</string>
     <string name="migration_possible_failure">A CommCare não conseguiu migrar todos os seus dados durante uma atualização do aplicativo. Reinicie o CommCare para tentar corrigir isso. Se esta mensagem persistir, pode ser necessário \'Limpar dados\' do CommCare no menu Configurações do seu dispositivo.</string>
     <string name="migration_failure_title">Erro de migração</string>
-    <string name="multiple_apps_limit_message">Você atingiu seu limite de aplicativos instalados; você só pode ter até %1$d aplicativos instalados por vez.\n\nSe quiser instalar um novo aplicativo, você pode primeiro desinstalar um aplicativo existente, o que pode ser feito no gerenciador de aplicativos.</string>
+    <string name="multiple_apps_limit_message">Você atingiu seu limite de aplicativos instalados; você só pode ter até %s aplicativos instalados por vez.\n\nSe quiser instalar um novo aplicativo, você pode primeiro desinstalar um aplicativo existente, o que pode ser feito no gerenciador de aplicativos.</string>
     <string name="back_to_manager">Voltar ao Gerenciador de aplicativos</string>
     <string name="go_to_manager">Vá para o Gerenciador de aplicativos</string>
     <string name="claim_privilege_button_text">PRIVILÉGIOS DE REIVINDICAÇÃO</string>
@@ -174,9 +174,9 @@
     <string name="recovery_success">A recuperação do aplicativo foi bem-sucedida. Por favor, pressione voltar para retomar seu trabalho</string>
     <string name="recovery_forms_send_progress">Enviando formulário(s) para o servidor...</string>
     <string name="recovery_forms_send_session_expired">O login expirou durante o envio</string>
-    <string name="recovery_forms_send_successful">Envio com sucesso. Todos os %1$d formulários foram enviados</string>
+    <string name="recovery_forms_send_successful">Envio com sucesso. Todos os %s formulários foram enviados</string>
     <string name="recovery_forms_send_failure">Ocorreram erros no envio dos formulários.</string>
-    <string name="recovery_forms_send_parital_success">Ocorreram erros no envio dos formulários. Apenas %1$d foram enviados. Por favor, tente novamente mais tarde</string>
+    <string name="recovery_forms_send_parital_success">Ocorreram erros no envio dos formulários. Apenas %s foram enviados. Por favor, tente novamente mais tarde</string>
     <string name="recovery_forms_send_network_error">O envio dos formulários falhou devido a uma rede deficiente</string>
     <string name="recovery_forms_send_error">Erro ao enviar formulários</string>
     <string name="recovery_forms_state_unavailable">Os formulários não estão disponíveis. Verifique se o armazenamento do seu telefone está disponível</string>
@@ -223,7 +223,7 @@
     <string name="image_download_prompt">O arquivo de imagem está faltando para esta pergunta. Clique no botão de download acima para fazer o download</string>
     <string name="audio_download_prompt">O arquivo de áudio está faltando para esta pergunta, clique no botão de download acima para fazer o download</string>
     <string name="media_not_found_error">Mídia não encontrada no aplicativo</string>
-    <string name="area_format">%1$.2f m²</string>
+    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Não foi possível analisar as coordenadas de entrada</string>
     <string name="location_provider_disabled">Ative sua localização para receber atualizações de localização</string>
     <string name="wait_for_location_fix">A CommCare ainda está tentando obter sua localização. Aguarde ou clique em Cancelar para cancelar.</string>
@@ -251,8 +251,8 @@
     <string name="busy_message">Ainda estamos ocupados processando sua solicitação anterior. Por favor, tente novamente em alguns momentos.</string>
     <string name="connect_button_logged_in">Vá para o Conectar menu</string>
     <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
-    <string name="connect_registration_title">Inscrição no Connect ID</string>
-    <string name="connect_consent_message_1">Li e concordo com a Política de Privacidade, Termos de Serviço, Acordo Comercial e Política de Uso Aceitável da Dimagi</string>
+    <string name="connect_registration_title">Comece a usar o PersonalID</string>
+    <string name="connect_consent_message_1">Li e concordo com a <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidade</a>, os <a href="https://www.dimagi.com/terms/latest/tos/">Termos de Serviço</a>, o <a href="https://www.dimagi.com/terms/latest/ba/">Contrato Comercial</a> e a <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceitável</a> da Dimagi.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">OTP enviado</string>
@@ -439,6 +439,8 @@
     <string name="connect_messaging_retrieve_messages_fail">Falha ao recuperar mensagens</string>
     <string name="connect_send_message_hint">Digite mensagem</string>
     <string name="connect_send_message_btn_desc">Clique aqui para enviar mensagem</string>
+    <string name="connect_message_you">Você</string>
+    <string name="connect_message_them">Eles</string>
     <string name="connect_corrupt_job_text">Falha ao carregar esta oportunidade</string>
     <string name="connect_results_summary_pending">Pendente</string>
     <string name="connect_results_summary_rejected">Rejeitado</string>
