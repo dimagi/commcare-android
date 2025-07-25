@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -37,11 +35,13 @@ import java.util.List;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         implements RefreshableFragment {
-
+    public static final String TAB_POSITION = "tabPosition";
+    public static final int TAB_PROGRESS = 0;
+    public static final int TAB_PAYMENT = 1;
     private FragmentConnectDeliveryProgressBinding binding;
     private ViewStateAdapter viewPagerAdapter;
     private ConnectJobPaymentRecord paymentToConfirm = null;
-    private String initialTabPosition = "";
+    private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
 
     public static ConnectDeliveryProgressFragment newInstance() {
@@ -54,7 +54,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         requireActivity().setTitle(R.string.connect_progress_delivery);
 
         if (getArguments() != null) {
-            initialTabPosition = getArguments().getString("tabPosition", "0");
+            initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
         }
 
         setupTabViewPager();
@@ -76,12 +76,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_payment));
 
-        if (initialTabPosition.equals("1")) {
-            TabLayout.Tab tab = tabLayout.getTabAt(1);
+        if (initialTabPosition == TAB_PAYMENT) {
+            TabLayout.Tab tab = tabLayout.getTabAt(TAB_PAYMENT);
             if (tab != null) {
                 isProgrammaticTabChange = true;
                 tabLayout.selectTab(tab);
-                binding.connectDeliveryProgressViewPager.setCurrentItem(1, false);
+                binding.connectDeliveryProgressViewPager.setCurrentItem(TAB_PAYMENT, false);
             }
         }
 
