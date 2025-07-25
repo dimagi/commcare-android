@@ -4,6 +4,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +14,10 @@ import android.widget.FrameLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+
+import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobDetailBottomSheetDialogBinding;
 import org.jetbrains.annotations.NotNull;
@@ -37,9 +40,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                     ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
                     layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                     bottomSheet.setLayoutParams(layoutParams);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        bottomSheet.setBackground(new ColorDrawable(getResources().getColor(R.color.transparent, null)));
-                    }
+                    bottomSheet.setBackground(new ColorDrawable(ContextCompat.getColor(requireContext(), R.color.transparent)));
                 }
             }
         });
@@ -51,7 +52,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
         binding = FragmentConnectJobDetailBottomSheetDialogBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundResource(R.drawable.rounded_top_corners);
 
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        ConnectJobRecord job = ((ConnectActivity)requireActivity()).getActiveJob();
         Objects.requireNonNull(job);
 
         binding.connectDeliveryTotalVisitsText.setText(getString(R.string.connect_job_info_visit,

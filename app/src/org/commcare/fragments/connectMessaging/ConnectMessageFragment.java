@@ -52,7 +52,7 @@ public class ConnectMessageFragment extends Fragment {
         channelId = args.getChannelId();
 
         ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
-        getActivity().setTitle(channel.getChannelName());
+        requireActivity().setTitle(channel.getChannelName());
 
         handleSendButtonListener();
         setChatAdapter();

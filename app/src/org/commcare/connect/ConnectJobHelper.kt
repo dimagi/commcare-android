@@ -25,26 +25,12 @@ import java.util.Date
 import java.util.Locale
 
 object ConnectJobHelper {
-    var activeJob: ConnectJobRecord? = null
-
-    fun setConnectJobForApp(context: Context?, appId: String?): ConnectJobRecord? {
-        var job: ConnectJobRecord? = null
-        val appRecord = ConnectJobUtils.getAppRecord(context, appId)
-        if (appRecord != null) {
-            job = ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
-        }
-        activeJob = job
-        return job
-    }
-
     fun shouldShowJobStatus(context: Context?, appId: String?): Boolean {
-        val record = ConnectJobUtils.getAppRecord(context, appId)
-        if (record == null || activeJob == null) {
-            return false
-        }
+        val record = ConnectJobUtils.getAppRecord(context, appId) ?: return false
+        val job = ConnectJobUtils.getJobForApp(context, appId) ?: return false
 
         //Only time not to show is when we're in learn app but job is in delivery state
-        return !record.isLearning || activeJob!!.status !== ConnectJobRecord.STATUS_DELIVERING
+        return !record.isLearning || job.status != ConnectJobRecord.STATUS_DELIVERING
     }
 
     fun updateJobProgress(
@@ -81,7 +67,7 @@ object ConnectJobHelper {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
                     val responseAsString = String(StreamsUtil.inputStreamToByteArray(responseData))
-                    if (responseAsString.length > 0) {
+                    if (responseAsString.isNotEmpty()) {
                         //Parse the JSON
                         val json = JSONObject(responseAsString)
 
@@ -171,7 +157,7 @@ object ConnectJobHelper {
                 var success = true
                 try {
                     val responseAsString = String(StreamsUtil.inputStreamToByteArray(responseData))
-                    if (responseAsString.length > 0) {
+                    if (responseAsString.isNotEmpty()) {
                         //Parse the JSON
                         val json = JSONObject(responseAsString)
 
