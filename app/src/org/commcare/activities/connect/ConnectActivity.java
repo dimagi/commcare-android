@@ -48,7 +48,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private ConnectJobRecord job;
     private MenuItem messagingMenuItem = null;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,6 +180,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_messaging) {
             ConnectNavHelper.INSTANCE.goToMessaging(this);
+            return true;
+        }
+
+        if (item.getItemId() == R.id.action_credential) {
+            startActivity(new Intent(this, PersonalIdCredentialActivity.class));
             return true;
         }
 
