@@ -462,4 +462,6 @@ License.
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
+
 </resources>
