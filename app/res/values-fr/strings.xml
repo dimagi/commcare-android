@@ -462,4 +462,16 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="my_worker_history">Mon Historique de Travail</string>
+    <string name="credential">Titre de Compétences</string>
+    <string name="worked_on">Travaillé Sur :</string>
+    <string name="earned_on">Gagné Le :</string>
+    <string name="active_for">Actif Pendant :</string>
+    <string name="learn_more_about_credentials">En Savoir Plus Sur les Titres de Compétences</string>
+    <string name="view_credential">Voir le Titre de Compétences</string>
+    <string name="no_credentials_currently_available">Aucune information d\'identification n\'est actuellement disponible. Cliquez sur Actualiser ou revenez plus tard.</string>
+    <string name="earned">Gagné</string>
+    <string name="pending">En attente</string>
+    <string name="cloud_sync">Synchronisation Cloud</string>
+
 </resources>
