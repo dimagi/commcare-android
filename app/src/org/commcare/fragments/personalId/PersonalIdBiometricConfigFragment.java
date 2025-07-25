@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -27,6 +26,8 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.BiometricsHelper;
 import org.commcare.utils.EncryptionKeyProvider;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
 
@@ -42,7 +43,7 @@ import static org.commcare.utils.ViewUtils.showSnackBarWithOk;
 /**
  * Fragment that handles biometric or PIN verification for Connect ID authentication.
  */
-public class PersonalIdBiometricConfigFragment extends Fragment {
+public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     private BiometricManager biometricManager;
     private BiometricPrompt.AuthenticationCallback biometricCallback;
     private ScreenPersonalidVerifyBinding binding;
@@ -282,7 +283,7 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
     private void navigateForward(boolean enrollmentFailed) {
         if (enrollmentFailed) {
             FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.BIOMETRIC_ENROLLMENT_FAILED);
-            Navigation.findNavController(binding.connectVerifyFingerprintButton).navigate(navigateToBiometricEnrollmentFailed());
+            navigateToBiometricEnrollmentFailed();
         } else {
             BiometricsHelper.ConfigurationStatus fingerprint = BiometricsHelper.checkFingerprintStatus(
                     getActivity(), biometricManager);
@@ -316,25 +317,25 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         }
     }
 
-    private NavDirections navigateToBiometricEnrollmentFailed() {
-        return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
+    private void navigateToBiometricEnrollmentFailed() {
+        navigateToMessageDisplay(
                 getString(R.string.connect_biometric_enroll_fail_title),
                 getString(R.string.connect_biometric_enroll_fail_message),
+                true,
                 ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL,
-                getString(R.string.connect_biometric_enroll_fail_button),
-                null);
+                R.string.connect_biometric_enroll_fail_button);
     }
 
     private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage, boolean allowRetry) {
         int specifier = allowRetry ? ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING
                 : ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED;
 
-        NavDirections navDirections =
-                PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
-                        getString(R.string.personalid_configuration_process_failed_title),
-                        errorMessage, specifier, getString(R.string.ok), null)
-                        .setIsCancellable(false);
-        Navigation.findNavController(requireView()).navigate(navDirections);
+        navigateToMessageDisplay(
+                getString(R.string.personalid_configuration_process_failed_title),
+                errorMessage,
+                false,
+                specifier,
+                R.string.ok);
     }
 
     private NavDirections navigateToOtpScreen() {
@@ -343,5 +344,13 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
 
     private NavDirections navigateToNameScreen() {
         return PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidName();
+    }
+
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title, @Nullable String message, boolean isCancellable,
+            int phase, int buttonText) {
+        NavDirections navDirections = PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
+                title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(navDirections);
     }
 }

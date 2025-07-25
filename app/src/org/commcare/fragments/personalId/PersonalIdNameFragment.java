@@ -21,8 +21,10 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class PersonalIdNameFragment extends Fragment {
+public class PersonalIdNameFragment extends BasePersonalIdFragment {
     private ScreenPersonalidNameBinding binding;
     private Activity activity;
     private PersonalIdSessionData personalIdSessionData;
@@ -85,6 +87,9 @@ public class PersonalIdNameFragment extends Fragment {
             }
             @Override
             public void onFailure(PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                if (handleCommonSignupFailures(failureCode)) {
+                    return;
+                }
                 navigateFailure(failureCode, t);
             }
         }.addOrVerifyNameCall(
@@ -116,4 +121,12 @@ public class PersonalIdNameFragment extends Fragment {
         return PersonalIdNameFragmentDirections.actionPersonalidNameToPersonalidBackupCode();
     }
 
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title, @Nullable String message, boolean isCancellable,
+            int phase, int buttonText) {
+        NavDirections action = PersonalIdNameFragmentDirections
+                .actionPersonalidNameToPersonalidMessage(title, message, phase, getString(buttonText), null)
+                .setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(action);
+    }
 }
