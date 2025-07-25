@@ -8,7 +8,7 @@ import com.google.android.gms.location.*
  * @author $|-|!˅@M
  */
 class CommCareFusedLocationController(private var mContext: Context?,
-                                      private var mListener: CommCareLocationListener?): CommCareLocationController {
+                                      private var mListener: CommCareLocationListener?) : CommCareLocationController {
 
     private val mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext!!)
     private val settingsClient = LocationServices.getSettingsClient(mContext!!)
@@ -39,17 +39,17 @@ class CommCareFusedLocationController(private var mContext: Context?,
 
     override fun start() {
         val locationSettingsRequest = LocationSettingsRequest.Builder()
-                .addLocationRequest(mLocationRequest)
-                .setAlwaysShow(true)
-                .build()
+            .addLocationRequest(mLocationRequest)
+            .setAlwaysShow(true)
+            .build()
         settingsClient.checkLocationSettings(locationSettingsRequest)
-                .addOnSuccessListener {
-                    mListener?.onLocationRequestStart()
-                    requestUpdates()
-                }
-                .addOnFailureListener { exception ->
-                    mListener?.onLocationRequestFailure(CommCareLocationListener.Failure.ApiException(exception))
-                }
+            .addOnSuccessListener {
+                mListener?.onLocationRequestStart()
+                requestUpdates()
+            }
+            .addOnFailureListener { exception ->
+                mListener?.onLocationRequestFailure(CommCareLocationListener.Failure.ApiException(exception))
+            }
     }
 
     override fun stop() {

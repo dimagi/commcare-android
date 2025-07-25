@@ -8,15 +8,12 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.text.style.StyleSpan
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.viewbinding.ViewBinding
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.mapbox.geojson.Feature
-import com.mapbox.mapboxsdk.annotations.BubbleLayout
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.plugins.annotation.FillOptions
@@ -64,7 +61,6 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
         private const val MAX_ICON_SIZE = 60
 
-
         private fun viewToBitmap(view: View): Bitmap {
             val measureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             view.measure(measureSpec, measureSpec)
@@ -78,7 +74,6 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             return bitmap
         }
     }
-
 
     private var detail: Detail? = null
     private lateinit var source: GeoJsonSource
@@ -97,24 +92,24 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         return viewBinding.mapView
     }
 
-
     override fun onMapLoaded() {
-        jobs.add(GlobalScope.launch(Dispatchers.Default) {
-            initEntityData()
-            withContext(Dispatchers.Main) {
-                map.setStyle(buildStyle()) { loadedStyle ->
-                    addOvelaysOnMap(loadedStyle)
-                    addEntitiesOnMap(loadedStyle)
+        jobs.add(
+            GlobalScope.launch(Dispatchers.Default) {
+                initEntityData()
+                withContext(Dispatchers.Main) {
+                    map.setStyle(buildStyle()) { loadedStyle ->
+                        addOvelaysOnMap(loadedStyle)
+                        addEntitiesOnMap(loadedStyle)
+                    }
                 }
-            }
-        })
+            })
     }
 
     private fun initEntityData() {
         val selectDatum = getNeededEntityDatum()
         if (selectDatum != null) {
             detail = CommCareApplication.instance().currentSession
-                    .getDetail(selectDatum.shortDetail)
+                .getDetail(selectDatum.shortDetail)
             val entities = getEntities(detail!!, selectDatum.nodeset)
             val headers = EntityMapUtils.getDetailHeaders(detail!!)
 
@@ -122,15 +117,14 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             mapEntities = ArrayList(entities.size)
 
             entities.map { entity -> toMapEntity(entity, detail!!, headers) }
-                    .map { mapEntity ->
-                        if (mapEntity != null) {
-                            mapEntities.add(mapEntity)
-                            iconset.add(mapEntity.iconPath)
-                        }
+                .map { mapEntity ->
+                    if (mapEntity != null) {
+                        mapEntities.add(mapEntity)
+                        iconset.add(mapEntity.iconPath)
                     }
+                }
         }
     }
-
 
     private fun toMapEntity(entity: Entity<TreeReference>, detail: Detail, headers: Array<String?>): MapEntity? {
         var location: GeoPointData? = null
@@ -153,7 +147,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
     private fun buildStyle(): Style.Builder {
         val styleBuilder = Style.Builder().fromUri(Style.MAPBOX_STREETS)
-                .withImage(DEFAULT_CASE_ICON, AppCompatResources.getDrawable(this, R.drawable.ic_place)!!)
+            .withImage(DEFAULT_CASE_ICON, AppCompatResources.getDrawable(this, R.drawable.ic_place)!!)
         iconset.map { iconset -> addIconToStyle(styleBuilder, iconset) }
         setUpInfoWindowStyle(styleBuilder)
         return styleBuilder
@@ -161,7 +155,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
     private fun addIconToStyle(styleBuilder: Style.Builder, iconPath: String) {
         val bitmap = MediaUtil.inflateDisplayImage(this, iconPath,
-                MAX_ICON_SIZE, MAX_ICON_SIZE, false)
+            MAX_ICON_SIZE, MAX_ICON_SIZE, false)
         if (bitmap != null) {
             styleBuilder.withImage(iconPath, bitmap)
         }
@@ -172,13 +166,13 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         styleBuilder.withSource(source)
 
         styleBuilder.withLayer(SymbolLayer(ENTITY_INFO_LAYER_ID, GEOJSON_SOURCE_ID)
-                .withProperties(
-                        PropertyFactory.iconImage(INFO_IMAGE_ID),
-                        PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM),
-                        PropertyFactory.iconAllowOverlap(true),
-                        PropertyFactory.iconIgnorePlacement(false),  // offset the info window to be above the marker
-                        PropertyFactory.iconOffset(arrayOf(-2f, -28f))
-                ))
+            .withProperties(
+                PropertyFactory.iconImage(INFO_IMAGE_ID),
+                PropertyFactory.iconAnchor(Property.ICON_ANCHOR_BOTTOM),
+                PropertyFactory.iconAllowOverlap(true),
+                PropertyFactory.iconIgnorePlacement(false),  // offset the info window to be above the marker
+                PropertyFactory.iconOffset(arrayOf(-2f, -28f))
+            ))
     }
 
     private fun addOvelaysOnMap(loadedStyle: Style) {
@@ -208,12 +202,11 @@ class EntityMapboxActivity : BaseMapboxActivity() {
             val lists = ArrayList<List<LatLng>>()
             lists.add(latlngs)
             fillManager.create(FillOptions()
-                    .withLatLngs(lists)
-                    .withFillColor("#cfff95")
-                    .withFillOpacity(java.lang.Float.valueOf("0.5")))
+                .withLatLngs(lists)
+                .withFillColor("#cfff95")
+                .withFillOpacity(java.lang.Float.valueOf("0.5")))
         }
     }
-
 
     private fun addEntitiesOnMap(loadedStyle: Style) {
         val symbolManager = SymbolManager(getMapView(), map, loadedStyle)
@@ -227,7 +220,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
 
         for (mapEntity in mapEntities) {
             var symbolOptions: SymbolOptions = SymbolOptions()
-                    .withLatLng(LatLng(mapEntity.location.latitude, mapEntity.location.longitude))
+                .withLatLng(LatLng(mapEntity.location.latitude, mapEntity.location.longitude))
 
             symbolOptions = if (TextUtils.isEmpty(mapEntity.iconPath)) {
                 symbolOptions.withIconImage(DEFAULT_CASE_ICON)
@@ -254,9 +247,7 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         }
     }
 
-
     private fun generateEntityInfoView(mapEntity: MapEntity): Bitmap {
-
         val stringBuilder = SpannableStringBuilder()
         val binding = ActivityEntityKujakuMapInfoViewBinding.inflate(layoutInflater)
         val bubbleLayout = binding.root
@@ -264,9 +255,9 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         for ((key, value) in mapEntity.properties.entrySet()) {
             stringBuilder.append(key)
             stringBuilder.setSpan(
-                    StyleSpan(Typeface.BOLD),
-                    0, key.length,
-                    Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
+                StyleSpan(Typeface.BOLD),
+                0, key.length,
+                Spannable.SPAN_EXCLUSIVE_INCLUSIVE)
             stringBuilder.append(String.format(": %s", value))
             stringBuilder.append(System.getProperty("line.separator"))
         }
@@ -279,5 +270,4 @@ class EntityMapboxActivity : BaseMapboxActivity() {
         bubbleLayout.arrowPosition = measuredWidth / 2 - 5
         return viewToBitmap(bubbleLayout)
     }
-
 }
