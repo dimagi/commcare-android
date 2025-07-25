@@ -74,4 +74,13 @@
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
+    <string name="left_navigation_menu_signin_register"><u>Logg inn / Registrer deg</u></string>
+    <string name="left_navigation_menu_help">Hjelp</string>
+    <string name="left_navigation_menu_not_signed_in_to_personal_id">Du er ikke logget inn med Personlig ID</string>
+    <string name="left_navigation_menu_opportunities">Muligheter</string>
+    <string name="left_navigation_menu_commcare_apps">CommCare-apper</string>
+    <string name="left_navigation_menu_work_history">Arbeidshistorikk</string>
+    <string name="left_navigation_menu_payments">Betalinger</string>
+    <string name="left_navigation_menu_manage_profile">Administrer profil</string>
+
 </resources>

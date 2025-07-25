@@ -462,4 +462,12 @@ License.
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="left_navigation_menu_signin_register"><u>साइन इन / रजिस्टर</u></string>
+    <string name="left_navigation_menu_help">सहायता</string>
+    <string name="left_navigation_menu_not_signed_in_to_personal_id">आप Personal ID में साइन इन नहीं हैं</string>
+    <string name="left_navigation_menu_opportunities">अवसर</string>
+    <string name="left_navigation_menu_commcare_apps">कॉमकेयर ऐप्स</string>
+    <string name="left_navigation_menu_work_history">कार्य इतिहास</string>
+    <string name="left_navigation_menu_payments">भुगतान</string>
+    <string name="left_navigation_menu_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
 </resources>
