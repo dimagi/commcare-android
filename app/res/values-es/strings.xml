@@ -37,7 +37,7 @@
     <string name="migration_definite_failure">CommCare no pudo migrar los datos de tu aplicación para una actualización. Para resolver este problema, desinstala CommCare de tu dispositivo y luego vuelve a iniciarlo.</string>
     <string name="migration_possible_failure">CommCare no pudo migrar todos tus datos durante una actualización de la aplicación. Reinicia CommCare para intentar resolver este problema. Si este mensaje persiste, es posible que debas "Borrar datos" de CommCare en la configuración de tu dispositivo.</string>
     <string name="migration_failure_title">Error de migración</string>
-    <string name="multiple_apps_limit_message">Has alcanzado tu límite de aplicaciones instaladas; solo puedes tener %1$d aplicaciones instaladas a la vez.\n\nSi deseas instalar una nueva aplicación, primero debes desinstalar una aplicación existente desde el administrador de aplicaciones.</string>
+    <string name="multiple_apps_limit_message">Has alcanzado tu límite de aplicaciones instaladas; solo puedes tener %s aplicaciones instaladas a la vez.\n\nSi deseas instalar una nueva aplicación, primero debes desinstalar una aplicación existente desde el administrador de aplicaciones.</string>
     <string name="back_to_manager">Volver al administrador de aplicaciones</string>
     <string name="go_to_manager">Ir al administrador de aplicaciones</string>
     <string name="claim_privilege_button_text">RECLAMAR PRIVILEGIOS</string>
@@ -112,9 +112,9 @@
     <string name="recovery_success">La recuperación de la aplicación fue exitosa. Presiona "Atrás" para reanudar tu trabajo.</string>
     <string name="recovery_forms_send_progress">Enviando formulario(s) al servidor...</string>
     <string name="recovery_forms_send_session_expired">La conexión caducó durante el envío</string>
-    <string name="recovery_forms_send_successful">Envío exitoso. Se enviaron todos los formularios %1$d.</string>
+    <string name="recovery_forms_send_successful">Envío exitoso. Se enviaron todos los formularios %s.</string>
     <string name="recovery_forms_send_failure">Ocurrieron errores durante el envío de los formularios.</string>
-    <string name="recovery_forms_send_parital_success">Ocurrieron errores durante el envío de los formularios. Solo se enviaron %1$d. Inténtalo de nuevo más tarde.</string>
+    <string name="recovery_forms_send_parital_success">Ocurrieron errores durante el envío de los formularios. Solo se enviaron %s. Inténtalo de nuevo más tarde.</string>
     <string name="recovery_forms_send_network_error">El envío de los formularios falló debido a una red deficiente</string>
     <string name="recovery_forms_send_error">Error al enviar los formularios</string>
     <string name="recovery_forms_state_unavailable">Los formularios no están disponibles. Verifica que el espacio de almacenamiento de tu teléfono esté disponible.</string>
@@ -159,7 +159,7 @@
     <string name="image_download_prompt">Falta el archivo de imagen para esta pregunta, haz clic en el botón de descarga de arriba para descargar</string>
     <string name="audio_download_prompt">Falta el archivo de audio para esta pregunta, haz clic en el botón de descarga de arriba para descargar</string>
     <string name="media_not_found_error">Medio no encontrado en la aplicación</string>
-    <string name="area_format">%1$.2f m²</string>
+    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">No se pudieron analizar las coordenadas de entrada</string>
     <string name="location_provider_disabled">Activa tu ubicación para recibir actualizaciones de ubicación</string>
     <string name="wait_for_location_fix">CommCare todavía está intentando recuperar tu posición. Espera o haz clic en Cancelar para cancelar.</string>
@@ -441,7 +441,11 @@
     <string name="personalid_name_empty_error">El campo Nombre no puede estar vacío</string>
     <string name="personalid_configuration_process_failed_title">Proceso fallido</string>
     <string name="personalid_configuration_process_failed_subtitle">Tu dispositivo no es compatible con PersonalID en este momento. Por favor, inténtalo de nuevo en otro dispositivo.</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">Tu dispositivo no es compatible con PersonalID en este momento debido a la falta de disponibilidad de la función de seguridad. Por favor, inténtalo de nuevo en otro dispositivo.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">El mecanismo de seguridad del PIN no está disponible, inténtelo nuevamente más tarde.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">El mecanismo de seguridad biométrica no está disponible, inténtelo nuevamente más tarde.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">El mecanismo de seguridad del PIN requiere una actualización de software; aplique cualquier actualización de sistema disponible o intente nuevamente con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">El mecanismo de seguridad biométrica requiere una actualización de software; aplique cualquier actualización de sistema disponible o intente nuevamente con un dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requiere que su dispositivo tenga un lector de huellas dactilares. Inténtelo de nuevo con otro dispositivo.</string>
     <string name="personalid_configuration_process_failed_play_services">Asegúrate de que Play Store esté disponible en tu dispositivo y que esté actualizado.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Error temporal al verificar la elegibilidad de tu dispositivo. Por favor, inténtalo de nuevo después de un día.</string>
     <string name="personalid_configuration_process_failed_network_error">Error de red al verificar la elegibilidad de tu dispositivo. Asegúrate de tener una buena conexión de red e inténtalo de nuevo.</string>
