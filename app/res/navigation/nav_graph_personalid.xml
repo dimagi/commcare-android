@@ -133,7 +133,9 @@
         android:name="org.commcare.fragments.personalId.PersonalIdNameFragment"
         android:label="personalid_name"
         tools:layout="@layout/screen_personalid_name">
-
+        <action
+            android:id="@+id/action_personalid_name_to_personalid_message"
+            app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_personalid_name_to_personalid_backup_code"
             app:destination="@id/personalid_backup_code" />
