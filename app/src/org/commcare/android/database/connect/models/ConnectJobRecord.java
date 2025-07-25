@@ -183,7 +183,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dailyFinishTime = "";
     }
 
-    public static ConnectJobRecord corruptJobfromJson(JSONObject json)throws JSONException{
+    public static ConnectJobRecord corruptJobFromJson(JSONObject json)throws JSONException{
         ConnectJobRecord job = new ConnectJobRecord();
         job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
         job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
@@ -310,10 +310,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return shortDescription;
     }
 
-    public boolean getIsNew() {
-        return status == STATUS_AVAILABLE_NEW;
-    }
-
     public int getStatus() {
         return status;
     }
@@ -338,14 +334,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return maxDailyVisits;
     }
 
-    public int getBudgetPerVisit() {
-        return budgetPerVisit;
-    }
-
-    public int getPercentComplete() {
-        return maxVisits > 0 ? 100 * completedVisits / maxVisits : 0;
-    }
-
     public Date getProjectStartDate() {
         return projectStartDate;
     }
@@ -359,7 +347,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getPaymentAccrued() {
-        return paymentAccrued != null && paymentAccrued.length() > 0 ? Integer.parseInt(paymentAccrued) : 0;
+        return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
     }
     public int getLearningPercentComplete() {
         return numLearningModules > 0 ? (100 * learningModulesCompleted / numLearningModules) : 100;
@@ -409,7 +397,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public void setDeliveries(List<ConnectJobDeliveryRecord> deliveries) {
         this.deliveries = deliveries;
-        if (deliveries.size() > 0) {
+        if (!deliveries.isEmpty()) {
             completedVisits = deliveries.size();
         }
     }
@@ -488,7 +476,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean attemptedAssessment() {
-        return getLearningCompletePercentage() >= 100 && assessments != null && assessments.size() > 0;
+        return getLearningCompletePercentage() >= 100 && assessments != null && !assessments.isEmpty();
     }
 
     public boolean passedAssessment() {
@@ -523,10 +511,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return lastUpdate;
     }
 
-    public Date getLastLearnUpdate() {
-        return lastLearnUpdate;
-    }
-
     public void setLastLearnUpdate(Date date) {
         lastLearnUpdate = date;
     }
@@ -537,22 +521,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public void setLastDeliveryUpdate(Date date) {
         lastDeliveryUpdate = date;
-    }
-
-    public String getOrganization() {
-        return organization;
-    }
-
-    public int getTotalBudget() {
-        return totalBudget;
-    }
-
-    public Date getLastWorkedDate() {
-        return lastWorkedDate;
-    }
-
-    public Date getDateClaimed() {
-        return dateClaimed;
     }
 
     public boolean getIsActive() {
@@ -569,7 +537,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public String getMoneyString(int value) {
         String currency = "";
-        if (this.currency != null && this.currency.length() > 0) {
+        if (this.currency != null && !this.currency.isEmpty()) {
             currency = " " + this.currency;
         }
 

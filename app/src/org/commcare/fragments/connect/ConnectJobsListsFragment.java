@@ -165,7 +165,7 @@ public class ConnectJobsListsFragment extends Fragment
     private void handleCorruptJob(JSONObject obj) {
         if(obj!=null) {
             try {
-                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobfromJson(obj)));
+                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobFromJson(obj)));
             } catch (JSONException e) {
                 Logger.exception("JSONException while retrieving corrupt opportunity title", e);
             }
