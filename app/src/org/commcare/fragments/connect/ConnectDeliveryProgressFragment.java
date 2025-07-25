@@ -169,12 +169,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
     public void refreshData() {
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
             if (success) {
-                try {
-                    updateLastUpdatedText(new Date());
-                    updateWarningMessage();
-                    updatePaymentConfirmationTile(false);
-                    viewPagerAdapter.refresh();
-                } catch (Exception ignored) {}
+                updateLastUpdatedText(new Date());
+                updateWarningMessage();
+                updatePaymentConfirmationTile(false);
+                viewPagerAdapter.refresh();
             }
         });
     }
