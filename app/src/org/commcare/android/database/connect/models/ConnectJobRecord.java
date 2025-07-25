@@ -1,6 +1,11 @@
 package org.commcare.android.database.connect.models;
 
+import android.content.Context;
+
+import androidx.annotation.Nullable;
+
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
@@ -14,9 +19,6 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -619,6 +621,62 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean readyToTransitionToDelivery() {
         return status == STATUS_LEARNING && passedAssessment();
+    }
+
+    @Nullable
+    public String getWarningMessages(Context context) {
+        if (isFinished()) {
+            return context.getString(R.string.connect_progress_warning_ended);
+        } else if (getIsUserSuspended()) {
+            return context.getString(R.string.user_suspended);
+        } else if (status == STATUS_DELIVERING && getProjectStartDate().after(new Date())) {
+            return context.getString(R.string.connect_progress_warning_not_started);
+        } else if (readyToTransitionToDelivery()) {
+            return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
+        } else if (isMultiPayment()) {
+            return getMultiVisitWarnings(context);
+        } else if (getDeliveries().size() >= getMaxVisits()) {
+            return context.getString(R.string.connect_progress_warning_max_reached_single);
+        } else if (numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+            return context.getString(R.string.connect_progress_warning_daily_max_reached_single);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    private String getMultiVisitWarnings(Context context) {
+        Hashtable<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
+        Hashtable<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
+        List<String> dailyMaxes = new ArrayList<>();
+        List<String> totalMaxes = new ArrayList<>();
+
+        for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
+            String key = String.valueOf(unit.getUnitId());
+
+            int totalCount = total.containsKey(key) ? total.get(key) : 0;
+            if (totalCount >= unit.getMaxTotal()) {
+                totalMaxes.add(unit.getName());
+            } else {
+                int todayCount = today.containsKey(key) ? today.get(key) : 0;
+                if (todayCount >= unit.getMaxDaily()) {
+                    dailyMaxes.add(unit.getName());
+                }
+            }
+        }
+
+        List<String> lines = new ArrayList<>();
+        if (!totalMaxes.isEmpty()) {
+            lines.add(context.getString(R.string.connect_progress_warning_max_reached_multi,
+                    String.join(", ", totalMaxes)));
+        }
+
+        if (!dailyMaxes.isEmpty()) {
+            lines.add(context.getString(R.string.connect_progress_warning_daily_max_reached_multi,
+                    String.join(", ", dailyMaxes)));
+        }
+
+        return lines.isEmpty() ? null : String.join("\n", lines);
     }
 
     public static ConnectJobRecord fromV10(ConnectJobRecordV10 oldRecord) {

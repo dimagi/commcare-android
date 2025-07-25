@@ -17,7 +17,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
@@ -30,7 +29,6 @@ import org.commcare.utils.ConnectivityStatus;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 
 public class ConnectDeliveryProgressFragment extends ConnectJobFragment
@@ -178,45 +176,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
     }
 
     private void updateWarningMessage() {
-        String warningText = computeWarningText(job);
+        String warningText = job.getWarningMessages(requireContext());
         binding.cvConnectMessage.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
         if (warningText != null) {
             binding.tvConnectMessage.setText(warningText);
         }
-    }
-
-    private String computeWarningText(ConnectJobRecord job) {
-        if (job.isFinished()) {
-            return getString(R.string.connect_progress_warning_ended);
-        } else if (job.getProjectStartDate().after(new Date())) {
-            return getString(R.string.connect_progress_warning_not_started);
-        } else if (job.getIsUserSuspended()) {
-            return getString(R.string.user_suspended);
-        } else if (job.isMultiPayment()) {
-            List<String> warnings = new ArrayList<>();
-            Hashtable<String, Integer> total = job.getDeliveryCountsPerPaymentUnit(false);
-            Hashtable<String, Integer> today = job.getDeliveryCountsPerPaymentUnit(true);
-
-            for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                String key = String.valueOf(unit.getUnitId());
-                int totalCount = total.containsKey(key) ? total.get(key) : 0;
-                int todayCount = today.containsKey(key) ? today.get(key) : 0;
-
-                if (totalCount >= unit.getMaxTotal()) {
-                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
-                } else if (todayCount >= unit.getMaxDaily()) {
-                    warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi, unit.getName()));
-                }
-            }
-            return warnings.isEmpty() ? null : String.join("\n", warnings);
-        } else {
-            if (job.getDeliveries().size() >= job.getMaxVisits()) {
-                return getString(R.string.connect_progress_warning_max_reached_single);
-            } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
-                return getString(R.string.connect_progress_warning_daily_max_reached_single);
-            }
-        }
-        return null;
     }
 
     private void updatePaymentConfirmationTile(boolean forceHide) {
@@ -231,7 +195,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
             }
         }
 
-        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(getContext());
+        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(requireContext());
         binding.connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
         if (showTile) {

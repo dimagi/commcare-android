@@ -19,7 +19,6 @@ import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -30,8 +29,6 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
 
@@ -106,19 +103,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
         ConnectJobRecord job = activity.getActiveJob();
         if (job != null && record != null) {
-            if (job.isFinished()) {
-                warningText = activity.getString(R.string.connect_progress_warning_ended);
-            } else if (job.getProjectStartDate().after(new Date())) {
-                warningText = activity.getString(R.string.connect_progress_warning_not_started);
-            } else if (job.readyToTransitionToDelivery()) {
-                warningText = activity.getString(R.string.connect_progress_ready_for_transition_to_delivery);
-            } else if (job.isMultiPayment()) {
-                warningText = getMultiVisitWarnings(job);
-            } else if (job.getDeliveries().size() >= job.getMaxVisits()) {
-                warningText = activity.getString(R.string.connect_progress_warning_max_reached_single);
-            } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
-                warningText = activity.getString(R.string.connect_progress_warning_daily_max_reached_single);
-            }
+            warningText = job.getWarningMessages(activity);
         }
 
         connectMessageCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
@@ -126,50 +111,6 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             TextView tv = connectMessageCard.findViewById(R.id.tvConnectMessage);
             tv.setText(warningText);
         }
-    }
-
-    private String getMultiVisitWarnings(ConnectJobRecord job) {
-        Hashtable<String, Integer> totalPaymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
-        Hashtable<String, Integer> todayPaymentCounts = job.getDeliveryCountsPerPaymentUnit(true);
-        List<String> dailyMaxes = new ArrayList<>();
-        List<String> totalMaxes = new ArrayList<>();
-        for (int i = 0; i < job.getPaymentUnits().size(); i++) {
-            ConnectPaymentUnitRecord unit = job.getPaymentUnits().get(i);
-            String stringKey = Integer.toString(unit.getUnitId());
-
-            int totalCount = 0;
-            if (totalPaymentCounts.containsKey(stringKey)) {
-                totalCount = totalPaymentCounts.get(stringKey);
-            }
-
-            if (totalCount >= unit.getMaxTotal()) {
-                //Reached max total for this type
-                totalMaxes.add(unit.getName());
-            } else {
-                int todayCount = 0;
-                if (todayPaymentCounts.containsKey(stringKey)) {
-                    todayCount = todayPaymentCounts.get(stringKey);
-                }
-
-                if (todayCount >= unit.getMaxDaily()) {
-                    //Reached daily max for this type
-                    dailyMaxes.add(unit.getName());
-                }
-            }
-        }
-
-        List<String> lines = new ArrayList<>();
-        if (totalMaxes.size() > 0) {
-            lines.add(activity.getString(R.string.connect_progress_warning_max_reached_multi,
-                    String.join(", ", totalMaxes)));
-        }
-
-        if (dailyMaxes.size() > 0) {
-            lines.add(activity.getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                    String.join(", ", dailyMaxes)));
-        }
-
-        return lines.size() > 0 ? String.join("\n", lines) : null;
     }
 
     @Override
