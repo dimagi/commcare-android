@@ -178,15 +178,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
     }
 
     private void updateWarningMessage() {
-
         String warningText = computeWarningText(job);
-
-        CardView warningCard = binding.getRoot().findViewById(R.id.cvConnectMessage);
-        if (warningCard != null) {
-            warningCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-            if (warningText != null) {
-                ((TextView) warningCard.findViewById(R.id.tvConnectMessage)).setText(warningText);
-            }
+        binding.cvConnectMessage.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+        if (warningText != null) {
+            binding.tvConnectMessage.setText(warningText);
         }
     }
 
