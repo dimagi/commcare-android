@@ -18,21 +18,13 @@ class EarnedCredentialFragment : Fragment() {
     private var userName: String? = null
     private var profilePic: String? = null
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
-        viewModel.username.observe(viewLifecycleOwner) { name ->
-            userName = name
-        }
-
-        viewModel.profilePic.observe(viewLifecycleOwner) { pic ->
-            profilePic = pic
-        }
-        viewModel.earnedCredentials.observe(viewLifecycleOwner) { earnedList ->
-            setUpEarnedRecyclerView(earnedList)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            userName = it.getString(ARG_USERNAME)
+            profilePic = it.getString(ARG_PROFILE_PIC)
         }
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,14 +34,39 @@ class EarnedCredentialFragment : Fragment() {
         return binding!!.root
     }
 
-    private fun setUpEarnedRecyclerView(earnedList: List<PersonalIdCredential>) {
-        earnedCredentialAdapter = EarnedCredentialAdapter(listener = object :
-            EarnedCredentialAdapter.OnCredentialClickListener {
-            override fun onViewCredentialClick(credential: PersonalIdCredential) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        earnedCredentialAdapter = EarnedCredentialAdapter(
+            listener = object : EarnedCredentialAdapter.OnCredentialClickListener {
+                override fun onViewCredentialClick(credential: PersonalIdCredential) {
 
-            }
-        },profilePic!!)
+                }
+            },
+            profilePic = profilePic ?: ""
+        )
         binding!!.rvEarnedCredential.adapter = earnedCredentialAdapter
-        earnedCredentialAdapter.setData(earnedList)
+        viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
+        viewModel.earnedCredentials.observe(viewLifecycleOwner) { earnedList ->
+            earnedCredentialAdapter.setData(earnedList)
+        }
+    }
+
+    companion object {
+        private const val ARG_USERNAME = "username"
+        private const val ARG_PROFILE_PIC = "profile_pic"
+
+        fun newInstance(username: String, profilePic: String): EarnedCredentialFragment {
+            val fragment = EarnedCredentialFragment()
+            val args = Bundle()
+            args.putString(ARG_USERNAME, username)
+            args.putString(ARG_PROFILE_PIC, profilePic)
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

@@ -6,30 +6,26 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.utils.parseIsoDateForSorting
 
-class PersonalIdCredentialViewModel(application: Application): AndroidViewModel(application) {
+class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _credentialsLiveData = MutableLiveData<PersonalIdValidAndCorruptCredential>()
     val credentialsLiveData: LiveData<PersonalIdValidAndCorruptCredential> = _credentialsLiveData
 
-    private val _apiError = MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
-    val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> = _apiError
+    private val _apiError =
+        MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
+    val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> =
+        _apiError
 
     private val _earnedCredentials = MutableLiveData<List<PersonalIdCredential>>()
     val earnedCredentials: LiveData<List<PersonalIdCredential>> = _earnedCredentials
 
     private val _pendingCredentials = MutableLiveData<List<PersonalIdCredential>>()
     val pendingCredentials: LiveData<List<PersonalIdCredential>> = _pendingCredentials
-
-    private val _username = MutableLiveData<String>()
-    val username: LiveData<String> = _username
-
-    private val _profilePic = MutableLiveData<String>()
-    val profilePic: LiveData<String> = _profilePic
 
     fun retrieveCredentials() {
         val user = ConnectUserDatabaseUtil.getUser(getApplication())
@@ -58,10 +54,5 @@ class PersonalIdCredentialViewModel(application: Application): AndroidViewModel(
         _earnedCredentials.value = sortedEarned
         _pendingCredentials.value = sortedPending
     }
-
-    fun setUserInfo(username: String, profilePic: String) {
-        _username.value = username
-        _profilePic.value = profilePic
-    }
-
 }
+

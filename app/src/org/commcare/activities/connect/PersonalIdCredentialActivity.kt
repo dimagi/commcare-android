@@ -33,27 +33,21 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        credentialsViewPagerAdapter = CredentialsViewPagerAdapter(this)
-        binding.vpCredentials.adapter = credentialsViewPagerAdapter
-        TabLayoutMediator(binding.tabCredentials, binding.vpCredentials) { tab, position ->
-            tab.text = getString(titles[position])
-            tab.setIcon(icons[position])
-        }.attach()
-        personalIdCredentialViewModel = ViewModelProvider(
-            this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[PersonalIdCredentialViewModel::class.java]
         personalIdSessionData =
             ViewModelProvider(this)[PersonalIdSessionDataViewModel::class.java].personalIdSessionData
         userName = personalIdSessionData!!.userName
         profilePic = personalIdSessionData?.photoBase64
-        personalIdCredentialViewModel.setUserInfo(userName!!, profilePic!!)
-        getInstalledAppsList()
-        callCredentialApi()
+        credentialsViewPagerAdapter = CredentialsViewPagerAdapter(this,userName!!,profilePic ?: "")
+        personalIdCredentialViewModel = ViewModelProvider(
+            this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )[PersonalIdCredentialViewModel::class.java]
+        initInstalledAppsList()
+        fetchCredentialsFromNetwork()
         setUpUi()
         observeCredentialApiCall()
     }
 
-    private fun getInstalledAppsList() {
+    private fun initInstalledAppsList() {
         val usableApps = MultipleAppsUtil.getUsableAppRecords()
 
         installedAppRecords = usableApps.map { record ->
@@ -70,6 +64,11 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
+        binding.vpCredentials.adapter = credentialsViewPagerAdapter
+        TabLayoutMediator(binding.tabCredentials, binding.vpCredentials) { tab, position ->
+            tab.text = getString(titles[position])
+            tab.setIcon(icons[position])
+        }.attach()
     }
 
     private fun observeCredentialApiCall() {
@@ -94,7 +93,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
         }
     }
 
-    private fun callCredentialApi() {
+    private fun fetchCredentialsFromNetwork() {
         personalIdCredentialViewModel.retrieveCredentials()
     }
 
@@ -113,7 +112,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
             }
 
             R.id.cloud_sync -> {
-                callCredentialApi()
+                fetchCredentialsFromNetwork()
                 true
             }
 

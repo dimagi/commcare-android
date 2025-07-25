@@ -12,10 +12,18 @@ import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.dalvik.databinding.FragmentPendingCredentialBinding
 
 class PendingCredentialFragment : Fragment() {
+
     private var binding: FragmentPendingCredentialBinding? = null
     private lateinit var pendingCredentialAdapter: PendingCredentialAdapter
     private lateinit var viewModel: PersonalIdCredentialViewModel
     private var userName: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            userName = it.getString(ARG_USERNAME)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,16 +35,6 @@ class PendingCredentialFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
-        viewModel.username.observe(viewLifecycleOwner) { name ->
-            userName = name
-        }
-        viewModel.pendingCredentials.observe(viewLifecycleOwner) { pendingList ->
-            setUpPendingRecyclerView(pendingList)
-        }
-    }
-
-    private fun setUpPendingRecyclerView(pendingList: List<PersonalIdCredential>) {
         pendingCredentialAdapter = PendingCredentialAdapter(listener = object :
             PendingCredentialAdapter.OnCredentialClickListener {
             override fun onViewCredentialClick(credential: PersonalIdCredential) {
@@ -44,6 +42,26 @@ class PendingCredentialFragment : Fragment() {
             }
         })
         binding!!.rvPendingCredential.adapter = pendingCredentialAdapter
-        pendingCredentialAdapter.setData(pendingList)
+        viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
+        viewModel.pendingCredentials.observe(viewLifecycleOwner) { pendingList ->
+            pendingCredentialAdapter.setData(pendingList)
+        }
+    }
+
+    companion object {
+        private const val ARG_USERNAME = "username"
+
+        fun newInstance(username: String): PendingCredentialFragment {
+            val fragment = PendingCredentialFragment()
+            val args = Bundle()
+            args.putString(ARG_USERNAME, username)
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }
