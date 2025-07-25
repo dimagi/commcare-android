@@ -62,6 +62,7 @@ import java.util.HashMap;
 
 import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
+import static org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections.*;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
@@ -107,7 +108,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     @Override
     public void onResume() {
         super.onResume();
-        locationController.start();
+        if (!isOnPermissionErrorScreen()) {
+            locationController.start();
+        }
     }
 
     @Override
@@ -499,9 +502,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void navigateToPermissionErrorMessageDisplay(int errorMeesage, int buttonText) {
-        navigateToMessageDisplay(
-                requireActivity().getString(errorMeesage),  null,true,
-                ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText);
+        if(!isOnPermissionErrorScreen()) {
+            navigateToMessageDisplay(
+                    getString(R.string.personalid_grant_location_service), requireActivity().getString(errorMeesage), true,
+                    ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText);
+        }
     }
 
     @Override
