@@ -249,7 +249,7 @@
     <string name="choice_or">____________ AU _____________</string>
     <string name="busy_message">Bado tunashughulika kuchakata ombi lako la awali. Tafadhali jaribu tena baada ya muda fulani.</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
-    <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya Kitambulisho cha Kibinafsi tena.</string>
+    <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya PersonalID tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
     <string name="connect_consent_message_1">Nimesoma na kukubaliana na <a href="https://www.dimagi.com/terms/latest/privacy/">Sera ya Faragha</a> ya Dimagi, <a href="https://www.dimagi.com/terms/latest/tos/">Sheria na Masharti</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Makubaliano ya Biashara</a> na <a href="https://www.dimagi.com/terms/latest/aup/">Sera ya Matumizi Yanayokubalika</a>.</string>
     <string name="connect_phone_country_code_default">+1</string>
@@ -433,7 +433,7 @@
     <string name="personalid_otp_verification_failed_generic">Uthibitishaji wa OTP haukufaulu:</string>
     <string name="personalid_otp_verification_failed">Uthibitishaji haukufaulu na tafadhali jaribu tena</string>
     <string name="connect_registration_subtitle">Weka Nambari yako ya Simu</string>
-    <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya Kitambulisho cha Kibinafsi</string>
+    <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya PersonalID</string>
     <string name="connect_backup_code_message">Weka Nambari yako ya Hifadhi Nakala yenye tarakimu 6</string>
     <string name="connect_messaging_channel_consent_failure_msg">Imeshindwa kutoa idhini kwa kituo</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
@@ -447,8 +447,12 @@
     <string name="personalid_name_empty_error">Sehemu ya jina haiwezi kuwa tupu</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
-    <string name="personalid_configuration_process_failed_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa Kitambulisho cha Kibinafsi kwa wakati huu kwa sababu ya kutopatikana kwa kipengele cha usalama cha %s. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
+    <string name="personalid_configuration_process_failed_subtitle">Kifaa chako hakijatimiza masharti ya kujisajili kwa PersonalID kwa wakati huu. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">Utaratibu wa usalama wa PIN haupatikani, tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">Utaratibu wa usalama wa kibayometriki haupatikani, tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">Utaratibu wa usalama wa PIN unahitaji sasisho la programu, tafadhali tumia masasisho yoyote ya mfumo yanayopatikana au ujaribu tena ukitumia kifaa tofauti.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">Utaratibu wa usalama wa kibayometriki unahitaji sasisho la programu, tafadhali tumia masasisho yoyote ya mfumo yanayopatikana au ujaribu tena ukitumia kifaa tofauti.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID kinahitaji kifaa chako kiwe na kichanganuzi cha alama za vidole. Tafadhali jaribu tena ukitumia kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_play_services">Tafadhali hakikisha kuwa Play Store inapatikana kwenye kifaa chako na imesasishwa.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Hitilafu ya muda katika kuthibitisha ustahiki wa kifaa chako. Tafadhali jaribu tena baada ya siku moja.</string>
     <string name="personalid_configuration_process_failed_network_error">Hitilafu ya mtandao katika kuthibitisha ustahiki wa kifaa chako. Tafadhali hakikisha una muunganisho mzuri wa mtandao na jaribu tena.</string>
