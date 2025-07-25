@@ -136,8 +136,12 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 }
 
                 break;
+            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
                 activity.finish();
+                break;
+            case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING:
+                NavHostFragment.findNavController(this).navigateUp();
                 break;
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_ORPHANED:
                 personalIdSessionData.setAccountExists(false);

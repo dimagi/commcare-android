@@ -19,7 +19,6 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -213,21 +212,21 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         String message = BiometricsHelper.getNoBiometricHardwareError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "No biometric hardware during biometric configuration");
-        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, false);
     }
 
     private void showBiometricNotAvailableError() {
         String message = BiometricsHelper.getBiometricHardwareUnavailableError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_UNAVAILABLE);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric not available during biometric configuration");
-        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
     }
 
     private void showBiometricNeedsUpdateError() {
         String message = BiometricsHelper.getBiometricNeedsUpdateError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_NEEDS_UPDATE);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Biometric requires update during biometric configuration");
-        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
     }
 
     private void initiateBiometricAuthentication() {
@@ -260,14 +259,14 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
         String message = BiometricsHelper.getPinHardwareUnavailableError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_HARDWARE_ABSENT);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN not available during biometric configuration");
-        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
     }
 
     private void showPinNeedsUpdateError() {
         String message = BiometricsHelper.getPinNeedsUpdateError(requireActivity());
         FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.MIN_BIOMETRIC_PIN_NEEDS_UPDATE);
         Logger.log(LogTypes.TYPE_MAINTENANCE, "PIN requires update during biometric configuration");
-        navigateToMessageDisplayForSecurityConfigurationFailure(message);
+        navigateToMessageDisplayForSecurityConfigurationFailure(message, true);
     }
 
     private void initiatePinAuthentication() {
@@ -326,13 +325,15 @@ public class PersonalIdBiometricConfigFragment extends Fragment {
                 null);
     }
 
-    private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage) {
+    private void navigateToMessageDisplayForSecurityConfigurationFailure(String errorMessage, boolean allowRetry) {
+        int specifier = allowRetry ? ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING
+                : ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED;
+
         NavDirections navDirections =
                 PersonalIdBiometricConfigFragmentDirections.actionPersonalidBiometricConfigToPersonalidMessage(
                         getString(R.string.personalid_configuration_process_failed_title),
-                        errorMessage,
-                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, getString(R.string.ok),
-                        null).setIsCancellable(false);
+                        errorMessage, specifier, getString(R.string.ok), null)
+                        .setIsCancellable(false);
         Navigation.findNavController(requireView()).navigate(navDirections);
     }
 
