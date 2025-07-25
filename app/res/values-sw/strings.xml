@@ -452,7 +452,7 @@
     <string name="personalid_configuration_process_biometric_unavailable_message">Utaratibu wa usalama wa kibayometriki haupatikani, tafadhali jaribu tena baadaye.</string>
     <string name="personalid_configuration_process_pin_needs_update_message">Utaratibu wa usalama wa PIN unahitaji sasisho la programu, tafadhali tumia masasisho yoyote ya mfumo yanayopatikana au ujaribu tena ukitumia kifaa tofauti.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Utaratibu wa usalama wa kibayometriki unahitaji sasisho la programu, tafadhali tumia masasisho yoyote ya mfumo yanayopatikana au ujaribu tena ukitumia kifaa tofauti.</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID kinahitaji kifaa chako kiwe na kihisi cha kibayometriki. Tafadhali jaribu tena ukitumia kifaa tofauti.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID kinahitaji kifaa chako kiwe na kichanganuzi cha alama za vidole. Tafadhali jaribu tena ukitumia kifaa tofauti.</string>
     <string name="personalid_configuration_process_failed_play_services">Tafadhali hakikisha kuwa Play Store inapatikana kwenye kifaa chako na imesasishwa.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Hitilafu ya muda katika kuthibitisha ustahiki wa kifaa chako. Tafadhali jaribu tena baada ya siku moja.</string>
     <string name="personalid_configuration_process_failed_network_error">Hitilafu ya mtandao katika kuthibitisha ustahiki wa kifaa chako. Tafadhali hakikisha una muunganisho mzuri wa mtandao na jaribu tena.</string>

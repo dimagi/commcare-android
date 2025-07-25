@@ -608,7 +608,7 @@
     <string name="personalid_configuration_process_biometric_unavailable_message">The biometric security mechanism is unavailable, please try again later.</string>
     <string name="personalid_configuration_process_pin_needs_update_message">The PIN security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">The biometric security mechanism requires a software update, please apply any available system updates or try again with a different device.</string>
-    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires that your device have a biometric sensor. Please try again with a different device.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires that your device have a fingerprint scanner. Please try again with a different device.</string>
     <string name="personalid_photo_capture_title">Welcome %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
