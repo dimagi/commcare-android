@@ -69,15 +69,8 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
     }
 
     private void updateSummaryView() {
-        int total = 0;
-        for (ConnectJobPaymentRecord payment : job.getPayments()) {
-            try {
-                total += Integer.parseInt(payment.getAmount());
-            } catch (Exception ignored) {
-            }
-        }
         binding.paymentEarnedAmount.setText(job.getMoneyString(job.getPaymentAccrued()));
-        binding.paymentTransferredAmount.setText(job.getMoneyString(total));
+        binding.paymentTransferredAmount.setText(job.getMoneyString(job.getPaymentTotal()));
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

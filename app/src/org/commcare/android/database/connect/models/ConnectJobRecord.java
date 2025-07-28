@@ -410,6 +410,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.payments = payments;
     }
 
+    public int getPaymentTotal() {
+        int total = 0;
+        for (ConnectJobPaymentRecord payment : getPayments()) {
+            total += Integer.parseInt(payment.getAmount());
+        }
+
+        return total;
+    }
+
     public List<ConnectJobLearningRecord> getLearnings() {
         return learnings;
     }
