@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
