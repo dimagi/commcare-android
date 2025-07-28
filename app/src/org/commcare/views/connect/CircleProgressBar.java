@@ -47,7 +47,7 @@ public class CircleProgressBar extends View {
             progressColor = a.getColor(R.styleable.CircleProgressBar_progressColor, progressColor);
             backgroundColor = a.getColor(R.styleable.CircleProgressBar_progressBackgroundColor,
                     backgroundColor);
-            strokeWidth = a.getFloat(R.styleable.CircleProgressBar_strokeWidth, strokeWidth);
+            strokeWidth = a.getDimension(R.styleable.CircleProgressBar_strokeWidth, strokeWidth);
 
             a.recycle();
         }

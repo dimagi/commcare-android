@@ -284,12 +284,6 @@ public class StandardHomeActivity
     }
 
     public ConnectJobRecord getActiveJob() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord appRecord = ConnectJobUtils.getAppRecord(this, appId);
-        if (appRecord == null) {
-            return null;
-        }
-
-        return ConnectJobUtils.getCompositeJob(this, appRecord.getJobId());
+        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
     }
 }

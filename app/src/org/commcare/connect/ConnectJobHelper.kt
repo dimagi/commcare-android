@@ -2,6 +2,7 @@ package org.commcare.connect
 
 import android.content.Context
 import android.widget.Toast
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord
@@ -25,6 +26,13 @@ import java.util.Date
 import java.util.Locale
 
 object ConnectJobHelper {
+    fun getJobForSeatedApp(context: Context): ConnectJobRecord? {
+        val appId = CommCareApplication.instance().currentApp.uniqueId
+        val appRecord = ConnectJobUtils.getAppRecord(context, appId) ?: return null
+
+        return ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
+    }
+
     fun shouldShowJobStatus(context: Context?, appId: String?): Boolean {
         val record = ConnectJobUtils.getAppRecord(context, appId) ?: return false
         val job = ConnectJobUtils.getJobForApp(context, appId) ?: return false
@@ -75,7 +83,7 @@ object ConnectJobHelper {
                         val modules = json.getJSONArray(key)
                         val learningRecords: MutableList<ConnectJobLearningRecord> =
                             ArrayList(modules.length())
-                        for (i in 0..<modules.length()) {
+                        for (i in 0 until modules.length()) {
                             val obj = modules[i] as JSONObject
                             val record = ConnectJobLearningRecord.fromJson(obj, job.jobId)
                             learningRecords.add(record)
@@ -87,7 +95,7 @@ object ConnectJobHelper {
                         val assessments = json.getJSONArray(key)
                         val assessmentRecords: MutableList<ConnectJobAssessmentRecord> =
                             ArrayList(assessments.length())
-                        for (i in 0..<assessments.length()) {
+                        for (i in 0 until assessments.length()) {
                             val obj = assessments[i] as JSONObject
                             val record = ConnectJobAssessmentRecord.fromJson(obj, job.jobId)
                             assessmentRecords.add(record)
@@ -196,7 +204,7 @@ object ConnectJobHelper {
                         key = "deliveries"
                         if (json.has(key)) {
                             val array = json.getJSONArray(key)
-                            for (i in 0..<array.length()) {
+                            for (i in 0 until array.length()) {
                                 val obj = array[i] as JSONObject
                                 deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.jobId))
                             }
@@ -211,7 +219,7 @@ object ConnectJobHelper {
                         key = "payments"
                         if (json.has(key)) {
                             val array = json.getJSONArray(key)
-                            for (i in 0..<array.length()) {
+                            for (i in 0 until array.length()) {
                                 val obj = array[i] as JSONObject
                                 payments.add(ConnectJobPaymentRecord.fromJson(obj, job.jobId))
                             }
