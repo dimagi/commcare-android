@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -34,7 +33,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
         implements RefreshableFragment {
 
     private boolean showAppLaunch = true;
-    private @NonNull FragmentConnectLearningProgressBinding viewBinding;
+    private FragmentConnectLearningProgressBinding viewBinding;
 
     public static ConnectLearningProgressFragment newInstance(boolean showAppLaunch) {
         ConnectLearningProgressFragment fragment = new ConnectLearningProgressFragment();
@@ -43,7 +42,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (getArguments() != null) {
             showAppLaunch = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
         }
@@ -143,45 +142,42 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
     }
 
     private void updateButtons(ConnectJobRecord job, boolean complete, boolean passed) {
-
         viewBinding.connectLearningReviewButton.setVisibility(View.GONE); // reserved for future logic
+        viewBinding.connectLearningButton.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
 
-        if (!showAppLaunch) {
-            viewBinding.connectLearningButton.setVisibility(View.GONE);
-            return;
+        if (showAppLaunch) {
+            if (complete && passed) {
+                configureJobDetailsButton();
+            } else if (AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+                configureLaunchLearningButton();
+            } else {
+                configureDownloadButton();
+            }
         }
+    }
 
-        String buttonText;
-        NavDirections navDirections = null;
+    private void configureJobDetailsButton() {
+        viewBinding.connectLearningButton.setText(getString(R.string.connect_learn_view_details));
+        viewBinding.connectLearningButton.setOnClickListener(
+                v -> Navigation.findNavController(v).navigate(ConnectLearningProgressFragmentDirections
+                        .actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
+                        true)));
+    }
 
-        if (complete && passed) {
-            viewBinding.connectLearningButton.setVisibility(View.VISIBLE);
-            buttonText = getString(R.string.connect_learn_view_details);
-            navDirections =
-                    ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
-                            true);
-        } else if (AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
-            buttonText = complete ? getString(R.string.connect_learn_go_to_assessment) : getString(
-                    R.string.connect_learn_continue);
-            viewBinding.connectLearningButton.setVisibility(View.VISIBLE);
-            viewBinding.connectLearningButton.setOnClickListener(v -> {
-                CommCareApplication.instance().closeUserSession();
-                ConnectAppUtils.INSTANCE.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
-            });
-            return;
-        } else {
-            buttonText = getString(R.string.connect_downloading_learn);
-            navDirections =
-                    ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
-                            buttonText, true);
-        }
+    private void configureLaunchLearningButton() {
+        viewBinding.connectLearningButton.setText(getString(R.string.connect_learn_continue));
+        viewBinding.connectLearningButton.setOnClickListener(v -> {
+            CommCareApplication.instance().closeUserSession();
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), true, job.getLearnAppInfo().getAppId());
+        });
+    }
 
-        viewBinding.connectLearningButton.setText(buttonText);
-        if (navDirections != null) {
-            NavDirections finalDirections = navDirections;
-            viewBinding.connectLearningButton.setOnClickListener(
-                    v -> Navigation.findNavController(v).navigate(finalDirections));
-        }
+    private void configureDownloadButton() {
+        viewBinding.connectLearningButton.setText(getString(R.string.connect_download_learn));
+        viewBinding.connectLearningButton.setOnClickListener(
+                v -> Navigation.findNavController(v).navigate(ConnectLearningProgressFragmentDirections
+                        .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
+                                getString(R.string.connect_downloading_learn), true)));
     }
 
     private void updateLearningStatus(ConnectJobRecord job, boolean complete, boolean passed, boolean attempted) {

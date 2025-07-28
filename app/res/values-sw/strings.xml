@@ -336,6 +336,7 @@
     <string name="connect_progress_warning_daily_max_reached_single">Umefikia idadi ya juu zaidi ya kutembelewa kwa leo. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_progress_warning_max_reached_multi">Umefikia idadi ya juu zaidi ya kutembelewa kwa %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Umefikia kikomo chako cha kila siku kwa %s.</string>
+    <string name="connect_download_learn">Pakua Programu ya Jifunze</string>
     <string name="connect_downloading_learn">Inapakua Programu ya Jifunze</string>
     <string name="connect_downloading_delivery">Inapakua Programu ya Uwasilishaji</string>
     <string name="connect_results_summary_earned">Imelipwa</string>

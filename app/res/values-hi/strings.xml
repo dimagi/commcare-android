@@ -332,6 +332,7 @@ License.
     <string name="connect_progress_warning_daily_max_reached_single">आप आज के लिए अधिकतम विज़िट तक पहुँच गए हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
     <string name="connect_progress_warning_max_reached_multi">आप %s के लिए अधिकतम विज़िट तक पहुँच गए हैं।</string>
     <string name="connect_progress_warning_daily_max_reached_multi">आप %s के लिए अपनी दैनिक सीमा तक पहुँच गए हैं।</string>
+    <string name="connect_download_learn">लर्न ऐप डाउनलोड करें</string>
     <string name="connect_downloading_learn">Learn ऐप डाउनलोड हो रहा है</string>
     <string name="connect_downloading_delivery">वितरण ऐप डाउनलोड हो रहा है</string>
     <string name="connect_results_summary_earned">अर्जित</string>
