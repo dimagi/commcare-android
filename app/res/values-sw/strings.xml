@@ -333,7 +333,7 @@
     <string name="connect_progress_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_progress_warning_not_started">Kazi bado haijaanza. Hutapata maendeleo yoyote kwa kazi.</string>
     <string name="connect_progress_warning_max_reached_single">Umekamilisha idadi ya juu zaidi ya kutembelea. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Umefikia idadi ya juu zaidi ya kutembelewa kwa leo. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Umefikia idadi yako ya juu zaidi ya kutembelewa leo. Huenda usiweze kufikia majukumu yoyote zaidi.</string>
     <string name="connect_progress_warning_max_reached_multi">Umefikia idadi ya juu zaidi ya kutembelewa kwa %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Umefikia kikomo chako cha kila siku kwa %s.</string>
     <string name="connect_downloading_learn">Inapakua Programu ya Jifunze</string>
