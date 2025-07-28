@@ -219,23 +219,14 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
                                boolean paymentStatus, OnDialogResultListener dialogResultListener) {
             final Dialog dialog = new Dialog(context);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
             DialogPaymentConfirmationBinding binding = DialogPaymentConfirmationBinding.inflate(
                     LayoutInflater.from(context));
             dialog.setContentView(binding.getRoot());
 
-            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-            layoutParams.copyFrom(dialog.getWindow().getAttributes());
-            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-
-            int marginInPx = (int)(10 * context.getResources().getDisplayMetrics().density);
-            layoutParams.horizontalMargin = marginInPx /
-                    (float) context.getResources().getDisplayMetrics().widthPixels;
-            dialog.getWindow().setAttributes(layoutParams);
             dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().getDecorView().setPadding(marginInPx, 0, marginInPx, 0);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
             binding.imgPaymentStatus.setImageDrawable(statusIcon);
             binding.tvPaymentConfirmationTitle.setText(title);
