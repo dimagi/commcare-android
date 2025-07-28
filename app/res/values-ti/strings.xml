@@ -239,7 +239,7 @@
     <string name="busy_message">ሕጂ ውን ቅድሚ ሕጂ ዝገበርካዮ ሕቶ ኣብ ምስራሕ ተጸሚድና ኣለና። በጃኻ ድሕሪ ውሱን ግዜ ደጊምካ ፈትን።</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
-    <string name="connect_registration_title">ብ PersonalID ጀምር</string>
+    <string name="connect_registration_title">PersonalId ምዝገባ</string>
     <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
     <string name="connect_phone_country_code_default">1</string>
     <string name="connect_phone_number_hint">0</string>
