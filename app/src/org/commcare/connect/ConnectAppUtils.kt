@@ -138,7 +138,7 @@ object ConnectAppUtils {
         val charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?"
         val secureRandom = SecureRandom()
         val password = StringBuilder(passwordLength)
-        for (i in 0..<passwordLength) {
+        for (i in 0 until passwordLength) {
             password.append(charSet[secureRandom.nextInt(charSet.length)])
         }
 
