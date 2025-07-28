@@ -127,21 +127,24 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment {
 
         private void setupPaymentAction(PaymentViewHolder holder, ConnectJobPaymentRecord payment, String money,
                                         boolean isConfirmation, int iconResId, int titleResId) {
-            View.OnClickListener listener = v -> showDialog(
-                    context,
-                    ContextCompat.getDrawable(context, iconResId),
-                    context.getString(titleResId),
-                    money,
-                    ConnectDateUtils.INSTANCE.paymentDateFormat(payment.getDate()),
+            View.OnClickListener listener = v -> showDialog(context,
+                    ContextCompat.getDrawable(context, iconResId), context.getString(titleResId),
+                    money, ConnectDateUtils.INSTANCE.paymentDateFormat(payment.getDate()),
                     isConfirmation,
-                    result -> ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, result,
-                            success -> holder.updateConfirmedText(context, payment))
+                    result -> handleConfirmationDialogResult(holder, payment, result)
             );
+
             if (isConfirmation) {
                 holder.confirmText.setOnClickListener(listener);
             } else {
                 holder.llRevertPayment.setOnClickListener(listener);
             }
+        }
+
+        private void handleConfirmationDialogResult(PaymentViewHolder holder, ConnectJobPaymentRecord payment,
+                                        boolean result) {
+            ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, result,
+                    success -> holder.updateConfirmedText(context, payment));
         }
 
         @Override
