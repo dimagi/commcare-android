@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.processing.SurfaceProcessorNode;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
@@ -24,6 +25,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
 import org.commcare.fragments.RefreshableFragment;
+import org.commcare.modern.util.Pair;
 
 import java.util.Date;
 import java.util.List;
@@ -181,36 +183,40 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
     }
 
     private void updateLearningStatus(ConnectJobRecord job, boolean complete, boolean passed, boolean attempted) {
-        int titleRes;
-        String status;
+        Pair<Integer, String> status = getLearningStatus(job, complete, passed, attempted);
+        viewBinding.connectLearnProgressTitle.setText(getString(status.first));
+        viewBinding.connectLearningStatusText.setText(status.second);
 
-        if (complete) {
-            if (attempted) {
-                if (passed) {
-                    titleRes = R.string.connect_learn_complete_title;
-                    status = getString(R.string.connect_learn_finished, job.getAssessmentScore(),
-                            job.getLearnAppInfo().getPassingScore());
-                } else {
-                    titleRes = R.string.connect_learn_failed_title;
-                    status = getString(R.string.connect_learn_failed, job.getAssessmentScore(),
-                            job.getLearnAppInfo().getPassingScore());
+        viewBinding.connectLearningEndedText.setVisibility(job.isFinished() ? View.VISIBLE : View.GONE);
+    }
+
+    private Pair<Integer, String> getLearningStatus(ConnectJobRecord job, boolean learningComplete,
+                                                    boolean passedAssessment, boolean attemptedAssessment) {
+        if (learningComplete) {
+            if (attemptedAssessment) {
+                if (passedAssessment) {
+                    return new Pair<>(R.string.connect_learn_complete_title,
+                            getString(R.string.connect_learn_finished, job.getAssessmentScore(),
+                                    job.getLearnAppInfo().getPassingScore()));
                 }
-            } else {
-                titleRes = R.string.connect_learn_need_assessment_title;
-                status = getString(R.string.connect_learn_need_assessment);
+
+                return new Pair<>(R.string.connect_learn_failed_title,
+                        getString(R.string.connect_learn_failed, job.getAssessmentScore(),
+                                job.getLearnAppInfo().getPassingScore()));
             }
-        } else if (job.getLearningPercentComplete() > 0) {
-            titleRes = R.string.connect_learn_progress_title;
-            status = getString(R.string.connect_learn_status, job.getCompletedLearningModules(),
-                    job.getNumLearningModules());
-        } else {
-            titleRes = R.string.connect_learn_progress_title;
-            status = getString(R.string.connect_learn_not_started);
+
+            return new Pair<>(R.string.connect_learn_need_assessment_title,
+                        getString(R.string.connect_learn_need_assessment));
         }
 
-        viewBinding.connectLearnProgressTitle.setText(getString(titleRes));
-        viewBinding.connectLearningStatusText.setText(status);
-        viewBinding.connectLearningEndedText.setVisibility(job.isFinished() ? View.VISIBLE : View.GONE);
+        if (job.getLearningPercentComplete() > 0) {
+            return new Pair<>(R.string.connect_learn_progress_title,
+                    getString(R.string.connect_learn_status, job.getCompletedLearningModules(),
+                            job.getNumLearningModules()));
+        }
+
+        return new Pair<>(R.string.connect_learn_progress_title,
+                getString(R.string.connect_learn_not_started));
     }
 
     private void populateJobCard(ConnectJobRecord job) {
