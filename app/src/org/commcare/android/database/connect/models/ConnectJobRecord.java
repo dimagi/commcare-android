@@ -1,6 +1,7 @@
 package org.commcare.android.database.connect.models;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
@@ -21,7 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -575,8 +576,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
 
-    public Hashtable<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
-        Hashtable<String, Integer> paymentCounts = new Hashtable<>();
+    public HashMap<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
+        HashMap<String, Integer> paymentCounts = new HashMap<>();
         for (int i = 0; i < deliveries.size(); i++) {
             ConnectJobDeliveryRecord delivery = deliveries.get(i);
             if(!todayOnly || DateUtils.dateDiff(new Date(), delivery.getDate()) == 0) {
@@ -623,8 +624,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     @Nullable
     private String getMultiVisitWarnings(Context context) {
-        Hashtable<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
-        Hashtable<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
+        HashMap<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
+        HashMap<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
         List<String> dailyMaxes = new ArrayList<>();
         List<String> totalMaxes = new ArrayList<>();
 
@@ -645,15 +646,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         List<String> lines = new ArrayList<>();
         if (!totalMaxes.isEmpty()) {
             lines.add(context.getString(R.string.connect_progress_warning_max_reached_multi,
-                    String.join(", ", totalMaxes)));
+                    TextUtils.join(", ", totalMaxes)));
         }
 
         if (!dailyMaxes.isEmpty()) {
             lines.add(context.getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                    String.join(", ", dailyMaxes)));
+                    TextUtils.join(", ", dailyMaxes)));
         }
 
-        return lines.isEmpty() ? null : String.join("\n", lines);
+        return lines.isEmpty() ? null : TextUtils.join("\n", lines);
     }
 
     public static ConnectJobRecord fromV10(ConnectJobRecordV10 oldRecord) {

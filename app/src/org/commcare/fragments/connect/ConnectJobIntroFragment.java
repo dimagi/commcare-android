@@ -1,6 +1,7 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,7 +89,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
         }
 
         return modules.isEmpty() ? getString(R.string.connect_job_no_learning_required) :
-                String.join("\r\n\r\n", lines);
+                TextUtils.join("\r\n\r\n", lines);
     }
 
     private void setupJobCard(ConnectJobRecord job) {

@@ -2,6 +2,7 @@ package org.commcare.fragments.connect;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -179,7 +180,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
                     for (ConnectJobDeliveryFlagRecord flag : delivery.getFlags()) {
                         flagDescriptions.add(flag.getDescription());
                     }
-                    return String.join(", ", flagDescriptions);
+                    return TextUtils.join(", ", flagDescriptions);
                 }
                 return "";
             }

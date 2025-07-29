@@ -24,7 +24,6 @@ import org.commcare.views.connect.CircleProgressBar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -68,7 +67,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
                 getString(R.string.connect_progress_status, completed, total));
 
         if (job.isMultiPayment() && completed > 0) {
-            Hashtable<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+            HashMap<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
 
             for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
                 String key = String.valueOf(unit.getUnitId());
