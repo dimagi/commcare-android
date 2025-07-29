@@ -28,7 +28,7 @@ public class ConnectLoginJobListModel {
     private int deliveryProgress;
     private JobListEntryType jobType;
     private String appType;
-    ConnectJobRecord job;
+    private ConnectJobRecord job;
 
     // Constructor
     public ConnectLoginJobListModel(
