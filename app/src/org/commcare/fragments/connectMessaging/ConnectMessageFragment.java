@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class ConnectMessageFragment extends Fragment {
-    public static String activeChannel;
+    private static String activeChannel;
     private String channelId;
     private FragmentConnectMessageBinding binding;
     private ConnectMessageAdapter adapter;
@@ -88,6 +89,11 @@ public class ConnectMessageFragment extends Fragment {
 
         // Stop the periodic API calls when the screen is not active
         handler.removeCallbacks(apiCallRunnable);
+    }
+
+    @Nullable
+    public static String getActiveChannel() {
+        return activeChannel;
     }
 
     private final BroadcastReceiver updateReceiver = new BroadcastReceiver() {

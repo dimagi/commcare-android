@@ -361,7 +361,7 @@ public class FirebaseMessagingUtil {
         LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
 
         if (!ConnectMessageChannelListFragment.isActive &&
-                !channelId.equals(ConnectMessageFragment.activeChannel)) {
+                !channelId.equals(ConnectMessageFragment.getActiveChannel())) {
             //Show push notification
             fcmMessageData.setNotificationTitle(context.getString(notificationTitleId));
             fcmMessageData.setNotificationText(notificationMessage);
