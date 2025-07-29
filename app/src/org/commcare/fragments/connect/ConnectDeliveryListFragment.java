@@ -46,7 +46,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentConnectDeliveryListBinding.inflate(inflater, container, false);
         unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
         requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
@@ -119,7 +119,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {
-        private final List<ConnectJobDeliveryRecord> deliveries;
+        private List<ConnectJobDeliveryRecord> deliveries;
         private final Context context;
 
         public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> deliveries) {
@@ -145,8 +145,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
         }
 
         public void updateDeliveries(List<ConnectJobDeliveryRecord> updatedList) {
-            deliveries.clear();
-            deliveries.addAll(updatedList);
+            deliveries = new ArrayList<>(updatedList);
             notifyDataSetChanged();
         }
 
