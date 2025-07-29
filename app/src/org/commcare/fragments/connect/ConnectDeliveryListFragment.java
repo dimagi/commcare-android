@@ -97,8 +97,10 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
     }
 
     private void setFilterHighlight(CardView card, TextView label, boolean selected) {
-        int bgColor = getResources().getColor(selected ? R.color.connect_blue_color : R.color.connect_blue_color_10);
-        int textColor = getResources().getColor(selected ? android.R.color.white : R.color.connect_blue_color);
+        int bgColor = ContextCompat.getColor(requireContext(), selected ?
+                R.color.connect_blue_color : R.color.connect_blue_color_10);
+        int textColor = ContextCompat.getColor(requireContext(), selected ?
+                android.R.color.white : R.color.connect_blue_color);
         card.setCardBackgroundColor(bgColor);
         label.setTextColor(textColor);
     }
