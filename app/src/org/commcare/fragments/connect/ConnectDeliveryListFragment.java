@@ -122,7 +122,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
 
         public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> deliveries) {
             this.context = context;
-            this.deliveries = deliveries;
+            this.deliveries = new ArrayList<>(deliveries);
         }
 
         @NonNull
