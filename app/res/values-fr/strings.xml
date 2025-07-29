@@ -330,7 +330,7 @@ License.
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez peut-être plus accéder aux tâches suivantes.</string>
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>

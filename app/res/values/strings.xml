@@ -439,7 +439,7 @@
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You may not earn any progress for additional work.</string>
     <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
