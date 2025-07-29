@@ -66,6 +66,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        viewBinding = null;
+    }
+
+    @Override
     public void refresh() {
         refreshLearningData();
     }
