@@ -26,6 +26,7 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ConnectDeliveryListFragment extends ConnectJobFragment {
     private static final String ALL_IDENTIFIER = "all";
@@ -188,7 +189,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
 
             private void updateStatusUI(Context context, String status) {
                 int bgResId, iconResId;
-                switch (status.toLowerCase()) {
+                switch (status.toLowerCase(Locale.ENGLISH)) {
                     case APPROVED_IDENTIFIER :
                         bgResId = R.drawable.shape_connect_delivery_approved;
                         iconResId = R.drawable.ic_connect_delivery_approved;
