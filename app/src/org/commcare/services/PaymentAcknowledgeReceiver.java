@@ -31,10 +31,10 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
             return;
         }
         CommCareFirebaseMessagingService.clearNotification(context);
-        UpdatePayment(context);
+        updatePayment(context);
     }
 
-    private void UpdatePayment(Context context) {
+    private void updatePayment(Context context) {
         ConnectJobRecord job = ConnectJobUtils.getCompositeJob(context, Integer.parseInt(opportunityId));
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(context, job, success -> {
             if (success) {
