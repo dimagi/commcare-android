@@ -42,6 +42,9 @@ public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<Conne
         if (summary.getPaymentUnitMaxDaily() > 0) {
             percentage = ((float) summary.getPaymentUnitAmount() / summary.getPaymentUnitMaxDaily()) * 100;
         }
+        if (summary.getPaymentUnitAmount() >= summary.getPaymentUnitMaxDaily()){
+            holder.lpPrimaryVisitProgress.setProgressColor(holder.lpPrimaryVisitProgress.getResources().getColor(R.color.green));
+        }
         holder.lpPrimaryVisitProgress.setProgress(percentage);
     }
 

@@ -140,8 +140,7 @@ public class MessageManager {
             @Override
 
             public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
-                //listener.connectActivityComplete(false);
-                getChannelEncryptionKey(context, channel, listener);
+                listener.connectActivityComplete(false);
             }
 
             @Override

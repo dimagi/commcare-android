@@ -109,7 +109,7 @@ object ConnectAppUtils {
         val passwordLength = 20
         val charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?"
         val secureRandom = SecureRandom()
-        return (1..passwordLength)
+        return (1 until passwordLength)
             .map { charSet[secureRandom.nextInt(charSet.length)] }
             .joinToString("")
     }
