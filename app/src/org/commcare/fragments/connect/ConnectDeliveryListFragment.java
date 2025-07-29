@@ -57,6 +57,12 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
     private void setupRecyclerView() {
         binding.deliveryList.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new DeliveryAdapter(getContext(), getFilteredDeliveries());
