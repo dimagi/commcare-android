@@ -326,18 +326,22 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         skipWorkManager = true;
     }
 
+    @Override
     public IDatabase createOrOpenGlobalDatabase() {
         return new UnencryptedDatabaseAdapter(new DatabaseGlobalOpenHelperMock(this));
     }
 
+    @Override
     public IDatabase createOrOpenUserDatabase(String userKeyRecordId, String key) {
         return new UnencryptedDatabaseAdapter(new DatabaseUserOpenHelperMock(this, userKeyRecordId));
     }
 
+    @Override
     public IDatabase openUserDatabase(String path, String password) {
         return new UnencryptedDatabaseAdapter(path);
     }
 
+    @Override
     public IDatabase createOrOpenAppDatabase(String appId) {
         return new UnencryptedDatabaseAdapter(new DatabaseAppOpenHelperMock(this, appId));
     }
