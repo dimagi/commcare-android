@@ -40,10 +40,12 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:orientation="horizontal">
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_user_profile"
                 android:layout_width="64dp"
                 android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/CircularImageView"
                 android:src="@drawable/nav_drawer_person_avatar"/>
             <LinearLayout
                 android:layout_width="wrap_content"

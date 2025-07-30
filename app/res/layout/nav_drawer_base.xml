@@ -1,22 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
-    android:layout_width="280dp"
-    tools:openDrawer="start"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <!-- 🖼️ Main content goes here -->
+    <FrameLayout
+        android:id="@+id/nav_drawer_frame"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <include
-            layout="@layout/nav_drawer_header"/>
+        android:layout_height="match_parent" />
+
+    <!-- 📂 This is your drawer panel -->
+    <LinearLayout
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/cc_brand_color"
+        android:layout_gravity="start">
+
+        <include layout="@layout/nav_drawer_header"/>
+
         <LinearLayout
             android:id="@+id/signout_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/cc_brand_color"
             android:orientation="vertical"
             android:visibility="gone"
             android:paddingTop="92dp"
@@ -27,14 +33,16 @@
                 android:layout_gravity="center"
                 android:src="@drawable/nav_drawer_logged_out_avatar"/>
             <TextView
+                android:id="@+id/nav_drawer_sign_in_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:focusable="true"
                 android:textSize="14sp"
                 android:layout_gravity="center"
                 android:paddingTop="16dp"
+                android:clickable="true"
                 android:textColor="@color/white"
                 android:text="@string/left_navigation_menu_not_signed_in_to_personal_id"/>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,16 +54,13 @@
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:visibility="visible"
             android:id="@+id/signin_view"
-            android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="visible"
             android:background="@color/cc_brand_color"/>
 
-        <include
-            layout="@layout/nav_drawer_footer"/>
-        
+        <include layout="@layout/nav_drawer_footer"/>
     </LinearLayout>
-
 </androidx.drawerlayout.widget.DrawerLayout>

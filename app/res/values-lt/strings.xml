@@ -76,7 +76,7 @@
     <string name="change_settings">Change Settings</string>
     <string name="left_navigation_menu_signin_register"><u>Accedi / Registrati</u></string>
     <string name="left_navigation_menu_help">Aiuto</string>
-    <string name="left_navigation_menu_not_signed_in_to_personal_id">Non hai effettuato l’accesso all'ID personale</string>
+    <string name="left_navigation_menu_not_signed_in_to_personal_id">Non hai effettuato l’accesso all\ID personale</string>
     <string name="left_navigation_menu_opportunities">Opportunità</string>
     <string name="left_navigation_menu_commcare_apps">App CommCare</string>
     <string name="left_navigation_menu_work_history">Storico lavorativo</string>
