@@ -13,7 +13,6 @@ import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavGraph;
@@ -29,7 +28,6 @@ import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connect.ConnectDownloadingFragment;
 import org.commcare.tasks.ResourceEngineListener;
@@ -164,11 +162,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
     public void updateMessagingIcon() {
         if(messagingMenuItem != null) {
-            int icon = R.drawable.ic_connect_messaging_base;
-            if(ConnectMessagingDatabaseHelper.getUnviewedMessages(this).size() > 0) {
-                icon = R.drawable.ic_connect_messaging_unread;
-            }
-            messagingMenuItem.setIcon(ResourcesCompat.getDrawable(getResources(), icon, null));
+            messagingMenuItem.setIcon(MessageManager.getMessagingIcon(this));
         }
     }
 
