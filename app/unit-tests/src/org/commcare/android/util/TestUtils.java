@@ -210,7 +210,7 @@ public class TestUtils {
      * @return The hook for the test user-db
      */
     private static IDatabase getTestDb() {
-        return ((CommCareApplication)ApplicationProvider.getApplicationContext()).createOrOpenUserDatabase("Test", "Test");
+        return ((CommCareApplication)ApplicationProvider.getApplicationContext()).getUserDbOpenHelper("Test", "Test");
     }
 
     public static PrototypeFactory getStaticPrototypeFactory() {

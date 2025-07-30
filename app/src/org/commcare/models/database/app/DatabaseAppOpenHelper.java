@@ -25,14 +25,13 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mAppId;
-    private final String key;
+    private final String key = "null";
 
-    public DatabaseAppOpenHelper(Context context, String appId, String key) {
-        super(context, getDbName(appId), key, null, DB_VERSION_APP, 0, null, null, false);
+    public DatabaseAppOpenHelper(Context context, String appId) {
+        super(context, getDbName(appId), "null", null, DB_VERSION_APP, 0, null, null, false);
 
         this.mAppId = appId;
         this.context = context;
-        this.key = key;
     }
 
     @Override

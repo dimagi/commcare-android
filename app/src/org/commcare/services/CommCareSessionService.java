@@ -235,7 +235,7 @@ public class CommCareSessionService extends Service {
                 userDatabase.close();
             }
 
-            userDatabase = CommCareApplication.instance().createOrOpenUserDatabase(userKeyRecordUUID, UserSandboxUtils.getSqlCipherEncodedKey(key));
+            userDatabase = CommCareApplication.instance().getUserDbOpenHelper(userKeyRecordUUID, UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
 

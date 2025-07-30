@@ -327,22 +327,22 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public IDatabase createOrOpenGlobalDatabase() {
+    public IDatabase getGlobalDbOpenHelper() {
         return new UnencryptedDatabaseAdapter(new DatabaseGlobalOpenHelperMock(this));
     }
 
     @Override
-    public IDatabase createOrOpenUserDatabase(String userKeyRecordId, String key) {
+    public IDatabase getUserDbOpenHelper(String userKeyRecordId, String key) {
         return new UnencryptedDatabaseAdapter(new DatabaseUserOpenHelperMock(this, userKeyRecordId));
     }
 
     @Override
-    public IDatabase openUserDatabase(String path, String password) {
+    public IDatabase getUserDbOpenHelperFromFile(String path, String password) {
         return new UnencryptedDatabaseAdapter(path);
     }
 
     @Override
-    public IDatabase createOrOpenAppDatabase(String appId) {
+    public IDatabase getAppDbOpenHelper(String appId) {
         return new UnencryptedDatabaseAdapter(new DatabaseAppOpenHelperMock(this, appId));
     }
 }

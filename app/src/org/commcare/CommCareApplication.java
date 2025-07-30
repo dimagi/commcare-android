@@ -114,7 +114,6 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
-import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -593,7 +592,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private int initGlobalDb() {
         IDatabase database;
         try {
-            database = createOrOpenGlobalDatabase();
+            database = getGlobalDbOpenHelper();
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
@@ -622,7 +621,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             public IDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
                     if (globalDatabase == null || !globalDatabase.isOpen()) {
-                        globalDatabase = createOrOpenGlobalDatabase();
+                        globalDatabase = getGlobalDbOpenHelper();
                     }
                     return globalDatabase;
                 }
@@ -1246,19 +1245,19 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
-    public IDatabase createOrOpenGlobalDatabase() {
-        return new EncryptedDatabaseAdapter(new DatabaseGlobalOpenHelper(this, "null"));
+    public IDatabase getGlobalDbOpenHelper() {
+        return new EncryptedDatabaseAdapter(new DatabaseGlobalOpenHelper(this));
     }
 
-    public IDatabase createOrOpenUserDatabase(String userKeyRecordId, String key) {
+    public IDatabase getUserDbOpenHelper(String userKeyRecordId, String key) {
         return new EncryptedDatabaseAdapter(new DatabaseUserOpenHelper(this, userKeyRecordId, key));
     }
 
-    public IDatabase openUserDatabase(String path, String password) {
+    public IDatabase getUserDbOpenHelperFromFile(String path, String password) {
         return new EncryptedDatabaseAdapter(path, password);
     }
 
-    public IDatabase createOrOpenAppDatabase(String appId) {
-        return new EncryptedDatabaseAdapter(new DatabaseAppOpenHelper(this, appId, "null"));
+    public IDatabase getAppDbOpenHelper(String appId) {
+        return new EncryptedDatabaseAdapter(new DatabaseAppOpenHelper(this, appId));
     }
 }

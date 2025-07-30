@@ -403,7 +403,7 @@ public class CommCareApp implements AppFilePathBuilder {
             public IDatabase getHandle() {
                 synchronized (appDbHandleLock) {
                     if (appDatabase == null || !appDatabase.isOpen()) {
-                        appDatabase = CommCareApplication.instance().createOrOpenAppDatabase(record.getApplicationId());
+                        appDatabase = CommCareApplication.instance().getAppDbOpenHelper(record.getApplicationId());
                     }
                     return appDatabase;
                 }

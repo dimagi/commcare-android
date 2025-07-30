@@ -22,12 +22,11 @@ import static org.commcare.models.database.global.GlobalDatabaseSchemaManager.GL
 public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
     private final Context mContext;
-    private final String key;
+    private final String key = "null";
 
-    public DatabaseGlobalOpenHelper(Context context, String key) {
+    public DatabaseGlobalOpenHelper(Context context) {
         super(context, GLOBAL_DB_LOCATOR, "null", null, GLOBAL_DB_VERSION, 0, null, null, false);
         this.mContext = context;
-        this.key = key;
     }
 
     @Override
