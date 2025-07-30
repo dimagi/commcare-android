@@ -315,9 +315,7 @@ public class DispatchActivity extends AppCompatActivity {
 
     private boolean getLaunchedFromConnect() {
         boolean launchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
-        if(launchedFromConnect) {
-            getIntent().removeExtra(IS_LAUNCH_FROM_CONNECT);
-        }
+        getIntent().removeExtra(IS_LAUNCH_FROM_CONNECT);
         return launchedFromConnect;
     }
 
