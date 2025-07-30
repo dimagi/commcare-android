@@ -3,6 +3,9 @@ package org.commcare.fragments.connect;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,12 +17,16 @@ import com.google.common.base.Strings;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.connect.ConnectDateUtils;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 
@@ -49,9 +56,9 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
         binding = FragmentConnectDeliveryListBinding.inflate(inflater, container, false);
         unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
         requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
-
         setupRecyclerView();
         setupFilterControls();
+        setupMenuProvider();
         return binding.getRoot();
     }
 
@@ -93,6 +100,32 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
             case PENDING_IDENTIFIER -> R.id.pendingFilterButton;
             default -> R.id.allFilterButton;
         };
+    }
+
+    private void setupMenuProvider() {
+        MenuHost host = requireActivity();
+        host.addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.action_sync) {
+                    refreshData();
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    }
+
+    private void refreshData() {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
+            if (success) {
+                adapter.updateDeliveries(getFilteredDeliveries());
+            }
+        });
     }
 
     private void setFilterHighlight(CardView card, TextView label, boolean selected) {
