@@ -81,6 +81,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         aboutCommcare = findViewById(R.id.about_view)
         helpButton = findViewById(R.id.help_view)
         signInView = navDrawerRecycler
+        helpButton.visibility = View.GONE
     }
 
     private fun setupActionBarDrawerToggle() {
@@ -98,6 +99,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                     inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
                     it.clearFocus()
                 }
+                setupDrawer()
             }
         }
         drawerLayout.addDrawerListener(drawerToggle)
@@ -197,9 +199,12 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun setUpListener() {
-        registerTextView.setOnClickListener { registerPersonalIdUser() }
+        registerTextView.setOnClickListener {
+            registerPersonalIdUser()
+            closeDrawer()
+        }
         aboutCommcare.setOnClickListener { showAboutCommCareDialog() }
-        closeIcon.setOnClickListener { drawerLayout.closeDrawer(GravityCompat.START) }
+        closeIcon.setOnClickListener { closeDrawer() }
         helpButton.setOnClickListener { /* Future Help Action */ }
     }
 
@@ -231,6 +236,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
     }
 
+    private fun closeDrawer() {
+        drawerLayout.closeDrawer(GravityCompat.START)
+    }
+
     private fun showAboutCommCareDialog() {
         val dialog = DialogCreationHelpers.buildAboutCommCareDialog(this)
         dialog.makeCancelable()
@@ -240,20 +249,5 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (drawerToggle.onOptionsItemSelected(item)) true
         else super.onOptionsItemSelected(item)
-    }
-
-    /**
-     * Flattens a list of parent items into a single list of displayable items
-     * including children (only if expanded).
-     */
-    private fun flattenDrawerItems(items: List<NavDrawerItem.NavDrawerParentItem>): List<NavDrawerItem> {
-        val flatList = mutableListOf<NavDrawerItem>()
-        for (item in items) {
-            flatList.add(item)
-            if (item.isExpanded) {
-                flatList.addAll(item.children)
-            }
-        }
-        return flatList
     }
 }
