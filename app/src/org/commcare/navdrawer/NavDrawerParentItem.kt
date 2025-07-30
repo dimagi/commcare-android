@@ -1,15 +1,15 @@
 package org.commcare.navdrawer
 
 sealed class NavDrawerItem {
-    data class NavDrawerParentItem(
+    data class ParentItem(
         val title: String,
         val iconResId: Int,
         val type: BaseDrawerActivity.NavItemType,
         var isExpanded: Boolean = false,
-        val children: List<NavDrawerChildItem> = emptyList()
+        val children: List<ChildItem> = emptyList()
     ) : NavDrawerItem()
 
-    data class NavDrawerChildItem(
+    data class ChildItem(
         val childTitle: String,
         val recordId: String
     ) : NavDrawerItem()

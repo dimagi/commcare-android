@@ -42,10 +42,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private lateinit var userName: TextView
     private lateinit var userPhoto: ImageView
 
-    protected lateinit var drawerToggle: ActionBarDrawerToggle
-    protected lateinit var closeIcon: ImageView
-    protected lateinit var aboutCommcare: LinearLayout
-    protected lateinit var helpButton: LinearLayout
+    private lateinit var drawerToggle: ActionBarDrawerToggle
+    private lateinit var closeIcon: ImageView
+    private lateinit var aboutCommcare: LinearLayout
+    private lateinit var helpButton: LinearLayout
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -125,7 +125,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     /** Override this to control which CommCare applications appear */
-    protected open fun loadVisibleCommcareApplications(): List<ApplicationRecord> {
+    private fun loadVisibleCommcareApplications(): List<ApplicationRecord> {
         return MultipleAppsUtil.getUsableAppRecords()
     }
 
@@ -152,34 +152,34 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             userPhoto.setImageResource(R.drawable.nav_drawer_person_avatar)
         }
 
-        val navDrawerChildItems = loadVisibleCommcareApplications().map {
-            NavDrawerItem.NavDrawerChildItem(it.displayName, it.uniqueId)
+        val childItems = loadVisibleCommcareApplications().map {
+            NavDrawerItem.ChildItem(it.displayName, it.uniqueId)
         }
 
         val parentList = listOf(
-            NavDrawerItem.NavDrawerParentItem(
+            NavDrawerItem.ParentItem(
                 getString(R.string.left_navigation_menu_opportunities),
                 R.drawable.startup_url,
                 NavItemType.OPPORTUNITIES
             ),
-            NavDrawerItem.NavDrawerParentItem(
+            NavDrawerItem.ParentItem(
                 getString(R.string.left_navigation_menu_commcare_apps),
                 R.drawable.commcare_actionbar_logo,
                 NavItemType.COMMCARE_APPS,
                 false,
-                navDrawerChildItems
+                childItems
             ),
-            NavDrawerItem.NavDrawerParentItem(
+            NavDrawerItem.ParentItem(
                 getString(R.string.left_navigation_menu_work_history),
                 R.drawable.nav_drawer_worker_history_icon,
                 NavItemType.WORK_HISTORY
             ),
-            NavDrawerItem.NavDrawerParentItem(
+            NavDrawerItem.ParentItem(
                 getString(R.string.connect_messaging_title),
                 R.drawable.nav_drawer_message_icon,
                 NavItemType.MESSAGING
             ),
-            NavDrawerItem.NavDrawerParentItem(
+            NavDrawerItem.ParentItem(
                 getString(R.string.left_navigation_menu_payments),
                 R.drawable.nav_drawer_payments_icon,
                 NavItemType.PAYMENTS

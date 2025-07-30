@@ -22,9 +22,9 @@ import org.commcare.dalvik.R
  */
 class NavDrawerAdapter(
     private val context: Context,
-    private var recyclerList: List<NavDrawerItem.NavDrawerParentItem>,
-    private val onParentClick: (NavDrawerItem.NavDrawerParentItem) -> Unit,
-    private val onChildClick: (NavDrawerItem.NavDrawerChildItem) -> Unit
+    private var recyclerList: List<NavDrawerItem.ParentItem>,
+    private val onParentClick: (NavDrawerItem.ParentItem) -> Unit,
+    private val onChildClick: (NavDrawerItem.ChildItem) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var displayList: List<NavDrawerItem> = flattenDrawerItems(recyclerList)
@@ -36,8 +36,8 @@ class NavDrawerAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (displayList[position]) {
-            is NavDrawerItem.NavDrawerParentItem -> TYPE_PARENT
-            is NavDrawerItem.NavDrawerChildItem -> TYPE_CHILD
+            is NavDrawerItem.ParentItem -> TYPE_PARENT
+            is NavDrawerItem.ChildItem -> TYPE_CHILD
         }
     }
 
@@ -54,8 +54,8 @@ class NavDrawerAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = displayList[position]) {
-            is NavDrawerItem.NavDrawerParentItem -> (holder as ParentViewHolder).bind(item)
-            is NavDrawerItem.NavDrawerChildItem -> (holder as ChildViewHolder).bind(item)
+            is NavDrawerItem.ParentItem -> (holder as ParentViewHolder).bind(item)
+            is NavDrawerItem.ChildItem -> (holder as ChildViewHolder).bind(item)
         }
     }
 
@@ -72,7 +72,7 @@ class NavDrawerAdapter(
         /**
          * Binds a parent item and sets up click listener to toggle expansion.
          */
-        fun bind(item: NavDrawerItem.NavDrawerParentItem) {
+        fun bind(item: NavDrawerItem.ParentItem) {
             title.text = item.title
             icon.setImageResource(item.iconResId)
             if (item.children.isNotEmpty()) {
@@ -102,7 +102,7 @@ class NavDrawerAdapter(
         /**
          * Binds a child item and sets up click listener.
          */
-        fun bind(item: NavDrawerItem.NavDrawerChildItem) {
+        fun bind(item: NavDrawerItem.ChildItem) {
             childText.text = item.childTitle
             itemView.setOnClickListener { onChildClick(item) }
         }
@@ -120,7 +120,7 @@ class NavDrawerAdapter(
      * Flattens a list of parent items into a single list of displayable items
      * including children (only if expanded).
      */
-    fun flattenDrawerItems(items: List<NavDrawerItem.NavDrawerParentItem>): List<NavDrawerItem> {
+    fun flattenDrawerItems(items: List<NavDrawerItem.ParentItem>): List<NavDrawerItem> {
         val flatList = mutableListOf<NavDrawerItem>()
         for (item in items) {
             flatList.add(item)
