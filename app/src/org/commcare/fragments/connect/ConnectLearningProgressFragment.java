@@ -7,6 +7,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuHost;
@@ -91,6 +92,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         ConnectJobHelper.INSTANCE.updateLearningProgress(requireContext(), job, success -> {
             if (success && isAdded()) {
                 updateLearningUI();
+            } else if (!success && isAdded()) {
+                Toast.makeText(
+                        requireContext(),
+                        getString(R.string.connect_fetch_learning_progress_error),
+                        Toast.LENGTH_LONG
+                ).show();
             }
         });
     }

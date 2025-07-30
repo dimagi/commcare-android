@@ -42,7 +42,7 @@ class BaseApi {
                         }
                     } else {
                         // Handle validation errors
-                        logFailedResponse(response)
+                        logFailedResponse(response, endPoint)
                         val stream = if (response.errorBody() != null) response.errorBody()!!
                             .byteStream() else null
                         callback.processFailure(response.code(), stream, endPoint)
@@ -52,7 +52,7 @@ class BaseApi {
                 override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
                     dismissProgressDialog(context)
                     // Handle network errors, etc.
-                    logNetworkError(t)
+                    logNetworkError(t, endPoint)
                     callback.processNetworkFailure()
                 }
             })
@@ -63,11 +63,7 @@ class BaseApi {
             if (context is CommCareActivity<*>) {
                 val handler = Handler(context.getMainLooper())
                 handler.post {
-                    try {
-                        (context as CommCareActivity<*>).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID)
-                    } catch (e: Exception) {
-                        //Ignore, ok if showing fails
-                    }
+                    (context as CommCareActivity<*>).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID)
                 }
             }
         }
@@ -82,9 +78,9 @@ class BaseApi {
         }
 
 
-        fun logFailedResponse(response: Response<*>) {
+        fun logFailedResponse(response: Response<*>, endPoint: String) {
             val message = response.message()
-            val errorMessage = when (response.code()) {
+            var errorMessage = when (response.code()) {
                 400 -> "Bad Request: $message"
                 401 -> "Unauthorized: $message"
                 404 -> "Not Found: $message"
@@ -92,6 +88,7 @@ class BaseApi {
                 else -> "API Error: $message"
 
             }
+            errorMessage += " for url ${endPoint ?: "url not found"}"
 
             Logger.log(
                 LogTypes.TYPE_ERROR_SERVER_COMMS,
@@ -101,15 +98,16 @@ class BaseApi {
         }
 
 
-        fun logNetworkError(t: Throwable) {
+        fun logNetworkError(t: Throwable, endPoint: String) {
             val message = t.message
 
-            val errorMessage = when (t) {
+            var errorMessage = when (t) {
                 is IOException -> "Network Error: $message"
                 is HttpException -> "HTTP Error: $message"
                 else -> "Unexpected Error: $message"
             }
 
+            errorMessage += " for url ${endPoint ?: "url not found"}"
             Logger.log(
                 LogTypes.TYPE_ERROR_SERVER_COMMS,
                 errorMessage

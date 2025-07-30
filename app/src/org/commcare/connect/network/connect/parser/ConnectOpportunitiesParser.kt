@@ -14,10 +14,10 @@ import java.io.InputStream
 
 class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
 
-    var corruptJobs: ArrayList<ConnectLoginJobListModel> = ArrayList()
-    val jobs: ArrayList<ConnectJobRecord> = ArrayList()
 
-    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject:Any?): T {
+    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
+        val corruptJobs: ArrayList<ConnectLoginJobListModel> = ArrayList()
+        val jobs: ArrayList<ConnectJobRecord> = ArrayList()
         try {
             responseData.use { `in` ->
                 val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
@@ -31,7 +31,7 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
                             jobs.add(ConnectJobRecord.fromJson(obj))
                         } catch (e: JSONException) {
                             Logger.exception("Parsing return from Opportunities request", e)
-                            handleCorruptJob(obj)
+                            handleCorruptJob(obj, corruptJobs)
                         }
                     }
                 }
@@ -40,12 +40,12 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
             throw RuntimeException(e)
         }
 
-        return ConnectOpportunitiesResponseModel(jobs,corruptJobs) as T
+        return ConnectOpportunitiesResponseModel(jobs, corruptJobs) as T
 
 
     }
 
-    private fun handleCorruptJob(obj: JSONObject?) {
+    private fun handleCorruptJob(obj: JSONObject?,corruptJobs: ArrayList<ConnectLoginJobListModel>) {
         if (obj != null) {
             try {
                 corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobfromJson(obj)))

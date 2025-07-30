@@ -14,15 +14,15 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Date
 
-class DeliveryAppProgressResponseParser <T>() : BaseApiResponseParser<T> {
+class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
 
-    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject:Any?): T {
+    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
 
         val job = anyInputObject as ConnectJobRecord
 
         var updatedJob = false
-        var hasDeliveries=false
-        var hasPayment=false
+        var hasDeliveries = false
+        var hasPayment = false
 
         responseData.use { `in` ->
 
@@ -32,28 +32,25 @@ class DeliveryAppProgressResponseParser <T>() : BaseApiResponseParser<T> {
                     //Parse the JSON
                     val json = JSONObject(responseAsString)
 
-
-                    var key = "max_payments"
-                    if (json.has(key)) {
-                        job.maxVisits = json.getInt(key)
+                    if (json.has("max_payments")) {
+                        job.maxVisits = json.getInt("max_payments")
                         updatedJob = true
                     }
 
-                    key = "end_date"
-                    if (json.has(key)) {
-                        job.projectEndDate = DateUtils.parseDate(json.getString(key))
+                    if (json.has("end_date")) {
+                        job.projectEndDate = DateUtils.parseDate(json.getString("end_date"))
                         updatedJob = true
                     }
 
-                    key = "payment_accrued"
-                    if (json.has(key)) {
-                        job.paymentAccrued = json.getInt(key)
+
+                    if (json.has("payment_accrued")) {
+                        job.paymentAccrued = json.getInt("payment_accrued")
                         updatedJob = true
                     }
 
-                    key = "is_user_suspended"
-                    if (json.has(key)) {
-                        job.isUserSuspended = json.getBoolean(key)
+
+                    if (json.has("is_user_suspended")) {
+                        job.isUserSuspended = json.getBoolean("is_user_suspended")
                         updatedJob = true
                     }
 
@@ -63,11 +60,11 @@ class DeliveryAppProgressResponseParser <T>() : BaseApiResponseParser<T> {
 
                     val deliveries: MutableList<ConnectJobDeliveryRecord> =
                         ArrayList(json.length())
-                    key = "deliveries"
-                    if (json.has(key)) {
-                        hasDeliveries=true
-                        val array = json.getJSONArray(key)
-                        for (i in 0..<array.length()) {
+
+                    if (json.has("deliveries")) {
+                        hasDeliveries = true
+                        val array = json.getJSONArray("deliveries")
+                        for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
                             deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.jobId))
                         }
@@ -76,11 +73,11 @@ class DeliveryAppProgressResponseParser <T>() : BaseApiResponseParser<T> {
                     }
 
                     val payments: MutableList<ConnectJobPaymentRecord> = ArrayList()
-                    key = "payments"
-                    if (json.has(key)) {
-                        hasPayment=true
-                        val array = json.getJSONArray(key)
-                        for (i in 0..<array.length()) {
+
+                    if (json.has("payments")) {
+                        hasPayment = true
+                        val array = json.getJSONArray("payments")
+                        for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
                             payments.add(ConnectJobPaymentRecord.fromJson(obj, job.jobId))
                         }
@@ -93,6 +90,6 @@ class DeliveryAppProgressResponseParser <T>() : BaseApiResponseParser<T> {
             }
         }
 
-        return DeliveryAppProgressResponseModel(updatedJob,hasDeliveries,hasPayment) as T
+        return DeliveryAppProgressResponseModel(updatedJob, hasDeliveries, hasPayment) as T
     }
 }

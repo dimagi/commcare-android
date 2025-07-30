@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -190,7 +191,14 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
                     updateWarningMessage();
                     updatePaymentConfirmationTile(false);
                     viewPagerAdapter.refresh();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
+            } else {
+                Toast.makeText(
+                        requireContext(),
+                        getString(R.string.connect_fetch_delivery_progress_error),
+                        Toast.LENGTH_LONG
+                ).show();
             }
         });
     }

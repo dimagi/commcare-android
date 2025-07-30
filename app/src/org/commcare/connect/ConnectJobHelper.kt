@@ -73,11 +73,6 @@ object ConnectJobHelper {
             }
 
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                Toast.makeText(
-                    context,
-                    PersonalIdApiErrorHandler.handle(context, errorCode, t),
-                    Toast.LENGTH_LONG
-                ).show()
                 FirebaseAnalyticsUtil.reportCccApiLearnProgress(false)
                 listener.connectActivityComplete(false)
             }
@@ -110,11 +105,6 @@ object ConnectJobHelper {
             }
 
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                Toast.makeText(
-                    context,
-                    PersonalIdApiErrorHandler.handle(context, errorCode, t),
-                    Toast.LENGTH_LONG
-                ).show()
                 FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false)
                 listener.connectActivityComplete(false)
             }
