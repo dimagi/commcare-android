@@ -27,8 +27,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private final ArrayList<ConnectLoginJobListModel> jobList;
     private final OnJobSelectionClick launcher;
     private final ArrayList<ConnectLoginJobListModel> corruptJobs;
-    public static final int NON_CORRUPT_JOB_VIEW = 1;
-    public static final int CORRUPT_JOB_VIEW = 2;
+    private static final int NON_CORRUPT_JOB_VIEW = 1;
+    private static final int CORRUPT_JOB_VIEW = 2;
 
     public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,
             ArrayList<ConnectLoginJobListModel> corruptJobs, OnJobSelectionClick launcher) {
