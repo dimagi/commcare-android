@@ -478,4 +478,6 @@ License.
     <string name="personalid_credential_pending">लंबित</string>
     <string name="personalid_credential_cloud_sync">क्लाउड सिंक</string>
 
+    <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
+
 </resources>

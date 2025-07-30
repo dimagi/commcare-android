@@ -483,4 +483,6 @@
     <string name="personalid_credential_earned">Imelipwa</string>
     <string name="personalid_credential_pending">Inasubiri</string>
     <string name="personalid_credential_cloud_sync">Usawazishaji wa Wingu</string>
+    <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
+
 </resources>

@@ -478,4 +478,6 @@
     <string name="personalid_credential_pending">Pendiente</string>
     <string name="personalid_credential_cloud_sync">Sincronización en la Nube</string>
 
+    <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
+
 </resources>

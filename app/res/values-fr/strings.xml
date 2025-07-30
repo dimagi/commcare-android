@@ -478,4 +478,7 @@ License.
     <string name="personalid_credential_pending">En attente</string>
     <string name="personalid_credential_cloud_sync">Synchronisation Cloud</string>
 
+    <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
+
+
 </resources>

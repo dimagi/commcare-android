@@ -647,4 +647,7 @@
     <string name="personalid_credential_connect_certified_learner">Connect Certified Learner</string>
     <string name="personalid_credential_connect_delivery_worker">Connect Delivery Worker</string>
     <string name="commcarehq_worker">CommCareHQ Worker</string>
+    <string name="my_credentials">My Credentials</string>
+    <string name="credential">Credential</string>
+    <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
 </resources>
