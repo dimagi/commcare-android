@@ -148,7 +148,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         personalIdManager.init(this);
 
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        appLaunchedFromConnect = ConnectAppUtils.INSTANCE.wasAppLaunchedFromConnect(presetAppId);
+        appLaunchedFromConnect = ConnectAppUtils.INSTANCE.wasAppLaunchedFromConnect(getIntent());
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -427,7 +427,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   DataPullMode pullModeToUse) {
         try {
             passwordOrPin = ConnectAppUtils.INSTANCE.checkAutoLoginAndOverridePassword(this,
-                    presetAppId, username, passwordOrPin, appLaunchedFromConnect,
+                    username, passwordOrPin, appLaunchedFromConnect,
                     loginManagedByPersonalId());
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1

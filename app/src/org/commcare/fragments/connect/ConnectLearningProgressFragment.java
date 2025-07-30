@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import org.commcare.AppUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
@@ -174,7 +175,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
             navDirections =
                     ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
                             true);
-        } else if (ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+        } else if (AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
             buttonText = complete ? getString(R.string.connect_learn_go_to_assessment) : getString(
                     R.string.connect_learn_continue);
             viewBinding.connectLearningButton.setVisibility(View.VISIBLE);
@@ -182,6 +183,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
                 CommCareApplication.instance().closeUserSession();
                 ConnectAppUtils.INSTANCE.launchApp(getActivity(), true, job.getLearnAppInfo().getAppId());
             });
+            return;
         } else {
             buttonText = getString(R.string.connect_downloading_learn);
             navDirections =

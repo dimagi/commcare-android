@@ -132,7 +132,7 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
                 confirmText = itemView.findViewById(R.id.confirm);
             }
 
-            boolean updateConfirmedText(Context context, ConnectJobPaymentRecord payment) {
+            private boolean updateConfirmedText(Context context, ConnectJobPaymentRecord payment) {
                 boolean enabled;
                 int textResId;
 

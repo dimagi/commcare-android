@@ -12,15 +12,15 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
-    fun goToConnectJobsList(parent: Context) {
-        val i = Intent(parent, ConnectActivity::class.java)
-        parent.startActivity(i)
+    fun goToConnectJobsList(context: Context) {
+        val i = Intent(context, ConnectActivity::class.java)
+        context.startActivity(i)
     }
 
-    fun goToActiveInfoForJob(activity: Activity, allowProgression: Boolean) {
-        val i = Intent(activity, ConnectActivity::class.java)
+    fun goToActiveInfoForJob(context: Context, allowProgression: Boolean) {
+        val i = Intent(context, ConnectActivity::class.java)
         i.putExtra("info", true)
         i.putExtra("buttons", allowProgression)
-        activity.startActivity(i)
+        context.startActivity(i)
     }
 }

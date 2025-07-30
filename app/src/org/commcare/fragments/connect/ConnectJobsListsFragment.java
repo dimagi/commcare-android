@@ -27,6 +27,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import org.commcare.AppUtils;
 import org.commcare.adapters.JobListConnectHomeAppsAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -34,7 +35,6 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectJobHelper;
-import org.commcare.connect.IConnectAppLauncher;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -65,7 +65,6 @@ import java.util.List;
  */
 public class ConnectJobsListsFragment extends Fragment {
     private FragmentConnectJobsListBinding binding;
-    private IConnectAppLauncher launcher;
     ArrayList<ConnectLoginJobListModel> jobList;
     ArrayList<ConnectLoginJobListModel> corruptJobs = new ArrayList<>();
 
@@ -79,10 +78,6 @@ public class ConnectJobsListsFragment extends Fragment {
         requireActivity().setTitle(R.string.connect_title);
 
         binding = FragmentConnectJobsListBinding.inflate(inflater, container, false);
-
-        launcher = (appId, isLearning) -> {
-            ConnectAppUtils.INSTANCE.launchApp(getActivity(), isLearning, appId);
-        };
 
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
@@ -223,8 +218,8 @@ public class ConnectJobsListsFragment extends Fragment {
 
         String appId = isLearning ? job.getLearnAppInfo().getAppId() : job.getDeliveryAppInfo().getAppId();
 
-        if (ConnectAppUtils.INSTANCE.isAppInstalled(appId)) {
-            launcher.launchApp(appId, isLearning);
+        if (AppUtils.isAppInstalled(appId)) {
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), isLearning, appId);
         } else {
             int textId = isLearning ? R.string.connect_downloading_learn : R.string.connect_downloading_delivery;
             Navigation.findNavController(binding.getRoot()).navigate(ConnectJobsListsFragmentDirections
@@ -244,8 +239,8 @@ public class ConnectJobsListsFragment extends Fragment {
         for (ConnectJobRecord job : jobs) {
             int jobStatus = job.getStatus();
             boolean finished = job.isFinished();
-            boolean isLearnAppInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId());
-            boolean isDeliverAppInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+            boolean isLearnAppInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
+            boolean isDeliverAppInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
 
             switch (jobStatus) {
                 case STATUS_AVAILABLE_NEW, STATUS_AVAILABLE:

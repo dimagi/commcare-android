@@ -9,13 +9,13 @@
         android:id="@+id/delivery_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/llFilterByStatus"
+        app:layout_constraintBottom_toTopOf="@+id/filterView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/llFilterByStatus"
+        android:id="@+id/filterView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="5dp"
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/cvFilterAll"
+                android:id="@+id/allFilterButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/transparent"
@@ -39,7 +39,7 @@
                 app:cardElevation="0dp"
                 android:contentDescription="@null"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/llFilterApproved"
+                app:layout_constraintEnd_toStartOf="@+id/approvedFilterButton"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -52,7 +52,7 @@
                     android:paddingVertical="9dp">
 
                     <TextView
-                        android:id="@+id/tvFilterAll"
+                        android:id="@+id/allTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/connect_results_summary_all"
@@ -65,16 +65,16 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llFilterApproved"
+                android:id="@+id/approvedFilterButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/transparent"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/llFilterRejected"
+                app:layout_constraintEnd_toStartOf="@+id/rejectedFilterButton"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/cvFilterAll"
+                app:layout_constraintStart_toEndOf="@+id/allFilterButton"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RelativeLayout
@@ -87,7 +87,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/tvFilterApproved"
+                        android:id="@+id/approvedTextView"
                         android:text="@string/connect_results_summary_approved"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp"
@@ -98,16 +98,16 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llFilterRejected"
+                android:id="@+id/rejectedFilterButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/transparent"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/llFilterPending"
+                app:layout_constraintEnd_toStartOf="@+id/pendingFilterButton"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/llFilterApproved"
+                app:layout_constraintStart_toEndOf="@+id/approvedFilterButton"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RelativeLayout
@@ -120,7 +120,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/tvFilterRejected"
+                        android:id="@+id/rejectedTextView"
                         android:text="@string/connect_results_summary_rejected"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp"
@@ -131,7 +131,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/llFilterPending"
+                android:id="@+id/pendingFilterButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="@color/transparent"
@@ -140,7 +140,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/llFilterRejected"
+                app:layout_constraintStart_toEndOf="@+id/rejectedFilterButton"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <RelativeLayout
@@ -153,7 +153,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/tvFilterPending"
+                        android:id="@+id/pendingTextView"
                         android:text="@string/connect_results_summary_pending"
                         android:textColor="@color/connect_blue_color"
                         android:textSize="12sp"

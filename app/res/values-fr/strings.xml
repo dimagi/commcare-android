@@ -330,7 +330,7 @@ License.
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez peut-être plus accéder aux tâches suivantes.</string>
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
@@ -436,6 +436,8 @@ License.
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
     <string name="connect_send_message_hint">Tapez un message</string>
     <string name="connect_send_message_btn_desc">Appuyez ici pour envoyer un message</string>
+    <string name="connect_message_you">Toi</string>
+    <string name="connect_message_them">Eux</string>
     <string name="connect_corrupt_job_text">Impossible de charger cette opportunité</string>
     <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>

@@ -329,7 +329,7 @@ License.
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। आपको कोई प्रगति नहीं मिलेगी।</string>
     <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
-    <string name="connect_progress_warning_daily_max_reached_single">आप आज के लिए अधिकतम विज़िट तक पहुँच गए हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
+    <string name="connect_progress_warning_daily_max_reached_single">आप आज के लिए अधिकतम विज़िट संख्या तक पहुँच चुके हैं। हो सकता है कि आप आगे कोई कार्य एक्सेस न कर पाएँ।</string>
     <string name="connect_progress_warning_max_reached_multi">आप %s के लिए अधिकतम विज़िट तक पहुँच गए हैं।</string>
     <string name="connect_progress_warning_daily_max_reached_multi">आप %s के लिए अपनी दैनिक सीमा तक पहुँच गए हैं।</string>
     <string name="connect_downloading_learn">Learn ऐप डाउनलोड हो रहा है</string>
