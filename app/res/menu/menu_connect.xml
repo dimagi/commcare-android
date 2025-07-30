@@ -10,6 +10,7 @@
         android:id="@+id/action_credential"
         android:icon="@drawable/ic_credential"
         android:title="@string/credential"
+        android:visible="false"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_sync"

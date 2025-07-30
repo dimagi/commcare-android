@@ -113,6 +113,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         viewBinding.connectLearningProgressBar.setVisibility(visibility);
         viewBinding.connectLearningProgressText.setVisibility(visibility);
         viewBinding.connectLearnProgressBarTextContainer.setVisibility(visibility);
+        viewBinding.learningCard.setVisibility(visibility);
 
         if (!hideProgress) {
             viewBinding.connectLearningProgressBar.setProgress(percent);
@@ -244,9 +245,15 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment {
         boolean showHours = hours != null;
         jobCard.tvJobTime.setVisibility(showHours ? View.VISIBLE : View.GONE);
         jobCard.tvDailyVisitTitle.setVisibility(showHours ? View.VISIBLE : View.GONE);
+        jobCard.tvViewMore.setOnClickListener(this::navigateToJobDetailBottomSheet);
 
         if (showHours) {
             jobCard.tvJobTime.setText(hours);
         }
+    }
+
+    private void navigateToJobDetailBottomSheet(View view) {
+        Navigation.findNavController(view).navigate(
+                ConnectLearningProgressFragmentDirections.actionConnectJobLearningProgressFragmentToConnectJobDetailBottomSheetDialogFragment());
     }
 }
