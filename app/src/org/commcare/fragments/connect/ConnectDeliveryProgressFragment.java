@@ -110,11 +110,18 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
 
     @Override
     public void refresh() {
-        refreshData();
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
+            if (success) {
+                updateLastUpdatedText(new Date());
+                updateWarningMessage();
+                updatePaymentConfirmationTile(false);
+                viewPagerAdapter.refresh();
+            }
+        });
     }
 
     private void setupRefreshAndConfirmationActions() {
-        binding.connectDeliveryRefresh.setOnClickListener(v -> refreshData());
+        binding.connectDeliveryRefresh.setOnClickListener(v -> refresh());
 
         binding.connectPaymentConfirmNoButton.setOnClickListener(v -> {
             updatePaymentConfirmationTile(true);
@@ -155,7 +162,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshData();
+            refresh();
         }
     }
 
@@ -163,17 +170,6 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    public void refreshData() {
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
-            if (success) {
-                updateLastUpdatedText(new Date());
-                updateWarningMessage();
-                updatePaymentConfirmationTile(false);
-                viewPagerAdapter.refresh();
-            }
-        });
     }
 
     private void updateWarningMessage() {
