@@ -33,7 +33,6 @@
                 android:layout_gravity="center"
                 android:src="@drawable/nav_drawer_logged_out_avatar"/>
             <TextView
-                android:id="@+id/nav_drawer_sign_in_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:focusable="true"
@@ -44,6 +43,7 @@
                 android:textColor="@color/white"
                 android:text="@string/left_navigation_menu_not_signed_in_to_personal_id"/>
             <TextView
+                android:id="@+id/nav_drawer_sign_in_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
