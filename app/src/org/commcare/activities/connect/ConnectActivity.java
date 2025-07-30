@@ -81,15 +81,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ResourceEngi
 
         if (getIntent().getBooleanExtra("info", false)) {
             ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
-            Objects.requireNonNull(job);
+            if (job != null) {
+                startDestinationId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
+                        ? R.id.connect_job_delivery_progress_fragment
+                        : R.id.connect_job_learning_progress_fragment;
 
-            startDestinationId = job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                    ? R.id.connect_job_delivery_progress_fragment
-                    : R.id.connect_job_learning_progress_fragment;
-
-            boolean buttons = getIntent().getBooleanExtra("buttons", true);
-            startArgs = new Bundle();
-            startArgs.putBoolean("showLaunch", buttons);
+                boolean buttons = getIntent().getBooleanExtra("buttons", true);
+                startArgs = new Bundle();
+                startArgs.putBoolean("showLaunch", buttons);
+            }
 
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             Logger.log("ConnectActivity", "Redirecting to unlock fragment");

@@ -176,6 +176,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateConnectProgress() {
+        if (viewJobCard == null) {
+            return;
+        }
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
 
