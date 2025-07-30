@@ -53,20 +53,20 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     @Override
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
+
+        setupJobTile();
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
+        setupGridView();
+    }
+
+    private void setupJobTile() {
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
-
         connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         recyclerView.setAdapter(connectProgressJobSummaryAdapter);
 
-        updateJobTileDetails();
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
-        setupGridView();
-    }
-
-    private void updateJobTileDetails() {
         ConnectJobRecord job = activity.getActiveJob();
         boolean show = job != null;
 
