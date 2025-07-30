@@ -58,7 +58,7 @@ public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<Conne
         notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    protected static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvPrimaryVisitTitle;
         TextView tvPrimaryVisitCount;
         LinearProgressBar lpPrimaryVisitProgress;
