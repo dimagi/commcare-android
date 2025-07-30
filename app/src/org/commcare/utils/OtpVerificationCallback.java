@@ -1,6 +1,9 @@
 package org.commcare.utils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import org.commcare.connect.network.base.BaseApiHandler;
 
 /**
  * Callback interface for OTP (One-Time Password) verification operations.
@@ -37,4 +40,12 @@ public interface OtpVerificationCallback {
      * @param message A description of the error that occurred
      */
     void onFailure(OtpErrorType errorType, @Nullable String message);
+
+    /**
+     * Called when the PersonalId API request related to OTP verification fails.
+     *
+     * @param failureCode The specific error code indicating the type of failure
+     * @param t          The throwable that caused the failure, if any
+     */
+    void onPersonalIdApiFailure(@NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t);
 }

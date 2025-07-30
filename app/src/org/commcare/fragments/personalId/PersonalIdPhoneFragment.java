@@ -2,6 +2,7 @@ package org.commcare.fragments.personalId;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
@@ -19,13 +20,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -58,12 +59,13 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.Objects;
 
+import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
+import static org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections.*;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
-public class PersonalIdPhoneFragment extends Fragment implements CommCareLocationListener {
+public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
 
     private ScreenPersonalidPhonenoBinding binding;
     private boolean shouldShowPhoneHintDialog = true;
@@ -76,6 +78,9 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
     private CommCareLocationController locationController;
     private ActivityResultLauncher<String[]> locationPermissionLauncher;
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
+    private String playServicesError;
+    private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
+
 
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
@@ -96,13 +101,16 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         integrityTokenApiRequestHelper = new IntegrityTokenApiRequestHelper(getViewLifecycleOwner());
         initializeUi();
         registerLauncher();
+        checkGooglePlayServices();
         return binding.getRoot();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        locationController.start();
+        if (!isOnPermissionErrorScreen()) {
+            locationController.start();
+        }
     }
 
     @Override
@@ -116,6 +124,26 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         super.onDestroyView();
         locationController.destroy();
         binding = null;
+    }
+
+    private void checkGooglePlayServices() {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int status = googleApiAvailability.isGooglePlayServicesAvailable(requireActivity());
+        if (status != ConnectionResult.SUCCESS) {
+            playServicesError = "play_services_"+ status;
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Google Play Services issue:" + playServicesError);
+            if (googleApiAvailability.isUserResolvableError(status)) {
+                GoogleApiAvailability.getInstance().showErrorDialogFragment(
+                        requireActivity(),
+                        status,
+                        playServicesResolutionLauncher,
+                        dialog -> onConfigurationFailure(playServicesError,
+                                getString(R.string.play_service_update_error)));
+            } else {
+                onConfigurationFailure(playServicesError,
+                        getString(R.string.play_service_update_error));
+            }
+        }
     }
 
     private void initializeUi() {
@@ -343,6 +371,15 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
                     }
                 }
         );
+
+        playServicesResolutionLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() != Activity.RESULT_OK) {
+                        onConfigurationFailure(playServicesError, getString(R.string.play_service_update_error));
+                    }
+                }
+        );
     }
 
 
@@ -367,21 +404,13 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
             }
 
             @Override
-            public void onFailure(@androidx.annotation.Nullable PersonalIdOrConnectApiErrorCodes failureCode,
+            public void onFailure(@androidx.annotation.NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                                   @androidx.annotation.Nullable Throwable t) {
-                if (failureCode == null) {
-                    navigateFailure(null, t);
+                if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
 
                 switch (failureCode) {
-                    case ACCOUNT_LOCKED_ERROR:
-                        onConfigurationFailure(
-                                AnalyticsParamValue.START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE,
-                                getString(R.string.personalid_configuration_locked_account)
-                        );
-                        break;
-
                     case FORBIDDEN_ERROR:
                         onConfigurationFailure(
                                 AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
@@ -442,14 +471,6 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navigateToBiometricSetup());
     }
 
-
-    private void onConfigurationFailure(String failureCause, String failureMessage) {
-        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(failureCause);
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                navigateToMessageDisplay(failureMessage, false,
-                        ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, R.string.ok));
-    }
-
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
         if (failureCode.shouldAllowRetry()) {
@@ -471,20 +492,21 @@ public class PersonalIdPhoneFragment extends Fragment implements CommCareLocatio
         return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidBiometricConfig();
     }
 
-    private NavDirections navigateToMessageDisplay(String errorMessage, boolean isCancellable, int phase,
-                                                   int buttonText) {
-        return PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
-                getString(R.string.personalid_configuration_process_failed_title),
-                errorMessage,
-                phase, getString(buttonText),
-                null).setIsCancellable(isCancellable);
+    @Override
+    protected void navigateToMessageDisplay(String title, String message,  boolean isCancellable, int phase,
+            int buttonText) {
+        NavDirections navDirections =
+                PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
+                        title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(navDirections);
     }
 
-    private void navigateToPermissionErrorMessageDisplay(int errorMeesage, int buttonText) {
-        Navigation.findNavController(binding.personalidPhoneContinueButton).navigate(
-                navigateToMessageDisplay(
-                        requireActivity().getString(errorMeesage), true,
-                        ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText));
+    private void navigateToPermissionErrorMessageDisplay(int errorMessage, int buttonText) {
+        if (!isOnPermissionErrorScreen()) {
+            navigateToMessageDisplay(
+                    getString(R.string.personalid_grant_location_service), requireActivity().getString(errorMessage), true,
+                    ConnectConstants.PERSONALID_LOCATION_PERMISSION_FAILURE, buttonText);
+        }
     }
 
     @Override

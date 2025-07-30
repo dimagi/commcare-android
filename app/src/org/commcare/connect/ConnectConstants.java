@@ -36,12 +36,11 @@ public class ConnectConstants {
     public final static int PERSONALID_NO_ACTIVITY = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
     public final static int PERSONALID_REGISTRATION_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
     public final static int PERSONALID_RECOVERY_SUCCESS = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 2;
-    public final static int PERSONALID_UNLOCK_PIN = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 3;
     public final static int PERSONALID_BIOMETRIC_ENROLL_FAIL = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 4;
     public final static int PERSONALID_RECOVERY_WRONG_BACKUPCODE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 7;
     public final static int PERSONALID_DEVICE_CONFIGURATION_FAILED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 8;
     public final static int PERSONALID_RECOVERY_ACCOUNT_ORPHANED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 9;
     public final static int PERSONALID_RECOVERY_ACCOUNT_LOCKED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
     public final static int PERSONALID_LOCATION_PERMISSION_FAILURE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
-
+    public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
 }
