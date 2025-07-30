@@ -505,7 +505,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     /**
      * Deletes all records for the given table
-     * @param db SqliteDatabase the table is present in
+     * @param db database the table is present in
      * @param table table name for which we want to delete the records
      */
     public static void wipeTable(IDatabase db, String table) {
@@ -522,7 +522,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     /**
      * Drops the given table
-     * @param db SqliteDatabase the table is present in
+     * @param db database the table is present in
      * @param table name of the table we want to drop
      */
     public static void dropTable(IDatabase db, String table) {
