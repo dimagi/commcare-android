@@ -21,5 +21,6 @@ public class DatabaseAppOpenHelperMock extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        throw new UnsupportedOperationException("DatabaseAppOpenHelperMock does not support onUpgrade");
     }
 }
