@@ -235,9 +235,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment
 
         public void refresh() {
             for (Fragment fragment : fragments) {
-                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment) {
+                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment
+                        && deliveryFragment.getView() != null) {
                     deliveryFragment.updateProgressSummary();
-                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment) {
+                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment
+                        && summaryFragment.getView() != null) {
                     summaryFragment.updateView();
                 }
             }
