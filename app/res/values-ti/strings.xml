@@ -458,15 +458,15 @@
     <string name="personalid_camera_permission_title">ፍቓድ ንካሜራ</string>
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
-    <string name="my_worker_history">ታሪኽ ስራሐይ</string>
-    <string name="credential">ምስክር ወረቐት</string>
-    <string name="worked_on">ዝሰርሓሉ:</string>
-    <string name="earned_on">ዝተረኽበሉ:</string>
-    <string name="active_for">ንጡፍ ዝኾነሉ:</string>
-    <string name="learn_more_about_credentials">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
-    <string name="view_credential">ምስክር ወረቐት ርአ</string>
-    <string name="no_credentials_currently_available">ኣብዚ እዋን እዚ ዝኾነ መረጋገጺ የለን። Refresh ዝብል ጠውቕ ወይ ድሒሩ ተመለስ</string>
-    <string name="earned">ዝተረኽበ</string>
-    <string name="pending">ኣብ ከይዲ ዘሎ</string>
-    <string name="cloud_sync">ክላውድ ሲንክ</string>
+    <string name="personalid_credential_my_worker_history">ታሪኽ ስራሐይ</string>
+    <string name="personalid_credential">ምስክር ወረቐት</string>
+    <string name="personalid_credential_worked_on">ዝሰርሓሉ:</string>
+    <string name="personalid_credential_earned_on">ዝተረኽበሉ:</string>
+    <string name="personalid_credential_active_for">ንጡፍ ዝኾነሉ:</string>
+    <string name="personalid_credential_learn_more_about_credentials">ብዛዕባ ምስክር ወረቐታት ዝበለጸ ፍለጥ</string>
+    <string name="personalid_credential_view_credential">ምስክር ወረቐት ርአ</string>
+    <string name="personalid_credential_no_credentials_currently_available">ኣብዚ እዋን እዚ ዝኾነ መረጋገጺ የለን። Refresh ዝብል ጠውቕ ወይ ድሒሩ ተመለስ</string>
+    <string name="personalid_credential_earned">ዝተረኽበ</string>
+    <string name="personalid_credential_pending">ኣብ ከይዲ ዘሎ</string>
+    <string name="personalid_credential_cloud_sync">ክላውድ ሲንክ</string>
 </resources>

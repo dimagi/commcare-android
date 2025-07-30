@@ -2,14 +2,14 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/cloud_sync"
-        android:title="@string/cloud_sync"
-        android:contentDescription="@string/cloud_sync"
+        android:title="@string/personalid_credential_cloud_sync"
+        android:contentDescription="@string/personalid_credential_cloud_sync"
         android:icon="@drawable/ic_cloud_sync"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/more"
-        android:title="@string/cloud_sync"
+        android:title="@string/personalid_credential_cloud_sync"
         android:contentDescription="action"
         android:icon="@drawable/ic_connect_action_overflow"
         app:showAsAction="always"/>

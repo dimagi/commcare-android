@@ -27,8 +27,8 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
     private var userName: String? = null
     private var profilePic: String? = null
     private var installedAppRecords: List<PersonalIdCredential> = emptyList()
-    private val titles = listOf(R.string.earned, R.string.pending)
-    private val icons = listOf(R.drawable.ic_credential_earned, R.drawable.ic_credential_pending)
+    private val titles = listOf(R.string.personalid_credential_earned, R.string.personalid_credential_pending)
+    private val icons = listOf(R.drawable.ic_personalid_credential_earned, R.drawable.ic_personalid_credential_pending)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,9 +42,9 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
             this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[PersonalIdCredentialViewModel::class.java]
         initInstalledAppsList()
+        observeCredentialApiCall()
         fetchCredentialsFromNetwork()
         setUpUi()
-        observeCredentialApiCall()
     }
 
     private fun initInstalledAppsList() {
@@ -60,7 +60,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
 
     private fun setUpUi() {
         supportActionBar!!.apply {
-            title = getString(R.string.my_worker_history)
+            title = getString(R.string.personalid_credential_my_worker_history)
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
@@ -86,10 +86,8 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
         }
 
         personalIdCredentialViewModel.apiError.observe(this) { (code, throwable) ->
-            PersonalIdApiErrorHandler.handle(this, code, throwable)
-            Toast.makeText(
-                this, throwable?.localizedMessage ?: "Something went wrong", Toast.LENGTH_SHORT
-            ).show()
+            val errorMessage = PersonalIdApiErrorHandler.handle(this, code, throwable)
+            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
