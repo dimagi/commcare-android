@@ -474,4 +474,5 @@ License.
     <string name="left_navigation_menu_work_history">कार्य इतिहास</string>
     <string name="left_navigation_menu_payments">भुगतान</string>
     <string name="left_navigation_menu_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
+    <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
 </resources>

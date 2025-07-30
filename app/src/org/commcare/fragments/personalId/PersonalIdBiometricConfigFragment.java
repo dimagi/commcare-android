@@ -198,6 +198,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 break;
             case NeedsUpdate:
                 showBiometricNeedsUpdateError();
+                break;
             case Configured:
                 initiateBiometricAuthentication();
                 return;
@@ -245,6 +246,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
                 break;
             case NeedsUpdate:
                 showPinNeedsUpdateError();
+                break;
             case Configured:
                 initiatePinAuthentication();
                 return;

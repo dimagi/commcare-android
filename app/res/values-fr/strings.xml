@@ -474,5 +474,6 @@ License.
     <string name="left_navigation_menu_work_history">Historique de travail</string>
     <string name="left_navigation_menu_payments">Paiements</string>
     <string name="left_navigation_menu_manage_profile">Gérer le profil</string>
+    <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
 
 </resources>

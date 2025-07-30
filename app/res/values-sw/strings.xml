@@ -480,5 +480,5 @@
     <string name="left_navigation_menu_work_history">Historia ya Kazi</string>
     <string name="left_navigation_menu_payments">Malipo</string>
     <string name="left_navigation_menu_manage_profile">Dhibiti Wasifu</string>
-
+    <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
 </resources>

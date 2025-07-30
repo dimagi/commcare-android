@@ -474,5 +474,5 @@
     <string name="left_navigation_menu_work_history">Historial de trabajo</string>
     <string name="left_navigation_menu_payments">Pagos</string>
     <string name="left_navigation_menu_manage_profile">Administrar perfil</string>
-
+    <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
 </resources>

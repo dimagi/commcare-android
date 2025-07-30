@@ -644,4 +644,5 @@
     <string name="left_navigation_menu_payments">Payments</string>
     <string name="left_navigation_menu_manage_profile">Manage Profile</string>
     <string name="user_name_placeholder">User Name</string>
+    <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
 </resources>
