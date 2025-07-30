@@ -22,6 +22,7 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -100,6 +101,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                     it.clearFocus()
                 }
                 setupDrawer()
+                FirebaseAnalyticsUtil.reportNavDrawerOpen()
             }
         }
         drawerLayout.addDrawerListener(drawerToggle)
@@ -216,9 +218,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     /**
      * Override to respond to item click.
      * @param parent Top-level item type
-     * @param record Optional recordId for child click
+     * @param recordId Optional recordId for child click
      */
-    protected open fun onDrawerItemClicked(parent: NavItemType, record: String?) {
+    protected open fun onDrawerItemClicked(parent: NavItemType, recordId: String?) {
+        FirebaseAnalyticsUtil.reportNavDrawerItemSelected(parent.name)
         when (parent) {
             NavItemType.OPPORTUNITIES -> {}
             NavItemType.COMMCARE_APPS -> {}

@@ -37,4 +37,5 @@ public class CCAnalyticsParam {
     static final String PARAM_API_SUCCESS = "ccc_api_success";
     static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
+    static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
 }
