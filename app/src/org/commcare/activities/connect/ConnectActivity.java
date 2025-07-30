@@ -95,8 +95,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     private int handleSecureRedirect(Bundle startArgs) {
-        Logger.log("ConnectActivity", "Redirecting to unlock fragment");
-
         //Entering from a notification, so we may need to initialize
         PersonalIdManager.getInstance().init(this);
 
