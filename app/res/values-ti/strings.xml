@@ -438,7 +438,11 @@
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
     <string name="personalid_configuration_process_failed_subtitle">መሳርሒኻ ኣብዚ እዋን\'ዚ ን PersonalID ንምምዝጋብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">መሳርሒኻ ኣብዚ እዋን እዚ ብሰንኪ %s ናይ ጸጥታ ባህሪ ዘይምህላዉ ንPersonalID ክምዝገብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">እቲ ናይ ፒን ድሕነት መካኒዝም ኣይርከብን እዩ፣ በጃኻ ድሒርካ ደጊምካ ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">እቲ ናይ ባዮሜትሪክ ጸጥታ መካኒዝም የለን፣ በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">እቲ ናይ ፒን ድሕነት መካኒዝም ሶፍትዌር ምዕባለ የድልዮ፣ በጃኻ ዝኾነ ዝርከብ ናይ ስርዓት ምዕባለታት ተግባራዊ ወይ ብዝተፈለየ መሳርሒ እንደገና ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">እቲ ናይ ባዮሜትሪክ ድሕነት መካኒዝም ሶፍትዌር ምዕባለ የድልዮ፣ በጃኻ ዝኾነ ዝርከብ ናይ ስርዓት ምዕባለታት ተግባራዊ ወይ ብዝተፈለየ መሳርሒ እንደገና ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID መሳርሒኻ ኣሰር ኣጻብዕቲ ስካነር ክህልዎ ይጠልብ። በጃኹም ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_play_services">እባኮም ኣረጋግጹ ፡ እቲ ፕሌይ ስቶር ኣብ መሳርሒ እትርከቡ እንተሎ እና ትሓዘ እንተኾነ።</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">ሓፋሽ ጸገብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ኣብ ሓደ መዓልቲ ደጊሞ ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_network_error">ጸገኒ መረብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ዝሓለፈ መርበብ ክርከቡ እንተኾነ ኣረጋግጹ እና ደጊሞ ፈትኑ።</string>
