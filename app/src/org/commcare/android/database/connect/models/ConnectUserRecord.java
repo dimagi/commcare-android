@@ -211,6 +211,10 @@ public class ConnectUserRecord extends Persisted {
         this.photo = photo;
     }
 
+    public String getPhoto() {
+        return photo;
+    }
+
     public String getRequiredLock() {
         return requiredLock;
     }

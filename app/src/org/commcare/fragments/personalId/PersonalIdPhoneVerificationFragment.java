@@ -16,7 +16,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -26,25 +25,23 @@ import com.google.android.gms.auth.api.phone.SmsRetriever;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.SMSBroadcastReceiver;
+import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.FirebaseAuthService;
 import org.commcare.utils.KeyboardHelper;
-import org.commcare.utils.OtpAuthService;
 import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
-import org.commcare.utils.PersonalIdAuthService;
 import org.javarosa.core.services.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PersonalIdPhoneVerificationFragment extends Fragment {
+public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment {
     private static final String KEY_PHONE = "phone";
 
     private Activity activity;
@@ -112,6 +109,20 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
                             getString(R.string.personalid_otp_verification_failed_generic) + (errorMessage != null ? errorMessage : "Unknown error");
                 };
                 displayOtpError(userMessage);
+                binding.connectPhoneVerifyButton.setEnabled(false);
+            }
+
+            @Override
+            public void onPersonalIdApiFailure(
+                    @NonNull BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+                if (handleCommonSignupFailures(failureCode)) {
+                    return;
+                }
+                String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
+                if(failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
+                    error = getString(R.string.personalid_incorrect_otp);
+                }
+                displayOtpError(error);
                 binding.connectPhoneVerifyButton.setEnabled(false);
             }
         };
@@ -303,7 +314,12 @@ public class PersonalIdPhoneVerificationFragment extends Fragment {
         Navigation.findNavController(binding.connectResendButton).navigate(directions);
     }
 
-    private void handleFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-        displayOtpError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
+    @Override
+    protected void navigateToMessageDisplay(@NotNull String title,
+            @org.jetbrains.annotations.Nullable String message, boolean isCancellable, int phase, int buttonText) {
+        NavDirections directions = PersonalIdPhoneVerificationFragmentDirections
+                .actionPersonalidOtpPageToPersonalidMessage(title, message, phase, getString(buttonText),
+                        null).setIsCancellable(isCancellable);
+        Navigation.findNavController(binding.getRoot()).navigate(directions);
     }
 }
