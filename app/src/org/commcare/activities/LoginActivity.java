@@ -14,14 +14,17 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
@@ -46,6 +49,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -78,7 +82,7 @@ import java.util.Map;
 /**
  * @author ctsims
  */
-public class LoginActivity extends CommCareActivity<LoginActivity>
+public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
@@ -990,5 +994,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
+    }
+
+    @Override
+    public void injectScreenLayout(@NonNull LayoutInflater inflater, @NonNull FrameLayout contentFrame) {
+        inflater.inflate(R.layout.screen_login, contentFrame, true);
     }
 }
