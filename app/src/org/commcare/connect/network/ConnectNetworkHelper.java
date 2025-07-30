@@ -430,6 +430,9 @@ public class ConnectNetworkHelper {
     }
 
     public static void handleTokenUnavailableException(Context context) {
+        if (context == null) {
+            return;
+        }
         Toast.makeText(context, context.getString(R.string.recovery_network_token_unavailable),
                 Toast.LENGTH_LONG).show();
     }
