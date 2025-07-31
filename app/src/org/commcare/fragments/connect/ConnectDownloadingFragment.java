@@ -1,6 +1,7 @@
 package org.commcare.fragments.connect;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.connect.ConnectAppUtils;
@@ -23,6 +25,8 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.services.locale.LocaleTextException;
 import org.javarosa.core.services.locale.Localization;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.navigation.Navigation;
 
 public class ConnectDownloadingFragment extends ConnectJobFragment implements ResourceEngineListener {
@@ -30,6 +34,14 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     private ProgressBar progressBar;
     private TextView statusText;
     private boolean getLearnApp;
+
+    final ActivityResultLauncher<Intent> verificationLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    onSuccessfulVerification();
+                }
+            });
 
     public ConnectDownloadingFragment() {
         // Required empty public constructor
@@ -95,23 +107,25 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     @Override
     public void reportSuccess(boolean isNewInstall) {
         Toast.makeText(getActivity(), R.string.connect_app_installed, Toast.LENGTH_SHORT).show();
-        onSuccessfulInstall();
+        startAppValidation();
     }
 
-    private void onSuccessfulInstall() {
+    public void startAppValidation() {
         setWaitDialogEnabled(true);
-        ((ConnectActivity)requireActivity()).startAppValidation();
+
+        Intent i = new Intent(requireContext(), CommCareVerificationActivity.class);
+        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_CONNECT, true);
+        verificationLauncher.launch(i);
     }
 
     public void onSuccessfulVerification() {
         setBackButtonAndActionBarState(true);
         View view = getView();
         if (view != null) {
-            Navigation.findNavController(view).popBackStack();
 
             //Launch the learn/deliver app
             ConnectAppRecord appToLaunch = getLearnApp ? job.getLearnAppInfo() : job.getDeliveryAppInfo();
-            ConnectAppUtils.INSTANCE.launchApp(getActivity(), getLearnApp, appToLaunch.getAppId());
+            ConnectAppUtils.INSTANCE.launchApp(requireActivity(), getLearnApp, appToLaunch.getAppId());
         }
     }
 
@@ -176,7 +190,7 @@ public class ConnectDownloadingFragment extends ConnectJobFragment implements Re
     @Override
     public void failWithNotification(AppInstallStatus statusFailState) {
         if (statusFailState == AppInstallStatus.DuplicateApp) {
-            onSuccessfulInstall();
+            startAppValidation();
         } else {
             showInstallFailError(statusFailState);
         }

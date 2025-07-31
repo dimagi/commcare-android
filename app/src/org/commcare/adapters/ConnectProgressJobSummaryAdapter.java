@@ -13,45 +13,52 @@ import org.commcare.dalvik.R;
 import org.commcare.views.connect.LinearProgressBar;
 
 import java.util.List;
+import java.util.Locale;
 
 public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<ConnectProgressJobSummaryAdapter.ViewHolder> {
 
-    private List<ConnectDeliveryPaymentSummaryInfo> primaryVisits;
+    private List<ConnectDeliveryPaymentSummaryInfo> deliverySummaries;
 
-    public ConnectProgressJobSummaryAdapter(List<ConnectDeliveryPaymentSummaryInfo> primaryVisits) {
-        this.primaryVisits = primaryVisits;
+    public ConnectProgressJobSummaryAdapter(List<ConnectDeliveryPaymentSummaryInfo> deliverySummaries) {
+        this.deliverySummaries = deliverySummaries;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_progress_job_summary_visit, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_progress_job_summary_visit,
+                parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ConnectDeliveryPaymentSummaryInfo primaryVisit = primaryVisits.get(position);
-        holder.tvPrimaryVisitTitle.setText(primaryVisit.getPaymentUnitName());
-        holder.tvPrimaryVisitCount.setText(String.valueOf(primaryVisit.getPaymentUnitAmount()) + "/" + String.valueOf(primaryVisit.getPaymentUnitMaxDaily()));
+        ConnectDeliveryPaymentSummaryInfo summary = deliverySummaries.get(position);
+        holder.tvPrimaryVisitTitle.setText(summary.getPaymentUnitName());
+        holder.tvPrimaryVisitCount.setText(String.format(Locale.getDefault(), "%d/%d",
+                summary.getPaymentUnitAmount(), summary.getPaymentUnitMaxDaily()));
 
-        // Calculate the percentage (make sure to avoid division by zero)
-        double percentage = 0;
-        if (primaryVisit.getPaymentUnitMaxDaily() > 0) {
-            percentage = ((double) primaryVisit.getPaymentUnitAmount() / primaryVisit.getPaymentUnitMaxDaily()) * 100;
+        float percentage = 0;
+        if (summary.getPaymentUnitMaxDaily() > 0) {
+            percentage = ((float) summary.getPaymentUnitAmount() / summary.getPaymentUnitMaxDaily()) * 100;
         }
-        if (primaryVisit.getPaymentUnitAmount() >= primaryVisit.getPaymentUnitMaxDaily()){
+        if (summary.getPaymentUnitAmount() >= summary.getPaymentUnitMaxDaily()){
             holder.lpPrimaryVisitProgress.setProgressColor(holder.lpPrimaryVisitProgress.getResources().getColor(R.color.green));
         }
-        holder.lpPrimaryVisitProgress.setProgress((float) percentage);
+        holder.lpPrimaryVisitProgress.setProgress(percentage);
     }
 
     @Override
     public int getItemCount() {
-        return primaryVisits.size();
+        return deliverySummaries.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public void setDeliverySummaries(List<ConnectDeliveryPaymentSummaryInfo> deliverySummaries) {
+        this.deliverySummaries = deliverySummaries;
+        notifyDataSetChanged();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvPrimaryVisitTitle;
         TextView tvPrimaryVisitCount;
         LinearProgressBar lpPrimaryVisitProgress;

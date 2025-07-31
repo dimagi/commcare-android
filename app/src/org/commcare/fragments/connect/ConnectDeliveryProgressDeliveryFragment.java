@@ -24,7 +24,6 @@ import org.commcare.views.connect.CircleProgressBar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,7 +44,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         binding.btnSync.setOnClickListener(view -> {
             ConnectDeliveryProgressFragment parentFragment = (ConnectDeliveryProgressFragment)getParentFragment();
             if (parentFragment != null) {
-                parentFragment.refreshData();
+                parentFragment.refresh();
             }
             populateDeliveryProgress();
         });
@@ -61,10 +60,6 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         int percent = total > 0 ? (100 * completed / total) : 100;
 
         CircleProgressBar progress = binding.connectProgressProgressBar;
-        progress.setStrokeWidth(15);
-        progress.setBackgroundColor(
-                ContextCompat.getColor(requireContext(), R.color.connect_blackist_dark_blue_color));
-        progress.setProgressColor(ContextCompat.getColor(requireContext(), R.color.connect_aquva));
         progress.setProgress(percent);
         binding.connectProgressProgressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
 
@@ -72,7 +67,7 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
                 getString(R.string.connect_progress_status, completed, total));
 
         if (job.isMultiPayment() && completed > 0) {
-            Hashtable<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+            HashMap<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
 
             for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
                 String key = String.valueOf(unit.getUnitId());
@@ -146,4 +141,16 @@ public class ConnectDeliveryProgressDeliveryFragment extends ConnectJobFragment 
         return statusMap;
     }
 
+
+    /**
+     * This was added to re-calculate the correct height of a fragment in ViewPager2. This is required as ViewPager2
+     * has bug currently due to which it's not calculating the height of it's different fragment correctly.
+     * When found some other solution for this ViewPager2 bug, we can remove this but make sure to QA
+     * by pressing sync button while in different fragments.
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        binding.getRoot().requestLayout();
+    }
 }

@@ -12,34 +12,29 @@ import org.commcare.connect.database.ConnectJobUtils;
 import java.util.List;
 
 public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
-
-    String paymentId = "";
-    String opportunityId = "";
-    boolean paymentStatus;
-
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent == null) {
             return;
         }
 
-        opportunityId = intent.getStringExtra(ConnectConstants.OPPORTUNITY_ID);
-        paymentId = intent.getStringExtra(ConnectConstants.PAYMENT_ID);
-        paymentStatus = intent.getBooleanExtra(ConnectConstants.PAYMENT_STATUS, false);
+        String opportunityId = intent.getStringExtra(ConnectConstants.OPPORTUNITY_ID);
+        String paymentId = intent.getStringExtra(ConnectConstants.PAYMENT_ID);
+        boolean paymentStatus = intent.getBooleanExtra(ConnectConstants.PAYMENT_STATUS, false);
 
         if (paymentId == null || opportunityId == null) {
             return;
         }
         CommCareFirebaseMessagingService.clearNotification(context);
-        UpdatePayment(context);
+        updatePayment(context, opportunityId, paymentId, paymentStatus);
     }
 
-    private void UpdatePayment(Context context) {
+    private void updatePayment(Context context, String opportunityId, String paymentId, boolean paymentStatus) {
         ConnectJobRecord job = ConnectJobUtils.getCompositeJob(context, Integer.parseInt(opportunityId));
         ConnectJobHelper.INSTANCE.updateDeliveryProgress(context, job, success -> {
             if (success) {
                 List<ConnectJobPaymentRecord> existingPaymentList = ConnectJobUtils.getPayments(context, job.getJobId(), null);
-                getPaymentsFromJobs(context, existingPaymentList);
+                getPaymentsFromJobs(context, existingPaymentList, paymentId, paymentStatus);
             }
         });
     }
@@ -48,18 +43,19 @@ public class PaymentAcknowledgeReceiver extends BroadcastReceiver {
      * Go through job records to find the matching payment using payment-id
      *
      * @param payments    payment list fetched data from local DB
-     * @param context
+     * @param context     Parent context
      */
-    private void getPaymentsFromJobs(Context context, List<ConnectJobPaymentRecord> payments) {
+    private void getPaymentsFromJobs(Context context, List<ConnectJobPaymentRecord> payments,
+                                     String paymentId, boolean paymentStatus) {
         for (ConnectJobPaymentRecord payment : payments) {
             if (payment.getPaymentId().equals(paymentId)) {
-                handlePayment(context, payment);
+                handlePayment(context, payment, paymentStatus);
                 return;
             }
         }
     }
 
-    private void handlePayment(Context context, ConnectJobPaymentRecord payment) {
+    private void handlePayment(Context context, ConnectJobPaymentRecord payment, boolean paymentStatus) {
         ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment, paymentStatus, success -> {
             //Nothing to do
         });

@@ -17,6 +17,7 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.dalvik.R;
 
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
 public class ConnectMessagingActivity extends NavigationHostCommCareActivity<ConnectMessagingActivity> {
     public static final String CHANNEL_ID = "channel_id";
@@ -56,7 +57,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     private void handleRedirectIfAny() {
-        String action = getIntent().getStringExtra("action");
+        String action = getIntent().getStringExtra(REDIRECT_ACTION);
         if (CCC_MESSAGE.equals(action)) {
             PersonalIdManager.getInstance().init(this);
             PersonalIdManager.getInstance().unlockConnect(this, success -> {

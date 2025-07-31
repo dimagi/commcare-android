@@ -50,6 +50,7 @@ import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATIO
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_ID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_STATUS;
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.services.FCMMessageData.NOTIFICATION_BODY;
 import static org.commcare.services.FCMMessageData.NOTIFICATION_TITLE;
 
@@ -254,9 +255,9 @@ public class FirebaseMessagingUtil {
      * @return
      */
     private static Intent handleResumeLearningOrDeliveryJobPushNotification(Boolean isLearning, Context context, FCMMessageData fcmMessageData) {
-        if (fcmMessageData.getPayloadData().containsKey(ConnectConstants.OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
-            intent.putExtra(ConnectConstants.OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(ConnectConstants.OPPORTUNITY_ID));
+            intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
             showNotification(context, buildNotification(context, intent, fcmMessageData));
             return intent;
         }
@@ -274,9 +275,9 @@ public class FirebaseMessagingUtil {
      * @return
      */
     private static Intent handleOpportunitySummaryPagePushNotification(Context context, FCMMessageData fcmMessageData) {
-        if (fcmMessageData.getPayloadData().containsKey(ConnectConstants.OPPORTUNITY_ID)) {
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
-            intent.putExtra(ConnectConstants.OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(ConnectConstants.OPPORTUNITY_ID));
+            intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
             showNotification(context, buildNotification(context, intent, fcmMessageData));
             return intent;
         }
@@ -360,7 +361,7 @@ public class FirebaseMessagingUtil {
         LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
 
         if (!ConnectMessageChannelListFragment.isActive &&
-                !channelId.equals(ConnectMessageFragment.activeChannel)) {
+                !channelId.equals(ConnectMessageFragment.getActiveChannel())) {
             //Show push notification
             fcmMessageData.setNotificationTitle(context.getString(notificationTitleId));
             fcmMessageData.setNotificationText(notificationMessage);
@@ -368,7 +369,7 @@ public class FirebaseMessagingUtil {
             intent = new Intent(context, ConnectMessagingActivity.class);
             intent.putExtra(fcmMessageData.getAction(), fcmMessageData.getAction());
             intent.putExtra(ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID, channelId);
-            intent.putExtra("action", fcmMessageData.getAction());
+            intent.putExtra(REDIRECT_ACTION, fcmMessageData.getAction());
         }
 
         if (intent != null) {
@@ -387,7 +388,7 @@ public class FirebaseMessagingUtil {
      */
     private static Intent getConnectActivityNotification(Context context, FCMMessageData fcmMessageData) {
         Intent intent = new Intent(context, ConnectActivity.class);
-        intent.putExtra("action", fcmMessageData.getAction());
+        intent.putExtra(REDIRECT_ACTION, fcmMessageData.getAction());
         if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
         }

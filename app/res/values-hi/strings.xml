@@ -332,6 +332,7 @@ License.
     <string name="connect_progress_warning_daily_max_reached_single">आप आज के लिए अधिकतम विज़िट संख्या तक पहुँच चुके हैं। हो सकता है कि आप आगे कोई कार्य एक्सेस न कर पाएँ।</string>
     <string name="connect_progress_warning_max_reached_multi">आप %s के लिए अधिकतम विज़िट तक पहुँच गए हैं।</string>
     <string name="connect_progress_warning_daily_max_reached_multi">आप %s के लिए अपनी दैनिक सीमा तक पहुँच गए हैं।</string>
+    <string name="connect_download_learn">लर्न ऐप डाउनलोड करें</string>
     <string name="connect_downloading_learn">Learn ऐप डाउनलोड हो रहा है</string>
     <string name="connect_downloading_delivery">वितरण ऐप डाउनलोड हो रहा है</string>
     <string name="connect_results_summary_earned">अर्जित</string>
@@ -441,7 +442,11 @@ License.
     <string name="personalid_name_empty_error">नाम फ़ील्ड खाली नहीं हो सकता</string>
     <string name="personalid_configuration_process_failed_title">प्रक्रिया विफल</string>
     <string name="personalid_configuration_process_failed_subtitle">आपका डिवाइस अभी PersonalID के साथ संगत नहीं है। कृपया किसी अन्य डिवाइस पर पुनः प्रयास करें।</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">सुरक्षा सुविधा की अनुपलब्धता के कारण आपका डिवाइस अभी PersonalID के साथ संगत नहीं है। कृपया किसी अन्य डिवाइस पर पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">पिन सुरक्षा तंत्र उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">बायोमेट्रिक सुरक्षा तंत्र उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">पिन सुरक्षा तंत्र को सॉफ़्टवेयर अद्यतन की आवश्यकता है, कृपया उपलब्ध सिस्टम अद्यतन लागू करें या किसी अन्य डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">बायोमेट्रिक सुरक्षा तंत्र को सॉफ़्टवेयर अपडेट की आवश्यकता है, कृपया उपलब्ध सिस्टम अपडेट लागू करें या किसी अन्य डिवाइस के साथ पुनः प्रयास करें।</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">पर्सनल आईडी के लिए आपके डिवाइस में फ़िंगरप्रिंट स्कैनर होना ज़रूरी है। कृपया किसी दूसरे डिवाइस से दोबारा कोशिश करें।</string>
     <string name="personalid_configuration_process_failed_play_services">कृपया सुनिश्चित करें कि Play Store आपके डिवाइस पर उपलब्ध है और यह अद्यतित है।</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">आपके डिवाइस की पात्रता की जांच करते समय अस्थायी त्रुटि। कृपया एक दिन बाद पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_network_error">आपके डिवाइस की पात्रता की जांच करते समय नेटवर्क त्रुटि। कृपया सुनिश्चित करें कि आपके पास एक अच्छा नेटवर्क कनेक्शन है और पुनः प्रयास करें।</string>
@@ -462,4 +467,6 @@ License.
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
+
 </resources>

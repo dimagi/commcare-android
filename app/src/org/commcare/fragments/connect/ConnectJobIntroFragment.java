@@ -1,6 +1,7 @@
 package org.commcare.fragments.connect;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,21 +49,13 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
         requireActivity().setTitle(getString(R.string.connect_job_intro_title));
         binding = FragmentConnectJobIntroBinding.inflate(inflater, container, false);
 
-        int totalHours = 0;
-        List<String> lines = new ArrayList<>();
-        List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
-        for (int i = 0; i < modules.size(); i++) {
-            lines.add(String.format(Locale.getDefault(), "%d. %s", (i + 1), modules.get(i).getName()));
-            totalHours += modules.get(i).getTimeEstimate();
-        }
-
-        String toLearn = modules.isEmpty() ? getString(R.string.connect_job_no_learning_required) :
-                String.join("\r\n\r\n", lines);
+        int totalHours = getTotalLearningHours();
+        String toLearn = getLearnModuleSummaryLines();
 
         binding.connectJobIntroLearning.setText(toLearn);
 
         binding.connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
-                modules.size(), totalHours));
+                job.getLearnAppInfo().getLearnModules().size(), totalHours));
 
         final boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
 
@@ -73,12 +66,33 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
             startLearning(appInstalled);
         });
 
-        jobCardDataHandle(job);
+        setupJobCard(job);
 
         return binding.getRoot();
     }
 
-    private void jobCardDataHandle(ConnectJobRecord job) {
+    private int getTotalLearningHours() {
+        int totalHours = 0;
+        List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
+        for (int i = 0; i < modules.size(); i++) {
+            totalHours += modules.get(i).getTimeEstimate();
+        }
+
+        return totalHours;
+    }
+
+    private String getLearnModuleSummaryLines() {
+        List<String> lines = new ArrayList<>();
+        List<ConnectLearnModuleSummaryRecord> modules = job.getLearnAppInfo().getLearnModules();
+        for (int i = 0; i < modules.size(); i++) {
+            lines.add(String.format(Locale.getDefault(), "%d. %s", (i + 1), modules.get(i).getName()));
+        }
+
+        return modules.isEmpty() ? getString(R.string.connect_job_no_learning_required) :
+                TextUtils.join("\r\n\r\n", lines);
+    }
+
+    private void setupJobCard(ConnectJobRecord job) {
         binding.viewJobCard.tvViewMore.setOnClickListener(view1 -> {
             Navigation.findNavController(binding.viewJobCard.tvViewMore).navigate(
                     ConnectJobIntroFragmentDirections

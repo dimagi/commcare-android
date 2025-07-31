@@ -13,11 +13,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -326,7 +328,7 @@ public class StandardHomeActivity
     }
 
     public void updateConnectJobProgress() {
-        ConnectJobRecord job = ConnectJobHelper.INSTANCE.getActiveJob();
+        ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
             ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
                 if (success) {
@@ -334,5 +336,9 @@ public class StandardHomeActivity
                 }
             });
         }
+    }
+
+    public ConnectJobRecord getActiveJob() {
+        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
     }
 }

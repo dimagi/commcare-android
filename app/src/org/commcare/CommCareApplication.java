@@ -34,7 +34,6 @@ import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
@@ -210,6 +209,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private CommCareNoficationManager noficationManager;
 
     private boolean backgroundSyncSafe;
+
+    private int connectJobIdForAnalytics = -1;
 
     @Override
     public void onCreate() {
@@ -442,11 +443,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             analyticsInstance.setUserProperty("user_cid", user.getUserId());
         }
 
-        ConnectJobRecord activeJob = ConnectJobHelper.INSTANCE.getActiveJob();
-        if (activeJob != null) {
-            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(activeJob.getJobId()));
+        if (connectJobIdForAnalytics > 0) {
+            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(connectJobIdForAnalytics));
         }
         return analyticsInstance;
+    }
+
+    public void setConnectJobIdForAnalytics(@Nullable ConnectJobRecord job) {
+        connectJobIdForAnalytics = job != null ? job.getJobId() : -1;
     }
 
     public int[] getCommCareVersion() {

@@ -18,8 +18,8 @@ import java.util.List;
 public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<ConnectDeliveryProgressReportAdapter.ProgressBarViewHolder> {
 
     private final Context context;
-    List<ConnectDeliveryDetails> deliveryProgressList;
-    DeliveryItemOnClickListener deliveryItemOnClickListener;
+    private final List<ConnectDeliveryDetails> deliveryProgressList;
+    private final DeliveryItemOnClickListener deliveryItemOnClickListener;
 
     public ConnectDeliveryProgressReportAdapter(Context context, List<ConnectDeliveryDetails> deliveryProgressList, DeliveryItemOnClickListener deliveryItemOnClickListener) {
         this.context = context;
@@ -75,7 +75,7 @@ public class ConnectDeliveryProgressReportAdapter extends RecyclerView.Adapter<C
         return deliveryProgressList.size();
     }
 
-    static class ProgressBarViewHolder extends RecyclerView.ViewHolder {
+    public static class ProgressBarViewHolder extends RecyclerView.ViewHolder {
         ConnectDeliveryProgressItemBinding binding;
 
         public ProgressBarViewHolder(@NonNull ConnectDeliveryProgressItemBinding binding) {

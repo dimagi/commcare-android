@@ -40,6 +40,15 @@ public class ConnectJobUtils {
         return jobs.isEmpty() ? null : jobs.firstElement();
     }
 
+    public static ConnectJobRecord getJobForApp(Context context, String appId) {
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if(appRecord == null) {
+            return null;
+        }
+
+        return getCompositeJob(context, appRecord.getJobId());
+    }
+
     public static List<ConnectJobRecord> getCompositeJobs(Context context, int status, SqlStorage<ConnectJobRecord> jobStorage) {
         if (jobStorage == null) {
             jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
@@ -95,7 +104,7 @@ public class ConnectJobUtils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 modules.sort(Comparator.comparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
             } else {
-                Collections.sort(modules, new Comparator<ConnectLearnModuleSummaryRecord>() {
+                Collections.sort(modules, new Comparator<>() {
                     @Override
                     public int compare(ConnectLearnModuleSummaryRecord o1, ConnectLearnModuleSummaryRecord o2) {
                         return Integer.compare(o1.getModuleIndex(), o2.getModuleIndex());
@@ -118,66 +127,6 @@ public class ConnectJobUtils {
             job.setLearnings(getLearnings(context, job.getJobId(), learningStorage));
             job.setAssessments(getAssessments(context, job.getJobId(), assessmentStorage));
         }
-    }
-
-    public static List<ConnectJobRecord> getAvailableJobs(Context context) {
-        return getAvailableJobs(context, null);
-    }
-
-    public static List<ConnectJobRecord> getAvailableJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_AVAILABLE, jobStorage);
-        jobs.addAll(getCompositeJobs(context, ConnectJobRecord.STATUS_AVAILABLE_NEW, jobStorage));
-        return getUnFinishedJobs(jobs);
-    }
-
-    public static List<ConnectJobRecord> getTrainingJobs(Context context) {
-        return getTrainingJobs(context, null);
-    }
-
-    public static List<ConnectJobRecord> getTrainingJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_LEARNING, jobStorage);
-        return getUnFinishedJobs(jobs);
-    }
-
-    public static List<ConnectJobRecord> getDeliveryJobs(Context context) {
-        return getDeliveryJobs(context, null);
-    }
-
-    public static List<ConnectJobRecord> getDeliveryJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_DELIVERING, jobStorage);
-
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (!record.isFinished() && !record.getIsUserSuspended()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
-    }
-
-    public static List<ConnectJobRecord> getUnFinishedJobs(List<ConnectJobRecord> jobs) {
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (!record.isFinished()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
-    }
-
-    public static List<ConnectJobRecord> getFinishedJobs(Context context, SqlStorage<ConnectJobRecord> jobStorage) {
-        List<ConnectJobRecord> jobs = getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
-
-        List<ConnectJobRecord> filtered = new ArrayList<>();
-        for (ConnectJobRecord record : jobs) {
-            if (record.isFinished() || record.getIsUserSuspended()) {
-                filtered.add(record);
-            }
-        }
-
-        return filtered;
     }
 
     public static void storeDeliveries(Context context, List<ConnectJobDeliveryRecord> deliveries, int jobId, boolean pruneMissing) {
@@ -288,18 +237,6 @@ public class ConnectJobUtils {
         return new ArrayList<>(deliveries);
     }
 
-    public static List<ConnectJobDeliveryFlagRecord> getDeliveryFlags(Context context, int deliveryId, SqlStorage<ConnectJobDeliveryFlagRecord> flagStorage) {
-        if (flagStorage == null) {
-            flagStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobDeliveryFlagRecord.class);
-        }
-
-        Vector<ConnectJobDeliveryFlagRecord> flags = flagStorage.getRecordsForValues(
-                new String[]{ConnectJobDeliveryFlagRecord.META_DELIVERY_ID},
-                new Object[]{deliveryId});
-
-        return new ArrayList<>(flags);
-    }
-
     public static List<ConnectJobPaymentRecord> getPayments(Context context, int jobId, SqlStorage<ConnectJobPaymentRecord> paymentStorage) {
         if (paymentStorage == null) {
             paymentStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobPaymentRecord.class);
@@ -394,17 +331,6 @@ public class ConnectJobUtils {
             storeLearningRecords(context, job.getLearnings(), job.getJobId(), true);
             storeAssessments(context, job.getAssessments(), job.getJobId(), true);
         }
-    }
-
-    public static Date getLastJobsUpdate(Context context) {
-        Date lastDate = null;
-        for (ConnectJobRecord job : getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, null)) {
-            if (lastDate == null || lastDate.before(job.getLastUpdate())) {
-                lastDate = job.getLastUpdate();
-            }
-        }
-
-        return lastDate != null ? lastDate : new Date();
     }
 
     public static void storeLearningRecords(Context context, List<ConnectJobLearningRecord> learnings, int jobId, boolean pruneMissing) {

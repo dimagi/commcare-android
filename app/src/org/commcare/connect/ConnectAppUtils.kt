@@ -2,7 +2,6 @@ package org.commcare.connect
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
@@ -20,12 +19,6 @@ object ConnectAppUtils {
 
     @Volatile
     private var isAppDownloading = false
-
-    fun wasAppLaunchedFromConnect(intent: Intent?): Boolean {
-        val isConnectLaunch = intent?.getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false) == true
-        intent?.removeExtra(IS_LAUNCH_FROM_CONNECT)
-        return isConnectLaunch
-    }
 
     fun downloadApp(installUrl: String?, listener: ResourceEngineListener?) {
         if (!isAppDownloading) {
@@ -69,40 +62,31 @@ object ConnectAppUtils {
         }
     }
 
-    fun checkAutoLoginAndOverridePassword(
-        context: Context?, username: String?,
-        passwordOrPin: String?, appLaunchedFromConnect: Boolean, personalIdManagedLogin: Boolean
-    ): String? {
+    fun shouldOverridePassword(personalIdManagedLogin: Boolean): Boolean {
+        return PersonalIdManager.getInstance().isloggedIn() && personalIdManagedLogin
+    }
+
+    fun getPasswordOverride(context: Context?, username: String?,
+                            createIfNeeded: Boolean): String {
         val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
-        var updatedPasswordOrPin = passwordOrPin
-        if (PersonalIdManager.getInstance().isloggedIn()) {
-            if (appLaunchedFromConnect) {
-                //Configure some things if we haven't already
-                var record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                    context,
-                    seatedAppId, username
+
+        var record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId, username)
+        if (record == null) {
+            if(createIfNeeded) {
+                record = storeNewConnectLinkedAppRecord(context, seatedAppId, username)
+            } else {
+                throw RuntimeException(
+                    "No ConnectLinkedAppRecord found for appId: $seatedAppId and username: $username"
                 )
-                if (record == null) {
-                    record = storeNewConnectLinkedAppRecord(context, seatedAppId, username)
-                }
-
-                updatedPasswordOrPin = record.password
-            } else if (personalIdManagedLogin) {
-
-                val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                    context, seatedAppId,
-                    username
-                )
-                updatedPasswordOrPin = record?.password
-
-                if (record != null && record.isUsingLocalPassphrase) {
-                    //Report to analytics so we know when this stops happening
-                    FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(seatedAppId)
-                }
             }
         }
 
-        return updatedPasswordOrPin
+        if (record.isUsingLocalPassphrase) {
+            //Report to analytics so we know when this stops happening
+            FirebaseAnalyticsUtil.reportCccAppAutoLoginWithLocalPassphrase(seatedAppId)
+        }
+
+        return record.password
     }
 
     private fun storeNewConnectLinkedAppRecord(
