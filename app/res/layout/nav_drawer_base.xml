@@ -48,6 +48,7 @@
                         android:layout_height="wrap_content"
                         android:focusable="true"
                         android:layout_gravity="center"
+                        android:textAlignment="center"
                         android:paddingTop="16dp"
                         android:clickable="true"
                         android:textAppearance="@style/TextAppearance.NavDrawerItem"

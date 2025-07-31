@@ -7,6 +7,7 @@ sealed class NavDrawerItem {
         val title: String,
         @DrawableRes val iconResId: Int,
         val type: BaseDrawerActivity.NavItemType,
+        var isEnabled: Boolean = true,
         var isExpanded: Boolean = false,
         val children: List<ChildItem> = emptyList()
     ) : NavDrawerItem()

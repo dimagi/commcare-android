@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import org.commcare.dalvik.R
 
@@ -83,6 +84,14 @@ class NavDrawerAdapter(
                 )
             } else {
                 arrow.visibility = View.GONE
+            }
+
+            if (item.isEnabled) {
+                title.isEnabled= true
+                icon.setColorFilter(ContextCompat.getColor(context,R.color.white))
+            } else {
+                title.isEnabled =false
+                icon.setColorFilter(ContextCompat.getColor(context,R.color.nav_drawer_disable_color))
             }
 
             itemView.setOnClickListener {

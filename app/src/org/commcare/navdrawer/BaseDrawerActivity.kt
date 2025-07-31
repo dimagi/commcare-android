@@ -169,23 +169,27 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 getString(R.string.nav_drawer_commcare_apps),
                 R.drawable.commcare_actionbar_logo,
                 NavItemType.COMMCARE_APPS,
-                false,
+                isEnabled = true,
+                isExpanded = false,
                 childItems
             ),
             NavDrawerItem.ParentItem(
                 getString(R.string.nav_drawer_work_history),
                 R.drawable.nav_drawer_worker_history_icon,
-                NavItemType.WORK_HISTORY
+                NavItemType.WORK_HISTORY,
+                isEnabled = false,
             ),
             NavDrawerItem.ParentItem(
                 getString(R.string.connect_messaging_title),
                 R.drawable.nav_drawer_message_icon,
-                NavItemType.MESSAGING
+                NavItemType.MESSAGING,
+                isEnabled = false,
             ),
             NavDrawerItem.ParentItem(
                 getString(R.string.nav_drawer_payments),
                 R.drawable.nav_drawer_payments_icon,
-                NavItemType.PAYMENTS
+                NavItemType.PAYMENTS,
+                isEnabled = false,
             ),
         )
 
