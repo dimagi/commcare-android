@@ -472,13 +472,13 @@
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
-    <string name="left_navigation_menu_signin_register"><u>Ingia / Jisajili</u></string>
-    <string name="left_navigation_menu_help">Msaada</string>
-    <string name="left_navigation_menu_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
-    <string name="left_navigation_menu_opportunities">Fursa</string>
-    <string name="left_navigation_menu_commcare_apps">Programu za CommCare</string>
-    <string name="left_navigation_menu_work_history">Historia ya Kazi</string>
-    <string name="left_navigation_menu_payments">Malipo</string>
-    <string name="left_navigation_menu_manage_profile">Dhibiti Wasifu</string>
+    <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
+    <string name="nav_drawer_help">Msaada</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
+    <string name="nav_drawer_opportunities">Fursa</string>
+    <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
+    <string name="nav_drawer_work_history">Historia ya Kazi</string>
+    <string name="nav_drawer_payments">Malipo</string>
+    <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
 </resources>

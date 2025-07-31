@@ -16,16 +16,18 @@
             android:id="@+id/close_button"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:background="@color/transparent"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:tint="@color/white"
-            android:src="@drawable/ic_connect_close"/>
+            android:src="@drawable/ic_connect_close"
+            android:contentDescription="@null"/>
         <ImageView
             android:layout_width="130dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
             android:layout_marginStart="16dp"
             android:src="@drawable/commcare_by_dimagi"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            android:contentDescription="@null"/>
     </LinearLayout>
     <androidx.cardview.widget.CardView
         android:id="@+id/profile_card"
@@ -57,7 +59,6 @@
                     android:id="@+id/user_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="John Doe"
                     android:textColor="@color/white"
                     android:textSize="14sp"/>
 
@@ -65,7 +66,7 @@
                     android:id="@+id/manage_profile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/left_navigation_menu_manage_profile"
+                    android:text="@string/nav_drawer_manage_profile"
                     android:textColor="@color/white"
                     android:paddingTop="4dp"
                     android:textSize="12sp"/>

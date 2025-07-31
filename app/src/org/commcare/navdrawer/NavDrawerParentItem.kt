@@ -1,9 +1,11 @@
 package org.commcare.navdrawer
 
+import androidx.annotation.DrawableRes
+
 sealed class NavDrawerItem {
     data class ParentItem(
         val title: String,
-        val iconResId: Int,
+        @DrawableRes val iconResId: Int,
         val type: BaseDrawerActivity.NavItemType,
         var isExpanded: Boolean = false,
         val children: List<ChildItem> = emptyList()

@@ -17,6 +17,8 @@
         android:layout_height="48dp"
         android:paddingStart="16dp"
         android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         android:paddingEnd="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
@@ -45,6 +47,8 @@
         android:layout_height="48dp"
         android:paddingStart="16dp"
         android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
         android:paddingEnd="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
@@ -52,13 +56,14 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/nav_drawer_help_icon"/>
+            android:src="@drawable/nav_drawer_help_icon"
+            android:contentDescription="@null"/>
 
         <TextView
             android:id="@+id/nav_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/left_navigation_menu_help"
+            android:text="@string/nav_drawer_help"
             android:textColor="@android:color/white"
             android:textFontWeight="400"
             android:textSize="14sp"

@@ -2,6 +2,8 @@ package org.commcare.navdrawer
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -25,7 +27,6 @@ import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 /**
  * Abstract activity that sets up and manages a shared navigation drawer layout.
@@ -72,7 +73,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     private fun initializeViews() {
         drawerLayout = findViewById(R.id.drawer_layout)
-        navDrawerRecycler = findViewById(R.id.signin_view)
+        navDrawerRecycler = findViewById(R.id.nav_drawer_recycler)
         signOutView = findViewById(R.id.signout_view)
         navDrawerHeader = findViewById(R.id.profile_card)
         registerTextView = findViewById(R.id.nav_drawer_sign_in_text)
@@ -83,14 +84,17 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         helpButton = findViewById(R.id.help_view)
         signInView = navDrawerRecycler
         helpButton.visibility = View.GONE
+        val content = SpannableString(getString(R.string.nav_drawer_signin_register))
+        content.setSpan(UnderlineSpan(), 0, content.length, 0);
+        registerTextView.text = content
     }
 
     private fun setupActionBarDrawerToggle() {
         drawerToggle = object : ActionBarDrawerToggle(
             this,
             drawerLayout,
-            R.string.target_mismatch_lts_open,
-            R.string.save_and_close
+            R.string.nav_drawer_open,
+            R.string.nav_drawer_close
         ) {
             override fun onDrawerOpened(drawerView: View) {
                 super.onDrawerOpened(drawerView)
@@ -129,7 +133,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return MultipleAppsUtil.getUsableAppRecords()
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     private fun setUpSignInView() {
         val user = ConnectUserDatabaseUtil.getUser(this)
         userName.text = user.name
@@ -158,19 +161,19 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
         val parentList = listOf(
             NavDrawerItem.ParentItem(
-                getString(R.string.left_navigation_menu_opportunities),
-                R.drawable.startup_url,
+                getString(R.string.nav_drawer_opportunities),
+                R.drawable.nav_drawer_opportunity_icon,
                 NavItemType.OPPORTUNITIES
             ),
             NavDrawerItem.ParentItem(
-                getString(R.string.left_navigation_menu_commcare_apps),
+                getString(R.string.nav_drawer_commcare_apps),
                 R.drawable.commcare_actionbar_logo,
                 NavItemType.COMMCARE_APPS,
                 false,
                 childItems
             ),
             NavDrawerItem.ParentItem(
-                getString(R.string.left_navigation_menu_work_history),
+                getString(R.string.nav_drawer_work_history),
                 R.drawable.nav_drawer_worker_history_icon,
                 NavItemType.WORK_HISTORY
             ),
@@ -180,7 +183,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 NavItemType.MESSAGING
             ),
             NavDrawerItem.ParentItem(
-                getString(R.string.left_navigation_menu_payments),
+                getString(R.string.nav_drawer_payments),
                 R.drawable.nav_drawer_payments_icon,
                 NavItemType.PAYMENTS
             ),
