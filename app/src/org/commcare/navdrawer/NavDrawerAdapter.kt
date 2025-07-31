@@ -87,11 +87,13 @@ class NavDrawerAdapter(
             }
 
             if (item.isEnabled) {
-                title.isEnabled= true
-                icon.setColorFilter(ContextCompat.getColor(context,R.color.white))
+                itemView.visibility = View.VISIBLE
+                title.isEnabled = true
+                icon.setColorFilter(ContextCompat.getColor(context, R.color.white))
             } else {
-                title.isEnabled =false
-                icon.setColorFilter(ContextCompat.getColor(context,R.color.nav_drawer_disable_color))
+                itemView.visibility = View.GONE
+                title.isEnabled = false
+                icon.setColorFilter(ContextCompat.getColor(context, R.color.nav_drawer_disable_color))
             }
 
             itemView.setOnClickListener {
