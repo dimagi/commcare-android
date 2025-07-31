@@ -66,6 +66,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/nav_drawer_recycler"
                     android:layout_width="match_parent"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
                     android:background="@color/cc_brand_color" />
