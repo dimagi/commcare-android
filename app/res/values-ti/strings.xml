@@ -25,7 +25,7 @@
     <string name="migration_definite_failure">CommCare ንዕቤት ዝኸውን ናይ ኣፕ ዳታኻ ክሰግሮ ኣይከኣለን። ነዚ ጸገም ንምፍታሕ፡ በጃኹም CommCare ካብ መሳርሒኹም ኣውጽእዎ እሞ ዳግማይ ይክፈትዎ።</string>
     <string name="migration_possible_failure">CommCare ኣብ እዋን ምዕባይ መተግበሪ ንኹሉ ዳታኻ ክሰግሮ ኣይከኣለን። ነዚ ንምእራም ክትፍትን በጃኻ CommCare ዳግማይ ጀምር። እዚ መልእኽቲ እዚ እንተቐጺሉ፡ ኣብ ዝርዝር ቅጥዕታት መሳርሒኹም ንCommCare \'Clear data\' ክትገብር ከድልየካ ይኽእል እዩ።</string>
     <string name="migration_failure_title">ናይ ምስግጋር ስሕተት</string>
-    <string name="multiple_apps_limit_message">ንናይ ኣፕሊኪሽን ናይ ምፅዓን ዝተወሃቦም ደረት በፂሖም ኣለዉ፤ ብሓንሳብ ክሳብ %1$d ዝበፅሑ መተግበሪታት ጥራይ ክፅዕኑ ይኽእሉ።\n\nሓድሽ መተግበሪ ክትተክል እንተደሊዮም፡ መጀመርታ ዝፀንሐ መተግበሪ ከጥፍእዎ ይኽእሉ እዮም፡ እዚ ድማ ካብ ኣካያዲ መተግበሪ ከሳልጡ ይኽእሉ።</string>
+    <string name="multiple_apps_limit_message">ንናይ ኣፕሊኪሽን ናይ ምፅዓን ዝተወሃቦም ደረት በፂሖም ኣለዉ፤ ብሓንሳብ ክሳብ %s ዝበፅሑ መተግበሪታት ጥራይ ክፅዕኑ ይኽእሉ።\n\nሓድሽ መተግበሪ ክትተክል እንተደሊዮም፡ መጀመርታ ዝፀንሐ መተግበሪ ከጥፍእዎ ይኽእሉ እዮም፡ እዚ ድማ ካብ ኣካያዲ መተግበሪ ከሳልጡ ይኽእሉ።</string>
     <string name="back_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንመለስ</string>
     <string name="go_to_manager">ናብ ኣፕሊኬሽን ማናጀር ንኺድ""</string>
     <string name="claim_privilege_button_text">ጥቕምታቶም ትሕተቱ/ይዉሰዱ</string>
@@ -162,9 +162,9 @@
     <string name="recovery_success">App recovery ዕዉት ኮይኑ ኣሎ። በይዝኦም ስራሕኩም ንምጅማር ንናይድሕሪት መምለሲ ምልክት ይፅቐጡ</string>
     <string name="recovery_forms_send_progress">ቅጥዕታት ናብ ሰርቨር ምልኣክ</string>
     <string name="recovery_forms_send_session_expired">ናይ መእተዊ ግዜ ሓሊፉ</string>
-    <string name="recovery_forms_send_successful">ዕዉት ስደድ። ኩሎም %1$d ቅጥዕታት ቀሪቦም</string>
+    <string name="recovery_forms_send_successful">ዕዉት ስደድ። ኩሎም %s ቅጥዕታት ቀሪቦም</string>
     <string name="recovery_forms_send_failure">ቅጥዕታት ኣብ ምልኣክ ጌጋታት ነይሩ</string>
-    <string name="recovery_forms_send_parital_success">ቅጥዕታት ኣብ ምቕራብ ጌጋታት ነይሩ። %1$d ጥራይ እዩ ቀሪቡ። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ</string>
+    <string name="recovery_forms_send_parital_success">ቅጥዕታት ኣብ ምቕራብ ጌጋታት ነይሩ። %s ጥራይ እዩ ቀሪቡ። በጃኹም ድሒርኩም ደጊምኩም ፈትኑ</string>
     <string name="recovery_forms_send_network_error">ብሰንኪ ድኩም ኔትዎርክ ምልኣክ ቅጥዕታት ኣይተዓወተን</string>
     <string name="recovery_forms_send_error">ቅጥዕታት ኣብ ምልኣክ ስሕተት ኣሎ</string>
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
@@ -211,7 +211,7 @@
     <string name="image_download_prompt">ንዚ ሕቶ ፋይል ምስሊ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="audio_download_prompt">ንዚ ሕቶ ፋይል ድምፂ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="media_not_found_error">ኣብዚ መተግበሪ ሚድያ (መራክቢ) ኣይተረክበን</string>
-    <string name="area_format">%1$.2f sq m</string>
+    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">ናይ ምእታው ኮርዲኔት ክትንትን ኣይከኣለን</string>
     <string name="location_provider_disabled">ሓድሽ ሓበሬታ ኣቀማምጣኻ ንምርካብ ቦታ (location) ወልዕ</string>
     <string name="wait_for_location_fix">CommCare ሕጂ ውን ቦታኻ ንምርካብ ይጽዕር ኣሎ። በይዛኻ ተፀበ ወይ ንምቁራጽ Cancel ጠውቅ።</string>
@@ -239,8 +239,8 @@
     <string name="busy_message">ሕጂ ውን ቅድሚ ሕጂ ዝገበርካዮ ሕቶ ኣብ ምስራሕ ተጸሚድና ኣለና። በጃኻ ድሕሪ ውሱን ግዜ ደጊምካ ፈትን።</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
-    <string name="connect_registration_title">PersonalId ምዝገባ</string>
-    <string name="connect_consent_message_1">ኣነ ፖሊሲ ውልቃዊ ሓበሬታ፡ ውዕል ኣገልግሎት፡ ስምምዕ ንግዲን ፖሊሲ ቅቡል ኣጠቓቕማን Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
+    <string name="connect_registration_title">ብ PersonalID ጀምር</string>
+    <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
     <string name="connect_phone_country_code_default">1</string>
     <string name="connect_phone_number_hint">0</string>
     <string name="connect_otp_sent">ኦቲፒ ተላኢኹ</string>
@@ -434,7 +434,11 @@
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
     <string name="personalid_configuration_process_failed_subtitle">መሳርሒኻ ኣብዚ እዋን\'ዚ ን PersonalID ንምምዝጋብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">መሳርሒኻ ኣብዚ እዋን እዚ ብሰንኪ %s ናይ ጸጥታ ባህሪ ዘይምህላዉ ንPersonalID ክምዝገብ ብቑዕ ኣይኮነን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">እቲ ናይ ፒን ድሕነት መካኒዝም ኣይርከብን እዩ፣ በጃኻ ድሒርካ ደጊምካ ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">እቲ ናይ ባዮሜትሪክ ጸጥታ መካኒዝም የለን፣ በጃኹም ድሒርኩም ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">እቲ ናይ ፒን ድሕነት መካኒዝም ሶፍትዌር ምዕባለ የድልዮ፣ በጃኻ ዝኾነ ዝርከብ ናይ ስርዓት ምዕባለታት ተግባራዊ ወይ ብዝተፈለየ መሳርሒ እንደገና ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">እቲ ናይ ባዮሜትሪክ ድሕነት መካኒዝም ሶፍትዌር ምዕባለ የድልዮ፣ በጃኻ ዝኾነ ዝርከብ ናይ ስርዓት ምዕባለታት ተግባራዊ ወይ ብዝተፈለየ መሳርሒ እንደገና ፈትን።</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID መሳርሒኻ ኣሰር ኣጻብዕቲ ስካነር ክህልዎ ይጠልብ። በጃኹም ብኻልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_play_services">እባኮም ኣረጋግጹ ፡ እቲ ፕሌይ ስቶር ኣብ መሳርሒ እትርከቡ እንተሎ እና ትሓዘ እንተኾነ።</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">ሓፋሽ ጸገብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ኣብ ሓደ መዓልቲ ደጊሞ ፈትኑ።</string>
     <string name="personalid_configuration_process_failed_network_error">ጸገኒ መረብ ኣብ ምርግጋን ብትኽክል መሳርሒ እንተሃለወ። እባኮም ዝሓለፈ መርበብ ክርከቡ እንተኾነ ኣረጋግጹ እና ደጊሞ ፈትኑ።</string>

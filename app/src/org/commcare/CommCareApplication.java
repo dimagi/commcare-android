@@ -37,6 +37,7 @@ import androidx.work.WorkManager;
 
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.perf.FirebasePerformance;
 
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -219,6 +220,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         CommCareApplication.app = this;
         CrashUtil.init();
         DataChangeLogger.init(this);
+        if (!BuildConfig.DEBUG) {
+            FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+        }
 
         logFirstCommCareRun();
         CommCarePreferenceManagerFactory.init(new AndroidPreferenceManager());
