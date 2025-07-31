@@ -37,7 +37,7 @@ License.
     <string name="migration_definite_failure">CommCare n\'a pas pu migrer les données de votre application pour une mise à niveau. Pour résoudre ce problème, veuillez désinstaller CommCare de votre appareil, puis le relancer.</string>
     <string name="migration_possible_failure">CommCare n\'a pas pu migrer toutes vos données lors d\'une mise à niveau de l\'application. Veuillez redémarrer CommCare pour tenter de résoudre ce problème. Si ce message persiste, vous devrez peut-être «Effacer les données» de CommCare dans les paramètres de votre appareil.</string>
     <string name="migration_failure_title">Erreur de migration</string>
-    <string name="multiple_apps_limit_message">Vous avez atteint votre limite d\'applications installées; vous ne pouvez avoir que %1$d applications installées à la fois.\n\nSi vous souhaitez installer une nouvelle application, vous pouvez d\'abord désinstaller une application existante, ce qui peut être fait à partir du gestionnaire d\'applications.</string>
+    <string name="multiple_apps_limit_message">Vous avez atteint votre limite d\'applications installées; vous ne pouvez avoir que %s applications installées à la fois.\n\nSi vous souhaitez installer une nouvelle application, vous pouvez d\'abord désinstaller une application existante, ce qui peut être fait à partir du gestionnaire d\'applications.</string>
     <string name="back_to_manager">Retour au gestionnaire d\'applications</string>
     <string name="go_to_manager">Accéder au gestionnaire d\'applications</string>
     <string name="claim_privilege_button_text">RÉCLAMER DES PRIVILÈGES</string>
@@ -174,9 +174,9 @@ License.
     <string name="recovery_success">La récupération de l\'application a réussi. Veuillez appuyer sur «Retour» pour reprendre votre travail.</string>
     <string name="recovery_forms_send_progress">Soumission du ou des formulaires au serveur...</string>
     <string name="recovery_forms_send_session_expired">La connexion a expiré lors de l\'envoi</string>
-    <string name="recovery_forms_send_successful">Envoi réussi. Tous les formulaires %1$d ont été soumis.</string>
+    <string name="recovery_forms_send_successful">Envoi réussi. Tous les formulaires %s ont été soumis.</string>
     <string name="recovery_forms_send_failure">Des erreurs se sont produites lors de la soumission des formulaires.</string>
-    <string name="recovery_forms_send_parital_success">Des erreurs se sont produites lors de l\'envoi des formulaires. Seuls %1$d ont été envoyés. Veuillez réessayer ultérieurement.</string>
+    <string name="recovery_forms_send_parital_success">Des erreurs se sont produites lors de l\'envoi des formulaires. Seuls %s ont été envoyés. Veuillez réessayer ultérieurement.</string>
     <string name="recovery_forms_send_network_error">L\'envoi des formulaires a échoué en raison d\'un réseau médiocre</string>
     <string name="recovery_forms_send_error">Erreur lors de l\'envoi des formulaires</string>
     <string name="recovery_forms_state_unavailable">Les formulaires ne sont pas disponibles. Vérifiez que l\'espace de stockage de votre téléphone est disponible.</string>
@@ -221,7 +221,7 @@ License.
     <string name="image_download_prompt">Le fichier image est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="audio_download_prompt">Le fichier audio est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="media_not_found_error">Média non trouvé dans l\'application</string>
-    <string name="area_format">%1$.2f m²</string>
+    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Impossible d\'analyser les coordonnées d\'entrée</string>
     <string name="location_provider_disabled">Activez votre localisation pour recevoir des mises à jour de localisation</string>
     <string name="wait_for_location_fix">CommCare tente toujours de récupérer votre position. Veuillez patienter ou cliquer sur Annuler pour annuler.</string>
@@ -249,7 +249,7 @@ License.
     <string name="busy_message">Nous sommes encore en train de traiter votre demande précédente. Veuillez réessayer plus tard.</string>
     <string name="connect_button_logged_in">Accéder au menu Connecter</string>
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
-    <string name="connect_registration_title">Inscription PersonalId</string>
+    <string name="connect_registration_title">Démarrer avec PersonalID</string>
     <string name="connect_consent_message_1">J\'ai lu et j\'accepte la <a href="https://www.dimagi.com/terms/latest/privacy/">politique de confidentialité</a>, les <a href="https://www.dimagi.com/terms/latest/tos/">conditions de service</a>, l\'<a href="https://www.dimagi.com/terms/latest/ba/">accord commercial</a> et la <a href="https://www.dimagi.com/terms/latest/aup/">politique d\'utilisation acceptable</a> de Dimagi.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
@@ -330,7 +330,7 @@ License.
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez peut-être plus accéder aux tâches suivantes.</string>
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
@@ -436,6 +436,8 @@ License.
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
     <string name="connect_send_message_hint">Tapez un message</string>
     <string name="connect_send_message_btn_desc">Appuyez ici pour envoyer un message</string>
+    <string name="connect_message_you">Toi</string>
+    <string name="connect_message_them">Eux</string>
     <string name="connect_corrupt_job_text">Impossible de charger cette opportunité</string>
     <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>
@@ -444,7 +446,11 @@ License.
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
     <string name="personalid_configuration_process_failed_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment. Veuillez réessayer sur un autre appareil.</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment en raison de l\'indisponibilité de la fonctionnalité de sécurité. Veuillez réessayer sur un autre appareil.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">Le mécanisme de sécurité PIN n\'est pas disponible, veuillez réessayer plus tard.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">Le mécanisme de sécurité biométrique n\'est pas disponible, veuillez réessayer plus tard.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">Le mécanisme de sécurité PIN nécessite une mise à jour logicielle, veuillez appliquer toutes les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">Le mécanisme de sécurité biométrique nécessite une mise à jour logicielle, veuillez appliquer toutes les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID nécessite que votre appareil soit équipé d\'un lecteur d\'empreintes digitales. Veuillez réessayer avec un autre appareil.</string>
     <string name="personalid_configuration_process_failed_play_services">Veuillez vous assurer que le Play Store est disponible sur votre appareil et qu\'il est à jour.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Erreur temporaire lors de la vérification de l\'éligibilité de votre appareil. Veuillez réessayer après un jour.</string>
     <string name="personalid_configuration_process_failed_network_error">Erreur réseau lors de la vérification de l\'éligibilité de votre appareil. Veuillez vous assurer que vous disposez d\'une bonne connexion réseau et réessayez.</string>
@@ -464,4 +470,7 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
+
+
 </resources>

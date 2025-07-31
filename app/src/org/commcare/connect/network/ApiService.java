@@ -9,6 +9,11 @@ import retrofit2.http.*;
 
 public interface ApiService {
 
+    @POST(ApiEndPoints.reportIntegrity)
+    Call<ResponseBody> reportIntegrity(@Header("CC-Integrity-Token") String integrityToken,
+                                          @Header("CC-Request-Hash") String requestHash,
+                                          @Body Map<String, String> reportRequest);
+
     @POST(ApiEndPoints.startConfiguration)
     Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
                                           @Header("CC-Request-Hash") String requestHash,

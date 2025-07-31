@@ -85,18 +85,17 @@ object ConnectJobHelper {
         listener: ConnectActivityCompleteListener
     ) {
         val user = ConnectUserDatabaseUtil.getUser(context)
-
         object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
-                if(deliveryAppProgressResponseModel.updatedJob){
+                if (deliveryAppProgressResponseModel.updatedJob) {
                     ConnectJobUtils.upsertJob(context, job)
                 }
 
-                if(deliveryAppProgressResponseModel.hasDeliveries){
+                if (deliveryAppProgressResponseModel.hasDeliveries) {
                     ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
                 }
 
-                if(deliveryAppProgressResponseModel.hasPayment){
+                if (deliveryAppProgressResponseModel.hasPayment) {
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }
 
@@ -138,6 +137,6 @@ object ConnectJobHelper {
                 FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false)
                 listener.connectActivityComplete(false)
             }
-        }.setPaymentConfirmation(context, user, payment.paymentId,confirmed)
+        }.setPaymentConfirmation(context, user, payment.paymentId, confirmed)
     }
 }

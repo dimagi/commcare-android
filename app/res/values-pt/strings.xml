@@ -37,7 +37,7 @@
     <string name="migration_definite_failure">A CommCare não conseguiu migrar os dados do seu aplicativo para uma atualização. Para resolver esse problema, desinstale o CommCare do seu dispositivo e reinicie-o.</string>
     <string name="migration_possible_failure">A CommCare não conseguiu migrar todos os seus dados durante uma atualização do aplicativo. Reinicie o CommCare para tentar corrigir isso. Se esta mensagem persistir, pode ser necessário \'Limpar dados\' do CommCare no menu Configurações do seu dispositivo.</string>
     <string name="migration_failure_title">Erro de migração</string>
-    <string name="multiple_apps_limit_message">Você atingiu seu limite de aplicativos instalados; você só pode ter até %1$d aplicativos instalados por vez.\n\nSe quiser instalar um novo aplicativo, você pode primeiro desinstalar um aplicativo existente, o que pode ser feito no gerenciador de aplicativos.</string>
+    <string name="multiple_apps_limit_message">Você atingiu seu limite de aplicativos instalados; você só pode ter até %s aplicativos instalados por vez.\n\nSe quiser instalar um novo aplicativo, você pode primeiro desinstalar um aplicativo existente, o que pode ser feito no gerenciador de aplicativos.</string>
     <string name="back_to_manager">Voltar ao Gerenciador de aplicativos</string>
     <string name="go_to_manager">Vá para o Gerenciador de aplicativos</string>
     <string name="claim_privilege_button_text">PRIVILÉGIOS DE REIVINDICAÇÃO</string>
@@ -174,9 +174,9 @@
     <string name="recovery_success">A recuperação do aplicativo foi bem-sucedida. Por favor, pressione voltar para retomar seu trabalho</string>
     <string name="recovery_forms_send_progress">Enviando formulário(s) para o servidor...</string>
     <string name="recovery_forms_send_session_expired">O login expirou durante o envio</string>
-    <string name="recovery_forms_send_successful">Envio com sucesso. Todos os %1$d formulários foram enviados</string>
+    <string name="recovery_forms_send_successful">Envio com sucesso. Todos os %s formulários foram enviados</string>
     <string name="recovery_forms_send_failure">Ocorreram erros no envio dos formulários.</string>
-    <string name="recovery_forms_send_parital_success">Ocorreram erros no envio dos formulários. Apenas %1$d foram enviados. Por favor, tente novamente mais tarde</string>
+    <string name="recovery_forms_send_parital_success">Ocorreram erros no envio dos formulários. Apenas %s foram enviados. Por favor, tente novamente mais tarde</string>
     <string name="recovery_forms_send_network_error">O envio dos formulários falhou devido a uma rede deficiente</string>
     <string name="recovery_forms_send_error">Erro ao enviar formulários</string>
     <string name="recovery_forms_state_unavailable">Os formulários não estão disponíveis. Verifique se o armazenamento do seu telefone está disponível</string>
@@ -223,7 +223,7 @@
     <string name="image_download_prompt">O arquivo de imagem está faltando para esta pergunta. Clique no botão de download acima para fazer o download</string>
     <string name="audio_download_prompt">O arquivo de áudio está faltando para esta pergunta, clique no botão de download acima para fazer o download</string>
     <string name="media_not_found_error">Mídia não encontrada no aplicativo</string>
-    <string name="area_format">%1$.2f m²</string>
+    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Não foi possível analisar as coordenadas de entrada</string>
     <string name="location_provider_disabled">Ative sua localização para receber atualizações de localização</string>
     <string name="wait_for_location_fix">A CommCare ainda está tentando obter sua localização. Aguarde ou clique em Cancelar para cancelar.</string>
@@ -251,7 +251,7 @@
     <string name="busy_message">Ainda estamos ocupados processando sua solicitação anterior. Por favor, tente novamente em alguns momentos.</string>
     <string name="connect_button_logged_in">Vá para o Conectar menu</string>
     <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
-    <string name="connect_registration_title">Inscrição no Connect ID</string>
+    <string name="connect_registration_title">Comece a usar o PersonalID</string>
     <string name="connect_consent_message_1">Li e concordo com a <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidade</a>, os <a href="https://www.dimagi.com/terms/latest/tos/">Termos de Serviço</a>, o <a href="https://www.dimagi.com/terms/latest/ba/">Contrato Comercial</a> e a <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceitável</a> da Dimagi.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
@@ -340,7 +340,7 @@
     <string name="connect_progress_warning_not_started">O trabalho ainda não começou. Você não ganhará nenhum progresso para o trabalho.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Você passou na avaliação e está pronto para entregar. Veja o status do trabalho para continuar.</string>
     <string name="connect_progress_warning_max_reached_single">Completou o número máximo de visitas. Você não ganhará nenhum progresso por trabalho adicional.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Atingiu o número máximo de visitas para hoje. Você não ganhará nenhum progresso por trabalho adicional.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Atingiu o número máximo de visitas para hoje. Talvez não consiga aceder a mais tarefas.</string>
     <string name="connect_progress_warning_max_reached_multi">Você atingiu o número máximo de visitas para %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">Atingiu o seu limite diário para %s.</string>
     <string name="connect_downloading_learn">Descarregamento da aplicação Learn</string>
@@ -439,6 +439,8 @@
     <string name="connect_messaging_retrieve_messages_fail">Falha ao recuperar mensagens</string>
     <string name="connect_send_message_hint">Digite mensagem</string>
     <string name="connect_send_message_btn_desc">Clique aqui para enviar mensagem</string>
+    <string name="connect_message_you">Você</string>
+    <string name="connect_message_them">Eles</string>
     <string name="connect_corrupt_job_text">Falha ao carregar esta oportunidade</string>
     <string name="connect_results_summary_pending">Pendente</string>
     <string name="connect_results_summary_rejected">Rejeitado</string>
@@ -450,7 +452,11 @@
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_locked_account">A sua conta foi bloqueada. Entre em contacto com o suporte</string>
     <string name="personalid_configuration_process_failed_subtitle">De momento, o seu dispositivo não está qualificado para se inscrever no PersonalID. Tente novamente noutro dispositivo.</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">De momento, o seu dispositivo não está qualificado para se inscrever no PersonalID devido à indisponibilidade da funcionalidade de segurança %s. Tente novamente noutro dispositivo.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">O mecanismo de segurança do PIN não está disponível, tente novamente mais tarde.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">O mecanismo de segurança biométrica não está disponível, tente novamente mais tarde.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">O mecanismo de segurança do PIN requer uma atualização de software. Aplique todas as atualizações de sistema disponíveis ou tente novamente com um dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">O mecanismo de segurança biométrica requer uma atualização de software. Aplique todas as atualizações de sistema disponíveis ou tente novamente com um dispositivo diferente.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">O PersonalID requer que seu dispositivo tenha um leitor de impressão digital. Tente novamente com outro dispositivo.</string>
     <string name="personalid_configuration_process_failed_play_services">Certifique-se de que a Play Store está disponível no seu dispositivo e está atualizada.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Erro temporário ao verificar a elegibilidade do seu dispositivo. Por favor, tente novamente depois de um dia.</string>
     <string name="personalid_configuration_process_failed_network_error">Erro de rede ao verificar a elegibilidade do seu dispositivo. Por favor, certifique-se de que tem uma boa conexão de rede e tente novamente.</string>
@@ -470,4 +476,6 @@
     <string name="personalid_camera_permission_title">Permissão para câmara</string>
     <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
     <string name="personalid_capture_photo">Capturar foto</string>
+    <string name="play_service_update_error">Certifique-se de que os serviços do Google Play sejam suportados no dispositivo e estejam atualizados.</string>
+
 </resources>

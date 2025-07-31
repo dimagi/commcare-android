@@ -93,15 +93,10 @@ public class FirebaseAuthService implements OtpAuthService {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-                handlePersonalIdApiError(failureCode, t);
+                callback.onPersonalIdApiFailure(failureCode, t);
             }
 
         }.validateFirebaseIdToken(activity, code, personalIdSessionData);
-    }
-
-    private void handlePersonalIdApiError(BaseApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
-        String error = PersonalIdApiErrorHandler.handle(activity, failureCode, t);
-        callback.onFailure(OtpErrorType.GENERIC_ERROR, error);
     }
 
     private void firebaseAuthenticator(PhoneAuthCredential credential) {

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.Navigation;
 
+import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -65,7 +66,7 @@ public class ConnectJobIntroFragment extends ConnectJobFragment {
         binding.connectJobIntroLearningSummary.setText(getString(R.string.connect_job_learn_summary,
                 modules.size(), totalHours));
 
-        final boolean appInstalled = ConnectAppUtils.INSTANCE.isAppInstalled(job.getLearnAppInfo().getAppId());
+        final boolean appInstalled = AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId());
 
         binding.connectJobIntroStartButton.setText(getString(appInstalled ? R.string.connect_job_go_to_learn_app
                 : R.string.download_app));

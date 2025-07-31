@@ -14,13 +14,13 @@ import org.commcare.connect.network.connectId.parser.CompleteProfileResponsePars
 import org.commcare.connect.network.connectId.parser.ConfirmBackupCodeResponseParser;
 import org.commcare.connect.network.connectId.parser.PersonalIdApiResponseParser;
 import org.commcare.connect.network.connectId.parser.StartConfigurationResponseParser;
+import org.commcare.connect.network.connectId.parser.ReportIntegrityResponseParser;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -87,6 +87,15 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     }
 
 
+
+    public void makeIntegrityReportCall(Context context,
+                                        String requestId,
+                                        Map<String, String> body,
+                                        String integrityToken,
+                                        String requestHash) {
+        ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
+                createCallback(null, new ReportIntegrityResponseParser(requestId)));
+    }
 
     public void makeStartConfigurationCall(Activity activity,
                                            Map<String, String> body,
