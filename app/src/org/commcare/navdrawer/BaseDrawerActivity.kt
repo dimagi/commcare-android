@@ -26,6 +26,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
+import org.commcare.utils.ViewUtils
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 /**
@@ -65,7 +66,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
         initializeViews()
         setupActionBarDrawerToggle()
-
+        setUpListener()
         injectScreenLayout(layoutInflater, findViewById(R.id.nav_drawer_frame))
         setupDrawer()
     }
@@ -101,12 +102,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             override fun onDrawerOpened(drawerView: View) {
                 super.onDrawerOpened(drawerView)
                 // Hide keyboard
-                val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                currentFocus?.let {
-                    inputMethodManager.hideSoftInputFromWindow(it.windowToken, 0)
-                    it.clearFocus()
-                }
-                setupDrawer()
+                hideKeyboard()
                 FirebaseAnalyticsUtil.reportNavDrawerOpen()
             }
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
@@ -131,11 +127,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun setupDrawer() {
-        setUpListener()
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            signOutView.visibility = View.GONE
-            signInView.visibility = View.VISIBLE
-            navDrawerHeader.visibility = View.VISIBLE
             setUpSignInView()
         } else {
             signOutView.visibility = View.VISIBLE
@@ -150,6 +142,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun setUpSignInView() {
+        signOutView.visibility = View.GONE
+        signInView.visibility = View.VISIBLE
+        navDrawerHeader.visibility = View.VISIBLE
+
         val user = ConnectUserDatabaseUtil.getUser(this)
         userName.text = user.name
 
@@ -171,8 +167,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             userPhoto.setImageResource(R.drawable.nav_drawer_person_avatar)
         }
 
-        val childItems = loadVisibleCommcareApplications().map {
-            NavDrawerItem.ChildItem(it.displayName, it.uniqueId)
+        val commacreChildItems = loadVisibleCommcareApplications().map {
+            NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
         }
 
         val parentList = listOf(
@@ -187,7 +183,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 NavItemType.COMMCARE_APPS,
                 isEnabled = true,
                 isExpanded = false,
-                childItems
+                commacreChildItems
             ),
             NavDrawerItem.ParentItem(
                 getString(R.string.nav_drawer_work_history),
@@ -216,8 +212,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             onParentClick = {
                 onDrawerItemClicked(it.type, null)
             },
-            onChildClick = {
-                onDrawerItemClicked(NavItemType.COMMCARE_APPS, it.recordId)
+            onChildClick = { parentType, childItem ->
+                onDrawerItemClicked(parentType, childItem.recordId)
                 drawerLayout.closeDrawers()
             }
         )
