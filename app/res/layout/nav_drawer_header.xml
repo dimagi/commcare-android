@@ -67,6 +67,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/nav_drawer_manage_profile"
                     android:paddingTop="4dp"
+                    android:visibility="gone"
                     android:textAppearance="@style/TextAppearance.NavDrawerItem.SubTitle"/>
             </LinearLayout>
         </LinearLayout>
