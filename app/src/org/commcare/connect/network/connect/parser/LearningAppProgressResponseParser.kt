@@ -26,7 +26,7 @@ class LearningAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
 
                     var key = "completed_modules"
                     val modules = json.getJSONArray(key)
-                    for (i in 0..<modules.length()) {
+                    for (i in 0 until modules.length()) {
                         val obj = modules[i] as JSONObject
                         val record = ConnectJobLearningRecord.fromJson(obj, jobId)
                         connectJobLearningRecords.add(record)
@@ -34,7 +34,7 @@ class LearningAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
 
                     key = "assessments"
                     val assessments = json.getJSONArray(key)
-                    for (i in 0..<assessments.length()) {
+                    for (i in 0 until assessments.length()) {
                         val obj = assessments[i] as JSONObject
                         val record = ConnectJobAssessmentRecord.fromJson(obj, jobId)
                         connectJobAssessmentRecords.add(record)

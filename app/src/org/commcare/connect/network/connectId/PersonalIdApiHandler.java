@@ -94,7 +94,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                                         String integrityToken,
                                         String requestHash) {
         ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
-                createCallback(null, new ReportIntegrityResponseParser(requestId)));
+                createCallback(new ReportIntegrityResponseParser<T>(),requestId));
     }
 
     public void makeStartConfigurationCall(Activity activity,

@@ -215,7 +215,7 @@ public class ApiPersonalId {
                                           String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.reportIntegrity(integrityToken, requestHash, body);
-        callApi(context, call, callback, ApiEndPoints.reportIntegrity);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.reportIntegrity);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
