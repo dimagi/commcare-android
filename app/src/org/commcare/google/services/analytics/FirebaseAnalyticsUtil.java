@@ -10,6 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.util.EncryptionUtils;
@@ -111,6 +112,8 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
                 String.valueOf(PersonalIdManager.getInstance().isloggedIn()));
+
+        analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
     }
 
     private static String getFreeDiskBucket() {
@@ -397,6 +400,13 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.FORM_UPLOAD_ATTEMPT,
                 new String[]{CCAnalyticsParam.RESULT, FirebaseAnalytics.Param.VALUE},
                 new String[]{String.valueOf(first), String.valueOf(second)});
+    }
+
+    public static void reportPersonalIdIntegritySubmission(String requestId, String responseCode) {
+        Bundle b = new Bundle();
+        b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
+        b.putString(CCAnalyticsParam.RESULT_CODE, responseCode);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_INTEGRITY_REPORTED, b);
     }
 
     public static void reportPersonalIdAccountCreated() {

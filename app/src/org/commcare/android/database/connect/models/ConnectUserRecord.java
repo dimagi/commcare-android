@@ -35,7 +35,7 @@ public class ConnectUserRecord extends Persisted {
 
     @Persisting(4)
     private String primaryPhone;
-
+    @Deprecated
     @Persisting(5)
     private String alternatePhone;
 
@@ -53,6 +53,7 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 10, nullable = true)
     @MetaField(META_PIN)
     private String pin;
+    @Deprecated
     @Persisting(11)
     @MetaField(META_SECONDARY_PHONE_VERIFIED)
     /**
@@ -113,14 +114,6 @@ public class ConnectUserRecord extends Persisted {
         this.primaryPhone = primaryPhone;
     }
 
-    public String getAlternatePhone() {
-        return alternatePhone;
-    }
-
-    public void setAlternatePhone(String alternatePhone) {
-        this.alternatePhone = alternatePhone;
-    }
-
     public void setPin(String pin) {
         this.pin = pin;
     }
@@ -166,10 +159,6 @@ public class ConnectUserRecord extends Persisted {
         return shouldForceRecoveryLogin() && pin != null && pin.length() > 0;
     }
 
-    public boolean shouldForcePassword() {
-        return shouldForceRecoveryLogin() && !shouldForcePin();
-    }
-
     private boolean shouldForceRecoveryLogin() {
         Date pinDate = getLastPinDate();
         boolean forcePin = pinDate == null;
@@ -207,7 +196,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
-        newRecord.alternatePhone = oldRecord.getAlternatePhone();
+        newRecord.alternatePhone = "";
         newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
         newRecord.connectToken = oldRecord.getConnectToken();

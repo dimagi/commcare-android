@@ -182,12 +182,6 @@ public class PhoneNumberHelper {
         };
     }
 
-    public void storeAlternatePhone(Context context, ConnectUserRecord user, String phone) {
-        user.setAlternatePhone(phone);
-        ConnectUserDatabaseUtil.storeUser(context, user);
-        ConnectDatabaseHelper.setRegistrationPhase(context, ConnectConstants.PERSONALID_REGISTRATION_CONFIRM_PIN);
-    }
-
     public void storePrimaryPhone(Context context, ConnectUserRecord user, String phone) {
         user.setPrimaryPhone(phone);
         ConnectUserDatabaseUtil.storeUser(context, user);

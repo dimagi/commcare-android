@@ -249,8 +249,8 @@ License.
     <string name="busy_message">Nous sommes encore en train de traiter votre demande précédente. Veuillez réessayer plus tard.</string>
     <string name="connect_button_logged_in">Accéder au menu Connecter</string>
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
-    <string name="connect_registration_title">Inscription PersonalId</string>
-    <string name="connect_consent_message_1">J\'ai lu et j\'accepte la politique de confidentialité, les conditions de service, l\'accord commercial et la politique d\'utilisation acceptable de Dimagi.</string>
+    <string name="connect_registration_title">Démarrer avec PersonalID</string>
+    <string name="connect_consent_message_1">J\'ai lu et j\'accepte la <a href="https://www.dimagi.com/terms/latest/privacy/">politique de confidentialité</a>, les <a href="https://www.dimagi.com/terms/latest/tos/">conditions de service</a>, l\'<a href="https://www.dimagi.com/terms/latest/ba/">accord commercial</a> et la <a href="https://www.dimagi.com/terms/latest/aup/">politique d\'utilisation acceptable</a> de Dimagi.</string>
     <string name="connect_phone_country_code_default">+1</string>
     <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">OTP envoyé</string>
@@ -440,8 +440,13 @@ License.
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_name_empty_error">Le champ Nom ne peut pas être vide</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
+    <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
     <string name="personalid_configuration_process_failed_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment. Veuillez réessayer sur un autre appareil.</string>
-    <string name="personalid_configuration_process_failed_security_subtitle">Votre appareil n\'est pas compatible avec PersonalID pour le moment en raison de l\'indisponibilité de la fonctionnalité de sécurité. Veuillez réessayer sur un autre appareil.</string>
+    <string name="personalid_configuration_process_pin_unavailable_message">Le mécanisme de sécurité PIN n\'est pas disponible, veuillez réessayer plus tard.</string>
+    <string name="personalid_configuration_process_biometric_unavailable_message">Le mécanisme de sécurité biométrique n\'est pas disponible, veuillez réessayer plus tard.</string>
+    <string name="personalid_configuration_process_pin_needs_update_message">Le mécanisme de sécurité PIN nécessite une mise à jour logicielle, veuillez appliquer toutes les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
+    <string name="personalid_configuration_process_biometric_needs_update_message">Le mécanisme de sécurité biométrique nécessite une mise à jour logicielle, veuillez appliquer toutes les mises à jour système disponibles ou réessayer avec un autre appareil.</string>
+    <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID nécessite que votre appareil soit équipé d\'un lecteur d\'empreintes digitales. Veuillez réessayer avec un autre appareil.</string>
     <string name="personalid_configuration_process_failed_play_services">Veuillez vous assurer que le Play Store est disponible sur votre appareil et qu\'il est à jour.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Erreur temporaire lors de la vérification de l\'éligibilité de votre appareil. Veuillez réessayer après un jour.</string>
     <string name="personalid_configuration_process_failed_network_error">Erreur réseau lors de la vérification de l\'éligibilité de votre appareil. Veuillez vous assurer que vous disposez d\'une bonne connexion réseau et réessayez.</string>
@@ -461,4 +466,7 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
+
+
 </resources>

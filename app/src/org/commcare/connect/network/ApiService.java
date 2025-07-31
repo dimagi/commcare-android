@@ -8,6 +8,11 @@ import retrofit2.http.*;
 
 public interface ApiService {
 
+    @POST(ApiEndPoints.reportIntegrity)
+    Call<ResponseBody> reportIntegrity(@Header("CC-Integrity-Token") String integrityToken,
+                                          @Header("CC-Request-Hash") String requestHash,
+                                          @Body Map<String, String> reportRequest);
+
     @POST(ApiEndPoints.startConfiguration)
     Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
             @Header("CC-Request-Hash") String requestHash,
@@ -34,4 +39,11 @@ public interface ApiService {
 
     @POST(ApiEndPoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.sendSessionOtp)
+    Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
+
+    @POST(ApiEndPoints.validateSessionOtp)
+    Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
+            @Body Map<String, String> body);
 }

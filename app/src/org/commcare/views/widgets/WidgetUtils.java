@@ -24,6 +24,8 @@ import org.commcare.preferences.MainConfigurablePreferences;
 
 public class WidgetUtils {
     private static final TableLayout.LayoutParams params;
+    private static final String INVALID_XML1_CHARACTERS_REGEX = "[\u001D]";
+    private static final String REPLACEMENT_CHARACTER = "\uFFFD";
 
     static {
         params = new TableLayout.LayoutParams();
@@ -102,5 +104,17 @@ public class WidgetUtils {
         Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
         PackageManager packageManager = context.getPackageManager();
         return intent.resolveActivity(packageManager) != null;
+    }
+
+    /**
+     * Sanitizes XML by replacing characters that are invalid under the XML 1.0 spec with a replacement character
+     * This is ensures that XML data is well-formed and does not contain characters that would cause parsing
+     * errors
+     *
+     * @param xml The XML string to sanitize.
+     * @return The sanitized XML string.
+     */
+    public static String sanitizeXml(String xml) {
+        return xml.replaceAll(INVALID_XML1_CHARACTERS_REGEX, REPLACEMENT_CHARACTER);
     }
 }
