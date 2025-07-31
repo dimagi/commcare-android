@@ -47,6 +47,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private lateinit var closeIcon: ImageView
     private lateinit var aboutCommcare: LinearLayout
     private lateinit var helpButton: LinearLayout
+    private var hasRefreshed = false
+
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -106,6 +108,20 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 }
                 setupDrawer()
                 FirebaseAnalyticsUtil.reportNavDrawerOpen()
+            }
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                super.onDrawerSlide(drawerView, slideOffset)
+
+                // Refresh once just as the drawer starts sliding open
+                if (slideOffset > 0 && !hasRefreshed) {
+                    setupDrawer()
+                    hasRefreshed = true
+                }
+
+                // Reset flag when fully closed
+                if (slideOffset == 0f) {
+                    hasRefreshed = false
+                }
             }
         }
         drawerLayout.addDrawerListener(drawerToggle)
