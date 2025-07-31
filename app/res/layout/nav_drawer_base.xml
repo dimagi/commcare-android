@@ -47,21 +47,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:focusable="true"
-                        android:textSize="14sp"
                         android:layout_gravity="center"
                         android:paddingTop="16dp"
                         android:clickable="true"
-                        android:textColor="@color/white"
+                        android:textAppearance="@style/TextAppearance.NavDrawerItem"
                         android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
                     <TextView
                         android:id="@+id/nav_drawer_sign_in_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="14sp"
                         android:layout_gravity="center"
                         android:paddingTop="16dp"
-                        android:textColor="@color/white"
-                        android:text="@string/nav_drawer_signin_register"/>
+                        android:text="@string/nav_drawer_signin_register"
+                        android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView

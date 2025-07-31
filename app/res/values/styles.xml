@@ -359,4 +359,19 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+    <style name="TextAppearance.NavDrawerItem">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.NavDrawerItem.SubTitle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.NavDrawerItem.Disabled">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/nav_drawer_disable_color</item>
+    </style>
 </resources>

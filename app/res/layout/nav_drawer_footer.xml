@@ -34,9 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_cc"
-            android:textColor="@android:color/white"
-            android:textFontWeight="400"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.NavDrawerItem"
             android:layout_marginStart="8dp"
             android:fontFamily="sans-serif-medium" />
     </LinearLayout>
@@ -64,9 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/nav_drawer_help"
-            android:textColor="@android:color/white"
-            android:textFontWeight="400"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.NavDrawerItem"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 
