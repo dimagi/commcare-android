@@ -4,17 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.references.JavaFileRoot;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
-import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.Table;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -45,7 +43,6 @@ import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
@@ -73,7 +70,7 @@ public class CommCareApp implements AppFilePathBuilder {
     public static CommCareApp currentSandbox;
 
     private final Object appDbHandleLock = new Object();
-    private SQLiteDatabase appDatabase;
+    private IDatabase appDatabase;
 
     private static Stylizer mStylizer;
 
@@ -403,10 +400,10 @@ public class CommCareApp implements AppFilePathBuilder {
     protected AndroidDbHelper buildAndroidDbHelper() {
         return new AndroidDbHelper(CommCareApplication.instance().getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 synchronized (appDbHandleLock) {
                     if (appDatabase == null || !appDatabase.isOpen()) {
-                        appDatabase = new DatabaseAppOpenHelper(this.c, record.getApplicationId()).getWritableDatabase("null");
+                        appDatabase = CommCareApplication.instance().getAppDbOpenHelper(record.getApplicationId());
                     }
                     return appDatabase;
                 }
@@ -460,7 +457,7 @@ public class CommCareApp implements AppFilePathBuilder {
     /**
      * For testing purposes only
      */
-    public static SQLiteDatabase getAppDatabaseForTesting() {
+    public static IDatabase getAppDatabaseForTesting() {
         if (BuildConfig.DEBUG) {
             return CommCareApplication.instance().getCurrentApp().buildAndroidDbHelper().getHandle();
         } else {

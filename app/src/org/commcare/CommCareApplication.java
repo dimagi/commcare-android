@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
@@ -37,9 +38,6 @@ import androidx.work.WorkManager;
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
-
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -75,11 +73,15 @@ import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
+import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
+import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.Table;
@@ -113,7 +115,6 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
-import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -180,7 +181,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private AndroidSessionWrapper sessionWrapper;
 
     private final Object globalDbHandleLock = new Object();
-    private SQLiteDatabase globalDatabase;
+    private IDatabase globalDatabase;
 
     private ArchiveFileRoot mArchiveFileRoot;
 
@@ -273,7 +274,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     protected void loadSqliteLibs() {
-        SQLiteDatabase.loadLibs(this);
+        System.loadLibrary("sqlcipher");
     }
 
     protected void turnOnStrictMode() {
@@ -593,9 +594,9 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     private int initGlobalDb() {
-        SQLiteDatabase database;
+        IDatabase database;
         try {
-            database = new DatabaseGlobalOpenHelper(this).getWritableDatabase("null");
+            database = getGlobalDbOpenHelper();
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
@@ -610,7 +611,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
-    public SQLiteDatabase getUserDbHandle() {
+    public IDatabase getUserDbHandle() {
         return this.getSession().getUserDbHandle();
     }
 
@@ -621,10 +622,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     public <T extends Persistable> SqlStorage<T> getGlobalStorage(String table, Class<T> c) {
         return new SqlStorage<>(table, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 synchronized (globalDbHandleLock) {
                     if (globalDatabase == null || !globalDatabase.isOpen()) {
-                        globalDatabase = new DatabaseGlobalOpenHelper(this.c).getWritableDatabase("null");
+                        globalDatabase = getGlobalDbOpenHelper();
                     }
                     return globalDatabase;
                 }
@@ -664,8 +665,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     protected AndroidDbHelper buildUserDbHandle() {
         return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() {
-                SQLiteDatabase database = getUserDbHandle();
+            public IDatabase getHandle() {
+                IDatabase database = getUserDbHandle();
                 if (database == null) {
                     throw new SessionUnavailableException("The user database has been closed!");
                 }
@@ -674,10 +675,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         };
     }
 
-    public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
+    public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final IDatabase handle) {
         return new SqlStorage<>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 return handle;
             }
         });
@@ -1246,5 +1247,21 @@ public class CommCareApplication extends Application implements LifecycleEventOb
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "CommCare has been closed");
                 break;
         }
+    }
+
+    public IDatabase getGlobalDbOpenHelper() {
+        return new EncryptedDatabaseAdapter(new DatabaseGlobalOpenHelper(this));
+    }
+
+    public IDatabase getUserDbOpenHelper(String userKeyRecordId, String key) {
+        return new EncryptedDatabaseAdapter(new DatabaseUserOpenHelper(this, userKeyRecordId, key));
+    }
+
+    public IDatabase getUserDbOpenHelperFromFile(String path, String password) {
+        return new EncryptedDatabaseAdapter(path, password);
+    }
+
+    public IDatabase getAppDbOpenHelper(String appId) {
+        return new EncryptedDatabaseAdapter(new DatabaseAppOpenHelper(this, appId));
     }
 }
