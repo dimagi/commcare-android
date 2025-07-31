@@ -43,7 +43,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
         ConnectDeliveryDetailsFragmentArgs args = ConnectDeliveryDetailsFragmentArgs.fromBundle(getArguments());
 
-        getActivity().setTitle(getString(R.string.connect_job_info_title));
+        requireActivity().setTitle(getString(R.string.connect_job_info_title));
         setupJobDetailsUI(job);
         setupButtonBehavior(job, args.getIsButtonVisible());
 

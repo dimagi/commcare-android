@@ -343,6 +343,7 @@
     <string name="connect_progress_warning_daily_max_reached_single">Atingiu o número máximo de visitas para hoje. Talvez não consiga aceder a mais tarefas.</string>
     <string name="connect_progress_warning_max_reached_multi">Você atingiu o número máximo de visitas para %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">Atingiu o seu limite diário para %s.</string>
+    <string name="connect_download_learn">Baixe o Aplicativo Aprenda</string>
     <string name="connect_downloading_learn">Descarregamento da aplicação Learn</string>
     <string name="connect_downloading_delivery">Baixando o aplicativo de entrega</string>
     <string name="connect_results_summary_earned">Ganhos</string>

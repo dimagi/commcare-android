@@ -2,17 +2,10 @@ package org.commcare.fragments.connect;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.core.view.MenuHost;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -24,27 +17,29 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
+import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.ConnectivityStatus;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 
-public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
-
+public class ConnectDeliveryProgressFragment extends ConnectJobFragment
+        implements RefreshableFragment {
+    public static final String TAB_POSITION = "tabPosition";
+    public static final int TAB_PROGRESS = 0;
+    public static final int TAB_PAYMENT = 1;
     private FragmentConnectDeliveryProgressBinding binding;
     private ViewStateAdapter viewPagerAdapter;
     private ConnectJobPaymentRecord paymentToConfirm = null;
-    private String initialTabPosition = "";
+    private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
 
     public static ConnectDeliveryProgressFragment newInstance() {
@@ -57,11 +52,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         requireActivity().setTitle(R.string.connect_progress_delivery);
 
         if (getArguments() != null) {
-            initialTabPosition = getArguments().getString("tabPosition", "0");
+            initialTabPosition = getArguments().getInt(TAB_POSITION, TAB_PROGRESS);
         }
 
         setupTabViewPager();
-        setupMenuProvider();
         setupJobCard(job);
         setupRefreshAndConfirmationActions();
 
@@ -80,12 +74,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_progress));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.connect_payment));
 
-        if (initialTabPosition.equals("1")) {
-            TabLayout.Tab tab = tabLayout.getTabAt(1);
+        if (initialTabPosition == TAB_PAYMENT) {
+            TabLayout.Tab tab = tabLayout.getTabAt(TAB_PAYMENT);
             if (tab != null) {
                 isProgrammaticTabChange = true;
                 tabLayout.selectTab(tab);
-                binding.connectDeliveryProgressViewPager.setCurrentItem(1, false);
+                binding.connectDeliveryProgressViewPager.setCurrentItem(TAB_PAYMENT, false);
             }
         }
 
@@ -114,25 +108,20 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         });
     }
 
-    private void setupMenuProvider() {
-        MenuHost host = requireActivity();
-        host.addMenuProvider(new MenuProvider() {
-            @Override
-            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {}
-
-            @Override
-            public boolean onMenuItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId() == R.id.action_sync) {
-                    refreshData();
-                    return true;
-                }
-                return false;
+    @Override
+    public void refresh() {
+        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
+            if (success) {
+                updateLastUpdatedText(new Date());
+                updateWarningMessage();
+                updatePaymentConfirmationTile(false);
+                viewPagerAdapter.refresh();
             }
-        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+        });
     }
 
     private void setupRefreshAndConfirmationActions() {
-        binding.connectDeliveryRefresh.setOnClickListener(v -> refreshData());
+        binding.connectDeliveryRefresh.setOnClickListener(v -> refresh());
 
         binding.connectPaymentConfirmNoButton.setOnClickListener(v -> {
             updatePaymentConfirmationTile(true);
@@ -173,7 +162,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
     public void onResume() {
         super.onResume();
         if (PersonalIdManager.getInstance().isloggedIn()) {
-            refreshData();
+            refresh();
         }
     }
 
@@ -183,64 +172,12 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
         binding = null;
     }
 
-    public void refreshData() {
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, success -> {
-            if (success) {
-                try {
-                    updateLastUpdatedText(new Date());
-                    updateWarningMessage();
-                    updatePaymentConfirmationTile(false);
-                    viewPagerAdapter.refresh();
-                } catch (Exception ignored) {}
-            }
-        });
-    }
-
     private void updateWarningMessage() {
-
-        String warningText = computeWarningText(job);
-
-        CardView warningCard = binding.getRoot().findViewById(R.id.cvConnectMessage);
-        if (warningCard != null) {
-            warningCard.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
-            if (warningText != null) {
-                ((TextView) warningCard.findViewById(R.id.tvConnectMessage)).setText(warningText);
-            }
+        String warningText = job.getWarningMessages(requireContext());
+        binding.cvConnectMessage.setVisibility(warningText == null ? View.GONE : View.VISIBLE);
+        if (warningText != null) {
+            binding.tvConnectMessage.setText(warningText);
         }
-    }
-
-    private String computeWarningText(ConnectJobRecord job) {
-        if (job.isFinished()) {
-            return getString(R.string.connect_progress_warning_ended);
-        } else if (job.getProjectStartDate().after(new Date())) {
-            return getString(R.string.connect_progress_warning_not_started);
-        } else if (job.getIsUserSuspended()) {
-            return getString(R.string.user_suspended);
-        } else if (job.isMultiPayment()) {
-            List<String> warnings = new ArrayList<>();
-            Hashtable<String, Integer> total = job.getDeliveryCountsPerPaymentUnit(false);
-            Hashtable<String, Integer> today = job.getDeliveryCountsPerPaymentUnit(true);
-
-            for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
-                String key = String.valueOf(unit.getUnitId());
-                int totalCount = total.containsKey(key) ? total.get(key) : 0;
-                int todayCount = today.containsKey(key) ? today.get(key) : 0;
-
-                if (totalCount >= unit.getMaxTotal()) {
-                    warnings.add(getString(R.string.connect_progress_warning_max_reached_multi, unit.getName()));
-                } else if (todayCount >= unit.getMaxDaily()) {
-                    warnings.add(getString(R.string.connect_progress_warning_daily_max_reached_multi, unit.getName()));
-                }
-            }
-            return warnings.isEmpty() ? null : String.join("\n", warnings);
-        } else {
-            if (job.getDeliveries().size() >= job.getMaxVisits()) {
-                return getString(R.string.connect_progress_warning_max_reached_single);
-            } else if (job.numberOfDeliveriesToday() >= job.getMaxDailyVisits()) {
-                return getString(R.string.connect_progress_warning_daily_max_reached_single);
-            }
-        }
-        return null;
     }
 
     private void updatePaymentConfirmationTile(boolean forceHide) {
@@ -255,7 +192,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
             }
         }
 
-        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(getContext());
+        boolean showTile = paymentToConfirm != null && ConnectivityStatus.isNetworkAvailable(requireContext());
         binding.connectDeliveryProgressAlertTile.setVisibility(showTile ? View.VISIBLE : View.GONE);
 
         if (showTile) {
@@ -298,9 +235,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment {
 
         public void refresh() {
             for (Fragment fragment : fragments) {
-                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment) {
+                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment
+                        && deliveryFragment.getView() != null) {
                     deliveryFragment.updateProgressSummary();
-                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment) {
+                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment
+                        && summaryFragment.getView() != null) {
                     summaryFragment.updateView();
                 }
             }

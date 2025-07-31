@@ -333,6 +333,7 @@ License.
     <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez peut-être plus accéder aux tâches suivantes.</string>
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
+    <string name="connect_download_learn">Téléchargez l\'application Apprendre</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
     <string name="connect_downloading_delivery">Téléchargement de l\'application de livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>

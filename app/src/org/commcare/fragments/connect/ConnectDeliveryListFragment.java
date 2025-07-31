@@ -2,6 +2,7 @@ package org.commcare.fragments.connect;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +33,7 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryListBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ConnectDeliveryListFragment extends ConnectJobFragment {
     private static final String ALL_IDENTIFIER = "all";
@@ -52,7 +54,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentConnectDeliveryListBinding.inflate(inflater, container, false);
         unitName = ConnectDeliveryListFragmentArgs.fromBundle(getArguments()).getUnitId();
         requireActivity().setTitle(getString(R.string.connect_visit_type_title, unitName));
@@ -60,6 +62,12 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
         setupFilterControls();
         setupMenuProvider();
         return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     private void setupRecyclerView() {
@@ -129,8 +137,10 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
     }
 
     private void setFilterHighlight(CardView card, TextView label, boolean selected) {
-        int bgColor = getResources().getColor(selected ? R.color.connect_blue_color : R.color.connect_blue_color_10);
-        int textColor = getResources().getColor(selected ? android.R.color.white : R.color.connect_blue_color);
+        int bgColor = ContextCompat.getColor(requireContext(), selected ?
+                R.color.connect_blue_color : R.color.connect_blue_color_10);
+        int textColor = ContextCompat.getColor(requireContext(), selected ?
+                android.R.color.white : R.color.connect_blue_color);
         card.setCardBackgroundColor(bgColor);
         label.setTextColor(textColor);
     }
@@ -149,12 +159,12 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
     }
 
     private static class DeliveryAdapter extends RecyclerView.Adapter<DeliveryAdapter.VerificationViewHolder> {
-        private final List<ConnectJobDeliveryRecord> deliveries;
+        private List<ConnectJobDeliveryRecord> deliveries;
         private final Context context;
 
         public DeliveryAdapter(Context context, List<ConnectJobDeliveryRecord> deliveries) {
             this.context = context;
-            this.deliveries = deliveries;
+            this.deliveries = new ArrayList<>(deliveries);
         }
 
         @NonNull
@@ -175,8 +185,7 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
         }
 
         public void updateDeliveries(List<ConnectJobDeliveryRecord> updatedList) {
-            deliveries.clear();
-            deliveries.addAll(updatedList);
+            deliveries = new ArrayList<>(updatedList);
             notifyDataSetChanged();
         }
 
@@ -212,14 +221,14 @@ public class ConnectDeliveryListFragment extends ConnectJobFragment {
                     for (ConnectJobDeliveryFlagRecord flag : delivery.getFlags()) {
                         flagDescriptions.add(flag.getDescription());
                     }
-                    return String.join(", ", flagDescriptions);
+                    return TextUtils.join(", ", flagDescriptions);
                 }
                 return "";
             }
 
             private void updateStatusUI(Context context, String status) {
                 int bgResId, iconResId;
-                switch (status.toLowerCase()) {
+                switch (status.toLowerCase(Locale.ENGLISH)) {
                     case APPROVED_IDENTIFIER :
                         bgResId = R.drawable.shape_connect_delivery_approved;
                         iconResId = R.drawable.ic_connect_delivery_approved;

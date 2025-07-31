@@ -10,21 +10,16 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.commcare.activities.LoginActivity;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeAppsBinding;
 import org.commcare.dalvik.databinding.ItemLoginConnectHomeCorruptAppsBinding;
 import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
-import static org.commcare.connect.ConnectConstants.JOB_DELIVERY;
-import static org.commcare.connect.ConnectConstants.JOB_LEARNING;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -32,8 +27,8 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private final ArrayList<ConnectLoginJobListModel> jobList;
     private final OnJobSelectionClick launcher;
     private final ArrayList<ConnectLoginJobListModel> corruptJobs;
-    private static int NON_CORRUPT_JOB_VIEW = 4983;
-    private static int CORRUPT_JOB_VIEW = 9533;
+    private static final int NON_CORRUPT_JOB_VIEW = 1;
+    private static final int CORRUPT_JOB_VIEW = 2;
 
     public JobListConnectHomeAppsAdapter(Context context, ArrayList<ConnectLoginJobListModel> jobList,
             ArrayList<ConnectLoginJobListModel> corruptJobs, OnJobSelectionClick launcher) {
@@ -46,7 +41,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        mContext = parent.getContext();
         // Inflate the layout for each item using View Binding
         if (viewType == NON_CORRUPT_JOB_VIEW) {
             ItemLoginConnectHomeAppsBinding binding = ItemLoginConnectHomeAppsBinding.inflate(
@@ -61,10 +55,10 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (holder instanceof NonCorruptJobViewHolder) {
-            bind(mContext, ((NonCorruptJobViewHolder)holder).binding, jobList.get(position), launcher);
-        } else if (holder instanceof CorruptJobViewHolder) {
-            bind(mContext, ((CorruptJobViewHolder)holder).binding, corruptJobs.get(position - jobList.size()));
+        if (holder instanceof NonCorruptJobViewHolder valid) {
+            bind(mContext, valid.binding, jobList.get(position), launcher);
+        } else if (holder instanceof CorruptJobViewHolder corrupt) {
+            bind(corrupt.binding, corruptJobs.get(position - jobList.size()));
         }
     }
 
@@ -96,18 +90,12 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
     }
 
-    private static String formatDate(String dateStr) {
-        try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
-            SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
-            Date date = inputFormat.parse(dateStr);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            return null;
-        }
+    private static String formatDate(Date date) {
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.ENGLISH);
+        return outputFormat.format(date);
     }
 
-    public void bind(Context mContext, ItemLoginConnectHomeCorruptAppsBinding binding,
+    public void bind(ItemLoginConnectHomeCorruptAppsBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
     }
@@ -115,7 +103,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     public void bind(Context mContext, ItemLoginConnectHomeAppsBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel, OnJobSelectionClick launcher) {
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate().toString()));
+        binding.tvDate.setText(formatDate(connectLoginJobListModel.getDate()));
         binding.imgDownload.setVisibility(connectLoginJobListModel.isAppInstalled() ? View.GONE : View.VISIBLE);
         handleProgressBarUI(mContext, connectLoginJobListModel, binding);
         configureJobType(mContext, connectLoginJobListModel, binding);
@@ -135,14 +123,14 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ItemLoginConnectHomeAppsBinding binding) {
         int progress = 0;
         int progressColor = 0;
-        String jobType = item.getJobType();
+        ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
 
-        if (jobType.equals(JOB_LEARNING) && !item.getJob().passedAssessment()) {
+        if (jobType == ConnectLoginJobListModel.JobListEntryType.LEARNING && !item.getJob().passedAssessment()) {
             progress = item.getLearningProgress();
-            progressColor = context.getResources().getColor(R.color.connect_blue_color);
-        } else if (jobType.equals(JOB_DELIVERY) && !item.getJob().isFinished()) {
+            progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
+        } else if (jobType == ConnectLoginJobListModel.JobListEntryType.DELIVERY && !item.getJob().isFinished()) {
             progress = item.getDeliveryProgress();
-            progressColor = context.getResources().getColor(R.color.connect_green);
+            progressColor = ContextCompat.getColor(context, R.color.connect_green);
         }
 
         if (progress > 0) {
@@ -158,7 +146,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ItemLoginConnectHomeAppsBinding binding) {
         if (item.isNew()) {
             setJobType(context, R.drawable.connect_rounded_corner_orange_yellow,
-                    context.getResources().getString(R.string.connect_new_opportunity),
+                    ContextCompat.getString(context, R.string.connect_new_opportunity),
                     R.drawable.ic_connect_new_opportunity,
                     255, R.color.connect_yellowish_orange_color, binding);
         } else if (item.isLearningApp()) {
@@ -167,7 +155,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             int textColorId = passedAssessment ? R.color.connect_blue_color_50 : R.color.connect_blue_color;
             int iconAlpha = passedAssessment ? 128 : 255;
             setJobType(context, R.drawable.connect_rounded_corner_tealish_blue,
-                    context.getResources().getString(textId), R.drawable.ic_connect_learning, iconAlpha,
+                    ContextCompat.getString(context, textId), R.drawable.ic_connect_learning, iconAlpha,
                     textColorId, binding);
         } else if (item.isDeliveryApp()) {
             boolean finished = item.getJob().isFinished();
@@ -178,7 +166,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             int iconId = finished ? R.drawable.ic_connect_expired : R.drawable.ic_connect_delivery;
 
             setJobType(context, drawableId,
-                    context.getResources().getString(textId), iconId, 255,
+                    ContextCompat.getString(context, textId), iconId, 255,
                     textColorId, binding);
         }
     }

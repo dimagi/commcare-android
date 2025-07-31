@@ -11,8 +11,10 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
@@ -206,7 +208,8 @@ public class DispatchActivity extends AppCompatActivity {
                     ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 } else if(redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, true);
+                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
                 } else {
                     launchHomeScreen();
                 }

@@ -29,7 +29,7 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentConnectResultsListBinding.inflate(inflater, container, false);
         setupRecyclerView();
         return binding.getRoot();
@@ -44,21 +44,18 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new ResultsAdapter(showPayments, getContext());
+        adapter = new ResultsAdapter(job, showPayments, getContext());
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), layoutManager.getOrientation()));
-    }
-
-    public void updateView() {
-        adapter.notifyDataSetChanged();
+        recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), layoutManager.getOrientation()));
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private ConnectJobRecord job;
+        private final ConnectJobRecord job;
         private final boolean showPayments;
         private final Context context;
 
-        ResultsAdapter(boolean showPayments, Context context) {
+        ResultsAdapter(ConnectJobRecord job, boolean showPayments, Context context) {
+            this.job = job;
             this.showPayments = showPayments;
             this.context = context;
         }
@@ -98,10 +95,10 @@ public class ConnectResultsListFragment extends ConnectJobFragment {
 
             boolean enabled = holder.updateConfirmedText(context, payment);
             if (enabled) {
-                holder.confirmText.setOnClickListener(
-                        enabled ? v -> ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment,
-                                !payment.getConfirmed(), success -> holder.updateConfirmedText(context, payment))
-                                : null);
+                holder.confirmText.setOnClickListener(v ->
+                        ConnectJobHelper.INSTANCE.updatePaymentConfirmed(context, payment,
+                                !payment.getConfirmed(),
+                                success -> holder.updateConfirmedText(context, payment)));
             }
         }
 

@@ -2,6 +2,7 @@ package org.commcare.connect
 
 import android.content.Context
 import android.widget.Toast
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord
@@ -25,26 +26,19 @@ import java.util.Date
 import java.util.Locale
 
 object ConnectJobHelper {
-    var activeJob: ConnectJobRecord? = null
+    fun getJobForSeatedApp(context: Context): ConnectJobRecord? {
+        val appId = CommCareApplication.instance().currentApp.uniqueId
+        val appRecord = ConnectJobUtils.getAppRecord(context, appId) ?: return null
 
-    fun setConnectJobForApp(context: Context?, appId: String?): ConnectJobRecord? {
-        var job: ConnectJobRecord? = null
-        val appRecord = ConnectJobUtils.getAppRecord(context, appId)
-        if (appRecord != null) {
-            job = ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
-        }
-        activeJob = job
-        return job
+        return ConnectJobUtils.getCompositeJob(context, appRecord.jobId)
     }
 
     fun shouldShowJobStatus(context: Context?, appId: String?): Boolean {
-        val record = ConnectJobUtils.getAppRecord(context, appId)
-        if (record == null || activeJob == null) {
-            return false
-        }
+        val record = ConnectJobUtils.getAppRecord(context, appId) ?: return false
+        val job = ConnectJobUtils.getJobForApp(context, appId) ?: return false
 
         //Only time not to show is when we're in learn app but job is in delivery state
-        return !record.isLearning || activeJob!!.status !== ConnectJobRecord.STATUS_DELIVERING
+        return !record.isLearning || job.status != ConnectJobRecord.STATUS_DELIVERING
     }
 
     fun updateJobProgress(
@@ -81,7 +75,7 @@ object ConnectJobHelper {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
                     val responseAsString = String(StreamsUtil.inputStreamToByteArray(responseData))
-                    if (responseAsString.length > 0) {
+                    if (responseAsString.isNotEmpty()) {
                         //Parse the JSON
                         val json = JSONObject(responseAsString)
 
@@ -171,7 +165,7 @@ object ConnectJobHelper {
                 var success = true
                 try {
                     val responseAsString = String(StreamsUtil.inputStreamToByteArray(responseData))
-                    if (responseAsString.length > 0) {
+                    if (responseAsString.isNotEmpty()) {
                         //Parse the JSON
                         val json = JSONObject(responseAsString)
 

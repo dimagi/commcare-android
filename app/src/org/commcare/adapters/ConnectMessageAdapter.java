@@ -23,7 +23,7 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public static final int LEFTVIEW = 0;
     public static final int RIGHTVIEW = 1;
-    List<ConnectMessageChatData> messages;
+    private List<ConnectMessageChatData> messages;
 
     public ConnectMessageAdapter(List<ConnectMessageChatData> messages) {
         this.messages = messages;
