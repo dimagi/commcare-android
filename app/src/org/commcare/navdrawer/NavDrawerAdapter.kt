@@ -99,7 +99,6 @@ class NavDrawerAdapter(
             itemView.setOnClickListener {
                 item.isExpanded = !item.isExpanded
                 onParentClick(item)
-                refreshList()
             }
         }
     }
@@ -122,9 +121,10 @@ class NavDrawerAdapter(
     /**
      * Refreshes the adapter’s display list based on current expansion states.
      */
-    fun refreshList() {
-        displayList = flattenDrawerItems(recyclerList)
-        notifyDataSetChanged()
+    fun refreshList(newItems: List<NavDrawerItem.ParentItem>) {
+        this.recyclerList = newItems
+        this.displayList = flattenDrawerItems(newItems)
+         notifyDataSetChanged()
     }
 
     /**

@@ -8,7 +8,6 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -26,7 +25,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
-import org.commcare.utils.ViewUtils
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 /**
@@ -49,6 +47,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private lateinit var aboutCommcare: LinearLayout
     private lateinit var helpButton: LinearLayout
     private var hasRefreshed = false
+    private lateinit var navDrawerAdapter: NavDrawerAdapter
 
 
     /** Enum to represent navigation drawer menu items */
@@ -66,9 +65,27 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
         initializeViews()
         setupActionBarDrawerToggle()
+        initializeAdapter()
         setUpListener()
         injectScreenLayout(layoutInflater, findViewById(R.id.nav_drawer_frame))
         setupDrawer()
+    }
+
+    private fun initializeAdapter() {
+        navDrawerAdapter = NavDrawerAdapter(
+            this,
+            emptyList(),
+            onParentClick = {
+                onDrawerItemClicked(it.type, null)
+                drawerLayout.closeDrawers()
+            },
+            onChildClick = { parentType, childItem ->
+                onDrawerItemClicked(parentType, childItem.recordId)
+                drawerLayout.closeDrawers()
+            }
+        )
+        navDrawerRecycler.layoutManager = LinearLayoutManager(this)
+        navDrawerRecycler.adapter = navDrawerAdapter
     }
 
     /** Subclass must inject the actual screen layout into [contentFrame] */
@@ -205,18 +222,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             ),
         )
 
-        navDrawerRecycler.layoutManager = LinearLayoutManager(this)
-        navDrawerRecycler.adapter = NavDrawerAdapter(
-            this,
-            parentList,
-            onParentClick = {
-                onDrawerItemClicked(it.type, null)
-            },
-            onChildClick = { parentType, childItem ->
-                onDrawerItemClicked(parentType, childItem.recordId)
-                drawerLayout.closeDrawers()
-            }
-        )
+        navDrawerAdapter.refreshList(parentList)
+
     }
 
     private fun setUpListener() {
