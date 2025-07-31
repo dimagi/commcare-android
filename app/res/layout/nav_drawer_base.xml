@@ -17,50 +17,63 @@
         android:background="@color/cc_brand_color"
         android:layout_gravity="start">
 
-        <include layout="@layout/nav_drawer_header"/>
-
-        <LinearLayout
-            android:id="@+id/signout_view"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:paddingTop="92dp"
-            android:layout_weight="1">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:src="@drawable/nav_drawer_logged_out_avatar"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="true"
-                android:textSize="14sp"
-                android:layout_gravity="center"
-                android:paddingTop="16dp"
-                android:clickable="true"
-                android:textColor="@color/white"
-                android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
-            <TextView
-                android:id="@+id/nav_drawer_sign_in_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:layout_gravity="center"
-                android:paddingTop="16dp"
-                android:textColor="@color/white"
-                android:text="@string/nav_drawer_signin_register"/>
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:background="@color/cc_brand_color">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/nav_drawer_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="visible"
-            android:background="@color/cc_brand_color"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <include layout="@layout/nav_drawer_footer"/>
+                <include layout="@layout/nav_drawer_header"/>
+
+                <LinearLayout
+                    android:id="@+id/signout_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingTop="92dp"
+                    android:layout_weight="1">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:src="@drawable/nav_drawer_logged_out_avatar"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:focusable="true"
+                        android:textSize="14sp"
+                        android:layout_gravity="center"
+                        android:paddingTop="16dp"
+                        android:clickable="true"
+                        android:textColor="@color/white"
+                        android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
+                    <TextView
+                        android:id="@+id/nav_drawer_sign_in_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:layout_gravity="center"
+                        android:paddingTop="16dp"
+                        android:textColor="@color/white"
+                        android:text="@string/nav_drawer_signin_register"/>
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/nav_drawer_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:background="@color/cc_brand_color" />
+
+                <include layout="@layout/nav_drawer_footer"/>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
     </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
