@@ -13,11 +13,11 @@ public class ApiEndPoints {
     public static final String updateProfile = "/users/update_profile";
     public static final String completeProfile = "/users/complete_profile";
     public static final String confirmBackupCode = "/users/recover/confirm_backup_code";
-    public static final String connectOpportunitiesURL = "https://%s/api/opportunity/";
-    public static final String connectStartLearningURL = "https://%s/users/start_learn_app/";
-    public static final String connectLearnProgressURL = "https://%s/api/opportunity/%d/learn_progress";
-    public static final String connectClaimJobURL = "https://%s/api/opportunity/%d/claim";
-    public static final String connectDeliveriesURL = "https://%s/api/opportunity/%d/delivery_progress";
-    public static final String connectPaymentConfirmationURL = "https://%s/api/payment/%s/confirm";
+    public static final String connectOpportunitiesURL = "/api/opportunity/";
+    public static final String connectStartLearningURL = "/users/start_learn_app/";
+    public static final String connectLearnProgressURL = "/api/opportunity/{id}/learn_progress";
+    public static final String connectClaimJobURL = "/api/opportunity/{id}/claim";
+    public static final String connectDeliveriesURL = "/api/opportunity/{id}/delivery_progress";
+    public static final String connectPaymentConfirmationURL = "/api/payment/{id}/confirm";
     public static final String CREDENTIALS = "/users/credentials";
 }

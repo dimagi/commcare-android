@@ -302,6 +302,8 @@
     <string name="connect_learn_status">%d ናይ %d ትምህርቲ ወዲእካ ኣለኻ።\nምስክር ወረቐትካ ንምርካብ ትምህርቲ ወድእ።</string>
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>
     <string name="connect_learn_finished">ነዚ ስራሕ ምስክር ወረቐት ረኺብካ ነቲ ስራሕ ክትሓትትን ክንክን ከተቕርብ ክትጅምርን ብቑዕ ኢኻ።\nነጥብኻ: %d\nናይ ምሕላፍ ነጥቢ: %d</string>
+    <string name="connect_fetch_learning_progress_error">ነቲ ናይ ትምህርቲ ምዕባለ ከምጽእ ኣይከኣለን</string>
+    <string name="connect_fetch_delivery_progress_error">ናይ ኣወሃህባ ምዕባለ ምምጻእ ኣይከኣለን</string>
     <string name="your_score">ነጥቢ፡ %d</string>
     <string name="connect_learn_need_assessment">ስልጠና ንምውዳእ ነቲ ገምጋም ወድእ።</string>
     <string name="connect_learn_failed">ይቕሬታ ኣብ ገምጋምካ ናይ ምሕላፍ ነጥቢ ኣይረኸብካን። በጃኻ ደጊምካ ፈትን።\nነጥብኻ: %d\nነጥቢ ምሕላፍ: %d</string>

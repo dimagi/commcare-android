@@ -76,4 +76,7 @@
     <string name="change_settings">Change Settings</string>
     <string name="connect_message_you">Du</string>
     <string name="connect_message_them">Dem</string>
+    <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
+    <string name="connect_fetch_delivery_progress_error">Kunne ikke hente leveringsfremdriften</string>
+
 </resources>

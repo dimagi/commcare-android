@@ -308,6 +308,8 @@ License.
     <string name="connect_learn_status">आपने %d में से %d पाठ पूरे कर लिए हैं।\nअपना प्रमाण पत्र प्राप्त करने के लिए सीखना पूरा करें।</string>
     <string name="connect_learn_not_started">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए सीखना शुरू करें।</string>
     <string name="connect_learn_finished">आपने इस नौकरी के लिए एक प्रमाण पत्र प्राप्त किया है और नौकरी के लिए आवेदन करने और देखभाल प्रदान करना शुरू करने के योग्य हैं।\nआपका स्कोर: %d\nउत्तीर्ण स्कोर: %d</string>
+    <string name="connect_fetch_learning_progress_error">सीखने की प्रगति प्राप्त करने में विफल</string>
+    <string name="connect_fetch_delivery_progress_error">डिलीवरी की प्रगति प्राप्त करने में विफल</string>
     <string name="your_score">स्कोर: %d</string>
     <string name="connect_learn_need_assessment">प्रशिक्षण पूरा करने के लिए मूल्यांकन पूरा करें।</string>
     <string name="connect_learn_failed">क्षमा करें, आपने अपने मूल्यांकन में उत्तीर्ण अंक प्राप्त नहीं किए। कृपया पुनः प्रयास करें।\nआपका ग्रेड: %d\nउत्तीर्ण ग्रेड: %d</string>

@@ -246,6 +246,8 @@
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
     <string name="connect_learn_finished">Has obtenido un certificado para este trabajo y eres elegible para postularte al trabajo y comenzar a brindar atención.\nTu puntuación: %d\nPuntuación para aprobar: %d</string>
+    <string name="connect_fetch_learning_progress_error">No se pudo obtener el progreso del aprendizaje</string>
+    <string name="connect_fetch_delivery_progress_error">No se pudo obtener el progreso de la entrega</string>
     <string name="your_score">Puntuación: %d</string>
     <string name="connect_learn_need_assessment">Completa la evaluación para terminar la formación.</string>
     <string name="connect_learn_failed">Lo sentimos, no obtuviste la calificación aprobatoria en tu evaluación. Inténtalo de nuevo.\nTu calificación: %d\nCalificación aprobatoria: %d</string>

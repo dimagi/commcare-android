@@ -94,7 +94,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                                         String integrityToken,
                                         String requestHash) {
         ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
-                createCallback(null, new ReportIntegrityResponseParser(requestId)));
+                createCallback(new ReportIntegrityResponseParser<T>(),requestId));
     }
 
     public void makeStartConfigurationCall(Activity activity,
@@ -134,8 +134,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     public void retrieveCredentials(Context context, String userName, String password) {
         ApiPersonalId.retrieveCredentials(context, userName, password,
-                createCallback(
-                        new RetrieveCredentialsResponseParser<T>()));
+                createCallback(new RetrieveCredentialsResponseParser<T>(),null));
     }
 
     public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {

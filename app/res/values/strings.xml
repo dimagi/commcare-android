@@ -413,6 +413,8 @@
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
+    <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
+    <string name="connect_fetch_delivery_progress_error">Failed to fetch the delivery progress</string>
     <string name="your_score">Score: %d</string>
 
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>

@@ -312,6 +312,8 @@
     <string name="connect_learn_status">Umemaliza masomo %d kati ya %d.\nMaliza kujifunza ili ujishindie cheti chako.</string>
     <string name="connect_learn_not_started">Hujamaliza masomo yoyote.\nAnza kujifunza ili kupata cheti chako.</string>
     <string name="connect_learn_finished">Umepata cheti cha kazi hii na unastahiki kudai kazi hiyo na kuanza kutoa huduma.\nAlama yako: %d\nAlama za kupita: %d</string>
+    <string name="connect_fetch_learning_progress_error">Imeshindwa kuleta maendeleo ya kujifunza</string>
+    <string name="connect_fetch_delivery_progress_error">Imeshindwa kuleta maendeleo</string>
     <string name="your_score">Alama: %d</string>
     <string name="connect_learn_need_assessment">Kamilisha tathmini ili kumaliza mafunzo.</string>
     <string name="connect_learn_failed">Samahani, hukupata alama za kufaulu kwenye tathmini yako. Tafadhali jaribu tena.\nAlama yako: %d\nAlama ya kupita: %d</string>

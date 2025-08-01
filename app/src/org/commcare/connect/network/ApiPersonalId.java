@@ -20,6 +20,7 @@ import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.base.BaseApi;
 import org.commcare.connect.network.connectId.PersonalIdApiClient;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
@@ -196,61 +197,6 @@ public class ApiPersonalId {
                 ArrayListMultimap.create(), true, callback);
     }
 
-    public static void showProgressDialog(Context context) {
-        if (context instanceof CommCareActivity<?>) {
-            Handler handler = new Handler(context.getMainLooper());
-            handler.post(() -> {
-                try {
-                    ((CommCareActivity<?>)context).showProgressDialog(ConnectConstants.NETWORK_ACTIVITY_ID);
-                } catch (Exception e) {
-                    //Ignore, ok if showing fails
-                }
-            });
-        }
-    }
-
-    public static void dismissProgressDialog(Context context) {
-        if (context instanceof CommCareActivity<?>) {
-            Handler handler = new Handler(context.getMainLooper());
-            handler.post(() -> {
-                ((CommCareActivity<?>)context).dismissProgressDialogForTask(ConnectConstants.NETWORK_ACTIVITY_ID);
-            });
-        }
-    }
-
-    private static void callApi(Context context, Call<ResponseBody> call, IApiCallback callback, String endpoint) {
-        showProgressDialog(context);
-        call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                dismissProgressDialog(context);
-                if (response.isSuccessful() && response.body() != null) {
-                    // Handle success
-                    try (InputStream responseStream = response.body().byteStream()) {
-                        callback.processSuccess(response.code(), responseStream);
-                    } catch (IOException e) {
-                        // Handle error when reading the stream
-                        callback.processFailure(response.code(), null, endpoint);
-                    }
-                } else {
-                    // Handle validation errors
-                    logNetworkError(response);
-                    InputStream stream = response.errorBody() != null ?
-                            response.errorBody().byteStream() : null;
-                    callback.processFailure(response.code(), stream, endpoint);
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                dismissProgressDialog(context);
-                // Handle network errors, etc.
-                handleNetworkError(t);
-                callback.processNetworkFailure();
-            }
-        });
-    }
-
     public static void confirmBackupCode(Context context,
             String backupCode, String token, IApiCallback callback) {
 
@@ -262,21 +208,21 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        callApi(context, call, callback, ApiEndPoints.confirmBackupCode);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.confirmBackupCode);
     }
 
     public static void reportIntegrity(Context context, Map<String, String> body, String integrityToken,
                                           String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.reportIntegrity(integrityToken, requestHash, body);
-        callApi(context, call, callback, ApiEndPoints.reportIntegrity);
+        BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.reportIntegrity);
     }
 
     public static void startConfiguration(Context context, Map<String, String> body, String integrityToken,
             String requestHash, IApiCallback callback) {
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.startConfiguration(integrityToken, requestHash, body);
-        callApi(context, call, callback, ApiEndPoints.startConfiguration);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.startConfiguration);
     }
 
     public static void validateFirebaseIdToken(String token, Context context, String firebaseIdToken,
@@ -287,8 +233,8 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
         ApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth, params);
-        callApi(context, call, callback, ApiEndPoints.validateFirebaseIdToken);
+        Call<ResponseBody> call = apiService.validateFirebaseIdToken(tokenAuth,params);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.validateFirebaseIdToken);
     }
 
     public static void addOrVerifyName(Context context, String name, String token, IApiCallback callback) {
@@ -301,7 +247,7 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.checkName(tokenAuth, params);
-        callApi(context, call, callback, ApiEndPoints.checkName);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.checkName);
     }
 
     public static void updateUserProfile(Context context, String username,
@@ -320,7 +266,7 @@ public class ApiPersonalId {
         }
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.updateProfile(token, params);
-        callApi(context, call, callback, ApiEndPoints.updateProfile);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.updateProfile);
     }
 
     public static void setPhotoAndCompleteProfile(Context context, String userName,
@@ -338,7 +284,7 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeProfile(tokenAuth, params);
-        callApi(context, call, callback, ApiEndPoints.completeProfile);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.completeProfile);
     }
 
     public static void retrieveCredentials(Context context, String userName, String password,
@@ -347,17 +293,16 @@ public class ApiPersonalId {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);
-        callApi(context, call, callback, ApiEndPoints.CREDENTIALS);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.CREDENTIALS);
     }
 
     public static void sendOtp(Context context, String token, IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
-
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.sendSessionOtp(tokenAuth);
-        callApi(context, call, callback, ApiEndPoints.sendSessionOtp);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.sendSessionOtp);
     }
 
     public static void validateOtp(Context context, String token, String otp, IApiCallback callback) {
@@ -370,27 +315,10 @@ public class ApiPersonalId {
 
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
-        callApi(context, call, callback, ApiEndPoints.validateSessionOtp);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.validateSessionOtp);
     }
 
-    private static void logNetworkError(Response<?> response) {
-        String message = response.message();
-        if (response.code() == 400) {
-            // Bad request (e.g., validation failed)
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Bad Request: " + message);
-        } else if (response.code() == 401) {
-            // Unauthorized (e.g., invalid credentials)
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unauthorized: " + message);
-        } else if (response.code() == 404) {
-            // Not found
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Not Found: " + message);
-        } else if (response.code() >= 500) {
-            // Server error
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Server Error: " + message);
-        } else {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "API Error: " + message);
-        }
-    }
+
 
     public static void retrieveMessages(Context context, String username, String password,IApiCallback callback) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
@@ -513,16 +441,5 @@ public class ApiPersonalId {
                 API_VERSION_PERSONAL_ID, authInfo, params, false, true, callback);
     }
 
-    private static void handleNetworkError(Throwable t) {
-        String message = t.getMessage();
-        if (t instanceof IOException) {
-            // IOException is usually a network error (no internet, timeout, etc.)
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Network Error: " + message);
-        } else if (t instanceof HttpException) {
-            // Handle HTTP exceptions separately if needed
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "HTTP Error: " + message);
-        } else {
-            Logger.log(LogTypes.TYPE_ERROR_SERVER_COMMS, "Unexpected Error: " + message);
-        }
-    }
+
 }
