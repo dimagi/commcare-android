@@ -106,7 +106,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         aboutCommcare = findViewById(R.id.about_view)
         helpButton = findViewById(R.id.help_view)
         signInView = navDrawerRecycler
-        helpButton.visibility = View.GONE
         val content = SpannableString(getString(R.string.nav_drawer_signin_register))
         content.setSpan(UnderlineSpan(), 0, content.length, 0);
         registerTextView.text = content
@@ -141,8 +140,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             }
         }
         drawerLayout.addDrawerListener(drawerToggle)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setHomeButtonEnabled(true)
         drawerToggle.syncState()
     }
 
