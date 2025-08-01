@@ -99,6 +99,7 @@ class NavDrawerAdapter(
             itemView.setOnClickListener {
                 item.isExpanded = !item.isExpanded
                 onParentClick(item)
+                refreshList(recyclerList)
             }
         }
     }
