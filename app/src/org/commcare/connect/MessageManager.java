@@ -1,6 +1,7 @@
 package org.commcare.connect;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,7 +13,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
 import org.commcare.dalvik.R;
-import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.json.JSONArray;
@@ -25,8 +25,14 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 
 public class MessageManager {
+    public static Drawable getMessagingIcon(Context context) {
+            int icon = ConnectMessagingDatabaseHelper.getUnviewedMessages(context).isEmpty() ?
+                    R.drawable.ic_connect_messaging_base : R.drawable.ic_connect_messaging_unread;
+            return ResourcesCompat.getDrawable(context.getResources(), icon, null);
+    }
 
     public static ConnectMessagingChannelRecord handleReceivedChannel(Context context, Map<String, String> payloadData) {
         ConnectMessagingChannelRecord channel = ConnectMessagingChannelRecord.fromMessagePayload(payloadData);
