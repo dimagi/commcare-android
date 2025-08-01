@@ -9,7 +9,7 @@
     <item
         android:id="@+id/action_credential"
         android:icon="@drawable/ic_credential"
-        android:title="@string/credential"
+        android:title="@string/personalid_credential"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_sync"

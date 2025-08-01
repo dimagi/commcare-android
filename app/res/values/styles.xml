@@ -355,4 +355,9 @@
         <item name="android:textColor">@color/cc_brand_text</item>
     </style>
 
+    <style name="personalIdCircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
 </resources>
