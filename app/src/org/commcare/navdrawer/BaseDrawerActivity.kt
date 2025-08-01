@@ -155,8 +155,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
     }
 
-    /** Override this to control which CommCare applications appear */
-    private fun loadVisibleCommcareApplications(): List<ApplicationRecord> {
+    protected open fun loadVisibleCommcareApplications(): List<ApplicationRecord> {
         return MultipleAppsUtil.getUsableAppRecords()
     }
 
