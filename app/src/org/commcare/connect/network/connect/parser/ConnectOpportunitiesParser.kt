@@ -48,7 +48,7 @@ class ConnectOpportunitiesParser<T>() : BaseApiResponseParser<T> {
     private fun handleCorruptJob(obj: JSONObject?,corruptJobs: ArrayList<ConnectLoginJobListModel>) {
         if (obj != null) {
             try {
-                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobfromJson(obj)))
+                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobFromJson(obj)))
             } catch (e: JSONException) {
                 Logger.exception("JSONException while retrieving corrupt opportunity title", e)
             }
