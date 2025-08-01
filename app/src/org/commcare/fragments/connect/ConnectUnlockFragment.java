@@ -1,20 +1,19 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.common.base.Strings;
-
 import org.commcare.activities.CommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.database.JobStoreManager;
 import org.commcare.connect.network.ApiConnect;
@@ -46,7 +45,6 @@ import androidx.navigation.Navigation;
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
-    private String opportunityId = "";
     private boolean buttons = false;
 
     public ConnectUnlockFragment() {
@@ -64,9 +62,8 @@ public class ConnectUnlockFragment extends Fragment {
         requireActivity().setTitle(R.string.connect_title);
 
         if(getArguments() != null) {
-            redirectionAction = getArguments().getString("action");
-            opportunityId = getArguments().getString("opportunity_id");
-            buttons = getArguments().getBoolean("buttons", true);
+            redirectionAction = getArguments().getString(REDIRECT_ACTION);
+            buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
@@ -109,15 +106,7 @@ public class ConnectUnlockFragment extends Fragment {
     private void setFragmentRedirection() {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         Bundle bundle = new Bundle();
-        bundle.putBoolean("showLaunch", buttons);
-
-        if (!Strings.isNullOrEmpty(opportunityId)) {
-            int jobId = Integer.parseInt(opportunityId);
-            ConnectJobRecord job = ConnectJobUtils.getCompositeJob(requireContext(), jobId);
-            if (job != null) {
-                ConnectJobHelper.INSTANCE.setActiveJob(job);
-            }
-        }
+        bundle.putBoolean(SHOW_LAUNCH_BUTTON, buttons);
 
         int fragmentId;
         if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)) {
@@ -127,11 +116,13 @@ public class ConnectUnlockFragment extends Fragment {
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
             fragmentId = R.id.connect_job_delivery_progress_fragment;
             // Set the tab position in the bundle based on the redirection action
-            bundle.putString("tabPosition", "0");
+            bundle.putInt(ConnectDeliveryProgressFragment.TAB_POSITION,
+                    ConnectDeliveryProgressFragment.TAB_PROGRESS);
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
             fragmentId = R.id.connect_job_delivery_progress_fragment;
             // Set the tab position in the bundle based on the redirection action
-            bundle.putString("tabPosition", "1");
+            bundle.putInt(ConnectDeliveryProgressFragment.TAB_POSITION,
+                    ConnectDeliveryProgressFragment.TAB_PAYMENT);
         } else {
             //Default case
             fragmentId = R.id.connect_jobs_list_fragment;

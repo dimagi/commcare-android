@@ -1,10 +1,13 @@
 package org.commcare.connect
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
+import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 
 object ConnectNavHelper {
     fun goToMessaging(context: Context) {
@@ -17,10 +20,11 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
-    fun goToActiveInfoForJob(context: Context, allowProgression: Boolean) {
+    fun goToActiveInfoForJob(context: Context, job: ConnectJobRecord, allowProgression: Boolean) {
         val i = Intent(context, ConnectActivity::class.java)
-        i.putExtra("info", true)
-        i.putExtra("buttons", allowProgression)
+        i.putExtra(GO_TO_JOB_STATUS, true)
+        i.putExtra(OPPORTUNITY_ID, job.jobId)
+        i.putExtra(SHOW_LAUNCH_BUTTON, allowProgression)
         context.startActivity(i)
     }
 }
