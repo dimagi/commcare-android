@@ -11,7 +11,7 @@
         android:layout_height="match_parent" />
 
     <LinearLayout
-        android:layout_width="280dp"
+        android:layout_width="@dimen/nav_drawer_width"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="@color/cc_brand_color"
@@ -75,8 +75,7 @@
 
                 <include
                     android:id="@+id/nav_drawer_footer"
-                    layout="@layout/nav_drawer_footer"
-                    android:visibility="gone"/>
+                    layout="@layout/nav_drawer_footer" />
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

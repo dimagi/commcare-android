@@ -161,4 +161,5 @@
     <dimen name="connect_message_corner_radius">16dp</dimen>
 
     <dimen name="corner_radius_small_5dp">5dp</dimen>
+    <dimen name="nav_drawer_width">280dp</dimen>
 </resources>
