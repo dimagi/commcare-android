@@ -53,5 +53,7 @@ public class CCAnalyticsEvent {
     static final String CCC_REKEYED_DB = "ccc_rekeyed_db";
     static final String CCC_BIOMETRIC_INVALIDATED = "ccc_biometric_invalidated";
     static final String PERSONAL_ID_CONFIGURATION_FAILURE = "personal_id_configuration_failure";
+    static final String NAV_DRAWER_OPEN = "nav_drawer_open";
+    static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
 
 }

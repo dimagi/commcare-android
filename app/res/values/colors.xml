@@ -218,4 +218,5 @@
 
     <color name="ic_backup">#14006C</color>
     <color name="icon_tint_dark_gray">#333333</color>
+    <color name="nav_drawer_disable_color">#99A1AF</color>
 </resources>
