@@ -13,11 +13,9 @@ import org.json.JSONObject
 import java.io.IOException
 import java.io.InputStream
 import java.util.Date
-import kotlin.jvm.Throws
 
 class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
 
-    @Throws(JSONException::class)
     override fun parse(responseCode: Int, responseData: InputStream, anyInputObject: Any?): T {
 
         val job = anyInputObject as ConnectJobRecord
@@ -28,65 +26,68 @@ class DeliveryAppProgressResponseParser<T>() : BaseApiResponseParser<T> {
 
         responseData.use { `in` ->
 
-            val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
-            if (responseAsString.length > 0) {
-                //Parse the JSON
-                val json = JSONObject(responseAsString)
+            try {
+                val responseAsString = String(StreamsUtil.inputStreamToByteArray(`in`))
+                if (responseAsString.length > 0) {
+                    //Parse the JSON
+                    val json = JSONObject(responseAsString)
 
-                if (json.has("max_payments")) {
-                    job.maxVisits = json.getInt("max_payments")
-                    updatedJob = true
-                }
-
-                if (json.has("end_date")) {
-                    job.projectEndDate = DateUtils.parseDate(json.getString("end_date"))
-                    updatedJob = true
-                }
-
-
-                if (json.has("payment_accrued")) {
-                    job.paymentAccrued = json.getInt("payment_accrued")
-                    updatedJob = true
-                }
-
-
-                if (json.has("is_user_suspended")) {
-                    job.isUserSuspended = json.getBoolean("is_user_suspended")
-                    updatedJob = true
-                }
-
-                if (updatedJob) {
-                    job.lastDeliveryUpdate = Date()
-                }
-
-                val deliveries: MutableList<ConnectJobDeliveryRecord> =
-                    ArrayList(json.length())
-
-                if (json.has("deliveries")) {
-                    hasDeliveries = true
-                    val array = json.getJSONArray("deliveries")
-                    for (i in 0 until array.length()) {
-                        val obj = array[i] as JSONObject
-                        deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.jobId))
+                    if (json.has("max_payments")) {
+                        job.maxVisits = json.getInt("max_payments")
+                        updatedJob = true
                     }
 
-                    job.deliveries = deliveries
-                }
-
-                val payments: MutableList<ConnectJobPaymentRecord> = ArrayList()
-
-                if (json.has("payments")) {
-                    hasPayment = true
-                    val array = json.getJSONArray("payments")
-                    for (i in 0 until array.length()) {
-                        val obj = array[i] as JSONObject
-                        payments.add(ConnectJobPaymentRecord.fromJson(obj, job.jobId))
+                    if (json.has("end_date")) {
+                        job.projectEndDate = DateUtils.parseDate(json.getString("end_date"))
+                        updatedJob = true
                     }
 
-                    job.payments = payments
+
+                    if (json.has("payment_accrued")) {
+                        job.paymentAccrued = json.getInt("payment_accrued")
+                        updatedJob = true
+                    }
+
+
+                    if (json.has("is_user_suspended")) {
+                        job.isUserSuspended = json.getBoolean("is_user_suspended")
+                        updatedJob = true
+                    }
+
+                    if (updatedJob) {
+                        job.lastDeliveryUpdate = Date()
+                    }
+
+                    val deliveries: MutableList<ConnectJobDeliveryRecord> =
+                        ArrayList(json.length())
+
+                    if (json.has("deliveries")) {
+                        hasDeliveries = true
+                        val array = json.getJSONArray("deliveries")
+                        for (i in 0 until array.length()) {
+                            val obj = array[i] as JSONObject
+                            deliveries.add(ConnectJobDeliveryRecord.fromJson(obj, job.jobId))
+                        }
+
+                        job.deliveries = deliveries
+                    }
+
+                    val payments: MutableList<ConnectJobPaymentRecord> = ArrayList()
+
+                    if (json.has("payments")) {
+                        hasPayment = true
+                        val array = json.getJSONArray("payments")
+                        for (i in 0 until array.length()) {
+                            val obj = array[i] as JSONObject
+                            payments.add(ConnectJobPaymentRecord.fromJson(obj, job.jobId))
+                        }
+
+                        job.payments = payments
+                    }
                 }
+            } catch (e: JSONException) {
+                throw RuntimeException(e)
             }
-
         }
 
         return DeliveryAppProgressResponseModel(updatedJob, hasDeliveries, hasPayment) as T
