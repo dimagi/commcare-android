@@ -1,10 +1,8 @@
 package org.commcare.navdrawer
 
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -29,7 +27,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
-import org.javarosa.core.services.Logger
 
 /**
  * Abstract activity that sets up and manages a shared navigation drawer layout.
@@ -70,7 +67,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         initializeViews()
         setupActionBarDrawerToggle()
         initializeAdapter()
-        setUpListener()
+        setUpViewListener()
         injectScreenLayout(layoutInflater, findViewById(R.id.nav_drawer_frame))
         setupDrawer()
     }
@@ -222,7 +219,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     }
 
-    private fun setUpListener() {
+    private fun setUpViewListener() {
         registerTextView.setOnClickListener {
             registerPersonalIdUser()
             closeDrawer()
