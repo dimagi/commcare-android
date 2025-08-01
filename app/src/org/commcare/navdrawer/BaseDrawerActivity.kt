@@ -18,6 +18,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectConstants
@@ -174,26 +175,11 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val user = ConnectUserDatabaseUtil.getUser(this)
         userName.text = user.name
         val profilePic = user.photo
-        if (!profilePic.isNullOrEmpty()) {
-            try {
-                val base64Part = profilePic.substringAfter("base64,", profilePic)
-                val decodedBytes = Base64.decode(base64Part, Base64.DEFAULT)
-
-                Glide.with(this)
-                    .asBitmap()
-                    .load(decodedBytes)
-                    .placeholder(R.drawable.nav_drawer_person_avatar)
-                    .error(R.drawable.nav_drawer_person_avatar)
-                    .into(userPhoto)
-
-            } catch (e: IllegalArgumentException) {
-                Logger.exception("Error in preparing user photo", e)
-                userPhoto.setImageResource(R.drawable.nav_drawer_person_avatar)
-            }
-        } else {
-            userPhoto.setImageResource(R.drawable.nav_drawer_person_avatar)
-        }
-
+        Glide.with(userPhoto).load(profilePic).apply(
+            RequestOptions.circleCropTransform()
+                .placeholder(R.drawable.nav_drawer_person_avatar) // Your default placeholder image
+                .error(R.drawable.nav_drawer_person_avatar)
+        ).into(userPhoto)
         val commacreChildItems = loadVisibleCommcareApplications().map {
             NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
         }
