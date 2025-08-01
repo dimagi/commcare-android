@@ -149,6 +149,16 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setUpSignInView()
         } else {
+            toggleSignedInState(false)
+        }
+    }
+
+    private fun toggleSignedInState(isSignedIn: Boolean){
+        if (isSignedIn) {
+            signOutView.visibility = View.GONE
+            signInView.visibility = View.VISIBLE
+            navDrawerHeader.visibility = View.VISIBLE
+        } else {
             signOutView.visibility = View.VISIBLE
             signInView.visibility = View.GONE
             navDrawerHeader.visibility = View.GONE
@@ -160,10 +170,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun setUpSignInView() {
-        signOutView.visibility = View.GONE
-        signInView.visibility = View.VISIBLE
-        navDrawerHeader.visibility = View.VISIBLE
-
+        toggleSignedInState(true)
         val user = ConnectUserDatabaseUtil.getUser(this)
         userName.text = user.name
 
