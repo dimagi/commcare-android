@@ -29,7 +29,6 @@ public class CCAnalyticsParam {
 
     static final String USER_RETURNED = "user_returned";
     static final String NOTIFICATION_TYPE = "notification_type";
-    static final String NAV_DRAWER_ITEM_SELECTED = "nav_drawer_item_selected";
     static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
     static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";
     static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";

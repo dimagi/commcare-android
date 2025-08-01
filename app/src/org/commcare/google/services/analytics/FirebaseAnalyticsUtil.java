@@ -554,7 +554,7 @@ public class FirebaseAnalyticsUtil {
     }
 
     public static void reportNavDrawerItemSelected(String selectedItem) {
-        reportEvent(CCAnalyticsEvent.NAV_DRAWER_ITEM_SELECTED, new String[]{CCAnalyticsParam.NAV_DRAWER_ITEM_SELECTED},
+        reportEvent(CCAnalyticsEvent.NAV_DRAWER_ITEM_SELECTED, new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{selectedItem});
     }
 
