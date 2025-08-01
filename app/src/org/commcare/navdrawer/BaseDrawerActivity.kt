@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +26,9 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
+import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
+import java.security.AccessController.getContext
 
 /**
  * Abstract activity that sets up and manages a shared navigation drawer layout.
@@ -119,7 +122,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             override fun onDrawerOpened(drawerView: View) {
                 super.onDrawerOpened(drawerView)
                 // Hide keyboard
-                hideKeyboard()
+                ViewUtil.hideVirtualKeyboard(this@BaseDrawerActivity)
                 FirebaseAnalyticsUtil.reportNavDrawerOpen()
             }
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {

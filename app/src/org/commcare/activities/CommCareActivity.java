@@ -988,13 +988,4 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
     }
-
-    protected void hideKeyboard() {
-        View view = getCurrentFocus();
-        if (view == null) {
-            view = new View(this);
-        }
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
 }
