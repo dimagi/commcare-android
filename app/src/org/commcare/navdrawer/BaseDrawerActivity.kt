@@ -278,9 +278,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun showAboutCommCareDialog() {
-        val dialog = DialogCreationHelpers.buildAboutCommCareDialog(this)
-        dialog.makeCancelable()
-        showAlertDialog(dialog)
+        DialogCreationHelpers.showAboutCommCareDialog(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

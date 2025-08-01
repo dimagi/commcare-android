@@ -586,7 +586,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 loginDemoUser();
                 return true;
             case MENU_ABOUT_COMMCARE:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
+                DialogCreationHelpers.showAboutCommCareDialog(this);
                 return true;
             case MENU_ACQUIRE_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
