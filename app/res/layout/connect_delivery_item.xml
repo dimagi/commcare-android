@@ -7,7 +7,7 @@
     android:padding="10dp">
 
     <LinearLayout
-        android:id="@+id/llDeliveryStatus"
+        android:id="@+id/deliveryStatus"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@drawable/shape_connect_delivery_pending"
@@ -33,7 +33,7 @@
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/delivery_item_reason"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/llDeliveryStatus"
+        app:layout_constraintStart_toEndOf="@+id/deliveryStatus"
         app:layout_constraintTop_toTopOf="parent"
         android:textStyle="bold"/>
 

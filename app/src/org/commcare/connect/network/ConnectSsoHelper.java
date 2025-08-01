@@ -114,7 +114,8 @@ public class ConnectSsoHelper {
         return ApiPersonalId.retrieveConnectIdTokenSync(context, user);
     }
 
-    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws TokenDeniedException, TokenUnavailableException {
+    public static AuthInfo.TokenAuth retrieveHqSsoTokenSync(Context context, @NonNull ConnectUserRecord user, @NonNull ConnectLinkedAppRecord appRecord, String hqUsername, boolean performLink) throws
+            TokenDeniedException, TokenUnavailableException {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token

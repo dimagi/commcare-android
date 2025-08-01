@@ -59,6 +59,14 @@ public class AppUtils {
     }
 
     /**
+     * @param appId - the uniqueId of the ApplicationRecord being sought
+     * @return true if an ApplicationRecord with the given id exists, false otherwise
+     */
+    public static boolean isAppInstalled(String appId) {
+        return getAppById(appId) != null;
+    }
+
+    /**
      * Initializes the first "usable" application from the list of globally installed app records,
      * if there is one
      */
