@@ -71,7 +71,8 @@
                     android:nestedScrollingEnabled="false"
                     android:background="@color/cc_brand_color" />
 
-                <include layout="@layout/nav_drawer_footer"/>
+                <include layout="@layout/nav_drawer_footer"
+                    android:visibility="gone"/>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
