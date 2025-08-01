@@ -4,10 +4,8 @@ import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
-import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
-import org.json.JSONArray;
 
 import java.util.List;
 import java.util.Vector;

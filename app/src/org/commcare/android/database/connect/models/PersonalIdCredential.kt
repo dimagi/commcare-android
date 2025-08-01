@@ -1,5 +1,6 @@
 package org.commcare.android.database.connect.models
 
+import org.commcare.android.model.PersonalIdValidAndCorruptCredential
 import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table

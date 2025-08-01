@@ -1,4 +1,6 @@
-package org.commcare.android.database.connect.models
+package org.commcare.android.model
+
+import org.commcare.android.database.connect.models.PersonalIdCredential
 
 /**
  * Wraps the result of parsing Personal ID Credential response.

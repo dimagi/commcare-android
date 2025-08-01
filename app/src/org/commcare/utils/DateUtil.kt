@@ -24,7 +24,7 @@ fun parseIsoDateForSorting(dateStr: String): Date? {
         val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
         isoFormat.timeZone = TimeZone.getTimeZone("UTC")
         isoFormat.parse(dateStr)
-    } catch (e: Exception) {
+    } catch (e: ParseException) {
         null
     }
 }

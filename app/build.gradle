@@ -17,8 +17,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: "androidx.navigation.safeargs"
-apply plugin: "kotlin-parcelize"
-
 
 repositories {
     // for local aar inclusion

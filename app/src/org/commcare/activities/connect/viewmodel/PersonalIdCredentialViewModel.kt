@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.commcare.android.database.connect.models.PersonalIdCredential
-import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential
+import org.commcare.android.model.PersonalIdValidAndCorruptCredential
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
