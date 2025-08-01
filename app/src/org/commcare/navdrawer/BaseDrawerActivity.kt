@@ -7,14 +7,9 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.activities.CommCareActivity
@@ -23,6 +18,9 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.NavDrawerBaseBinding
+import org.commcare.dalvik.databinding.NavDrawerFooterBinding
+import org.commcare.dalvik.databinding.NavDrawerHeaderBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
@@ -34,19 +32,11 @@ import org.commcare.views.dialogs.DialogCreationHelpers
  */
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navDrawerRecycler: RecyclerView
-    private lateinit var signOutView: View
-    private lateinit var signInView: View
-    private lateinit var navDrawerHeader: View
-    private lateinit var registerTextView: TextView
-    private lateinit var userName: TextView
-    private lateinit var userPhoto: ImageView
+    private lateinit var baseDrawerBinding: NavDrawerBaseBinding
+    private lateinit var headerBinding: NavDrawerHeaderBinding
+    private lateinit var footerBinding: NavDrawerFooterBinding
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
-    private lateinit var closeIcon: ImageView
-    private lateinit var aboutCommcare: LinearLayout
-    private lateinit var helpButton: LinearLayout
     private var hasRefreshed = false
     private lateinit var navDrawerAdapter: NavDrawerAdapter
 
@@ -60,15 +50,18 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         PAYMENTS
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.nav_drawer_base)
-
+        baseDrawerBinding = NavDrawerBaseBinding.inflate(layoutInflater)
+        headerBinding = baseDrawerBinding.navDrawerHeader
+        footerBinding = baseDrawerBinding.navDrawerFooter
+        setContentView(baseDrawerBinding.root)
         initializeViews()
         setupActionBarDrawerToggle()
         initializeAdapter()
         setUpViewListener()
-        injectScreenLayout(layoutInflater, findViewById(R.id.nav_drawer_frame))
+        injectScreenLayout(layoutInflater, baseDrawerBinding.navDrawerFrame)
         setupDrawer()
     }
 
@@ -78,41 +71,28 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             emptyList(),
             onParentClick = {
                 onDrawerItemClicked(it.type, null)
-                drawerLayout.closeDrawers()
             },
             onChildClick = { parentType, childItem ->
                 onDrawerItemClicked(parentType, childItem.recordId)
-                drawerLayout.closeDrawers()
             }
         )
-        navDrawerRecycler.layoutManager = LinearLayoutManager(this)
-        navDrawerRecycler.adapter = navDrawerAdapter
+        baseDrawerBinding.navDrawerRecycler.layoutManager = LinearLayoutManager(this)
+        baseDrawerBinding.navDrawerRecycler.adapter = navDrawerAdapter
     }
 
     /** Subclass must inject the actual screen layout into [contentFrame] */
     abstract fun injectScreenLayout(inflater: LayoutInflater, contentFrame: FrameLayout)
 
     private fun initializeViews() {
-        drawerLayout = findViewById(R.id.drawer_layout)
-        navDrawerRecycler = findViewById(R.id.nav_drawer_recycler)
-        signOutView = findViewById(R.id.signout_view)
-        navDrawerHeader = findViewById(R.id.profile_card)
-        registerTextView = findViewById(R.id.nav_drawer_sign_in_text)
-        userName = findViewById(R.id.user_name)
-        userPhoto = findViewById(R.id.image_user_profile)
-        closeIcon = findViewById(R.id.close_button)
-        aboutCommcare = findViewById(R.id.about_view)
-        helpButton = findViewById(R.id.help_view)
-        signInView = navDrawerRecycler
         val content = SpannableString(getString(R.string.nav_drawer_signin_register))
         content.setSpan(UnderlineSpan(), 0, content.length, 0);
-        registerTextView.text = content
+        baseDrawerBinding.navDrawerSignInText.text = content
     }
 
     private fun setupActionBarDrawerToggle() {
         drawerToggle = object : ActionBarDrawerToggle(
             this,
-            drawerLayout,
+            baseDrawerBinding.drawerLayout,
             R.string.nav_drawer_open,
             R.string.nav_drawer_close
         ) {
@@ -137,7 +117,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 }
             }
         }
-        drawerLayout.addDrawerListener(drawerToggle)
+        baseDrawerBinding.drawerLayout.addDrawerListener(drawerToggle)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setHomeButtonEnabled(true)
         drawerToggle.syncState()
@@ -153,13 +133,13 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     private fun toggleSignedInState(isSignedIn: Boolean){
         if (isSignedIn) {
-            signOutView.visibility = View.GONE
-            signInView.visibility = View.VISIBLE
-            navDrawerHeader.visibility = View.VISIBLE
+            baseDrawerBinding.signoutView.visibility = View.GONE
+            baseDrawerBinding.navDrawerRecycler.visibility = View.VISIBLE
+            headerBinding.profileCard.visibility = View.VISIBLE
         } else {
-            signOutView.visibility = View.VISIBLE
-            signInView.visibility = View.GONE
-            navDrawerHeader.visibility = View.GONE
+            baseDrawerBinding.signoutView.visibility = View.VISIBLE
+            baseDrawerBinding.navDrawerRecycler.visibility = View.GONE
+            headerBinding.profileCard.visibility = View.GONE
         }
     }
 
@@ -170,13 +150,13 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private fun setUpSignInView() {
         toggleSignedInState(true)
         val user = ConnectUserDatabaseUtil.getUser(this)
-        userName.text = user.name
+        headerBinding.userName.text = user.name
         val profilePic = user.photo
-        Glide.with(userPhoto).load(profilePic).apply(
+        Glide.with(headerBinding.imageUserProfile).load(profilePic).apply(
             RequestOptions.circleCropTransform()
                 .placeholder(R.drawable.nav_drawer_person_avatar) // Your default placeholder image
                 .error(R.drawable.nav_drawer_person_avatar)
-        ).into(userPhoto)
+        ).into(headerBinding.imageUserProfile)
         val commacreChildItems = loadVisibleCommcareApplications().map {
             NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
         }
@@ -220,13 +200,13 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun setUpViewListener() {
-        registerTextView.setOnClickListener {
+        baseDrawerBinding.navDrawerSignInText.setOnClickListener {
             registerPersonalIdUser()
             closeDrawer()
         }
-        aboutCommcare.setOnClickListener { showAboutCommCareDialog() }
-        closeIcon.setOnClickListener { closeDrawer() }
-        helpButton.setOnClickListener { /* Future Help Action */ }
+        footerBinding.aboutView.setOnClickListener { showAboutCommCareDialog() }
+        headerBinding.closeButton.setOnClickListener { closeDrawer() }
+        footerBinding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 
     private fun registerPersonalIdUser() {
@@ -251,7 +231,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun closeDrawer() {
-        drawerLayout.closeDrawer(GravityCompat.START)
+        baseDrawerBinding.drawerLayout.closeDrawer(GravityCompat.START)
     }
 
     private fun showAboutCommCareDialog() {

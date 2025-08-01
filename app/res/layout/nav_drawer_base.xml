@@ -1,15 +1,15 @@
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.drawerlayout.widget.DrawerLayout
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- 🖼️ Main content goes here -->
     <FrameLayout
         android:id="@+id/nav_drawer_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 📂 This is your drawer panel -->
     <LinearLayout
         android:layout_width="280dp"
         android:layout_height="match_parent"
@@ -28,7 +28,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <include layout="@layout/nav_drawer_header"/>
+                <include
+                    android:id="@+id/nav_drawer_header"
+                    layout="@layout/nav_drawer_header"/>
 
                 <LinearLayout
                     android:id="@+id/signout_view"
@@ -71,10 +73,13 @@
                     android:nestedScrollingEnabled="false"
                     android:background="@color/cc_brand_color" />
 
-                <include layout="@layout/nav_drawer_footer"
+                <include
+                    android:id="@+id/nav_drawer_footer"
+                    layout="@layout/nav_drawer_footer"
                     android:visibility="gone"/>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
 </androidx.drawerlayout.widget.DrawerLayout>
+</layout>
