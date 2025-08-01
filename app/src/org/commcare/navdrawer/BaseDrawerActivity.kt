@@ -13,11 +13,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectConstants
@@ -28,7 +28,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
 import org.commcare.views.dialogs.DialogCreationHelpers
-import java.security.AccessController.getContext
+import org.javarosa.core.services.Logger
 
 /**
  * Abstract activity that sets up and manages a shared navigation drawer layout.
@@ -173,19 +173,21 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         toggleSignedInState(true)
         val user = ConnectUserDatabaseUtil.getUser(this)
         userName.text = user.name
-
         val profilePic = user.photo
         if (!profilePic.isNullOrEmpty()) {
             try {
                 val base64Part = profilePic.substringAfter("base64,", profilePic)
                 val decodedBytes = Base64.decode(base64Part, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-                if (bitmap != null) {
-                    userPhoto.setImageBitmap(bitmap)
-                } else {
-                    userPhoto.setImageResource(R.drawable.nav_drawer_person_avatar)
-                }
+
+                Glide.with(this)
+                    .asBitmap()
+                    .load(decodedBytes)
+                    .placeholder(R.drawable.nav_drawer_person_avatar)
+                    .error(R.drawable.nav_drawer_person_avatar)
+                    .into(userPhoto)
+
             } catch (e: IllegalArgumentException) {
+                Logger.exception("Error in preparing user photo", e)
                 userPhoto.setImageResource(R.drawable.nav_drawer_person_avatar)
             }
         } else {
@@ -262,14 +264,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.WORK_HISTORY -> {}
             NavItemType.MESSAGING -> {}
             NavItemType.PAYMENTS -> {}
-        }
-    }
-
-    fun toggleDrawer() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            drawerLayout.openDrawer(GravityCompat.START)
         }
     }
 
