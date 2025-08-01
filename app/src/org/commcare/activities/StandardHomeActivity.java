@@ -226,7 +226,7 @@ public class StandardHomeActivity
     }
 
     public void updateMessagingIcon() {
-        if(messagingMenuItem != null) {
+        if(shouldShowMessaging() && messagingMenuItem != null) {
             messagingMenuItem.setIcon(MessageManager.getMessagingIcon(this));
         }
     }
