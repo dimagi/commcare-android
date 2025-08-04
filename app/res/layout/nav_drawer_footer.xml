@@ -68,6 +68,13 @@
             android:textAppearance="@style/TextAppearance.NavDrawerItem"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
+    <TextView
+        android:id="@+id/app_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.NavDrawerItem"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"/>
 
 </LinearLayout>
 </layout>

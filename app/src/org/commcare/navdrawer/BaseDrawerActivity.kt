@@ -12,11 +12,13 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import org.commcare.AppUtils
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.NavDrawerBaseBinding
 import org.commcare.dalvik.databinding.NavDrawerFooterBinding
@@ -87,6 +89,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val content = SpannableString(getString(R.string.nav_drawer_signin_register))
         content.setSpan(UnderlineSpan(), 0, content.length, 0);
         baseDrawerBinding.navDrawerSignInText.text = content
+        baseDrawerBinding.navDrawerFooter.appVersion.text = "v ${BuildConfig.VERSION_NAME}"
+
     }
 
     private fun setupActionBarDrawerToggle() {
