@@ -9,17 +9,14 @@ import org.commcare.android.model.PersonalIdValidAndCorruptCredential
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.parseIsoDateForSorting
+import org.javarosa.core.services.Logger
 
 class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val _credentialsLiveData = MutableLiveData<PersonalIdValidAndCorruptCredential>()
-    val credentialsLiveData: LiveData<PersonalIdValidAndCorruptCredential> = _credentialsLiveData
-
     private val _apiError =
         MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
-    val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> =
-        _apiError
+    val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> = _apiError
 
     private val _earnedCredentials = MutableLiveData<List<PersonalIdCredential>>()
     val earnedCredentials: LiveData<List<PersonalIdCredential>> = _earnedCredentials
@@ -27,12 +24,41 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
     private val _pendingCredentials = MutableLiveData<List<PersonalIdCredential>>()
     val pendingCredentials: LiveData<List<PersonalIdCredential>> = _pendingCredentials
 
-    fun retrieveCredentials() {
-        val user = ConnectUserDatabaseUtil.getUser(getApplication())
+    private val _installedAppRecords = MutableLiveData<List<PersonalIdCredential>>()
 
+    private val user = ConnectUserDatabaseUtil.getUser(application)
+    val userName: String = user.name
+    val profilePhoto: String? = user.photo
+
+    init {
+        _installedAppRecords.value = initInstalledAppsList()
+    }
+
+    fun retrieveAndProcessCredentials() {
         object : PersonalIdApiHandler<PersonalIdValidAndCorruptCredential>() {
             override fun onSuccess(result: PersonalIdValidAndCorruptCredential) {
-                _credentialsLiveData.postValue(result)
+                val earned = result.validCredentials
+                val corrupt = result.corruptCredentials
+
+                if (!corrupt.isNullOrEmpty()) {
+                    Logger.log(
+                        "CorruptCredentials",
+                        "Found ${corrupt.size} corrupt credentials:\n" +
+                                corrupt.joinToString("\n") { it.toString() }
+                    )
+                }
+
+                val earnedAppIds = earned.map { it.appId }.toSet()
+                val installedApps = _installedAppRecords.value.orEmpty()
+
+                val pending = installedApps.filter { it.appId !in earnedAppIds }
+
+                _earnedCredentials.postValue(
+                    earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+                )
+                _pendingCredentials.postValue(
+                    pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+                )
             }
 
             override fun onFailure(
@@ -41,18 +67,16 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
             ) {
                 _apiError.postValue(failureCode to t)
             }
-        }.retrieveCredentials(getApplication(), user.name, user.password)
+        }.retrieveCredentials(getApplication(), userName, user.password)
     }
 
-    fun setFilteredCredentialLists(
-        earned: List<PersonalIdCredential>,
-        pending: List<PersonalIdCredential>
-    ) {
-        val sortedEarned = earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
-        val sortedPending = pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
-
-        _earnedCredentials.value = sortedEarned
-        _pendingCredentials.value = sortedPending
+    private fun initInstalledAppsList(): List<PersonalIdCredential> {
+        return MultipleAppsUtil.getUsableAppRecords().map { record ->
+            PersonalIdCredential().apply {
+                appId = record.applicationId
+                title = record.displayName ?: ""
+            }
+        }
     }
 }
 
