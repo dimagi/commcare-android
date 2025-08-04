@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.List;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,24 +61,58 @@ public class ApiPersonalId {
     private static final String CONNECT_CLIENT_ID = "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa";
 
 
-    public static ConnectNetworkHelper.PostResult makeHeartbeatRequestSync(Context context, AuthInfo.TokenAuth auth) {
-        String url = PersonalIdApiClient.BASE_URL + context.getString(R.string.ConnectHeartbeatURL);
-        HashMap<String, Object> params = new HashMap<>();
-        String token = FirebaseMessagingUtil.getFCMToken();
-        if (token != null) {
-            params.put("fcm_token", token);
-            boolean useFormEncoding = true;
-            return ConnectNetworkHelper.postSync(context, url, API_VERSION_PERSONAL_ID, auth, params,
-                    useFormEncoding, true);
-        }
+    public static void makeHeartbeatRequest(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
+        ConnectSsoHelper.retrieveConnectIdTokenAsync(context, user, new ConnectSsoHelper.TokenCallback() {
+            @Override
+            public void tokenRetrieved(AuthInfo.TokenAuth token) {
 
-        return new ConnectNetworkHelper.PostResult(-1, null, null);
+                HashMap<String, Object> params = new HashMap<>();
+                String firebaseToken = FirebaseMessagingUtil.getFCMToken();
+                if (firebaseToken != null) {
+                    params.put("fcm_token", firebaseToken);
+                }
+
+                String tokenAuth = HttpUtils.getCredential(token);
+                HashMap<String, String> headers = new HashMap<>();
+                RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, API_VERSION_PERSONAL_ID, headers);
+                ApiService apiService = PersonalIdApiClient.getClientApi();
+                Call<ResponseBody> call = apiService.connectHeartbeat(tokenAuth,headers, requestBody);
+                BaseApi.Companion.callApi(context, call, callback, ApiEndPoints.connectHeartbeatURL);
+            }
+
+            @Override
+            public void tokenUnavailable() {
+                callback.processTokenUnavailableError();
+            }
+
+            @Override
+            public void tokenRequestDenied() {
+                callback.processTokenRequestDeniedError();
+            }
+        });
+
+
     }
 
+    public static void retrievePersonalIdToken(Context context, @NonNull ConnectUserRecord user, IApiCallback callback) {
+
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("client_id", CONNECT_CLIENT_ID);
+        params.put("scope", "openid");
+        params.put("grant_type", "password");
+        params.put("username", user.getUserId());
+        params.put("password", user.getPassword());
+
+        HashMap<String, String> headers = new HashMap<>();
+        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(params, true, API_VERSION_PERSONAL_ID, headers);
+        ApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.connectToken(headers,requestBody);
+        BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.connectTokenURL);
+    }
     public static AuthInfo.TokenAuth retrieveConnectIdTokenSync(Context context, @NonNull ConnectUserRecord user)
             throws TokenDeniedException, TokenUnavailableException {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("client_id", "zqFUtAAMrxmjnC1Ji74KAa6ZpY1mZly0J0PlalIa");
+        params.put("client_id", CONNECT_CLIENT_ID);
         params.put("scope", "openid");
         params.put("grant_type", "password");
         params.put("username", user.getUserId());

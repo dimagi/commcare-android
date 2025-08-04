@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
@@ -11,6 +12,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
@@ -38,15 +40,6 @@ public class ConnectSsoHelper {
         private final boolean linkHqUser;
         final TokenCallback callback;
         private Exception caughtException;
-        TokenTask(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
-            super();
-            this.weakContext = new WeakReference<>(context);
-            this.user = user;
-            this.appRecord = null;
-            this.hqUsername = null;
-            this.linkHqUser = false;
-            this.callback = callback;
-        }
 
         TokenTask(Context context, @NonNull ConnectUserRecord user, ConnectLinkedAppRecord appRecord, String hqUsername, boolean linkHqUser, TokenCallback callback) {
             super();
@@ -62,10 +55,6 @@ public class ConnectSsoHelper {
         protected AuthInfo.TokenAuth doInBackground(Void... voids) {
             try {
                 Context context = weakContext.get();
-                if (hqUsername == null) {
-                    return retrieveConnectIdTokenSync(context, user);
-                }
-
                 return retrieveHqSsoTokenSync(context, user, appRecord, hqUsername, linkHqUser);
             } catch(TokenUnavailableException | TokenDeniedException e) {
                 caughtException = e;
@@ -89,10 +78,33 @@ public class ConnectSsoHelper {
         }
     }
 
-    public static void retrieveConnectIdTokenAsync(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
-        TokenTask task = new TokenTask(context, user, callback);
 
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    public static void retrieveConnectIdTokenAsync(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
+
+        AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
+        if (connectToken != null) {
+            callback.tokenRetrieved(connectToken);
+            return;
+        }
+
+        new PersonalIdApiHandler<AuthInfo.TokenAuth>() {
+
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                if(errorCode==PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR){
+                    callback.tokenRequestDenied();
+                }else{
+                    callback.tokenUnavailable();
+                }
+
+            }
+
+            @Override
+            public void onSuccess(AuthInfo.TokenAuth tokenAuth) {
+                ConnectUserDatabaseUtil.storeUser(context, user);
+                callback.tokenRetrieved(tokenAuth);
+            }
+        }.connectToken(context, user);
     }
 
     public static void retrieveHqSsoTokenAsync(Context context, @NonNull ConnectUserRecord user,

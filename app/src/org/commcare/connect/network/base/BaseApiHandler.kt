@@ -37,7 +37,8 @@ abstract class BaseApiHandler<T> {
         SERVER_ERROR,
         RATE_LIMIT_EXCEEDED_ERROR,
         ACCOUNT_LOCKED_ERROR,
-        INTEGRITY_ERROR;
+        INTEGRITY_ERROR,
+        BAD_REQUEST_ERROR;
 
         fun shouldAllowRetry(): Boolean {
             return this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR
