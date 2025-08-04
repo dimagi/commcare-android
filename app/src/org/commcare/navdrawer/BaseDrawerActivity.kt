@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.AppUtils
 import org.commcare.activities.CommCareActivity
+import org.commcare.activities.LoginActivity
 import org.commcare.android.database.global.models.ApplicationRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
@@ -175,7 +176,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 getString(R.string.nav_drawer_commcare_apps),
                 R.drawable.commcare_actionbar_logo,
                 NavItemType.COMMCARE_APPS,
-                isEnabled = true,
+                isEnabled = this is LoginActivity,
                 isExpanded = commacreChildItems.size<2,
                 commacreChildItems
             ),
