@@ -109,7 +109,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             }
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 super.onDrawerSlide(drawerView, slideOffset)
-
+                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
                 // Refresh once just as the drawer starts sliding open
                 if (slideOffset > 0 && !hasRefreshed) {
                     setupDrawer()
@@ -120,6 +120,9 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 if (slideOffset == 0f) {
                     hasRefreshed = false
                 }
+            }
+            override fun onDrawerClosed(drawerView: View) {
+                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_bar) // Your custom icon
             }
         }
         baseDrawerBinding.drawerLayout.addDrawerListener(drawerToggle)
@@ -210,7 +213,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             closeDrawer()
         }
         footerBinding.aboutView.setOnClickListener { showAboutCommCareDialog() }
-        headerBinding.closeButton.setOnClickListener { closeDrawer() }
         footerBinding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 

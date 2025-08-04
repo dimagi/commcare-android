@@ -7,30 +7,13 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:background="@color/cc_brand_color">
-
-    <LinearLayout
+    <ImageView
+        android:contentDescription="@null"
+        android:layout_gravity="center"
+        android:layout_height="32dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="start"
-        android:layout_gravity="start"
-        android:orientation="horizontal">
-        <ImageButton
-            android:id="@+id/close_button"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="@color/white"
-            android:src="@drawable/ic_connect_close"
-            android:contentDescription="@null"/>
-        <ImageView
-            android:layout_width="130dp"
-            android:layout_height="32dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="16dp"
-            android:src="@drawable/commcare_by_dimagi"
-            app:tint="@color/white"
-            android:contentDescription="@null"/>
-    </LinearLayout>
+        android:src="@drawable/commcare_by_dimagi"
+        app:tint="@color/white" />
     <androidx.cardview.widget.CardView
         android:id="@+id/profile_card"
         android:layout_width="match_parent"
