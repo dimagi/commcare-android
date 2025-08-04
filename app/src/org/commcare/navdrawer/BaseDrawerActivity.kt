@@ -176,7 +176,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 R.drawable.commcare_actionbar_logo,
                 NavItemType.COMMCARE_APPS,
                 isEnabled = true,
-                isExpanded = false,
+                isExpanded = commacreChildItems.size<2,
                 commacreChildItems
             ),
             NavDrawerItem.ParentItem(
