@@ -24,7 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
@@ -1004,4 +1004,23 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     public void injectScreenLayout(@NonNull LayoutInflater inflater, @NonNull FrameLayout contentFrame) {
         inflater.inflate(R.layout.screen_login, contentFrame, true);
     }
+    @Override
+    protected void onDrawerItemClicked(@NonNull NavItemType navItemType, @Nullable String recordId) {
+        super.onDrawerItemClicked(navItemType, recordId); // optional: keeps analytics tracking
+        switch (navItemType) {
+            case OPPORTUNITIES:
+                break;
+            case COMMCARE_APPS:
+                if (recordId != null) {
+                    if (!appIdDropdownList.isEmpty()) {
+                        selectedAppIndex = appIdDropdownList.indexOf(recordId);
+                    }
+                    seatAppIfNeeded(recordId);
+                }
+                break;
+            case MESSAGING:
+                break;
+        }
+    }
+
 }
