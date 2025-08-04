@@ -581,6 +581,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
         boolean otherResult = super.onOptionsItemSelected(item);
+        final int DRAWER_MENU = android.R.id.home;
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
@@ -607,6 +608,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
                 uiController.refreshView();
+                return true;
+            case DRAWER_MENU:
+                super.onOptionsItemSelected(item);
                 return true;
             default:
                 return otherResult;
