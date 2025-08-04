@@ -45,7 +45,7 @@ class ApkDependenciesTest : BaseTest() {
         installApp(APP_NAME, CCZ_NAME)
         val unstatisfiedDependencies = ImmutableList.of("Reminders", "Test")
         verifyDependencyDialog(unstatisfiedDependencies)
-        InstrumentationUtility.login("test", "123");
+        InstrumentationUtility.login("test", "123")
         onView(withText("Start"))
             .perform(click())
         verifyDependencyDialog(unstatisfiedDependencies)
@@ -94,8 +94,8 @@ class ApkDependenciesTest : BaseTest() {
 
     private fun verifyPlaystoreIntent() {
         val receivedIntents = Intents.getIntents()
-        receivedIntents.findLast { intent -> intent.action ==  Intent.ACTION_VIEW}.let {
-            assertEquals("Incorrect Play store url",PLAY_STORE_URL,it!!.data.toString())
+        receivedIntents.findLast { intent -> intent.action == Intent.ACTION_VIEW }.let {
+            assertEquals("Incorrect Play store url", PLAY_STORE_URL, it!!.data.toString())
         }
     }
 }
