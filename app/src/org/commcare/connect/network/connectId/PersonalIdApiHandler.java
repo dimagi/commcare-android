@@ -3,11 +3,14 @@ package org.commcare.connect.network.connectId;
 import android.app.Activity;
 import android.content.Context;
 
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.ApiPersonalId;
 import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
+import org.commcare.connect.network.connectId.parser.ConnectTokenResponseParser;
 import org.commcare.connect.network.connectId.parser.RetrieveCredentialsResponseParser;
 import org.commcare.connect.network.connectId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.connectId.parser.CompleteProfileResponseParser;
@@ -94,7 +97,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                                         String integrityToken,
                                         String requestHash) {
         ApiPersonalId.reportIntegrity(context, body, integrityToken, requestHash,
-                createCallback(null, new ReportIntegrityResponseParser(requestId)));
+                createCallback(new ReportIntegrityResponseParser<T>(),requestId));
     }
 
     public void makeStartConfigurationCall(Activity activity,
@@ -134,8 +137,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     public void retrieveCredentials(Context context, String userName, String password) {
         ApiPersonalId.retrieveCredentials(context, userName, password,
-                createCallback(
-                        new RetrieveCredentialsResponseParser<T>()));
+                createCallback(new RetrieveCredentialsResponseParser<T>(),null));
     }
 
     public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {
@@ -147,5 +149,17 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         ApiPersonalId.validateOtp(activity, sessionData.getToken(), otp,
                 createCallback(sessionData, null));
     }
+
+    public void connectToken(Context context, ConnectUserRecord user) {
+        ApiPersonalId.retrievePersonalIdToken(context,user,
+                createCallback(new ConnectTokenResponseParser<T>(),user));
+    }
+
+    public void heartbeatRequest(Context context, ConnectUserRecord user) {
+        ApiPersonalId.makeHeartbeatRequest(context,user,
+                createCallback(new NoParsingResponseParser<>(),null));
+    }
+
+
 
 }

@@ -309,6 +309,8 @@ License.
     <string name="connect_learn_status">Vous avez terminé %d des %d leçons.\nTerminez l\'apprentissage pour obtenir votre certificat.</string>
     <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
     <string name="connect_learn_finished">Vous avez obtenu un certificat pour cet emploi et êtes éligible pour postuler à l\'emploi et commencer à prodiguer des soins.\nVotre score: %d\nScore de réussite: %d</string>
+    <string name="connect_fetch_learning_progress_error">Échec de la récupération de la progression de l\'apprentissage</string>
+    <string name="connect_fetch_delivery_progress_error">Échec de la récupération de la progression de la livraison</string>
     <string name="your_score">Score : %d</string>
     <string name="connect_learn_need_assessment">Complétez l\'évaluation pour terminer la formation.</string>
     <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nVotre note: %d\nNote de passage: %d</string>

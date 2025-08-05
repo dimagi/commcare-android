@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,22 +32,14 @@ import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.connect.ConnectLoginJobListModel;
-import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -87,70 +80,23 @@ public class ConnectJobsListsFragment extends Fragment
     public void refreshData() {
         corruptJobs.clear();
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        ApiConnect.getConnectOpportunities(getContext(), user, new IApiCallback() {
+        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
+
             @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                int totalJobs = 0;
-                int newJobs = 0;
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (!responseAsString.isEmpty()) {
-                        //Parse the JSON
-                        JSONArray json = new JSONArray(responseAsString);
-                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-                        for (int i = 0; i < json.length(); i++) {
-                            JSONObject obj=null;
-                            try {
-                                obj = (JSONObject)json.get(i);
-                                jobs.add(ConnectJobRecord.fromJson(obj));
-                            } catch (JSONException  e) {
-                                Logger.exception("Parsing return from Opportunities request", e);
-                                handleCorruptJob(obj);
-                            }
-                        }
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t),Toast.LENGTH_LONG).show();
+                navigateFailure();
+            }
 
-                        //Store retrieved jobs
-                        totalJobs = jobs.size();
-                        newJobs =  ConnectJobUtils.storeJobs(getContext(), jobs, true);
-                        setJobListData(jobs);
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    Logger.exception("Error parsing return from Opportunities request", e);
-                }
-
+            @Override
+            public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                int totalJobs = data.getValidJobs().size();
+                int newJobs = ConnectJobUtils.storeJobs(getContext(), data.getValidJobs(), true);
+                corruptJobs = data.getCorruptJobs();
+                setJobListData(data.getValidJobs());
                 reportApiCall(true, totalJobs, newJobs);
             }
-
-            @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url) {
-                navigateFailure();
-            }
-
-            @Override
-            public void processNetworkFailure() {
-                navigateFailure();
-            }
-
-            @Override
-            public void processOldApiError() {
-                navigateFailure();
-                ConnectNetworkHelper.showOutdatedApiError(getContext());
-            }
-
-            @Override
-            public void processTokenUnavailableError() {
-                navigateFailure();
-                ConnectNetworkHelper.handleTokenUnavailableException(getContext());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                navigateFailure();
-                ConnectNetworkHelper.handleTokenDeniedException();
-            }
-        });
+        }.getConnectOpportunities(requireContext(), user);
     }
 
     private void navigateFailure() {
@@ -160,16 +106,6 @@ public class ConnectJobsListsFragment extends Fragment
 
     private void reportApiCall(boolean success, int totalJobs, int newJobs) {
         FirebaseAnalyticsUtil.reportCccApiJobs(success, totalJobs, newJobs);
-    }
-
-    private void handleCorruptJob(JSONObject obj) {
-        if(obj!=null) {
-            try {
-                corruptJobs.add(createJobModel(ConnectJobRecord.corruptJobFromJson(obj)));
-            } catch (JSONException e) {
-                Logger.exception("JSONException while retrieving corrupt opportunity title", e);
-            }
-        }
     }
 
     private void initRecyclerView() {
@@ -310,10 +246,6 @@ public class ConnectJobsListsFragment extends Fragment
                 appType,
                 job
         );
-    }
-
-    private ConnectLoginJobListModel createJobModel(ConnectJobRecord job) {
-        return new ConnectLoginJobListModel(job.getTitle(), job);
     }
 
     private ConnectAppRecord getAppRecord(ConnectJobRecord job, ConnectLoginJobListModel.JobListEntryType jobType) {

@@ -13,23 +13,13 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.database.JobStoreManager;
-import org.commcare.connect.network.ApiConnect;
-import org.commcare.connect.network.ConnectNetworkHelper;
-import org.commcare.connect.network.IApiCallback;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,65 +67,21 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     public void retrieveOpportunities() {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireContext());
-        ApiConnect.getConnectOpportunities(requireContext(), user, new IApiCallback() {
-            @Override
-            public void processSuccess(int responseCode, InputStream responseData) {
-                try {
-                    String responseAsString = new String(StreamsUtil.inputStreamToByteArray(responseData));
-                    if (responseAsString.length() > 0) {
-                        //Parse the JSON
-                        JSONArray json = new JSONArray(responseAsString);
-                        List<ConnectJobRecord> jobs = new ArrayList<>(json.length());
-                        for (int i = 0; i < json.length(); i++) {
-                            try {
-                                JSONObject obj = (JSONObject) json.get(i);
-                                ConnectJobRecord job = ConnectJobRecord.fromJson(obj);
-                                jobs.add(job);
-                            } catch (JSONException e) {
-                                Logger.exception("Parsing return from Opportunities request", e);
-                            }
-                        }
-                        new JobStoreManager(requireContext()).storeJobs(requireContext(), jobs, true);
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                } catch (IOException e) {
-                    Logger.exception("Parsing return from Opportunities request", e);
-                }
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
+        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @androidx.annotation.Nullable Throwable t) {
                 setFragmentRedirection();
             }
 
             @Override
-            public void processFailure(int responseCode, @Nullable InputStream errorResponse, String url){
+            public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                ConnectJobUtils.storeJobs(requireContext(),data.getValidJobs(),true);
                 setFragmentRedirection();
-            }
 
-            @Override
-            public void processNetworkFailure() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.showNetworkError(requireContext());
             }
-
-            @Override
-            public void processTokenUnavailableError() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenUnavailableException(requireContext());
-            }
-
-            @Override
-            public void processTokenRequestDeniedError() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.handleTokenDeniedException();
-            }
-
-            @Override
-            public void processOldApiError() {
-                setFragmentRedirection();
-                ConnectNetworkHelper.showOutdatedApiError(requireContext());
-            }
-        });
+        }.getConnectOpportunities(requireContext(), user);
     }
 
     /**
