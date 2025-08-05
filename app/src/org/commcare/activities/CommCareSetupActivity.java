@@ -136,7 +136,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     // dialog ID
     private static final int DIALOG_INSTALL_PROGRESS = 4;
-    private static final int DRAWER_MENU = android.R.id.home;
 
     private boolean startAllowed = true;
     private String incomingRef;
@@ -644,10 +643,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
-            case DRAWER_MENU:
+            default:
                 super.onOptionsItemSelected(item);
-                break;
-
         }
         return true;
     }
