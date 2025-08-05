@@ -57,21 +57,24 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
         // Wait for fragment to attach
         getSupportFragmentManager().executePendingTransactions();
+
         NavInflater inflater = navController.getNavInflater();
         NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
-
-        int startDestinationId = R.id.connect_jobs_list_fragment;
         Bundle startArgs = new Bundle();
+        graph.setStartDestination(getStartDestinationId(startArgs));
+        navController.setGraph(graph, startArgs);
+
+        retrieveMessages();
+    }
+
+    private int getStartDestinationId(Bundle startArgs) {
+        int startDestinationId = R.id.connect_jobs_list_fragment;
         if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
             startDestinationId = handleInfoRedirect(startArgs);
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
         }
-
-        graph.setStartDestination(startDestinationId);
-        navController.setGraph(graph, startArgs);
-
-        retrieveMessages();
+        return startDestinationId;
     }
 
     private void initStateFromExtras() {
