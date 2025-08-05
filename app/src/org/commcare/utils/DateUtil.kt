@@ -8,14 +8,21 @@ import java.util.TimeZone
 
 @Throws(ParseException::class)
 fun convertIsoDate(inputDate: String, outputPattern: String): String {
-    require(inputDate.isNotEmpty()) { "Input date string is null or empty" }
+    require(inputDate.isNotEmpty()) { "Input date string is empty" }
 
-    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-    isoFormat.timeZone = TimeZone.getTimeZone("UTC")
-    val date = isoFormat.parse(inputDate)
+    val cleaned = inputDate
+        .replace(Regex("\\.\\d{1,6}"), "")
+        .replace("+00:00", "Z")
+
+    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+
+    val date = isoFormat.parse(cleaned)
+        ?: throw ParseException("Failed to parse ISO date: $cleaned", 0)
 
     val outputFormat = SimpleDateFormat(outputPattern, Locale.US)
-    return outputFormat.format(date!!)
+    return outputFormat.format(date)
 }
 
 fun parseIsoDateForSorting(dateStr: String): Date? {

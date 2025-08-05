@@ -46,6 +46,14 @@ class PersonalIdCredential : Persisted(), Serializable {
     @MetaField(META_TYPE)
     var type: String = ""
 
+    @Persisting(9)
+    @MetaField(META_ISSUER_ENVIRONMENT)
+    var issuerEnvironment: String = ""
+
+    @Persisting(10)
+    @MetaField(META_SLUG)
+    var slug: String = ""
+
     companion object {
         const val STORAGE_KEY = "credential"
 
@@ -57,6 +65,8 @@ class PersonalIdCredential : Persisted(), Serializable {
         const val META_ISSUER = "issuer"
         const val META_LEVEL = "level"
         const val META_TYPE = "type"
+        const val META_ISSUER_ENVIRONMENT = "issuer_environment"
+        const val META_SLUG = "slug"
 
         @JvmStatic
         fun fromJsonArray(jsonArray: JSONArray): PersonalIdValidAndCorruptCredential {
@@ -77,6 +87,8 @@ class PersonalIdCredential : Persisted(), Serializable {
                         issuer = obj.getString(META_ISSUER)
                         level = obj.getString(META_LEVEL)
                         type = obj.getString(META_TYPE)
+                        issuerEnvironment = obj.getString(META_ISSUER_ENVIRONMENT)
+                        slug = obj.getString(META_SLUG)
                     }
                     valid.add(credential)
                 } catch (e: JSONException) {
@@ -99,6 +111,8 @@ class PersonalIdCredential : Persisted(), Serializable {
                 issuer = json.optString(META_ISSUER, "")
                 level = json.optString(META_LEVEL, "")
                 type = json.optString(META_TYPE, "")
+                issuerEnvironment = json.optString(META_ISSUER_ENVIRONMENT, "")
+                slug = json.optString(META_SLUG, "")
             }
         }
     }
