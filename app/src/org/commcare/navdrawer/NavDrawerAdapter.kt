@@ -79,8 +79,8 @@ class NavDrawerAdapter(
             if (item.children.isNotEmpty()) {
                 arrow.visibility = View.VISIBLE
                 arrow.setImageResource(
-                    if (item.isExpanded) R.drawable.ic_blue_forward
-                    else R.drawable.nav_drawer_arrow_down
+                    if (item.isExpanded) R.drawable.nav_drawer_arrow_down
+                    else R.drawable.ic_blue_forward
                 )
             } else {
                 arrow.visibility = View.GONE
