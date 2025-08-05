@@ -39,9 +39,6 @@ import org.commcare.cases.entity.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.gis.EntityMapActivity;
-import org.commcare.gis.EntityMapboxActivity;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.modern.session.SessionWrapper;
 import org.commcare.preferences.HiddenPreferences;
@@ -777,8 +774,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 createSortMenu();
                 return true;
             case MENU_MAP:
-                Intent intent = new Intent(this,
-                        HiddenPreferences.shouldUseMapboxMap() ? EntityMapboxActivity.class : EntityMapActivity.class);
+                Intent intent = new Intent(this, EntityMapActivity.class);
                 this.startActivityForResult(intent, MAP_SELECT);
                 return true;
             // handling click on the barcode scanner's actionbar

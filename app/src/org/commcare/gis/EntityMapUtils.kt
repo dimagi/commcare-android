@@ -1,6 +1,5 @@
 package org.commcare.gis
 
-import com.mapbox.mapboxsdk.geometry.LatLng
 import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.Entity
@@ -63,28 +62,4 @@ object EntityMapUtils {
         }
         return entities
     }
-
-    @JvmStatic
-    fun getDetailHeaders(detail: Detail): Array<String?> {
-        val headers = arrayOfNulls<String>(detail.fields.size)
-        for (i in headers.indices) {
-            headers[i] = detail.fields[i].header.evaluate()
-        }
-        return headers
-    }
-
-    @JvmStatic
-    fun parseBoundaryCoords(boundaryCoords: String): ArrayList<LatLng> {
-        val latLngs = ArrayList<LatLng>()
-        if (boundaryCoords.isNotEmpty()) {
-            val list = boundaryCoords.split("\n", "\\n")
-            list.filter { coord -> coord != "" }
-                    .map { coord ->
-                        val latLngArray = coord.split(",")
-                        LatLng(latLngArray[0].toDouble(), latLngArray[1].toDouble())
-                    }.toCollection(latLngs)
-        }
-        return latLngs
-    }
-
 }

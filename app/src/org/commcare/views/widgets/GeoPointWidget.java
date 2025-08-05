@@ -16,9 +16,7 @@ import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.GeoPointMapActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
-import org.commcare.gis.MapboxLocationPickerActivity;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.preferences.HiddenPreferences;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.GeoPointData;
@@ -139,11 +137,7 @@ public class GeoPointWidget extends QuestionWidget {
     }
 
     private Intent getMapActivityIntent() {
-        if (HiddenPreferences.shouldUseMapboxMap()) {
-            return new Intent(getContext(), MapboxLocationPickerActivity.class);
-        } else {
-            return new Intent(getContext(), GeoPointMapActivity.class);
-        }
+        return new Intent(getContext(), GeoPointMapActivity.class);
     }
 
     @Override

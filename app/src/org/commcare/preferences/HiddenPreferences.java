@@ -56,7 +56,6 @@ public class HiddenPreferences {
     private final static String RAW_MEDIA_CLEANUP_COMPLETE = "raw_media_cleanup_complete";
 
     // Preferences whose values are only ever set by being sent down from HQ via the profile file
-    private final static String USE_MAPBOX_MAP = "cc-use-mapbox-map";
     private final static String LABEL_REQUIRED_QUESTIONS_WITH_ASTERISK = "cc-label-required-questions-with-asterisk";
     private final static String MAPS_DEFAULT_LAYER = "cc-maps-default-layer";
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
@@ -505,11 +504,6 @@ public class HiddenPreferences {
 
     public static boolean shouldBypassPreUpdateSync() {
         return CommCareApplication.instance().getCurrentApp().getAppPreferences().getBoolean(BYPASS_PRE_UPDATE_SYNC, false);
-    }
-
-    public static boolean shouldUseMapboxMap() {
-        return CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                .getString(USE_MAPBOX_MAP, PrefValues.NO).equals(PrefValues.YES);
     }
 
     public static void setDisableBackgroundWorkTime(boolean disableBackgroundWork) {
