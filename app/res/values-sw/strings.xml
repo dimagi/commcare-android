@@ -483,6 +483,13 @@
     <string name="personalid_credential_earned">Imelipwa</string>
     <string name="personalid_credential_pending">Inasubiri</string>
     <string name="personalid_credential_cloud_sync">Usawazishaji wa Wingu</string>
+    <string name="personalid_credential_level_1_month_active">Mwezi 1 wa\nShughuli</string>
+    <string name="personalid_credential_level_2_month_active">Miezi 2 ya\nShughuli</string>
+    <string name="personalid_credential_level_3_month_active">Miezi 3 ya\nShughuli</string>
+    <string name="personalid_credential_level_6_month_active">Miezi 6 ya\nShughuli</string>
+    <string name="personalid_credential_level_9_month_active">Miezi 9 ya\nShughuli</string>
+    <string name="personalid_credential_level_12_month_active">Miezi 12 ya\nShughuli</string>
+
     <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
 
 </resources>

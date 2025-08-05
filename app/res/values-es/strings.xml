@@ -477,6 +477,12 @@
     <string name="personalid_credential_earned">Ganado</string>
     <string name="personalid_credential_pending">Pendiente</string>
     <string name="personalid_credential_cloud_sync">Sincronización en la Nube</string>
+    <string name="personalid_credential_level_1_month_active">1 Mes de\nActividad</string>
+    <string name="personalid_credential_level_2_month_active">2 Meses de\nActividad</string>
+    <string name="personalid_credential_level_3_month_active">3 Meses de\nActividad</string>
+    <string name="personalid_credential_level_6_month_active">6 Meses de\nActividad</string>
+    <string name="personalid_credential_level_9_month_active">9 Meses de\nActividad</string>
+    <string name="personalid_credential_level_12_month_active">12 Meses de\nActividad</string>
 
     <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
 

@@ -477,6 +477,12 @@ License.
     <string name="personalid_credential_earned">Gagné</string>
     <string name="personalid_credential_pending">En attente</string>
     <string name="personalid_credential_cloud_sync">Synchronisation Cloud</string>
+    <string name="personalid_credential_level_1_month_active">1 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_2_month_active">2 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_3_month_active">3 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_6_month_active">6 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_9_month_active">9 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_12_month_active">12 Mois d\'\nActivité</string>
 
     <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
 

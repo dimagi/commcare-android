@@ -469,4 +469,10 @@
     <string name="personalid_credential_earned">ዝተረኽበ</string>
     <string name="personalid_credential_pending">ኣብ ከይዲ ዘሎ</string>
     <string name="personalid_credential_cloud_sync">ክላውድ ሲንክ</string>
+    <string name="personalid_credential_level_1_month_active">1 ወርሒ\nተግባር</string>
+    <string name="personalid_credential_level_2_month_active">2 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_credential_level_3_month_active">3 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_credential_level_6_month_active">6 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_credential_level_9_month_active">9 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_credential_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
 </resources>

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.dalvik.databinding.ItemPendingCredentialBinding
+import org.commcare.utils.StringUtils
 
 class PendingCredentialAdapter(
     private val listener: OnCredentialClickListener
@@ -28,7 +29,7 @@ class PendingCredentialAdapter(
         val item = credentialList[position]
         with(holder.binding) {
             tvAppName.text = item.title
-            tvActivity.text = item.level
+            tvActivity.text = StringUtils.getLocalizedLevel(item.level, holder.itemView.context)
         }
     }
 

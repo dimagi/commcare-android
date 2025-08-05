@@ -649,5 +649,12 @@
     <string name="commcarehq_worker">CommCareHQ Worker</string>
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
+    <string name="personalid_credential_level_1_month_active">1 Month of\nActivity</string>
+    <string name="personalid_credential_level_2_month_active">2 Months of\nActivity</string>
+    <string name="personalid_credential_level_3_month_active">3 Months of\nActivity</string>
+    <string name="personalid_credential_level_6_month_active">6 Months of\nActivity</string>
+    <string name="personalid_credential_level_9_month_active">9 Months of\nActivity</string>
+    <string name="personalid_credential_level_12_month_active">12 Months of\nActivity</string>
+
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
 </resources>

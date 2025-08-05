@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.dalvik.databinding.ItemEarnedCredentialBinding
+import org.commcare.utils.StringUtils
 import org.commcare.utils.convertIsoDate
 
 class EarnedCredentialAdapter(
@@ -34,7 +35,7 @@ class EarnedCredentialAdapter(
         with(holder.binding) {
             tvAppName.text = item.title
             tvIssuedDate.text = formattedIssuedDate
-            tvActivity.text = item.level
+            tvActivity.text = StringUtils.getLocalizedLevel(item.level, holder.itemView.context)
             Glide.with(ivProfilePic).load(profilePic).into(ivProfilePic)
         }
     }

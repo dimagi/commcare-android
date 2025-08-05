@@ -477,6 +477,13 @@ License.
     <string name="personalid_credential_earned">अर्जित</string>
     <string name="personalid_credential_pending">लंबित</string>
     <string name="personalid_credential_cloud_sync">क्लाउड सिंक</string>
+    <string name="personalid_credential_level_1_month_active">1 महीने की\nगतिविधि</string>
+    <string name="personalid_credential_level_2_month_active">2 महीने की\nगतिविधि</string>
+    <string name="personalid_credential_level_3_month_active">3 महीने की\nगतिविधि</string>
+    <string name="personalid_credential_level_6_month_active">6 महीने की\nगतिविधि</string>
+    <string name="personalid_credential_level_9_month_active">9 महीने की\nगतिविधि</string>
+    <string name="personalid_credential_level_12_month_active">12 महीने की\nगतिविधि</string>
+
 
     <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
 
