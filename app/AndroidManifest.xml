@@ -374,20 +374,6 @@
         <activity android:name="org.commcare.gis.EntityMapActivity">
         </activity>
 
-        <activity android:name="org.commcare.gis.EntityMapboxActivity">
-        </activity>
-
-        <activity
-            android:name="org.commcare.gis.DrawingBoundaryActivity"
-            android:permission="org.commcare.dalvik.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="org.commcare.dalvik.action.DrawBoundary"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
@@ -396,7 +382,6 @@
         </activity>
         <activity android:name="org.commcare.activities.InstallFromListActivity">
         </activity>
-        <activity android:name="org.commcare.gis.MapboxLocationPickerActivity" />
 
         <uses-library
             android:name="com.google.android.maps"
@@ -597,14 +582,6 @@
         <meta-data
             android:name="firebase_performance_collection_enabled"
             android:value="false" />
-
-        <!-- Somehow this receiver is getting triggered in Android 8+ devices and causing
-            IllegalStateException while trying to start map downloader service from background.
-            Below code removes this receiver's entry from Manifest.
-         -->
-        <receiver android:name="io.ona.kujaku.receivers.KujakuNetworkChangeReceiver"
-            android:exported="false"
-            tools:node="remove"/>
 
         <!-- The zebra-print-android library is not yet targeting Android 12 and at least one
             Activity doesn't have the required attribute exported. The entry below adds the
