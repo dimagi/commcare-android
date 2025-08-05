@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -36,7 +35,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
 
@@ -54,7 +52,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         super.onCreate(savedInstanceState);
         setTitle(getString(R.string.connect_title));
 
-        getIntentExtras();
+        initStateFromExtras();
         updateBackButton();
 
         // Wait for fragment to attach
@@ -76,7 +74,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         retrieveMessages();
     }
 
-    private void getIntentExtras() {
+    private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
         int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
         if (opportunityId > 0) {
