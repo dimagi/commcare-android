@@ -223,7 +223,6 @@
     <string name="image_download_prompt">O arquivo de imagem está faltando para esta pergunta. Clique no botão de download acima para fazer o download</string>
     <string name="audio_download_prompt">O arquivo de áudio está faltando para esta pergunta, clique no botão de download acima para fazer o download</string>
     <string name="media_not_found_error">Mídia não encontrada no aplicativo</string>
-    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Não foi possível analisar as coordenadas de entrada</string>
     <string name="location_provider_disabled">Ative sua localização para receber atualizações de localização</string>
     <string name="wait_for_location_fix">A CommCare ainda está tentando obter sua localização. Aguarde ou clique em Cancelar para cancelar.</string>
@@ -233,8 +232,6 @@
     <string name="root_detected_message">Você não tem permissão para executar o CommCare em um dispositivo com acesso root. Use um dispositivo sem acesso root</string>
     <string name="session_endpoint_unavailable">Não existe nenhum endpoint com id %1$s. Os pontos de extremidade válidos são %2$s</string>
     <string name="session_endpoint_invalid_arguments">Argumentos incorretos fornecidos para o endpoint %1$s. Argumentos fornecidos: %2$s. Argumentos esperados: %3$s.</string>
-    <string name="selected_location">Local selecionado</string>
-    <string name="confirm_location">Confirmar localização</string>
     <string name="playback_start_time">0:00</string>
     <string name="dependency_missing_dialog_title">Obtenha o aplicativo necessário</string>
     <string name="dependency_missing_dialog_title_plural">Obtenha os aplicativos necessários</string>
