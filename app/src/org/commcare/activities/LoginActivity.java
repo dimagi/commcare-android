@@ -580,7 +580,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
@@ -609,7 +608,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 uiController.refreshView();
                 return true;
             default:
-                return otherResult;
+                 return super.onOptionsItemSelected(item);
         }
     }
 
