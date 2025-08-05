@@ -12,7 +12,6 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import org.commcare.AppUtils
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.LoginActivity
 import org.commcare.android.database.global.models.ApplicationRecord
@@ -109,7 +108,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             }
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 super.onDrawerSlide(drawerView, slideOffset)
-                supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_connect_close)
+                supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_connect_close)
                 // Refresh once just as the drawer starts sliding open
                 if (slideOffset > 0 && !hasRefreshed) {
                     setupDrawer()
@@ -165,7 +164,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 .placeholder(R.drawable.nav_drawer_person_avatar) // Your default placeholder image
                 .error(R.drawable.nav_drawer_person_avatar)
         ).into(headerBinding.imageUserProfile)
-        val commacreChildItems = loadVisibleCommcareApplications().map {
+        val commacreApps = loadVisibleCommcareApplications().map {
             NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
         }
 
@@ -180,8 +179,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 R.drawable.commcare_actionbar_logo,
                 NavItemType.COMMCARE_APPS,
                 isEnabled = this is LoginActivity,
-                isExpanded = commacreChildItems.size<2,
-                commacreChildItems
+                isExpanded = commacreApps.size<2,
+                commacreApps
             ),
             NavDrawerItem.ParentItem(
                 getString(R.string.nav_drawer_work_history),
