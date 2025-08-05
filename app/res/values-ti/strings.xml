@@ -466,5 +466,7 @@
     <string name="nav_drawer_work_history">ታሪኽ ስራሕ</string>
     <string name="nav_drawer_payments">ክፍሊታት</string>
     <string name="nav_drawer_manage_profile">ፕሮፋይል ኣስተዳደር</string>
+    <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
+    <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>
 
 </resources>

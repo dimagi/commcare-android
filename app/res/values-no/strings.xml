@@ -82,5 +82,7 @@
     <string name="nav_drawer_work_history">Arbeidshistorikk</string>
     <string name="nav_drawer_payments">Betalinger</string>
     <string name="nav_drawer_manage_profile">Administrer profil</string>
+    <string name="nav_drawer_open">Åpne navigasjonsmenyen</string>
+    <string name="nav_drawer_close">Lukk navigasjonsmenyen</string>
 
 </resources>

@@ -82,5 +82,7 @@
     <string name="nav_drawer_work_history">Storico lavorativo</string>
     <string name="nav_drawer_payments">Pagamenti</string>
     <string name="nav_drawer_manage_profile">Gestisci profilo</string>
+    <string name="nav_drawer_open">Apri il menu di navigazione</string>
+    <string name="nav_drawer_close">Chiudi il menu di navigazione</string>
 
 </resources>

@@ -475,4 +475,6 @@
     <string name="nav_drawer_payments">Pagos</string>
     <string name="nav_drawer_manage_profile">Administrar perfil</string>
     <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
+    <string name="nav_drawer_open">Abrir el panel de navegación</string>
+    <string name="nav_drawer_close">Cerrar el panel de navegación</string>
 </resources>

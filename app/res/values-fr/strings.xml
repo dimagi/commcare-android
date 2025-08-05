@@ -475,5 +475,6 @@ License.
     <string name="nav_drawer_payments">Paiements</string>
     <string name="nav_drawer_manage_profile">Gérer le profil</string>
     <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
-
+    <string name="nav_drawer_open">Ouvrir le tiroir de navigation</string>
+    <string name="nav_drawer_close">Fermer le tiroir de navigation</string>
 </resources>

@@ -481,4 +481,6 @@
     <string name="nav_drawer_payments">Malipo</string>
     <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
+    <string name="nav_drawer_open">Öppna navigeringsmenyn</string>
+    <string name="nav_drawer_close">Stäng navigeringsmenyn</string>
 </resources>

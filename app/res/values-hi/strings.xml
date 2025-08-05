@@ -475,4 +475,6 @@ License.
     <string name="nav_drawer_payments">भुगतान</string>
     <string name="nav_drawer_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
     <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
+    <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
+    <string name="nav_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>
 </resources>

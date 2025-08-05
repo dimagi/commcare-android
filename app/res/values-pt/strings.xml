@@ -481,4 +481,6 @@
     <string name="nav_drawer_payments">Pagamentos</string>
     <string name="nav_drawer_manage_profile">Gerenciar perfil</string>
     <string name="play_service_update_error">Certifique-se de que os serviços do Google Play sejam suportados no dispositivo e estejam atualizados.</string>
+    <string name="nav_drawer_open">Abrir o menu de navegação</string>
+    <string name="nav_drawer_close">Fechar o menu de navegação</string>
 </resources>
