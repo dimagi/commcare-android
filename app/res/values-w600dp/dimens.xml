@@ -11,5 +11,5 @@
     <dimen name="row_padding_horizontal">8sp</dimen>
     <dimen name="widget_button_padding">25dp</dimen>
     <dimen name="rectangle_button_height">80dp</dimen>
-    <dimen name="nav_drawer_width">544dp</dimen>
+    <dimen name="nav_drawer_width">320dp</dimen>
 </resources>
