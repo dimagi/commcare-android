@@ -8,7 +8,6 @@ import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.CustomProgressDialog;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
