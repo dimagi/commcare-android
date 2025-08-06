@@ -251,6 +251,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
+    public int getRootViewId() {
+        return R.id.screen_form_entry_root_view;
+    }
+
+    @Override
     public void formSaveCallback(boolean sessionExpired, boolean userTriggered, Runnable listener) {
         // note that we have started saving the form
         customFormSaveCallback = listener;

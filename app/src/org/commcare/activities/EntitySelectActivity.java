@@ -251,6 +251,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.id.entity_select_root_view;
+    }
+
     private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {

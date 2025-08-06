@@ -235,6 +235,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.id.first_start_screen_modern_root_view;
+    }
+
     private void loadStateFromInstance(Bundle savedInstanceState) {
         uiState = (UiState)savedInstanceState.getSerializable(KEY_UI_STATE);
         incomingRef = savedInstanceState.getString("profileref");

@@ -59,6 +59,11 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     }
 
     @Override
+    public int getRootViewId() {
+        return R.id.app_manager_root_view;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_ABOUT, 0, Localization.get("app.manager.menu.about")).setIcon(

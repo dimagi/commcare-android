@@ -170,6 +170,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
+    public int getRootViewId() {
+        return R.id.screen_login_root_view;
+    }
+
+    @Override
     @TargetApi(Build.VERSION_CODES.M)
     public void requestNeededPermissions(int requestCode) {
         ActivityCompat.requestPermissions(this, Permissions.getAppPermissions(),

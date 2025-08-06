@@ -73,6 +73,11 @@ public class SingleAppManagerActivity extends CommCareActivity {
     }
 
     @Override
+    public int getRootViewId() {
+        return R.id.single_app_root_view;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         refresh();

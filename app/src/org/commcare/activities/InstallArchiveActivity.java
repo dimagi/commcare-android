@@ -93,6 +93,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         processProvidedReference();
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.id.screen_multimedia_root_view;
+    }
+
     private void processProvidedReference() {
         if (getIntent().hasExtra(ARCHIVE_FILEPATH)) {
             ZipUtils.UnzipFile(this, getIntent().getStringExtra(ARCHIVE_FILEPATH), getTargetFolder());

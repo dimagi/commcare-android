@@ -228,6 +228,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         this.formRecordProcessor = new FormRecordProcessor(this);
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.id.entity_select_root_view;
+    }
+
     private static void callBarcodeScanIntent(AppCompatActivity act) {
         Intent intent = WidgetUtils.createScanIntent(act);
         try {
