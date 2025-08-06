@@ -20,7 +20,7 @@ class PersonalIdAuthService(
             }
 
             override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                handlePersonalIdApiError(failureCode, t)
+                callback.onPersonalIdApiFailure(failureCode, t)
             }
         }.sendOtp(activity, personalIdSessionData)
     }
@@ -37,17 +37,8 @@ class PersonalIdAuthService(
             }
 
             override fun onFailure(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                handlePersonalIdApiError(failureCode, t)
+                callback.onPersonalIdApiFailure(failureCode, t)
             }
         }.validateOtp(activity, code, personalIdSessionData)
-    }
-
-    private fun handlePersonalIdApiError(failureCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-        var errorType = OtpErrorType.GENERIC_ERROR;
-        val error = PersonalIdApiErrorHandler.handle(activity, failureCode, t)
-        if(failureCode == PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
-            errorType = OtpErrorType.INVALID_CREDENTIAL
-        }
-        callback.onFailure(errorType, error)
     }
 }

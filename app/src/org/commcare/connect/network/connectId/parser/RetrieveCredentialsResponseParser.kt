@@ -10,7 +10,7 @@ import java.io.InputStream
  */
 class RetrieveCredentialsResponseParser<T>() : BaseApiResponseParser<T> {
 
-    override fun parse(responseCode: Int, responseData: InputStream): T {
+    override fun parse(responseCode: Int, responseData: InputStream, anyInputObject:Any?): T {
         val jsonArray = JSONArray(responseData)
         return PersonalIdCredential.fromJsonArray(jsonArray) as T
     }

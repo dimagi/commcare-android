@@ -81,5 +81,4 @@
                 android:scrollbars="vertical" />
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>
