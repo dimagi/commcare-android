@@ -40,6 +40,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenLoginBinding;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -49,6 +50,7 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -175,8 +177,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void setupDrawerController() {
+        View rootView = findViewById(android.R.id.content);
+        DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
         drawerController = new BaseDrawerController(
                 this,
+                drawerRefs,
                 new Function2<BaseDrawerController.NavItemType, String, Unit>() {
                     @Override
                     public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
@@ -185,7 +190,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     }
                 }
         );
-        drawerController.injectContentLayout(R.layout.screen_login);
         drawerController.setupDrawer();
     }
 

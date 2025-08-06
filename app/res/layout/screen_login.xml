@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.drawerlayout.widget.DrawerLayout android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/white"
-    android:orientation="vertical"
-    tools:viewBindingIgnore="true">
+    android:layout_height="match_parent"
+    android:tag="layout/activity_login_0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:RectangleButtonWithText="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/screen_login_main"
+        <FrameLayout
+            android:id="@+id/nav_drawer_frame"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="match_parent"
+            android:background="@color/white">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical"
+                tools:viewBindingIgnore="true">
+
+                <RelativeLayout
+                    android:id="@+id/screen_login_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent">
 
             <LinearLayout
                 android:id="@+id/screen_login_bottom_pane"
@@ -259,15 +268,20 @@
             </ScrollView>
         </RelativeLayout>
 
-        <include layout="@layout/component_drop_shadow" />
+                <include layout="@layout/component_drop_shadow" />
 
-    <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
-    <LinearLayout
-        android:id="@+id/dummy_focusable_view"
-        android:layout_width="0px"
-        android:layout_height="0px"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:orientation="horizontal" />
+                <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
+                <LinearLayout
+                    android:id="@+id/dummy_focusable_view"
+                    android:layout_width="0px"
+                    android:layout_height="0px"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:orientation="horizontal" />
 
-</LinearLayout>
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <include layout="@layout/nav_drawer_base"/>
+    </androidx.drawerlayout.widget.DrawerLayout>

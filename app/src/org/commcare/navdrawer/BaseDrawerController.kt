@@ -17,9 +17,6 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.NavDrawerBaseBinding
-import org.commcare.dalvik.databinding.NavDrawerFooterBinding
-import org.commcare.dalvik.databinding.NavDrawerHeaderBinding
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.views.ViewUtil
@@ -27,15 +24,12 @@ import org.commcare.views.dialogs.DialogCreationHelpers
 
 class BaseDrawerController(
     private val activity: CommCareActivity<*>,
+    private val binding: DrawerViewRefs,
     private val onItemClicked: (NavItemType, String?) -> Unit
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
     private var hasRefreshed = false
-    val binding: NavDrawerBaseBinding = NavDrawerBaseBinding.inflate(activity.layoutInflater)
-    private val headerBinding: NavDrawerHeaderBinding = binding.navDrawerHeader
-    private val footerBinding: NavDrawerFooterBinding = binding.navDrawerFooter
-
 
     /** Enum to represent navigation drawer menu items */
     enum class NavItemType {
@@ -47,7 +41,6 @@ class BaseDrawerController(
     }
 
     fun setupDrawer() {
-        activity.setContentView(binding.root)
         setupActionBarDrawerToggle()
         initializeAdapter()
         setupListeners()
@@ -93,8 +86,8 @@ class BaseDrawerController(
     private fun setupViews() {
         val content = SpannableString(activity.getString(R.string.nav_drawer_signin_register))
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
-        binding.navDrawerSignInText.text = content
-        footerBinding.appVersion.text = "v ${BuildConfig.VERSION_NAME}"
+        binding.signInText.text = content
+        binding.versionText.text = "v ${BuildConfig.VERSION_NAME}"
     }
 
     private fun initializeAdapter() {
@@ -113,27 +106,27 @@ class BaseDrawerController(
     }
 
     private fun setupListeners() {
-        binding.navDrawerSignInText.setOnClickListener {
+        binding.signInText.setOnClickListener {
             PersonalIdManager.getInstance()
                 .launchPersonalId(activity, ConnectConstants.LOGIN_CONNECT_LAUNCH_REQUEST_CODE)
             closeDrawer()
         }
-        footerBinding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
-        footerBinding.helpView.setOnClickListener { /* Future Help Action */ }
+        binding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
+        binding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 
     fun refreshDrawerContent() {
         if (PersonalIdManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             val user = ConnectUserDatabaseUtil.getUser(activity)
-            headerBinding.userName.text = user.name
-            Glide.with(headerBinding.imageUserProfile)
+            binding.userName.text = user.name
+            Glide.with(binding.imageUserProfile)
                 .load(user.photo)
                 .apply(
                     RequestOptions.circleCropTransform()
                         .placeholder(R.drawable.nav_drawer_person_avatar)
                         .error(R.drawable.nav_drawer_person_avatar)
-                ).into(headerBinding.imageUserProfile)
+                ).into(binding.imageUserProfile)
 
             val commcareApps = MultipleAppsUtil.getUsableAppRecords().map {
                 NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
@@ -182,7 +175,7 @@ class BaseDrawerController(
     private fun setSignedInState(isSignedIn: Boolean) {
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
-        headerBinding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+        binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
     }
 
     fun closeDrawer() {
@@ -193,8 +186,4 @@ class BaseDrawerController(
         return drawerToggle.onOptionsItemSelected(item)
     }
 
-    fun injectContentLayout(layoutRes: Int) {
-        val view = LayoutInflater.from(activity).inflate(layoutRes, binding.navDrawerFrame, false)
-        binding.navDrawerFrame.addView(view)
-    }
 }

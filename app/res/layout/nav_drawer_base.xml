@@ -1,21 +1,9 @@
-<layout
+<LinearLayout android:layout_width="@dimen/nav_drawer_width"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/cc_brand_color"
+    android:layout_gravity="start"
     xmlns:android="http://schemas.android.com/apk/res/android">
-<androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <FrameLayout
-        android:id="@+id/nav_drawer_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <LinearLayout
-        android:layout_width="@dimen/nav_drawer_width"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/cc_brand_color"
-        android:layout_gravity="start">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -80,5 +68,3 @@
         </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
-</androidx.drawerlayout.widget.DrawerLayout>
-</layout>
