@@ -8,10 +8,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -43,7 +44,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
-import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -84,7 +86,7 @@ import java.util.Map;
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
-public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActivity>
+public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
@@ -140,6 +142,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private boolean startAllowed = true;
     private String incomingRef;
     private CommCareApp ccApp;
+    private BaseDrawerController drawerController;
+
 
     /**
      * Indicates that this activity was launched from the AppManagerActivity
@@ -187,6 +191,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
+        setupDrawerController();
 
         if (isSingleAppBuild()) {
             uiState = UiState.BLANK;
@@ -249,6 +254,23 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         // Uggggh, this might not be 100% legit depending on timing, what
         // if we've already reconnected and shut down the dialog?
         startAllowed = savedInstanceState.getBoolean("startAllowed");
+    }
+
+    private void setupDrawerController() {
+        View rootView = findViewById(android.R.id.content);
+        DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
+        drawerController = new BaseDrawerController(
+                this,
+                drawerRefs,
+                new Function2<BaseDrawerController.NavItemType, String, Unit>() {
+                    @Override
+                    public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
+                        handleDrawerItemClick(navItemType, recordId);
+                        return Unit.INSTANCE;
+                    }
+                }
+        );
+        drawerController.setupDrawer();
     }
 
     private void persistCommCareAppState() {
@@ -620,6 +642,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
+        if (drawerController != null && drawerController.handleOptionsItem(item)) {
+            return true;
+        }
         switch (item.getItemId()) {
             case MENU_OFFLINE_INSTALL:
                 clearErrorMessage();
@@ -816,11 +841,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         }
     }
 
-    @Override
-    public void injectScreenLayout(@NonNull LayoutInflater inflater, @NonNull FrameLayout contentFrame) {
-        inflater.inflate(R.layout.first_start_screen_modern, contentFrame, true);
-    }
-
     private CustomProgressDialog generateNormalInstallDialog(int taskId) {
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
@@ -993,6 +1013,13 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             uiState = UiState.READY_TO_INSTALL;
             uiStateScreenTransition();
             startResourceInstall();
+        }
+    }
+
+    private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {}
         }
     }
 }
