@@ -129,6 +129,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.id.update_activity_root_view;
+    }
+
     private void loadSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             taskIsCancelling = savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);

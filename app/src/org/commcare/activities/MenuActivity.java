@@ -1,10 +1,10 @@
 package org.commcare.activities;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.MenuList;
+import org.commcare.dalvik.R;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Menu;
@@ -28,6 +28,11 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
             return;
         }
         MenuList.setupMenuViewInActivity(this, menuId, useGridMenu(menuId), false);
+    }
+
+    @Override
+    public int getRootViewId() {
+        return R.id.screen_suite_menu_root_view;
     }
 
     private static boolean useGridMenu(String currentCommand) {

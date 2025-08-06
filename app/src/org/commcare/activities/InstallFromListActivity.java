@@ -107,6 +107,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         setProperAuthView();
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.layout.user_get_available_apps;
+    }
+
     private void setUpGetAppsButton() {
         Button getAppsButton = findViewById(R.id.get_apps_button);
         getAppsButton.setOnClickListener(v -> {

@@ -55,6 +55,11 @@ public class StandardHomeActivity
         super.onResumeSessionSafe();
     }
 
+    @Override
+    public int getRootViewId() {
+        return R.id.home_screen_root_view;
+    }
+
     void enterRootModule() {
         if (doPreStartChecks()) {
             Intent i = new Intent(this, MenuActivity.class);
