@@ -14,21 +14,20 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import com.scottyab.rootbeer.RootBeer;
 
@@ -49,7 +48,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
-import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -82,7 +81,7 @@ import java.util.Map;
 /**
  * @author ctsims
  */
-public class LoginActivity extends BaseDrawerActivity<LoginActivity>
+public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
@@ -126,6 +125,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private BaseDrawerController drawerController;
 
 
     @Override
@@ -142,6 +142,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
+        setupDrawerController();
 
         uiController.checkForGlobalErrors();
 
@@ -171,6 +172,21 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
+    }
+
+    private void setupDrawerController() {
+        drawerController = new BaseDrawerController(
+                this,
+                new Function2<BaseDrawerController.NavItemType, String, Unit>() {
+                    @Override
+                    public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
+                        handleDrawerItemClick(navItemType, recordId);
+                        return Unit.INSTANCE;
+                    }
+                }
+        );
+        drawerController.injectContentLayout(R.layout.screen_login);
+        drawerController.setupDrawer();
     }
 
     @Override
@@ -580,6 +596,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
+        if (drawerController != null && drawerController.handleOptionsItem(item)) {
+            return true;
+        }
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
@@ -995,27 +1014,17 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return connectAppState;
     }
 
-    @Override
-    public void injectScreenLayout(@NonNull LayoutInflater inflater, @NonNull FrameLayout contentFrame) {
-        inflater.inflate(R.layout.screen_login, contentFrame, true);
-    }
-    @Override
-    protected void onDrawerItemClicked(@NonNull NavItemType navItemType, @Nullable String recordId) {
-        super.onDrawerItemClicked(navItemType, recordId); // optional: keeps analytics tracking
-        switch (navItemType) {
-            case OPPORTUNITIES:
-                break;
-            case COMMCARE_APPS:
+    private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {
                 if (recordId != null) {
                     if (!appIdDropdownList.isEmpty()) {
                         selectedAppIndex = appIdDropdownList.indexOf(recordId);
                     }
                     seatAppIfNeeded(recordId);
                 }
-                break;
-            case MESSAGING:
-                break;
+            }
         }
     }
-
 }
