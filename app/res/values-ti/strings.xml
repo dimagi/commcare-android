@@ -294,10 +294,13 @@
     <string name="connect_learn_need_assessment_title">ስልጠና ኣብ ምፅባይ ዝርከብ</string>
     <string name="connect_learn_failed_title">ስልጠና ፈሺሉ።</string>
     <string name="connect_learn_complete_by">ፕሮጀክት ብ %s ምዝዛም</string>
+    <string name="connect_learn_error_starting">ትምህርቲ ክትጅምሩ ስለዘይከኣልኩም፡ በጃኹም ምስ ኣመሓዳሪ ዕድል ተወከሱ።</string>
     <string name="connect_learn_title">ምዕባለ ትምህርቲ</string>
     <string name="connect_learn_status">%d ናይ %d ትምህርቲ ወዲእካ ኣለኻ።\nምስክር ወረቐትካ ንምርካብ ትምህርቲ ወድእ።</string>
     <string name="connect_learn_not_started">ዝኾነ ትምህርቲ ኣይወዳእካን።\nሰርቲፊኬትካ ንምርካብ ክትመሃር ጀምር።</string>
     <string name="connect_learn_finished">ነዚ ስራሕ ምስክር ወረቐት ረኺብካ ነቲ ስራሕ ክትሓትትን ክንክን ከተቕርብ ክትጅምርን ብቑዕ ኢኻ።\nነጥብኻ: %d\nናይ ምሕላፍ ነጥቢ: %d</string>
+    <string name="connect_fetch_learning_progress_error">ነቲ ናይ ትምህርቲ ምዕባለ ከምጽእ ኣይከኣለን</string>
+    <string name="connect_fetch_delivery_progress_error">ናይ ኣወሃህባ ምዕባለ ምምጻእ ኣይከኣለን</string>
     <string name="your_score">ነጥቢ፡ %d</string>
     <string name="connect_learn_need_assessment">ስልጠና ንምውዳእ ነቲ ገምጋም ወድእ።</string>
     <string name="connect_learn_failed">ይቕሬታ ኣብ ገምጋምካ ናይ ምሕላፍ ነጥቢ ኣይረኸብካን። በጃኻ ደጊምካ ፈትን።\nነጥብኻ: %d\nነጥቢ ምሕላፍ: %d</string>
@@ -323,6 +326,7 @@
     <string name="connect_progress_warning_daily_max_reached_single">ንሎሚ ዝለዓለ ቁፅሪ ምብፃሕ በፂሕኩም ኣለኹም። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_max_reached_multi">ን %s ዝለዓለ ቁፅሪ ምብፃሕ በፂሕካ ኣለኻ። </string>
     <string name="connect_progress_warning_daily_max_reached_multi">ንመዓልታዊ ገደብ %s በፂሕካ ኣለኻ።</string>
+    <string name="connect_download_learn">Download ተማሃሩ ኣፕ</string>
     <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
     <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
     <string name="connect_results_summary_earned">ዝረኸበ</string>
@@ -356,7 +360,6 @@
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
     <string name="audio_recording_notification">ድምጺ ምቕራጽ (ምቅዳሕ) መፍለጢ</string>
     <string name="user_suspended">ተገልጋላይ ተኣጊዱ ኣሎ። ንመመሓዳሪኦም/ኣድሚን ይርከቡ</string>
-    <string name="connect_job_list_api_failure">ምስቲ ሰርቨር ኣብ እትራኸበሉ እዋን ጌጋ ኣጋጢሙ</string>
     <string name="connect_payment_acknowledge_notification_yes">እወ</string>
     <string name="connect_payment_acknowledge_notification_no">ኣይፋል</string>
     <string name="enter_otp">ናይ ኤስኤምኤስ ኮድ ኣእትዉ</string>
@@ -406,6 +409,8 @@
     <string name="personalid_otp_missing_activity">ገለ ነገር ተጋግዩ።</string>
     <string name="personalid_otp_verification_failed_generic">ምርግጋጽ ኦቲፒ ኣይተዓወተን፤</string>
     <string name="personalid_otp_verification_failed">ምርግጋጽ ኣይተዓወተን በጃኹም ደጊምኩም ፈትኑ</string>
+    <string name="personalid_messaging_menu_title">መልእኽቲ ምልውዋጥ</string>
+    <string name="personalid_sync_menu_title">ምትእስሳር</string>
     <string name="connect_registration_subtitle">ቁጽሪ ተሌፎንኩም ኣእትዉ</string>
     <string name="connect_recovery_button_phone">ቀፃሊ</string>
     <string name="connect_messaging_title">መልእኽቲ ምልውዋጥ</string>
@@ -420,6 +425,8 @@
     <string name="connect_messaging_retrieve_messages_fail">መልእኽትታት ምምላስ ኣይከኣለን</string>
     <string name="connect_send_message_hint">መልእኽቲ ጽሓፍ</string>
     <string name="connect_send_message_btn_desc">መልእኽቲ ንምልኣኽ ኣብዚ ጠውቑ</string>
+    <string name="connect_message_you">ንስኻ</string>
+    <string name="connect_message_them">ንሶም</string>
     <string name="connect_corrupt_job_text">ነዚ ዕድል ክጽዕን ኣይከኣለን</string>
     <string name="connect_results_summary_pending">ኣብ ከይዲ</string>
     <string name="connect_results_summary_rejected">ተነጺጉ</string>
