@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
@@ -13,6 +14,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -24,6 +27,9 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 /**
  * Normal CommCare home screen
@@ -38,11 +44,38 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private BaseDrawerController drawerController;
+
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+        setupDrawerController();
+    }
+
+    private void setupDrawerController() {
+        View rootView = findViewById(android.R.id.content);
+        DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
+        drawerController = new BaseDrawerController(
+                this,
+                drawerRefs,
+                new Function2<BaseDrawerController.NavItemType, String, Unit>() {
+                    @Override
+                    public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
+                        handleDrawerItemClick(navItemType, recordId);
+                        return Unit.INSTANCE;
+                    }
+                }
+        );
+        drawerController.setupDrawer();
+    }
+
+    private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {}
+        }
     }
 
     @Override
@@ -176,7 +209,9 @@ public class StandardHomeActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-
+        if (drawerController != null && drawerController.handleOptionsItem(item)) {
+            return true;
+        }
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
             launchUpdateActivity(false);

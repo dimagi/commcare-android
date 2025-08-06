@@ -142,7 +142,7 @@ class BaseDrawerController(
                     activity.getString(R.string.nav_drawer_commcare_apps),
                     R.drawable.commcare_actionbar_logo,
                     NavItemType.COMMCARE_APPS,
-                    isEnabled = activity is LoginActivity,
+                    isEnabled = commcareApps.isNotEmpty(),
                     isExpanded = commcareApps.size < 2,
                     children = commcareApps
                 ),
