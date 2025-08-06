@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.ConnectProgressJobSummaryAdapter;
@@ -45,6 +47,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter;
 
     private HomeScreenAdapter adapter;
+    private boolean isUISetupComplete = false;
 
     public StandardHomeActivityUIController(StandardHomeActivity activity) {
         this.activity = activity;
@@ -57,6 +60,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         setupJobTile();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
+        isUISetupComplete = true;
     }
 
     private void setupJobTile() {
@@ -115,6 +119,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     @Override
     public void refreshView() {
+        if (!isUISetupComplete) {
+            FirebaseCrashlytics.getInstance().log("refreshView called before setupUI");
+            return;
+        }
         if (adapter != null) {
             // adapter can be null if backstack was cleared for memory reasons
             adapter.notifyDataSetChanged();
@@ -124,6 +132,15 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     public void updateConnectProgress() {
+        if (!isUISetupComplete) {
+            FirebaseCrashlytics.getInstance().log("updateConnectProgress called before UI setup complete");
+            return;
+        }
+
+        if (viewJobCard == null || connectProgressJobSummaryAdapter == null) {
+            FirebaseCrashlytics.getInstance().log("viewJobCard or connectProgressJobSummaryAdapter is null in updateConnectProgress");
+            return;
+        }
         ConnectJobRecord job = activity.getActiveJob();
         if (job == null) {
             return;

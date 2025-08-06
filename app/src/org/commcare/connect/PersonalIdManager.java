@@ -17,6 +17,8 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
@@ -366,8 +368,19 @@ public class PersonalIdManager {
                 }
 
                 public void tokenUnavailable() {
-                    ConnectNetworkHelper.handleTokenUnavailableException(activity);
-                    callback.connectActivityComplete(false);
+                    try {
+                        if (activity != null) {
+                            ConnectNetworkHelper.handleTokenUnavailableException(activity);
+                        } else {
+                            FirebaseCrashlytics.getInstance().recordException(
+                                    new NullPointerException("tokenUnavailable(): activity is null")
+                            );
+                        }
+                    } catch (Exception e) {
+                        FirebaseCrashlytics.getInstance().recordException(e);
+                    } finally {
+                        callback.connectActivityComplete(false);
+                    }
                 }
 
                 public void tokenRequestDenied() {
