@@ -102,8 +102,7 @@ dependencies {
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
     implementation 'org.jsoup:jsoup:1.21.1'
-    implementation 'com.scottyab:rootbeer-lib:0.1.0'
-
+    implementation 'com.scottyab:rootbeer-lib:0.1.1'
     implementation 'com.carrotsearch:hppc:0.9.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
@@ -255,7 +254,7 @@ static def getDate() {
 
 android {
     namespace 'org.commcare.dalvik'
-    compileSdk 35
+    compileSdk 36
 
     lintOptions {
         abortOnError false
@@ -283,7 +282,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         applicationId 'org.commcare.dalvik'
         testNamespace 'org.commcare.dalvik.test'
