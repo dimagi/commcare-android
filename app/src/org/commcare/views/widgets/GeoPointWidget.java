@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 
@@ -24,8 +25,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.text.DecimalFormat;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * GeoPointWidget is the widget that allows the user to get GPS readings.
@@ -128,7 +127,7 @@ public class GeoPointWidget extends QuestionWidget {
     private double[] parseLocation() {
         String s1 = mStringAnswer.getText().toString();
         String[] sa = s1.split(" ");
-        double gp[] = new double[4];
+        double[] gp = new double[4];
         gp[0] = Double.valueOf(sa[0]);
         gp[1] = Double.valueOf(sa[1]);
         gp[2] = Double.valueOf(sa[2]);
@@ -157,14 +156,14 @@ public class GeoPointWidget extends QuestionWidget {
             try {
                 // segment lat and lon
                 String[] sa = s.split(" ");
-                double gp[] = new double[4];
+                double[] gp = new double[4];
                 gp[0] = Double.valueOf(sa[0]);
                 gp[1] = Double.valueOf(sa[1]);
                 gp[2] = Double.valueOf(sa[2]);
                 gp[3] = Double.valueOf(sa[3]);
 
                 return new GeoPointData(gp);
-            } catch (Exception NumberFormatException) {
+            } catch (Exception numberFormatException) {
                 return null;
             }
         }
