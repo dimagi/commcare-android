@@ -44,6 +44,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.GlobalPrivilegesManager;
@@ -86,7 +87,7 @@ import java.util.Map;
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
-public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
+public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
@@ -993,13 +994,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             uiState = UiState.READY_TO_INSTALL;
             uiStateScreenTransition();
             startResourceInstall();
-        }
-    }
-
-    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
-        switch (itemType) {
-            case OPPORTUNITIES -> { /* handle */ }
-            case COMMCARE_APPS -> {}
         }
     }
 }

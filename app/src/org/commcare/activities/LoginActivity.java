@@ -49,6 +49,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DevSessionRestorer;
@@ -83,7 +84,7 @@ import java.util.Map;
 /**
  * @author ctsims
  */
-public class LoginActivity extends CommCareActivity<LoginActivity>
+public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 

@@ -117,8 +117,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private GestureDetector mGestureDetector;
 
     protected String lastQueryString;
-    protected BaseDrawerController drawerController;
-
 
     /**
      * Activity has been put in the background. Flag prevents dialogs
@@ -265,9 +263,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerController != null && drawerController.handleOptionsItem(item)) {
-            return true;
-        }
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (!isFinishing()) {
@@ -998,26 +993,6 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return StringUtils.getStringRobust(this, stringResource);
     }
 
-    protected void setupDrawerController() {
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
-        if (personalIdManager.isloggedIn()) {
-            View rootView = findViewById(android.R.id.content);
-            DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
-            drawerController = new BaseDrawerController(
-                    this,
-                    drawerRefs,
-                    new Function2<BaseDrawerController.NavItemType, String, Unit>() {
-                        @Override
-                        public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
-                            handleDrawerItemClick(navItemType, recordId);
-                            return Unit.INSTANCE;
-                        }
-                    }
-            );
-            drawerController.setupDrawer();
-        }
-    }
 
     protected void handleDrawerItemClick(BaseDrawerController.NavItemType navItemType, String recordId){}
 }
