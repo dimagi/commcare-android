@@ -254,7 +254,7 @@ static def getDate() {
 
 android {
     namespace 'org.commcare.dalvik'
-    compileSdk 35
+    compileSdk 36
 
     lintOptions {
         abortOnError false
