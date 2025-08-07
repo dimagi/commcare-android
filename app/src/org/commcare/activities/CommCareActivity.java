@@ -265,6 +265,9 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerController != null && drawerController.handleOptionsItem(item)) {
+            return true;
+        }
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (!isFinishing()) {

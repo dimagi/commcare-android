@@ -625,9 +625,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        if (drawerController != null && drawerController.handleOptionsItem(item)) {
-            return true;
-        }
         switch (item.getItemId()) {
             case MENU_OFFLINE_INSTALL:
                 clearErrorMessage();

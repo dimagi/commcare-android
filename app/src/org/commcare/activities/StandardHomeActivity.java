@@ -45,7 +45,6 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
-    private BaseDrawerController drawerController;
 
 
     @Override
@@ -193,9 +192,6 @@ public class StandardHomeActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        if (drawerController != null && drawerController.handleOptionsItem(item)) {
-            return true;
-        }
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
             launchUpdateActivity(false);

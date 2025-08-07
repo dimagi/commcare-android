@@ -584,9 +584,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        if (drawerController != null && drawerController.handleOptionsItem(item)) {
-            return true;
-        }
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
