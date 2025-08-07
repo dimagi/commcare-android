@@ -9,6 +9,7 @@ import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -55,20 +56,24 @@ public class StandardHomeActivity
     }
 
     private void setupDrawerController() {
-        View rootView = findViewById(android.R.id.content);
-        DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
-        drawerController = new BaseDrawerController(
-                this,
-                drawerRefs,
-                new Function2<BaseDrawerController.NavItemType, String, Unit>() {
-                    @Override
-                    public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
-                        handleDrawerItemClick(navItemType, recordId);
-                        return Unit.INSTANCE;
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
+        if (personalIdManager.isloggedIn()) {
+            View rootView = findViewById(android.R.id.content);
+            DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
+            drawerController = new BaseDrawerController(
+                    this,
+                    drawerRefs,
+                    new Function2<BaseDrawerController.NavItemType, String, Unit>() {
+                        @Override
+                        public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
+                            handleDrawerItemClick(navItemType, recordId);
+                            return Unit.INSTANCE;
+                        }
                     }
-                }
-        );
-        drawerController.setupDrawer();
+            );
+            drawerController.setupDrawer();
+        }
     }
 
     private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {

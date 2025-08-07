@@ -144,7 +144,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-        setupDrawerController();
+
 
         uiController.checkForGlobalErrors();
 
@@ -165,6 +165,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
+        setupDrawerController();
+
+
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
             new UserfacingErrorHandling<>().createErrorDialog(this,
@@ -177,20 +180,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void setupDrawerController() {
-        View rootView = findViewById(android.R.id.content);
-        DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
-        drawerController = new BaseDrawerController(
-                this,
-                drawerRefs,
-                new Function2<BaseDrawerController.NavItemType, String, Unit>() {
-                    @Override
-                    public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
-                        handleDrawerItemClick(navItemType, recordId);
-                        return Unit.INSTANCE;
+        if (personalIdManager.isloggedIn()) {
+            View rootView = findViewById(android.R.id.content);
+            DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
+            drawerController = new BaseDrawerController(
+                    this,
+                    drawerRefs,
+                    new Function2<BaseDrawerController.NavItemType, String, Unit>() {
+                        @Override
+                        public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
+                            handleDrawerItemClick(navItemType, recordId);
+                            return Unit.INSTANCE;
+                        }
                     }
-                }
-        );
-        drawerController.setupDrawer();
+            );
+            drawerController.setupDrawer();
+        }
     }
 
     @Override
