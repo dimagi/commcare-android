@@ -41,11 +41,12 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
                 val corrupt = result.corruptCredentials
 
                 if (!corrupt.isNullOrEmpty()) {
-                    Logger.log(
-                        "CorruptCredentials",
-                        "Found ${corrupt.size} corrupt credentials:\n" +
-                                corrupt.joinToString("\n") { it.toString() }
-                    )
+                    val errorMessage = corrupt.joinToString(
+                        separator = "\n",
+                        prefix = "Found ${corrupt.size} corrupt credentials:\n"
+                    ) { it.toString() }
+                    Logger.log("CorruptCredentials", errorMessage)
+                    throw RuntimeException("Corrupt data encountered.\n$errorMessage")
                 }
 
                 val earnedAppIds = earned.map { it.appId }.toSet()
@@ -60,6 +61,7 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
                     pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
                 )
             }
+
 
             override fun onFailure(
                 failureCode: PersonalIdOrConnectApiErrorCodes,
