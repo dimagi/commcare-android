@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:tag="layout/activity_login_0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <FrameLayout
+        android:id="@+id/nav_drawer_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+<LinearLayout
     style="@style/MainPane"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -82,3 +94,6 @@
     </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>
+    </FrameLayout>
+    <include layout="@layout/nav_drawer_base"/>
+</androidx.drawerlayout.widget.DrawerLayout>
