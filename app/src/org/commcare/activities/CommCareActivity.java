@@ -36,6 +36,7 @@ import androidx.viewbinding.ViewBinding;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.fragments.BreadcrumbBarHelper;
 import org.commcare.fragments.ContainerViewModel;
 import org.commcare.fragments.TaskConnectorViewModel;
@@ -43,6 +44,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.DataSyncCompleteBroadcastReceiver;
 import org.commcare.services.FCMMessageData;
@@ -74,6 +77,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 /**
  * Base class for CommCareActivities to simplify
@@ -112,6 +117,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     private GestureDetector mGestureDetector;
 
     protected String lastQueryString;
+    protected BaseDrawerController drawerController;
+
 
     /**
      * Activity has been put in the background. Flag prevents dialogs
@@ -987,4 +994,27 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected String getLocalizedString(int stringResource) {
         return StringUtils.getStringRobust(this, stringResource);
     }
+
+    protected void setupDrawerController() {
+        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        personalIdManager.init(this);
+        if (personalIdManager.isloggedIn()) {
+            View rootView = findViewById(android.R.id.content);
+            DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
+            drawerController = new BaseDrawerController(
+                    this,
+                    drawerRefs,
+                    new Function2<BaseDrawerController.NavItemType, String, Unit>() {
+                        @Override
+                        public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
+                            handleDrawerItemClick(navItemType, recordId);
+                            return Unit.INSTANCE;
+                        }
+                    }
+            );
+            drawerController.setupDrawer();
+        }
+    }
+
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType navItemType, String recordId){}
 }

@@ -256,23 +256,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         startAllowed = savedInstanceState.getBoolean("startAllowed");
     }
 
-    private void setupDrawerController() {
-        View rootView = findViewById(android.R.id.content);
-        DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
-        drawerController = new BaseDrawerController(
-                this,
-                drawerRefs,
-                new Function2<BaseDrawerController.NavItemType, String, Unit>() {
-                    @Override
-                    public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
-                        handleDrawerItemClick(navItemType, recordId);
-                        return Unit.INSTANCE;
-                    }
-                }
-        );
-        drawerController.setupDrawer();
-    }
-
     private void persistCommCareAppState() {
         containerViewModel = new ViewModelProvider(this).get(ContainerViewModel.class);
         if (containerViewModel.getData(COMMCARE_APP_DATA_KEY) != null) {
@@ -1016,7 +999,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
-    private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
         switch (itemType) {
             case OPPORTUNITIES -> { /* handle */ }
             case COMMCARE_APPS -> {}

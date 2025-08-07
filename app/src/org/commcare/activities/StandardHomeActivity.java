@@ -55,28 +55,7 @@ public class StandardHomeActivity
         setupDrawerController();
     }
 
-    private void setupDrawerController() {
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
-        if (personalIdManager.isloggedIn()) {
-            View rootView = findViewById(android.R.id.content);
-            DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
-            drawerController = new BaseDrawerController(
-                    this,
-                    drawerRefs,
-                    new Function2<BaseDrawerController.NavItemType, String, Unit>() {
-                        @Override
-                        public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
-                            handleDrawerItemClick(navItemType, recordId);
-                            return Unit.INSTANCE;
-                        }
-                    }
-            );
-            drawerController.setupDrawer();
-        }
-    }
-
-    private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
         switch (itemType) {
             case OPPORTUNITIES -> { /* handle */ }
             case COMMCARE_APPS -> {}

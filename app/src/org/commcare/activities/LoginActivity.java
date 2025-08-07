@@ -127,8 +127,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
-    private BaseDrawerController drawerController;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,25 +174,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     true);
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-        }
-    }
-
-    private void setupDrawerController() {
-        if (personalIdManager.isloggedIn()) {
-            View rootView = findViewById(android.R.id.content);
-            DrawerViewRefs drawerRefs = new DrawerViewRefs(rootView);
-            drawerController = new BaseDrawerController(
-                    this,
-                    drawerRefs,
-                    new Function2<BaseDrawerController.NavItemType, String, Unit>() {
-                        @Override
-                        public Unit invoke(BaseDrawerController.NavItemType navItemType, String recordId) {
-                            handleDrawerItemClick(navItemType, recordId);
-                            return Unit.INSTANCE;
-                        }
-                    }
-            );
-            drawerController.setupDrawer();
         }
     }
 
@@ -1023,7 +1002,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return connectAppState;
     }
 
-    private void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
         switch (itemType) {
             case OPPORTUNITIES -> { /* handle */ }
             case COMMCARE_APPS -> {
