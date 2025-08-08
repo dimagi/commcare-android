@@ -71,7 +71,7 @@ class PersonalIdCredential : Persisted(), Serializable {
         @JvmStatic
         fun fromJsonArray(jsonArray: JSONArray): PersonalIdValidAndCorruptCredential {
             val valid = mutableListOf<PersonalIdCredential>()
-            val corrupt = mutableListOf<PersonalIdCredential>()
+            val corruptList = mutableListOf<String>()
 
             for (i in 0 until jsonArray.length()) {
                 var obj: JSONObject? = null
@@ -93,36 +93,20 @@ class PersonalIdCredential : Persisted(), Serializable {
                     valid.add(credential)
                 } catch (e: JSONException) {
                     Logger.exception("Corrupt credential at index $i", e)
-                    obj?.let { corrupt.add(corruptCredentialFromJson(it)) }
+                    corruptList.add("Index $i:\n${obj ?: "Unknown JSON"}\nError: ${e.message}")
                 }
             }
 
-            if (!corrupt.isNullOrEmpty()) {
-                val errorMessage = corrupt.joinToString(
-                    separator = "\n",
-                    prefix = "Found ${corrupt.size} corrupt credentials:\n"
-                ) { it.toString() }
+            if (corruptList.isNotEmpty()) {
+                val errorMessage = corruptList.joinToString(
+                    separator = "\n\n",
+                    prefix = "Found ${corruptList.size} corrupt credentials:\n"
+                )
                 Logger.log("CorruptCredentials", errorMessage)
-                throw RuntimeException("Corrupt data encountered in fromJsonArray().\n$errorMessage")
+                throw RuntimeException(errorMessage)
             }
 
-            return PersonalIdValidAndCorruptCredential(valid, corrupt)
-        }
-
-        @JvmStatic
-        fun corruptCredentialFromJson(json: JSONObject): PersonalIdCredential {
-            return PersonalIdCredential().apply {
-                uuid = json.optString(META_UUID, "")
-                appId = json.optString(META_APP_ID, "")
-                oppId = json.optString(META_OPP_ID, "")
-                issuedDate = json.optString(META_ISSUED_DATE, "")
-                title = json.optString(META_TITLE, "")
-                issuer = json.optString(META_ISSUER, "")
-                level = json.optString(META_LEVEL, "")
-                type = json.optString(META_TYPE, "")
-                issuerEnvironment = json.optString(META_ISSUER_ENVIRONMENT, "")
-                slug = json.optString(META_SLUG, "")
-            }
+            return PersonalIdValidAndCorruptCredential(valid)
         }
     }
 }
