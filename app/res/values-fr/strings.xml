@@ -221,7 +221,6 @@ License.
     <string name="image_download_prompt">Le fichier image est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="audio_download_prompt">Le fichier audio est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="media_not_found_error">Média non trouvé dans l\'application</string>
-    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Impossible d\'analyser les coordonnées d\'entrée</string>
     <string name="location_provider_disabled">Activez votre localisation pour recevoir des mises à jour de localisation</string>
     <string name="wait_for_location_fix">CommCare tente toujours de récupérer votre position. Veuillez patienter ou cliquer sur Annuler pour annuler.</string>
@@ -231,8 +230,6 @@ License.
     <string name="root_detected_message">Vous n\'êtes pas autorisé à exécuter CommCare sur un appareil rooté. Veuillez utiliser un appareil non rooté.</string>
     <string name="session_endpoint_unavailable">Aucun point de terminaison n\'existe avec l\'ID %1$s. Les points de terminaison valides sont %2$s.</string>
     <string name="session_endpoint_invalid_arguments">Arguments incorrects fournis pour le point de terminaison %1$s. Arguments fournis: %2$s. Arguments attendus: %3$s.</string>
-    <string name="selected_location">Emplacement sélectionné</string>
-    <string name="confirm_location">Confirmer l\'emplacement</string>
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Obtenir l\'application requise</string>
     <string name="dependency_missing_dialog_title_plural">Obtenir les applications requises</string>
