@@ -97,6 +97,15 @@ class PersonalIdCredential : Persisted(), Serializable {
                 }
             }
 
+            if (!corrupt.isNullOrEmpty()) {
+                val errorMessage = corrupt.joinToString(
+                    separator = "\n",
+                    prefix = "Found ${corrupt.size} corrupt credentials:\n"
+                ) { it.toString() }
+                Logger.log("CorruptCredentials", errorMessage)
+                throw RuntimeException("Corrupt data encountered in fromJsonArray().\n$errorMessage")
+            }
+
             return PersonalIdValidAndCorruptCredential(valid, corrupt)
         }
 

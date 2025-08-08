@@ -11,7 +11,6 @@ import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.parseIsoDateForSorting
-import org.javarosa.core.services.Logger
 
 class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
     private val _apiError =
@@ -38,17 +37,6 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
         object : PersonalIdApiHandler<PersonalIdValidAndCorruptCredential>() {
             override fun onSuccess(result: PersonalIdValidAndCorruptCredential) {
                 val earned = result.validCredentials
-                val corrupt = result.corruptCredentials
-
-                if (!corrupt.isNullOrEmpty()) {
-                    val errorMessage = corrupt.joinToString(
-                        separator = "\n",
-                        prefix = "Found ${corrupt.size} corrupt credentials:\n"
-                    ) { it.toString() }
-                    Logger.log("CorruptCredentials", errorMessage)
-                    throw RuntimeException("Corrupt data encountered.\n$errorMessage")
-                }
-
                 val earnedAppIds = earned.map { it.appId }.toSet()
                 val installedApps = _installedAppRecords.value.orEmpty()
 
