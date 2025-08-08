@@ -8,8 +8,10 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -112,6 +114,11 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.CCC_ENABLED,
                 String.valueOf(PersonalIdManager.getInstance().isloggedIn()));
+
+        String personalId = ReportingUtils.getPersonalID();
+        if (!TextUtils.isEmpty(personalId)) {
+            analyticsInstance.setUserProperty(CCAnalyticsParam.USER_CID, personalId);
+        }
 
         analyticsInstance.setUserProperty(CCAnalyticsParam.BUILD_NUMBER, String.valueOf(BuildConfig.VERSION_CODE));
     }

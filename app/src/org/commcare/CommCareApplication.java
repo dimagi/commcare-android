@@ -438,11 +438,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
         analyticsInstance.setUserId(getUserIdOrNull());
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(this);
-        if (user != null) {
-            analyticsInstance.setUserProperty("user_cid", user.getUserId());
-        }
-
         if (connectJobIdForAnalytics > 0) {
             analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(connectJobIdForAnalytics));
         }

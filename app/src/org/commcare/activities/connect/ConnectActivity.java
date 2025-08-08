@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -36,7 +35,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.javarosa.core.services.Logger;
 
 import java.util.Objects;
 
@@ -54,29 +52,32 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         super.onCreate(savedInstanceState);
         setTitle(getString(R.string.connect_title));
 
-        getIntentExtras();
+        initStateFromExtras();
         updateBackButton();
 
         // Wait for fragment to attach
         getSupportFragmentManager().executePendingTransactions();
+
         NavInflater inflater = navController.getNavInflater();
         NavGraph graph = inflater.inflate(R.navigation.nav_graph_connect);
-
-        int startDestinationId = R.id.connect_jobs_list_fragment;
         Bundle startArgs = new Bundle();
-        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
-            startDestinationId = handleInfoRedirect(startArgs);
-        } else if (!Strings.isNullOrEmpty(redirectionAction)) {
-            startDestinationId = handleSecureRedirect(startArgs);
-        }
-
-        graph.setStartDestination(startDestinationId);
+        graph.setStartDestination(getStartDestinationId(startArgs));
         navController.setGraph(graph, startArgs);
 
         retrieveMessages();
     }
 
-    private void getIntentExtras() {
+    private int getStartDestinationId(Bundle startArgs) {
+        int startDestinationId = R.id.connect_jobs_list_fragment;
+        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
+            startDestinationId = handleInfoRedirect(startArgs);
+        } else if (!Strings.isNullOrEmpty(redirectionAction)) {
+            startDestinationId = handleSecureRedirect(startArgs);
+        }
+        return startDestinationId;
+    }
+
+    private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
         int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
         if (opportunityId > 0) {
