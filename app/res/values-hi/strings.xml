@@ -221,7 +221,6 @@ License.
     <string name="image_download_prompt">इस प्रश्न के लिए छवि फ़ाइल गायब है, डाउनलोड करने के लिए ऊपर दिए गए डाउनलोड बटन पर क्लिक करें</string>
     <string name="audio_download_prompt">इस प्रश्न के लिए ऑडियो फ़ाइल गायब है, डाउनलोड करने के लिए ऊपर दिए गए डाउनलोड बटन पर क्लिक करें</string>
     <string name="media_not_found_error">एप्लिकेशन में मीडिया नहीं मिला</string>
-    <string name="area_format">%1s वर्ग मीटर</string>
     <string name="parse_coordinates_failure">इनपुट निर्देशांकों का विश्लेषण करने में असमर्थ</string>
     <string name="location_provider_disabled">स्थान अपडेट प्राप्त करने के लिए अपना स्थान सक्षम करें</string>
     <string name="wait_for_location_fix">CommCare अभी भी आपकी स्थिति पुनर्प्राप्त करने का प्रयास कर रहा है। कृपया प्रतीक्षा करें या रद्द करने के लिए रद्द करें पर क्लिक करें।</string>
@@ -231,8 +230,6 @@ License.
     <string name="root_detected_message">आपको रूट किए गए डिवाइस पर CommCare चलाने की अनुमति नहीं है। कृपया एक गैर-रूट किए गए डिवाइस का उपयोग करें।</string>
     <string name="session_endpoint_unavailable">आईडी %1$s के साथ कोई एंडपॉइंट मौजूद नहीं है। मान्य एंडपॉइंट %2$s हैं।</string>
     <string name="session_endpoint_invalid_arguments">एंडपॉइंट %1$s के लिए गलत तर्क प्रदान किए गए। प्रदान किए गए तर्क: %2$s। अपेक्षित तर्क: %3$s।</string>
-    <string name="selected_location">चयनित स्थान</string>
-    <string name="confirm_location">स्थान की पुष्टि करें</string>
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">आवश्यक एप्लिकेशन प्राप्त करें</string>
     <string name="dependency_missing_dialog_title_plural">आवश्यक एप्लिकेशन प्राप्त करें</string>

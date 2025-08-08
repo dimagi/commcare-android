@@ -211,7 +211,6 @@
     <string name="image_download_prompt">ንዚ ሕቶ ፋይል ምስሊ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="audio_download_prompt">ንዚ ሕቶ ፋይል ድምፂ ዝጎደሎ እዩ፤ ዳታ ንምውራድ ነዚ ልዕል ኢሉ ዝርከብ ምልክት ዳታ መውርዲ ጠውቅ/ፅቀጥ</string>
     <string name="media_not_found_error">ኣብዚ መተግበሪ ሚድያ (መራክቢ) ኣይተረክበን</string>
-    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">ናይ ምእታው ኮርዲኔት ክትንትን ኣይከኣለን</string>
     <string name="location_provider_disabled">ሓድሽ ሓበሬታ ኣቀማምጣኻ ንምርካብ ቦታ (location) ወልዕ</string>
     <string name="wait_for_location_fix">CommCare ሕጂ ውን ቦታኻ ንምርካብ ይጽዕር ኣሎ። በይዛኻ ተፀበ ወይ ንምቁራጽ Cancel ጠውቅ።</string>
@@ -221,8 +220,6 @@
     <string name="root_detected_message">CommCare ኣብ ዝፀንሐ መሳርሒ ክሰርሕ ኣይፍቀደልካን እዩ። በጃኻ ዘይፀንሐ መሳርሒ ተጠቐም</string>
     <string name="session_endpoint_unavailable">ምስ id %1$s ዝኾነ መወዳእታ ነጥቢ የለን። ቅቡላት ነጥብታት መወዳእታ %2$s እዮም።</string>
     <string name="session_endpoint_invalid_arguments">ንመወዳእታ ነጥቢ %1$s ዝቐረቡ ጌጋ ምልልሳት። ዝቐረቡ ምልልሳት፡ %2$s። ትጽቢት ዝግበረሎም ምልልሳትት፡ %3$s።</string>
-    <string name="selected_location">ዝተመርጸ ቦታ</string>
-    <string name="confirm_location">ቦታ ምርግጋጽ</string>
     <string name="playback_start_time">00፡00</string>
     <string name="dependency_missing_dialog_title">ዘድሊ ኣፕሊክሸን ርኸብ።</string>
     <string name="dependency_missing_dialog_title_plural">ዘድሊ ኣፕሊክሸናት ርኸብ።</string>
