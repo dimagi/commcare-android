@@ -92,7 +92,6 @@
                 android:scrollbars="vertical" />
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
-
 </LinearLayout>
     </FrameLayout>
     <include layout="@layout/nav_drawer_base"/>
