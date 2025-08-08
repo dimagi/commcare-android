@@ -497,6 +497,15 @@
     <string name="personalid_credential_level_9_month_active">Miezi 9 ya\nShughuli</string>
     <string name="personalid_credential_level_12_month_active">Miezi 12 ya\nShughuli</string>
 
+    <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
+    <string name="nav_drawer_help">Msaada</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
+    <string name="nav_drawer_opportunities">Fursa</string>
+    <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
+    <string name="nav_drawer_work_history">Historia ya Kazi</string>
+    <string name="nav_drawer_payments">Malipo</string>
+    <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
-
+    <string name="nav_drawer_open">Öppna navigeringsmenyn</string>
+    <string name="nav_drawer_close">Stäng navigeringsmenyn</string>
 </resources>

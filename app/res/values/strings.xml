@@ -662,6 +662,15 @@
     <string name="commcarehq_worker">CommCareHQ Worker</string>
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
+    <string name="nav_drawer_signin_register">Sign in / Register</string>
+    <string name="nav_drawer_help">Help</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
+    <string name="nav_drawer_opportunities">Opportunities</string>
+    <string name="nav_drawer_commcare_apps">Commcare Apps</string>
+    <string name="nav_drawer_work_history">Work History</string>
+    <string name="nav_drawer_payments">Payments</string>
+    <string name="nav_drawer_manage_profile">Manage Profile</string>
+    <string name="user_name_placeholder">User Name</string>
     <string name="personalid_credential_level_1_month_active">1 Month of\nActivity</string>
     <string name="personalid_credential_level_2_month_active">2 Months of\nActivity</string>
     <string name="personalid_credential_level_3_month_active">3 Months of\nActivity</string>
@@ -670,4 +679,6 @@
     <string name="personalid_credential_level_12_month_active">12 Months of\nActivity</string>
 
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
+    <string name="nav_drawer_open">Open navigation drawer</string>
+    <string name="nav_drawer_close">Close navigation drawer</string>
 </resources>
