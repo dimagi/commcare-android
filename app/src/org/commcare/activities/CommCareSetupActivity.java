@@ -192,7 +192,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
-        setupDrawerController();
 
         if (isSingleAppBuild()) {
             uiState = UiState.BLANK;

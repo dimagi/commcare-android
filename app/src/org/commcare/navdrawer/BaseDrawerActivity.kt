@@ -33,7 +33,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
     }
 
-    override fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
+     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
             NavItemType.OPPORTUNITIES -> {}
             NavItemType.COMMCARE_APPS -> {}

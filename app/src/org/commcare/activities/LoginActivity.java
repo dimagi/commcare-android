@@ -164,8 +164,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
-        setupDrawerController();
-
 
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {

@@ -993,6 +993,4 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
         return StringUtils.getStringRobust(this, stringResource);
     }
 
-
-    protected void handleDrawerItemClick(BaseDrawerController.NavItemType navItemType, String recordId){}
 }

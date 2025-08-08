@@ -51,7 +51,6 @@ public class StandardHomeActivity
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
-        setupDrawerController();
     }
 
     protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
