@@ -148,13 +148,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-
-
         uiController.checkForGlobalErrors();
-
-        personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
-
+        initPersonaIdManager();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
         connectLaunchPerformed = false;
@@ -177,6 +172,13 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                     true);
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
+        }
+    }
+
+    private void initPersonaIdManager() {
+        if (personalIdManager == null) {
+            personalIdManager = PersonalIdManager.getInstance();
+            personalIdManager.init(this);
         }
     }
 
@@ -1006,6 +1008,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void setConnectAppState(PersonalIdManager.ConnectAppMangement connectAppState) {
         this.connectAppState = connectAppState;
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+        return true;
     }
 
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
