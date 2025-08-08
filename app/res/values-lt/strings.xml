@@ -84,5 +84,8 @@
     <string name="nav_drawer_manage_profile">Gestisci profilo</string>
     <string name="nav_drawer_open">Apri il menu di navigazione</string>
     <string name="nav_drawer_close">Chiudi il menu di navigazione</string>
-
+    <string name="connect_message_you">Voi</string>
+    <string name="connect_message_them">Loro</string>
+    <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
+    <string name="connect_fetch_delivery_progress_error">Nepavyko gauti pristatymo eigos</string>
 </resources>

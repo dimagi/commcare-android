@@ -84,5 +84,8 @@
     <string name="nav_drawer_manage_profile">Administrer profil</string>
     <string name="nav_drawer_open">Åpne navigasjonsmenyen</string>
     <string name="nav_drawer_close">Lukk navigasjonsmenyen</string>
-
+    <string name="connect_message_you">Du</string>
+    <string name="connect_message_them">Dem</string>
+    <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
+    <string name="connect_fetch_delivery_progress_error">Kunne ikke hente leveringsfremdriften</string>
 </resources>

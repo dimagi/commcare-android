@@ -18,22 +18,6 @@ import android.os.Looper;
 import android.os.StrictMode;
 import android.text.format.DateUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ProcessLifecycleOwner;
-import androidx.preference.PreferenceManager;
-import androidx.work.BackoffPolicy;
-import androidx.work.Constraints;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import com.google.common.collect.Multimap;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.perf.FirebasePerformance;
@@ -43,11 +27,14 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.graph.util.GraphUtil;
 import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.core.network.AuthInfo;
@@ -113,7 +100,6 @@ import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DeviceIdentifier;
-import org.commcare.utils.EncryptionKeyProvider;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.GlobalConstants;
@@ -144,6 +130,20 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.preference.PreferenceManager;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import io.noties.markwon.Markwon;
 import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
 import io.noties.markwon.ext.tables.TablePlugin;
@@ -209,6 +209,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     private CommCareNoficationManager noficationManager;
 
     private boolean backgroundSyncSafe;
+
+    private int connectJobIdForAnalytics = -1;
 
     @Override
     public void onCreate() {
@@ -387,6 +389,8 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
             // Switch loggers back over to using global storage, now that we don't have a session
             setupLoggerStorage(false);
+
+            CrashUtil.registerUserData();
         }
     }
 
@@ -434,7 +438,19 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
         analyticsInstance.setUserId(getUserIdOrNull());
 
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(this);
+        if (user != null) {
+            analyticsInstance.setUserProperty("user_cid", user.getUserId());
+        }
+
+        if (connectJobIdForAnalytics > 0) {
+            analyticsInstance.setUserProperty("ccc_job_id", String.valueOf(connectJobIdForAnalytics));
+        }
         return analyticsInstance;
+    }
+
+    public void setConnectJobIdForAnalytics(@Nullable ConnectJobRecord job) {
+        connectJobIdForAnalytics = job != null ? job.getJobId() : -1;
     }
 
     public int[] getCommCareVersion() {

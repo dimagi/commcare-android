@@ -35,6 +35,10 @@ abstract class BaseApiCallback<T>(val baseApiHandler: BaseApiHandler<T>) :
                 null
             )
 
+            400 -> baseApiHandler.onFailure(
+                PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,null
+            )
+
             in 500..509 -> baseApiHandler.onFailure(
                 PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
                 null

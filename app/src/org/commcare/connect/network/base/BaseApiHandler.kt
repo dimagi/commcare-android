@@ -37,7 +37,8 @@ abstract class BaseApiHandler<T> {
         SERVER_ERROR,
         RATE_LIMIT_EXCEEDED_ERROR,
         ACCOUNT_LOCKED_ERROR,
-        INTEGRITY_ERROR;
+        INTEGRITY_ERROR,
+        BAD_REQUEST_ERROR;
 
         fun shouldAllowRetry(): Boolean {
             return this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR
@@ -47,12 +48,13 @@ abstract class BaseApiHandler<T> {
 
 
     fun createCallback(
-        parser: BaseApiResponseParser<T>
+        parser: BaseApiResponseParser<T>,
+        anyInputObject:Any?=null
     ): IApiCallback {
         return object : BaseApiCallback<T>(this) {
             override fun processSuccess(responseCode: Int, responseData: InputStream) {
                 try {
-                    onSuccess(parser.parse(responseCode,responseData))
+                    onSuccess(parser.parse(responseCode,responseData,anyInputObject))
                 } catch (e: JSONException) {
                     Logger.exception("JSON error parsing API response", e)
                     onFailure(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e)
