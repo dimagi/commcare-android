@@ -5,19 +5,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -29,6 +31,9 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 /**
  * Normal CommCare home screen
@@ -44,10 +49,18 @@ public class StandardHomeActivity
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
+
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+    }
+
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {}
+        }
     }
 
     @Override
@@ -111,7 +124,7 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
-        updateConnectJobProgress();
+        fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
@@ -126,7 +139,7 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
-        uiController.updateConnectProgress();
+        uiController.updateConnectJobProgress();
     }
 
     @Override
@@ -183,7 +196,6 @@ public class StandardHomeActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
             launchUpdateActivity(false);
@@ -272,12 +284,12 @@ public class StandardHomeActivity
         invalidateOptionsMenu();
     }
 
-    public void updateConnectJobProgress() {
+    public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
             ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
                 if (success) {
-                    uiController.updateConnectProgress();
+                    uiController.updateConnectJobProgress();
                 }
             });
         }

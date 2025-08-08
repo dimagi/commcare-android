@@ -222,7 +222,6 @@
     <string name="image_download_prompt">Faili ya picha haipo kwa swali hili, Bofya kitufe cha kupakua hapo juu ili kupakua</string>
     <string name="audio_download_prompt">Faili ya sauti haipo kwa swali hili, bofya kitufe cha kupakua hapo juu ili kupakua</string>
     <string name="media_not_found_error">Midia haipatikani kwenye programu</string>
-    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">Haikuweza kuchanganua viwianishi vya ingizo</string>
     <string name="location_provider_disabled">Washa eneo lako ili kupokea masasisho ya eneo</string>
     <string name="wait_for_location_fix">CommCare bado inajaribu kupata eneo lako. Tafadhali subiri au ubofye Ghairi ili kughairi.</string>
@@ -232,8 +231,6 @@
     <string name="root_detected_message">Huruhusiwi kuendesha CommCare kwenye kifaa chenye mizizi. Tafadhali tumia kifaa kisicho na mizizi</string>
     <string name="session_endpoint_unavailable">Hakuna ncha iliyo na kitambulisho %1$s. Miisho halali ni %2$s</string>
     <string name="session_endpoint_invalid_arguments">Hoja zisizo sahihi zimetolewa kwa sehemu ya mwisho %1$s. Hoja zinazotolewa: %2$s. Hoja zinazotarajiwa: %3$s.</string>
-    <string name="selected_location">Eneo Lililochaguliwa</string>
-    <string name="confirm_location">Thibitisha eneo</string>
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Pata Programu Inayohitajika</string>
     <string name="dependency_missing_dialog_title_plural">Pata Programu Zinazohitajika</string>
@@ -479,6 +476,15 @@
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
+    <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
+    <string name="nav_drawer_help">Msaada</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
+    <string name="nav_drawer_opportunities">Fursa</string>
+    <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
+    <string name="nav_drawer_work_history">Historia ya Kazi</string>
+    <string name="nav_drawer_payments">Malipo</string>
+    <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
-
+    <string name="nav_drawer_open">Öppna navigeringsmenyn</string>
+    <string name="nav_drawer_close">Stäng navigeringsmenyn</string>
 </resources>

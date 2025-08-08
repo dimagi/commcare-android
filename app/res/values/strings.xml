@@ -274,7 +274,6 @@
     <string name="image_download_prompt">Image file is missing for this question, Click the download button above to download</string>
     <string name="audio_download_prompt">Audio file is missing for this question, click the download button above to download</string>
     <string name="media_not_found_error">Media not found in the application</string>
-    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">Could not parse input coordinates</string>
 
     <string name="location_provider_disabled">Turn on your location to receive location updates</string>
@@ -285,8 +284,6 @@
     <string name="root_detected_message">You are not allowed to run CommCare on a rooted device. Please use a non rooted device</string>
     <string name="session_endpoint_unavailable">No endpoint exist with id %1$s. Valid endpoints are %2$s</string>
     <string name="session_endpoint_invalid_arguments">Incorrect arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
-    <string name="selected_location">Selected Location</string>
-    <string name="confirm_location">Confirm location</string>
 
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Get Required App</string>
@@ -648,5 +645,16 @@
 
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
+    <string name="nav_drawer_signin_register">Sign in / Register</string>
+    <string name="nav_drawer_help">Help</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
+    <string name="nav_drawer_opportunities">Opportunities</string>
+    <string name="nav_drawer_commcare_apps">Commcare Apps</string>
+    <string name="nav_drawer_work_history">Work History</string>
+    <string name="nav_drawer_payments">Payments</string>
+    <string name="nav_drawer_manage_profile">Manage Profile</string>
+    <string name="user_name_placeholder">User Name</string>
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
+    <string name="nav_drawer_open">Open navigation drawer</string>
+    <string name="nav_drawer_close">Close navigation drawer</string>
 </resources>

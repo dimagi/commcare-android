@@ -221,7 +221,6 @@ License.
     <string name="image_download_prompt">Le fichier image est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="audio_download_prompt">Le fichier audio est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="media_not_found_error">Média non trouvé dans l\'application</string>
-    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Impossible d\'analyser les coordonnées d\'entrée</string>
     <string name="location_provider_disabled">Activez votre localisation pour recevoir des mises à jour de localisation</string>
     <string name="wait_for_location_fix">CommCare tente toujours de récupérer votre position. Veuillez patienter ou cliquer sur Annuler pour annuler.</string>
@@ -231,8 +230,6 @@ License.
     <string name="root_detected_message">Vous n\'êtes pas autorisé à exécuter CommCare sur un appareil rooté. Veuillez utiliser un appareil non rooté.</string>
     <string name="session_endpoint_unavailable">Aucun point de terminaison n\'existe avec l\'ID %1$s. Les points de terminaison valides sont %2$s.</string>
     <string name="session_endpoint_invalid_arguments">Arguments incorrects fournis pour le point de terminaison %1$s. Arguments fournis: %2$s. Arguments attendus: %3$s.</string>
-    <string name="selected_location">Emplacement sélectionné</string>
-    <string name="confirm_location">Confirmer l\'emplacement</string>
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Obtenir l\'application requise</string>
     <string name="dependency_missing_dialog_title_plural">Obtenir les applications requises</string>
@@ -473,7 +470,15 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
+    <string name="nav_drawer_help">Aide</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>
+    <string name="nav_drawer_opportunities">Opportunités</string>
+    <string name="nav_drawer_commcare_apps">Applications CommCare</string>
+    <string name="nav_drawer_work_history">Historique de travail</string>
+    <string name="nav_drawer_payments">Paiements</string>
+    <string name="nav_drawer_manage_profile">Gérer le profil</string>
     <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
-
-
+    <string name="nav_drawer_open">Ouvrir le tiroir de navigation</string>
+    <string name="nav_drawer_close">Fermer le tiroir de navigation</string>
 </resources>
