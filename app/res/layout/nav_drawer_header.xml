@@ -1,0 +1,67 @@
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@color/cc_brand_color">
+    <ImageView
+        android:contentDescription="@null"
+        android:layout_gravity="center"
+        android:layout_height="32dp"
+        android:layout_width="match_parent"
+        android:src="@drawable/commcare_by_dimagi"
+        app:tint="@color/white" />
+    <androidx.cardview.widget.CardView
+        android:id="@+id/profile_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:cardCornerRadius="8dp"
+        android:backgroundTint="@color/start_sync_dark_button">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/image_user_profile"
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop"
+                app:shapeAppearanceOverlay="@style/CircularImageView"
+                android:src="@drawable/nav_drawer_person_avatar"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
+
+                <TextView
+                    android:id="@+id/manage_profile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/nav_drawer_manage_profile"
+                    android:paddingTop="4dp"
+                    android:visibility="gone"
+                    android:textAppearance="@style/TextAppearance.NavDrawerItem.SubTitle"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+    <View
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:paddingBottom="16dp"
+        android:background="@color/darker_grey"/>
+</LinearLayout>
+</layout>

@@ -469,6 +469,15 @@ License.
     <string name="personalid_camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="nav_drawer_signin_register">साइन इन / रजिस्टर</string>
+    <string name="nav_drawer_help">सहायता</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">आप Personal ID में साइन इन नहीं हैं</string>
+    <string name="nav_drawer_opportunities">अवसर</string>
+    <string name="nav_drawer_commcare_apps">कॉमकेयर ऐप्स</string>
+    <string name="nav_drawer_work_history">कार्य इतिहास</string>
+    <string name="nav_drawer_payments">भुगतान</string>
+    <string name="nav_drawer_manage_profile">प्रोफ़ाइल प्रबंधित करें</string>
     <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
-
+    <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
+    <string name="nav_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>
 </resources>

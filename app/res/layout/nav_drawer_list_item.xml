@@ -1,0 +1,35 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/parent_item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:background="@color/cc_brand_color">
+
+    <ImageView
+        android:id="@+id/list_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/commcare_actionbar_logo"
+        app:tint="@android:color/white"
+        android:contentDescription="@null"/>
+
+    <TextView
+        android:id="@+id/list_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.NavDrawerItem"
+        android:layout_marginStart="12dp"/>
+
+    <ImageView
+        android:id="@+id/arrow_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:paddingStart="16dp"
+        android:src="@drawable/ic_blue_forward"
+        app:tint="@android:color/white"
+        android:contentDescription="@null"/>
+</LinearLayout>

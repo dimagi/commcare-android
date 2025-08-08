@@ -471,6 +471,15 @@
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
+    <string name="nav_drawer_help">Ayuda</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>
+    <string name="nav_drawer_opportunities">Oportunidades</string>
+    <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
+    <string name="nav_drawer_work_history">Historial de trabajo</string>
+    <string name="nav_drawer_payments">Pagos</string>
+    <string name="nav_drawer_manage_profile">Administrar perfil</string>
     <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
-
+    <string name="nav_drawer_open">Abrir el panel de navegación</string>
+    <string name="nav_drawer_close">Cerrar el panel de navegación</string>
 </resources>

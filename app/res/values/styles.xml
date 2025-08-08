@@ -355,4 +355,19 @@
         <item name="android:textColor">@color/cc_brand_text</item>
     </style>
 
+    <style name="CircularImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="TextAppearance.NavDrawerItem" parent="@android:style/TextAppearance">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/nav_drawer_text</item>
+    </style>
+
+    <style name="TextAppearance.NavDrawerItem.SubTitle" parent="@android:style/TextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/nav_drawer_text</item>
+    </style>
+
 </resources>

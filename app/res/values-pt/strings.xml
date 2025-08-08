@@ -479,6 +479,15 @@
     <string name="personalid_camera_permission_title">Permissão para câmara</string>
     <string name="personalid_camera_permission_msg">Para tirar uma fotografia, o CommCare precisa de permissão para utilizar a câmara do seu dispositivo.</string>
     <string name="personalid_capture_photo">Capturar foto</string>
+    <string name="nav_drawer_signin_register">Entrar / Registrar-se</string>
+    <string name="nav_drawer_help">Ajuda</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao ID Pessoal</string>
+    <string name="nav_drawer_opportunities">Oportunidades</string>
+    <string name="nav_drawer_commcare_apps">Aplicativos CommCare</string>
+    <string name="nav_drawer_work_history">Histórico de trabalho</string>
+    <string name="nav_drawer_payments">Pagamentos</string>
+    <string name="nav_drawer_manage_profile">Gerenciar perfil</string>
     <string name="play_service_update_error">Certifique-se de que os serviços do Google Play sejam suportados no dispositivo e estejam atualizados.</string>
-
+    <string name="nav_drawer_open">Abrir o menu de navegação</string>
+    <string name="nav_drawer_close">Fechar o menu de navegação</string>
 </resources>

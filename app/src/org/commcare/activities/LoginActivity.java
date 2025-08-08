@@ -27,6 +27,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import com.scottyab.rootbeer.RootBeer;
 
@@ -43,6 +45,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenLoginBinding;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -51,6 +54,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -83,7 +89,7 @@ import java.util.Map;
 /**
  * @author ctsims
  */
-public class LoginActivity extends CommCareActivity<LoginActivity>
+public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
@@ -128,7 +134,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,6 +148,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
+
 
         uiController.checkForGlobalErrors();
 
@@ -161,6 +167,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
+
 
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
@@ -593,13 +600,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
                 return true;
             case MENU_ABOUT_COMMCARE:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
+                DialogCreationHelpers.showAboutCommCareDialog(this);
                 return true;
             case MENU_ACQUIRE_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -622,7 +628,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.refreshView();
                 return true;
             default:
-                return otherResult;
+                 return super.onOptionsItemSelected(item);
         }
     }
 
@@ -1004,5 +1010,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
+    }
+
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {
+                if (recordId != null) {
+                    if (!appIdDropdownList.isEmpty()) {
+                        selectedAppIndex = appIdDropdownList.indexOf(recordId);
+                    }
+                    seatAppIfNeeded(recordId);
+                }
+            }
+        }
     }
 }
