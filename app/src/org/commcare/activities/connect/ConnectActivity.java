@@ -22,6 +22,7 @@ import androidx.navigation.NavInflater;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -65,7 +66,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         int startDestinationId = R.id.connect_jobs_list_fragment;
         Bundle startArgs = new Bundle();
         if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
-            startDestinationId = handleInfoRedirect(startArgs);
+            if (job != null) {
+                startDestinationId = handleInfoRedirect(startArgs);
+            } else {
+                FirebaseCrashlytics.getInstance().recordException(
+                        new IllegalStateException("GO_TO_JOB_STATUS=true but job is null. Possibly launched from notification.")
+                );
+            }
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
         }
@@ -85,8 +92,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     private int handleInfoRedirect(Bundle startArgs) {
-        Objects.requireNonNull(job);
-
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
