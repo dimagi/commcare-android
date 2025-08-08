@@ -6,7 +6,7 @@ sealed class NavDrawerItem {
     data class ParentItem(
         val title: String,
         @DrawableRes val iconResId: Int,
-        val type: BaseDrawerActivity.NavItemType,
+        val type: BaseDrawerController.NavItemType,
         var isEnabled: Boolean = true,
         var isExpanded: Boolean = false,
         val children: List<ChildItem> = emptyList()
@@ -15,6 +15,6 @@ sealed class NavDrawerItem {
     data class ChildItem(
         val childTitle: String,
         val recordId: String,
-        val parentType: BaseDrawerActivity.NavItemType
+        val parentType: BaseDrawerController.NavItemType
     ) : NavDrawerItem()
 }

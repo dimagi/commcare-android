@@ -15,21 +15,20 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import com.scottyab.rootbeer.RootBeer;
 
@@ -46,6 +45,7 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenLoginBinding;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -55,6 +55,8 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -132,7 +134,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,6 +148,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
+
 
         uiController.checkForGlobalErrors();
 
@@ -165,6 +167,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
+
 
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
@@ -1009,27 +1012,17 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return connectAppState;
     }
 
-    @Override
-    public void injectScreenLayout(@NonNull LayoutInflater inflater, @NonNull FrameLayout contentFrame) {
-        inflater.inflate(R.layout.screen_login, contentFrame, true);
-    }
-    @Override
-    protected void onDrawerItemClicked(@NonNull NavItemType navItemType, @Nullable String recordId) {
-        super.onDrawerItemClicked(navItemType, recordId); // optional: keeps analytics tracking
-        switch (navItemType) {
-            case OPPORTUNITIES:
-                break;
-            case COMMCARE_APPS:
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {
                 if (recordId != null) {
                     if (!appIdDropdownList.isEmpty()) {
                         selectedAppIndex = appIdDropdownList.indexOf(recordId);
                     }
                     seatAppIfNeeded(recordId);
                 }
-                break;
-            case MESSAGING:
-                break;
+            }
         }
     }
-
 }

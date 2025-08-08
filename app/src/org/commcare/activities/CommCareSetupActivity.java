@@ -8,10 +8,9 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -45,6 +46,8 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -141,6 +144,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private boolean startAllowed = true;
     private String incomingRef;
     private CommCareApp ccApp;
+    private BaseDrawerController drawerController;
+
 
     /**
      * Indicates that this activity was launched from the AppManagerActivity
@@ -815,11 +820,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         } else {
             return generateNormalInstallDialog(taskId);
         }
-    }
-
-    @Override
-    public void injectScreenLayout(@NonNull LayoutInflater inflater, @NonNull FrameLayout contentFrame) {
-        inflater.inflate(R.layout.first_start_screen_modern, contentFrame, true);
     }
 
     private CustomProgressDialog generateNormalInstallDialog(int taskId) {

@@ -25,7 +25,7 @@ class NavDrawerAdapter(
     private val context: Context,
     private var recyclerList: List<NavDrawerItem.ParentItem>,
     private val onParentClick: (NavDrawerItem.ParentItem) -> Unit,
-    private val onChildClick: (BaseDrawerActivity.NavItemType, NavDrawerItem.ChildItem) -> Unit
+    private val onChildClick: (BaseDrawerController.NavItemType, NavDrawerItem.ChildItem) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var displayList: List<NavDrawerItem> = flattenDrawerItems(recyclerList)
