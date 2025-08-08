@@ -8,11 +8,9 @@ import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -111,7 +109,7 @@ public class StandardHomeActivity
                     AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
             return;
         }
-        updateConnectJobProgress();
+        fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
         sendFormsOrSync(true);
     }
@@ -126,7 +124,7 @@ public class StandardHomeActivity
     protected void updateUiAfterDataPullOrSend(String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
-        uiController.updateConnectProgress();
+        uiController.updateConnectJobProgress();
     }
 
     @Override
@@ -272,12 +270,12 @@ public class StandardHomeActivity
         invalidateOptionsMenu();
     }
 
-    public void updateConnectJobProgress() {
+    public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
             ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, success -> {
                 if (success) {
-                    uiController.updateConnectProgress();
+                    uiController.updateConnectJobProgress();
                 }
             });
         }

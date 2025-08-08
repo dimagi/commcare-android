@@ -54,12 +54,12 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     public void setupUI() {
         activity.setContentView(R.layout.home_screen);
 
-        setupJobTile();
+        setupConnectJobTile();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
     }
 
-    private void setupJobTile() {
+    private void setupConnectJobTile() {
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
         connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
@@ -93,11 +93,11 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
                 tv_job_time.setText(workingHours);
             }
 
-            updateConnectProgress();
+            updateConnectJobProgress();
         }
     }
 
-    private void updateOpportunityMessage() {
+    private void updateConnectJobMessage() {
         String warningText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
@@ -120,10 +120,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             adapter.notifyDataSetChanged();
         }
 
-        updateConnectProgress();
+        updateConnectJobProgress();
     }
 
-    public void updateConnectProgress() {
+    public void updateConnectJobProgress() {
         ConnectJobRecord job = activity.getActiveJob();
         if (job == null) {
             return;
@@ -134,7 +134,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             recyclerView.setVisibility(View.GONE);
         }
 
-        updateOpportunityMessage();
+        updateConnectJobMessage();
 
         //Note: Only showing a single daily progress bar for now
         //Adding more entries to the list would show multiple progress bars
