@@ -40,25 +40,25 @@ dependencies {
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
-    testImplementation 'androidx.test:core:1.5.0'
-    testImplementation 'androidx.test:runner:1.5.2'
-    testImplementation 'androidx.test.ext:junit:1.1.3'
+    testImplementation 'androidx.test:core:1.6.1'
+    testImplementation 'androidx.test:runner:1.6.2'
+    testImplementation 'androidx.test.ext:junit:1.2.1'
     testImplementation 'androidx.work:work-testing:2.7.1'
-    testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    testImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    testImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    testImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20250517'
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.ext:truth:1.4.0'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
-    androidTestImplementation('androidx.test.espresso:espresso-contrib:3.4.0') {
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.ext:truth:1.6.0'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
+    androidTestImplementation ('androidx.test.espresso:espresso-contrib:3.6.1') {
         exclude(group: 'com.google.protobuf', module: 'protobuf-lite')
     }
 
@@ -101,9 +101,8 @@ dependencies {
     }
     implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
-    implementation 'org.jsoup:jsoup:1.15.3'
-    implementation 'com.scottyab:rootbeer-lib:0.1.0'
-
+    implementation 'org.jsoup:jsoup:1.21.1'
+    implementation 'com.scottyab:rootbeer-lib:0.1.1'
     implementation 'com.carrotsearch:hppc:0.9.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
@@ -255,7 +254,7 @@ static def getDate() {
 
 android {
     namespace 'org.commcare.dalvik'
-    compileSdk 35
+    compileSdk 36
 
     lintOptions {
         abortOnError false
@@ -283,7 +282,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         applicationId 'org.commcare.dalvik'
         testNamespace 'org.commcare.dalvik.test'
