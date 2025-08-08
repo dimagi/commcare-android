@@ -88,5 +88,4 @@
     <string name="connect_message_them">Dem</string>
     <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
     <string name="connect_fetch_delivery_progress_error">Kunne ikke hente leveringsfremdriften</string>
-
 </resources>
