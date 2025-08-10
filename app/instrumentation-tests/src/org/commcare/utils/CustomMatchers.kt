@@ -1,18 +1,17 @@
 package org.commcare.utils
 
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
+import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
+import androidx.test.espresso.intent.Checks
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.util.TreeIterables
+import com.mapbox.mapboxsdk.plugins.annotation.Line
 import org.commcare.android.database.global.models.AppAvailableToInstall
-import org.hamcrest.BaseMatcher
-import org.hamcrest.Description
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers
-import org.hamcrest.TypeSafeMatcher
+import org.hamcrest.*
 
 
 /**
@@ -141,6 +140,51 @@ object CustomMatchers {
                 val categoryMatcher = Matchers.hasItem(category).matches(intent.categories)
                 val typeMatcher = Matchers.`is`(type).matches(intent.type)
                 return actionMatcher && categoryMatcher && typeMatcher
+            }
+        }
+    }
+
+    fun isPasswordHidden(): Matcher<View?>? {
+        return object : BoundedMatcher<View?, EditText>(
+            EditText::class.java
+        ) {
+            override fun describeTo(description: Description) {
+                description.appendText("Password is hidden")
+            }
+
+            override fun matchesSafely(editText: EditText): Boolean {
+                //returns true if password is hidden
+                return editText.getTransformationMethod() is PasswordTransformationMethod
+            }
+        }
+    }
+
+    fun withTextColor(color: Int): Matcher<View?>? {
+        Checks.checkNotNull(color)
+        return object : BoundedMatcher<View?, TextView>(
+            TextView::class.java
+        ) {
+            override fun matchesSafely(row: TextView): Boolean {
+                return color == row.currentTextColor
+            }
+
+            override fun describeTo(description: Description) {
+                description.appendText("with text color: ")
+            }
+        }
+    }
+
+    fun withImageBgColor(color: Int): Matcher<View?>? {
+        Checks.checkNotNull(color)
+        return object : BoundedMatcher<View?, ImageView>(
+            ImageView::class.java
+        ) {
+            override fun matchesSafely(row: ImageView): Boolean {
+                return color == (row.getBackground() as ColorDrawable).getColor()
+            }
+
+            override fun describeTo(description: Description) {
+                description.appendText("with text color: ")
             }
         }
     }
