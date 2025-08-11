@@ -1,6 +1,5 @@
 package org.commcare.android.database.connect.models
 
-import org.commcare.android.model.PersonalIdValidAndCorruptCredential
 import org.commcare.android.storage.framework.Persisted
 import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
@@ -69,9 +68,9 @@ class PersonalIdCredential : Persisted(), Serializable {
         const val META_SLUG = "slug"
 
         @JvmStatic
-        fun fromJsonArray(jsonArray: JSONArray): PersonalIdValidAndCorruptCredential {
-            val valid = mutableListOf<PersonalIdCredential>()
-            val corruptList = mutableListOf<String>()
+        fun fromJsonArray(jsonArray: JSONArray): List<PersonalIdCredential> {
+            val validCredential = mutableListOf<PersonalIdCredential>()
+            val corruptCredential = mutableListOf<String>()
 
             for (i in 0 until jsonArray.length()) {
                 var obj: JSONObject? = null
@@ -90,23 +89,37 @@ class PersonalIdCredential : Persisted(), Serializable {
                         issuerEnvironment = obj.getString(META_ISSUER_ENVIRONMENT)
                         slug = obj.getString(META_SLUG)
                     }
-                    valid.add(credential)
+                    validCredential.add(credential)
                 } catch (e: JSONException) {
                     Logger.exception("Corrupt credential at index $i", e)
-                    corruptList.add("Index $i:\n${obj ?: "Unknown JSON"}\nError: ${e.message}")
+                    corruptCredential.add("Index $i:\n${obj ?: "Unknown JSON"}\nError: ${e.message}")
                 }
             }
 
-            if (corruptList.isNotEmpty()) {
-                val errorMessage = corruptList.joinToString(
+            if (corruptCredential.isNotEmpty()) {
+                val errorMessage = corruptCredential.joinToString(
                     separator = "\n\n",
-                    prefix = "Found ${corruptList.size} corrupt credentials:\n"
+                    prefix = "Found ${corruptCredential.size} corrupt credentials:\n"
                 )
                 Logger.log("CorruptCredentials", errorMessage)
                 throw RuntimeException(errorMessage)
             }
 
-            return PersonalIdValidAndCorruptCredential(valid)
+            return validCredential
+        }
+
+        @JvmStatic
+        fun fromV15(old: PersonalIdCredentialV15): PersonalIdCredential {
+            val newRecord = PersonalIdCredential()
+            newRecord.uuid = old.uuid
+            newRecord.appId = old.appId
+            newRecord.oppId = old.oppId
+            newRecord.issuedDate = old.issuedDate
+            newRecord.title = old.title
+            newRecord.issuer = old.issuer
+            newRecord.level = old.level
+            newRecord.type = old.type
+            return newRecord
         }
     }
 }

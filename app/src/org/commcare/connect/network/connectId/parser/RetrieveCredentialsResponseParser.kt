@@ -18,7 +18,7 @@ class RetrieveCredentialsResponseParser<T>(private val context: Context) : BaseA
         val jsonObject = JSONObject(jsonText)
         val jsonArray = jsonObject.getJSONArray("credentials")
         val result = PersonalIdCredential.fromJsonArray(jsonArray)
-        storeCredentialDataInTable(context, result.validCredentials)
+        storeCredentialDataInTable(context, result)
         return result as T
     }
 }

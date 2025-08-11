@@ -5,12 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.commcare.android.database.connect.models.PersonalIdCredential
-import org.commcare.android.model.PersonalIdValidAndCorruptCredential
+import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.utils.MultipleAppsUtil
-import org.commcare.utils.parseIsoDateForSorting
 
 class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
     private val _apiError =
@@ -34,9 +33,9 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
     }
 
     fun retrieveAndProcessCredentials() {
-        object : PersonalIdApiHandler<PersonalIdValidAndCorruptCredential>() {
-            override fun onSuccess(result: PersonalIdValidAndCorruptCredential) {
-                val earned = result.validCredentials
+        object : PersonalIdApiHandler<List<PersonalIdCredential>>() {
+            override fun onSuccess(result: List<PersonalIdCredential>) {
+                val earned = result
                 val earnedAppIds = earned.map { it.appId }.toSet()
                 val installedApps = _installedAppRecords.value.orEmpty()
 

@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.connect.ConnectDateUtils.convertIsoDate
 import org.commcare.dalvik.databinding.ItemEarnedCredentialBinding
 import org.commcare.utils.StringUtils
-import org.commcare.utils.convertIsoDate
 
 class EarnedCredentialAdapter(
     private val listener: OnCredentialClickListener,private val profilePic:String?
