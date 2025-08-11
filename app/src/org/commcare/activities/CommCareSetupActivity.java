@@ -10,10 +10,10 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -21,11 +21,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -42,6 +45,9 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
+import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -82,7 +88,7 @@ import java.util.Map;
  * @author ctsims
  */
 @ManagedUi(R.layout.first_start_screen_modern)
-public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
+public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
@@ -138,6 +144,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private boolean startAllowed = true;
     private String incomingRef;
     private CommCareApp ccApp;
+    private BaseDrawerController drawerController;
+
 
     /**
      * Indicates that this activity was launched from the AppManagerActivity
@@ -274,12 +282,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // removes the back button from the action bar
-            actionBar.setDisplayHomeAsUpEnabled(false);
-        }
     }
 
     public boolean shouldShowNotificationErrorButton() {
@@ -311,6 +313,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         installFragment.showOrHideErrorMessage();
         uiStateScreenTransition();
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+        return true;
     }
 
     @Override
@@ -647,6 +654,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
+            default:
+                super.onOptionsItemSelected(item);
         }
         return true;
     }
@@ -663,7 +672,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
             PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                PersonalIdManager.getInstance().goToConnectJobsList(this);
+                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
             });
         });
     }

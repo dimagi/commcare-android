@@ -564,8 +564,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setLoginInputsVisibility(appState != Connect);
         if (PersonalIdManager.getInstance().isloggedIn()) {
             connectLoginButton.setText(activity.getString(R.string.connect_button_logged_in));
-            ///TODO: connect set to true after phase 4 merge
-            setConnectButtonVisible(false);
+            setConnectButtonVisible(true);
             String welcomeText = activity.getString(R.string.login_welcome_connect_signed_in,
                     ConnectUserDatabaseUtil.getUser(activity).getName());
             welcomeMessage.setText(welcomeText);

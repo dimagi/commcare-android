@@ -274,7 +274,6 @@
     <string name="image_download_prompt">Image file is missing for this question, Click the download button above to download</string>
     <string name="audio_download_prompt">Audio file is missing for this question, click the download button above to download</string>
     <string name="media_not_found_error">Media not found in the application</string>
-    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">Could not parse input coordinates</string>
 
     <string name="location_provider_disabled">Turn on your location to receive location updates</string>
@@ -285,8 +284,6 @@
     <string name="root_detected_message">You are not allowed to run CommCare on a rooted device. Please use a non rooted device</string>
     <string name="session_endpoint_unavailable">No endpoint exist with id %1$s. Valid endpoints are %2$s</string>
     <string name="session_endpoint_invalid_arguments">Incorrect arguments supplied for endpoint %1$s. Supplied arguments: %2$s. Expected arguments: %3$s.</string>
-    <string name="selected_location">Selected Location</string>
-    <string name="confirm_location">Confirm location</string>
 
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Get Required App</string>
@@ -385,6 +382,9 @@
     <string name="connect_messaging_retrieve_messages_fail">Failed to retrieve messages</string>
     <string name="connect_send_message_hint">Type message</string>
     <string name="connect_send_message_btn_desc">Press here to send message</string>
+    <string name="connect_messaging_pn_wrong_channel">Sorry, something went wrong, showing all available messaging channels</string>
+    <string name="connect_message_you">You</string>
+    <string name="connect_message_them">Them</string>
 
     <string name="connect_last_update">Updated: %s</string>
     <string name="connect_title">Connect</string>
@@ -404,11 +404,14 @@
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
+    <string name="connect_learn_error_starting">Unable to begin learning, please contact the opportunity administrator.</string>
 
     <string name="connect_learn_title">Learning Progress</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
     <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
+    <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
+    <string name="connect_fetch_delivery_progress_error">Failed to fetch the delivery progress</string>
     <string name="your_score">Score: %d</string>
 
     <string name="connect_learn_need_assessment">Complete the assessment to finish training.</string>
@@ -435,9 +438,10 @@
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">You have passed the assessment and are ready to deliver. View job status to proceed.</string>
     <string name="connect_progress_warning_max_reached_single">You have completed the maximum number of visits. You will not earn any progress for additional work.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You will not earn any progress for additional work.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">You have reached the maximum number of visits for today. You may not earn any progress for additional work.</string>
     <string name="connect_progress_warning_max_reached_multi">You have reached the maximum number of visits for %s. </string>
     <string name="connect_progress_warning_daily_max_reached_multi">You have reached your daily limit for %s.</string>
+    <string name="connect_download_learn">Download Learn App</string>
     <string name="connect_downloading_learn">Downloading Learn App</string>
     <string name="connect_downloading_delivery">Downloading Delivery App</string>
     <string name="connect_results_summary_all">All</string>
@@ -480,7 +484,6 @@
     <string name="audio_recording_notification">Audio Recording Notification</string>
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
-    <string name="connect_job_list_api_failure">An error occurred while connecting to the server.</string>
     <string name="connect_payment_acknowledge_notification_yes">Yes</string>
     <string name="connect_payment_acknowledge_notification_no">No</string>
 
@@ -633,7 +636,25 @@
     <string name="personalid_location_service_error">Location service is not available. Please enable it</string>
     <string name="personalid_grant_location_permission">Grant Location Permission</string>
     <string name="personalid_grant_location_service">Enable Location Service</string>
+    <string name="personalid_messaging_menu_title">Messaging</string>
+    <string name="personalid_sync_menu_title">Sync</string>
+    <string name="camera_permission_title">Permission for camera</string>
+    <string name="camera_permission_msg">In order to take a picture, CommCare needs permission to use your device camera.</string>
+    <string name="capture_photo">Capture Photo</string>
+    <string name="connect_claim_job_error">Error claiming job</string>
+
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
+    <string name="nav_drawer_signin_register">Sign in / Register</string>
+    <string name="nav_drawer_help">Help</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
+    <string name="nav_drawer_opportunities">Opportunities</string>
+    <string name="nav_drawer_commcare_apps">Commcare Apps</string>
+    <string name="nav_drawer_work_history">Work History</string>
+    <string name="nav_drawer_payments">Payments</string>
+    <string name="nav_drawer_manage_profile">Manage Profile</string>
+    <string name="user_name_placeholder">User Name</string>
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
+    <string name="nav_drawer_open">Open navigation drawer</string>
+    <string name="nav_drawer_close">Close navigation drawer</string>
 </resources>

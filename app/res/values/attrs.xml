@@ -136,4 +136,10 @@
         <attr name="face_marker_color" format="color" />
         <attr name="countdown_text_size" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="CircleProgressBar">
+        <attr name="progressColor" format="color" />
+        <attr name="progressBackgroundColor" format="color" />
+        <attr name="strokeWidth" format="dimension" />
+    </declare-styleable>
 </resources>

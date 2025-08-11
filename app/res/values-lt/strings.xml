@@ -74,4 +74,18 @@
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
+    <string name="nav_drawer_signin_register">Accedi / Registrati</string>
+    <string name="nav_drawer_help">Aiuto</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Non hai effettuato l’accesso all\ID personale</string>
+    <string name="nav_drawer_opportunities">Opportunità</string>
+    <string name="nav_drawer_commcare_apps">App CommCare</string>
+    <string name="nav_drawer_work_history">Storico lavorativo</string>
+    <string name="nav_drawer_payments">Pagamenti</string>
+    <string name="nav_drawer_manage_profile">Gestisci profilo</string>
+    <string name="nav_drawer_open">Apri il menu di navigazione</string>
+    <string name="nav_drawer_close">Chiudi il menu di navigazione</string>
+    <string name="connect_message_you">Voi</string>
+    <string name="connect_message_them">Loro</string>
+    <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
+    <string name="connect_fetch_delivery_progress_error">Nepavyko gauti pristatymo eigos</string>
 </resources>

@@ -1,6 +1,5 @@
 package org.commcare.gis
 
-import com.mapbox.mapboxsdk.geometry.LatLng
 import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.Entity
@@ -25,7 +24,6 @@ object EntityMapUtils {
         return null
     }
 
-
     @Nullable
     private fun getLatLngFromAddress(address: String): GeoPointData? {
         try {
@@ -33,25 +31,24 @@ object EntityMapUtils {
                 val data = GeoPointData().cast(UncastData(address))
                 return  data
             }
-        } catch (ignored: IllegalArgumentException) {
-        }
+        } catch (ignored: IllegalArgumentException) { }
         return null
     }
-
 
     @JvmStatic
     fun getNeededEntityDatum(): EntityDatum? {
         val datum = CommCareApplication.instance().currentSession.neededDatum
         return if (datum is EntityDatum) {
             datum
-        } else null
+        } else {
+            null
+        }
     }
 
     @JvmStatic
     fun getEntities(detail: Detail, nodeset: TreeReference): Vector<Entity<TreeReference>> {
         val session = CommCareApplication.instance().currentSession
-        val evaluationContext = session.getEvaluationContext(
-                AndroidInstanceInitializer(session))
+        val evaluationContext = session.getEvaluationContext(AndroidInstanceInitializer(session))
         evaluationContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler())
 
         val references = evaluationContext.expandReference(nodeset)
@@ -63,28 +60,4 @@ object EntityMapUtils {
         }
         return entities
     }
-
-    @JvmStatic
-    fun getDetailHeaders(detail: Detail): Array<String?> {
-        val headers = arrayOfNulls<String>(detail.fields.size)
-        for (i in headers.indices) {
-            headers[i] = detail.fields[i].header.evaluate()
-        }
-        return headers
-    }
-
-    @JvmStatic
-    fun parseBoundaryCoords(boundaryCoords: String): ArrayList<LatLng> {
-        val latLngs = ArrayList<LatLng>()
-        if (boundaryCoords.isNotEmpty()) {
-            val list = boundaryCoords.split("\n", "\\n")
-            list.filter { coord -> coord != "" }
-                    .map { coord ->
-                        val latLngArray = coord.split(",")
-                        LatLng(latLngArray[0].toDouble(), latLngArray[1].toDouble())
-                    }.toCollection(latLngs)
-        }
-        return latLngs
-    }
-
 }

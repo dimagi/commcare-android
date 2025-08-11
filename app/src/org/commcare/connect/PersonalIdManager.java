@@ -1,6 +1,5 @@
 package org.commcare.connect;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -22,7 +21,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -54,7 +52,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -85,17 +82,12 @@ public class PersonalIdManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
-    public static final int MethodRegistrationPrimary = 1;
-    public static final int MethodRecoveryPrimary = 2;
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
     private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
-    private String primedAppIdForAutoLogin = null;
     private int failedPinAttempts = 0;
-    private ConnectJobRecord activeJob = null;
-
 
     //Singleton, private constructor
     private PersonalIdManager() {
@@ -124,6 +116,8 @@ public class PersonalIdManager {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
                 personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
 
+                CrashUtil.registerUserData();
+
                 String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(parent, false);
                 if (remotePassphrase == null) {
                     getRemoteDbPassphrase(parent, user);
@@ -135,20 +129,7 @@ public class PersonalIdManager {
         }
     }
 
-    public String generatePassword() {
-        int passwordLength = 20;
-
-        String charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_!.?";
-        SecureRandom secureRandom = new SecureRandom();
-        StringBuilder password = new StringBuilder(passwordLength);
-        for (int i = 0; i < passwordLength; i++) {
-            password.append(charSet.charAt(secureRandom.nextInt(charSet.length())));
-        }
-
-        return password.toString();
-    }
-
-    private void scheduleHearbeat() {
+    private void scheduleHeartbeat() {
         if (isloggedIn()) {
             Constraints constraints = new Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -191,6 +172,7 @@ public class PersonalIdManager {
 
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                completeSignin();
                 callback.connectActivityComplete(true);
             }
 
@@ -232,14 +214,15 @@ public class PersonalIdManager {
 
     public void completeSignin() {
         personalIdSatus = PersonalIdStatus.LoggedIn;
-        scheduleHearbeat();
+        scheduleHeartbeat();
         CrashUtil.registerUserData();
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
         parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
-            goToConnectJobsList(activity);
+            completeSignin();
+            ConnectNavHelper.INSTANCE.goToConnectJobsList(activity);
         }
     }
 
@@ -431,48 +414,6 @@ public class PersonalIdManager {
 
     }
 
-    ///TODO update the code with connect code
-    public void updateJobProgress(Context context, ConnectJobRecord job, ConnectActivityCompleteListener listener) {
-        switch (job.getStatus()) {
-            case ConnectJobRecord.STATUS_LEARNING -> {
-//                updateLearningProgress(context, job, listener);
-            }
-            case ConnectJobRecord.STATUS_DELIVERING -> {
-//                updateDeliveryProgress(context, job, listener);
-            }
-            default -> {
-                listener.connectActivityComplete(true);
-            }
-        }
-    }
-
-    public void goToConnectJobsList(Context parent) {
-        parentActivity = parent;
-        completeSignin();
-//        Intent i = new Intent(parent, ConnectActivity.class);
-//        parent.startActivity(i);
-    }
-
-
-    public void goToActiveInfoForJob(Activity activity, boolean allowProgression) {
-        ///TODO uncomment with connect pahse pr
-//        completeSignin();
-//        Intent i = new Intent(activity, ConnectActivity.class);
-//        i.putExtra("info", true);
-//        i.putExtra("buttons", allowProgression);
-//        activity.startActivity(i);
-    }
-
-    public ConnectJobRecord setConnectJobForApp(Context context, String appId) {
-        ConnectJobRecord job = null;
-        ConnectAppRecord appRecord = getAppRecord(context, appId);
-        if (appRecord != null) {
-            job = ConnectJobUtils.getCompositeJob(context, appRecord.getJobId());
-        }
-        setActiveJob(job);
-        return job;
-    }
-
     public boolean isLoginManagedByPersonalId(String appId, String userId) {
         AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
         return auth != null;
@@ -577,10 +518,6 @@ public class PersonalIdManager {
         return ConnectUserDatabaseUtil.getUser(context).getUserId();
     }
 
-    public void setActiveJob(ConnectJobRecord job) {
-        activeJob = job;
-    }
-
     public boolean isSeatedAppCongigureWithPersonalId(String username) {
         try {
             if (isloggedIn()) {
@@ -675,17 +612,6 @@ public class PersonalIdManager {
     public void setFailureAttempt(int failureAttempt) {
         failedPinAttempts = failureAttempt;
     }
-
-    public boolean shouldShowJobStatus(Context context, String appId) {
-        ConnectAppRecord record = getAppRecord(context, appId);
-        if(record == null || activeJob == null) {
-            return false;
-        }
-
-        //Only time not to show is when we're in learn app but job is in delivery state
-        return !record.getIsLearning() || activeJob.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
-    }
-
 
     /**
      * Interface for handling callbacks when a PersonalId activity finishes

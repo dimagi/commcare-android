@@ -95,9 +95,9 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         body: Map<String, String>,
         requestId: String
     ): Boolean = suspendCoroutine { cont ->
-        val handler = object : PersonalIdApiHandler<PersonalIdSessionData?>() {
-            override fun onSuccess(data: PersonalIdSessionData?) {
-                cont.resume(true)
+        val handler = object : PersonalIdApiHandler<Boolean>() {
+            override fun onSuccess(success: Boolean) {
+                cont.resume(success)
             }
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
                 FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, "SendError")

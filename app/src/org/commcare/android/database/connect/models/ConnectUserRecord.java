@@ -9,6 +9,8 @@ import org.commcare.modern.models.MetaField;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 /**
  * DB model for a ConnectID user and their info
  *
@@ -209,6 +211,11 @@ public class ConnectUserRecord extends Persisted {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    @Nullable
+    public String getPhoto() {
+        return photo;
     }
 
     public String getRequiredLock() {
