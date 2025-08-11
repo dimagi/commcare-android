@@ -316,6 +316,11 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     @Override
+    protected boolean shouldShowDrawer() {
+        return true;
+    }
+
+    @Override
     public void onURLChosen(String url) {
         incomingRef = url;
         this.uiState = UiState.READY_TO_INSTALL;

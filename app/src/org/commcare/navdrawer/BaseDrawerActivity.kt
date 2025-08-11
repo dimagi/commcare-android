@@ -13,27 +13,34 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setupDrawerController()
-    }
-
-    protected fun setupDrawerController() {
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        if (personalIdManager.isloggedIn()) {
-            val rootView = findViewById<View>(android.R.id.content)
-            val drawerRefs = DrawerViewRefs(rootView)
-            drawerController = BaseDrawerController(
-                this,
-                drawerRefs
-            ) { navItemType: NavItemType, recordId: String? ->
-                handleDrawerItemClick(navItemType, recordId)
-                Unit
-            }
-            drawerController?.setupDrawer()
+        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
+            setupDrawerController()
         }
     }
 
-     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
+    private fun isPersonalIdLoggedIn(): Boolean {
+        val personalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(this)
+        return personalIdManager.isloggedIn();
+    }
+
+    protected open fun shouldShowDrawer(): Boolean {
+        return false;
+    }
+
+    private fun setupDrawerController() {
+        val rootView = findViewById<View>(android.R.id.content)
+        val drawerRefs = DrawerViewRefs(rootView)
+        drawerController = BaseDrawerController(
+            this,
+            drawerRefs
+        ) { navItemType: NavItemType, recordId: String? ->
+            handleDrawerItemClick(navItemType, recordId)
+        }
+        drawerController!!.setupDrawer()
+    }
+
+    protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
             NavItemType.OPPORTUNITIES -> {}
             NavItemType.COMMCARE_APPS -> {}
