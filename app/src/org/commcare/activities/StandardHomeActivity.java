@@ -275,6 +275,11 @@ public class StandardHomeActivity
     }
 
     @Override
+    protected boolean shouldShowDrawer() {
+        return true;
+    }
+
+    @Override
     public void refreshUI() {
         uiController.refreshView();
     }
