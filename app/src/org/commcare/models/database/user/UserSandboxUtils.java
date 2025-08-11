@@ -88,8 +88,8 @@ public class UserSandboxUtils {
         String newKeyEncoded = getSqlCipherEncodedKey(unwrappedNewKey);
         IDatabase rawDbHandle = CommCareApplication.instance().getUserDbOpenHelperFromFile(newDb.getAbsolutePath(), oldKeyEncoded);
 
-        rawDbHandle.execSQL("PRAGMA key = '" + oldKeyEncoded + "';");
-        rawDbHandle.execSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
+        rawDbHandle.rawExecSQL("PRAGMA key = '" + oldKeyEncoded + "';");
+        rawDbHandle.rawExecSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
         rawDbHandle.close();
         return newKeyEncoded;
     }

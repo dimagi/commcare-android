@@ -30,6 +30,8 @@ public interface IDatabase {
 
     void execSQL(String sql);
 
+    void rawExecSQL(String sql);
+
     long runCompileStatement(String sql);
 
     void update(String table, ContentValues values, String whereClause, String[] whereArgs);

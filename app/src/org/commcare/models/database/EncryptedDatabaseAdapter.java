@@ -75,6 +75,11 @@ public class EncryptedDatabaseAdapter implements IDatabase {
     }
 
     @Override
+    public void rawExecSQL(String sql) {
+        db.rawExecSQL(sql);
+    }
+
+    @Override
     public long runCompileStatement(String sql) {
         SQLiteStatement stmt = null;
         try {
