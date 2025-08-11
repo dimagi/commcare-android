@@ -3,9 +3,11 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.models.database.SqlStorage;
 
+import java.util.List;
 import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
@@ -63,4 +65,16 @@ public class ConnectAppDatabaseUtil {
     public static void storeApp(Context context, ConnectLinkedAppRecord record) {
         ConnectDatabaseHelper.getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
+
+    public static void storeCredentialDataInTable(Context context, List<PersonalIdCredential> validCredentials) {
+        SqlStorage<PersonalIdCredential> storage =
+                ConnectDatabaseHelper.getConnectStorage(context, PersonalIdCredential.class);
+
+        storage.removeAll();
+
+        for (PersonalIdCredential credential : validCredentials) {
+            storage.write(credential);
+        }
+    }
+
 }

@@ -137,7 +137,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     public void retrieveCredentials(Context context, String userName, String password) {
         ApiPersonalId.retrieveCredentials(context, userName, password,
-                createCallback(new RetrieveCredentialsResponseParser<T>(),null));
+                createCallback(new RetrieveCredentialsResponseParser<T>(context),null));
     }
 
     public void sendOtp(Activity activity, PersonalIdSessionData sessionData) {

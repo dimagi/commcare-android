@@ -30,6 +30,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PersonalIdCredentialV15;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
@@ -590,7 +591,30 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeFifteenSixteen(SQLiteDatabase db) {
-        addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
+        db.beginTransaction();
+        try {
+            SqlStorage<PersonalIdCredentialV15> oldStorage = new SqlStorage<>(
+                    PersonalIdCredential.STORAGE_KEY,
+                    PersonalIdCredentialV15.class,
+                    new ConcreteAndroidDbHelper(c, db)
+            );
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    PersonalIdCredential.STORAGE_KEY,
+                    PersonalIdCredential.class,
+                    new ConcreteAndroidDbHelper(c, db)
+            );
+
+            for (PersonalIdCredentialV15 oldRecord : oldStorage) {
+                PersonalIdCredential newRecord = PersonalIdCredential.fromV15(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
