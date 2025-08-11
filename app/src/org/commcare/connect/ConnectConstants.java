@@ -43,4 +43,5 @@ public class ConnectConstants {
     public final static int PERSONALID_RECOVERY_ACCOUNT_LOCKED = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 10;
     public final static int PERSONALID_LOCATION_PERMISSION_FAILURE = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
     public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING = ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
+    public final static String STATUS_APPROVED = "approved";
 }
