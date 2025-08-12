@@ -601,6 +601,14 @@ public class ConnectDatabaseUpgrader {
     private void upgradeSixteenSeventeen(IDatabase db) {
         db.beginTransaction();
         try {
+
+            SqlStorage<Persistable> jobStorage = new SqlStorage<>(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            
+            boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
+
             SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
                     ConnectUserRecord.STORAGE_KEY,
                     ConnectUserRecordV16.class,
@@ -612,7 +620,7 @@ public class ConnectDatabaseUpgrader {
                     new ConcreteAndroidDbHelper(c, db));
 
             for (ConnectUserRecordV16 oldRecord : oldStorage) {
-                ConnectUserRecord newRecord = ConnectUserRecord.fromV16(oldRecord);
+                ConnectUserRecord newRecord = ConnectUserRecord.fromV16(oldRecord, hasConnectAccess);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);

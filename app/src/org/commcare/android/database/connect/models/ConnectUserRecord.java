@@ -196,7 +196,7 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV16(ConnectUserRecordV16 oldRecord) {
+    public static ConnectUserRecord fromV16(ConnectUserRecordV16 oldRecord, boolean hasConnectAccess) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
@@ -211,7 +211,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.photo = oldRecord.getPhoto();
         newRecord.isDemo = oldRecord.isDemo();
         newRecord.requiredLock = oldRecord.getRequiredLock();
-        newRecord.hasConnectAccess = false;
+        newRecord.hasConnectAccess = hasConnectAccess;
         return newRecord;
     }
 
