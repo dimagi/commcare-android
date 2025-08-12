@@ -2,8 +2,6 @@ package org.commcare.models.database;
 
 import android.content.Context;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 /**
  * A Db Handler for direct DB Handle access, when
  * lazy handoff isn't necessary.
@@ -11,15 +9,15 @@ import net.sqlcipher.database.SQLiteDatabase;
  * @author ctsims
  */
 public class ConcreteAndroidDbHelper extends AndroidDbHelper {
-    private final SQLiteDatabase handle;
+    private final IDatabase handle;
 
-    public ConcreteAndroidDbHelper(Context c, SQLiteDatabase handle) {
+    public ConcreteAndroidDbHelper(Context c, IDatabase handle) {
         super(c);
         this.handle = handle;
     }
 
     @Override
-    public SQLiteDatabase getHandle() {
+    public IDatabase getHandle() {
         return handle;
     }
 
