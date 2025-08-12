@@ -211,9 +211,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {
-            ///TODO: connect uncomment after phase 4 merge
-//            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn();
-            boolean enabled = false;
+            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn();
             if (enabled && listener != null) {
                 mConnectButton.setOnClickListener(listener);
             }

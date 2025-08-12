@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
+import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
@@ -26,6 +27,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function2;
 
 import com.scottyab.rootbeer.RootBeer;
 
@@ -34,10 +37,15 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.connect.ConnectAppUtils;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.ScreenLoginBinding;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -46,6 +54,9 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -78,7 +89,7 @@ import java.util.Map;
 /**
  * @author ctsims
  */
-public class LoginActivity extends CommCareActivity<LoginActivity>
+public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController, PullTaskResultReceiver {
 
@@ -114,7 +125,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private LoginActivityUIController uiController;
     private FormAndDataSyncer formAndDataSyncer;
     private int selectedAppIndex = -1;
-    private boolean appLaunchedFromConnect;
+    private boolean appLaunchedFromConnect = false;
     private String presetAppId;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
     public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
@@ -122,7 +133,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
     private Map<Integer, String> menuIdToAnalyticsParam;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,15 +148,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         uiController.setupUI();
         formAndDataSyncer = new FormAndDataSyncer();
-
         uiController.checkForGlobalErrors();
-
-        personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
-
+        initPersonaIdManager();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
-        ///TODO: connect uncomment with connect merge
-//        appLaunchedFromConnect = PersonalIDManager.wasAppLaunchedFromConnect(presetAppId);
+        appLaunchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
         connectLaunchPerformed = false;
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -158,6 +163,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
+
         if (!HiddenPreferences.allowRunOnRootedDevice()
                 && new RootBeer(this).isRooted()) {
             new UserfacingErrorHandling<>().createErrorDialog(this,
@@ -167,6 +173,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
         }
+    }
+
+    private void initPersonaIdManager() {
+        if (personalIdManager == null) {
+            personalIdManager = PersonalIdManager.getInstance();
+            personalIdManager.init(this);
+        }
+    }
+
+    private boolean shouldDoConnectLogin() {
+        return appLaunchedFromConnect && !connectLaunchPerformed;
     }
 
     @Override
@@ -313,6 +330,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
+
+        if(shouldDoConnectLogin() && !seatAppIfNeeded(presetAppId)) {
+            connectLaunchPerformed = true;
+            initiateLoginAttempt(uiController.isRestoreSessionChecked());
+        }
     }
 
     protected boolean checkForSeatedAppChange() {
@@ -424,6 +446,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                   LoginMode loginMode, boolean blockRemoteKeyManagement,
                                   DataPullMode pullModeToUse) {
         try {
+            if(ConnectAppUtils.INSTANCE.shouldOverridePassword(loginManagedByPersonalId())) {
+                passwordOrPin = ConnectAppUtils.INSTANCE.getPasswordOverride(
+                        this, username, appLaunchedFromConnect);
+            }
 
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
@@ -481,13 +507,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     private boolean handleConnectSignIn(CommCareActivity<?> context, String username, String enteredPasswordPin) {
         if (personalIdManager.isloggedIn()) {
-            personalIdManager.completeSignin();
             String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            ConnectJobRecord job = personalIdManager.setConnectJobForApp(context, appId);
+            ConnectJobRecord job = ConnectJobUtils.getJobForApp(context, appId);
+            CommCareApplication.instance().setConnectJobIdForAnalytics(job);
 
             if (job != null) {
                 personalIdManager.updateAppAccess(context, appId, username);
-                personalIdManager.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
+                ConnectJobHelper.INSTANCE.updateJobProgress(context, job, success -> setResultAndFinish(job.getIsUserSuspended()));
             } else {
                 //Possibly offer to link or de-link PersonalId-managed login
                 personalIdManager.checkPersonalIdLink(context,
@@ -524,7 +550,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         selectedAppIndex = -1;
         personalIdManager.unlockConnect(this, success -> {
             if(success) {
-                personalIdManager.goToConnectJobsList(this);
+                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
                 setResult(RESULT_OK);
                 finish();
             }
@@ -576,13 +602,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
-        boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_PRACTICE_MODE:
                 loginDemoUser();
                 return true;
             case MENU_ABOUT_COMMCARE:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog(this);
+                DialogCreationHelpers.showAboutCommCareDialog(this);
                 return true;
             case MENU_ACQUIRE_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -605,7 +630,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 uiController.refreshView();
                 return true;
             default:
-                return otherResult;
+                 return super.onOptionsItemSelected(item);
         }
     }
 
@@ -962,9 +987,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             if (appLaunchedFromConnect && presetAppId != null) {
                 appState = Connect;
-                if (!seatAppIfNeeded(presetAppId)) {
-                    initiateLoginAttempt(uiController.isRestoreSessionChecked());
-                }
             }
 
             if (appState == PersonalId) {
@@ -988,7 +1010,26 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         this.connectAppState = connectAppState;
     }
 
+    @Override
+    protected boolean shouldShowDrawer() {
+        return true;
+    }
+
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
+    }
+
+    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case OPPORTUNITIES -> { /* handle */ }
+            case COMMCARE_APPS -> {
+                if (recordId != null) {
+                    if (!appIdDropdownList.isEmpty()) {
+                        selectedAppIndex = appIdDropdownList.indexOf(recordId);
+                    }
+                    seatAppIfNeeded(recordId);
+                }
+            }
+        }
     }
 }

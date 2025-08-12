@@ -159,7 +159,6 @@
     <string name="image_download_prompt">Falta el archivo de imagen para esta pregunta, haz clic en el botón de descarga de arriba para descargar</string>
     <string name="audio_download_prompt">Falta el archivo de audio para esta pregunta, haz clic en el botón de descarga de arriba para descargar</string>
     <string name="media_not_found_error">Medio no encontrado en la aplicación</string>
-    <string name="area_format">%1s sq m</string>
     <string name="parse_coordinates_failure">No se pudieron analizar las coordenadas de entrada</string>
     <string name="location_provider_disabled">Activa tu ubicación para recibir actualizaciones de ubicación</string>
     <string name="wait_for_location_fix">CommCare todavía está intentando recuperar tu posición. Espera o haz clic en Cancelar para cancelar.</string>
@@ -169,8 +168,6 @@
     <string name="root_detected_message">No estás autorizado a ejecutar CommCare en un dispositivo rooteado. Utiliza un dispositivo no rooteado.</string>
     <string name="session_endpoint_unavailable">No existe ningún punto final con el ID %1$s. Los puntos finales válidos son %2$s.</string>
     <string name="session_endpoint_invalid_arguments">Argumentos incorrectos proporcionados para el punto final %1$s. Argumentos proporcionados: %2$s. Argumentos esperados: %3$s.</string>
-    <string name="selected_location">Ubicación seleccionada</string>
-    <string name="confirm_location">Confirmar ubicación</string>
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Obtener la aplicación requerida</string>
     <string name="dependency_missing_dialog_title_plural">Obtener las aplicaciones requeridas</string>
@@ -246,6 +243,8 @@
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
     <string name="connect_learn_finished">Has obtenido un certificado para este trabajo y eres elegible para postularte al trabajo y comenzar a brindar atención.\nTu puntuación: %d\nPuntuación para aprobar: %d</string>
+    <string name="connect_fetch_learning_progress_error">No se pudo obtener el progreso del aprendizaje</string>
+    <string name="connect_fetch_delivery_progress_error">No se pudo obtener el progreso de la entrega</string>
     <string name="your_score">Puntuación: %d</string>
     <string name="connect_learn_need_assessment">Completa la evaluación para terminar la formación.</string>
     <string name="connect_learn_failed">Lo sentimos, no obtuviste la calificación aprobatoria en tu evaluación. Inténtalo de nuevo.\nTu calificación: %d\nCalificación aprobatoria: %d</string>
@@ -328,10 +327,13 @@
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
+    <string name="connect_message_you">Tú</string>
+    <string name="connect_message_them">Ellos</string>
     <string name="connect_progress_warning_max_reached_single">Has alcanzado el número máximo de visitas. No podrás progresar en trabajos adicionales.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Has alcanzado el número máximo de visitas para hoy. No podrás progresar en trabajos adicionales.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Has alcanzado el número máximo de visitas de hoy. Es posible que no obtengas progreso por trabajo adicional.</string>
     <string name="connect_progress_warning_max_reached_multi">Has alcanzado el número máximo de visitas para %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Has alcanzado tu límite diario de %s.</string>
+    <string name="connect_download_learn">Descargar la aplicación Aprender</string>
     <string name="connect_downloading_learn">Descargando la aplicación Aprender</string>
     <string name="connect_downloading_delivery">Descargando la aplicación de Entrega</string>
     <string name="connect_results_summary_earned">Ganado</string>
@@ -466,6 +468,15 @@
     <string name="personalid_camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
+    <string name="nav_drawer_help">Ayuda</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>
+    <string name="nav_drawer_opportunities">Oportunidades</string>
+    <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
+    <string name="nav_drawer_work_history">Historial de trabajo</string>
+    <string name="nav_drawer_payments">Pagos</string>
+    <string name="nav_drawer_manage_profile">Administrar perfil</string>
     <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
-
+    <string name="nav_drawer_open">Abrir el panel de navegación</string>
+    <string name="nav_drawer_close">Cerrar el panel de navegación</string>
 </resources>

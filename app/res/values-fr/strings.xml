@@ -221,7 +221,6 @@ License.
     <string name="image_download_prompt">Le fichier image est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="audio_download_prompt">Le fichier audio est manquant pour cette question, cliquez sur le bouton de téléchargement ci-dessus pour télécharger</string>
     <string name="media_not_found_error">Média non trouvé dans l\'application</string>
-    <string name="area_format">%1s m²</string>
     <string name="parse_coordinates_failure">Impossible d\'analyser les coordonnées d\'entrée</string>
     <string name="location_provider_disabled">Activez votre localisation pour recevoir des mises à jour de localisation</string>
     <string name="wait_for_location_fix">CommCare tente toujours de récupérer votre position. Veuillez patienter ou cliquer sur Annuler pour annuler.</string>
@@ -231,8 +230,6 @@ License.
     <string name="root_detected_message">Vous n\'êtes pas autorisé à exécuter CommCare sur un appareil rooté. Veuillez utiliser un appareil non rooté.</string>
     <string name="session_endpoint_unavailable">Aucun point de terminaison n\'existe avec l\'ID %1$s. Les points de terminaison valides sont %2$s.</string>
     <string name="session_endpoint_invalid_arguments">Arguments incorrects fournis pour le point de terminaison %1$s. Arguments fournis: %2$s. Arguments attendus: %3$s.</string>
-    <string name="selected_location">Emplacement sélectionné</string>
-    <string name="confirm_location">Confirmer l\'emplacement</string>
     <string name="playback_start_time">00:00</string>
     <string name="dependency_missing_dialog_title">Obtenir l\'application requise</string>
     <string name="dependency_missing_dialog_title_plural">Obtenir les applications requises</string>
@@ -304,10 +301,13 @@ License.
     <string name="connect_learn_need_assessment_title">Formation en attente</string>
     <string name="connect_learn_failed_title">Échec de la formation</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
+    <string name="connect_learn_error_starting">Impossible de commencer l\'apprentissage, veuillez contacter l\'administrateur de l\'opportunité.</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
     <string name="connect_learn_status">Vous avez terminé %d des %d leçons.\nTerminez l\'apprentissage pour obtenir votre certificat.</string>
     <string name="connect_learn_not_started">Vous n\'avez terminé aucune leçon. Commencez à apprendre pour obtenir votre certificat.</string>
     <string name="connect_learn_finished">Vous avez obtenu un certificat pour cet emploi et êtes éligible pour postuler à l\'emploi et commencer à prodiguer des soins.\nVotre score: %d\nScore de réussite: %d</string>
+    <string name="connect_fetch_learning_progress_error">Échec de la récupération de la progression de l\'apprentissage</string>
+    <string name="connect_fetch_delivery_progress_error">Échec de la récupération de la progression de la livraison</string>
     <string name="your_score">Score : %d</string>
     <string name="connect_learn_need_assessment">Complétez l\'évaluation pour terminer la formation.</string>
     <string name="connect_learn_failed">Désolé, vous n\'avez pas obtenu la note de passage à votre évaluation. Veuillez réessayer.\nVotre note: %d\nNote de passage: %d</string>
@@ -329,9 +329,10 @@ License.
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
-    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
+    <string name="connect_progress_warning_daily_max_reached_single">Vous avez atteint le nombre maximal de visites pour aujourd\'hui. Vous ne pourrez peut-être plus accéder aux tâches suivantes.</string>
     <string name="connect_progress_warning_max_reached_multi">Vous avez atteint le nombre maximum de visites pour %s.</string>
     <string name="connect_progress_warning_daily_max_reached_multi">Vous avez atteint votre limite quotidienne de %s.</string>
+    <string name="connect_download_learn">Téléchargez l\'application Apprendre</string>
     <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
     <string name="connect_downloading_delivery">Téléchargement de l\'application de livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
@@ -358,7 +359,6 @@ License.
     <string name="app_with_id_not_found">L\'application CommCare requise n\'est pas installée sur l\'appareil</string>
     <string name="audio_recording_notification">Notification d\'enregistrement audio</string>
     <string name="user_suspended">L\'utilisateur est suspendu. Veuillez contacter l\'administrateur.</string>
-    <string name="connect_job_list_api_failure">Une erreur s\'est produite lors de la connexion au serveur.</string>
     <string name="connect_payment_acknowledge_notification_yes">Oui</string>
     <string name="connect_payment_acknowledge_notification_no">Non</string>
     <string name="enter_otp">Entrez le code SMS</string>
@@ -426,6 +426,8 @@ License.
     <string name="personalid_otp_missing_activity">Quelque chose s\'est mal passé</string>
     <string name="personalid_otp_verification_failed_generic">Échec de la vérification OTP:</string>
     <string name="personalid_otp_verification_failed">La vérification a échoué, veuillez réessayer.</string>
+    <string name="personalid_messaging_menu_title">Messagerie</string>
+    <string name="personalid_sync_menu_title">Synchroniser</string>
     <string name="connect_registration_subtitle">Entrez votre numéro de téléphone</string>
     <string name="connect_backup_code_message_title">Code de sauvegarde PersonalId</string>
     <string name="connect_backup_code_message">Entrez votre code de sauvegarde à 6 chiffres</string>
@@ -434,6 +436,8 @@ License.
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
     <string name="connect_send_message_hint">Tapez un message</string>
     <string name="connect_send_message_btn_desc">Appuyez ici pour envoyer un message</string>
+    <string name="connect_message_you">Toi</string>
+    <string name="connect_message_them">Eux</string>
     <string name="connect_corrupt_job_text">Impossible de charger cette opportunité</string>
     <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>
@@ -466,7 +470,15 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
+    <string name="nav_drawer_help">Aide</string>
+    <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>
+    <string name="nav_drawer_opportunities">Opportunités</string>
+    <string name="nav_drawer_commcare_apps">Applications CommCare</string>
+    <string name="nav_drawer_work_history">Historique de travail</string>
+    <string name="nav_drawer_payments">Paiements</string>
+    <string name="nav_drawer_manage_profile">Gérer le profil</string>
     <string name="play_service_update_error">Veuillez vous assurer que les services Google Play sont pris en charge sur l\'appareil et sont à jour.</string>
-
-
+    <string name="nav_drawer_open">Ouvrir le tiroir de navigation</string>
+    <string name="nav_drawer_close">Fermer le tiroir de navigation</string>
 </resources>

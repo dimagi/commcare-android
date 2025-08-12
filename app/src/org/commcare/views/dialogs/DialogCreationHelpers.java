@@ -22,6 +22,13 @@ public class DialogCreationHelpers {
 
     public static CommCareAlertDialog buildAboutCommCareDialog(AppCompatActivity activity) {
         return buildAboutCommCareDialog(activity, true);
+
+    }
+
+    public static void showAboutCommCareDialog(AppCompatActivity activity) {
+        CommCareAlertDialog dialog = buildAboutCommCareDialog(activity, true);
+        dialog.makeCancelable();
+        dialog.showNonPersistentDialog(activity);
     }
 
     public static CommCareAlertDialog buildAboutCommCareDialog(AppCompatActivity activity, boolean showAppInfo) {
