@@ -10,7 +10,6 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,8 +20,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function2;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -47,7 +44,6 @@ import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -129,8 +125,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     public static final int MENU_OFFLINE_INSTALL = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_INSTALL_FROM_LIST = Menu.FIRST + 3;
-    private static final int MENU_PERSONAL_ID_SIGN_IN = Menu.FIRST + 4;
-    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 5;
+    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 4;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -505,7 +500,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.add(0, MENU_OFFLINE_INSTALL, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_INSTALL_FROM_LIST, 2, Localization.get("menu.app.list.install"));
-        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
         menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.login_menu_connect_forget));
         return true;
     }
@@ -513,13 +507,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(MENU_PERSONAL_ID_SIGN_IN);
-        if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn()
-                    && PersonalIdManager.getInstance().checkDeviceCompability());
-        }
-
-        item = menu.findItem(MENU_PERSONAL_ID_FORGET);
+        MenuItem item = menu.findItem(MENU_PERSONAL_ID_FORGET);
         if (item != null) {
             item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
@@ -646,10 +634,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
-            case MENU_PERSONAL_ID_SIGN_IN:
-                //Setup ConnectID and proceed to jobs page if successful
-                PersonalIdManager.getInstance().launchPersonalId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
-                break;
             case MENU_PERSONAL_ID_FORGET:
                 PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
@@ -664,7 +648,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         return Map.of(
                 MENU_OFFLINE_INSTALL, AnalyticsParamValue.CC_SETUP_MENU_OFFLINE_INSTALL,
                 MENU_INSTALL_FROM_LIST, AnalyticsParamValue.CC_SETUP_MENU_INSTALL_FROM_LIST,
-                MENU_PERSONAL_ID_SIGN_IN, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_SIGN_IN,
                 MENU_PERSONAL_ID_FORGET, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_FORGET
         );
     }
