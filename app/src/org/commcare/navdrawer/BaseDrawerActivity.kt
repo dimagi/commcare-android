@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
+import org.commcare.connect.ConnectNavHelper.goToConnectJobsList
 import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 
@@ -13,15 +14,9 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
+        if (shouldShowDrawer()) {
             setupDrawerController()
         }
-    }
-
-    private fun isPersonalIdLoggedIn(): Boolean {
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        return personalIdManager.isloggedIn();
     }
 
     protected open fun shouldShowDrawer(): Boolean {
@@ -42,8 +37,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
-            NavItemType.OPPORTUNITIES -> {}
-            NavItemType.COMMCARE_APPS -> {}
+            NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
+            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */}
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> {}
             NavItemType.WORK_HISTORY -> {}
@@ -55,6 +50,20 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             return true
         } else {
             return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun navigateToConnectMenu() {
+        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(this)
+        personalIdManager.unlockConnect(
+            this
+        ) { success: Boolean ->
+            if (success) {
+                goToConnectJobsList(this)
+                setResult(RESULT_OK)
+                finish()
+            }
         }
     }
 }

@@ -56,13 +56,6 @@ public class StandardHomeActivity
         uiController.setupUI();
     }
 
-    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
-        switch (itemType) {
-            case OPPORTUNITIES -> { /* handle */ }
-            case COMMCARE_APPS -> {}
-        }
-    }
-
     @Override
     public void onResumeSessionSafe() {
         super.onResumeSessionSafe();
@@ -276,7 +269,7 @@ public class StandardHomeActivity
 
     @Override
     protected boolean shouldShowDrawer() {
-        return true;
+        return false;
     }
 
     @Override
