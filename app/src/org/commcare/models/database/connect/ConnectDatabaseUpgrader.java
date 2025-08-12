@@ -2,8 +2,6 @@ package org.commcare.models.database.connect;
 
 import android.content.Context;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
@@ -32,6 +30,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.modern.database.TableBuilder;
 import org.commcare.utils.CrashUtil;
@@ -44,7 +43,7 @@ public class ConnectDatabaseUpgrader {
         this.c = c;
     }
 
-    public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void upgrade(IDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
             upgradeOneTwo(db);
             oldVersion = 2;
@@ -120,7 +119,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeOneTwo(SQLiteDatabase db) {
+    private void upgradeOneTwo(IDatabase db) {
         addTableForNewModel(db, ConnectJobRecord.STORAGE_KEY, new ConnectJobRecordV2());
         addTableForNewModel(db, ConnectAppRecord.STORAGE_KEY, new ConnectAppRecord());
         addTableForNewModel(db, ConnectLearnModuleSummaryRecord.STORAGE_KEY, new ConnectLearnModuleSummaryRecord());
@@ -131,7 +130,7 @@ public class ConnectDatabaseUpgrader {
         addTableForNewModel(db, ConnectLinkedAppRecord.STORAGE_KEY, new ConnectLinkedAppRecordV3());
     }
 
-    private void upgradeTwoThree(SQLiteDatabase db) {
+    private void upgradeTwoThree(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -191,7 +190,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeThreeFour(SQLiteDatabase db) {
+    private void upgradeThreeFour(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -279,7 +278,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeFourFive(SQLiteDatabase db) {
+    private void upgradeFourFive(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -319,7 +318,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeFiveSix(SQLiteDatabase db) {
+    private void upgradeFiveSix(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -363,11 +362,11 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeSixSeven(SQLiteDatabase db) {
+    private void upgradeSixSeven(IDatabase db) {
         addTableForNewModel(db, ConnectPaymentUnitRecord.STORAGE_KEY, new ConnectPaymentUnitRecord());
     }
 
-    private void upgradeSevenEight(SQLiteDatabase db) {
+    private void upgradeSevenEight(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -402,7 +401,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeEightNine(SQLiteDatabase db) {
+    private void upgradeEightNine(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -437,7 +436,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeNineTen(SQLiteDatabase db) {
+    private void upgradeNineTen(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -472,7 +471,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeTenEleven(SQLiteDatabase db) {
+    private void upgradeTenEleven(IDatabase db) {
         db.beginTransaction();
 
         try {
@@ -530,16 +529,16 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeElevenTwelve(SQLiteDatabase db) {
+    private void upgradeElevenTwelve(IDatabase db) {
         addTableForNewModel(db, ConnectMessagingChannelRecord.STORAGE_KEY, new ConnectMessagingChannelRecord());
         addTableForNewModel(db, ConnectMessagingMessageRecord.STORAGE_KEY, new ConnectMessagingMessageRecord());
     }
 
-    private void upgradeTwelveThirteen(SQLiteDatabase db) {
+    private void upgradeTwelveThirteen(IDatabase db) {
         addTableForNewModel(db, ConnectJobDeliveryFlagRecord.STORAGE_KEY, new ConnectJobDeliveryFlagRecord());
     }
 
-    private void upgradeThirteenFourteen(SQLiteDatabase db) {
+    private void upgradeThirteenFourteen(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<ConnectUserRecordV13> oldStorage = new SqlStorage<>(
@@ -564,7 +563,7 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeFourteenFifteen(SQLiteDatabase db) {
+    private void upgradeFourteenFifteen(IDatabase db) {
         db.beginTransaction();
         try {
             SqlStorage<ConnectUserRecordV14> oldStorage = new SqlStorage<>(
@@ -589,11 +588,12 @@ public class ConnectDatabaseUpgrader {
         }
     }
 
-    private void upgradeFifteenSixteen(SQLiteDatabase db) {
+
+    private void upgradeFifteenSixteen(IDatabase db) {
         addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
     }
 
-    private static void addTableForNewModel(SQLiteDatabase db, String storageKey,
+    private static void addTableForNewModel(IDatabase db, String storageKey,
                                             Persistable modelToAdd) {
         db.beginTransaction();
         try {
