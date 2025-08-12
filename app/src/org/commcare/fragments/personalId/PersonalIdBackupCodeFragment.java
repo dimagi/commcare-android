@@ -232,7 +232,8 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
                 personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
                 String.valueOf(binding.connectBackupCodeInput.getText()), new Date(),
                 personalIdSessionData.getPhotoBase64(),
-                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock());
+                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
+                personalIdSessionData.getInvitedUser());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
         logRecoveryResult(true);
         navigateToSuccess();
