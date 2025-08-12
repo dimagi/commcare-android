@@ -5,6 +5,7 @@ import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectNavHelper.goToConnectJobsList
+import org.commcare.connect.ConnectNavHelper.goToMessaging
 import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 
@@ -40,7 +41,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
             NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */}
             NavItemType.PAYMENTS -> {}
-            NavItemType.MESSAGING -> {}
+            NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
         }
     }
@@ -61,8 +62,20 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         ) { success: Boolean ->
             if (success) {
                 goToConnectJobsList(this)
-                setResult(RESULT_OK)
-                finish()
+                drawerController?.closeDrawer()
+            }
+        }
+    }
+
+    private fun navigateToMessaging() {
+        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(this)
+        personalIdManager.unlockConnect(
+            this
+        ) { success: Boolean ->
+            if (success) {
+                goToMessaging(this)
+                drawerController?.closeDrawer()
             }
         }
     }

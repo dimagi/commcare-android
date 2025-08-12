@@ -14,6 +14,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
@@ -132,6 +133,8 @@ class BaseDrawerController(
                 NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
             }
 
+            val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
+
             val items = listOf(
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_opportunities),
@@ -156,7 +159,7 @@ class BaseDrawerController(
                     activity.getString(R.string.connect_messaging_title),
                     R.drawable.nav_drawer_message_icon,
                     NavItemType.MESSAGING,
-                    isEnabled = false
+                    isEnabled = channels.isNotEmpty()
                 ),
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_payments),
