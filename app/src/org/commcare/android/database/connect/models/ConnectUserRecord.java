@@ -80,6 +80,9 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 15)
     private String requiredLock = PersonalIdSessionData.PIN;
 
+    @Persisting(value = 16)
+    private boolean hasConnectAccess;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
         lastPasswordDate = new Date();
@@ -90,7 +93,7 @@ public class ConnectUserRecord extends Persisted {
     }
 
     public ConnectUserRecord(String primaryPhone, String userId, String password, String name, String pin,
-                             Date lastPinVerifyDate, String photo, boolean isDemo,String requiredLock) {
+                             Date lastPinVerifyDate, String photo, boolean isDemo,String requiredLock, boolean hasConnectAccess) {
         this();
         this.primaryPhone = primaryPhone;
         this.userId = userId;
@@ -102,6 +105,7 @@ public class ConnectUserRecord extends Persisted {
         this.isDemo = isDemo;
         connectTokenExpiration = new Date();
         this.requiredLock = requiredLock;
+        this.hasConnectAccess = hasConnectAccess;
     }
 
     public String getUserId() {
@@ -192,7 +196,7 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV14(ConnectUserRecordV14 oldRecord) {
+    public static ConnectUserRecord fromV16(ConnectUserRecordV16 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
@@ -206,6 +210,8 @@ public class ConnectUserRecord extends Persisted {
         newRecord.secondaryPhoneVerified = true;
         newRecord.photo = oldRecord.getPhoto();
         newRecord.isDemo = oldRecord.isDemo();
+        newRecord.requiredLock = oldRecord.getRequiredLock();
+        newRecord.hasConnectAccess = false;
         return newRecord;
     }
 
