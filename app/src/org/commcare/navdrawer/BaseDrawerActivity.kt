@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
-import org.commcare.connect.ConnectNavHelper.goToConnectJobsList
-import org.commcare.connect.ConnectNavHelper.goToMessaging
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
-    protected var drawerController: BaseDrawerController? = null
+    private var drawerController: BaseDrawerController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +21,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     protected open fun shouldShowDrawer(): Boolean {
-        return false;
+        return false
     }
 
     private fun setupDrawerController() {
@@ -55,29 +55,27 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun navigateToConnectMenu() {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        personalIdManager.unlockConnect(
-            this
-        ) { success: Boolean ->
-            if (success) {
-                goToConnectJobsList(this)
-                drawerController?.closeDrawer()
+        unlockAndGoToConnectJobsList(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
             }
-        }
+        })
     }
 
     private fun navigateToMessaging() {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        personalIdManager.unlockConnect(
-            this
-        ) { success: Boolean ->
-            if (success) {
-                goToMessaging(this)
-                drawerController?.closeDrawer()
+        unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
             }
-        }
+        })
+    }
+
+    private fun closeDrawer() {
+        drawerController?.closeDrawer()
     }
 }
 

@@ -548,12 +548,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        personalIdManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
-                setResult(RESULT_OK);
-                finish();
-            }
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
+            setResult(RESULT_OK);
+            finish();
         });
     }
 

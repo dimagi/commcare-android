@@ -654,8 +654,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     private void updateConnectButton() {
         installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
-            PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
+                //No extra action necessary
             });
         });
     }
