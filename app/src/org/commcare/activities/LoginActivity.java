@@ -548,12 +548,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        personalIdManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
-                setResult(RESULT_OK);
-                finish();
-            }
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
+            setResult(RESULT_OK);
+            finish();
         });
     }
 
@@ -1012,24 +1009,24 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
-        return true;
+        initPersonaIdManager();
+        return personalIdManager.isloggedIn();
     }
 
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
     }
 
-    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
-        switch (itemType) {
-            case OPPORTUNITIES -> { /* handle */ }
-            case COMMCARE_APPS -> {
-                if (recordId != null) {
-                    if (!appIdDropdownList.isEmpty()) {
-                        selectedAppIndex = appIdDropdownList.indexOf(recordId);
-                    }
-                    seatAppIfNeeded(recordId);
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        if (itemType == BaseDrawerController.NavItemType.COMMCARE_APPS) {
+            if (recordId != null) {
+                if (!appIdDropdownList.isEmpty()) {
+                    selectedAppIndex = appIdDropdownList.indexOf(recordId);
                 }
+                seatAppIfNeeded(recordId);
             }
+        } else {
+            super.handleDrawerItemClick(itemType, recordId);
         }
     }
 }

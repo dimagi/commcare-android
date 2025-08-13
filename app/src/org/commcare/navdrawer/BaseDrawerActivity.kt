@@ -3,28 +3,24 @@ package org.commcare.navdrawer
 import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
-    protected var drawerController: BaseDrawerController? = null
+    private var drawerController: BaseDrawerController? = null
 
     override fun onResume() {
         super.onResume()
-        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
+        if (shouldShowDrawer()) {
             setupDrawerController()
         }
     }
 
-    private fun isPersonalIdLoggedIn(): Boolean {
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        return personalIdManager.isloggedIn();
-    }
-
     protected open fun shouldShowDrawer(): Boolean {
-        return false;
+        return false
     }
 
     private fun setupDrawerController() {
@@ -41,10 +37,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
-            NavItemType.OPPORTUNITIES -> {}
-            NavItemType.COMMCARE_APPS -> {}
+            NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
+            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */}
             NavItemType.PAYMENTS -> {}
-            NavItemType.MESSAGING -> {}
+            NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
         }
     }
@@ -55,6 +51,30 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun navigateToConnectMenu() {
+        unlockAndGoToConnectJobsList(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    private fun navigateToMessaging() {
+        unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    private fun closeDrawer() {
+        drawerController?.closeDrawer()
     }
 }
 
