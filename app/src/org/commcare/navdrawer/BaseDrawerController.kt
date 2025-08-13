@@ -1,7 +1,6 @@
 package org.commcare.navdrawer
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.activities.CommCareActivity
-import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
@@ -134,12 +132,14 @@ class BaseDrawerController(
             }
 
             val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
+            val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
 
             val items = listOf(
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_opportunities),
                     R.drawable.nav_drawer_opportunity_icon,
-                    NavItemType.OPPORTUNITIES
+                    NavItemType.OPPORTUNITIES,
+                    isEnabled = hasConnectAccess
                 ),
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_commcare_apps),

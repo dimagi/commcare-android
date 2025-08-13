@@ -227,4 +227,9 @@ public class ConnectUserRecord extends Persisted {
     public String getRequiredLock() {
         return requiredLock;
     }
+
+    public boolean hasConnectAccess() {
+        return hasConnectAccess;
+    }
+
 }

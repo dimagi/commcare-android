@@ -40,4 +40,9 @@ public class ConnectUserDatabaseUtil {
         ConnectDatabaseHelper.dbBroken = false;
         ConnectDatabaseHelper.teardown();
     }
+
+    public static boolean hasConnectAccess(Context context) {
+        ConnectUserRecord user = getUser(context);
+        return user != null && user.hasConnectAccess();
+    }
 }
