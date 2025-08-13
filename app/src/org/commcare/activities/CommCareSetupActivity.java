@@ -27,6 +27,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -652,9 +653,10 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
+        boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
+                && ConnectUserDatabaseUtil.hasConnectAccess(this);
+        installFragment.updateConnectButton(isConnectEnabled, v -> {
             ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
-                //No extra action necessary
             });
         });
     }
