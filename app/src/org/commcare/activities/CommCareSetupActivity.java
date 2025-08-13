@@ -139,7 +139,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private boolean startAllowed = true;
     private String incomingRef;
     private CommCareApp ccApp;
-    private BaseDrawerController drawerController;
 
 
     /**

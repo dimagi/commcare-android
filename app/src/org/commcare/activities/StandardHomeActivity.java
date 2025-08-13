@@ -269,7 +269,7 @@ public class StandardHomeActivity
 
     @Override
     protected boolean shouldShowDrawer() {
-        return false;
+        return true;
     }
 
     @Override
