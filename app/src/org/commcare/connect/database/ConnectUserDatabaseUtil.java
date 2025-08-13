@@ -45,4 +45,12 @@ public class ConnectUserDatabaseUtil {
         ConnectUserRecord user = getUser(context);
         return user != null && user.hasConnectAccess();
     }
+
+    public static void turnOnConnectAccess(Context context) {
+        ConnectUserRecord user = getUser(context);
+        if (user != null && !user.hasConnectAccess()) {
+            user.setHasConnectAccess(true);
+            storeUser(context, user);
+        }
+    }
 }
