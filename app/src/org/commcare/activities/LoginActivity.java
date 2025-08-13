@@ -1012,6 +1012,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return personalIdManager.isloggedIn();
     }
 
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
+        return true;
+    }
+
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
     }

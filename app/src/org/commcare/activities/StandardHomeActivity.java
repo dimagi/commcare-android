@@ -25,7 +25,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -313,6 +312,11 @@ public class StandardHomeActivity
 
     @Override
     protected boolean shouldShowDrawer() {
+        return true;
+    }
+
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
         return true;
     }
 

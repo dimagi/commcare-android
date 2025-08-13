@@ -23,12 +23,17 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return false
     }
 
+    protected open fun shouldHighlightSeatedApp(): Boolean {
+        return false
+    }
+
     private fun setupDrawerController() {
         val rootView = findViewById<View>(android.R.id.content)
         val drawerRefs = DrawerViewRefs(rootView)
         drawerController = BaseDrawerController(
             this,
-            drawerRefs
+            drawerRefs,
+            shouldHighlightSeatedApp()
         ) { navItemType: NavItemType, recordId: String? ->
             handleDrawerItemClick(navItemType, recordId)
         }
