@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,10 +9,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
+import org.commcare.commcaresupportlibrary.CommCareLauncher;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
@@ -48,12 +54,15 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
+    private boolean personalIdManagedLogin = false;
 
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
         uiController.setupUI();
+        personalIdManagedLogin = getIntent()
+                .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
     }
 
     @Override
@@ -236,6 +245,41 @@ public class StandardHomeActivity
         menuIdToAnalyticsEvent.put(R.id.action_update_commcare,
                 AnalyticsParamValue.ITEM_UPDATE_CC_PLATFORM);
         return menuIdToAnalyticsEvent;
+    }
+
+    @Override
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        switch (itemType) {
+            case COMMCARE_APPS -> {
+                if(recordId != null) {
+                    String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+                    if(!recordId.equals(currentSeatedId)) {
+                        //Navigate to LoginActivity for selected app
+                        CommCareApplication.instance().closeUserSession();
+                        Intent i = new Intent();
+                        i.putExtra(CommCareLauncher.SESSION_ENDPOINT_APP_ID, recordId);
+                        setResult(RESULT_OK, i);
+                        finish();
+                    }
+                }
+            }
+            case OPPORTUNITIES -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
+                    closeDrawer();
+                } else {
+                    navigateToConnectMenu();
+                }
+            }
+            case MESSAGING -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToMessaging(this);
+                    closeDrawer();
+                } else {
+                    navigateToMessaging();
+                }
+            }
+        }
     }
 
     @Override

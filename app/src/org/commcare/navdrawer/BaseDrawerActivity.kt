@@ -53,7 +53,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
     }
 
-    private fun navigateToConnectMenu() {
+    protected fun navigateToConnectMenu() {
         unlockAndGoToConnectJobsList(this, object : ConnectActivityCompleteListener {
             override fun connectActivityComplete(success: Boolean) {
                 if (success) {
@@ -63,7 +63,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         })
     }
 
-    private fun navigateToMessaging() {
+    protected fun navigateToMessaging() {
         unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
             override fun connectActivityComplete(success: Boolean) {
                 if (success) {
@@ -73,7 +73,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         })
     }
 
-    private fun closeDrawer() {
+    protected fun closeDrawer() {
         drawerController?.closeDrawer()
     }
 }
