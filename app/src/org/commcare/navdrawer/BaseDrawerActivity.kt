@@ -1,6 +1,5 @@
 package org.commcare.navdrawer
 
-import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
@@ -13,8 +12,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     private var drawerController: BaseDrawerController? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
         if (shouldShowDrawer()) {
             setupDrawerController()
         }
