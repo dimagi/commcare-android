@@ -59,7 +59,7 @@ class EntityLoaderHelper(
         nodeset: TreeReference,
         progressListener: EntityLoadingProgressListener
     ): Pair<List<Entity<TreeReference>>, List<TreeReference>>? {
-        if (factory !is AsyncNodeEntityFactory) {
+        if (!isAsyncNodeEntityFactory()) {
             // if we are into synchronous mode, cancel background cache work for now to not lock the user db
             CommCareApplication.instance().currentApp.primeEntityCacheHelper.cancelWork()
         }
@@ -72,12 +72,16 @@ class EntityLoaderHelper(
                 return Pair<List<Entity<TreeReference>>, List<TreeReference>>(entities, references)
             }
         } finally {
-            if (factory !is AsyncNodeEntityFactory) {
+            if (!isAsyncNodeEntityFactory()) {
                 // Restart the cancelled task
                 PrimeEntityCacheHelper.schedulePrimeEntityCacheWorker()
             }
         }
         return null
+    }
+
+    fun isAsyncNodeEntityFactory(): Boolean {
+        return factory is AsyncNodeEntityFactory
     }
 
     /**
