@@ -9,6 +9,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 
 object ConnectNavHelper {
     fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
@@ -43,11 +44,25 @@ object ConnectNavHelper {
     }
 
     fun goToConnectJobsList(context: Context) {
+        checkConnectAccess(context);
         val i = Intent(context, ConnectActivity::class.java)
         context.startActivity(i)
     }
 
+    private fun checkConnectAccess(context: Context) {
+        if (!ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+            throw IllegalStateException("Cannot navigate to Connect Jobs List without access")
+        }
+    }
+
+    fun goToConnectJobsListChecked(context: Context) {
+        if (ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+            goToConnectJobsList(context)
+        }
+    }
+
     fun goToActiveInfoForJob(context: Context, job: ConnectJobRecord, allowProgression: Boolean) {
+        checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         i.putExtra(GO_TO_JOB_STATUS, true)
         i.putExtra(OPPORTUNITY_ID, job.jobId)

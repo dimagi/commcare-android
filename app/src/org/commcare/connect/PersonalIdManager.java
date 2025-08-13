@@ -222,7 +222,7 @@ public class PersonalIdManager {
         parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
             completeSignin();
-            ConnectNavHelper.INSTANCE.goToConnectJobsList(activity);
+            ConnectNavHelper.INSTANCE.goToConnectJobsListChecked(activity);
         }
     }
 
