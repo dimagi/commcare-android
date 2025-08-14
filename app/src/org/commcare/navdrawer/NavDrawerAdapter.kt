@@ -109,12 +109,14 @@ class NavDrawerAdapter(
      */
     inner class ChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val childText = itemView.findViewById<TextView>(R.id.sublist_title)
+        private val highlight = itemView.findViewById<ImageView>(R.id.sublist_highlight_icon)
 
         /**
          * Binds a child item and sets up click listener.
          */
         fun bind(item: NavDrawerItem.ChildItem) {
             childText.text = item.childTitle
+            highlight.visibility = if (item.isHighlighted) View.VISIBLE else View.INVISIBLE
             itemView.setOnClickListener { onChildClick(item.parentType, item) }
         }
     }
