@@ -24,10 +24,16 @@ import androidx.lifecycle.ViewModelProvider;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import androidx.annotation.Nullable;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -68,6 +74,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.security.SignatureException;
@@ -127,6 +134,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_INSTALL_FROM_LIST = Menu.FIRST + 3;
     private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 4;
+
+    private static final int MENU_REFRESH_OPPORTUNITIES = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -501,6 +510,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         menu.add(0, MENU_OFFLINE_INSTALL, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_INSTALL_FROM_LIST, 2, Localization.get("menu.app.list.install"));
         menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.login_menu_connect_forget));
+        menu.add(0, MENU_REFRESH_OPPORTUNITIES, 4, getString(R.string.menu_refresh_opportunities));
         return true;
     }
 
@@ -511,6 +521,12 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         if (item != null) {
             item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
+        
+        MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
+        boolean showRefreshMenu =  !fromExternal &&
+                PersonalIdManager.getInstance().isloggedIn() &&
+                !ConnectUserDatabaseUtil.hasConnectAccess(this);
+        refreshItem.setVisible(showRefreshMenu);
         return true;
     }
 
@@ -637,6 +653,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             case MENU_PERSONAL_ID_FORGET:
                 PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
+                break;
+            case MENU_REFRESH_OPPORTUNITIES:
+                refreshOpportunities();
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -984,5 +1003,31 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             uiStateScreenTransition();
             startResourceInstall();
         }
+    }
+
+    private void refreshOpportunities() {
+        Context activity = this;
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
+        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
+
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                String error = PersonalIdApiErrorHandler.handle(activity, errorCode, t);
+                Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                int newJobs = ConnectJobUtils.storeJobs(activity, data.getValidJobs(), true);
+                boolean connectAccess = newJobs > 0 || (!data.getCorruptJobs().isEmpty());
+                user.setHasConnectAccess(connectAccess);
+                String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
+                if(connectAccess){
+                    toastMessage = getString(R.string.setup_refresh_opportunities_with_jobs);
+                }
+                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show();
+                updateConnectButton();
+            }
+        }.getConnectOpportunities(activity, user);
     }
 }
