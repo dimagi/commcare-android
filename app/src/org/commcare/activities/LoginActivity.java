@@ -113,6 +113,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public static final  String LOGIN_MODE = "login-mode";
     public static final String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
+    public static final String SHOWED_SIDE_DRAWER = "showed-side-drawer";
 
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -1009,8 +1010,33 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
+        if(drawerShownBefore()) {
+            return true;
+        }
+
         initPersonaIdManager();
-        return personalIdManager.isloggedIn();
+        boolean showDrawer = personalIdManager.isloggedIn();
+
+        if(showDrawer) {
+            setDrawerShown();
+        }
+
+        return showDrawer;
+    }
+
+    private boolean drawerShownBefore() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        return prefs.getBoolean(LoginActivity.SHOWED_SIDE_DRAWER, false);
+    }
+
+    private void setDrawerShown() {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(CommCareApplication.instance());
+        if (!preferences.getBoolean(SHOWED_SIDE_DRAWER, false)) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(SHOWED_SIDE_DRAWER, true);
+            editor.apply();
+        }
     }
 
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
