@@ -1006,7 +1006,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private void refreshOpportunities() {
-        Context activity = this;
+        CommCareActivity activity = this;
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
@@ -1018,8 +1018,8 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                int newJobs = ConnectJobUtils.storeJobs(activity, data.getValidJobs(), true);
-                boolean connectAccess = newJobs > 0 || (!data.getCorruptJobs().isEmpty());
+                ConnectJobUtils.storeJobs(activity, data.getValidJobs(), true);
+                boolean connectAccess = !data.getValidJobs().isEmpty() || !data.getCorruptJobs().isEmpty();
                 user.setHasConnectAccess(connectAccess);
                 String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
                 if(connectAccess){
