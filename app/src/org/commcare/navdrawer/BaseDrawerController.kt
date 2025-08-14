@@ -1,7 +1,6 @@
 package org.commcare.navdrawer
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -10,10 +9,11 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
-import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
@@ -25,6 +25,7 @@ import org.commcare.views.dialogs.DialogCreationHelpers
 class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
+    private val highlightSeatedApp: Boolean,
     private val onItemClicked: (NavItemType, String?) -> Unit
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
@@ -128,9 +129,15 @@ class BaseDrawerController(
                         .error(R.drawable.nav_drawer_person_avatar)
                 ).into(binding.imageUserProfile)
 
+            val seatedApp = if(highlightSeatedApp)
+                CommCareApplication.instance().currentApp.uniqueId else null
+
             val commcareApps = MultipleAppsUtil.getUsableAppRecords().map {
-                NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
+                NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,
+                    it.uniqueId == seatedApp)
             }
+
+            val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
 
             val items = listOf(
                 NavDrawerItem.ParentItem(
@@ -156,7 +163,7 @@ class BaseDrawerController(
                     activity.getString(R.string.connect_messaging_title),
                     R.drawable.nav_drawer_message_icon,
                     NavItemType.MESSAGING,
-                    isEnabled = false
+                    isEnabled = channels.isNotEmpty()
                 ),
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_payments),

@@ -15,6 +15,7 @@ sealed class NavDrawerItem {
     data class ChildItem(
         val childTitle: String,
         val recordId: String,
-        val parentType: BaseDrawerController.NavItemType
+        val parentType: BaseDrawerController.NavItemType,
+        val isHighlighted: Boolean = false
     ) : NavDrawerItem()
 }

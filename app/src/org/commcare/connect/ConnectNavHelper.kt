@@ -2,6 +2,7 @@ package org.commcare.connect
 
 import android.content.Context
 import android.content.Intent
+import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -10,9 +11,35 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 
 object ConnectNavHelper {
+    fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(activity)
+        personalIdManager.unlockConnect(
+            activity
+        ) { success: Boolean ->
+            if (success) {
+                goToMessaging(activity)
+            }
+            listener.connectActivityComplete(success)
+        }
+    }
+
     fun goToMessaging(context: Context) {
         val i = Intent(context, ConnectMessagingActivity::class.java)
         context.startActivity(i)
+    }
+
+    fun unlockAndGoToConnectJobsList(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(activity)
+        personalIdManager.unlockConnect(
+            activity
+        ) { success: Boolean ->
+            if (success) {
+                goToConnectJobsList(activity)
+            }
+            listener.connectActivityComplete(success)
+        }
     }
 
     fun goToConnectJobsList(context: Context) {

@@ -1,31 +1,30 @@
 package org.commcare.navdrawer
 
-import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
-    protected var drawerController: BaseDrawerController? = null
+    private var drawerController: BaseDrawerController? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
+    override fun onResume() {
+        super.onResume()
+        if (shouldShowDrawer()) {
             setupDrawerController()
         }
     }
 
-    private fun isPersonalIdLoggedIn(): Boolean {
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        return personalIdManager.isloggedIn();
+    protected open fun shouldShowDrawer(): Boolean {
+        return false
     }
 
-    protected open fun shouldShowDrawer(): Boolean {
-        return false;
+    protected open fun shouldHighlightSeatedApp(): Boolean {
+        return false
     }
 
     private fun setupDrawerController() {
@@ -33,7 +32,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val drawerRefs = DrawerViewRefs(rootView)
         drawerController = BaseDrawerController(
             this,
-            drawerRefs
+            drawerRefs,
+            shouldHighlightSeatedApp()
         ) { navItemType: NavItemType, recordId: String? ->
             handleDrawerItemClick(navItemType, recordId)
         }
@@ -42,10 +42,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
-            NavItemType.OPPORTUNITIES -> {}
-            NavItemType.COMMCARE_APPS -> {}
+            NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
+            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */}
             NavItemType.PAYMENTS -> {}
-            NavItemType.MESSAGING -> {}
+            NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
         }
     }
@@ -56,6 +56,30 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+
+    protected fun navigateToConnectMenu() {
+        unlockAndGoToConnectJobsList(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    protected fun navigateToMessaging() {
+        unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    protected fun closeDrawer() {
+        drawerController?.closeDrawer()
     }
 }
 
