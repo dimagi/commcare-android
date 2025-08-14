@@ -66,7 +66,7 @@ public class ConnectUnlockFragment extends Fragment {
         return binding.getRoot();
     }
 
-    public void retrieveOpportunities() {
+    private void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
