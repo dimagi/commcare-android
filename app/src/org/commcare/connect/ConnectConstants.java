@@ -12,6 +12,8 @@ public class ConnectConstants {
     public static final int COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE = 1051;
     public static final int CONFIGURE_BIOMETRIC_REQUEST_CODE = 1053;
     public static final int NETWORK_ACTIVITY_ID = 7000;
+    public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
+    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 
     public static final String PIN = "PIN";
     public static final String CONNECT_KEY_TOKEN = "access_token";
