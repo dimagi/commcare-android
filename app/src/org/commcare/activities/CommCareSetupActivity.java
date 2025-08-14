@@ -818,16 +818,14 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (taskId != DIALOG_INSTALL_PROGRESS) {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");
-            return null;
+        if (taskId == DIALOG_INSTALL_PROGRESS) {
+            if (isSingleAppBuild()) {
+                return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
+            } else {
+                return generateNormalInstallDialog(taskId);
+            }
         }
-        if (isSingleAppBuild()) {
-            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
-        } else {
-            return generateNormalInstallDialog(taskId);
-        }
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     private CustomProgressDialog generateNormalInstallDialog(int taskId) {
