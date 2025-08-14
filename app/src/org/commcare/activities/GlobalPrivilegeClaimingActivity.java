@@ -32,7 +32,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
-public class GlobalPrivilegeClaimingActivity extends AppCompatActivity {
+public class GlobalPrivilegeClaimingActivity extends NoCommCareActivity {
 
     private static final String TAG = GlobalPrivilegeClaimingActivity.class.getSimpleName();
 

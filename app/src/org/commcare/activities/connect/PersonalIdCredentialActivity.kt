@@ -1,7 +1,7 @@
 package org.commcare.activities.connect
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import org.commcare.activities.NoCommCareActivity
 import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
@@ -9,7 +9,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 
 
-class PersonalIdCredentialActivity : AppCompatActivity() {
+class PersonalIdCredentialActivity : NoCommCareActivity() {
     private val binding: ActivityPersonalIdCredentialBinding by lazy {
         ActivityPersonalIdCredentialBinding.inflate(layoutInflater)
     }

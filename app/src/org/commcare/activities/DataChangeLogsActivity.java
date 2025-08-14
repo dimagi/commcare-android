@@ -16,7 +16,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 
-public class DataChangeLogsActivity extends AppCompatActivity {
+public class DataChangeLogsActivity extends NoCommCareActivity {
 
 
     private CommCareShareActionProvider mShareActionProvider;

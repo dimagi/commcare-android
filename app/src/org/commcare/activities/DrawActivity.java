@@ -41,7 +41,7 @@ import java.io.IOException;
  *
  * @author BehrAtherton@gmail.com
  */
-public class DrawActivity extends AppCompatActivity implements DrawView.Callback {
+public class DrawActivity extends NoCommCareActivity implements DrawView.Callback {
     private static final String t = "DrawActivity";
 
     public static final String OPTION = "option";

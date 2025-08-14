@@ -5,6 +5,8 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 
+import org.commcare.activities.NoCommCareActivity;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
@@ -12,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
  *
  * Created by jschweers on 11/20/2015.
  */
-public class GraphActivity extends AppCompatActivity {
+public class GraphActivity extends NoCommCareActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

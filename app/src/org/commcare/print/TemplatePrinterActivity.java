@@ -19,6 +19,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.NoCommCareActivity;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -45,7 +46,7 @@ import java.util.Date;
  * @author Richard Lu
  * @author amstone
  */
-public class TemplatePrinterActivity extends AppCompatActivity implements PopulateListener {
+public class TemplatePrinterActivity extends NoCommCareActivity implements PopulateListener {
 
     private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
     private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";

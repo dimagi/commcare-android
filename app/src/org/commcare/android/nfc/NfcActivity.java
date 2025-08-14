@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.NoCommCareActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
@@ -27,7 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
  *
  * @author Aliza Stone
  */
-public abstract class NfcActivity extends AppCompatActivity {
+public abstract class NfcActivity extends NoCommCareActivity {
 
     protected static final String NFC_PAYLOAD_MULT_TYPES_ARG = "types";
     protected static final String NFC_PAYLOAD_SINGLE_TYPE_ARG = "type";
