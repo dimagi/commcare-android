@@ -660,5 +660,5 @@
     <string name="nav_drawer_close">Close navigation drawer</string>
 
     <string name="setup_refresh_opportunities_no_jobs">No Opportunities found</string>
-    <string name="setup_refresh_opportunities_with_jobs">"New opportunities found, click on Opportunities to learn more. "</string>
+    <string name="setup_refresh_opportunities_with_jobs">New opportunities found, click on Opportunities to learn more.</string>
 </resources>
