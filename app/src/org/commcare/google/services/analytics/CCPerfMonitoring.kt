@@ -12,9 +12,9 @@ object CCPerfMonitoring {
     const val NUM_CASES_LOADED = "number_of_cases_loaded"
 
     fun createTrace(traceName: String): Trace? {
-        try{
+        try {
             return FirebasePerformance.getInstance().newTrace(traceName)
         } catch (ignored: Exception) { }
-        return null;
+        return null
     }
 }

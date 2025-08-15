@@ -62,7 +62,8 @@ public class EntityLoaderTask
                 trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser());
                 trace.start();
             }
-            Pair<List<Entity<TreeReference>>, List<TreeReference>> entities = entityLoaderHelper.loadEntities(nodeset[0], this);
+            Pair<List<Entity<TreeReference>>, List<TreeReference>> entities = entityLoaderHelper.loadEntities(
+                    nodeset[0], this);
 
             if (trace != null && !entityLoaderHelper.isAsyncNodeEntityFactory()) {
                 trace.putAttribute(CCPerfMonitoring.NUM_CASES_LOADED,
