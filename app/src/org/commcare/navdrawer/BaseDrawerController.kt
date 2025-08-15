@@ -137,43 +137,46 @@ class BaseDrawerController(
                     it.uniqueId == seatedApp)
             }
 
-            val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
             val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
 
-            val items = listOf(
-                NavDrawerItem.ParentItem(
+            val items = ArrayList<NavDrawerItem.ParentItem>()
+            if(hasConnectAccess) {
+                items.add(NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_opportunities),
                     R.drawable.nav_drawer_opportunity_icon,
                     NavItemType.OPPORTUNITIES,
-                    isEnabled = hasConnectAccess
-                ),
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_commcare_apps),
-                    R.drawable.commcare_actionbar_logo,
-                    NavItemType.COMMCARE_APPS,
-                    isEnabled = commcareApps.isNotEmpty(),
-                    isExpanded = commcareApps.size < 2,
-                    children = commcareApps
-                ),
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_work_history),
-                    R.drawable.nav_drawer_worker_history_icon,
-                    NavItemType.WORK_HISTORY,
-                    isEnabled = false
-                ),
-                NavDrawerItem.ParentItem(
+                ))
+            }
+
+            items.add(NavDrawerItem.ParentItem(
+                activity.getString(R.string.nav_drawer_commcare_apps),
+                R.drawable.commcare_actionbar_logo,
+                NavItemType.COMMCARE_APPS,
+                isEnabled = commcareApps.isNotEmpty(),
+                isExpanded = commcareApps.size < 2,
+                children = commcareApps
+            ))
+
+//            items.add(NavDrawerItem.ParentItem(
+//                activity.getString(R.string.nav_drawer_work_history),
+//                R.drawable.nav_drawer_worker_history_icon,
+//                NavItemType.WORK_HISTORY,
+//            ))
+
+            val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
+            if(channels.isNotEmpty()) {
+                items.add(NavDrawerItem.ParentItem(
                     activity.getString(R.string.connect_messaging_title),
                     R.drawable.nav_drawer_message_icon,
                     NavItemType.MESSAGING,
-                    isEnabled = channels.isNotEmpty()
-                ),
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_payments),
-                    R.drawable.nav_drawer_payments_icon,
-                    NavItemType.PAYMENTS,
-                    isEnabled = false
-                )
-            )
+                ))
+            }
+
+//            items.add(NavDrawerItem.ParentItem(
+//                activity.getString(R.string.nav_drawer_payments),
+//                R.drawable.nav_drawer_payments_icon,
+//                NavItemType.PAYMENTS,
+//            ))
 
             navDrawerAdapter.refreshList(items)
         } else {
