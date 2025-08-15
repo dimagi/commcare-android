@@ -129,10 +129,12 @@ class BaseDrawerController(
                         .error(R.drawable.nav_drawer_person_avatar)
                 ).into(binding.imageUserProfile)
 
-            val seatedApp = if(highlightSeatedApp)
+            val appRecords = MultipleAppsUtil.getUsableAppRecords()
+
+            val seatedApp = if(highlightSeatedApp && appRecords.count() > 1)
                 CommCareApplication.instance().currentApp.uniqueId else null
 
-            val commcareApps = MultipleAppsUtil.getUsableAppRecords().map {
+            val commcareApps = appRecords.map {
                 NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,
                     it.uniqueId == seatedApp)
             }
