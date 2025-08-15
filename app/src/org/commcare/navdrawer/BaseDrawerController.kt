@@ -138,12 +138,14 @@ class BaseDrawerController(
             }
 
             val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
+            val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
 
             val items = listOf(
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_opportunities),
                     R.drawable.nav_drawer_opportunity_icon,
-                    NavItemType.OPPORTUNITIES
+                    NavItemType.OPPORTUNITIES,
+                    isEnabled = hasConnectAccess
                 ),
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_commcare_apps),

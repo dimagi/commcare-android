@@ -66,7 +66,7 @@ public class ConnectUnlockFragment extends Fragment {
         return binding.getRoot();
     }
 
-    public void retrieveOpportunities() {
+    private void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
         new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
 
@@ -77,7 +77,10 @@ public class ConnectUnlockFragment extends Fragment {
 
             @Override
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                ConnectJobUtils.storeJobs(requireContext(),data.getValidJobs(),true);
+                if (!data.getValidJobs().isEmpty()) {
+                    ConnectJobUtils.storeJobs(requireContext(), data.getValidJobs(), true);
+                    ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+                }
                 setFragmentRedirection();
 
             }
