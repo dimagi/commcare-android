@@ -476,6 +476,7 @@
     <string name="login_menu_connect_sign_in">Sign up for PersonalID</string>
 
     <string name="login_menu_connect_forget">Forget PersonalID user</string>
+    <string name="menu_refresh_opportunities">Refresh Opportunities</string>
 
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
     <string name="connect_app_installed">App installed</string>
@@ -657,4 +658,7 @@
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
+
+    <string name="setup_refresh_opportunities_no_jobs">No Opportunities found</string>
+    <string name="setup_refresh_opportunities_with_jobs">New opportunities found, click on Opportunities to learn more.</string>
 </resources>
