@@ -131,54 +131,72 @@ class BaseDrawerController(
 
             val appRecords = MultipleAppsUtil.getUsableAppRecords()
 
-            val seatedApp = if(highlightSeatedApp && appRecords.count() > 1)
+            val seatedApp = if (highlightSeatedApp && appRecords.count() > 1)
                 CommCareApplication.instance().currentApp.uniqueId else null
 
             val commcareApps = appRecords.map {
-                NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,
-                    it.uniqueId == seatedApp)
+                NavDrawerItem.ChildItem(
+                    it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,
+                    it.uniqueId == seatedApp
+                )
             }
 
             val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
 
             val items = ArrayList<NavDrawerItem.ParentItem>()
-            if(hasConnectAccess) {
-                items.add(NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_opportunities),
-                    R.drawable.nav_drawer_opportunity_icon,
-                    NavItemType.OPPORTUNITIES,
-                ))
+            if (hasConnectAccess) {
+                items.add(
+                    NavDrawerItem.ParentItem(
+                        activity.getString(R.string.nav_drawer_opportunities),
+                        R.drawable.nav_drawer_opportunity_icon,
+                        NavItemType.OPPORTUNITIES,
+                    )
+                )
             }
 
-            items.add(NavDrawerItem.ParentItem(
-                activity.getString(R.string.nav_drawer_commcare_apps),
-                R.drawable.commcare_actionbar_logo,
-                NavItemType.COMMCARE_APPS,
-                isEnabled = commcareApps.isNotEmpty(),
-                isExpanded = commcareApps.size < 2,
-                children = commcareApps
-            ))
+            items.add(
+                NavDrawerItem.ParentItem(
+                    activity.getString(R.string.nav_drawer_commcare_apps),
+                    R.drawable.commcare_actionbar_logo,
+                    NavItemType.COMMCARE_APPS,
+                    isEnabled = commcareApps.isNotEmpty(),
+                    isExpanded = commcareApps.size < 2,
+                    children = commcareApps
+                )
+            )
 
-//            items.add(NavDrawerItem.ParentItem(
-//                activity.getString(R.string.nav_drawer_work_history),
-//                R.drawable.nav_drawer_worker_history_icon,
-//                NavItemType.WORK_HISTORY,
-//            ))
+//            items.add(
+//                NavDrawerItem.ParentItem(
+//                    activity.getString(R.string.nav_drawer_work_history),
+//                    R.drawable.nav_drawer_worker_history_icon,
+//                    NavItemType.WORK_HISTORY,
+//                )
+//            )
 
-            val channels = ConnectMessagingDatabaseHelper.getMessagingChannels(activity)
-            if(channels.isNotEmpty()) {
-                items.add(NavDrawerItem.ParentItem(
-                    activity.getString(R.string.connect_messaging_title),
-                    R.drawable.nav_drawer_message_icon,
-                    NavItemType.MESSAGING,
-                ))
+            if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
+                val iconId =
+                    if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty())
+                        R.drawable.nav_drawer_message_unread_icon
+                    else R.drawable.nav_drawer_message_icon
+
+                items.add(
+                    NavDrawerItem.ParentItem(
+                        activity.getString(R.string.connect_messaging_title),
+                        iconId,
+                        NavItemType.MESSAGING,
+                    )
+                )
             }
 
-//            items.add(NavDrawerItem.ParentItem(
-//                activity.getString(R.string.nav_drawer_payments),
-//                R.drawable.nav_drawer_payments_icon,
-//                NavItemType.PAYMENTS,
-//            ))
+//            if (hasConnectAccess) {
+//                items.add(
+//                    NavDrawerItem.ParentItem(
+//                        activity.getString(R.string.nav_drawer_payments),
+//                        R.drawable.nav_drawer_payments_icon,
+//                        NavItemType.PAYMENTS,
+//                    )
+//                )
+//            }
 
             navDrawerAdapter.refreshList(items)
         } else {

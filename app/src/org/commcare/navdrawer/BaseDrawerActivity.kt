@@ -1,12 +1,18 @@
 package org.commcare.navdrawer
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.view.MenuItem
 import android.view.View
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
+import org.commcare.utils.FirebaseMessagingUtil
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
@@ -16,6 +22,22 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         super.onResume()
         if (shouldShowDrawer()) {
             setupDrawerController()
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(
+                messagingUpdateReceiver,
+                IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
+            )
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver)
+    }
+
+    private val messagingUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            drawerController?.refreshDrawerContent()
         }
     }
 
