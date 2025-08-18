@@ -82,7 +82,7 @@ public class DrawActivity extends NoCommCareActivity implements DrawView.Callbac
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        getSupportActionBar().hide();
         Bundle extras = getIntent().getExtras();
 
         if (extras == null) {
