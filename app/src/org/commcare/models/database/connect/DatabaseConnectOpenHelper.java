@@ -60,7 +60,7 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.13 - Added ConnectJobDeliveryFlagRecord table
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      * V.16 - Added  personal_id_credential table
-     * V.17 - Added  personal_id_credential table
+     * V.17 - Added  push_notification_history,connect_channel,connect_message table
      */
     private static final int CONNECT_DB_VERSION = 16;
 
