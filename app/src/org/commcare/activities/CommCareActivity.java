@@ -208,7 +208,7 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     }
 
     public int getRootViewId() {
-        return -1;
+        return android.R.id.content;
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
