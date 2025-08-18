@@ -398,6 +398,9 @@ public class FormStorageTest {
 
             //Added in 2.58
             ,"org.commcare.android.database.connect.models.PersonalIdCredential"
+            ,"org.commcare.android.database.connect.models.PushNotificationRecord"
+            ,"org.commcare.android.database.connect.models.ConnectChannel"
+            ,"org.commcare.android.database.connect.models.ConnectMessage"
     );
 
 
