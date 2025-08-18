@@ -203,12 +203,8 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     public void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            AndroidUtil.attachWindowInsetsListener(this, getRootViewId());
+            AndroidUtil.attachWindowInsetsListener(this, android.R.id.content);
         }
-    }
-
-    public int getRootViewId() {
-        return android.R.id.content;
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
