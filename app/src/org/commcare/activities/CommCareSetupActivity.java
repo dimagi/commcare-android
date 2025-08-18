@@ -1017,13 +1017,14 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             public void onSuccess(ConnectOpportunitiesResponseModel data) {
                 ConnectJobUtils.storeJobs(activity, data.getValidJobs(), true);
                 boolean connectAccess = !data.getValidJobs().isEmpty() || !data.getCorruptJobs().isEmpty();
-                user.setHasConnectAccess(connectAccess);
+                ConnectUserDatabaseUtil.turnOnConnectAccess(activity);
                 String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
                 if(connectAccess){
                     toastMessage = getString(R.string.setup_refresh_opportunities_with_jobs);
                 }
                 Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show();
                 updateConnectButton();
+                refreshDrawer();
             }
         }.getConnectOpportunities(activity, user);
     }

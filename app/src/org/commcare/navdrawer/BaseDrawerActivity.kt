@@ -35,6 +35,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver)
     }
 
+    fun refreshDrawer() {
+        drawerController?.refreshDrawerContent()
+    }
+
     private val messagingUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             drawerController?.refreshDrawerContent()
