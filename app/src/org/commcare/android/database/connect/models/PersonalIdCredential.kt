@@ -70,7 +70,6 @@ class PersonalIdCredential : Persisted(), Serializable {
         @JvmStatic
         fun fromJsonArray(jsonArray: JSONArray): List<PersonalIdCredential> {
             val validCredential = mutableListOf<PersonalIdCredential>()
-            val corruptCredential = mutableListOf<String>()
 
             for (i in 0 until jsonArray.length()) {
                 var obj: JSONObject? = null
@@ -91,18 +90,11 @@ class PersonalIdCredential : Persisted(), Serializable {
                     }
                     validCredential.add(credential)
                 } catch (e: JSONException) {
-                    Logger.exception("Corrupt credential at index $i", e)
-                    corruptCredential.add("Index $i:\n${obj ?: "Unknown JSON"}\nError: ${e.message}")
+                    val corruptedJson = obj?.toString() ?: "Unknown JSON"
+                    val errorMessage = "Corrupt credential at index $i: $corruptedJson"
+                    Logger.exception(errorMessage, e)
+                    throw RuntimeException(errorMessage, e)
                 }
-            }
-
-            if (corruptCredential.isNotEmpty()) {
-                val errorMessage = corruptCredential.joinToString(
-                    separator = "\n\n",
-                    prefix = "Found ${corruptCredential.size} corrupt credentials:\n"
-                )
-                Logger.log("CorruptCredentials", errorMessage)
-                throw RuntimeException(errorMessage)
             }
 
             return validCredential

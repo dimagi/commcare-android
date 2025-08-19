@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.commcare.android.database.connect.models.PersonalIdCredential
 import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -33,30 +35,32 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
     }
 
     fun retrieveAndProcessCredentials() {
-        object : PersonalIdApiHandler<List<PersonalIdCredential>>() {
-            override fun onSuccess(result: List<PersonalIdCredential>) {
-                val earned = result
-                val earnedAppIds = earned.map { it.appId }.toSet()
-                val installedApps = _installedAppRecords.value.orEmpty()
+        viewModelScope.launch {
+            object : PersonalIdApiHandler<List<PersonalIdCredential>>() {
+                override fun onSuccess(result: List<PersonalIdCredential>) {
+                    val earned = result
+                    val earnedAppIds = earned.map { it.appId }.toSet()
+                    val installedApps = _installedAppRecords.value.orEmpty()
 
-                val pending = installedApps.filter { it.appId !in earnedAppIds }
+                    val pending = installedApps.filter { it.appId !in earnedAppIds }
 
-                _earnedCredentials.postValue(
-                    earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
-                )
-                _pendingCredentials.postValue(
-                    pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
-                )
-            }
+                    _earnedCredentials.postValue(
+                        earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+                    )
+                    _pendingCredentials.postValue(
+                        pending.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
+                    )
+                }
 
 
-            override fun onFailure(
-                failureCode: PersonalIdOrConnectApiErrorCodes,
-                t: Throwable?
-            ) {
-                _apiError.postValue(failureCode to t)
-            }
-        }.retrieveCredentials(getApplication(), userName, user.password)
+                override fun onFailure(
+                    failureCode: PersonalIdOrConnectApiErrorCodes,
+                    t: Throwable?
+                ) {
+                    _apiError.postValue(failureCode to t)
+                }
+            }.retrieveCredentials(getApplication(), userName, user.password)
+        }
     }
 
     private fun initInstalledAppsList(): List<PersonalIdCredential> {
