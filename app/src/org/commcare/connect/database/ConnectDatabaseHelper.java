@@ -5,9 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
-import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
@@ -16,6 +14,8 @@ import org.commcare.connect.network.SsoToken;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
@@ -25,7 +25,9 @@ import org.commcare.utils.GlobalErrors;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
+import android.util.Base64;
 import java.util.Date;
+
 
 /**
  * Helper class for accessing the Connect DB
@@ -34,7 +36,7 @@ import java.util.Date;
  */
 public class ConnectDatabaseHelper {
     private static final Object connectDbHandleLock = new Object();
-    public static SQLiteDatabase connectDatabase;
+    public static IDatabase connectDatabase;
     static boolean dbBroken = false;
 
     public static void handleReceivedDbPassphrase(Context context, String remotePassphrase) {
@@ -66,25 +68,27 @@ public class ConnectDatabaseHelper {
     static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
         return new SqlStorage<>(c.getAnnotation(Table.class).value(), c, new AndroidDbHelper(context) {
             @Override
-            public SQLiteDatabase getHandle() {
+            public IDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
 
-                            DatabaseConnectOpenHelper helper = new DatabaseConnectOpenHelper(this.c);
-
                             String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
                             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
+                            DatabaseConnectOpenHelper dbConnectOpenHelper;
                             if (remotePassphrase != null && remotePassphrase.equals(localPassphrase)) {
                                 //Using the UserSandboxUtils helper method to align with other code
-                                connectDatabase = helper.getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
+                                dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
+                                        UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
                                 String encrypted = passphrase != null ? "(encrypted)" : "(unencrypted)";
                                 Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code " + encrypted));
-                                connectDatabase = helper.getWritableDatabase(passphrase);
+                                dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
+                                        Base64.encodeToString(passphrase, Base64.NO_WRAP));
                             }
+                            connectDatabase = new EncryptedDatabaseAdapter(dbConnectOpenHelper);
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;

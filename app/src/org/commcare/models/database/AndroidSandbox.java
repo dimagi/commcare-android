@@ -1,14 +1,12 @@
 package org.commcare.models.database;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.StorageIndexedTreeElementModel;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.UserDatabaseSchemaManager;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.IndexedFixtureIdentifier;
 import org.javarosa.core.model.User;
@@ -58,20 +56,20 @@ public class AndroidSandbox extends UserSandbox {
                                            StorageIndexedTreeElementModel exampleEntry,
                                            Set<String> indices) {
         String tableName = StorageIndexedTreeElementModel.getTableName(fixtureName);
-        DatabaseUserOpenHelper.dropTable(app.getUserDbHandle(), tableName);
-        DatabaseUserOpenHelper.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
+        UserDatabaseSchemaManager.dropTable(app.getUserDbHandle(), tableName);
+        UserDatabaseSchemaManager.buildTable(app.getUserDbHandle(), tableName, exampleEntry);
         IndexedFixturePathUtils.buildFixtureIndices(app.getUserDbHandle(), tableName, indices);
     }
 
     @Override
     public IndexedFixtureIdentifier getIndexedFixtureIdentifier(String fixtureName) {
-        SQLiteDatabase db = app.getUserDbHandle();
+        IDatabase db = app.getUserDbHandle();
         return IndexedFixturePathUtils.lookupIndexedFixturePaths(db, fixtureName);
     }
 
     @Override
     public void setIndexedFixturePathBases(String fixtureName, String baseName, String childName, TreeElement attrs) {
-        SQLiteDatabase db = app.getUserDbHandle();
+        IDatabase db = app.getUserDbHandle();
         IndexedFixturePathUtils.insertIndexedFixturePathBases(db, fixtureName, baseName, childName, attrs);
     }
 
@@ -105,7 +103,7 @@ public class AndroidSandbox extends UserSandbox {
 
     }
 
-    public SQLiteDatabase getUserDb() {
+    public IDatabase getUserDb() {
         return app.getUserDbHandle();
     }
 }

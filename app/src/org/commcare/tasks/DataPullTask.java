@@ -4,8 +4,6 @@ import android.content.Context;
 
 import androidx.core.util.Pair;
 
-import net.sqlcipher.database.SQLiteDatabase;
-
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
@@ -23,6 +21,7 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.interfaces.CommcareRequestEndpoints;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.AndroidCaseIndexTable;
 import org.commcare.models.database.user.models.CommCareEntityStorageCache;
@@ -560,7 +559,7 @@ public abstract class DataPullTask<R>
         //this is the temporary implementation of everything past this point
 
         //Wipe storage
-        SQLiteDatabase userDb = CommCareApplication.instance().getUserDbHandle();
+        IDatabase userDb = CommCareApplication.instance().getUserDbHandle();
         userDb.beginTransaction();
         wipeStorageForFourTwelveSync(userDb);
 
@@ -582,7 +581,7 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private void wipeStorageForFourTwelveSync(SQLiteDatabase userDb) {
+    private void wipeStorageForFourTwelveSync(IDatabase userDb) {
         SqlStorage.wipeTableWithoutCommit(userDb, ACase.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, Ledger.STORAGE_KEY);
         SqlStorage.wipeTableWithoutCommit(userDb, AndroidCaseIndexTable.TABLE_NAME);
@@ -635,7 +634,7 @@ public abstract class DataPullTask<R>
             UnfullfilledRequirementsException {
         initParsers(factory);
         //this is _really_ coupled, but we'll tolerate it for now because of the absurd performance gains
-        SQLiteDatabase db = CommCareApplication.instance().getUserDbHandle();
+        IDatabase db = CommCareApplication.instance().getUserDbHandle();
         db.beginTransaction();
         try {
             parseStream(stream, factory);

@@ -22,8 +22,13 @@ import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.heartbeat.TestHeartbeatRequester;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
+import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.models.database.UnencryptedDatabaseAdapter;
+import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
+import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
@@ -45,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.WorkManager;
@@ -329,5 +335,25 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     public void setSkipWorkManager() {
         skipWorkManager = true;
+    }
+
+    @Override
+    public IDatabase getGlobalDbOpenHelper() {
+        return new UnencryptedDatabaseAdapter(new DatabaseGlobalOpenHelperMock(this));
+    }
+
+    @Override
+    public IDatabase getUserDbOpenHelper(String userKeyRecordId, String key) {
+        return new UnencryptedDatabaseAdapter(new DatabaseUserOpenHelperMock(this, userKeyRecordId));
+    }
+
+    @Override
+    public IDatabase getUserDbOpenHelperFromFile(String path, String password) {
+        return new UnencryptedDatabaseAdapter(path);
+    }
+
+    @Override
+    public IDatabase getAppDbOpenHelper(String appId) {
+        return new UnencryptedDatabaseAdapter(new DatabaseAppOpenHelperMock(this, appId));
     }
 }
