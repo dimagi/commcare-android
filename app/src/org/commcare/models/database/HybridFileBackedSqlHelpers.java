@@ -1,9 +1,7 @@
 package org.commcare.models.database;
 
 import android.content.ContentValues;
-
-import net.sqlcipher.Cursor;
-import net.sqlcipher.database.SQLiteDatabase;
+import android.database.Cursor;
 
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.util.Pair;
@@ -46,7 +44,7 @@ public class HybridFileBackedSqlHelpers {
     protected static String getEntryFilename(AndroidDbHelper helper,
                                              String table, int id) {
         Cursor c;
-        SQLiteDatabase db = helper.getHandle();
+        IDatabase db = helper.getHandle();
 
         String[] columns = new String[]{DatabaseHelper.FILE_COL};
         c = db.query(table, columns, DatabaseHelper.ID_COL + "=?",
@@ -83,7 +81,7 @@ public class HybridFileBackedSqlHelpers {
         }
     }
 
-    protected static void setFileAsOrphan(SQLiteDatabase db, String filename) {
+    protected static void setFileAsOrphan(IDatabase db, String filename) {
         db.beginTransaction();
         try {
             ContentValues cv = new ContentValues();
@@ -95,7 +93,7 @@ public class HybridFileBackedSqlHelpers {
         }
     }
 
-    protected static void unsetFileAsOrphan(SQLiteDatabase db, String filename) {
+    protected static void unsetFileAsOrphan(IDatabase db, String filename) {
         int deleteCount = db.delete(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL + "=?", new String[]{filename});
         if (deleteCount != 1) {
             Logger.log(LogTypes.SOFT_ASSERT,
@@ -110,7 +108,7 @@ public class HybridFileBackedSqlHelpers {
      *
      * Order of operations expects filenames to be globally unique.
      */
-    public static void removeOrphanedFiles(SQLiteDatabase db) {
+    public static void removeOrphanedFiles(IDatabase db) {
         Cursor cur = db.query(DbUtil.orphanFileTableName, new String[]{DatabaseHelper.FILE_COL}, null, null, null, null, null);
         ArrayList<String> files = new ArrayList<>();
         try {
