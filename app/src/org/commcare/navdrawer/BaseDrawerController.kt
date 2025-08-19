@@ -96,9 +96,11 @@ class BaseDrawerController(
             activity,
             emptyList(),
             onParentClick = {
+                FirebaseAnalyticsUtil.reportNavDrawerItemSelected(it.title)
                 onItemClicked(it.type, null)
             },
             onChildClick = { parentType, childItem ->
+                FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
                 onItemClicked(parentType, childItem.recordId)
             }
         )
