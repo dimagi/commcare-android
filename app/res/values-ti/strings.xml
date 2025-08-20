@@ -169,6 +169,7 @@
     <string name="recovery_forms_send_error">ቅጥዕታት ኣብ ምልኣክ ስሕተት ኣሎ</string>
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
+    <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን፣ በይዝኦም ምስ ኣካያዲ ስራሕ ተራኸቡ።</string>
     <string name="recovery_network_outdated">እቲ ኣፕሊኬሽን ግዜኡ ዝሓለፎ ሰለዝኮነ ድሕሪ ሕጂ ምስቲ ሰርቨር ክራኸብ ኣይክእልን እዩ። በይዝኦም ኣብ Google Play Store ብምእታውነቲ ኣፕሊኬሽን የዘምንዎ።</string>
     <string name="recovery_app_manager">ናብ ኣፕሊኬሽን ማናጀር ኪድ</string>
     <string name="recovery_retry">ንናይ</string>

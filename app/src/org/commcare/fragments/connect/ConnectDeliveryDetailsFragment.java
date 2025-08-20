@@ -1,5 +1,7 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.utils.ViewUtils.showSnackBarForDismiss;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,7 +110,11 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t), Toast.LENGTH_LONG).show();
+                if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+                    showSnackBarForDismiss(binding.getRoot(), getString(R.string.recovery_unable_to_claim_opportunity));
+                } else {
+                    Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t), Toast.LENGTH_LONG).show();
+                }
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());

@@ -18,4 +18,9 @@ public class ViewUtils {
                 .setAction("OK", okClickListener)
                 .show();
     }
+    public static void showSnackBarForDismiss(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("OK", v -> snackbar.dismiss());
+        snackbar.show();
+    }
 }
