@@ -650,7 +650,7 @@
     <string name="nav_drawer_help">Help</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to Personal ID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
-    <string name="nav_drawer_commcare_apps">Commcare Apps</string>
+    <string name="nav_drawer_commcare_apps">CommCare Apps</string>
     <string name="nav_drawer_work_history">Work History</string>
     <string name="nav_drawer_payments">Payments</string>
     <string name="nav_drawer_manage_profile">Manage Profile</string>
