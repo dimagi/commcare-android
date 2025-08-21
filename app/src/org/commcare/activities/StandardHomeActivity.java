@@ -5,21 +5,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -31,9 +27,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function2;
 
 /**
  * Normal CommCare home screen
@@ -48,6 +41,8 @@ public class StandardHomeActivity
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
+
+    private boolean showDrawer = false;
 
 
     @Override
@@ -274,9 +269,20 @@ public class StandardHomeActivity
         return false;
     }
 
+
+    /**
+     * Its not good idea to have such patches but its seems like no choice here.
+     * BaseDrawerActivity is trying to add the drawer before root view of this activity is created. Reason for this is
+     * this home activity is going through lot of process for sessions and then creating root view from `home_screen.xml`
+     * @param status
+     */
+    protected void toggleDrawerSetUp(boolean status){
+        this.showDrawer = status;
+    }
+
     @Override
     protected boolean shouldShowDrawer() {
-        return true;
+        return showDrawer;
     }
 
     @Override
