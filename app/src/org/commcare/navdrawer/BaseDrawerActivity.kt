@@ -13,9 +13,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
-            setupDrawerController()
-        }
+        checkForDrawerSetUp()
     }
 
     private fun isPersonalIdLoggedIn(): Boolean {
@@ -26,6 +24,12 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun shouldShowDrawer(): Boolean {
         return false;
+    }
+
+    fun checkForDrawerSetUp(){
+        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
+            setupDrawerController()
+        }
     }
 
     private fun setupDrawerController() {

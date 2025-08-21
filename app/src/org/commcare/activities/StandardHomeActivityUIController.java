@@ -57,6 +57,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         setupConnectJobTile();
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
         setupGridView();
+        activity.toggleDrawerSetUp(true);
+        activity.checkForDrawerSetUp();
+
     }
 
     private void setupConnectJobTile() {
