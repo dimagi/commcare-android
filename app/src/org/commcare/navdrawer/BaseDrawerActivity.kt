@@ -33,7 +33,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun setupDrawerController() {
-
         val rootView = findViewById<View>(android.R.id.content)
         val drawerRefs = DrawerViewRefs(rootView)
         drawerController = BaseDrawerController(
