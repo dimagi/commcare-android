@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     Copyright (C) 2009 University of Washington Licensed under the Apache
     License, Version 2.0 (the "License"); you may not use this file except
@@ -357,6 +357,7 @@
     <string name="login_link_connectid_no">Hapana</string>
     <string name="login_menu_connect_sign_in">Jisajili kwa PersonalId</string>
     <string name="login_menu_connect_forget">Sahau mtumiaji wa PersonalId</string>
+    <string name="menu_refresh_opportunities">Onyesha Fursa</string>
     <string name="connect_app_install_unknown_error">Usakinishaji wa programu haukufaulu kwa sababu ya hitilafu isiyojulikana</string>
     <string name="connect_app_installed">Programu imesakinishwa</string>
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
@@ -485,6 +486,9 @@
     <string name="nav_drawer_payments">Malipo</string>
     <string name="nav_drawer_manage_profile">Dhibiti Wasifu</string>
     <string name="play_service_update_error">Tafadhali hakikisha kuwa huduma za Google Play zinatumika kwenye kifaa na zimesasishwa.</string>
-    <string name="nav_drawer_open">Öppna navigeringsmenyn</string>
-    <string name="nav_drawer_close">Stäng navigeringsmenyn</string>
+    <string name="nav_drawer_open">Fungua drawer ya uabiri</string>
+    <string name="nav_drawer_close">Funga drawer ya uabiri</string>
+
+    <string name="setup_refresh_opportunities_no_jobs">Hakuna fursa zilizopatikana</string>
+    <string name="setup_refresh_opportunities_with_jobs">Fursa mpya zimepatikana, bofya Fursa kujifunza zaidi.</string>
 </resources>
