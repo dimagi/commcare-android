@@ -16,12 +16,14 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.connect.ConnectJobHelper;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.navdrawer.NavDrawerHelper;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -306,7 +308,17 @@ public class StandardHomeActivity
 
     @Override
     protected boolean shouldShowDrawer() {
-        return true;
+        if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
+            return true;
+        }
+
+        boolean showDrawer = PersonalIdManager.getInstance().isloggedIn();
+
+        if(showDrawer) {
+            NavDrawerHelper.INSTANCE.setDrawerShown();
+        }
+
+        return showDrawer;
     }
 
     @Override
