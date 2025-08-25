@@ -28,6 +28,7 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
+import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
@@ -120,7 +121,6 @@ public class ConnectDatabaseUpgrader {
             upgradeFifteenSixteen(db);
             oldVersion = 16;
         }
-
         if (oldVersion == 16) {
             upgradeSixteenSeventeen(db);
             oldVersion = 17;
@@ -581,11 +581,11 @@ public class ConnectDatabaseUpgrader {
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
                     ConnectUserRecord.STORAGE_KEY,
-                    ConnectUserRecord.class,
+                    ConnectUserRecordV16.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (ConnectUserRecordV14 oldRecord : oldStorage) {
-                ConnectUserRecord newRecord = ConnectUserRecord.fromV14(oldRecord);
+                ConnectUserRecordV16 newRecord = ConnectUserRecordV16.fromV14(oldRecord);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -604,6 +604,39 @@ public class ConnectDatabaseUpgrader {
         addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
         addTableForNewModel(db, ConnectChannel.STORAGE_KEY, new ConnectChannel());
         addTableForNewModel(db, ConnectMessage.STORAGE_KEY, new ConnectMessage());
+    }
+
+    private void upgradeSixteenSeventeen(IDatabase db) {
+        db.beginTransaction();
+        try {
+
+            SqlStorage<Persistable> jobStorage = new SqlStorage<>(
+                    ConnectJobRecord.STORAGE_KEY,
+                    ConnectJobRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
+
+            SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecordV16.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<Persistable> newStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectUserRecordV16 oldRecord : oldStorage) {
+                ConnectUserRecord newRecord = ConnectUserRecord.fromV16(oldRecord, hasConnectAccess);
+                //set this new record to have same ID as the old one
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
