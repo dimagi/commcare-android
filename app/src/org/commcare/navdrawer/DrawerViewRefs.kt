@@ -19,7 +19,7 @@ class DrawerViewRefs(rootView: View) {
     val signoutView: LinearLayout = rootView.findViewById(R.id.signout_view)
     val profileCard: CardView = rootView.findViewById(R.id.profile_card)
     val imageUserProfile: ImageView = rootView.findViewById(R.id.image_user_profile)
-    val userName: TextView = rootView.findViewById(R.id.user_name)
+    val userName: TextView = rootView.findViewById(R.id.header_user_name)
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
 }

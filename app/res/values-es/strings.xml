@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
     Copyright (C) 2009 University of Washington Licensed under the Apache
     License, Version 2.0 (the "License"); you may not use this file except
@@ -356,6 +356,7 @@
     <string name="login_link_connectid_no">No</string>
     <string name="login_menu_connect_sign_in">Registrarse en PersonalId</string>
     <string name="login_menu_connect_forget">Olvidar usuario de PersonalId</string>
+    <string name="menu_refresh_opportunities">Actualizar Oportunidades</string>
     <string name="connect_app_install_unknown_error">La instalación de la aplicación falló debido a un error desconocido</string>
     <string name="connect_app_installed">Aplicación instalada</string>
     <string name="app_with_id_not_found">La aplicación CommCare requerida no está instalada en el dispositivo</string>
@@ -480,4 +481,7 @@
     <string name="play_service_update_error">Asegúrese de que los servicios de Google Play sean compatibles con el dispositivo y estén actualizados.</string>
     <string name="nav_drawer_open">Abrir el panel de navegación</string>
     <string name="nav_drawer_close">Cerrar el panel de navegación</string>
+
+    <string name="setup_refresh_opportunities_no_jobs">No se encontraron oportunidades</string>
+    <string name="setup_refresh_opportunities_with_jobs">Nuevas oportunidades encontradas, haz clic en Oportunidades para obtener más información.</string>
 </resources>

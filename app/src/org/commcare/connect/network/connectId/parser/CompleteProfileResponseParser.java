@@ -23,5 +23,6 @@ public class CompleteProfileResponseParser implements PersonalIdApiResponseParse
         sessionData.setPersonalId(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "username", null)));
         sessionData.setDbKey(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "db_key", null)));
         sessionData.setOauthPassword(Objects.requireNonNull(JsonExtensions.optStringSafe(json, "password", null)));
+        sessionData.setInvitedUser(json.optBoolean("invited_user", false));
     }
 }

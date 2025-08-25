@@ -2,6 +2,8 @@ package org.commcare.activities;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
+import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
@@ -56,7 +58,7 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.DrawerViewRefs;
+import org.commcare.navdrawer.NavDrawerHelper;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -127,8 +129,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private int selectedAppIndex = -1;
     private boolean appLaunchedFromConnect = false;
     private String presetAppId;
-    public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
-    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
     private PersonalIdManager personalIdManager;
     private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
     private boolean connectLaunchPerformed;
@@ -548,12 +548,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     public void handleConnectButtonPress() {
         selectedAppIndex = -1;
-        personalIdManager.unlockConnect(this, success -> {
-            if(success) {
-                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
-                setResult(RESULT_OK);
-                finish();
-            }
+        ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
+            setResult(RESULT_OK);
+            finish();
         });
     }
 
@@ -1012,6 +1009,22 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     @Override
     protected boolean shouldShowDrawer() {
+        if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
+            return true;
+        }
+
+        initPersonaIdManager();
+        boolean showDrawer = personalIdManager.isloggedIn();
+
+        if(showDrawer) {
+            NavDrawerHelper.INSTANCE.setDrawerShown();
+        }
+
+        return showDrawer;
+    }
+
+    @Override
+    protected boolean shouldHighlightSeatedApp() {
         return true;
     }
 
@@ -1019,17 +1032,18 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return connectAppState;
     }
 
-    protected void handleDrawerItemClick(BaseDrawerController.NavItemType itemType, String recordId) {
-        switch (itemType) {
-            case OPPORTUNITIES -> { /* handle */ }
-            case COMMCARE_APPS -> {
-                if (recordId != null) {
-                    if (!appIdDropdownList.isEmpty()) {
-                        selectedAppIndex = appIdDropdownList.indexOf(recordId);
-                    }
-                    seatAppIfNeeded(recordId);
+    @Override
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+        if (itemType == BaseDrawerController.NavItemType.COMMCARE_APPS) {
+            if (recordId != null) {
+                if (!appIdDropdownList.isEmpty()) {
+                    selectedAppIndex = appIdDropdownList.indexOf(recordId);
                 }
+                seatAppIfNeeded(recordId);
+                closeDrawer();
             }
+        } else {
+            super.handleDrawerItemClick(itemType, recordId);
         }
     }
 }

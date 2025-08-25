@@ -44,8 +44,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
-import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.LocalePreferences;
 import org.commcare.services.DataSyncCompleteBroadcastReceiver;
 import org.commcare.services.FCMMessageData;

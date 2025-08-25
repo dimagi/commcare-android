@@ -354,6 +354,7 @@ License.
     <string name="login_link_connectid_no">नहीं</string>
     <string name="login_menu_connect_sign_in">PersonalId के लिए साइन अप करें</string>
     <string name="login_menu_connect_forget">PersonalId उपयोगकर्ता को भूल जाएं</string>
+    <string name="menu_refresh_opportunities">अवसर रीफ्रेश करें</string>
     <string name="connect_app_install_unknown_error">अज्ञात त्रुटि के कारण एप्लिकेशन इंस्टॉल करने में विफल रहा</string>
     <string name="connect_app_installed">एप्लिकेशन इंस्टॉल किया गया</string>
     <string name="app_with_id_not_found">आवश्यक CommCare एप्लिकेशन डिवाइस पर इंस्टॉल नहीं है</string>
@@ -478,4 +479,7 @@ License.
     <string name="play_service_update_error">कृपया सुनिश्चित करें कि डिवाइस पर Google Play सेवाएं समर्थित हैं और अद्यतित हैं।</string>
     <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
     <string name="nav_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>
+
+    <string name="setup_refresh_opportunities_no_jobs">कोई अवसर नहीं मिला</string>
+    <string name="setup_refresh_opportunities_with_jobs">नए अवसर मिले, अधिक जानने के लिए अवसर पर क्लिक करें।</string>
 </resources>
