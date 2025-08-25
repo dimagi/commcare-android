@@ -214,6 +214,12 @@
     <color name="connect_yellow_dot">#EABA13</color>
     <color name="connect_message_read">#3A42C7</color>
     <color name="connect_delivery_approved">#16A085</color>
+    <color name="personal_id_credentials_earned">#FCEFCC</color>
+    <color name="personal_id_credential_earned_activity">#90A1B9</color>
+    <color name="personal_id_credential_earned_grey">#4DFFFFFF</color>
+    <color name="personal_id_credential_grey_pending">#F3F4F6</color>
+    <color name="personal_id_credential_yellow_pending">#C67E13</color>
+    <color name="personal_id_credential_yellow_pending_bg">#FFF4CD</color>
 
 
     <color name="ic_backup">#14006C</color>

@@ -18,7 +18,6 @@ apply from: 'jacoco.gradle'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: "androidx.navigation.safeargs"
 
-
 repositories {
     // for local aar inclusion
     flatDir {

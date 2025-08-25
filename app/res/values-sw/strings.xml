@@ -477,6 +477,24 @@
     <string name="personalid_camera_permission_title">Ruhusa ya kamera</string>
     <string name="personalid_camera_permission_msg">Ili kupiga picha, CommCare inahitaji ruhusa ya kutumia kamera ya kifaa chako.</string>
     <string name="personalid_capture_photo">Piga Picha</string>
+    <string name="personalid_credential_my_worker_history">Historia Yangu ya Kazi</string>
+    <string name="personalid_credential">Kitambulisho</string>
+    <string name="personalid_credential_worked_on">Ilifanywa Kazi Kwenye:</string>
+    <string name="personalid_credential_earned_on">Ilipatikana Kwenye:</string>
+    <string name="personalid_credential_active_for">Inatumika Kwa:</string>
+    <string name="personalid_credential_learn_more_about_credentials">Jifunze Zaidi Kuhusu Vitambulisho</string>
+    <string name="personalid_credential_view_credential">Tazama Kitambulisho</string>
+    <string name="personalid_credential_no_credentials_currently_available">Hakuna vitambulisho vinavyopatikana kwa sasa. Bofya Onyesha upya au uangalie tena baadaye</string>
+    <string name="personalid_credential_earned">Imelipwa</string>
+    <string name="personalid_credential_pending">Inasubiri</string>
+    <string name="personalid_credential_cloud_sync">Usawazishaji wa Wingu</string>
+    <string name="personalid_credential_level_1_month_active">Mwezi 1 wa\nShughuli</string>
+    <string name="personalid_credential_level_2_month_active">Miezi 2 ya\nShughuli</string>
+    <string name="personalid_credential_level_3_month_active">Miezi 3 ya\nShughuli</string>
+    <string name="personalid_credential_level_6_month_active">Miezi 6 ya\nShughuli</string>
+    <string name="personalid_credential_level_9_month_active">Miezi 9 ya\nShughuli</string>
+    <string name="personalid_credential_level_12_month_active">Miezi 12 ya\nShughuli</string>
+
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>
