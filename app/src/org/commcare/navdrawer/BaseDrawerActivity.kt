@@ -1,33 +1,61 @@
 package org.commcare.navdrawer
 
-import android.os.Bundle
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.view.MenuItem
 import android.view.View
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import org.commcare.activities.CommCareActivity
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
+import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
+import org.commcare.utils.FirebaseMessagingUtil
+import android.os.Bundle
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
-    protected var drawerController: BaseDrawerController? = null
+    private var drawerController: BaseDrawerController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkForDrawerSetUp()
     }
+    override fun onResume() {
+        super.onResume()
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            messagingUpdateReceiver,
+            IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
+        )
+    }
 
-    private fun isPersonalIdLoggedIn(): Boolean {
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
-        return personalIdManager.isloggedIn();
+    override fun onPause() {
+        super.onPause()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(messagingUpdateReceiver)
+    }
+
+    fun refreshDrawer() {
+        drawerController?.refreshDrawerContent()
+    }
+
+    private val messagingUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            drawerController?.refreshDrawerContent()
+        }
     }
 
     protected open fun shouldShowDrawer(): Boolean {
-        return false;
+        return false
+    }
+
+    protected open fun shouldHighlightSeatedApp(): Boolean {
+        return false
     }
 
     fun checkForDrawerSetUp(){
-        if (shouldShowDrawer() && isPersonalIdLoggedIn()) {
+        if (shouldShowDrawer()) {
             setupDrawerController()
         }
     }
@@ -37,7 +65,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val drawerRefs = DrawerViewRefs(rootView)
         drawerController = BaseDrawerController(
             this,
-            drawerRefs
+            drawerRefs,
+            shouldHighlightSeatedApp()
         ) { navItemType: NavItemType, recordId: String? ->
             handleDrawerItemClick(navItemType, recordId)
         }
@@ -46,10 +75,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun handleDrawerItemClick(itemType: NavItemType, recordId: String?) {
         when (itemType) {
-            NavItemType.OPPORTUNITIES -> {}
-            NavItemType.COMMCARE_APPS -> {}
+            NavItemType.OPPORTUNITIES -> { navigateToConnectMenu() }
+            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */}
             NavItemType.PAYMENTS -> {}
-            NavItemType.MESSAGING -> {}
+            NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
         }
     }
@@ -60,6 +89,30 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+
+    protected fun navigateToConnectMenu() {
+        unlockAndGoToConnectJobsList(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    protected fun navigateToMessaging() {
+        unlockAndGoToMessaging(this, object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(success: Boolean) {
+                if (success) {
+                    closeDrawer()
+                }
+            }
+        })
+    }
+
+    protected fun closeDrawer() {
+        drawerController?.closeDrawer()
     }
 }
 
