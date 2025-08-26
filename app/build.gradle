@@ -109,7 +109,7 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     implementation 'com.google.firebase:firebase-analytics:20.1.2'
-    implementation 'com.google.firebase:firebase-messaging:21.1.0'
+    implementation 'com.google.firebase:firebase-messaging:24.0.0'
     implementation 'com.google.firebase:firebase-perf:21.0.1'
     implementation 'com.google.firebase:firebase-crashlytics:18.3.7'
     
