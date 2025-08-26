@@ -4,6 +4,8 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,16 +57,30 @@ public class ConnectUnlockFragment extends Fragment {
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
 
-        PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
-            if (success) {
-                retrieveOpportunities();
-            } else {
-                requireActivity().finish();
-            }
-        });
-
         return binding.getRoot();
     }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
+                    if (success) {
+                        retrieveOpportunities();
+                    } else {
+                        requireActivity().finish();
+                    }
+                });
+            }
+        }, 1000); // delayMillis is the delay in milliseconds
+
+
+    }
+
 
     public void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
