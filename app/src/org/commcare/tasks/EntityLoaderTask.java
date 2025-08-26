@@ -5,10 +5,8 @@ import android.util.Pair;
 import com.google.firebase.perf.metrics.Trace;
 
 import org.commcare.android.logging.ForceCloseLogger;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.cases.entity.Entity;
 import org.commcare.cases.entity.EntityLoadingProgressListener;
-import org.commcare.google.services.analytics.CCAnalyticsParam;
 import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
@@ -56,19 +54,17 @@ public class EntityLoaderTask
     protected Pair<List<Entity<TreeReference>>, List<TreeReference>> doInBackground(TreeReference... nodeset) {
         try {
             // Capture sync_case_list_loading trace for performance monitoring
-            Trace trace = CCPerfMonitoring.INSTANCE.createTrace(CCPerfMonitoring.SYNC_ENTITY_LIST_LOADING);
-            if (trace != null && !entityLoaderHelper.isAsyncNodeEntityFactory()) {
-                trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain());
-                trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser());
-                trace.start();
+            Trace trace = null;
+            if (!entityLoaderHelper.isAsyncNodeEntityFactory()) {
+                trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_SYNC_ENTITY_LIST_LOADING);
             }
             Pair<List<Entity<TreeReference>>, List<TreeReference>> entities = entityLoaderHelper.loadEntities(
                     nodeset[0], this);
 
             if (trace != null && !entityLoaderHelper.isAsyncNodeEntityFactory()) {
-                trace.putAttribute(CCPerfMonitoring.NUM_CASES_LOADED,
+                trace.putAttribute(CCPerfMonitoring.ATTR_NUM_CASES_LOADED,
                         String.valueOf((entities == null || entities.first == null ? 0 : entities.first.size())));
-                trace.stop();
+                CCPerfMonitoring.INSTANCE.stopTracing(trace);
             }
             return entities;
         } catch (XPathException xe) {
