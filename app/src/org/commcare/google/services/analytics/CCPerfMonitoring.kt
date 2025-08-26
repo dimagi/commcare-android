@@ -3,6 +3,7 @@ package org.commcare.google.services.analytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.perf.metrics.Trace
 import org.commcare.android.logging.ReportingUtils
+import org.javarosa.core.services.Logger
 
 object CCPerfMonitoring {
     // Traces
@@ -21,13 +22,17 @@ object CCPerfMonitoring {
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
             trace.start();
             return trace
-        } catch (ignored: Exception) { }
+        } catch (exception: Exception) {
+            Logger.exception("Error starting perf trace: $traceName", exception)
+        }
         return null
     }
 
     fun stopTracing(trace: Trace?) {
         try {
             trace?.stop();
-        } catch (ignored: Exception) { }
+        } catch (exception: Exception) {
+            Logger.exception("Error starting perf trace: ${trace?.name}", exception)
+        }
     }
 }
