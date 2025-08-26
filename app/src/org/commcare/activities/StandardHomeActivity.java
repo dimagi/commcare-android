@@ -50,7 +50,7 @@ public class StandardHomeActivity
     private Map<Integer, String> menuIdToAnalyticsParam;
     private boolean personalIdManagedLogin = false;
 
-    private boolean showDrawerInRootContent = false;
+    private boolean rootContainerReadyToShowDrawer = false;
 
 
     @Override
@@ -315,13 +315,13 @@ public class StandardHomeActivity
      * @param status
      */
     protected void toggleDrawerSetUp(boolean status){
-        this.showDrawerInRootContent = status;
+        this.rootContainerReadyToShowDrawer = status;
     }
 
     @Override
     protected boolean shouldShowDrawer() {
 
-        if(!showDrawerInRootContent) return false;   // wait for root content to get load through xml
+        if(!rootContainerReadyToShowDrawer) return false;   // wait for root content to get load through xml
 
 
         if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
