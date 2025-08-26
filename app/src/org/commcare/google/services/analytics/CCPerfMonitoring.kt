@@ -16,6 +16,8 @@ object CCPerfMonitoring {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
             trace.putAttribute(CCAnalyticsParam.CCHQ_DOMAIN, ReportingUtils.getDomain())
+            trace.putAttribute(CCAnalyticsParam.CC_APP_ID, ReportingUtils.getAppId())
+            trace.putAttribute(CCAnalyticsParam.CC_APP_NAME, ReportingUtils.getAppName())
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
             trace.start();
             return trace
