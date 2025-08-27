@@ -27,8 +27,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -56,6 +58,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.MarkupUtil;
@@ -144,6 +147,10 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
+            controller.setAppearanceLightStatusBars(true);
+        }
         if (isFlagSecureEnabled()) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         }
@@ -190,6 +197,18 @@ public abstract class CommCareActivity<R> extends AppCompatActivity
             }
             loadUiElementState(containerViewModel.getData(MANAGED_UI_STATE_KEY));
         }
+    }
+
+    @Override
+    public void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            AndroidUtil.attachWindowInsetsListener(this, getRootViewId());
+        }
+    }
+
+    public int getRootViewId() {
+        return android.R.id.content;
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
