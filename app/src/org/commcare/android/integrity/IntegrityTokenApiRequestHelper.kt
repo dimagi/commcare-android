@@ -6,6 +6,7 @@ import androidx.lifecycle.Observer
 import com.google.android.play.core.integrity.StandardIntegrityException
 import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode.*
+import kotlinx.coroutines.Dispatchers
 import org.commcare.android.CommCareViewModelProvider
 import org.commcare.utils.HashUtils
 import org.commcare.dalvik.R;
@@ -13,6 +14,7 @@ import org.json.JSONObject
 import java.util.LinkedList
 import java.util.HashMap
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.Result
 
@@ -157,8 +159,12 @@ class IntegrityTokenApiRequestHelper(
                     }
                 }
             }
-            viewModel.providerState.observeForever(observer)
-            cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
+            kotlinx.coroutines.runBlocking {
+                withContext(Dispatchers.Main) {
+                    viewModel.providerState.observeForever(observer)
+                    cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
+                }
+            }
         }
     }
 }
