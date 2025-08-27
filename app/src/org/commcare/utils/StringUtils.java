@@ -49,4 +49,17 @@ public class StringUtils {
         }
         return MarkupUtil.styleSpannable(c, ret);
     }
+
+    /**
+     * Returns the total length of all strings in the array.
+     */
+    public static int getSumOfLengths(String[] array) {
+        int total = 0;
+        for (String s : array) {
+            if (s != null) {
+                total += s.length();
+            }
+        }
+        return total;
+    }
 }
