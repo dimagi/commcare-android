@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -143,22 +145,22 @@ public class FirebaseMessagingUtil {
      * @param notificationPayload - This will be notification payload when calling from CommCareFirebaseMessagingService and null when calling from launcher activity
      * @return Intent - if need for launcher activity to start the activity
      */
-    public static Intent handleNotification(Context context, Map<String, String> dataPayload, RemoteMessage.Notification notificationPayload) {
+    public static Intent handleNotification(Context context, Map<String, String> dataPayload, RemoteMessage.Notification notificationPayload, boolean showNotification) {
 
         if (dataPayload == null || dataPayload.isEmpty()) {
-            if (!showNotificationFromNotificationPayload(context, notificationPayload)) {
+            if (!showNotificationFromNotificationPayload(context, notificationPayload,showNotification)) {
                 Logger.exception("Empty push notification", new Throwable(String.format("Empty notification without payload")));
             }
             return null;
         }
         FCMMessageData fcmMessageData = new FCMMessageData(dataPayload);
         if (hasCccAction(fcmMessageData.getAction())) {
-            return handleCCCActionPushNotification(context, fcmMessageData);
+            return handleCCCActionPushNotification(context, fcmMessageData,showNotification);
         } else if (fcmMessageData.getActionType() == FCMMessageData.ActionTypes.SYNC) {
             getDataSyncer(context).syncData(fcmMessageData);
             return null;
         } else {
-            return handleGeneralApplicationPushNotification(context, fcmMessageData);
+            return handleGeneralApplicationPushNotification(context, fcmMessageData,showNotification);
         }
     }
 
@@ -169,13 +171,13 @@ public class FirebaseMessagingUtil {
      * @param payloadNotification
      * @return
      */
-    private static boolean showNotificationFromNotificationPayload(Context context, RemoteMessage.Notification payloadNotification) {
+    private static boolean showNotificationFromNotificationPayload(Context context, RemoteMessage.Notification payloadNotification,boolean showNotification) {
         if (payloadNotification != null &&
                 !Strings.isEmptyOrWhitespace(payloadNotification.getTitle()) && !Strings.isEmptyOrWhitespace(payloadNotification.getBody())) {
             Map<String, String> notificationPayload = new HashMap<>();
             notificationPayload.put(NOTIFICATION_TITLE, payloadNotification.getTitle());
             notificationPayload.put(NOTIFICATION_BODY, payloadNotification.getBody());
-            handleGeneralApplicationPushNotification(context, new FCMMessageData(notificationPayload));
+            handleGeneralApplicationPushNotification(context, new FCMMessageData(notificationPayload),showNotification);
             return true;
         }
         return false;
@@ -188,19 +190,19 @@ public class FirebaseMessagingUtil {
      * @param fcmMessageData
      * @return Intent
      */
-    private static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         FirebaseAnalyticsUtil.reportNotificationType(fcmMessageData.getAction());
         return switch (fcmMessageData.getAction()) {
-            case CCC_MESSAGE -> handleCCCMessageChannelPushNotification(context, fcmMessageData);
-            case CCC_DEST_PAYMENTS -> handleCCCPaymentPushNotification(context, fcmMessageData);
+            case CCC_MESSAGE -> handleCCCMessageChannelPushNotification(context, fcmMessageData,showNotification);
+            case CCC_DEST_PAYMENTS -> handleCCCPaymentPushNotification(context, fcmMessageData,showNotification);
             case CCC_PAYMENT_INFO_CONFIRMATION ->
-                    handleCCCPaymentInfoConfirmationPushNotification(context, fcmMessageData);
+                    handleCCCPaymentInfoConfirmationPushNotification(context, fcmMessageData,showNotification);
             case CCC_DEST_OPPORTUNITY_SUMMARY_PAGE ->
-                    handleOpportunitySummaryPagePushNotification(context, fcmMessageData);
+                    handleOpportunitySummaryPagePushNotification(context, fcmMessageData,showNotification);
             case CCC_DEST_LEARN_PROGRESS ->
-                    handleResumeLearningOrDeliveryJobPushNotification(true, context, fcmMessageData);
+                    handleResumeLearningOrDeliveryJobPushNotification(true, context, fcmMessageData,showNotification);
             case CCC_DEST_DELIVERY_PROGRESS ->
-                    handleResumeLearningOrDeliveryJobPushNotification(false, context, fcmMessageData);
+                    handleResumeLearningOrDeliveryJobPushNotification(false, context, fcmMessageData,showNotification);
             default -> null;
         };
     }
@@ -213,7 +215,7 @@ public class FirebaseMessagingUtil {
      * @return Intent
      */
 
-    private static Intent handleCCCPaymentPushNotification(Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleCCCPaymentPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = getConnectActivityNotification(context, fcmMessageData);
 
         NotificationCompat.Builder fcmNotification = buildNotification(context, intent, fcmMessageData);
@@ -241,7 +243,7 @@ public class FirebaseMessagingUtil {
         fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_yes), yesPendingIntent);
         fcmNotification.addAction(0, context.getString(R.string.connect_payment_acknowledge_notification_no), noPendingIntent);
 
-        showNotification(context, fcmNotification);
+        showNotification(context, fcmNotification,showNotification);
         return intent;
     }
 
@@ -254,11 +256,11 @@ public class FirebaseMessagingUtil {
      * @param fcmMessageData
      * @return
      */
-    private static Intent handleResumeLearningOrDeliveryJobPushNotification(Boolean isLearning, Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleResumeLearningOrDeliveryJobPushNotification(Boolean isLearning, Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
             intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            showNotification(context, buildNotification(context, intent, fcmMessageData));
+            showNotification(context, buildNotification(context, intent, fcmMessageData),showNotification);
             return intent;
         }
         String ccc_action = isLearning ? CCC_DEST_LEARN_PROGRESS : CCC_DEST_DELIVERY_PROGRESS;
@@ -274,11 +276,11 @@ public class FirebaseMessagingUtil {
      * @param fcmMessageData
      * @return
      */
-    private static Intent handleOpportunitySummaryPagePushNotification(Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleOpportunitySummaryPagePushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_ID)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
             intent.putExtra(OPPORTUNITY_ID, fcmMessageData.getPayloadData().get(OPPORTUNITY_ID));
-            showNotification(context, buildNotification(context, intent, fcmMessageData));
+            showNotification(context, buildNotification(context, intent, fcmMessageData),showNotification);
             return intent;
         }
         Logger.exception("Empty push notification for action 'ccc_opportunity_summary_page'", new Throwable(String.format("Empty notification without 'opportunity_id'")));
@@ -293,11 +295,11 @@ public class FirebaseMessagingUtil {
      * @param fcmMessageData
      * @return
      */
-    private static Intent handleCCCPaymentInfoConfirmationPushNotification(Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleCCCPaymentInfoConfirmationPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         if (fcmMessageData.getPayloadData().containsKey(ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION_STATUS)) {
             Intent intent = getConnectActivityNotification(context, fcmMessageData);
             intent.putExtra(ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION_STATUS, fcmMessageData.getPayloadData().get(ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION_STATUS));
-            showNotification(context, buildNotification(context, intent, fcmMessageData));
+            showNotification(context, buildNotification(context, intent, fcmMessageData),showNotification);
             return intent;
         }
         Logger.exception("Empty push notification for action 'ccc_payment_info_confirmation'", new Throwable(String.format("Empty notification without 'confirmation_status'")));
@@ -311,11 +313,11 @@ public class FirebaseMessagingUtil {
      * @param fcmMessageData
      * @return Intent
      */
-    private static Intent handleGeneralApplicationPushNotification(Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleGeneralApplicationPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = new Intent(context, DispatchActivity.class);
         intent.setAction(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        showNotification(context, buildNotification(context, intent, fcmMessageData));
+        showNotification(context, buildNotification(context, intent, fcmMessageData),showNotification);
         return null;    // This will always null as we are already in DispatchActivity and don't want to start again
     }
 
@@ -328,7 +330,7 @@ public class FirebaseMessagingUtil {
      * @return Intent
      */
 
-    private static Intent handleCCCMessageChannelPushNotification(Context context, FCMMessageData fcmMessageData) {
+    private static Intent handleCCCMessageChannelPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         Intent intent = null;
         fcmMessageData.setNotificationChannel(CommCareNoficationManager.NOTIFICATION_CHANNEL_MESSAGING_ID);
         fcmMessageData.setPriority(NotificationCompat.PRIORITY_MAX);
@@ -373,7 +375,7 @@ public class FirebaseMessagingUtil {
         }
 
         if (intent != null) {
-            showNotification(context, buildNotification(context, intent, fcmMessageData));
+            showNotification(context, buildNotification(context, intent, fcmMessageData),showNotification);
         }
         return intent;
 
@@ -441,7 +443,8 @@ public class FirebaseMessagingUtil {
      * @param context
      * @param notificationBuilder
      */
-    private static void showNotification(Context context, NotificationCompat.Builder notificationBuilder) {
+    private static void showNotification(Context context, NotificationCompat.Builder notificationBuilder, boolean showNotification) {
+        if(!showNotification) return;
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
         mNM.notify(FCM_NOTIFICATION, notificationBuilder.build());
     }
@@ -457,5 +460,28 @@ public class FirebaseMessagingUtil {
         return action != null && action.contains("ccc_");
     }
 
+    public static Intent getIntentForPNIfAny(Context context,Intent intent){
+        Log.e("FBMsgUtil",intent.toString());
+        if(intent!=null && intent.getExtras()!=null && intent.hasExtra("action")){
+            Log.e("FBMsgUtil","intents are NOOOOOOOT null ");
+            Map<String, String> dataPayload = new HashMap<>();
+            if (intent.getExtras() != null) {
+                for (String key : intent.getExtras().keySet()) {
+                    String value = intent.getExtras().getString(key);
+                    dataPayload.put(key, value);
+                }
+            }
+
+            Log.e("FBMsgUtil",dataPayload.toString());
+
+            intent.replaceExtras(new Bundle()); // clear all intent
+
+            return handleNotification(context,dataPayload,null,false);
+
+        }else{
+            Log.e("FBMsgUtil","intents are null ");
+        }
+        return null;
+    }
 
 }
