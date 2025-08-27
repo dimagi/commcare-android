@@ -10,7 +10,6 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,15 +20,20 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function2;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.network.connect.ConnectApiHandler;
+import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler;
+import androidx.annotation.Nullable;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -46,8 +50,6 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.navdrawer.BaseDrawerActivity;
-import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.navdrawer.DrawerViewRefs;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -71,6 +73,7 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.security.SignatureException;
@@ -129,8 +132,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     public static final int MENU_OFFLINE_INSTALL = Menu.FIRST;
     private static final int MENU_SMS = Menu.FIRST + 2;
     private static final int MENU_INSTALL_FROM_LIST = Menu.FIRST + 3;
-    private static final int MENU_PERSONAL_ID_SIGN_IN = Menu.FIRST + 4;
-    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 5;
+    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 4;
+
+    private static final int MENU_REFRESH_OPPORTUNITIES = Menu.FIRST + 5;
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
@@ -144,7 +148,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     private boolean startAllowed = true;
     private String incomingRef;
     private CommCareApp ccApp;
-    private BaseDrawerController drawerController;
 
 
     /**
@@ -505,24 +508,24 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         menu.add(0, MENU_OFFLINE_INSTALL, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_INSTALL_FROM_LIST, 2, Localization.get("menu.app.list.install"));
-        menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 3, getString(R.string.login_menu_connect_sign_in));
         menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.login_menu_connect_forget));
+        menu.add(0, MENU_REFRESH_OPPORTUNITIES, 4, getString(R.string.menu_refresh_opportunities));
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(MENU_PERSONAL_ID_SIGN_IN);
-        if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && !PersonalIdManager.getInstance().isloggedIn()
-                    && PersonalIdManager.getInstance().checkDeviceCompability());
-        }
-
-        item = menu.findItem(MENU_PERSONAL_ID_FORGET);
+        MenuItem item = menu.findItem(MENU_PERSONAL_ID_FORGET);
         if (item != null) {
             item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
+        
+        MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
+        boolean showRefreshMenu =  !fromExternal &&
+                PersonalIdManager.getInstance().isloggedIn() &&
+                !ConnectUserDatabaseUtil.hasConnectAccess(this);
+        refreshItem.setVisible(showRefreshMenu);
         return true;
     }
 
@@ -646,13 +649,12 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 i = new Intent(getApplicationContext(), InstallFromListActivity.class);
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
-            case MENU_PERSONAL_ID_SIGN_IN:
-                //Setup ConnectID and proceed to jobs page if successful
-                PersonalIdManager.getInstance().launchPersonalId(this, ConnectConstants.COMMCARE_SETUP_CONNECT_LAUNCH_REQUEST_CODE);
-                break;
             case MENU_PERSONAL_ID_FORGET:
                 PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
+                break;
+            case MENU_REFRESH_OPPORTUNITIES:
+                refreshOpportunities();
                 break;
             default:
                 super.onOptionsItemSelected(item);
@@ -664,15 +666,15 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         return Map.of(
                 MENU_OFFLINE_INSTALL, AnalyticsParamValue.CC_SETUP_MENU_OFFLINE_INSTALL,
                 MENU_INSTALL_FROM_LIST, AnalyticsParamValue.CC_SETUP_MENU_INSTALL_FROM_LIST,
-                MENU_PERSONAL_ID_SIGN_IN, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_SIGN_IN,
                 MENU_PERSONAL_ID_FORGET, AnalyticsParamValue.CC_SETUP_MENU_PERSONAL_ID_FORGET
         );
     }
 
     private void updateConnectButton() {
-        installFragment.updateConnectButton(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn(), v -> {
-            PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
+        boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
+                && ConnectUserDatabaseUtil.hasConnectAccess(this);
+        installFragment.updateConnectButton(isConnectEnabled, v -> {
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, success -> {
             });
         });
     }
@@ -815,16 +817,14 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (taskId != DIALOG_INSTALL_PROGRESS) {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");
-            return null;
+        if (taskId == DIALOG_INSTALL_PROGRESS) {
+            if (isSingleAppBuild()) {
+                return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
+            } else {
+                return generateNormalInstallDialog(taskId);
+            }
         }
-        if (isSingleAppBuild()) {
-            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
-        } else {
-            return generateNormalInstallDialog(taskId);
-        }
+        return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
     }
 
     private CustomProgressDialog generateNormalInstallDialog(int taskId) {
@@ -1000,5 +1000,34 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             uiStateScreenTransition();
             startResourceInstall();
         }
+    }
+
+    private void refreshOpportunities() {
+        CommCareActivity activity = this;
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
+        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
+
+            @Override
+            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                String error = PersonalIdApiErrorHandler.handle(activity, errorCode, t);
+                Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onSuccess(ConnectOpportunitiesResponseModel data) {
+                ConnectJobUtils.storeJobs(activity, data.getValidJobs(), true);
+                boolean connectAccess = !data.getValidJobs().isEmpty() || !data.getCorruptJobs().isEmpty();
+                String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
+                if(connectAccess){
+                    ConnectUserDatabaseUtil.turnOnConnectAccess(activity);
+
+                    updateConnectButton();
+                    refreshDrawer();
+
+                    toastMessage = getString(R.string.setup_refresh_opportunities_with_jobs);
+                }
+                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show();
+            }
+        }.getConnectOpportunities(activity, user);
     }
 }

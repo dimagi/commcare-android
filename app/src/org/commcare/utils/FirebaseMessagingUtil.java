@@ -29,6 +29,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
@@ -192,6 +193,7 @@ public class FirebaseMessagingUtil {
      */
     private static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
         FirebaseAnalyticsUtil.reportNotificationType(fcmMessageData.getAction());
+        ConnectUserDatabaseUtil.turnOnConnectAccess(context);
         return switch (fcmMessageData.getAction()) {
             case CCC_MESSAGE -> handleCCCMessageChannelPushNotification(context, fcmMessageData,showNotification);
             case CCC_DEST_PAYMENTS -> handleCCCPaymentPushNotification(context, fcmMessageData,showNotification);

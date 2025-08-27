@@ -1,7 +1,6 @@
 package org.commcare.navdrawer
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -10,10 +9,11 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
-import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
@@ -25,6 +25,7 @@ import org.commcare.views.dialogs.DialogCreationHelpers
 class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
+    private val highlightSeatedApp: Boolean,
     private val onItemClicked: (NavItemType, String?) -> Unit
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
@@ -95,9 +96,11 @@ class BaseDrawerController(
             activity,
             emptyList(),
             onParentClick = {
+                FirebaseAnalyticsUtil.reportNavDrawerItemSelected(it.title)
                 onItemClicked(it.type, null)
             },
             onChildClick = { parentType, childItem ->
+                FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
                 onItemClicked(parentType, childItem.recordId)
             }
         )
@@ -128,16 +131,32 @@ class BaseDrawerController(
                         .error(R.drawable.nav_drawer_person_avatar)
                 ).into(binding.imageUserProfile)
 
-            val commcareApps = MultipleAppsUtil.getUsableAppRecords().map {
-                NavDrawerItem.ChildItem(it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS)
+            val appRecords = MultipleAppsUtil.getUsableAppRecords()
+
+            val seatedApp = if (highlightSeatedApp && appRecords.count() > 1)
+                CommCareApplication.instance().currentApp.uniqueId else null
+
+            val commcareApps = appRecords.map {
+                NavDrawerItem.ChildItem(
+                    it.displayName, it.uniqueId, NavItemType.COMMCARE_APPS,
+                    it.uniqueId == seatedApp
+                )
             }
 
-            val items = listOf(
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_opportunities),
-                    R.drawable.nav_drawer_opportunity_icon,
-                    NavItemType.OPPORTUNITIES
-                ),
+            val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
+
+            val items = ArrayList<NavDrawerItem.ParentItem>()
+            if (hasConnectAccess) {
+                items.add(
+                    NavDrawerItem.ParentItem(
+                        activity.getString(R.string.nav_drawer_opportunities),
+                        R.drawable.nav_drawer_opportunity_icon,
+                        NavItemType.OPPORTUNITIES,
+                    )
+                )
+            }
+
+            items.add(
                 NavDrawerItem.ParentItem(
                     activity.getString(R.string.nav_drawer_commcare_apps),
                     R.drawable.commcare_actionbar_logo,
@@ -145,26 +164,41 @@ class BaseDrawerController(
                     isEnabled = commcareApps.isNotEmpty(),
                     isExpanded = commcareApps.size < 2,
                     children = commcareApps
-                ),
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_work_history),
-                    R.drawable.nav_drawer_worker_history_icon,
-                    NavItemType.WORK_HISTORY,
-                    isEnabled = false
-                ),
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.connect_messaging_title),
-                    R.drawable.nav_drawer_message_icon,
-                    NavItemType.MESSAGING,
-                    isEnabled = false
-                ),
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.nav_drawer_payments),
-                    R.drawable.nav_drawer_payments_icon,
-                    NavItemType.PAYMENTS,
-                    isEnabled = false
                 )
             )
+
+//            items.add(
+//                NavDrawerItem.ParentItem(
+//                    activity.getString(R.string.nav_drawer_work_history),
+//                    R.drawable.nav_drawer_worker_history_icon,
+//                    NavItemType.WORK_HISTORY,
+//                )
+//            )
+
+            if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
+                val iconId =
+                    if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty())
+                        R.drawable.nav_drawer_message_unread_icon
+                    else R.drawable.nav_drawer_message_icon
+
+                items.add(
+                    NavDrawerItem.ParentItem(
+                        activity.getString(R.string.connect_messaging_title),
+                        iconId,
+                        NavItemType.MESSAGING,
+                    )
+                )
+            }
+
+//            if (hasConnectAccess) {
+//                items.add(
+//                    NavDrawerItem.ParentItem(
+//                        activity.getString(R.string.nav_drawer_payments),
+//                        R.drawable.nav_drawer_payments_icon,
+//                        NavItemType.PAYMENTS,
+//                    )
+//                )
+//            }
 
             navDrawerAdapter.refreshList(items)
         } else {
