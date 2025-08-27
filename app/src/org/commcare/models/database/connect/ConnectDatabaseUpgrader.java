@@ -29,7 +29,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
-import org.commcare.android.database.connect.models.PersonalIdCredentialV15;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -122,6 +121,10 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 16) {
             upgradeSixteenSeventeen(db);
             oldVersion = 17;
+        }
+        if (oldVersion == 17) {
+            upgradeSeventeenEighteen(db);
+            oldVersion = 18;
         }
     }
 
@@ -596,30 +599,7 @@ public class ConnectDatabaseUpgrader {
 
 
     private void upgradeFifteenSixteen(IDatabase db) {
-        db.beginTransaction();
-        try {
-            SqlStorage<PersonalIdCredentialV15> oldStorage = new SqlStorage<>(
-                    PersonalIdCredential.STORAGE_KEY,
-                    PersonalIdCredentialV15.class,
-                    new ConcreteAndroidDbHelper(c, db)
-            );
-
-            SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    PersonalIdCredential.STORAGE_KEY,
-                    PersonalIdCredential.class,
-                    new ConcreteAndroidDbHelper(c, db)
-            );
-
-            for (PersonalIdCredentialV15 oldRecord : oldStorage) {
-                PersonalIdCredential newRecord = PersonalIdCredential.fromV15(oldRecord);
-                newRecord.setID(oldRecord.getID());
-                newStorage.write(newRecord);
-            }
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
     }
 
     private void upgradeSixteenSeventeen(IDatabase db) {
@@ -650,6 +630,17 @@ public class ConnectDatabaseUpgrader {
                 newStorage.write(newRecord);
             }
             db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeSeventeenEighteen(IDatabase db) {
+        db.beginTransaction();
+        try {
+            // We have not been populating this table yet, so just drop and recreate
+            SqlStorage.dropTable(db, PersonalIdCredential.STORAGE_KEY);
+            addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
         } finally {
             db.endTransaction();
         }

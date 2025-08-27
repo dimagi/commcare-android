@@ -99,19 +99,5 @@ class PersonalIdCredential : Persisted(), Serializable {
 
             return validCredential
         }
-
-        @JvmStatic
-        fun fromV15(old: PersonalIdCredentialV15): PersonalIdCredential {
-            val newRecord = PersonalIdCredential()
-            newRecord.uuid = old.uuid
-            newRecord.appId = old.appId
-            newRecord.oppId = old.oppId
-            newRecord.issuedDate = old.issuedDate
-            newRecord.title = old.title
-            newRecord.issuer = old.issuer
-            newRecord.level = old.level
-            newRecord.type = old.type
-            return newRecord
-        }
     }
 }
