@@ -4,7 +4,7 @@
         android:id="@+id/cloud_sync"
         android:title="@string/personalid_credential_cloud_sync"
         android:contentDescription="@string/personalid_credential_cloud_sync"
-        android:icon="@drawable/ic_backup"
+        android:icon="@drawable/ic_backup_white"
         app:showAsAction="always"/>
 
     <item

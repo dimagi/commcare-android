@@ -47,7 +47,7 @@ class EarnedCredentialFragment : Fragment() {
         binding!!.rvEarnedCredential.adapter = earnedCredentialAdapter
         viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
         viewModel.earnedCredentials.observe(viewLifecycleOwner) { earnedList ->
-            if (earnedList.isEmpty()) {
+            if (earnedList.isNullOrEmpty()) {
                 binding!!.tvNoCredentialsAvailable.visibility = View.VISIBLE
             } else {
                 binding!!.tvNoCredentialsAvailable.visibility = View.GONE
