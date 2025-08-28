@@ -522,10 +522,12 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         }
         
         MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
-        boolean showRefreshMenu =  !fromExternal &&
-                PersonalIdManager.getInstance().isloggedIn() &&
-                !ConnectUserDatabaseUtil.hasConnectAccess(this);
-        refreshItem.setVisible(showRefreshMenu);
+        if (refreshItem != null) {
+            boolean showRefreshMenu =  !fromExternal &&
+                    PersonalIdManager.getInstance().isloggedIn() &&
+                    !ConnectUserDatabaseUtil.hasConnectAccess(this);
+            refreshItem.setVisible(showRefreshMenu);
+        }
         return true;
     }
 
