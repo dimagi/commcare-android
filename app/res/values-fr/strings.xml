@@ -471,6 +471,24 @@ License.
     <string name="personalid_camera_permission_title">Autorisation pour la caméra</string>
     <string name="personalid_camera_permission_msg">Afin de prendre une photo, CommCare a besoin de l\'autorisation d\'utiliser l\'appareil photo de votre appareil.</string>
     <string name="personalid_capture_photo">Prendre une photo</string>
+    <string name="personalid_credential_my_worker_history">Mon Historique de Travail</string>
+    <string name="personalid_credential">Titre de Compétences</string>
+    <string name="personalid_credential_worked_on">Travaillé Sur :</string>
+    <string name="personalid_credential_earned_on">Gagné Le :</string>
+    <string name="personalid_credential_active_for">Actif Pendant :</string>
+    <string name="personalid_credential_learn_more_about_credentials">En Savoir Plus Sur les Titres de Compétences</string>
+    <string name="personalid_credential_view_credential">Voir le Titre de Compétences</string>
+    <string name="personalid_credential_no_credentials_currently_available">Aucune information d\'identification n\'est actuellement disponible. Cliquez sur Actualiser ou revenez plus tard.</string>
+    <string name="personalid_credential_earned">Gagné</string>
+    <string name="personalid_credential_pending">En attente</string>
+    <string name="personalid_credential_cloud_sync">Synchronisation Cloud</string>
+    <string name="personalid_credential_level_1_month_active">1 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_2_month_active">2 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_3_month_active">3 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_6_month_active">6 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_9_month_active">9 Mois d\'\nActivité</string>
+    <string name="personalid_credential_level_12_month_active">12 Mois d\'\nActivité</string>
+
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>

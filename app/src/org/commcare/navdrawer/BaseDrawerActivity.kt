@@ -13,21 +13,22 @@ import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.utils.FirebaseMessagingUtil
+import android.os.Bundle
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     private var drawerController: BaseDrawerController? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        checkForDrawerSetUp()
+    }
     override fun onResume() {
         super.onResume()
-        if (shouldShowDrawer()) {
-            setupDrawerController()
-
-            LocalBroadcastManager.getInstance(this).registerReceiver(
-                messagingUpdateReceiver,
-                IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
-            )
-        }
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            messagingUpdateReceiver,
+            IntentFilter(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST)
+        )
     }
 
     override fun onPause() {
@@ -51,6 +52,12 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun shouldHighlightSeatedApp(): Boolean {
         return false
+    }
+
+    fun checkForDrawerSetUp(){
+        if (shouldShowDrawer()) {
+            setupDrawerController()
+        }
     }
 
     private fun setupDrawerController() {
