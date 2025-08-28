@@ -3,6 +3,7 @@ package org.commcare.models.database.connect;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectChannel;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -20,6 +21,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
+import org.commcare.android.database.connect.models.ConnectMessage;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
@@ -29,6 +31,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdCredential;
+import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.IDatabase;
@@ -601,6 +604,11 @@ public class ConnectDatabaseUpgrader {
     private void upgradeFifteenSixteen(IDatabase db) {
         addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
     }
+    private void upgradeSixteenSeventeen(IDatabase db) {
+        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
+        addTableForNewModel(db, ConnectChannel.STORAGE_KEY, new ConnectChannel());
+        addTableForNewModel(db, ConnectMessage.STORAGE_KEY, new ConnectMessage());
+    }
 
     private void upgradeSixteenSeventeen(IDatabase db) {
         db.beginTransaction();
@@ -610,7 +618,7 @@ public class ConnectDatabaseUpgrader {
                     ConnectJobRecord.STORAGE_KEY,
                     ConnectJobRecord.class,
                     new ConcreteAndroidDbHelper(c, db));
-            
+
             boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
 
             SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
