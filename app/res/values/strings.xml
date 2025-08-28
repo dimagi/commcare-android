@@ -644,6 +644,20 @@
     <string name="capture_photo">Capture Photo</string>
     <string name="connect_claim_job_error">Error claiming job</string>
 
+    <string name="personalid_credential_my_worker_history">My Work History</string>
+    <string name="personalid_credential">Credential</string>
+    <string name="personalid_credential_worked_on">Worked On:</string>
+    <string name="personalid_credential_earned_on">Earned On:</string>
+    <string name="personalid_credential_view_credential">View Credential</string>
+    <string name="personalid_credential_active_for">Active For:</string>
+    <string name="personalid_credential_learn_more_about_credentials">Learn More About Credentials</string>
+    <string name="personalid_credential_no_credentials_currently_available">No credentials are currently available. Click Refresh or check back later</string>
+    <string name="personalid_credential_earned">Earned</string>
+    <string name="personalid_credential_pending">Pending</string>
+    <string name="personalid_credential_cloud_sync">CloudSync</string>
+    <string name="personalid_credential_connect_certified_learner">Connect Certified Learner</string>
+    <string name="personalid_credential_connect_delivery_worker">Connect Delivery Worker</string>
+    <string name="commcarehq_worker">CommCareHQ Worker</string>
     <string name="my_credentials">My Credentials</string>
     <string name="credential">Credential</string>
     <string name="nav_drawer_signin_register">Sign in / Register</string>
@@ -655,6 +669,13 @@
     <string name="nav_drawer_payments">Payments</string>
     <string name="nav_drawer_manage_profile">Manage Profile</string>
     <string name="user_name_placeholder">User Name</string>
+    <string name="personalid_credential_level_1_month_active">1 Month of\nActivity</string>
+    <string name="personalid_credential_level_2_month_active">2 Months of\nActivity</string>
+    <string name="personalid_credential_level_3_month_active">3 Months of\nActivity</string>
+    <string name="personalid_credential_level_6_month_active">6 Months of\nActivity</string>
+    <string name="personalid_credential_level_9_month_active">9 Months of\nActivity</string>
+    <string name="personalid_credential_level_12_month_active">12 Months of\nActivity</string>
+
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>

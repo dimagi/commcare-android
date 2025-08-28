@@ -163,8 +163,10 @@ public class CommCareTestApplication extends CommCareApplication implements Test
      */
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
-            String[] baseODK = new String[]{BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
-                    , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"};
+            String[] baseODK = new String[]{BuildConfig.BUILD_DIR
+                    + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
+                    , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"
+                    , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
