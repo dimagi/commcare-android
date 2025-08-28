@@ -61,9 +61,10 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
      * V.14 - Added a photo and isDemo field to ConnectUserRecord
      * V.16 - Added  personal_id_credential table
      * V17  - Added a new column has_connect_access to ConnectUserRecord
-     * V.17 - Added  push_notification_history,connect_channel,connect_message table
+     * V18 - Added new columns to personal_id_credential table (previously the table was unused)
+     * V.19 - Added  push_notification_history,connect_channel,connect_message table
      */
-    private static final int CONNECT_DB_VERSION = 17;
+    private static final int CONNECT_DB_VERSION = 19;
 
     private static final String CONNECT_DB_LOCATOR = "database_connect";
 
@@ -146,12 +147,6 @@ public class DatabaseConnectOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new TableBuilder(PushNotificationRecord.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectChannel.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new TableBuilder(ConnectMessage.class);
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);
