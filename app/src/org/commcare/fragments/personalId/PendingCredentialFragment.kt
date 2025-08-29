@@ -44,7 +44,12 @@ class PendingCredentialFragment : Fragment() {
         binding!!.rvPendingCredential.adapter = pendingCredentialAdapter
         viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
         viewModel.pendingCredentials.observe(viewLifecycleOwner) { pendingList ->
-            pendingCredentialAdapter.setData(pendingList)
+            if (pendingList.isNullOrEmpty()){
+                binding!!.tvNoPendingCredential.visibility = View.VISIBLE
+            }else{
+                binding!!.tvNoPendingCredential.visibility = View.GONE
+                pendingCredentialAdapter.setData(pendingList)
+            }
         }
     }
 

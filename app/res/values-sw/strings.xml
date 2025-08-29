@@ -494,6 +494,7 @@
     <string name="personalid_credential_level_6_month_active">Miezi 6 ya\nShughuli</string>
     <string name="personalid_credential_level_9_month_active">Miezi 9 ya\nShughuli</string>
     <string name="personalid_credential_level_12_month_active">Miezi 12 ya\nShughuli</string>
+    <string name="personalid_credential_no_pending_credential">Hakuna vitambulisho vinavyosubiri</string>
 
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
