@@ -123,7 +123,7 @@ class IntegrityTokenApiRequestHelper(
 
             return try {
                 // wait for provider readiness or failure
-                when (val state = viewModel.providerStateFlow.first { true }) {
+                when (val state = viewModel.providerStateFlow.first()) {
                     is IntegrityTokenViewModel.TokenProviderState.Success -> {
                         suspendCancellableCoroutine { cont ->
                             viewModel.requestIntegrityToken(
