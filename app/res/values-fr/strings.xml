@@ -489,6 +489,8 @@ License.
     <string name="personalid_credential_level_9_month_active">9 Mois d\'\nActivité</string>
     <string name="personalid_credential_level_12_month_active">12 Mois d\'\nActivité</string>
 
+    <string name="personalid_notification">Notifications</string>
+
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Vous n\'êtes pas connecté à l\'identifiant personnel</string>

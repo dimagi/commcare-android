@@ -485,6 +485,8 @@ License.
     <string name="personalid_credential_level_9_month_active">9 महीने की\nगतिविधि</string>
     <string name="personalid_credential_level_12_month_active">12 महीने की\nगतिविधि</string>
 
+    <string name="personalid_notification">सूचनाएं</string>
+
 
     <string name="nav_drawer_signin_register">साइन इन / रजिस्टर</string>
     <string name="nav_drawer_help">सहायता</string>
