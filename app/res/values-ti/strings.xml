@@ -479,6 +479,9 @@
     <string name="personalid_credential_level_6_month_active">6 ኣዋርሕ\nተግባር</string>
     <string name="personalid_credential_level_9_month_active">9 ኣዋርሕ\nተግባር</string>
     <string name="personalid_credential_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
+
+    <string name="personalid_notification">መፍለጥታትን</string>
+
     <string name="nav_drawer_signin_register">እቶም ኣእትዉ / ይመዝገቡ</string>
     <string name="nav_drawer_help">እርዳታ</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>

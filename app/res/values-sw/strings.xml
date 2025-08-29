@@ -495,6 +495,8 @@
     <string name="personalid_credential_level_9_month_active">Miezi 9 ya\nShughuli</string>
     <string name="personalid_credential_level_12_month_active">Miezi 12 ya\nShughuli</string>
 
+    <string name="personalid_notification">Arifa</string>
+
     <string name="nav_drawer_signin_register">Ingia / Jisajili</string>
     <string name="nav_drawer_help">Msaada</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye Kitambulisho Binafsi</string>

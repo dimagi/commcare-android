@@ -487,6 +487,8 @@
     <string name="personalid_credential_level_9_month_active">9 Meses de\nActividad</string>
     <string name="personalid_credential_level_12_month_active">12 Meses de\nActividad</string>
 
+    <string name="personalid_notification">Notificaciones</string>
+
     <string name="nav_drawer_signin_register">Iniciar sesión / Registrarse</string>
     <string name="nav_drawer_help">Ayuda</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la ID personal</string>

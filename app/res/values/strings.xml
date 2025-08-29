@@ -676,6 +676,8 @@
     <string name="personalid_credential_level_9_month_active">9 Months of\nActivity</string>
     <string name="personalid_credential_level_12_month_active">12 Months of\nActivity</string>
 
+    <string name="personalid_notification">Notifications</string>
+
     <string name="play_service_update_error">Please make sure Google Play services is supported on the device and is up to date.</string>
     <string name="nav_drawer_open">Open navigation drawer</string>
     <string name="nav_drawer_close">Close navigation drawer</string>
