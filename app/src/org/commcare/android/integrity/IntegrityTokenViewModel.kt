@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asFlow
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityException
 import com.google.android.play.core.integrity.StandardIntegrityManager
@@ -12,6 +13,7 @@ import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIn
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode
+import kotlinx.coroutines.flow.Flow
 import org.commcare.dalvik.BuildConfig
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
@@ -21,7 +23,9 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
     private val _providerState = MutableLiveData<TokenProviderState>()
     val providerState: LiveData<TokenProviderState> = _providerState
 
-    var integrityTokenProvider: StandardIntegrityTokenProvider? = null
+    private var integrityTokenProvider: StandardIntegrityTokenProvider? = null
+
+    val providerStateFlow: Flow<TokenProviderState>  =_providerState.asFlow()
 
     init {
         prepareTokenProvider()

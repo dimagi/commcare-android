@@ -2,13 +2,13 @@ package org.commcare.android.integrity
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import com.google.android.play.core.integrity.StandardIntegrityException
 import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode.*
+import kotlinx.coroutines.flow.first
 import org.commcare.android.CommCareViewModelProvider
 import org.commcare.utils.HashUtils
-import org.commcare.dalvik.R;
+import org.commcare.dalvik.R
 import org.json.JSONObject
 import java.util.LinkedList
 import java.util.HashMap
@@ -118,47 +118,39 @@ class IntegrityTokenApiRequestHelper(
     }
 
     companion object {
-        /**
-         * Suspend function to fetch the integrity token for background/worker use.
-         * Returns Result.success(token) or Result.failure(exception)
-         */
-        suspend fun fetchIntegrityToken(requestHash: String): Result<Pair<String, String>> = suspendCancellableCoroutine { cont ->
+        suspend fun fetchIntegrityToken(requestHash: String): Result<Pair<String, String>> {
             val viewModel = CommCareViewModelProvider.getIntegrityTokenViewModel()
 
-            fun requestToken() {
-                try {
-                    viewModel.requestIntegrityToken(requestHash, false, object : IntegrityTokenViewModel.IntegrityTokenCallback {
-                        override fun onTokenReceived(
-                            requestHash: String,
-                            integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken
-                        ) {
-                            cont.resume(Result.success(Pair(integrityTokenResponse.token(), requestHash)))
-                        }
-                        override fun onTokenFailure(exception: Exception) {
-                            cont.resume(Result.failure(exception))
-                        }
-                    })
-                } catch (e: Exception) {
-                    cont.resume(Result.failure(e))
-                }
-            }
+            return try {
+                // wait for provider readiness or failure
+                when (val state = viewModel.providerStateFlow.first { true }) {
+                    is IntegrityTokenViewModel.TokenProviderState.Success -> {
+                        suspendCancellableCoroutine { cont ->
+                            viewModel.requestIntegrityToken(
+                                requestHash,
+                                hasRetried = false,
+                                object : IntegrityTokenViewModel.IntegrityTokenCallback {
+                                    override fun onTokenReceived(
+                                        requestHash: String,
+                                        integrityTokenResponse: StandardIntegrityManager.StandardIntegrityToken
+                                    ) {
+                                        cont.resume(Result.success(Pair(integrityTokenResponse.token(), requestHash)))
+                                    }
 
-            val observer = object : Observer<IntegrityTokenViewModel.TokenProviderState> {
-                override fun onChanged(value: IntegrityTokenViewModel.TokenProviderState) {
-                    when (value) {
-                        is IntegrityTokenViewModel.TokenProviderState.Success -> {
-                            viewModel.providerState.removeObserver(this)
-                            requestToken()
-                        }
-                        is IntegrityTokenViewModel.TokenProviderState.Failure -> {
-                            viewModel.providerState.removeObserver(this)
-                            cont.resume(Result.failure(value.exception))
+                                    override fun onTokenFailure(exception: Exception) {
+                                        cont.resume(Result.failure(exception))
+                                    }
+                                }
+                            )
                         }
                     }
+                    is IntegrityTokenViewModel.TokenProviderState.Failure -> {
+                        Result.failure(state.exception)
+                    }
                 }
+            } catch (e: Exception) {
+                Result.failure(e)
             }
-            viewModel.providerState.observeForever(observer)
-            cont.invokeOnCancellation { viewModel.providerState.removeObserver(observer) }
         }
     }
 }
