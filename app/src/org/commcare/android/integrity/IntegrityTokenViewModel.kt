@@ -4,7 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityException
 import com.google.android.play.core.integrity.StandardIntegrityManager
@@ -12,6 +13,9 @@ import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIn
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenProvider
 import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
 import com.google.android.play.core.integrity.model.StandardIntegrityErrorCode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.commcare.dalvik.BuildConfig
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
@@ -21,7 +25,9 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
     private val _providerState = MutableLiveData<TokenProviderState>()
     val providerState: LiveData<TokenProviderState> = _providerState
 
-    var integrityTokenProvider: StandardIntegrityTokenProvider? = null
+    private var integrityTokenProvider: StandardIntegrityTokenProvider? = null
+
+    val providerStateFlow: Flow<TokenProviderState>  =_providerState.asFlow()
 
     init {
         prepareTokenProvider()
@@ -34,7 +40,7 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
      * that you anticipate will need to get the integrity token down the line.
      * Also note that each app instance can only prepare the integrity token up to 5 times per minute.
      */
-    fun prepareTokenProvider() {
+    private fun prepareTokenProvider() {
         val standardIntegrityManager = IntegrityManagerFactory.createStandard(getApplication())
         val cloudProjectNumber = BuildConfig.GOOGLE_CLOUD_PROJECT_NUMBER
         require(cloudProjectNumber!= -1L) { "Google Cloud Project Number is not defined" }
@@ -85,18 +91,24 @@ class IntegrityTokenViewModel(application: Application) : AndroidViewModel(appli
             prepareTokenProvider()
 
             // Observe the new preparation and retry once
-            _providerState.observeForever(object : Observer<TokenProviderState> {
-                override fun onChanged(state: TokenProviderState) {
-                    if (state is TokenProviderState.Success) {
-                        _providerState.removeObserver(this)
+            viewModelScope.launch {
+                when (val state = providerStateFlow.first {
+                    it is TokenProviderState.Success || it is TokenProviderState.Failure
+                }) {
+
+                    is TokenProviderState.Success -> {
                         requestIntegrityToken(requestHash, true, callback)
-                    } else if (state is TokenProviderState.Failure) {
-                        _providerState.removeObserver(this)
-                        Logger.log("Error re-preparing token provider after failure", state.exception.message )
+                    }
+
+                    is TokenProviderState.Failure -> {
+                        Logger.log(
+                            "Error re-preparing token provider after failure",
+                            state.exception.message
+                        )
                         callback.onTokenFailure(state.exception)
                     }
                 }
-            })
+            }
         } else {
             callback.onTokenFailure(exception)
         }
