@@ -38,7 +38,8 @@ class BaseDrawerController(
         COMMCARE_APPS,
         WORK_HISTORY,
         MESSAGING,
-        PAYMENTS
+        PAYMENTS,
+        NOTIFICATION
     }
 
     fun setupDrawer() {
@@ -155,6 +156,13 @@ class BaseDrawerController(
                     )
                 )
             }
+            items.add(
+                NavDrawerItem.ParentItem(
+                    activity.getString(R.string.personalid_notification),
+                    R.drawable.ic_bell,
+                    NavItemType.NOTIFICATION,
+                )
+            )
 
             items.add(
                 NavDrawerItem.ParentItem(

@@ -275,6 +275,12 @@ public class StandardHomeActivity
                     navigateToMessaging();
                 }
             }
+            case NOTIFICATION -> {
+                if(personalIdManagedLogin) {
+                    ConnectNavHelper.INSTANCE.goToNotification(this);
+                    closeDrawer();
+                }
+            }
         }
     }
 

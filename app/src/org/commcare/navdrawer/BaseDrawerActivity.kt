@@ -14,6 +14,7 @@ import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.utils.FirebaseMessagingUtil
 import android.os.Bundle
+import org.commcare.activities.PushNotificationActivity
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
@@ -80,6 +81,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
+            NavItemType.NOTIFICATION -> {
+                startActivity(Intent(this, PushNotificationActivity::class.java))
+                closeDrawer()
+            }
         }
     }
 
