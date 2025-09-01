@@ -25,6 +25,7 @@ import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
+import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
@@ -104,6 +105,14 @@ public class DispatchActivity extends AppCompatActivity {
         }
     }
 
+
+    private void checkIfAnyPNIntentPresent(){
+        Intent pnIntent = FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
+        if(pnIntent!=null){
+            startActivity(pnIntent);
+        }
+    }
+
     /**
      * A workaround required by Android Bug #2373 -- An app launched from the Google Play store
      * has different intent flags than one launched from the App launcher, which ruins the back
@@ -131,6 +140,7 @@ public class DispatchActivity extends AppCompatActivity {
             finish();
         } else {
             dispatch();
+            checkIfAnyPNIntentPresent();
         }
     }
 

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -79,9 +80,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
-        int opportunityId = getIntent().getIntExtra(ConnectConstants.OPPORTUNITY_ID, -1);
-        if (opportunityId > 0) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityId);
+        String opportunityId = getIntent().getStringExtra(ConnectConstants.OPPORTUNITY_ID);
+        if(!TextUtils.isEmpty(opportunityId)){
+            job = ConnectJobUtils.getCompositeJob(this, Integer.parseInt(opportunityId));
         }
     }
 
