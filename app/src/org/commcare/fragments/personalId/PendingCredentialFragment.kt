@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
@@ -44,12 +45,12 @@ class PendingCredentialFragment : Fragment() {
         binding!!.rvPendingCredential.adapter = pendingCredentialAdapter
         viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
         viewModel.pendingCredentials.observe(viewLifecycleOwner) { pendingList ->
-            if (pendingList.isNullOrEmpty()){
-                binding!!.tvNoPendingCredential.visibility = View.VISIBLE
-            }else{
-                binding!!.tvNoPendingCredential.visibility = View.GONE
-                pendingCredentialAdapter.setData(pendingList)
+            val hasItems = !pendingList.isNullOrEmpty()
+            binding?.apply {
+                tvNoPendingCredential.isVisible = !hasItems
+                rvPendingCredential.isVisible = hasItems
             }
+            pendingCredentialAdapter.setData(pendingList.orEmpty())
         }
     }
 
