@@ -59,7 +59,7 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
                 ) {
                     _apiError.postValue(failureCode to t)
                 }
-            }.retrieveCredentials(getApplication(), userName, user.password)
+            }.retrieveCredentials(getApplication(), user.userId, user.password)
         }
     }
 
