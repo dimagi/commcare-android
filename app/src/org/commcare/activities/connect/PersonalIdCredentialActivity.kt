@@ -1,22 +1,17 @@
 package org.commcare.activities.connect
 
 import android.os.Bundle
-
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.activities.NoCommCareActivity
-import org.commcare.android.database.connect.models.PersonalIdValidAndCorruptCredential
-import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
 import org.commcare.adapters.CredentialsViewPagerAdapter
+import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
+import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 
 
 class PersonalIdCredentialActivity : NoCommCareActivity() {
