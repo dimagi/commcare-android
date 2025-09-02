@@ -81,10 +81,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.PAYMENTS -> {}
             NavItemType.MESSAGING -> { navigateToMessaging() }
             NavItemType.WORK_HISTORY -> {}
-            NavItemType.NOTIFICATION -> {
-                startActivity(Intent(this, PushNotificationActivity::class.java))
-                closeDrawer()
-            }
         }
     }
 

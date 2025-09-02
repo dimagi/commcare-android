@@ -1,16 +1,19 @@
 package org.commcare.navdrawer
+import android.content.Intent
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
+import org.commcare.activities.PushNotificationActivity
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
@@ -39,7 +42,6 @@ class BaseDrawerController(
         WORK_HISTORY,
         MESSAGING,
         PAYMENTS,
-        NOTIFICATION
     }
 
     fun setupDrawer() {
@@ -116,6 +118,10 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
+        binding.notificationView.setOnClickListener {
+            startActivity(activity, Intent(activity, PushNotificationActivity::class.java), null)
+            closeDrawer()
+        }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 
@@ -156,13 +162,6 @@ class BaseDrawerController(
                     )
                 )
             }
-            items.add(
-                NavDrawerItem.ParentItem(
-                    activity.getString(R.string.personalid_notification),
-                    R.drawable.ic_bell,
-                    NavItemType.NOTIFICATION,
-                )
-            )
 
             items.add(
                 NavDrawerItem.ParentItem(
@@ -218,6 +217,7 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+        binding.notificationView.visibility = if (isSignedIn) View.VISIBLE else View.GONE
     }
 
     fun closeDrawer() {
