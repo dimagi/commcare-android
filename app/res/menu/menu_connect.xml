@@ -17,6 +17,7 @@
         android:id="@+id/action_bell"
         android:icon="@drawable/ic_bell"
         android:title="@string/personalid_notification"
+        android:visible="false"
         app:showAsAction="always" />
 
     <item
