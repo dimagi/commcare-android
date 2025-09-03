@@ -39,7 +39,7 @@ import androidx.core.app.ActivityCompat;
 /**
  * Activity that blocks user until the current GPS location is captured
  */
-public class GeoPointActivity extends AppCompatActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
+public class GeoPointActivity extends NoCommCareActivity implements TimerListener, CommCareLocationListener, RuntimePermissionRequester {
 
     private GeoProgressDialog locationDialog;
     private Location location;

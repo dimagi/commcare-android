@@ -39,7 +39,7 @@ import java.util.Date;
 /**
  * @author ctsims
  */
-public class DotsEntryActivity extends AppCompatActivity implements DotsEditListener, AnimationListener {
+public class DotsEntryActivity extends NoCommCareActivity implements DotsEditListener, AnimationListener {
     
     private DotsData dotsData;
     

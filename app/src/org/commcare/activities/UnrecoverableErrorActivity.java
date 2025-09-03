@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 /**
  * @author ctsims
  */
-public class UnrecoverableErrorActivity extends AppCompatActivity {
+public class UnrecoverableErrorActivity extends NoCommCareActivity {
 
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";

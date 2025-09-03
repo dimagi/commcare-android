@@ -19,7 +19,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author amstone
  */
-public class SeatAppActivity extends AppCompatActivity {
+public class SeatAppActivity extends NoCommCareActivity {
 
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
     public final static String KEY_APP_TO_SEAT = "app_to_seat";

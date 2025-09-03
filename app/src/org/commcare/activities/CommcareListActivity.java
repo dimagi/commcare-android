@@ -13,7 +13,7 @@ import org.commcare.dalvik.R;
 /**
  * An AppCompat compatible implemenation for Android's {@link android.app.ListActivity} class
  */
-public class CommcareListActivity extends AppCompatActivity {
+public class CommcareListActivity extends NoCommCareActivity {
 
     protected ListAdapter mAdapter;
     protected ListView mListView;

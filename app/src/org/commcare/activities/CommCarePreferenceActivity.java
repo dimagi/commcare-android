@@ -19,7 +19,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-public class CommCarePreferenceActivity extends AppCompatActivity {
+public class CommCarePreferenceActivity extends NoCommCareActivity {
 
     public static final String EXTRA_PREF_TYPE = "extra_pref_type";
 
