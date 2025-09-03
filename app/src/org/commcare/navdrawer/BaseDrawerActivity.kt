@@ -14,7 +14,6 @@ import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.utils.FirebaseMessagingUtil
 import android.os.Bundle
-import org.commcare.activities.PushNotificationActivity
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
