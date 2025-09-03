@@ -113,7 +113,7 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
                 if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
                     showSnackBarForDismiss(binding.getRoot(), getString(R.string.recovery_unable_to_claim_opportunity));
                 } else {
-                    Toast.makeText(requireContext(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t), Toast.LENGTH_LONG).show();
+                    showSnackBarForDismiss(binding.getRoot(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t));
                 }
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }

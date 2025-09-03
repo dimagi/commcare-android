@@ -4,6 +4,8 @@ import android.view.View;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.commcare.dalvik.R;
+
 public class ViewUtils {
     /**
      * Displays a SnackBar with the given message and an "OK" button.
@@ -20,7 +22,7 @@ public class ViewUtils {
     }
     public static void showSnackBarForDismiss(View view, String message) {
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction("OK", v -> snackbar.dismiss());
+        snackbar.setAction(view.getContext().getString(R.string.connect_register_success_button),v -> snackbar.dismiss());
         snackbar.show();
     }
 }
