@@ -488,6 +488,7 @@ License.
     <string name="personalid_credential_level_6_month_active">6 Mois d\'\nActivité</string>
     <string name="personalid_credential_level_9_month_active">9 Mois d\'\nActivité</string>
     <string name="personalid_credential_level_12_month_active">12 Mois d\'\nActivité</string>
+    <string name="personalid_credential_no_pending_credential">Il n\'y a aucune lettre de créance en attente</string>
 
     <string name="nav_drawer_signin_register">Se connecter / S’inscrire</string>
     <string name="nav_drawer_help">Aide</string>
