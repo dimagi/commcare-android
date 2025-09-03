@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class NotificationRecordsHelper {
-    public static List<ConnectMessagingMessageRecord> getMessagingMessagesForNotification(Context context, Integer notificationId) {
+    public static List<ConnectMessagingMessageRecord> getMessagingMessagesForNotification(Context context, String notificationId) {
         if (notificationId == null) {
             return Collections.emptyList();
         } else {
@@ -18,7 +18,7 @@ public class NotificationRecordsHelper {
         }
     }
 
-    public static List<ConnectMessagingChannelRecord> getMessagingChannelsForNotification(Context context, Integer notificationId) {
+    public static List<ConnectMessagingChannelRecord> getMessagingChannelsForNotification(Context context, String notificationId) {
         if (notificationId == null) {
             return Collections.emptyList();
         } else {
@@ -26,7 +26,7 @@ public class NotificationRecordsHelper {
         }
     }
 
-    public static List<ConnectJobPaymentRecord> getConnectJobPaymentRecordForNotification(Context context, Integer notificationId) {
+    public static List<ConnectJobPaymentRecord> getConnectJobPaymentRecordForNotification(Context context, String notificationId) {
         if (notificationId == null) {
             return Collections.emptyList();
         } else {

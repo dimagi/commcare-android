@@ -66,7 +66,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
 
     @Persisting(8)
     @MetaField(META_CHANNEL_NOTIFICATION_ID)
-    private Integer notificationId;
+    private String notificationId;
 
     private SpannableString preview;
 
@@ -84,7 +84,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         connectMessagingChannelRecord.answeredConsent = false;
         connectMessagingChannelRecord.key = "";
         connectMessagingChannelRecord.notificationId = json.has(META_CHANNEL_NOTIFICATION_ID) && !json.isNull(META_CHANNEL_NOTIFICATION_ID)
-                ? json.getInt(META_CHANNEL_NOTIFICATION_ID)
+                ? json.getString(META_CHANNEL_NOTIFICATION_ID)
                 : null;
 
         return connectMessagingChannelRecord;
@@ -104,7 +104,7 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         String notifIdStr = payloadData.get(META_CHANNEL_NOTIFICATION_ID);
         connectMessagingChannelRecord.notificationId =
                 (notifIdStr != null && !notifIdStr.isEmpty())
-                        ? Integer.parseInt(notifIdStr)
+                        ? notifIdStr
                         : null;
 
 
@@ -183,11 +183,11 @@ public class ConnectMessagingChannelRecord extends Persisted implements Serializ
         return messages.size() > 0 ? messages.get(messages.size() - 1).getTimeStamp() : null;
     }
 
-    public Integer getNotificationId() {
+    public String getNotificationId() {
         return notificationId;
     }
 
-    public void setNotificationId(Integer notificationId) {
+    public void setNotificationId(String notificationId) {
         this.notificationId = notificationId;
     }
 

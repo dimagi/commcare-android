@@ -59,7 +59,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
 
     @Persisting(7)
     @MetaField(META_NOTIFICATION_ID)
-    private Integer notificationId;
+    private String notificationId;
 
     public ConnectJobPaymentRecord() {
     }
@@ -110,7 +110,7 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         }
 
         if (json.has(META_NOTIFICATION_ID) && !json.isNull(META_NOTIFICATION_ID)) {
-            payment.notificationId = json.getInt(META_NOTIFICATION_ID);
+            payment.notificationId = json.getString(META_NOTIFICATION_ID);
         }
 
         return payment;
@@ -146,11 +146,11 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         }
     }
 
-    public Integer getNotificationId() {
+    public String getNotificationId() {
         return notificationId;
     }
 
-    public void setNotificationId(Integer notificationId) {
+    public void setNotificationId(String notificationId) {
         this.notificationId = notificationId;
     }
 

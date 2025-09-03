@@ -70,7 +70,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     @Persisting(8)
     @MetaField(META_MESSAGE_NOTIFICATION_ID)
-    private Integer notificationId;
+    private String notificationId;
 
     public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
         ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
@@ -79,7 +79,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         connectMessagingMessageRecord.channelId = json.getString(META_MESSAGE_CHANNEL_ID);
         connectMessagingMessageRecord.notificationId =
                 json.has(META_MESSAGE_NOTIFICATION_ID) && !json.isNull(META_MESSAGE_NOTIFICATION_ID)
-                        ? json.getInt(META_MESSAGE_NOTIFICATION_ID)
+                        ? json.getString(META_MESSAGE_NOTIFICATION_ID)
                         : null;
 
 
@@ -132,7 +132,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         String notifIdStr = payloadData.get(META_MESSAGE_NOTIFICATION_ID);
         record.setNotificationId(
                 (notifIdStr != null && !notifIdStr.isEmpty())
-                        ? Integer.parseInt(notifIdStr)
+                        ? notifIdStr
                         : null
         );
 
@@ -253,11 +253,11 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     public void setUserViewed(boolean userViewed) {
         this.userViewed = userViewed;
     }
-    public Integer getNotificationId() {
+    public String getNotificationId() {
         return notificationId;
     }
 
-    public void setNotificationId(Integer notificationId) {
+    public void setNotificationId(String notificationId) {
         this.notificationId = notificationId;
     }
 
