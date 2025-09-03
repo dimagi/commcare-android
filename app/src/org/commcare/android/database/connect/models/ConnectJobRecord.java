@@ -1,5 +1,7 @@
 package org.commcare.android.database.connect.models;
 
+import static org.commcare.connect.ConnectConstants.STATUS_APPROVED;
+
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -559,7 +561,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         int dailyVisitCount = 0;
         Date today = new Date();
         for (ConnectJobDeliveryRecord record : deliveries) {
-            if(DateUtils.dateDiff(today, record.getDate()) == 0) {
+            if(DateUtils.dateDiff(today, record.getDate()) == 0 && record.getStatus().equals(STATUS_APPROVED)) {
                 dailyVisitCount++;
             }
         }
