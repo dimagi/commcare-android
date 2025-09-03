@@ -12,8 +12,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-@Table(ConnectJobPaymentRecord.STORAGE_KEY)
-public class ConnectJobPaymentRecord extends Persisted implements Serializable {
+@Table(ConnectJobPaymentRecordV18.STORAGE_KEY)
+public class ConnectJobPaymentRecordV18 extends Persisted implements Serializable {
     /**
      * Name of database that stores app info for Connect jobs
      */
@@ -25,7 +25,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     public static final String META_PAYMENT_ID = "payment_id";
     public static final String META_CONFIRMED = "confirmed";
     public static final String META_CONFIRMED_DATE = "date_confirmed";
-    public static final String META_NOTIFICATION_ID = "notification_id";
     private static final long CONFIRMATION_WINDOW_DAYS = 7;
     private static final long UNDO_WINDOW_DAYS = 1;
 
@@ -57,15 +56,11 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
     @MetaField(META_CONFIRMED_DATE)
     private Date confirmedDate;
 
-    @Persisting(7)
-    @MetaField(META_NOTIFICATION_ID)
-    private Integer notificationId;
-
-    public ConnectJobPaymentRecord() {
+    public ConnectJobPaymentRecordV18() {
     }
 
-    public static ConnectJobPaymentRecord fromV3(ConnectJobPaymentRecordV3 oldRecord) {
-        ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
+    public static ConnectJobPaymentRecordV18 fromV3(ConnectJobPaymentRecordV3 oldRecord) {
+        ConnectJobPaymentRecordV18 newRecord = new ConnectJobPaymentRecordV18();
 
         newRecord.jobId = oldRecord.getJobId();
         newRecord.date = oldRecord.getDate();
@@ -78,24 +73,8 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         return newRecord;
     }
 
-    public static ConnectJobPaymentRecord fromV18(ConnectJobPaymentRecordV18 oldRecord) {
-        ConnectJobPaymentRecord newRecord = new ConnectJobPaymentRecord();
-
-        newRecord.jobId = oldRecord.getJobId();
-        newRecord.date = oldRecord.getDate();
-        newRecord.amount = oldRecord.getAmount();
-        newRecord.paymentId = oldRecord.getPaymentId();
-        newRecord.confirmed = oldRecord.getConfirmed();
-        newRecord.confirmedDate = oldRecord.getConfirmedDate();
-        newRecord.notificationId = null;
-
-        return newRecord;
-    }
-
-
-
-    public static ConnectJobPaymentRecord fromJson(JSONObject json, int jobId) throws JSONException {
-        ConnectJobPaymentRecord payment = new ConnectJobPaymentRecord();
+    public static ConnectJobPaymentRecordV18 fromJson(JSONObject json, int jobId) throws JSONException {
+        ConnectJobPaymentRecordV18 payment = new ConnectJobPaymentRecordV18();
 
         payment.jobId = jobId;
         payment.date = DateUtils.parseDateTime(json.getString(META_DATE));
@@ -107,10 +86,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
                     DateUtils.parseDate(json.getString(META_CONFIRMED_DATE)) : new Date();
         } catch (Exception e) {
             throw new JSONException("Error parsing confirmed date: " + e.getMessage());
-        }
-
-        if (json.has(META_NOTIFICATION_ID) && !json.isNull(META_NOTIFICATION_ID)) {
-            payment.notificationId = json.getInt(META_NOTIFICATION_ID);
         }
 
         return payment;
@@ -146,14 +121,6 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         }
     }
 
-    public Integer getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(Integer notificationId) {
-        this.notificationId = notificationId;
-    }
-
     /**
      * Checks if the payment can be confirmed based on business rules:
      * - Payment must not be already confirmed
@@ -180,5 +147,13 @@ public class ConnectJobPaymentRecord extends Persisted implements Serializable {
         long millis = (new Date()).getTime() - confirmedDate.getTime();
         long days = TimeUnit.DAYS.convert(millis, TimeUnit.MILLISECONDS);
         return days < UNDO_WINDOW_DAYS;
+    }
+
+    public int getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
     }
 }

@@ -19,8 +19,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Table(ConnectMessagingMessageRecord.STORAGE_KEY)
-public class ConnectMessagingMessageRecord extends Persisted implements Serializable {
+@Table(ConnectMessagingMessageRecordV18.STORAGE_KEY)
+public class ConnectMessagingMessageRecordV18 extends Persisted implements Serializable {
 
     /**
      * Name of database that stores Connect payment units
@@ -34,9 +34,8 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     public static final String META_MESSAGE_IS_OUTGOING = "is_outgoing";
     public static final String META_MESSAGE_CONFIRM = "confirmed";
     public static final String META_MESSAGE_USER_VIEWED = "user_viewed";
-    public static final String META_MESSAGE_NOTIFICATION_ID = "notification_id";
 
-    public ConnectMessagingMessageRecord() {
+    public ConnectMessagingMessageRecordV18() {
 
     }
 
@@ -68,20 +67,12 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     @MetaField(META_MESSAGE_USER_VIEWED)
     private boolean userViewed;
 
-    @Persisting(8)
-    @MetaField(META_MESSAGE_NOTIFICATION_ID)
-    private Integer notificationId;
 
-    public static ConnectMessagingMessageRecord fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
-        ConnectMessagingMessageRecord connectMessagingMessageRecord = new ConnectMessagingMessageRecord();
+    public static ConnectMessagingMessageRecordV18 fromJson(JSONObject json, List<ConnectMessagingChannelRecord> channels) throws JSONException, ParseException{
+        ConnectMessagingMessageRecordV18 connectMessagingMessageRecord = new ConnectMessagingMessageRecordV18();
 
         connectMessagingMessageRecord.messageId = json.getString(META_MESSAGE_ID);
         connectMessagingMessageRecord.channelId = json.getString(META_MESSAGE_CHANNEL_ID);
-        connectMessagingMessageRecord.notificationId =
-                json.has(META_MESSAGE_NOTIFICATION_ID) && !json.isNull(META_MESSAGE_NOTIFICATION_ID)
-                        ? json.getInt(META_MESSAGE_NOTIFICATION_ID)
-                        : null;
-
 
         ConnectMessagingChannelRecord channel = getChannel(channels, connectMessagingMessageRecord.channelId);
         if(channel == null) {
@@ -110,7 +101,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         return connectMessagingMessageRecord;
     }
 
-    public static ConnectMessagingMessageRecord fromMessagePayload(Map<String, String> payloadData, String encryptionKey) {
+    public static ConnectMessagingMessageRecordV18 fromMessagePayload(Map<String, String> payloadData, String encryptionKey) {
         String channel = payloadData.get(META_MESSAGE_CHANNEL_ID);
         String cipher = payloadData.get("ciphertext");
         String tag = payloadData.get("tag");
@@ -121,7 +112,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             return null;
         }
 
-        ConnectMessagingMessageRecord record = new ConnectMessagingMessageRecord();
+        ConnectMessagingMessageRecordV18 record = new ConnectMessagingMessageRecordV18();
         record.setMessageId(payloadData.get(META_MESSAGE_ID));
         record.setTimeStamp(DateUtils.parseDateTime(payloadData.get(META_MESSAGE_TIMESTAMP)));
         record.setChannelId(channel);
@@ -129,13 +120,6 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         record.setMessage(decrypted);
         record.setUserViewed(false);
         record.setIsOutgoing(false);
-        String notifIdStr = payloadData.get(META_MESSAGE_NOTIFICATION_ID);
-        record.setNotificationId(
-                (notifIdStr != null && !notifIdStr.isEmpty())
-                        ? Integer.parseInt(notifIdStr)
-                        : null
-        );
-
 
         return record;
     }
@@ -252,27 +236,5 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     public void setUserViewed(boolean userViewed) {
         this.userViewed = userViewed;
-    }
-    public Integer getNotificationId() {
-        return notificationId;
-    }
-
-    public void setNotificationId(Integer notificationId) {
-        this.notificationId = notificationId;
-    }
-
-    public static ConnectMessagingMessageRecord fromV17(ConnectMessagingMessageRecordV18 oldRecord) {
-        ConnectMessagingMessageRecord newRecord = new ConnectMessagingMessageRecord();
-
-        newRecord.setMessageId(oldRecord.getMessageId());
-        newRecord.setChannelId(oldRecord.getChannelId());
-        newRecord.setTimeStamp(oldRecord.getTimeStamp());
-        newRecord.setMessage(oldRecord.getMessage());
-        newRecord.setIsOutgoing(oldRecord.getIsOutgoing());
-        newRecord.setConfirmed(oldRecord.getConfirmed());
-        newRecord.setUserViewed(oldRecord.getUserViewed());
-        newRecord.setNotificationId(null);
-
-        return newRecord;
     }
 }
