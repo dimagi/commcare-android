@@ -31,6 +31,7 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
+    @JvmStatic
     fun goToNotification(context: Context) {
         val i = Intent(context, PushNotificationActivity::class.java)
         context.startActivity(i)
