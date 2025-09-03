@@ -190,7 +190,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
         if (item.getItemId() == R.id.action_bell) {
-            startActivity(new Intent(this, PushNotificationActivity.class));
+            ConnectNavHelper.goToNotification(this);
             return true;
         }
 
