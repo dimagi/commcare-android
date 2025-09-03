@@ -486,6 +486,7 @@
     <string name="personalid_credential_level_6_month_active">6 Meses de\nActividad</string>
     <string name="personalid_credential_level_9_month_active">9 Meses de\nActividad</string>
     <string name="personalid_credential_level_12_month_active">12 Meses de\nActividad</string>
+    <string name="personalid_credential_no_pending_credential">No hay credenciales pendientes</string>
 
     <string name="personalid_notification">Notificaciones</string>
 
