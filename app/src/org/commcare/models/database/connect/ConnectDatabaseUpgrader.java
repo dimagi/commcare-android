@@ -122,6 +122,10 @@ public class ConnectDatabaseUpgrader {
             upgradeSixteenSeventeen(db);
             oldVersion = 17;
         }
+        if (oldVersion == 17) {
+            upgradeSeventeenEighteen(db);
+            oldVersion = 18;
+        }
     }
 
     private void upgradeOneTwo(IDatabase db) {
@@ -626,6 +630,17 @@ public class ConnectDatabaseUpgrader {
                 newStorage.write(newRecord);
             }
             db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeSeventeenEighteen(IDatabase db) {
+        db.beginTransaction();
+        try {
+            // We have not been populating this table yet, so just drop and recreate
+            SqlStorage.dropTable(db, PersonalIdCredential.STORAGE_KEY);
+            addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
         } finally {
             db.endTransaction();
         }

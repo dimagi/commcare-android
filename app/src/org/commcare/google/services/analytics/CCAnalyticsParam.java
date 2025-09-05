@@ -9,8 +9,9 @@ public class CCAnalyticsParam {
     public static final String USER_CID = "user_cid";
     static final String BUILD_NUMBER = "build_number";
     static final String CC_APP_ID = "cc_app_id";
+    static final String CC_APP_NAME = "cc_app_name";
     static final String CC_APP_BUILD_PROFILE_ID = "cc_app_build_profile_id";
-    static final String CCHQ_DOMAIN = "cchq_domain";
+    public static final String CCHQ_DOMAIN = "cchq_domain";
     static final String SERVER = "server";
     static final String FREE_DISK = "free_disk";
     static final String CCC_ENABLED = "ccc_enabled";
@@ -23,7 +24,7 @@ public class CCAnalyticsParam {
     static final String REASON = "reason";
     static final String RESULT = "result";
     static final String UI_STATE = "uite_state";
-    static final String USERNAME = "username";
+    public static final String USERNAME = "username";
     static final String FORM_ID = "form_id";
     static final String REQUEST_ID = "request_id";
     static final String RESULT_CODE = "result_code";

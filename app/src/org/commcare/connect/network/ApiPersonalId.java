@@ -322,9 +322,9 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback,ApiEndPoints.completeProfile);
     }
 
-    public static void retrieveCredentials(Context context, String userName, String password,
+    public static void retrieveCredentials(Context context, String userId, String password,
             IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userName, password, false);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         ApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.retrieveCredentials(tokenAuth);

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
@@ -50,6 +49,8 @@ public class StandardHomeActivity
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
     private boolean personalIdManagedLogin = false;
+
+    private boolean rootContainerReadyToShowDrawer = false;
 
 
     @Override
@@ -306,8 +307,23 @@ public class StandardHomeActivity
         return false;
     }
 
+
+    /**
+     * Its not good idea to have such patches but its seems like no choice here.
+     * BaseDrawerActivity is trying to add the drawer before root view of this activity is created. Reason for this is
+     * this home activity is going through lot of process for sessions and then creating root view from `home_screen.xml`
+     * @param status
+     */
+    protected void toggleDrawerSetUp(boolean status){
+        this.rootContainerReadyToShowDrawer = status;
+    }
+
     @Override
     protected boolean shouldShowDrawer() {
+
+        if(!rootContainerReadyToShowDrawer) return false;   // wait for root content to get load through xml
+
+
         if(NavDrawerHelper.INSTANCE.drawerShownBefore()) {
             return true;
         }
