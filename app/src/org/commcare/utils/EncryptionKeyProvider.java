@@ -1,7 +1,6 @@
 package org.commcare.utils;
 
 import android.content.Context;
-import android.os.Build;
 
 import org.commcare.android.security.AesKeyStoreHandler;
 import org.commcare.android.security.KeyStoreHandler;
@@ -39,10 +38,8 @@ public class EncryptionKeyProvider {
         RsaKeyStoreHandler rsaKeystoreHandler = new RsaKeyStoreHandler(context, keyAlias, isEncryptMode);
         if (rsaKeystoreHandler.doesKeyExist()) {
             return rsaKeystoreHandler;
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return new AesKeyStoreHandler(keyAlias, needsUserAuth);
         } else {
-            return rsaKeystoreHandler;
+            return new AesKeyStoreHandler(keyAlias, needsUserAuth);
         }
     }
 
