@@ -142,4 +142,10 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     public CommCareApp getApp() {
         return app;
     }
+
+    public void initializeProfile() throws ResourceInitializationException {
+        ResourceTable global = getGlobalResourceTable();
+        Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
+        global.attemptResourceInitialization(this, false, profile, new Vector<>());
+    }
 }
