@@ -315,7 +315,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         CommCareActivity<?> activity = (CommCareActivity<?>) requireActivity();
         if(BiometricsHelper.isFingerprintConfigured(activity,
                 PersonalIdManager.getInstance().getBiometricManager(activity))) {
-            new EncryptionKeyProvider(requireContext(), true, BIOMETRIC_INVALIDATION_KEY).getKeyForEncryption();
+            new EncryptionKeyProvider(true, BIOMETRIC_INVALIDATION_KEY).getCryptographicKey();
         }
     }
 

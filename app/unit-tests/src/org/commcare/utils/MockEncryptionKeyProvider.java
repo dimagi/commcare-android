@@ -19,17 +19,12 @@ public class MockEncryptionKeyProvider extends EncryptionKeyProvider {
     private static final String TEST_SECRET = "test-secret";
 
     public MockEncryptionKeyProvider(Context context) {
-        super(context, false, TEST_SECRET);
+        super(false, TEST_SECRET);
     }
 
     @Override
-    public EncryptionKeyAndTransform getKeyForEncryption() {
+    public EncryptionKeyAndTransform getCryptographicKey() {
         return getKey(true);
-    }
-
-    @Override
-    public EncryptionKeyAndTransform getKeyForDecryption() {
-        return getKey(false);
     }
 
     private EncryptionKeyAndTransform getKey(boolean trueForEncrypt) {
