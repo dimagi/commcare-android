@@ -2,7 +2,6 @@ package org.commcare.fragments.personalId;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
@@ -268,8 +267,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
                     @Override
                     public void onTokenFailure(@NotNull Exception exception) {
-                        onConfigurationFailure(AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE,
-                                integrityTokenApiRequestHelper.getErrorForException(requireActivity(), exception));
+                        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(
+                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE);
+                        makeStartConfigurationCall(null, body, null);
                     }
                 });
     }
@@ -385,7 +385,12 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     private void makeStartConfigurationCall(String requestHash,
                                             HashMap<String, String> body,
-                                            StandardIntegrityManager.@NotNull StandardIntegrityToken integrityTokenResponse) {
+                                            StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse) {
+        String token = integrityTokenResponse != null ? integrityTokenResponse.token() : "";
+        if(requestHash == null) {
+            requestHash = "";
+        }
+
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
@@ -425,7 +430,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                         break;
                 }
             }
-        }.makeStartConfigurationCall(requireActivity(), body, integrityTokenResponse.token(), requestHash);
+        }.makeStartConfigurationCall(requireActivity(), body, token, requestHash);
     }
 
     private void handleIntegritySubError(StandardIntegrityManager.StandardIntegrityToken tokenResponse,
