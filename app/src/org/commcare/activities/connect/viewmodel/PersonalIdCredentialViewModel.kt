@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.CommCareApp
 import org.commcare.android.database.connect.models.PersonalIdCredential
@@ -35,7 +36,7 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
     val profilePhoto: String? = user.photo
 
     fun retrieveAndProcessCredentials() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<List<PersonalIdCredential>>() {
                 override fun onSuccess(result: List<PersonalIdCredential>) {
                     val earned = result
