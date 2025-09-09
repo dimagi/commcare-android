@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -463,9 +462,7 @@ public class FirebaseMessagingUtil {
     }
 
     public static Intent getIntentForPNIfAny(Context context,Intent intent){
-        Log.e("FBMsgUtil",intent.toString());
         if(intent!=null && intent.getExtras()!=null && intent.hasExtra("action")){
-            Log.e("FBMsgUtil","intents are NOOOOOOOT null ");
             Map<String, String> dataPayload = new HashMap<>();
             if (intent.getExtras() != null) {
                 for (String key : intent.getExtras().keySet()) {
@@ -473,15 +470,10 @@ public class FirebaseMessagingUtil {
                     dataPayload.put(key, value);
                 }
             }
-
-            Log.e("FBMsgUtil",dataPayload.toString());
-
             intent.replaceExtras(new Bundle()); // clear all intent
 
             return handleNotification(context,dataPayload,null,false);
 
-        }else{
-            Log.e("FBMsgUtil","intents are null ");
         }
         return null;
     }
