@@ -14,9 +14,8 @@ import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.suite.model.Credential
 import org.commcare.utils.MultipleAppsUtil
-import java.util.Vector
+import java.util.ArrayList
 
 class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
     private val _apiError =
@@ -70,8 +69,21 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
     }
 
     private fun evalInstalledAppsCredentials(): List<PersonalIdCredential> {
-        return MultipleAppsUtil.getUsableAppRecords().flatMap { record ->
-            evalCredentials(record).map { credential ->
+        val previousSandbox = CommCareApp.currentSandbox
+        val records = MultipleAppsUtil.getUsableAppRecords()
+        return try {
+            getCredentialsFromAppRecords(records)
+        } finally {
+            CommCareApp.currentSandbox = previousSandbox
+        }
+    }
+
+    private fun getCredentialsFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdCredential> {
+        return records.flatMap { record ->
+            val commcareApp = CommCareApp(record)
+            commcareApp.setupSandbox()
+            val profile = commcareApp.initApplicationProfile();
+            profile.credentials.map { credential ->
                 PersonalIdCredential().apply {
                     appId = record.applicationId
                     title = record.displayName ?: ""
@@ -81,11 +93,5 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
         }
     }
 
-    private fun evalCredentials(record: ApplicationRecord): Vector<Credential> {
-        val commcareApp =  CommCareApp(record)
-        commcareApp.setupSandbox()
-        val profile = commcareApp.initApplicationProfile();
-        return profile.credentials
-    }
 }
 
