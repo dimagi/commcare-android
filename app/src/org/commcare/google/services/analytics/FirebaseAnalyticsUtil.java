@@ -512,6 +512,17 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
+    public static void continueButtonClicks() {
+        reportEvent(CCAnalyticsEvent.CONTINUE_BUTTON_CLICKED);
+    }
+    public static void sentMessage() {
+        reportEvent(CCAnalyticsEvent.SENT_MESSAGE);
+    }
+
+    public static void personalIdLinked() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKED);
+    }
+
     // logs screen view events when set to a navigation controller
     public static NavController.OnDestinationChangedListener getNavControllerPageChangeLoggingListener() {
         return (navController, navDestination, args) -> {

@@ -356,6 +356,7 @@ public class PersonalIdManager {
             }
 
             linkedApp.linkToPersonalId(password);
+            FirebaseAnalyticsUtil.personalIdLinked();
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
