@@ -60,27 +60,35 @@ public class ConnectUnlockFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private final Runnable unlockRunnable = new Runnable() {
+        @Override
+        public void run() {
+            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
+                if (success) {
+                    retrieveOpportunities();
+                } else {
+                    requireActivity().finish();
+                }
+            });
+        }
+    };
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
-                    if (success) {
-                        retrieveOpportunities();
-                    } else {
-                        requireActivity().finish();
-                    }
-                });
-            }
-        }, 1000); // delayMillis is the delay in milliseconds
+        binding.getRoot().postDelayed(unlockRunnable, 1000);
 
 
     }
 
+
+    @Override
+    public void onDestroyView() {
+        binding.getRoot().removeCallbacks(unlockRunnable);
+        binding = null;
+        super.onDestroyView();
+    }
 
     private void retrieveOpportunities() {
         ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());

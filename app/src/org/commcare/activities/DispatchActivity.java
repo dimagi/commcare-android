@@ -140,7 +140,6 @@ public class DispatchActivity extends AppCompatActivity {
             finish();
         } else {
             dispatch();
-            checkIfAnyPNIntentPresent();
         }
     }
 
@@ -231,6 +230,7 @@ public class DispatchActivity extends AppCompatActivity {
                 launchLoginScreen();
             }
         }
+        checkIfAnyPNIntentPresent();
     }
 
     private boolean needAnotherAppLogin() {
