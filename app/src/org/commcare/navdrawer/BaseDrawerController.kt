@@ -12,6 +12,7 @@ import com.bumptech.glide.request.RequestOptions
 import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
+import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -38,7 +39,7 @@ class BaseDrawerController(
         COMMCARE_APPS,
         WORK_HISTORY,
         MESSAGING,
-        PAYMENTS
+        PAYMENTS,
     }
 
     fun setupDrawer() {
@@ -115,6 +116,10 @@ class BaseDrawerController(
             closeDrawer()
         }
         binding.aboutView.setOnClickListener { DialogCreationHelpers.showAboutCommCareDialog(activity) }
+        binding.notificationView.setOnClickListener {
+            ConnectNavHelper.goToNotification(activity)
+            closeDrawer()
+        }
         binding.helpView.setOnClickListener { /* Future Help Action */ }
     }
 
@@ -210,6 +215,7 @@ class BaseDrawerController(
         binding.signoutView.visibility = if (isSignedIn) View.GONE else View.VISIBLE
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+        binding.notificationView.visibility = if (isSignedIn) View.VISIBLE else View.GONE
     }
 
     fun closeDrawer() {

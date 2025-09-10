@@ -14,6 +14,35 @@
         android:background="@color/darker_grey"/>
 
     <LinearLayout
+        android:id="@+id/notification_view"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingStart="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingEnd="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/ivNotification"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_bell"/>
+
+        <TextView
+            android:id="@+id/tvNotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/personalid_notification"
+            android:textAppearance="@style/TextAppearance.NavDrawerItem"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/about_view"
         android:layout_width="match_parent"
         android:layout_height="48dp"
