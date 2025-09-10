@@ -6,7 +6,7 @@
         <activity
             android:name="org.commcare.utils.AndroidShortcuts"
             android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
