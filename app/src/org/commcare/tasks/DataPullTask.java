@@ -2,6 +2,8 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
+import com.google.firebase.perf.metrics.Trace;
+
 import androidx.core.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +22,7 @@ import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.interfaces.CommcareRequestEndpoints;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
@@ -313,6 +316,8 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_APP_SYNC_DURATION);
+
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded, skipFixtures);
 
@@ -326,7 +331,7 @@ public abstract class DataPullTask<R>
             if (responseCode == 202) {
                 return asyncRestoreHelper.handleRetryResponseCode(pullResponse);
             } else {
-                return handleSuccessResponseCode(pullResponse, factory);
+                return handleSuccessResponseCode(pullResponse, factory, trace);
             }
         } else if (responseCode == 412) {
             return handleBadLocalState(factory);
@@ -356,7 +361,7 @@ public abstract class DataPullTask<R>
      * return
      */
     private ResultAndError<PullTaskResult> handleSuccessResponseCode(
-            RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
+            RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory, Trace trace)
             throws IOException, UnknownSyncError {
 
         asyncRestoreHelper.completeServerProgressBarIfShowing();
@@ -377,6 +382,10 @@ public abstract class DataPullTask<R>
             updateUserSyncToken(syncToken);
 
             onSuccessfulSync();
+            if (trace != null) {
+                trace.putAttribute(CCPerfMonitoring.ATTR_SYNC_SUCESS, AnalyticsParamValue.SYNC_SUCCESS);
+                CCPerfMonitoring.INSTANCE.stopTracing(trace);
+            }
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } catch (XmlPullParserException e) {
             wipeLoginIfItOccurred();
