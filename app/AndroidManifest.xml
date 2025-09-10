@@ -580,7 +580,7 @@
         <receiver
             android:name="org.commcare.services.PaymentAcknowledgeReceiver"
             android:exported="false"/>
-        <activity android:name="org.commcare.activities.connect.PersonalIdCredentialActivity"/>
+        <activity android:name="org.commcare.activities.PushNotificationActivity" />
     </application>
 
 </manifest>
