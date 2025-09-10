@@ -149,12 +149,11 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
      * @return true if we should switch to PersonalId auth, false otherwise
      */
     private boolean shouldAutoSwitchToPersonalIdAuth(OtpErrorType errorType) {
-        if(SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())){
+        if(SMS_METHOD_PERSONAL_ID.equalsIgnoreCase(personalIdSessionData.getSmsMethod())) {
             return false;
         }
 
-        // Switch for non-recoverable Firebase errors
-        return errorType.isNonRecoverable();
+        return personalIdSessionData.getOtpFallback() && errorType.isNonRecoverable();
     }
 
     @Override
