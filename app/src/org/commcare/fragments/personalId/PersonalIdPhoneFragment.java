@@ -267,8 +267,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
                     @Override
                     public void onTokenFailure(@NotNull Exception exception) {
-                        FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(
-                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_DEVICE_FAILURE);
+                        String errorCode = IntegrityTokenApiRequestHelper.Companion.getCodeForException(exception);
+                        FirebaseAnalyticsUtil.reportPersonalIdConfigurationIntegritySubmission(errorCode);
+
                         makeStartConfigurationCall(null, body, null);
                     }
                 });
