@@ -3,6 +3,8 @@ package org.commcare.tasks;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.firebase.perf.metrics.Trace;
+
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.FormDefRecord;
 import org.commcare.android.javarosa.AndroidXFormHttpRequester;
@@ -10,6 +12,7 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.extensions.XFormExtensionUtils;
+import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.logic.AndroidFormController;
@@ -94,6 +97,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
      */
     @Override
     protected FECWrapper doTaskBackground(Integer... formDefId) {
+        Trace trace = CCPerfMonitoring.INSTANCE.startTracing(CCPerfMonitoring.TRACE_FORM_LOADING_TIME);
         FormDef fd = null;
 
         FormDefRecord formDefRecord = FormDefRecord.getFormDef(
@@ -142,6 +146,11 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Integer, String, Fo
         AndroidFormController formController = new AndroidFormController(fec, mReadOnly, savedFormSession);
 
         data = new FECWrapper(formController);
+
+        if (trace != null) {
+            trace.putAttribute(CCPerfMonitoring.ATTR_FORM_NAME, fd.getName());
+            CCPerfMonitoring.INSTANCE.stopTracing(trace);
+        }
         return data;
     }
 

@@ -10,11 +10,13 @@ object CCPerfMonitoring {
     // Measures the duration of synchronous case list loading
     const val TRACE_SYNC_ENTITY_LIST_LOADING = "sync_case_list_loading"
     const val TRACE_CASE_SEARCH_TIME = "case_search_time"
+    const val TRACE_FORM_LOADING_TIME = "form_loading_time"
 
     // Attributes
     const val ATTR_NUM_CASES_LOADED = "number_of_cases_loaded"
     const val ATTR_RESULTS_COUNT: String = "case_search_results_count"
     const val ATTR_SEARCH_QUERY_LENGTH: String = "case_search_query_length"
+    const val ATTR_FORM_NAME = "form_name"
 
     fun startTracing(traceName: String): Trace? {
         try {
