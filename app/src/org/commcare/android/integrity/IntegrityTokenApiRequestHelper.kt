@@ -152,5 +152,13 @@ class IntegrityTokenApiRequestHelper(
                 Result.failure(e)
             }
         }
+
+        fun getCodeForException(exception: Throwable): String {
+            return if (exception is StandardIntegrityException) {
+                exception.errorCode.toString()
+            } else {
+                exception.message ?: "UnknownError"
+            }
+        }
     }
 }
