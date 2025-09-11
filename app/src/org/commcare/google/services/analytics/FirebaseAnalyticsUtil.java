@@ -409,9 +409,19 @@ public class FirebaseAnalyticsUtil {
                 new String[]{String.valueOf(first), String.valueOf(second)});
     }
 
-    public static void reportPersonalIdIntegritySubmission(String requestId, String responseCode) {
+    public static void reportPersonalIdConfigurationIntegritySubmission(String responseCode) {
+        String label = "PersonalID Configuration";
+        reportPersonalIdIntegritySubmission(label, label, responseCode);
+    }
+
+    public static void reportPersonalIdHeartbeatIntegritySubmission(String requestId, String responseCode) {
+        reportPersonalIdIntegritySubmission("Heartbeat", requestId, responseCode);
+    }
+
+    public static void reportPersonalIdIntegritySubmission(String trigger, String requestId, String responseCode) {
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REQUEST_ID, requestId);
+        b.putString(CCAnalyticsParam.TRIGGER, trigger);
         b.putString(CCAnalyticsParam.RESULT_CODE, responseCode);
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_INTEGRITY_REPORTED, b);
     }
