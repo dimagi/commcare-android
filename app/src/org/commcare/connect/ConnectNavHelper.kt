@@ -6,6 +6,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.activities.connect.PersonalIdCredentialActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
@@ -34,6 +35,24 @@ object ConnectNavHelper {
     @JvmStatic
     fun goToNotification(context: Context) {
         val i = Intent(context, PushNotificationActivity::class.java)
+        context.startActivity(i)
+    }
+
+    fun unlockAndGoToCredentials(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
+        personalIdManager.init(activity)
+        personalIdManager.unlockConnect(
+            activity
+        ) { success: Boolean ->
+            if (success) {
+                goToCredentials(activity)
+            }
+            listener.connectActivityComplete(success)
+        }
+    }
+
+    fun goToCredentials(context: Context) {
+        val i = Intent(context, PersonalIdCredentialActivity::class.java)
         context.startActivity(i)
     }
 

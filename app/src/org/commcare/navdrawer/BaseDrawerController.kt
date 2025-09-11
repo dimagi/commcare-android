@@ -40,6 +40,7 @@ class BaseDrawerController(
         WORK_HISTORY,
         MESSAGING,
         PAYMENTS,
+        CREDENTIAL,
     }
 
     fun setupDrawer() {
@@ -195,6 +196,16 @@ class BaseDrawerController(
                 )
             }
 
+            if (shouldShowCredential()) {
+                items.add(
+                    NavDrawerItem.ParentItem(
+                        activity.getString(R.string.personalid_credential),
+                        R.drawable.ic_credential,
+                        NavItemType.CREDENTIAL,
+                    )
+                )
+            }
+
 //            if (hasConnectAccess) {
 //                items.add(
 //                    NavDrawerItem.ParentItem(
@@ -216,6 +227,10 @@ class BaseDrawerController(
         binding.navDrawerRecycler.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.profileCard.visibility = if (isSignedIn) View.VISIBLE else View.GONE
         binding.notificationView.visibility = if (isSignedIn) View.VISIBLE else View.GONE
+    }
+
+    private fun shouldShowCredential(): Boolean {
+        return PersonalIdManager.getInstance().isloggedIn()
     }
 
     fun closeDrawer() {
