@@ -14,17 +14,21 @@ import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 
 object ConnectNavHelper {
-    fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+    private fun unlockAndGoTo(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener, navigationAction: (Context) -> Unit) {
         val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(activity)
         personalIdManager.unlockConnect(
             activity
         ) { success: Boolean ->
             if (success) {
-                goToMessaging(activity)
+                navigationAction(activity)
             }
             listener.connectActivityComplete(success)
         }
+    }
+
+    fun unlockAndGoToMessaging(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
+        unlockAndGoTo(activity, listener, ::goToMessaging)
     }
 
     fun goToMessaging(context: Context) {
@@ -39,16 +43,7 @@ object ConnectNavHelper {
     }
 
     fun unlockAndGoToCredentials(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity
-        ) { success: Boolean ->
-            if (success) {
-                goToCredentials(activity)
-            }
-            listener.connectActivityComplete(success)
-        }
+        unlockAndGoTo(activity, listener, ::goToCredentials)
     }
 
     fun goToCredentials(context: Context) {
@@ -57,20 +52,11 @@ object ConnectNavHelper {
     }
 
     fun unlockAndGoToConnectJobsList(activity: CommCareActivity<*>, listener: ConnectActivityCompleteListener) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity
-        ) { success: Boolean ->
-            if (success) {
-                goToConnectJobsList(activity)
-            }
-            listener.connectActivityComplete(success)
-        }
+        unlockAndGoTo(activity, listener, ::goToConnectJobsList)
     }
 
     fun goToConnectJobsList(context: Context) {
-        checkConnectAccess(context);
+        checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         context.startActivity(i)
     }
