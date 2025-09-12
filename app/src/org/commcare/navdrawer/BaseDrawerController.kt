@@ -173,14 +173,6 @@ class BaseDrawerController(
                 )
             )
 
-//            items.add(
-//                NavDrawerItem.ParentItem(
-//                    activity.getString(R.string.nav_drawer_work_history),
-//                    R.drawable.nav_drawer_worker_history_icon,
-//                    NavItemType.WORK_HISTORY,
-//                )
-//            )
-
             if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
                 val iconId =
                     if (ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).isNotEmpty())
