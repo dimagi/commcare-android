@@ -26,11 +26,13 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment;
 import org.commcare.fragments.connectMessaging.ConnectMessageFragment;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.pn.workermanager.PNApiSyncWorkerManager;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.javarosa.core.services.Logger;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
@@ -56,6 +58,9 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
                 remoteMessage.getData());
         FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),remoteMessage.getNotification());
+        ArrayList<Map<String,String>> pns = new ArrayList<>();
+        pns.add(remoteMessage.getData());
+        new PNApiSyncWorkerManager(getApplicationContext(),pns);
     }
 
     @Override
