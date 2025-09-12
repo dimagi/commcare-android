@@ -490,6 +490,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void showError(String error) {
+        if (binding == null || !isAdded()) {
+            return;
+        }
         binding.personalidPhoneError.setVisibility(View.VISIBLE);
         binding.personalidPhoneError.setText(error);
     }
