@@ -222,7 +222,8 @@ class BaseDrawerController(
     }
 
     private fun shouldShowCredential(): Boolean {
-        return PersonalIdManager.getInstance().isloggedIn()
+        // we are keeping this off for now until we have go ahead to release this feature
+        return PersonalIdManager.getInstance().isloggedIn() && false;
     }
 
     fun closeDrawer() {
