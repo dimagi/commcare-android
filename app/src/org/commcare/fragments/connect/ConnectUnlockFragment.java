@@ -77,15 +77,12 @@ public class ConnectUnlockFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        binding.getRoot().postDelayed(unlockRunnable, 1000);
-
-
+        new Handler().post(unlockRunnable);
     }
 
 
     @Override
     public void onDestroyView() {
-        binding.getRoot().removeCallbacks(unlockRunnable);
         binding = null;
         super.onDestroyView();
     }

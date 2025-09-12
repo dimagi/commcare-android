@@ -28,6 +28,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -154,7 +155,7 @@ public class FirebaseMessagingUtil {
             return null;
         }
         FCMMessageData fcmMessageData = new FCMMessageData(dataPayload);
-        if (hasCccAction(fcmMessageData.getAction())) {
+        if (hasCccAction(fcmMessageData.getAction())){
             return handleCCCActionPushNotification(context, fcmMessageData,showNotification);
         } else if (fcmMessageData.getActionType() == FCMMessageData.ActionTypes.SYNC) {
             getDataSyncer(context).syncData(fcmMessageData);
@@ -191,6 +192,11 @@ public class FirebaseMessagingUtil {
      * @return Intent
      */
     private static Intent handleCCCActionPushNotification(Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+
+         if(!PersonalIdManager.getInstance().isloggedIn()) {    // app doesn't show notification related to CCC if user is not logged in)
+             return null;
+         }
+
         FirebaseAnalyticsUtil.reportNotificationType(fcmMessageData.getAction());
         ConnectUserDatabaseUtil.turnOnConnectAccess(context);
         return switch (fcmMessageData.getAction()) {
@@ -462,7 +468,7 @@ public class FirebaseMessagingUtil {
     }
 
     public static Intent getIntentForPNIfAny(Context context,Intent intent){
-        if(intent!=null && intent.getExtras()!=null && intent.hasExtra("action")){
+        if(intent!=null && intent.getExtras()!=null){
             Map<String, String> dataPayload = new HashMap<>();
             if (intent.getExtras() != null) {
                 for (String key : intent.getExtras().keySet()) {
