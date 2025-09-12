@@ -14,7 +14,7 @@ import org.commcare.utils.StringUtils;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class TargetMismatchErrorActivity extends NoCommCareActivity {
+public class TargetMismatchErrorActivity extends CommonBaseActivity {
 
     private static final String PACKAGE_LTS = "org.commcare.lts";
     private static final String PACKAGE_CC = "org.commcare.dalvik";

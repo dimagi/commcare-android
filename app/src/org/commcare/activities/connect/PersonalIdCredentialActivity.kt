@@ -6,7 +6,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
-import org.commcare.activities.NoCommCareActivity
+import org.commcare.activities.CommonBaseActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
 import org.commcare.adapters.CredentialsViewPagerAdapter
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
@@ -14,7 +14,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 
 
-class PersonalIdCredentialActivity : NoCommCareActivity() {
+class PersonalIdCredentialActivity : CommonBaseActivity() {
 
     private val binding: ActivityPersonalIdCredentialBinding by lazy {
         ActivityPersonalIdCredentialBinding.inflate(layoutInflater)

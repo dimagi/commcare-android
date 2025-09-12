@@ -5,16 +5,14 @@ import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 
-import org.commcare.activities.NoCommCareActivity;
-
-import androidx.appcompat.app.AppCompatActivity;
+import org.commcare.activities.CommonBaseActivity;
 
 /**
  * Full-screen view of a graph.
  *
  * Created by jschweers on 11/20/2015.
  */
-public class GraphActivity extends NoCommCareActivity {
+public class GraphActivity extends CommonBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -19,7 +19,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class CrashWarningActivity extends NoCommCareActivity {
+public class CrashWarningActivity extends CommonBaseActivity {
     private int errorMessageVisibility = View.GONE;
     private static final String ERROR_VISIBLE = "error-message-is-visible";
 

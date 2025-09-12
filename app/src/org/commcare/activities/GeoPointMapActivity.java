@@ -46,7 +46,7 @@ import static org.commcare.views.widgets.GeoPointWidget.EXTRA_VIEW_ONLY;
 /**
  * Allows location to be chosen using a map instead of current gps coordinates
  */
-public class GeoPointMapActivity extends NoCommCareActivity
+public class GeoPointMapActivity extends CommonBaseActivity
         implements LocationListener, OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener {
 
