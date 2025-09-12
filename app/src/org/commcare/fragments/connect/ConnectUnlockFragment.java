@@ -55,15 +55,19 @@ public class ConnectUnlockFragment extends Fragment {
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
 
-        PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>)requireActivity(), success -> {
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
             if (success) {
                 retrieveOpportunities();
             } else {
                 requireActivity().finish();
             }
         });
-
-        return binding.getRoot();
     }
 
     private void retrieveOpportunities() {
