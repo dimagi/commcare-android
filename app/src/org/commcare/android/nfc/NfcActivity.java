@@ -20,7 +20,6 @@ import org.javarosa.core.services.locale.Localization;
 import javax.annotation.Nullable;
 
 import androidx.annotation.CallSuper;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * Parent activity that provides all of the functionality common to any NFC action that CommCare

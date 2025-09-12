@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 

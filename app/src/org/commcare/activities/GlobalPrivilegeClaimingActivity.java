@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
@@ -15,7 +14,6 @@ import android.widget.Toast;
 import com.google.zxing.BarcodeFormat;
 
 import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.GlobalPrivilegesManager;

@@ -12,7 +12,6 @@ import org.commcare.dalvik.R;
 import org.commcare.utils.StringUtils;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class TargetMismatchErrorActivity extends CommonBaseActivity {
 

@@ -8,8 +8,6 @@ import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 /**
  * @author ctsims
  */

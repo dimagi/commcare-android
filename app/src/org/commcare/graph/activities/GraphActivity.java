@@ -1,8 +1,6 @@
 package org.commcare.graph.activities;
 
-import android.annotation.TargetApi;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
 
 import org.commcare.activities.CommonBaseActivity;
