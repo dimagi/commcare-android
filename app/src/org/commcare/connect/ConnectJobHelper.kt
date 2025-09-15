@@ -62,7 +62,7 @@ object ConnectJobHelper {
                     learningAppProgressResponseModel.connectJobLearningRecords.size
                 job.assessments = learningAppProgressResponseModel.connectJobAssessmentRecords
                 ConnectJobUtils.updateJobLearnProgress(context, job)
-                if (job.learningPercentComplete == 100 || job.passedAssessment()){
+                if (job.passedAssessment()){
                     FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
                 }
                 listener.connectActivityComplete(true)
@@ -83,26 +83,29 @@ object ConnectJobHelper {
         val user = ConnectUserDatabaseUtil.getUser(context)
         object : ConnectApiHandler<DeliveryAppProgressResponseModel>() {
             override fun onSuccess(deliveryAppProgressResponseModel: DeliveryAppProgressResponseModel) {
+                var shouldLogDelivery = false
                 if (deliveryAppProgressResponseModel.updatedJob) {
-                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                    shouldLogDelivery = true
                     ConnectJobUtils.upsertJob(context, job)
                 }
 
                 if (deliveryAppProgressResponseModel.hasDeliveries) {
                     if (job.getDeliveryProgressPercentage() == 100) {
-                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                        shouldLogDelivery = true
                     }
                     ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobId, true)
                 }
 
                 if (deliveryAppProgressResponseModel.hasPayment) {
                     if (job.payments.isNotEmpty()){
-                        FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                        shouldLogDelivery = true
                     }
                     ConnectJobUtils.storePayments(context, job.payments, job.jobId, true)
                 }
 
-                FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                if (shouldLogDelivery) {
+                    FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true)
+                }
                 listener.connectActivityComplete(true)
             }
 

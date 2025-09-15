@@ -8,10 +8,8 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.suite.model.OfflineUserRestore;
@@ -522,15 +520,22 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.LOGIN_CLICK);
     }
 
-    public static void continueButtonClicks() {
-        reportEvent(CCAnalyticsEvent.CONTINUE_BUTTON_CLICKED);
+    public static void reportContinueButtonClicks() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED);
     }
-    public static void sentMessage() {
-        reportEvent(CCAnalyticsEvent.SENT_MESSAGE);
+    public static void reportSentMessage() {
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_MESSAGE_SENT);
     }
 
-    public static void personalIdLinked() {
-        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKED);
+    public static void reportPersonalIdLinked(String appId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKED,bundle);
+    }
+    public static void reportPersonalIdLinkingFailed(String appId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(CCAnalyticsParam.CC_APP_ID, appId);
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING_FAILED,bundle);
     }
 
     // logs screen view events when set to a navigation controller

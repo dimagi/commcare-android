@@ -61,7 +61,6 @@ import java.util.HashMap;
 
 import static android.app.ProgressDialog.show;
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
-import static org.commcare.fragments.personalId.PersonalIdPhoneFragmentDirections.*;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
@@ -236,7 +235,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void onContinueClicked() {
-        FirebaseAnalyticsUtil.continueButtonClicks();
+        FirebaseAnalyticsUtil.reportContinueButtonClicks();
         enableContinueButton(false);
         startConfigurationRequest();
     }

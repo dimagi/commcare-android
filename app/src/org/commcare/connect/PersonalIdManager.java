@@ -342,6 +342,7 @@ public class PersonalIdManager {
         dialog.setNegativeButton(activity.getString(R.string.login_link_connectid_no), (d, w) -> {
             activity.dismissAlertDialog();
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
+            FirebaseAnalyticsUtil.reportPersonalIdLinkingFailed(linkedApp.getAppId());
             callback.connectActivityComplete(false);
         });
 
@@ -352,11 +353,12 @@ public class PersonalIdManager {
         unlockConnect(activity, success -> {
             if (!success) {
                 callback.connectActivityComplete(false);
+                FirebaseAnalyticsUtil.reportPersonalIdLinkingFailed(linkedApp.getAppId());
                 return;
             }
 
             linkedApp.linkToPersonalId(password);
-            FirebaseAnalyticsUtil.personalIdLinked();
+            FirebaseAnalyticsUtil.reportPersonalIdLinked(linkedApp.getAppId());
             ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
 
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
