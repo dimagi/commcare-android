@@ -20,7 +20,7 @@ public class ReportIntegrityResponseParser<T> implements BaseApiResponseParser<T
     @Override
     public T parse(int responseCode, @NonNull InputStream responseData, @Nullable Object anyInputObject) throws IOException,JSONException {
         JSONObject json = new JSONObject(new String(StreamsUtil.inputStreamToByteArray(responseData)));
-        FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(((String)anyInputObject),
+        FirebaseAnalyticsUtil.reportPersonalIdHeartbeatIntegritySubmission(((String)anyInputObject),
                 json.optString("result_code", "NoCodeFromServer"));
         return (T)Boolean.TRUE;
     }

@@ -10,9 +10,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.google.android.play.core.integrity.StandardIntegrityException
 import com.google.common.base.Strings
-import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper.Companion.fetchIntegrityToken
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
@@ -63,13 +61,8 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
         val requestHash = org.commcare.utils.HashUtils.computeHash(jsonBody, org.commcare.utils.HashUtils.HashAlgorithm.SHA256)
         val tokenResult = fetchIntegrityToken(requestHash)
         val (integrityToken, hash) = tokenResult.getOrElse {
-            val errorCode: String = if(it is StandardIntegrityException) {
-                it.errorCode.toString();
-            } else {
-                it.message ?: "Unknown error"
-            }
-
-            FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, errorCode)
+            val errorCode = IntegrityTokenApiRequestHelper.getCodeForException(it)
+            FirebaseAnalyticsUtil.reportPersonalIdHeartbeatIntegritySubmission(requestId, errorCode)
 
             body["device_error"] = errorCode
             makeReportIntegrityCall(context, null, null, body, requestId)
@@ -100,7 +93,7 @@ class IntegrityReporterWorker(appContext: Context, workerParams: WorkerParameter
                 cont.resume(success)
             }
             override fun onFailure(errorCode: PersonalIdOrConnectApiErrorCodes, t: Throwable?) {
-                FirebaseAnalyticsUtil.reportPersonalIdIntegritySubmission(requestId, "SendError")
+                FirebaseAnalyticsUtil.reportPersonalIdHeartbeatIntegritySubmission(requestId, "SendError")
                 cont.resume(false)
             }
         }
