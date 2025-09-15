@@ -28,8 +28,9 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
     lateinit var pns : ArrayList<Map<String,String>>
+    val requiredWorkerThread = HashMap<String, WorkRequest>()
 
-    constructor(context: Context,pns : ArrayList<Map<String,String>>):this(context){
+    constructor(context: Context, pns : ArrayList<Map<String,String>>):this(context){
         this.pns = pns
         startPNApiSync()
     }
@@ -40,7 +41,6 @@ class PNApiSyncWorkerManager(val context: Context) {
 
 
     fun startPNApiSync(){
-        val requiredWorkerThread = HashMap<String, WorkRequest>()
 
         for(pn in pns){
 
@@ -48,7 +48,7 @@ class PNApiSyncWorkerManager(val context: Context) {
 
 
                 null -> {
-                    // might need to take action here
+                    continue
                 }
 
 
@@ -61,7 +61,7 @@ class PNApiSyncWorkerManager(val context: Context) {
                 }
 
                 CCC_DEST_PAYMENTS->{
-                    createOpportunitySyncWorkRequest(pn,requiredWorkerThread)
+                    createOpportunitiesSyncWorkRequest(pn)
                     if(pn.containsKey(OPPORTUNITY_ID)){
                         val opportunityId = pn.get(OPPORTUNITY_ID)
                         if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
@@ -72,17 +72,17 @@ class PNApiSyncWorkerManager(val context: Context) {
                 }
 
                 CCC_PAYMENT_INFO_CONFIRMATION->{
-                    createOpportunitySyncWorkRequest(pn,requiredWorkerThread)
+                    createOpportunitiesSyncWorkRequest(pn)
                 }
 
 
                 CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> {
-                    createOpportunitySyncWorkRequest(pn,requiredWorkerThread)
+                    createOpportunitiesSyncWorkRequest(pn)
                 }
 
 
                 CCC_DEST_LEARN_PROGRESS -> {
-                    createOpportunitySyncWorkRequest(pn,requiredWorkerThread)
+                    createOpportunitiesSyncWorkRequest(pn)
                     if(pn.containsKey(OPPORTUNITY_ID)){
                         val opportunityId = pn.get(OPPORTUNITY_ID)
                         if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString() +"-${opportunityId}")){
@@ -93,7 +93,7 @@ class PNApiSyncWorkerManager(val context: Context) {
                 }
 
                 CCC_DEST_DELIVERY_PROGRESS -> {
-                    createOpportunitySyncWorkRequest(pn,requiredWorkerThread)
+                    createOpportunitiesSyncWorkRequest(pn)
                     if(pn.containsKey(OPPORTUNITY_ID)){
                         val opportunityId = pn.get(OPPORTUNITY_ID)
                         if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
@@ -115,7 +115,7 @@ class PNApiSyncWorkerManager(val context: Context) {
     }
 
 
-    private fun createOpportunitySyncWorkRequest(pn:Map<String,String>, requiredWorkerThread:HashMap<String, WorkRequest>){
+    private fun createOpportunitiesSyncWorkRequest(pn:Map<String,String>){
         if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY.toString() )){
             requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY.toString() ,getWorkRequest(pn,
                 PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY))

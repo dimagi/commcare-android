@@ -58,6 +58,10 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService {
         Logger.log(LogTypes.TYPE_FCM, "CommCareFirebaseMessagingService Message received: " +
                 remoteMessage.getData());
         FirebaseMessagingUtil.handleNotification(getApplicationContext(), remoteMessage.getData(),remoteMessage.getNotification());
+        handleSyncFromNotificationType(remoteMessage);
+    }
+
+    private void handleSyncFromNotificationType(RemoteMessage remoteMessage){
         ArrayList<Map<String,String>> pns = new ArrayList<>();
         pns.add(remoteMessage.getData());
         new PNApiSyncWorkerManager(getApplicationContext(),pns);
