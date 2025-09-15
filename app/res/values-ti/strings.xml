@@ -463,7 +463,7 @@
     <string name="personalid_camera_permission_msg">ስእሊ ንምውሳድ፡ ኮምኬር ናይ መሳርሒኻ ካሜራ ንኽጥቀም ፍቓድ የድልዮ።</string>
     <string name="personalid_capture_photo">ስእሊ ምቕራጽ</string>
     <string name="personalid_credential_my_worker_history">ታሪኽ ስራሐይ</string>
-    <string name="personalid_credential">ምስክር ወረቐት</string>
+    <string name="personalid_credential">ታሪኽ ስራሕ</string>
     <string name="personalid_credential_worked_on">ዝሰርሓሉ:</string>
     <string name="personalid_credential_earned_on">ዝተረኽበሉ:</string>
     <string name="personalid_credential_active_for">ንጡፍ ዝኾነሉ:</string>

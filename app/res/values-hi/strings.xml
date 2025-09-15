@@ -468,7 +468,7 @@ License.
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
     <string name="personalid_credential_my_worker_history">मेरा कार्य इतिहास</string>
-    <string name="personalid_credential">क्रेडेंशियल</string>
+    <string name="personalid_credential">कार्य इतिहास</string>
     <string name="personalid_credential_worked_on">इस पर काम किया:</string>
     <string name="personalid_credential_earned_on">इस पर अर्जित किया:</string>
     <string name="personalid_credential_active_for">इसके लिए सक्रिय:</string>

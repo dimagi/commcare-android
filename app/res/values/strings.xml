@@ -645,7 +645,7 @@
     <string name="connect_claim_job_error">Error claiming job</string>
 
     <string name="personalid_credential_my_worker_history">My Work History</string>
-    <string name="personalid_credential">Credential</string>
+    <string name="personalid_credential">Work History</string>
     <string name="personalid_credential_worked_on">Worked On:</string>
     <string name="personalid_credential_earned_on">Earned On:</string>
     <string name="personalid_credential_view_credential">View Credential</string>
