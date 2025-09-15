@@ -106,11 +106,8 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
 
-    private void checkIfAnyPNIntentPresent(){
-        Intent pnIntent = FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
-        if(pnIntent!=null){
-            startActivity(pnIntent);
-        }
+    private Intent checkIfAnyPNIntentPresent(){
+        return FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
     }
 
     /**
@@ -164,7 +161,11 @@ public class DispatchActivity extends AppCompatActivity {
         }
 
         CommCareApp currentApp = CommCareApplication.instance().getCurrentApp();
-        if (currentApp == null) {
+
+        Intent pnIntent = checkIfAnyPNIntentPresent();
+        if(pnIntent!=null) {
+            startActivity(pnIntent);
+        }else if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
@@ -230,7 +231,6 @@ public class DispatchActivity extends AppCompatActivity {
                 launchLoginScreen();
             }
         }
-        checkIfAnyPNIntentPresent();
     }
 
     private boolean needAnotherAppLogin() {
