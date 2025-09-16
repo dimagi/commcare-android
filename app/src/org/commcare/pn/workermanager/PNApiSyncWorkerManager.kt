@@ -15,6 +15,8 @@ import org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS
 import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_ID
+import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
+import org.commcare.connect.PersonalIdManager
 import org.commcare.pn.workers.PNApiSyncWorker
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.PNApiSyncWorker.Companion.PN_DATA
@@ -35,40 +37,25 @@ class PNApiSyncWorkerManager(val context: Context) {
         startPNApiSync()
     }
 
-//    constructor(context: Context,fcmMessageData: List<FCMMessageData>):this(context){
-//
-//    }
-
 
     fun startPNApiSync(){
 
         for(pn in pns){
 
-            when(pn.get("action")){
+            when(pn[REDIRECT_ACTION]){
 
-
-                null -> {
+                null , "" -> {
                     continue
                 }
 
 
                 CCC_MESSAGE ->{
-                    if(!requiredWorkerThread.containsKey(CCC_MESSAGE)){
-                        requiredWorkerThread.put(CCC_MESSAGE,getWorkRequest(pn,
-                            PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_PERSONALID_MESSAGING
-                        ))
-                    }
+                    createPersonalIdMessagingSyncWorkRequest(pn)
                 }
 
                 CCC_DEST_PAYMENTS->{
                     createOpportunitiesSyncWorkRequest(pn)
-                    if(pn.containsKey(OPPORTUNITY_ID)){
-                        val opportunityId = pn.get(OPPORTUNITY_ID)
-                        if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
-                            requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
-                                PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS))
-                        }
-                    }
+                    createDeliverySyncWorkRequest(pn)
                 }
 
                 CCC_PAYMENT_INFO_CONFIRMATION->{
@@ -83,30 +70,18 @@ class PNApiSyncWorkerManager(val context: Context) {
 
                 CCC_DEST_LEARN_PROGRESS -> {
                     createOpportunitiesSyncWorkRequest(pn)
-                    if(pn.containsKey(OPPORTUNITY_ID)){
-                        val opportunityId = pn.get(OPPORTUNITY_ID)
-                        if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString() +"-${opportunityId}")){
-                            requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
-                                PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS))
-                        }
-                    }
+                    createLearningSyncWorkRequest(pn)
                 }
 
                 CCC_DEST_DELIVERY_PROGRESS -> {
                     createOpportunitiesSyncWorkRequest(pn)
-                    if(pn.containsKey(OPPORTUNITY_ID)){
-                        val opportunityId = pn.get(OPPORTUNITY_ID)
-                        if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
-                            requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
-                                PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS))
-                        }
-                    }
+                    createDeliverySyncWorkRequest(pn)
                 }
 
             }
         }
 
-        if(requiredWorkerThread.size>0){
+        if(requiredWorkerThread.isNotEmpty()){
             for(workRequest in requiredWorkerThread){
                 WorkManager.getInstance(context).enqueue(workRequest.value)
             }
@@ -114,12 +89,44 @@ class PNApiSyncWorkerManager(val context: Context) {
 
     }
 
+    private fun createPersonalIdMessagingSyncWorkRequest(pn:Map<String,String>){
+        if(!requiredWorkerThread.containsKey(CCC_MESSAGE) && cccCheckPassed()){
+            requiredWorkerThread.put(CCC_MESSAGE,getWorkRequest(pn,
+                PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_PERSONALID_MESSAGING
+            ))
+        }
+    }
+
+    private fun createLearningSyncWorkRequest(pn:Map<String,String>){
+        if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed()){
+            val opportunityId = pn.get(OPPORTUNITY_ID)
+            if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString() +"-${opportunityId}")){
+                requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
+                    PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_LEARNING_PROGRESS))
+            }
+        }
+    }
+
+    private fun createDeliverySyncWorkRequest(pn:Map<String,String>){
+        if(pn.containsKey(OPPORTUNITY_ID)  && cccCheckPassed()){
+            val opportunityId = pn.get(OPPORTUNITY_ID)
+            if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString() +"-${opportunityId}")){
+                requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS.toString()+"-${opportunityId}",getWorkRequest(pn,
+                    PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_DELIVERY_PROGRESS))
+            }
+        }
+    }
+
 
     private fun createOpportunitiesSyncWorkRequest(pn:Map<String,String>){
-        if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY.toString() )){
+        if(!requiredWorkerThread.containsKey(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY.toString()) && cccCheckPassed()){
             requiredWorkerThread.put(PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY.toString() ,getWorkRequest(pn,
                 PNApiSyncWorker.Companion.SYNC_ACTION.SYNC_OPPORTUNITY))
         }
+    }
+
+    private fun cccCheckPassed(): Boolean{
+        return PersonalIdManager.getInstance().isloggedIn()
     }
 
 
