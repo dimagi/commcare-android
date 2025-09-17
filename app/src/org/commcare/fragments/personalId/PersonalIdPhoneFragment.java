@@ -478,6 +478,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
+        if (!isAdded() || getView() == null || binding == null) {
+            return;
+        }
+
         showError(PersonalIdApiErrorHandler.handle(requireActivity(), failureCode, t));
         if (failureCode.shouldAllowRetry()) {
             enableContinueButton(true);
@@ -490,9 +494,6 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void showError(String error) {
-        if (binding == null || !isAdded()) {
-            return;
-        }
         binding.personalidPhoneError.setVisibility(View.VISIBLE);
         binding.personalidPhoneError.setText(error);
     }
@@ -503,7 +504,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
 
     @Override
     protected void navigateToMessageDisplay(String title, String message,  boolean isCancellable, int phase,
-            int buttonText) {
+                                            int buttonText) {
         NavDirections navDirections =
                 PersonalIdPhoneFragmentDirections.actionPersonalidPhoneFragmentToPersonalidMessageDisplay(
                         title, message, phase, getString(buttonText), null).setIsCancellable(isCancellable);
