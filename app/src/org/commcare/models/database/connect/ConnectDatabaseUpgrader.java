@@ -3,7 +3,6 @@ package org.commcare.models.database.connect;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectChannel;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -21,7 +20,6 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
-import org.commcare.android.database.connect.models.ConnectMessage;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
@@ -128,6 +126,10 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 17) {
             upgradeSeventeenEighteen(db);
             oldVersion = 18;
+        }
+        if (oldVersion == 18) {
+            upgradeEighteenNineteen(db);
+            oldVersion = 19;
         }
     }
 
@@ -604,11 +606,6 @@ public class ConnectDatabaseUpgrader {
     private void upgradeFifteenSixteen(IDatabase db) {
         addTableForNewModel(db, PersonalIdCredential.STORAGE_KEY, new PersonalIdCredential());
     }
-    private void upgradeSixteenSeventeen(IDatabase db) {
-        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
-        addTableForNewModel(db, ConnectChannel.STORAGE_KEY, new ConnectChannel());
-        addTableForNewModel(db, ConnectMessage.STORAGE_KEY, new ConnectMessage());
-    }
 
     private void upgradeSixteenSeventeen(IDatabase db) {
         db.beginTransaction();
@@ -652,6 +649,10 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeEighteenNineteen(IDatabase db) {
+        addTableForNewModel(db, PushNotificationRecord.STORAGE_KEY, new PushNotificationRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
