@@ -120,12 +120,12 @@ public class ConnectDatabaseUpgrader {
         }
         if (oldVersion == 16) {
             upgradeSixteenSeventeen(db);
-            oldVersion = 17;
-        }
-        if (oldVersion == 17) {
-            upgradeSeventeenEighteen(db);
             oldVersion = 18;
         }
+//        if (oldVersion == 17) {
+//            upgradeSeventeenEighteen(db);
+//            oldVersion = 18;
+//        }
     }
 
     private void upgradeOneTwo(IDatabase db) {
