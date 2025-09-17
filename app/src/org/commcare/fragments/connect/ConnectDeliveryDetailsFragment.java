@@ -105,11 +105,13 @@ public class ConnectDeliveryDetailsFragment extends ConnectJobFragment {
 
             @Override
             public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
+                String message;
                 if (errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
-                    showSnackBarWithDismissAction(binding.getRoot(), getString(R.string.recovery_unable_to_claim_opportunity));
+                    message = getString(R.string.recovery_unable_to_claim_opportunity);
                 } else {
-                    showSnackBarWithDismissAction(binding.getRoot(), PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t));
+                    message = PersonalIdApiErrorHandler.handle(requireActivity(), errorCode, t);
                 }
+                showSnackBarWithDismissAction(binding.getRoot(), message);
                 FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
             }
         }.claimJob(requireContext(), user, job.getJobId());

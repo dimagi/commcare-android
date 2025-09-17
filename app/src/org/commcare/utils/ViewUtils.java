@@ -22,7 +22,7 @@ public class ViewUtils {
     }
     public static void showSnackBarWithDismissAction(View view, String message) {
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(view.getContext().getString(R.string.connect_register_success_button),v -> snackbar.dismiss());
+        snackbar.setAction(view.getContext().getString(R.string.ok),v -> snackbar.dismiss());
         snackbar.show();
     }
 }
