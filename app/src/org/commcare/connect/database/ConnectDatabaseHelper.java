@@ -73,6 +73,9 @@ public class ConnectDatabaseHelper {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
                             byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context, true);
+                            if(passphrase == null) {
+                                throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
+                            }
 
                             String remotePassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, false);
                             String localPassphrase = ConnectDatabaseUtils.getConnectDbEncodedPassphrase(context, true);
@@ -83,8 +86,7 @@ public class ConnectDatabaseHelper {
                                         UserSandboxUtils.getSqlCipherEncodedKey(passphrase));
                             } else {
                                 //LEGACY: Used to open the DB using the byte[], not String overload
-                                String encrypted = passphrase != null ? "(encrypted)" : "(unencrypted)";
-                                Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code " + encrypted));
+                                Logger.exception("Legacy DB Usage", new Exception("Accessing Connect DB via legacy code"));
                                 dbConnectOpenHelper = new DatabaseConnectOpenHelper(this.c,
                                         Base64.encodeToString(passphrase, Base64.NO_WRAP));
                             }
