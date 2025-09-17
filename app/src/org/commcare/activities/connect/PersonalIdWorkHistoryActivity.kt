@@ -7,40 +7,40 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
-import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
+import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
 import org.commcare.connect.network.connectId.PersonalIdApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdCredentialBinding
 
-class PersonalIdCredentialActivity : AppCompatActivity() {
+class PersonalIdWorkHistoryActivity : AppCompatActivity() {
     private val binding: ActivityPersonalIdCredentialBinding by lazy {
         ActivityPersonalIdCredentialBinding.inflate(layoutInflater)
     }
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
-    private lateinit var personalIdCredentialViewModel: PersonalIdCredentialViewModel
+    private lateinit var personalIdWorkHistoryViewModel: PersonalIdWorkHistoryViewModel
     private var userName: String? = null
     private var profilePic: String? = null
-    private val titles = listOf(R.string.personalid_credential_earned, R.string.personalid_credential_pending)
-    private val icons = listOf(R.drawable.ic_personalid_credential_earned, R.drawable.ic_personalid_credential_pending)
+    private val titles = listOf(R.string.personalid_work_history_earned, R.string.personalid_work_history_pending)
+    private val icons = listOf(R.drawable.ic_personalid_work_history_earned, R.drawable.ic_personalid_work_history_pending)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        personalIdCredentialViewModel = ViewModelProvider(
+        personalIdWorkHistoryViewModel = ViewModelProvider(
             this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        )[PersonalIdCredentialViewModel::class.java]
-        userName = personalIdCredentialViewModel.userName
-        profilePic = personalIdCredentialViewModel.profilePhoto
+        )[PersonalIdWorkHistoryViewModel::class.java]
+        userName = personalIdWorkHistoryViewModel.userName
+        profilePic = personalIdWorkHistoryViewModel.profilePhoto
         workHistoryViewPagerAdapter = WorkHistoryViewPagerAdapter(this,userName!!,profilePic ?: "")
-        observeCredentialApiCall()
-        fetchCredentialsFromNetwork()
+        observeWorkHistoryApiCall()
+        fetchWorkHistoryFromNetwork()
         setUpUi()
     }
 
     private fun setUpUi() {
         supportActionBar!!.apply {
-            title = getString(R.string.personalid_credential_my_worker_history)
+            title = getString(R.string.personalid_work_history_title)
             setDisplayShowHomeEnabled(true)
             setDisplayHomeAsUpEnabled(true)
         }
@@ -51,15 +51,15 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
         }.attach()
     }
 
-    private fun observeCredentialApiCall() {
-        personalIdCredentialViewModel.apiError.observe(this) { (code, throwable) ->
+    private fun observeWorkHistoryApiCall() {
+        personalIdWorkHistoryViewModel.apiError.observe(this) { (code, throwable) ->
             val errorMessage = PersonalIdApiErrorHandler.handle(this, code, throwable)
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun fetchCredentialsFromNetwork() {
-        personalIdCredentialViewModel.retrieveAndProcessCredentials()
+    private fun fetchWorkHistoryFromNetwork() {
+        personalIdWorkHistoryViewModel.retrieveAndProcessWorkHistory()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -77,7 +77,7 @@ class PersonalIdCredentialActivity : AppCompatActivity() {
             }
 
             R.id.cloud_sync -> {
-                fetchCredentialsFromNetwork()
+                fetchWorkHistoryFromNetwork()
                 true
             }
 

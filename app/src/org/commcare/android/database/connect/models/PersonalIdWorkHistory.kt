@@ -10,8 +10,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.Serializable
 
-@Table(PersonalIdCredential.STORAGE_KEY)
-class PersonalIdCredential : Persisted(), Serializable {
+@Table(PersonalIdWorkHistory.STORAGE_KEY)
+class PersonalIdWorkHistory : Persisted(), Serializable {
 
     @Persisting(1)
     @MetaField(META_UUID)
@@ -68,15 +68,15 @@ class PersonalIdCredential : Persisted(), Serializable {
         const val META_SLUG = "slug"
 
         @JvmStatic
-        fun fromJsonArray(jsonArray: JSONArray): List<PersonalIdCredential> {
-            val validCredential = mutableListOf<PersonalIdCredential>()
+        fun fromJsonArray(jsonArray: JSONArray): List<PersonalIdWorkHistory> {
+            val validWorkHistoryRecords = mutableListOf<PersonalIdWorkHistory>()
 
             for (i in 0 until jsonArray.length()) {
                 var obj: JSONObject? = null
                 try {
                     obj = jsonArray.getJSONObject(i)
 
-                    val credential = PersonalIdCredential().apply {
+                    val workHistory = PersonalIdWorkHistory().apply {
                         uuid = obj.getString(META_UUID)
                         appId = obj.getString(META_APP_ID)
                         oppId = obj.getString(META_OPP_ID)
@@ -88,7 +88,7 @@ class PersonalIdCredential : Persisted(), Serializable {
                         issuerEnvironment = obj.getString(META_ISSUER_ENVIRONMENT)
                         slug = obj.getString(META_SLUG)
                     }
-                    validCredential.add(credential)
+                    validWorkHistoryRecords.add(workHistory)
                 } catch (e: JSONException) {
                     val corruptedJson = obj?.toString() ?: "Unknown JSON"
                     val errorMessage = "Corrupt credential at index $i: $corruptedJson"
@@ -97,7 +97,7 @@ class PersonalIdCredential : Persisted(), Serializable {
                 }
             }
 
-            return validCredential
+            return validWorkHistoryRecords
         }
     }
 }

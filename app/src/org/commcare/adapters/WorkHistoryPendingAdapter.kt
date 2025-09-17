@@ -7,41 +7,41 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.ItemPendingCredentialBinding
 import org.commcare.utils.StringUtils
 
-class PendingCredentialAdapter(
-    private val listener: OnCredentialClickListener
-) : RecyclerView.Adapter<PendingCredentialAdapter.CredentialViewHolder>() {
+class WorkHistoryPendingAdapter(
+    private val listener: OnWorkHistoryItemClickListener
+) : RecyclerView.Adapter<WorkHistoryPendingAdapter.WorkHistoryViewHolder>() {
 
-    private val credentialList = mutableListOf<PersonalIdWorkHistory>()
+    private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class CredentialViewHolder(val binding: ItemPendingCredentialBinding) :
+    inner class WorkHistoryViewHolder(val binding: ItemPendingCredentialBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CredentialViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkHistoryViewHolder {
         val binding = ItemPendingCredentialBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-        return CredentialViewHolder(binding)
+        return WorkHistoryViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: CredentialViewHolder, position: Int) {
-        val item = credentialList[position]
+    override fun onBindViewHolder(holder: WorkHistoryViewHolder, position: Int) {
+        val item = workHistoryList[position]
         with(holder.binding) {
             tvAppName.text = item.title
             tvActivity.text = StringUtils.getLocalizedLevel(item.level, holder.itemView.context)
         }
     }
 
-    override fun getItemCount(): Int = credentialList.size
+    override fun getItemCount(): Int = workHistoryList.size
 
     fun setData(newList: List<PersonalIdWorkHistory>) {
-        credentialList.clear()
-        credentialList.addAll(newList)
+        workHistoryList.clear()
+        workHistoryList.addAll(newList)
         notifyDataSetChanged()
     }
 
-    interface OnCredentialClickListener {
-        fun onViewCredentialClick(credential: PersonalIdWorkHistory)
+    interface OnWorkHistoryItemClickListener {
+        fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory)
     }
 }

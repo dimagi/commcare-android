@@ -7,16 +7,16 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
-import org.commcare.adapters.PendingCredentialAdapter
+import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
+import org.commcare.adapters.WorkHistoryPendingAdapter
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
-import org.commcare.dalvik.databinding.FragmentPendingCredentialBinding
+import org.commcare.dalvik.databinding.FragmentWorkHistoryPendingBinding
 
-class PendingCredentialFragment : Fragment() {
+class WorkHistoryPendingFragment : Fragment() {
 
-    private var binding: FragmentPendingCredentialBinding? = null
-    private lateinit var pendingCredentialAdapter: PendingCredentialAdapter
-    private lateinit var viewModel: PersonalIdCredentialViewModel
+    private var binding: FragmentWorkHistoryPendingBinding? = null
+    private lateinit var workHistoryPendingAdapter: WorkHistoryPendingAdapter
+    private lateinit var viewModel: PersonalIdWorkHistoryViewModel
     private var userName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,35 +30,35 @@ class PendingCredentialFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentPendingCredentialBinding.inflate(inflater, container, false)
+        binding = FragmentWorkHistoryPendingBinding.inflate(inflater, container, false)
         return binding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pendingCredentialAdapter = PendingCredentialAdapter(listener = object :
-            PendingCredentialAdapter.OnCredentialClickListener {
-            override fun onViewCredentialClick(credential: PersonalIdWorkHistory) {
+        workHistoryPendingAdapter = WorkHistoryPendingAdapter(listener = object :
+            WorkHistoryPendingAdapter.OnWorkHistoryItemClickListener {
+            override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
 
             }
         })
-        binding!!.rvPendingCredential.adapter = pendingCredentialAdapter
-        viewModel = ViewModelProvider(requireActivity())[PersonalIdCredentialViewModel::class.java]
-        viewModel.pendingCredentials.observe(viewLifecycleOwner) { pendingList ->
+        binding!!.rvPendingWorkHistory.adapter = workHistoryPendingAdapter
+        viewModel = ViewModelProvider(requireActivity())[PersonalIdWorkHistoryViewModel::class.java]
+        viewModel.pendingWorkHistory.observe(viewLifecycleOwner) { pendingList ->
             val hasItems = !pendingList.isNullOrEmpty()
             binding?.apply {
-                tvNoPendingCredential.isVisible = !hasItems
-                rvPendingCredential.isVisible = hasItems
+                tvNoPendingWorkHistory.isVisible = !hasItems
+                rvPendingWorkHistory.isVisible = hasItems
             }
-            pendingCredentialAdapter.setData(pendingList.orEmpty())
+            workHistoryPendingAdapter.setData(pendingList.orEmpty())
         }
     }
 
     companion object {
         private const val ARG_USERNAME = "username"
 
-        fun newInstance(username: String): PendingCredentialFragment {
-            val fragment = PendingCredentialFragment()
+        fun newInstance(username: String): WorkHistoryPendingFragment {
+            val fragment = WorkHistoryPendingFragment()
             val args = Bundle()
             args.putString(ARG_USERNAME, username)
             fragment.arguments = args

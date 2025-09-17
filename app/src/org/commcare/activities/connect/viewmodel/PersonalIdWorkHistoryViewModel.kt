@@ -17,44 +17,44 @@ import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.utils.MultipleAppsUtil
 import java.util.ArrayList
 
-class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel(application) {
+class PersonalIdWorkHistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val _apiError =
         MutableLiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>>()
     val apiError: LiveData<Pair<BaseApiHandler.PersonalIdOrConnectApiErrorCodes, Throwable?>> = _apiError
 
-    private val _earnedCredentials = MutableLiveData<List<PersonalIdWorkHistory>>()
-    val earnedCredentials: LiveData<List<PersonalIdWorkHistory>> = _earnedCredentials
+    private val _earnedWorkHistory = MutableLiveData<List<PersonalIdWorkHistory>>()
+    val earnedWorkHistory: LiveData<List<PersonalIdWorkHistory>> = _earnedWorkHistory
 
-    private val _pendingCredentials = MutableLiveData<List<PersonalIdWorkHistory>>()
-    val pendingCredentials: LiveData<List<PersonalIdWorkHistory>> = _pendingCredentials
+    private val _pendingWorkHistory = MutableLiveData<List<PersonalIdWorkHistory>>()
+    val pendingWorkHistory: LiveData<List<PersonalIdWorkHistory>> = _pendingWorkHistory
 
-    private lateinit var installedAppsCredentials : List<PersonalIdWorkHistory>
+    private lateinit var installedAppsWorkHistory : List<PersonalIdWorkHistory>
 
     private val user = ConnectUserDatabaseUtil.getUser(application)
     val userName: String = user.name
     val profilePhoto: String? = user.photo
 
-    fun retrieveAndProcessCredentials() {
+    fun retrieveAndProcessWorkHistory() {
         viewModelScope.launch(Dispatchers.IO) {
             object : PersonalIdApiHandler<List<PersonalIdWorkHistory>>() {
                 override fun onSuccess(result: List<PersonalIdWorkHistory>) {
                     val earned = result
-                    _earnedCredentials.postValue(
+                    _earnedWorkHistory.postValue(
                         earned.sortedByDescending { parseIsoDateForSorting(it.issuedDate) }
                     )
 
-                    if (!::installedAppsCredentials.isInitialized) {
-                        installedAppsCredentials = evalInstalledAppsCredentials()
+                    if (!::installedAppsWorkHistory.isInitialized) {
+                        installedAppsWorkHistory = evalInstalledAppsWorkHistory()
                     }
-                    val pending = installedAppsCredentials.filter { installedCredential ->
-                        !earned.any { earnedCredential ->
-                            earnedCredential.appId == installedCredential.appId &&
-                            earnedCredential.title == installedCredential.title &&
-                            earnedCredential.level == installedCredential.level
+                    val pending = installedAppsWorkHistory.filter { installedWorkHistory ->
+                        !earned.any { earnedWorkHistory ->
+                            earnedWorkHistory.appId == installedWorkHistory.appId &&
+                            earnedWorkHistory.title == installedWorkHistory.title &&
+                            earnedWorkHistory.level == installedWorkHistory.level
                         }
                     }
 
-                    _pendingCredentials.postValue(pending)
+                    _pendingWorkHistory.postValue(pending)
                 }
 
 
@@ -68,17 +68,17 @@ class PersonalIdCredentialViewModel(application: Application) : AndroidViewModel
         }
     }
 
-    private fun evalInstalledAppsCredentials(): List<PersonalIdWorkHistory> {
+    private fun evalInstalledAppsWorkHistory(): List<PersonalIdWorkHistory> {
         val previousSandbox = CommCareApp.currentSandbox
         val records = MultipleAppsUtil.getUsableAppRecords()
         return try {
-            getCredentialsFromAppRecords(records)
+            getWorkHistoryFromAppRecords(records)
         } finally {
             CommCareApp.currentSandbox = previousSandbox
         }
     }
 
-    private fun getCredentialsFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdWorkHistory> {
+    private fun getWorkHistoryFromAppRecords(records: ArrayList<ApplicationRecord>): List<PersonalIdWorkHistory> {
         return records.flatMap { record ->
             val commcareApp = CommCareApp(record)
             commcareApp.setupSandbox()
