@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
 import org.commcare.adapters.PendingCredentialAdapter
-import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.FragmentPendingCredentialBinding
 
 class PendingCredentialFragment : Fragment() {
@@ -38,7 +38,7 @@ class PendingCredentialFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         pendingCredentialAdapter = PendingCredentialAdapter(listener = object :
             PendingCredentialAdapter.OnCredentialClickListener {
-            override fun onViewCredentialClick(credential: PersonalIdCredential) {
+            override fun onViewCredentialClick(credential: PersonalIdWorkHistory) {
 
             }
         })

@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdCredentialViewModel
 import org.commcare.adapters.EarnedCredentialAdapter
-import org.commcare.android.database.connect.models.PersonalIdCredential
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.FragmentEarnedCredentialBinding
 
 class EarnedCredentialFragment : Fragment() {
@@ -38,7 +38,7 @@ class EarnedCredentialFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         earnedCredentialAdapter = EarnedCredentialAdapter(
             listener = object : EarnedCredentialAdapter.OnCredentialClickListener {
-                override fun onViewCredentialClick(credential: PersonalIdCredential) {
+                override fun onViewCredentialClick(credential: PersonalIdWorkHistory) {
 
                 }
             },

@@ -3,23 +3,21 @@ package org.commcare.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import org.commcare.android.database.connect.models.PersonalIdCredential
-import org.commcare.connect.ConnectDateUtils.convertIsoDate
-import org.commcare.dalvik.databinding.ItemEarnedCredentialBinding
+import org.commcare.android.database.connect.models.PersonalIdWorkHistory
+import org.commcare.dalvik.databinding.ItemPendingCredentialBinding
 import org.commcare.utils.StringUtils
 
-class EarnedCredentialAdapter(
-    private val listener: OnCredentialClickListener,private val profilePic:String?
-) : RecyclerView.Adapter<EarnedCredentialAdapter.CredentialViewHolder>() {
+class PendingCredentialAdapter(
+    private val listener: OnCredentialClickListener
+) : RecyclerView.Adapter<PendingCredentialAdapter.CredentialViewHolder>() {
 
-    private val credentialList = mutableListOf<PersonalIdCredential>()
+    private val credentialList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class CredentialViewHolder(val binding: ItemEarnedCredentialBinding) :
+    inner class CredentialViewHolder(val binding: ItemPendingCredentialBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CredentialViewHolder {
-        val binding = ItemEarnedCredentialBinding.inflate(
+        val binding = ItemPendingCredentialBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -29,26 +27,21 @@ class EarnedCredentialAdapter(
 
     override fun onBindViewHolder(holder: CredentialViewHolder, position: Int) {
         val item = credentialList[position]
-        val formattedIssuedDate: String =
-            convertIsoDate(item.issuedDate, "dd/MM/yyyy")
-
         with(holder.binding) {
             tvAppName.text = item.title
-            tvIssuedDate.text = formattedIssuedDate
             tvActivity.text = StringUtils.getLocalizedLevel(item.level, holder.itemView.context)
-            Glide.with(ivProfilePic).load(profilePic).into(ivProfilePic)
         }
     }
 
     override fun getItemCount(): Int = credentialList.size
 
-    fun setData(newList: List<PersonalIdCredential>) {
+    fun setData(newList: List<PersonalIdWorkHistory>) {
         credentialList.clear()
         credentialList.addAll(newList)
         notifyDataSetChanged()
     }
 
     interface OnCredentialClickListener {
-        fun onViewCredentialClick(credential: PersonalIdCredential)
+        fun onViewCredentialClick(credential: PersonalIdWorkHistory)
     }
 }
